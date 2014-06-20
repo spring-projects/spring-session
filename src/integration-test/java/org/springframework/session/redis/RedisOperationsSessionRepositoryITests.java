@@ -76,6 +76,7 @@ public class RedisOperationsSessionRepositoryITests {
         public JedisConnectionFactory connectionFactory() throws Exception {
             JedisConnectionFactory factory = new JedisConnectionFactory();
             factory.setPort(getPort());
+            factory.setUsePool(false);
             return factory;
         }
 
