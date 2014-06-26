@@ -53,6 +53,15 @@ public class CookieHttpSessionStrategyTests {
     }
 
     @Test
+    public void onNewSessionCookiePath() throws Exception {
+        request.setContextPath("/somethingunique");
+        strategy.onNewSession(session, request, response);
+
+        Cookie sessionCookie = response.getCookie(cookieName);
+        assertThat(sessionCookie.getPath()).isEqualTo(request.getContextPath() + "/");
+    }
+
+    @Test
     public void onNewSessionCustomCookieName() throws Exception {
         setCookieName("CUSTOM");
         strategy.onNewSession(session, request, response);
@@ -63,6 +72,15 @@ public class CookieHttpSessionStrategyTests {
     public void onDeleteSession() throws Exception {
         strategy.onInvalidateSession(request, response);
         assertThat(getSessionId()).isEmpty();
+    }
+
+    @Test
+    public void onDeleteSessionCookiePath() throws Exception {
+        request.setContextPath("/somethingunique");
+        strategy.onInvalidateSession(request, response);
+
+        Cookie sessionCookie = response.getCookie(cookieName);
+        assertThat(sessionCookie.getPath()).isEqualTo(request.getContextPath() + "/");
     }
 
     @Test

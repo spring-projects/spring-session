@@ -66,8 +66,9 @@ public final class CookieHttpSessionStrategy implements HttpSessionStrategy {
         Cookie cookie = new Cookie(cookieName, session.getId());
         cookie.setHttpOnly(true);
         cookie.setSecure(request.isSecure());
+        cookie.setPath(cookiePath(request));
         response.addCookie(cookie);
-        // TODO set the path?
+
         // TODO set the domain?
     }
 
@@ -77,6 +78,7 @@ public final class CookieHttpSessionStrategy implements HttpSessionStrategy {
         sessionCookie.setMaxAge(0);
         sessionCookie.setHttpOnly(true);
         sessionCookie.setSecure(request.isSecure());
+        sessionCookie.setPath(cookiePath(request));
         response.addCookie(sessionCookie);
     }
 
@@ -97,16 +99,23 @@ public final class CookieHttpSessionStrategy implements HttpSessionStrategy {
      * @return the first cookie with the given name, or {@code null} if none is found
      */
     private static Cookie getCookie(HttpServletRequest request, String name) {
-        // TODO what if there are multiple by the same name w/ different path
         Assert.notNull(request, "Request must not be null");
         Cookie cookies[] = request.getCookies();
+        Cookie result = null;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (name.equals(cookie.getName())) {
-                    return cookie;
+                    if(cookiePath(request).equals(cookie.getPath())) {
+                        return cookie;
+                    }
+                    result = cookie;
                 }
             }
         }
-        return null;
+        return result;
+    }
+
+    private static String cookiePath(HttpServletRequest request) {
+        return request.getContextPath() + "/";
     }
 }
