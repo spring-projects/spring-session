@@ -39,11 +39,23 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
     private final RedisOperations<String,Session> redisTemplate;
 
+	private Integer defaultMaxInactiveInterval;
+
     public RedisOperationsSessionRepository(RedisOperations<String, Session> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
-    @Override
+	/**
+	 * Sets the maximum inactive interval in seconds between requests before newly created sessions will be
+	 * invalidated. A negative time indicates that the session will never timeout.
+	 *
+	 *  @param defaultMaxInactiveInterval the number of seconds that the {@link Session} should be kept alive between client requests.
+	 */
+	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
+	}
+
+	@Override
     public void save(RedisSession session) {
         session.saveDelta();
     }
@@ -79,7 +91,11 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
     @Override
     public RedisSession createSession() {
-        return new RedisSession();
+		RedisSession redisSession = new RedisSession();
+		if(defaultMaxInactiveInterval != null) {
+			redisSession.setMaxInactiveInterval(defaultMaxInactiveInterval);
+		}
+        return redisSession;
     }
 
     private String getKey(String sessionId) {
