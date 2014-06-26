@@ -30,20 +30,20 @@ import java.util.concurrent.TimeUnit;
  * @author Rob Winch
  */
 public class RedisOperationsSessionRepository implements SessionRepository<RedisOperationsSessionRepository.RedisSession> {
-    private final String BOUNDED_HASH_KEY_PREFIX = "spring-security-sessions:";
-    private final String CREATION_TIME_ATTR = "creationTime";
-    private final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
-    private final String LAST_ACCESSED_ATTR = "lastAccessedTime";
-    private final String SESSION_ATTR_PREFIX = "sessionAttr:";
+	private final String BOUNDED_HASH_KEY_PREFIX = "spring-security-sessions:";
+	private final String CREATION_TIME_ATTR = "creationTime";
+	private final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
+	private final String LAST_ACCESSED_ATTR = "lastAccessedTime";
+	private final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
 
-    private final RedisOperations<String,Session> redisTemplate;
+	private final RedisOperations<String,Session> redisTemplate;
 
 	private Integer defaultMaxInactiveInterval;
 
-    public RedisOperationsSessionRepository(RedisOperations<String, Session> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+	public RedisOperationsSessionRepository(RedisOperations<String, Session> redisTemplate) {
+		this.redisTemplate = redisTemplate;
+	}
 
 	/**
 	 * Sets the maximum inactive interval in seconds between requests before newly created sessions will be
@@ -56,130 +56,130 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	}
 
 	@Override
-    public void save(RedisSession session) {
-        session.saveDelta();
-    }
+	public void save(RedisSession session) {
+		session.saveDelta();
+	}
 
-    @Override
-    public Session getSession(String id) {
-        Map<Object, Object> entries = getOperations(id).entries();
-        if(entries.isEmpty()) {
-            return null;
-        }
-        MapSession loaded = new MapSession();
-        loaded.setId(id);
-        for(Map.Entry<Object,Object> entry : entries.entrySet()) {
-            String key = (String) entry.getKey();
-            if(CREATION_TIME_ATTR.equals(key)) {
-                loaded.setCreationTime((Long) entry.getValue());
-            } else if(MAX_INACTIVE_ATTR.equals(key)) {
-                loaded.setMaxInactiveInterval((Integer) entry.getValue());
-            } else if(LAST_ACCESSED_ATTR.equals(key)) {
-                loaded.setLastAccessedTime((Long) entry.getValue());
-            } else if(key.startsWith(SESSION_ATTR_PREFIX)) {
-                loaded.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
-            }
-        }
-        return new RedisSession(loaded);
-    }
+	@Override
+	public Session getSession(String id) {
+		Map<Object, Object> entries = getOperations(id).entries();
+		if(entries.isEmpty()) {
+			return null;
+		}
+		MapSession loaded = new MapSession();
+		loaded.setId(id);
+		for(Map.Entry<Object,Object> entry : entries.entrySet()) {
+			String key = (String) entry.getKey();
+			if(CREATION_TIME_ATTR.equals(key)) {
+				loaded.setCreationTime((Long) entry.getValue());
+			} else if(MAX_INACTIVE_ATTR.equals(key)) {
+				loaded.setMaxInactiveInterval((Integer) entry.getValue());
+			} else if(LAST_ACCESSED_ATTR.equals(key)) {
+				loaded.setLastAccessedTime((Long) entry.getValue());
+			} else if(key.startsWith(SESSION_ATTR_PREFIX)) {
+				loaded.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
+			}
+		}
+		return new RedisSession(loaded);
+	}
 
-    @Override
-    public void delete(String sessionId) {
-        String key = getKey(sessionId);
-        this.redisTemplate.delete(key);
-    }
+	@Override
+	public void delete(String sessionId) {
+		String key = getKey(sessionId);
+		this.redisTemplate.delete(key);
+	}
 
-    @Override
-    public RedisSession createSession() {
+	@Override
+	public RedisSession createSession() {
 		RedisSession redisSession = new RedisSession();
 		if(defaultMaxInactiveInterval != null) {
 			redisSession.setMaxInactiveInterval(defaultMaxInactiveInterval);
 		}
-        return redisSession;
-    }
+		return redisSession;
+	}
 
-    private String getKey(String sessionId) {
-        return BOUNDED_HASH_KEY_PREFIX + sessionId;
-    }
+	private String getKey(String sessionId) {
+		return BOUNDED_HASH_KEY_PREFIX + sessionId;
+	}
 
-    private BoundHashOperations<String, Object, Object> getOperations(String sessionId) {
-        String key = getKey(sessionId);
-        return this.redisTemplate.boundHashOps(key);
-    }
+	private BoundHashOperations<String, Object, Object> getOperations(String sessionId) {
+		String key = getKey(sessionId);
+		return this.redisTemplate.boundHashOps(key);
+	}
 
-    class RedisSession implements Session {
-        private final MapSession cached;
-        private Map<String, Object> delta = new HashMap<String,Object>();
+	class RedisSession implements Session {
+		private final MapSession cached;
+		private Map<String, Object> delta = new HashMap<String,Object>();
 
-        private RedisSession() {
-            this(new MapSession());
-            delta.put(CREATION_TIME_ATTR, getCreationTime());
-            delta.put(MAX_INACTIVE_ATTR, getMaxInactiveInterval());
-            delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
-        }
+		private RedisSession() {
+			this(new MapSession());
+			delta.put(CREATION_TIME_ATTR, getCreationTime());
+			delta.put(MAX_INACTIVE_ATTR, getMaxInactiveInterval());
+			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
+		}
 
-        private RedisSession(MapSession cached) {
-            this.cached = cached;
-        }
+		private RedisSession(MapSession cached) {
+			this.cached = cached;
+		}
 
-        @Override
-        public void setLastAccessedTime(long lastAccessedTime) {
-            cached.setLastAccessedTime(lastAccessedTime);
-            delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
-        }
+		@Override
+		public void setLastAccessedTime(long lastAccessedTime) {
+			cached.setLastAccessedTime(lastAccessedTime);
+			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
+		}
 
-        @Override
-        public long getCreationTime() {
-            return cached.getCreationTime();
-        }
+		@Override
+		public long getCreationTime() {
+			return cached.getCreationTime();
+		}
 
-        @Override
-        public String getId() {
-            return cached.getId();
-        }
+		@Override
+		public String getId() {
+			return cached.getId();
+		}
 
-        @Override
-        public long getLastAccessedTime() {
-            return cached.getLastAccessedTime();
-        }
+		@Override
+		public long getLastAccessedTime() {
+			return cached.getLastAccessedTime();
+		}
 
-        @Override
-        public void setMaxInactiveInterval(int interval) {
-            cached.setMaxInactiveInterval(interval);
-            delta.put(MAX_INACTIVE_ATTR, getMaxInactiveInterval());
-        }
+		@Override
+		public void setMaxInactiveInterval(int interval) {
+			cached.setMaxInactiveInterval(interval);
+			delta.put(MAX_INACTIVE_ATTR, getMaxInactiveInterval());
+		}
 
-        @Override
-        public int getMaxInactiveInterval() {
-            return cached.getMaxInactiveInterval();
-        }
+		@Override
+		public int getMaxInactiveInterval() {
+			return cached.getMaxInactiveInterval();
+		}
 
-        @Override
-        public Object getAttribute(String attributeName) {
-            return cached.getAttribute(attributeName);
-        }
+		@Override
+		public Object getAttribute(String attributeName) {
+			return cached.getAttribute(attributeName);
+		}
 
-        @Override
-        public Set<String> getAttributeNames() {
-            return cached.getAttributeNames();
-        }
+		@Override
+		public Set<String> getAttributeNames() {
+			return cached.getAttributeNames();
+		}
 
-        @Override
-        public void setAttribute(String attributeName, Object attributeValue) {
-            cached.setAttribute(attributeName, attributeValue);
-            delta.put(SESSION_ATTR_PREFIX + attributeName, attributeValue);
-        }
+		@Override
+		public void setAttribute(String attributeName, Object attributeValue) {
+			cached.setAttribute(attributeName, attributeValue);
+			delta.put(SESSION_ATTR_PREFIX + attributeName, attributeValue);
+		}
 
-        @Override
-        public void removeAttribute(String attributeName) {
-            cached.removeAttribute(attributeName);
-            delta.put(SESSION_ATTR_PREFIX + attributeName, null);
-        }
+		@Override
+		public void removeAttribute(String attributeName) {
+			cached.removeAttribute(attributeName);
+			delta.put(SESSION_ATTR_PREFIX + attributeName, null);
+		}
 
-        private void saveDelta() {
-            getOperations(getId()).putAll(delta);
-            getOperations(getId()).expire(getMaxInactiveInterval(), TimeUnit.SECONDS);
-            delta.clear();
-        }
-    }
+		private void saveDelta() {
+			getOperations(getId()).putAll(delta);
+			getOperations(getId()).expire(getMaxInactiveInterval(), TimeUnit.SECONDS);
+			delta.clear();
+		}
+	}
 }
