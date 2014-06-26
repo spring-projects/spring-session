@@ -70,6 +70,25 @@ public class RedisOperationsSessionRepositoryITests {
         assertThat(repository.getSession(toSave.getId())).isNull();
     }
 
+    @Test
+    public void putAllOnSingleAttrDoesNotRemoveOld() {
+        Session toSave = repository.createSession();
+        toSave.setAttribute("a", "b");
+
+        repository.save(toSave);
+        toSave = repository.getSession(toSave.getId());
+
+        toSave.setAttribute("1", "2");
+
+        repository.save(toSave);
+        toSave = repository.getSession(toSave.getId());
+
+        Session session = repository.getSession(toSave.getId());
+        assertThat(session.getAttributeNames().size()).isEqualTo(2);
+        assertThat(session.getAttribute("a")).isEqualTo("b");
+        assertThat(session.getAttribute("1")).isEqualTo("2");
+    }
+
     @Configuration
     static class Config {
         @Bean
