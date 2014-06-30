@@ -23,7 +23,7 @@ package org.springframework.session;
  */
 public interface SessionRepository<S extends Session> {
     /**
-     * Ensures the {@link Session} created by {@link org.springframework.security.session.SessionRepository#createSession()} is saved.
+     * Ensures the {@link Session} created by {@link org.springframework.session.SessionRepository#createSession()} is saved.
      *
      * <p>
      * Some implementations may choose to save as the {@link Session} is updated by returning a {@link Session} that
@@ -36,14 +36,14 @@ public interface SessionRepository<S extends Session> {
 
     /**
      * Gets the {@link Session} by the {@link Session#getId()} or null if no {@link Session} is found.
-     * @param id the {@link org.springframework.security.session.Session#getId()} to lookup
+     * @param id the {@link org.springframework.session.Session#getId()} to lookup
      * @return the {@link Session} by the {@link Session#getId()} or null if no {@link Session} is found.
      */
     Session getSession(String id);
 
     /**
      * Deletes the {@link Session} with the given {@link Session#getId()} or does nothing if the {@link Session} is not found.
-     * @param id the {@link org.springframework.security.session.Session#getId()} to delete
+     * @param id the {@link org.springframework.session.Session#getId()} to delete
      */
     void delete(String id);
 
