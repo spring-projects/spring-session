@@ -61,7 +61,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	}
 
 	@Override
-	public Session getSession(String id) {
+	public RedisSession getSession(String id) {
 		Map<Object, Object> entries = getOperations(id).entries();
 		if(entries.isEmpty()) {
 			return null;

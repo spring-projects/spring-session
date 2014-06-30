@@ -39,7 +39,7 @@ public interface SessionRepository<S extends Session> {
      * @param id the {@link org.springframework.session.Session#getId()} to lookup
      * @return the {@link Session} by the {@link Session#getId()} or null if no {@link Session} is found.
      */
-    Session getSession(String id);
+    S getSession(String id);
 
     /**
      * Deletes the {@link Session} with the given {@link Session#getId()} or does nothing if the {@link Session} is not found.

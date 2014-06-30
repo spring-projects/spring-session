@@ -53,12 +53,12 @@ import java.util.Set;
  *
  * @author Rob Winch
  */
-public class SessionRepositoryFilter extends OncePerRequestFilter {
-    private final SessionRepository<Session> sessionRepository;
+public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFilter {
+    private final SessionRepository<S> sessionRepository;
 
     private HttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
 
-    public SessionRepositoryFilter(SessionRepository sessionRepository) {
+    public SessionRepositoryFilter(SessionRepository<S> sessionRepository) {
         this.sessionRepository = sessionRepository;
     }
 
@@ -82,7 +82,7 @@ public class SessionRepositoryFilter extends OncePerRequestFilter {
         }
     }
 
-    private static final class SessionRepositoryResponseWrapper extends OnCommittedResponseWrapper {
+    private final class SessionRepositoryResponseWrapper extends OnCommittedResponseWrapper {
 
         private final SessionRepositoryRequestWrapper request;
 
@@ -124,7 +124,7 @@ public class SessionRepositoryFilter extends OncePerRequestFilter {
                     httpSessionStrategy.onInvalidateSession(this, response);
                 }
             } else {
-                Session session = wrappedSession.session;
+                S session = wrappedSession.session;
                 sessionRepository.save(session);
                 httpSessionStrategy.onNewSession(session, this, response);
             }
@@ -141,7 +141,7 @@ public class SessionRepositoryFilter extends OncePerRequestFilter {
             }
             String requestedSessionId = getRequestedSessionId();
             if(requestedSessionId != null) {
-                Session session = sessionRepository.getSession(requestedSessionId);
+                S session = sessionRepository.getSession(requestedSessionId);
                 if(session != null) {
                     this.requestedValidSession = true;
                     session.setLastAccessedTime(System.currentTimeMillis());
@@ -153,7 +153,7 @@ public class SessionRepositoryFilter extends OncePerRequestFilter {
             if(!create) {
                 return null;
             }
-            Session session = sessionRepository.createSession();
+            S session = sessionRepository.createSession();
             currentSession = new HttpSessionWrapper(session, getServletContext());
             return currentSession;
         }
@@ -169,12 +169,12 @@ public class SessionRepositoryFilter extends OncePerRequestFilter {
         }
 
         private final class HttpSessionWrapper implements HttpSession {
-            final Session session;
+            final S session;
             private final ServletContext servletContext;
             private boolean invalidated;
             private boolean old;
 
-            public HttpSessionWrapper(Session session, ServletContext servletContext) {
+            public HttpSessionWrapper(S session, ServletContext servletContext) {
                 this.session = session;
                 this.servletContext = servletContext;
             }
