@@ -1,4 +1,4 @@
-package org.springframework.session.redis;
+package org.springframework.session.data.redis;
 
 import static org.fest.assertions.Assertions.*;
 
@@ -10,8 +10,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-
-import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class RedisOperationsSessionRepositoryTests {

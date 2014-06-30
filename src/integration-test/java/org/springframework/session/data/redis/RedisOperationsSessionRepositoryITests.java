@@ -1,4 +1,4 @@
-package org.springframework.session.redis;
+package org.springframework.session.data.redis;
 
 import static org.fest.assertions.Assertions.*;
 
