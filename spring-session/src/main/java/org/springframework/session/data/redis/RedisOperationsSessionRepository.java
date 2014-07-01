@@ -27,6 +27,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * A {@link org.springframework.session.SessionRepository} that is implemented using Spring Data's {@link org.springframework.data.redis.core.RedisOperations}. In a web environment, this is typically used in combination with
+ * {@link org.springframework.session.web.SessionRepositoryFilter}.
+ *
+ *
+ * @since 1.0
+ *
  * @author Rob Winch
  */
 public class RedisOperationsSessionRepository implements SessionRepository<RedisOperationsSessionRepository.RedisSession> {

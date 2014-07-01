@@ -1,2 +1,3 @@
-rootProject.name = 'spring-session'
+rootProject.name = 'spring-session-build'
 
+include 'spring-session'
