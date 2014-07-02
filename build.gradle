@@ -5,6 +5,7 @@ buildscript {
         maven { url "https://repo.spring.io/plugins-release" }
     }
     dependencies {
+        classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.3")
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.6")
         classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
@@ -19,10 +20,5 @@ sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
-
-ext.servletApiVersion = '3.0.1'
-ext.springSecurityVersion = '3.2.4.RELEASE'
-ext.springVersion = '4.0.2.RELEASE'
-
-
+ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
 
