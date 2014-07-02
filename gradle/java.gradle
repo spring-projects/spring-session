@@ -3,9 +3,9 @@ apply plugin: 'groovy'
 apply plugin: 'javadocHotfix'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'propdeps'
-apply plugin: 'propdeps-maven'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
+
 
 ext.jstlVersion = '1.2.1'
 ext.servletApiVersion = '3.0.1'
@@ -69,10 +69,6 @@ task integrationTest(type: Test, dependsOn: jar) {
         junitXml.destination = project.file("$project.buildDir/integration-test-results/")
     }
 }
-
-project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
-project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
-check.dependsOn integrationTest
 
 project.idea.module {
     scopes.TEST.plus += [project.configurations.integrationTestRuntime]
