@@ -77,6 +77,8 @@ Then ensure you have added the dependency:
 </dependency>
 ----
 
+=== Building with Gradle
+
 **Using the latest Snapshot in Gradle**
 
 If you want the latest snapshot, ensure you have the following repository in your pom.xml:
