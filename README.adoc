@@ -1,4 +1,181 @@
-Benefits
+= Spring Session
+Rob Winch
+1.0.0.BUILD-SNAPSHOT
+:toc:
+:toc-placement: preamble
+:sectanchors:
+:icons: font
+:source-highlighter: prettify
+:idseparator: -
+:idprefix:
+:doctype: book
+:spring-session-version: 1.0.0.BUILD-SNAPSHOT
+
+Spring Session aims to provide a common infrastructure for managing sessions. This allows for:
+
+* Accessing a session from any environment (i.e. web, messaging infrastructure, etc)
+* In a web environment
+** Support for clustering in a vendor neutral way
+** Pluggable strategy for determining the session id
+** Easily keep the HttpSession alive when a WebSocket is active
+
+= Quick Start
+
+This section describes how to use Spring Session to use Redis when interacting with a web application's HttpSession. If you'd like to skip the reading, you can also refer to the <<sample>>
+
+== Updating Dependencies
+Before you use the project, you must ensure to update your dependencies. Instructions for building with Maven and Gradle have been provided below:
+
+ * <<building-with-maven>>
+ * <<building-with-gradle>>
+
+=== Building with Maven
+
+The project is available in the https://github.com/spring-projects/spring-framework/wiki/SpringSource-repository-FAQ[Spring Maven Repository]. If you are using Maven, you will want to make the following updates.
+
+**Using the latest Snapshot in Maven**
+
+If you want the latest snapshot, ensure you have the following repository in your pom.xml:
+
+[source,xml]
+----
+<repository>
+  <id>spring-snapshot</id>
+  <url>https://repo.spring.io/libs-snapshot</url>
+</repository>
+----
+
+Then ensure you have added the dependency:
+
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.springframework.session</groupId>
+  <artifactId>spring-session</artifactId>
+  <version>{spring-session-version}</version>
+</dependency>
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-web</artifactId>
+  <version>{spring-version}</version>
+</dependency>
+<dependency>
+  <groupId>org.springframework.data</groupId>
+  <artifactId>spring-data-redis</artifactId>
+  <version>1.3.0.RELEASE</version>
+</dependency>
+<dependency>
+  <groupId>redis.clients</groupId>
+  <artifactId>jedis</artifactId>
+  <version>2.4.1</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-pool2</artifactId>
+  <version>2.2</version>
+</dependency>
+----
+
+**Using the latest Snapshot in Gradle**
+
+If you want the latest snapshot, ensure you have the following repository in your pom.xml:
+
+[source,groovy]
+----
+repositories {
+  maven { url 'https://repo.spring.io/libs-snapshot' }
+}
+----
+
+Then ensure you have added the dependency:
+
+[source,groovy]
+[subs="verbatim,attributes"]
+----
+dependencies {
+  compile "org.springframework.session:spring-session:{spring-session-version}",
+          "org.springframework:spring-web:{spring-version}",
+          "org.springframework.data:spring-data-redis:1.3.0.RELEASE",
+          "redis.clients:jedis:2.4.1",
+          "org.apache.commons:commons-pool2:2.2"
+}
+----
+
+== Spring Configuration
+
+Add the following Spring Configuration:
+
+[source,java]
+----
+@Configuration
+public class Config {
+
+	@Bean
+	public JedisConnectionFactory connectionFactory() throws Exception {
+		return new JedisConnectionFactory();
+	}
+
+	@Bean
+	public RedisTemplate<String,Session> redisTemplate(RedisConnectionFactory connectionFactory) {
+		RedisTemplate<String, Session> template = new RedisTemplate<String, Session>();
+		template.setKeySerializer(new StringRedisSerializer());
+		template.setHashKeySerializer(new StringRedisSerializer());
+		template.setConnectionFactory(connectionFactory);
+		return template;
+	}
+
+	@Bean
+	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, Session> redisTemplate) {
+		return new RedisOperationsSessionRepository(redisTemplate);
+	}
+
+	@Bean
+	public SessionRepositoryFilter sessionFilter(RedisOperationsSessionRepository sessionRepository) {
+		return new SessionRepositoryFilter(sessionRepository);
+	}
+}
+----
+
+In our example, we are connecting to the default port (6379). For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
+
+== Servlet Initialization
+
+We next need to be sure our Servlet Container (i.e. Tomcat) is properly configured.
+
+. First we need ensure that our `Config` class from above was loaded. In the example below we do this by extending `AbstractContextLoaderInitializer` and implementing `createRootApplicationContext`.
+. Next we need to be sure the `SessionRepositoryFilter` is regsitered with the Servlet Container. We can do this by mapping a `DelegatingFilterProxy` to every request with the same name as the bean name of our `SessionRepositoryFilter`. In our instance, the bean name is the method name we used to create our `SessionRepositoryFilter`.
+
+[source,java]
+----
+public class Initializer extends AbstractContextLoaderInitializer {
+	@Override
+	public void onStartup(ServletContext servletContext) throws ServletException {
+		super.onStartup(servletContext);
+		servletContext.addFilter("sessionFilter", DelegatingFilterProxy.class)
+				.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
+	}
+
+	@Override
+	protected WebApplicationContext createRootApplicationContext() {
+		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		context.register(Config.class);
+		return context;
+	}
+}
+----
+
+= Sample
+
+The code contains a https://github.com/spring-projects/spring-session/tree/master/samples/web[sample web application]. To run the sample:
+
+. Obtain the source by https://github.com/spring-projects/spring-session[cloning the repository] or https://github.com/spring-projects/spring-session/archive/master.zip[downloading] it.
+. Run the application using gradle
+.. Linux / OSX `./gradlew tomcatRun`
+.. Windows `.\gradlew.bat tomcatRun`
+. Visit http://localhost:8080/
+
+= Benefits
 
 * This can make clustering much easier. This is nice because the clustering setup is done in a vendor neutral way. Furthermore, in some environments (i.e. PaaS solutions) developers cannot modify the cluster settings easily.
 * We can use different strategies for determining the session id. This gives us at least a few benefits
