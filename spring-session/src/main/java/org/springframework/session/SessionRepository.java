@@ -19,7 +19,7 @@ package org.springframework.session;
  * A repository interface for managing {@link Session} instances.
  *
  * @author Rob Winch
- * @since 4.0
+ * @since 1.0
  */
 public interface SessionRepository<S extends Session> {
     /**

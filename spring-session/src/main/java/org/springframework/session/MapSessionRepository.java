@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * distributed maps provided by NoSQL stores like Redis and Hazelcast.
  *
  * @author Rob Winch
- * @since 4.0
+ * @since 1.0
  */
 public class MapSessionRepository implements SessionRepository<Session> {
     private final Map<String,Session> sessions;

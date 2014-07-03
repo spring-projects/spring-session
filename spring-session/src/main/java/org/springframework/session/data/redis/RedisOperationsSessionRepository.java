@@ -20,6 +20,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,35 +28,120 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link org.springframework.session.SessionRepository} that is implemented using Spring Data's {@link org.springframework.data.redis.core.RedisOperations}. In a web environment, this is typically used in combination with
- * {@link org.springframework.session.web.SessionRepositoryFilter}.
+ * <p>
+ * A {@link org.springframework.session.SessionRepository} that is implemented using Spring Data's
+ * {@link org.springframework.data.redis.core.RedisOperations}. In a web environment, this is typically used in
+ * combination with {@link org.springframework.session.web.SessionRepositoryFilter}.
+ * </p>
  *
+ * <h2>Creating a new instance</h2>
+ *
+ * A typical example of how to create a new instance can be seen below:
+ *
+ * <pre>
+ *  JedisConnectionFactory factory = new JedisConnectionFactory();
+ *
+ *  RedisTemplate<String, Session> template = new RedisTemplate<String, Session>();
+ *  template.setKeySerializer(new StringRedisSerializer());
+ *  template.setHashKeySerializer(new StringRedisSerializer());
+ *  template.setConnectionFactory(factory);
+ *
+ *  RedisOperationsSessionRepository redisSessionRepository = new RedisOperationsSessionRepository(template);
+ * </pre>
+ *
+ * <p>
+ * For additional information on how to create a RedisTemplate, refer to the
+ * <a href="http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/">Spring Data Redis Reference</a>.
+ * </p>
+ *
+ * <h2>Storage Details</h2>
+ *
+ * <p>
+ * Each session is stored in Redis as a <a href="http://redis.io/topics/data-types#hashes">Hash</a>. Each session is
+ * set and updated using the <a href="http://redis.io/commands/hmset">HMSET command</a>. An example of how each session
+ * is stored can be seen below.
+ * </p>
+ *
+ * <pre>
+ *     HMSET spring-security-sessions:<session-id> creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:<attrName> someAttrValue sessionAttr2:<attrName> someAttrValue2
+ * </pre>
+ *
+ * <p>
+ * An expiration is associated to each session using the <a href="http://redis.io/commands/expire">EXPIRE command</a> based upon the
+ * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveInterval()}.
+ * For example:
+ * </p>
+ *
+ * <pre>
+ *    EXPIRE spring-security-sessions:<session-id> 1800
+ * </pre>
+ *
+ * <p>
+ * The {@link RedisSession} keeps track of the properties that have changed and only updates those. This means if an attribute
+ * is written once and read many times we only need to write that attribute once. For example, assume the session attribute
+ * "sessionAttr2" from earlier was updated. The following would be executed upon saving:
+ * </p>
+ *
+ * <pre>
+ *     HMSET spring-security-sessions:<session-id> sessionAttr2:<attrName> newValue
+ *     EXPIRE spring-security-sessions:<session-id> 1800
+ * </pre>
  *
  * @since 1.0
  *
  * @author Rob Winch
  */
 public class RedisOperationsSessionRepository implements SessionRepository<RedisOperationsSessionRepository.RedisSession> {
+	/**
+	 * The prefix for each key of the Redis Hash representing a single session. The suffix is the unique session id.
+	 */
 	private final String BOUNDED_HASH_KEY_PREFIX = "spring-security-sessions:";
+
+	/**
+	 * The key in the Hash representing {@link org.springframework.session.Session#getCreationTime()}
+	 */
 	private final String CREATION_TIME_ATTR = "creationTime";
+
+	/**
+	 * The key in the Hash representing {@link org.springframework.session.Session#getMaxInactiveInterval()}
+	 */
 	private final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
+
+	/**
+	 * The key in the Hash representing {@link org.springframework.session.Session#getLastAccessedTime()}
+	 */
 	private final String LAST_ACCESSED_ATTR = "lastAccessedTime";
+
+	/**
+	 * The prefix of the key for used for session attributes. The suffix is the name of the session attribute. For
+	 * example, if the session contained an attribute named attributeName, then there would be an entry in the hash named
+	 * sessionAttr:attributeName that mapped to its value.
+	 */
 	private final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
+	private final RedisOperations<String,Session> redisOperations;
 
-	private final RedisOperations<String,Session> redisTemplate;
-
+	/**
+	 * If non-null, this value is used to override {@link RedisSession#setDefaultMaxInactiveInterval(int)}.
+	 */
 	private Integer defaultMaxInactiveInterval;
 
-	public RedisOperationsSessionRepository(RedisOperations<String, Session> redisTemplate) {
-		this.redisTemplate = redisTemplate;
+	/**
+	 * Creates a new instance. For an example, refer to the class level javadoc.
+	 *
+	 * @param redisOperations The {@link RedisOperations} to use. Cannot be null.
+	 */
+	public RedisOperationsSessionRepository(RedisOperations<String, Session> redisOperations) {
+		Assert.notNull(redisOperations, "RedisOperations cannot be null");
+		this.redisOperations = redisOperations;
 	}
 
 	/**
 	 * Sets the maximum inactive interval in seconds between requests before newly created sessions will be
-	 * invalidated. A negative time indicates that the session will never timeout.
+	 * invalidated. A negative time indicates that the session will never timeout. The default is 1800 (30 minutes).
 	 *
-	 *  @param defaultMaxInactiveInterval the number of seconds that the {@link Session} should be kept alive between client requests.
+	 *  @param defaultMaxInactiveInterval the number of seconds that the {@link Session} should be kept alive between
+	 *                                    client requests.
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
@@ -68,7 +154,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
 	@Override
 	public RedisSession getSession(String id) {
-		Map<Object, Object> entries = getOperations(id).entries();
+		Map<Object, Object> entries = getSessionBoundHashOperations(id).entries();
 		if(entries.isEmpty()) {
 			return null;
 		}
@@ -92,7 +178,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	@Override
 	public void delete(String sessionId) {
 		String key = getKey(sessionId);
-		this.redisTemplate.delete(key);
+		this.redisOperations.delete(key);
 	}
 
 	@Override
@@ -104,19 +190,42 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		return redisSession;
 	}
 
+	/**
+	 * Gets the Hash key for this session by prefixing it appropriately.
+	 *
+	 * @param sessionId the session id
+	 * @return the Hash key for this session by prefixing it appropriately.
+	 */
 	private String getKey(String sessionId) {
 		return BOUNDED_HASH_KEY_PREFIX + sessionId;
 	}
 
-	private BoundHashOperations<String, Object, Object> getOperations(String sessionId) {
+	/**
+	 * Gets the {@link BoundHashOperations} to operate on a {@link Session}
+	 * @param sessionId the id of the {@link Session} to work with
+	 * @return the {@link BoundHashOperations} to operate on a {@link Session}
+	 */
+	private BoundHashOperations<String, Object, Object> getSessionBoundHashOperations(String sessionId) {
 		String key = getKey(sessionId);
-		return this.redisTemplate.boundHashOps(key);
+		return this.redisOperations.boundHashOps(key);
 	}
 
+	/**
+	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the basis for its mapping. It keeps
+	 * track of any attributes that have changed. When
+	 * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#saveDelta()} is invoked
+	 * all the attributes that have been changed will be persisted.
+	 *
+	 * @since 1.0
+	 * @author Rob Winch
+	 */
 	class RedisSession implements Session {
 		private final MapSession cached;
 		private Map<String, Object> delta = new HashMap<String,Object>();
 
+		/**
+		 * Creates a new instance ensuring to mark all of the new attributes to be persisted in the next save operation.
+		 */
 		private RedisSession() {
 			this(new MapSession());
 			delta.put(CREATION_TIME_ATTR, getCreationTime());
@@ -124,7 +233,13 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
 		}
 
+		/**
+		 * Creates a new instance from the provided {@link MapSession}
+		 *
+		 * @param cached the {@MapSession} that represents the persisted session that was retrieved. Cannot be null.
+		 */
 		private RedisSession(MapSession cached) {
+			Assert.notNull("MapSession cannot be null");
 			this.cached = cached;
 		}
 
@@ -182,9 +297,12 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 			delta.put(SESSION_ATTR_PREFIX + attributeName, null);
 		}
 
+		/**
+		 * Saves any attributes that have been changed and updates the expiration of this session.
+		 */
 		private void saveDelta() {
-			getOperations(getId()).putAll(delta);
-			getOperations(getId()).expire(getMaxInactiveInterval(), TimeUnit.SECONDS);
+			getSessionBoundHashOperations(getId()).putAll(delta);
+			getSessionBoundHashOperations(getId()).expire(getMaxInactiveInterval(), TimeUnit.SECONDS);
 			delta.clear();
 		}
 	}

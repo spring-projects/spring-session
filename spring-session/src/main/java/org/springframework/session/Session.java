@@ -23,7 +23,7 @@ import java.util.Set;
  * Session, or even non web related sessions.
  *
  * @author Rob Winch
- * @since 4.0
+ * @since 1.0
  */
 public interface Session extends Serializable {
     /**

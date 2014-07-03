@@ -24,6 +24,7 @@ import java.io.IOException;
  * Allows for easily ensuring that a request is only invoked once per request. This is a simplified version of spring-web's
  * OncePerRequestFilter and copied to reduce the foot print required to use the session support.
  *
+ * @since 1.0
  * @author Rob Winch
  */
 abstract class OncePerRequestFilter implements Filter {

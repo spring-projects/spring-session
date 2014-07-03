@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
  * x-auth-token:
  * </pre>
  *
+ * @since 1.0
  * @author Rob Winch
  */
 public class HeaderHttpSessionStrategy implements HttpSessionStrategy {

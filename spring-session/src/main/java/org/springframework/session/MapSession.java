@@ -37,6 +37,7 @@ import java.util.UUID;
  * This implementation has no synchronization, so it is best to use the copy constructor when working on multiple threads.
  * </p>
  *
+ * @since 1.0
  * @author Rob Winch
  */
 public final class MapSession implements Session {

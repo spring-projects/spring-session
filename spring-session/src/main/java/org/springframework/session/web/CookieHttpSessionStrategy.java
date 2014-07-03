@@ -27,12 +27,13 @@ import javax.servlet.http.HttpServletResponse;
  * allow specifying a cookie name using {@link CookieHttpSessionStrategy#setCookieName(String)}. The default is "SESSION".
  *
  * When a session is created, the HTTP response will have a cookie with the specified cookie name and the value of the
- * session id. The cookie will be marked as a session cookie, marked as HTTPOnly, and if
- * {@link javax.servlet.http.HttpServletRequest#isSecure()} returns true, the cookie will be marked as secure. For example:
+ * session id. The cookie will be marked as a session cookie, use the context path for the path of the cookie, marked as
+ * HTTPOnly, and if {@link javax.servlet.http.HttpServletRequest#isSecure()} returns true, the cookie will be marked as
+ * secure. For example:
  *
  * <pre>
  * HTTP/1.1 200 OK
- * Set-Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6; Secure; HttpOnly
+ * Set-Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6; Path=/context-root; Secure; HttpOnly
  * </pre>
  *
  * The client should now include the session in each request by specifying the same cookie in their request. For example:
@@ -50,6 +51,7 @@ import javax.servlet.http.HttpServletResponse;
  * Set-Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6; Expires=Thur, 1 Jan 1970 00:00:00 GMT; Secure; HttpOnly
  * </pre>
  *
+ * @since 1.0
  * @author Rob Winch
  */
 public final class CookieHttpSessionStrategy implements HttpSessionStrategy {

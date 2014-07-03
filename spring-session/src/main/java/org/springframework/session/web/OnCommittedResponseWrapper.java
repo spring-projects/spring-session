@@ -26,6 +26,7 @@ import java.util.Locale;
  * Base class for response wrappers which encapsulate the logic for handling an event when the
  * {@link javax.servlet.http.HttpServletResponse} is committed.
  *
+ * @since 1.0
  * @author Rob Winch
  */
 abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {

@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * A strategy for mapping HTTP request and responses to a {@link Session}.
  *
+ * @since 1.0
  * @author Rob Winch
  */
 public interface HttpSessionStrategy {
