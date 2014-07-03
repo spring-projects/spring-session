@@ -20,3 +20,19 @@ targetCompatibility = 1.5
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
 
+apply plugin: 'sonar-runner'
+
+
+sonarRunner {
+    sonarProperties {
+        property "sonar.java.coveragePlugin", "jacoco"
+        property "sonar.projectName", "Spring Session"
+        property "sonar.jacoco.reportPath", "${buildDir.name}/jacoco.exec"
+        property "sonar.links.homepage", 'https://github.com/spring-projects/spring-session'
+        property "sonar.links.ci", 'https://build.spring.io/browse/SESSION'
+        property "sonar.links.issue", 'https://github.com/spring-projects/spring-session/issues'
+        property "sonar.links.scm", 'https://github.com/spring-projects/spring-session'
+        property "sonar.links.scm_dev", 'https://github.com/spring-projects/spring-session.git'
+        property "sonar.java.coveragePlugin", "jacoco"
+    }
+}
