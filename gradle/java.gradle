@@ -6,6 +6,7 @@ apply plugin: 'propdeps'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
 
+group = 'org.springframework.session'
 
 ext.jstlVersion = '1.2.1'
 ext.servletApiVersion = '3.0.1'
