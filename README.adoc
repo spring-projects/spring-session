@@ -10,6 +10,7 @@ Rob Winch
 :idprefix:
 :doctype: book
 :spring-session-version: 1.0.0.BUILD-SNAPSHOT
+:spring-session-milestone-version: 1.0.0.M1
 
 Spring Session aims to provide a common infrastructure for managing sessions. This allows for:
 
@@ -33,6 +34,50 @@ Before you use the project, you must ensure to update your dependencies. Instruc
 
 The project is available in the https://github.com/spring-projects/spring-framework/wiki/SpringSource-repository-FAQ[Spring Maven Repository]. If you are using Maven, you will want to make the following updates.
 
+**Using the latest Milestone in Maven**
+
+If you want the latest milestone, ensure you have the following repository in your pom.xml:
+
+[source,xml]
+----
+<repository>
+  <id>spring-snapshot</id>
+  <url>https://repo.spring.io/libs-milestone</url>
+</repository>
+----
+
+Then ensure you have added the following dependencies:
+
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.springframework.session</groupId>
+  <artifactId>spring-session</artifactId>
+  <version>{spring-session-milestone-version}</version>
+</dependency>
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-web</artifactId>
+  <version>{spring-version}</version>
+</dependency>
+<dependency>
+  <groupId>org.springframework.data</groupId>
+  <artifactId>spring-data-redis</artifactId>
+  <version>1.3.0.RELEASE</version>
+</dependency>
+<dependency>
+  <groupId>redis.clients</groupId>
+  <artifactId>jedis</artifactId>
+  <version>2.4.1</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.commons</groupId>
+  <artifactId>commons-pool2</artifactId>
+  <version>2.2</version>
+</dependency>
+----
+
 **Using the latest Snapshot in Maven**
 
 If you want the latest snapshot, ensure you have the following repository in your pom.xml:
@@ -45,7 +90,7 @@ If you want the latest snapshot, ensure you have the following repository in you
 </repository>
 ----
 
-Then ensure you have added the dependency:
+Then ensure you have added the following dependencies:
 
 [source,xml]
 [subs="verbatim,attributes"]
@@ -79,9 +124,34 @@ Then ensure you have added the dependency:
 
 === Building with Gradle
 
+**Using the latest milestone in Gradle**
+
+If you want the latest milestone, ensure you have the following repository in your build.gradle:
+
+[source,groovy]
+----
+repositories {
+  maven { url 'https://repo.spring.io/libs-milestone' }
+}
+----
+
+Then ensure you have added the following dependencies:
+
+[source,groovy]
+[subs="verbatim,attributes"]
+----
+dependencies {
+  compile "org.springframework.session:spring-session:{spring-session-milestone-version}",
+          "org.springframework:spring-web:{spring-version}",
+          "org.springframework.data:spring-data-redis:1.3.0.RELEASE",
+          "redis.clients:jedis:2.4.1",
+          "org.apache.commons:commons-pool2:2.2"
+}
+----
+
 **Using the latest Snapshot in Gradle**
 
-If you want the latest snapshot, ensure you have the following repository in your pom.xml:
+If you want the latest snapshot, ensure you have the following repository in your build.gradle:
 
 [source,groovy]
 ----
@@ -90,7 +160,7 @@ repositories {
 }
 ----
 
-Then ensure you have added the dependency:
+Then ensure you have added the following dependencies:
 
 [source,groovy]
 [subs="verbatim,attributes"]
