@@ -41,6 +41,11 @@ import java.util.UUID;
  * @author Rob Winch
  */
 public final class MapSession implements Session {
+    /**
+     * Default {@link #setMaxInactiveInterval(int)} (30 minutes)
+     */
+    public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
+
     private String id = UUID.randomUUID().toString();
     private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
     private long creationTime = System.currentTimeMillis();
@@ -49,7 +54,7 @@ public final class MapSession implements Session {
     /**
      * Defaults to 30 minutes
      */
-    private int maxInactiveInterval = 1800;
+    private int maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
     /**
      * Creates a new instance
