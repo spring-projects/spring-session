@@ -14,9 +14,6 @@ buildscript {
 
 group = 'org.springframework.session'
 
-sourceCompatibility = 1.5
-targetCompatibility = 1.5
-
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
 
