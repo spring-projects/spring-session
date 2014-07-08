@@ -12,7 +12,7 @@ Rob Winch
 :spring-session-version: 1.0.0.BUILD-SNAPSHOT
 :spring-session-milestone-version: 1.0.0.M1
 
-Spring Session aims to provide a common infrastructure for managing sessions. This allows for:
+Spring Session aims to provide a common infrastructure for managing sessions. This provides many <<benefits>> including:
 
 * Accessing a session from any environment (i.e. web, messaging infrastructure, etc)
 * In a web environment
