@@ -189,7 +189,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		 * @since 1.0
 		 */
 		private final class HttpSessionWrapper implements HttpSession {
-			final S session;
+			private final S session;
 			private final ServletContext servletContext;
 			private boolean invalidated;
 			private boolean old;
@@ -288,7 +288,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 
 			@Override
-			public final void invalidate() {
+			public void invalidate() {
 				checkState();
 				this.invalidated = true;
 				currentSession = null;
@@ -325,7 +325,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		}
 	};
 
-	private final static Enumeration<String> EMPTY_ENUMERATION = new Enumeration<String>() {
+	private static final Enumeration<String> EMPTY_ENUMERATION = new Enumeration<String>() {
 		@Override
 		public boolean hasMoreElements() {
 			return false;

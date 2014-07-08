@@ -229,7 +229,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      * @since 1.0
      * @author Rob Winch
      */
-    class RedisSession implements Session {
+    final class RedisSession implements Session {
         private final MapSession cached;
         private Map<String, Object> delta = new HashMap<String,Object>();
 
