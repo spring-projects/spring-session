@@ -30,8 +30,8 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>Attribte Name</th>
-                <th>Attribte Value</th>
+                <th>Attribute Name</th>
+                <th>Attribute Value</th>
             </tr>
             </thead>
             <tbody>
