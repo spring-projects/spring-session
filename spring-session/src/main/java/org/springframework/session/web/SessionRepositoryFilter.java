@@ -158,7 +158,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				S session = sessionRepository.getSession(requestedSessionId);
 				if(session != null) {
 					this.requestedValidSession = true;
-					session.setLastAccessedTime(System.currentTimeMillis());
 					currentSession = new HttpSessionWrapper(session, getServletContext());
 					currentSession.setNew(false);
 					return currentSession;
@@ -197,11 +196,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			public HttpSessionWrapper(S session, ServletContext servletContext) {
 				this.session = session;
 				this.servletContext = servletContext;
-			}
-
-			void updateLastAccessedTime() {
-				checkState();
-				session.setLastAccessedTime(System.currentTimeMillis());
 			}
 
 			@Override

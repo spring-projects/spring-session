@@ -133,6 +133,7 @@ public class RedisOperationsSessionRepositoryTests {
     public void getSessionFound() {
         String attrName = "attrName";
         MapSession expected = new MapSession();
+        expected.setLastAccessedTime(System.currentTimeMillis() - 60000);
         expected.setAttribute(attrName, "attrValue");
         when(redisOperations.boundHashOps(getKey(expected.getId()))).thenReturn(boundHashOperations);
         Map map = map(
@@ -142,13 +143,14 @@ public class RedisOperationsSessionRepositoryTests {
                 LAST_ACCESSED_ATTR, expected.getLastAccessedTime());
         when(boundHashOperations.entries()).thenReturn(map);
 
+        long now = System.currentTimeMillis();
         RedisSession session = redisRepository.getSession(expected.getId());
         assertThat(session.getId()).isEqualTo(expected.getId());
         assertThat(session.getAttributeNames()).isEqualTo(expected.getAttributeNames());
         assertThat(session.getAttribute(attrName)).isEqualTo(expected.getAttribute(attrName));
         assertThat(session.getCreationTime()).isEqualTo(expected.getCreationTime());
         assertThat(session.getMaxInactiveInterval()).isEqualTo(expected.getMaxInactiveInterval());
-        assertThat(session.getLastAccessedTime()).isEqualTo(expected.getLastAccessedTime());
+        assertThat(session.getLastAccessedTime()).isGreaterThanOrEqualTo(now);
 
     }
 

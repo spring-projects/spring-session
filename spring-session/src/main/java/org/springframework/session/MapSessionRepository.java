@@ -53,8 +53,13 @@ public class MapSessionRepository implements SessionRepository<Session> {
     }
 
     public Session getSession(String id) {
-        Session result = sessions.get(id);
-        return result == null ? null : new MapSession(result);
+        Session saved = sessions.get(id);
+        if(saved == null) {
+            return null;
+        }
+        MapSession result = new MapSession(saved);
+        result.setLastAccessedTime(System.currentTimeMillis());
+        return result;
     }
 
     public void delete(String id) {

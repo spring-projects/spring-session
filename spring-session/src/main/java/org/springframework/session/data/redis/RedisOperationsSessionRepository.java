@@ -172,7 +172,9 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
                 loaded.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
             }
         }
-        return new RedisSession(loaded);
+        RedisSession result = new RedisSession(loaded);
+        result.setLastAccessedTime(System.currentTimeMillis());
+        return result;
     }
 
     @Override
@@ -253,7 +255,6 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
             this.cached = cached;
         }
 
-        @Override
         public void setLastAccessedTime(long lastAccessedTime) {
             cached.setLastAccessedTime(lastAccessedTime);
             delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());

@@ -53,11 +53,6 @@ public class MapSessionTests {
 	static class CustomSession implements Session {
 
 		@Override
-		public void setLastAccessedTime(long lastAccessedTime) {
-
-		}
-
-		@Override
 		public long getCreationTime() {
 			return 0;
 		}

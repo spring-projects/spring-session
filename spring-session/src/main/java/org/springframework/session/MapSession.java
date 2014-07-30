@@ -80,7 +80,6 @@ public final class MapSession implements Session {
         this.maxInactiveInterval = session.getMaxInactiveInterval();
     }
 
-    @Override
     public void setLastAccessedTime(long lastAccessedTime) {
         this.lastAccessedTime = lastAccessedTime;
     }
