@@ -1,4 +1,4 @@
-package org.springframework.session.web;
+package org.springframework.session.web.http;
 
 import java.io.PrintWriter;
 import java.util.Locale;
@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.session.web.http.OnCommittedResponseWrapper;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;

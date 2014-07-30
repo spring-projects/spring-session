@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.springframework.session.web;
+package org.springframework.session.web.http;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;

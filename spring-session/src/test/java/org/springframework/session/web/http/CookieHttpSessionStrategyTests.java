@@ -1,4 +1,6 @@
-package org.springframework.session.web;
+package org.springframework.session.web.http;
+
+import static org.fest.assertions.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -6,24 +8,25 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.session.web.http.CookieHttpSessionStrategy;
 
-import static org.fest.assertions.Assertions.assertThat;
+import javax.servlet.http.Cookie;
 
-public class HeaderSessionStrategyTests {
+public class CookieHttpSessionStrategyTests {
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
 
-	private HeaderHttpSessionStrategy strategy;
-	private String headerName;
+	private CookieHttpSessionStrategy strategy;
+	private String cookieName;
 	private Session session;
 
 	@Before
 	public void setup() throws Exception {
-		headerName = "x-auth-token";
+		cookieName = "SESSION";
 		session = new MapSession();
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
-		strategy = new HeaderHttpSessionStrategy();
+		strategy = new CookieHttpSessionStrategy();
 	}
 
 	@Test
@@ -38,8 +41,8 @@ public class HeaderSessionStrategyTests {
 	}
 
 	@Test
-	public void getRequestedSessionIdNotNullCustomHeaderName() throws Exception {
-		setHeaderName("CUSTOM");
+	public void getRequestedSessionIdNotNullCustomCookieName() throws Exception {
+		setCookieName("CUSTOM");
 		setSessionId(session.getId());
 		assertThat(strategy.getRequestedSessionId(request)).isEqualTo(session.getId());
 	}
@@ -51,8 +54,17 @@ public class HeaderSessionStrategyTests {
 	}
 
 	@Test
-	public void onNewSessionCustomHeaderName() throws Exception {
-		setHeaderName("CUSTOM");
+	public void onNewSessionCookiePath() throws Exception {
+		request.setContextPath("/somethingunique");
+		strategy.onNewSession(session, request, response);
+
+		Cookie sessionCookie = response.getCookie(cookieName);
+		assertThat(sessionCookie.getPath()).isEqualTo(request.getContextPath() + "/");
+	}
+
+	@Test
+	public void onNewSessionCustomCookieName() throws Exception {
+		setCookieName("CUSTOM");
 		strategy.onNewSession(session, request, response);
 		assertThat(getSessionId()).isEqualTo(session.getId());
 	}
@@ -64,27 +76,36 @@ public class HeaderSessionStrategyTests {
 	}
 
 	@Test
-	public void onDeleteSessionCustomHeaderName() throws Exception {
-		setHeaderName("CUSTOM");
+	public void onDeleteSessionCookiePath() throws Exception {
+		request.setContextPath("/somethingunique");
+		strategy.onInvalidateSession(request, response);
+
+		Cookie sessionCookie = response.getCookie(cookieName);
+		assertThat(sessionCookie.getPath()).isEqualTo(request.getContextPath() + "/");
+	}
+
+	@Test
+	public void onDeleteSessionCustomCookieName() throws Exception {
+		setCookieName("CUSTOM");
 		strategy.onInvalidateSession(request, response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void setHeaderNameNull() throws Exception {
-		strategy.setHeaderName(null);
+	public void setCookieNameNull() throws Exception {
+		strategy.setCookieName(null);
 	}
 
-	public void setHeaderName(String headerName) {
-		strategy.setHeaderName(headerName);
-		this.headerName = headerName;
+	public void setCookieName(String cookieName) {
+		strategy.setCookieName(cookieName);
+		this.cookieName = cookieName;
 	}
 
 	public void setSessionId(String id) {
-		request.addHeader(headerName, id);
+		request.setCookies(new Cookie(cookieName, id));
 	}
 
 	public String getSessionId() {
-		return response.getHeader(headerName);
+		return response.getCookie(cookieName).getValue();
 	}
 }

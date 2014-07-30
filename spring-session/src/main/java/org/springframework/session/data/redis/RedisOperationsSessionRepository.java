@@ -20,6 +20,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * A {@link org.springframework.session.SessionRepository} that is implemented using Spring Data's
  * {@link org.springframework.data.redis.core.RedisOperations}. In a web environment, this is typically used in
- * combination with {@link org.springframework.session.web.SessionRepositoryFilter}.
+ * combination with {@link SessionRepositoryFilter}.
  * </p>
  *
  * <h2>Creating a new instance</h2>

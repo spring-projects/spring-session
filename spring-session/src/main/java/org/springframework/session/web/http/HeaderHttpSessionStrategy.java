@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.springframework.session.web;
+package org.springframework.session.web.http;
 
 import org.springframework.session.Session;
 import org.springframework.util.Assert;

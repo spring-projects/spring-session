@@ -24,7 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
-import org.springframework.session.web.SessionRepositoryFilter;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 import redis.clients.jedis.Protocol;
 import redis.embedded.RedisServer;
 
