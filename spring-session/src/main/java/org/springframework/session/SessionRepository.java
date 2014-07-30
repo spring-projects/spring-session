@@ -22,6 +22,18 @@ package org.springframework.session;
  * @since 1.0
  */
 public interface SessionRepository<S extends Session> {
+
+    /**
+     * Creates a new {@link Session} that is capable of being persisted by this {@link SessionRepository}.
+     *
+     * <p>This allows optimizations and customizations in how the {@link Session} is persisted. For example, the
+     * implementation returned might keep track of the changes ensuring that only the delta needs to be persisted on
+     * a save.</p>
+     *
+     * @return a new {@link Session} that is capable of being persisted by this {@link SessionRepository}
+     */
+    S createSession();
+
     /**
      * Ensures the {@link Session} created by {@link org.springframework.session.SessionRepository#createSession()} is saved.
      *
@@ -46,15 +58,4 @@ public interface SessionRepository<S extends Session> {
      * @param id the {@link org.springframework.session.Session#getId()} to delete
      */
     void delete(String id);
-
-    /**
-     * Creates a new {@link Session} that is capable of being persisted by this {@link SessionRepository}.
-     *
-     * <p>This allows optimizations and customizations in how the {@link Session} is persisted. For example, the
-     * implementation returned might keep track of the changes ensuring that only the delta needs to be persisted on
-     * a save.</p>
-     *
-     * @return a new {@link Session} that is capable of being persisted by this {@link SessionRepository}
-     */
-    S createSession();
 }
