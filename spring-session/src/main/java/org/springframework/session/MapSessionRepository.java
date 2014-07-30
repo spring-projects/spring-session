@@ -28,14 +28,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Rob Winch
  * @since 1.0
  */
-public class MapSessionRepository implements SessionRepository<Session> {
-    private final Map<String,Session> sessions;
+public class MapSessionRepository implements SessionRepository<ExpiringSession> {
+    private final Map<String,ExpiringSession> sessions;
 
     /**
      * Creates an instance backed by a {@link java.util.concurrent.ConcurrentHashMap}
      */
     public MapSessionRepository() {
-        this(new ConcurrentHashMap<String, Session>());
+        this(new ConcurrentHashMap<String, ExpiringSession>());
     }
 
     /**
@@ -43,17 +43,17 @@ public class MapSessionRepository implements SessionRepository<Session> {
      *
      * @param sessions the {@link java.util.Map} to use. Cannot be null.
      */
-    public MapSessionRepository(Map<String,Session> sessions) {
+    public MapSessionRepository(Map<String,ExpiringSession> sessions) {
         Assert.notNull(sessions, "sessions cannot be null");
         this.sessions = sessions;
     }
 
-    public void save(Session session) {
+    public void save(ExpiringSession session) {
         sessions.put(session.getId(), new MapSession(session));
     }
 
-    public Session getSession(String id) {
-        Session saved = sessions.get(id);
+    public ExpiringSession getSession(String id) {
+        ExpiringSession saved = sessions.get(id);
         if(saved == null) {
             return null;
         }
@@ -66,7 +66,7 @@ public class MapSessionRepository implements SessionRepository<Session> {
         sessions.remove(id);
     }
 
-    public Session createSession() {
+    public ExpiringSession createSession() {
         return new MapSession();
     }
 }

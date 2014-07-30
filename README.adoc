@@ -189,8 +189,8 @@ public class Config {
 	}
 
 	@Bean
-	public RedisTemplate<String,Session> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, Session> template = new RedisTemplate<String, Session>();
+	public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
+		RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
 		template.setConnectionFactory(connectionFactory);
@@ -198,7 +198,7 @@ public class Config {
 	}
 
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, Session> redisTemplate) {
+	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
 		return new RedisOperationsSessionRepository(redisTemplate);
 	}
 

@@ -40,7 +40,7 @@ import java.util.UUID;
  * @since 1.0
  * @author Rob Winch
  */
-public final class MapSession implements Session {
+public final class MapSession implements ExpiringSession {
     /**
      * Default {@link #setMaxInactiveInterval(int)} (30 minutes)
      */
@@ -67,7 +67,7 @@ public final class MapSession implements Session {
      *
      * @param session the {@link Session} to initialize this {@link Session} with. Cannot be null.
      */
-    public MapSession(Session session) {
+    public MapSession(ExpiringSession session) {
         Assert.notNull(session, "session cannot be null");
         this.id = session.getId();
         this.sessionAttrs = new HashMap<String, Object>(session.getAttributeNames().size());

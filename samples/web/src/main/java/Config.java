@@ -22,6 +22,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -72,7 +73,7 @@ public class Config {
 	}
 
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, Session> redisTemplate) {
+	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
 		return new RedisOperationsSessionRepository(redisTemplate);
 	}
 

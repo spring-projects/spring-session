@@ -17,6 +17,7 @@ package org.springframework.session.data.redis;
 
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -99,17 +100,17 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
     static final String BOUNDED_HASH_KEY_PREFIX = "spring-security-sessions:";
 
     /**
-     * The key in the Hash representing {@link org.springframework.session.Session#getCreationTime()}
+     * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getCreationTime()}
      */
     static final String CREATION_TIME_ATTR = "creationTime";
 
     /**
-     * The key in the Hash representing {@link org.springframework.session.Session#getMaxInactiveInterval()}
+     * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getMaxInactiveInterval()}
      */
     static final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
 
     /**
-     * The key in the Hash representing {@link org.springframework.session.Session#getLastAccessedTime()}
+     * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getLastAccessedTime()}
      */
     static final String LAST_ACCESSED_ATTR = "lastAccessedTime";
 
@@ -120,7 +121,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      */
     static final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
-    private final RedisOperations<String,Session> redisOperations;
+    private final RedisOperations<String,ExpiringSession> redisOperations;
 
     /**
      * If non-null, this value is used to override {@link RedisSession#setDefaultMaxInactiveInterval(int)}.
@@ -132,7 +133,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      *
      * @param redisOperations The {@link RedisOperations} to use. Cannot be null.
      */
-    public RedisOperationsSessionRepository(RedisOperations<String, Session> redisOperations) {
+    public RedisOperationsSessionRepository(RedisOperations<String, ExpiringSession> redisOperations) {
         Assert.notNull(redisOperations, "RedisOperations cannot be null");
         this.redisOperations = redisOperations;
     }
@@ -232,7 +233,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      * @since 1.0
      * @author Rob Winch
      */
-    final class RedisSession implements Session {
+    final class RedisSession implements ExpiringSession {
         private final MapSession cached;
         private Map<String, Object> delta = new HashMap<String,Object>();
 

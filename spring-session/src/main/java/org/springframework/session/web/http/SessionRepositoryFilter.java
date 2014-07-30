@@ -15,7 +15,7 @@
  */
 package org.springframework.session.web.http;
 
-import org.springframework.session.Session;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.Assert;
 
@@ -43,15 +43,14 @@ import java.util.Set;
  * <ul>
  *     <li>The session id is looked up using {@link HttpSessionStrategy#getRequestedSessionId(javax.servlet.http.HttpServletRequest)}.
  *     The default is to look in a cookie named SESSION.</li>
- *     <li>The session id of newly created {@link org.springframework.session.Session} is sent to the client using
- *     {@link HttpSessionStrategy#onNewSession(org.springframework.session.Session, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)} </li>
+ *     <li>The session id of newly created {@link org.springframework.session.ExpiringSession} is sent to the client using
  *     <li>The client is notified that the session id is no longer valid with {@link HttpSessionStrategy#onInvalidateSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}</li>
  * </ul>
  *
  * @since 1.0
  * @author Rob Winch
  */
-public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFilter {
+public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter {
 	private final SessionRepository<S> sessionRepository;
 
 	private HttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();

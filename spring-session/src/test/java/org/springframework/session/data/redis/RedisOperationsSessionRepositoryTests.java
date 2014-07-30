@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
@@ -25,7 +26,7 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
 @RunWith(MockitoJUnitRunner.class)
 public class RedisOperationsSessionRepositoryTests {
     @Mock
-    RedisOperations<String,Session> redisOperations;
+    RedisOperations<String,ExpiringSession> redisOperations;
     @Mock
     BoundHashOperations<String, Object, Object> boundHashOperations;
     @Captor
@@ -40,7 +41,7 @@ public class RedisOperationsSessionRepositoryTests {
 
     @Test
     public void createSessionDefaultMaxInactiveInterval() throws Exception {
-        Session session = redisRepository.createSession();
+        ExpiringSession session = redisRepository.createSession();
         assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
     }
 
@@ -48,7 +49,7 @@ public class RedisOperationsSessionRepositoryTests {
     public void createSessionCustomMaxInactiveInterval() throws Exception {
         int interval = 1;
         redisRepository.setDefaultMaxInactiveInterval(interval);
-        Session session = redisRepository.createSession();
+        ExpiringSession session = redisRepository.createSession();
         assertThat(session.getMaxInactiveInterval()).isEqualTo(interval);
     }
 

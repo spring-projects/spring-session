@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.context.ContextConfiguration;
@@ -100,8 +101,8 @@ public class RedisOperationsSessionRepositoryITests {
 		}
 
 		@Bean
-		public RedisTemplate<String,Session> redisTemplate(RedisConnectionFactory connectionFactory) {
-			RedisTemplate<String, Session> template = new RedisTemplate<String, Session>();
+		public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
+			RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
 			template.setKeySerializer(new StringRedisSerializer());
 			template.setHashKeySerializer(new StringRedisSerializer());
 			template.setConnectionFactory(connectionFactory);
@@ -109,7 +110,7 @@ public class RedisOperationsSessionRepositoryITests {
 		}
 
 		@Bean
-		public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, Session> redisTemplate) {
+		public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
 			return new RedisOperationsSessionRepository(redisTemplate);
 		}
 	}
