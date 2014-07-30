@@ -25,7 +25,7 @@ import java.util.Set;
  * @author Rob Winch
  * @since 1.0
  */
-public interface Session extends Serializable {
+public interface Session {
     /**
      * Allows setting the last time this {@link Session} was accessed.
      *
