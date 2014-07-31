@@ -35,10 +35,40 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
     private boolean disableOnCommitted;
 
     /**
+     * The Content-Length response header. If this is greater than 0, then once {@link #contentWritten} is larger than
+     * or equal the response is considered committed.
+     */
+    private long contentLength;
+
+    /**
+     * The size of data written to the response body.
+     */
+    private long contentWritten;
+
+    /**
      * @param response the response to be wrapped
      */
     public OnCommittedResponseWrapper(HttpServletResponse response) {
         super(response);
+    }
+
+    @Override
+    public void addHeader(String name, String value) {
+        if("Content-Length".equalsIgnoreCase(name)) {
+            setContentLength(Long.parseLong(value));
+        }
+        super.addHeader(name, value);
+    }
+
+    @Override
+    public void setContentLength(int len) {
+        setContentLength((long) len);
+        super.setContentLength(len);
+    }
+
+    private void setContentLength(long len) {
+        this.contentLength = len;
+        checkContentLength(0);
     }
 
     /**
@@ -113,6 +143,55 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
         super.flushBuffer();
     }
 
+    private void trackContentLength(boolean content) {
+        checkContentLength(content ? 4 : 5); // TODO Localization
+    }
+
+    private void trackContentLength(char content) {
+        checkContentLength(1);
+    }
+
+    private void trackContentLength(Object content) {
+        trackContentLength(String.valueOf(content));
+    }
+
+    private void trackContentLength(char[] content) {
+        checkContentLength(content == null ? 0 : content.length);
+    }
+
+    private void trackContentLength(int content) {
+        trackContentLength(String.valueOf(content));
+    }
+
+    private void trackContentLength(float content) {
+        trackContentLength(String.valueOf(content));
+    }
+
+    private void trackContentLength(double content) {
+        trackContentLength(String.valueOf(content));
+    }
+
+    private void trackContentLengthLn() {
+        trackContentLength("\r\n");
+    }
+
+    private void trackContentLength(String content) {
+        checkContentLength(content.length());
+    }
+
+    /**
+     * Adds the contentLengthToWrite to the total contentWritten size and checks to see if the response should be
+     * written.
+     *
+     * @param contentLengthToWrite the size of the content that is about to be written.
+     */
+    private void checkContentLength(long contentLengthToWrite) {
+        contentWritten += contentLengthToWrite;
+        if(contentLength > 0  && contentWritten >= contentLength) {
+            doOnResponseCommitted();
+        }
+    }
+
     /**
      * Calls <code>onResponseCommmitted()</code> with the current contents as long as
      * {@link #disableOnResponseCommitted()()} was not invoked.
@@ -166,98 +245,131 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
         }
 
         public void write(int c) {
+            trackContentLength(c);
             delegate.write(c);
         }
 
         public void write(char[] buf, int off, int len) {
+            checkContentLength(len);
             delegate.write(buf, off, len);
         }
 
         public void write(char[] buf) {
+            trackContentLength(buf);
             delegate.write(buf);
         }
 
         public void write(String s, int off, int len) {
+            checkContentLength(len);
             delegate.write(s, off, len);
         }
 
         public void write(String s) {
+            trackContentLength(s);
             delegate.write(s);
         }
 
         public void print(boolean b) {
+            trackContentLength(b);
             delegate.print(b);
         }
 
         public void print(char c) {
+            trackContentLength(c);
             delegate.print(c);
         }
 
         public void print(int i) {
+            trackContentLength(i);
             delegate.print(i);
         }
 
         public void print(long l) {
+            trackContentLength(l);
             delegate.print(l);
         }
 
         public void print(float f) {
+            trackContentLength(f);
             delegate.print(f);
         }
 
         public void print(double d) {
+            trackContentLength(d);
             delegate.print(d);
         }
 
         public void print(char[] s) {
+            trackContentLength(s);
             delegate.print(s);
         }
 
         public void print(String s) {
+            trackContentLength(s);
             delegate.print(s);
         }
 
         public void print(Object obj) {
+            trackContentLength(obj);
             delegate.print(obj);
         }
 
         public void println() {
+            trackContentLengthLn();
             delegate.println();
         }
 
         public void println(boolean x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(char x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(int x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(long x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(float x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(double x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(char[] x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(String x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
         public void println(Object x) {
+            trackContentLength(x);
+            trackContentLengthLn();
             delegate.println(x);
         }
 
@@ -278,14 +390,17 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
         }
 
         public PrintWriter append(CharSequence csq) {
+            checkContentLength(csq.length());
             return delegate.append(csq);
         }
 
         public PrintWriter append(CharSequence csq, int start, int end) {
+            checkContentLength(end - start);
             return delegate.append(csq, start, end);
         }
 
         public PrintWriter append(char c) {
+            trackContentLength(c);
             return delegate.append(c);
         }
     }
@@ -305,6 +420,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
         }
 
         public void write(int b) throws IOException {
+            trackContentLength(b);
             this.delegate.write(b);
         }
 
@@ -327,70 +443,94 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
         }
 
         public void print(boolean b) throws IOException {
+            trackContentLength(b);
             delegate.print(b);
         }
 
         public void print(char c) throws IOException {
+            trackContentLength(c);
             delegate.print(c);
         }
 
         public void print(double d) throws IOException {
+            trackContentLength(d);
             delegate.print(d);
         }
 
         public void print(float f) throws IOException {
+            trackContentLength(f);
             delegate.print(f);
         }
 
         public void print(int i) throws IOException {
+            trackContentLength(i);
             delegate.print(i);
         }
 
         public void print(long l) throws IOException {
+            trackContentLength(l);
             delegate.print(l);
         }
 
-        public void print(String arg0) throws IOException {
-            delegate.print(arg0);
+        public void print(String s) throws IOException {
+            trackContentLength(s);
+            delegate.print(s);
         }
 
         public void println() throws IOException {
+            trackContentLengthLn();
             delegate.println();
         }
 
         public void println(boolean b) throws IOException {
+            trackContentLength(b);
+            trackContentLengthLn();
             delegate.println(b);
         }
 
         public void println(char c) throws IOException {
+            trackContentLength(c);
+            trackContentLengthLn();
             delegate.println(c);
         }
 
         public void println(double d) throws IOException {
+            trackContentLength(d);
+            trackContentLengthLn();
             delegate.println(d);
         }
 
         public void println(float f) throws IOException {
+            trackContentLength(f);
+            trackContentLengthLn();
             delegate.println(f);
         }
 
         public void println(int i) throws IOException {
+            trackContentLength(i);
+            trackContentLengthLn();
             delegate.println(i);
         }
 
         public void println(long l) throws IOException {
+            trackContentLength(l);
+            trackContentLengthLn();
             delegate.println(l);
         }
 
         public void println(String s) throws IOException {
+            trackContentLength(s);
+            trackContentLengthLn();
             delegate.println(s);
         }
 
         public void write(byte[] b) throws IOException {
+            trackContentLength(b);
             delegate.write(b);
         }
 
         public void write(byte[] b, int off, int len) throws IOException {
+            checkContentLength(len);
             delegate.write(b, off, len);
         }
 

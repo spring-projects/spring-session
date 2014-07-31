@@ -1,5 +1,6 @@
 package org.springframework.session.web.http;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
@@ -8,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.session.web.http.OnCommittedResponseWrapper;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +19,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OnCommittedResponseWrapperTests {
+    private static final String NL = "\r\n";
+
     @Mock
     HttpServletResponse delegate;
     @Mock
@@ -521,5 +523,540 @@ public class OnCommittedResponseWrapperTests {
         response.getOutputStream().println(x);
 
         verify(out).println(x);
+    }
+
+    // The amount of content specified in the setContentLength method of the response
+    // has been greater than zero and has been written to the response.
+
+    @Test
+    public void contentLengthPrintWriterWriteIntCommits() throws Exception {
+        int expected = 1;
+        response.setContentLength(String.valueOf(expected).length());
+
+        response.getWriter().write(expected);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterWriteIntMultiDigitCommits() throws Exception {
+        int expected = 10000;
+        response.setContentLength(String.valueOf(expected).length());
+
+        response.getWriter().write(expected);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPlus1PrintWriterWriteIntMultiDigitCommits() throws Exception {
+        int expected = 10000;
+        response.setContentLength(String.valueOf(expected).length() + 1);
+
+        response.getWriter().write(expected);
+
+        assertThat(committed).isFalse();
+
+        response.getWriter().write(1);
+
+        assertThat(committed).isTrue();
+    }
+
+
+    @Test
+    public void contentLengthPrintWriterWriteCharIntIntCommits() throws Exception {
+        char[] buff = new char[0];
+        int off = 2;
+        int len = 3;
+        response.setContentLength(3);
+
+        response.getWriter().write(buff,off,len);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterWriteCharCommits() throws Exception {
+        char[] buff = new char[4];
+        response.setContentLength(buff.length);
+
+        response.getWriter().write(buff);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterWriteStringIntIntCommits() throws Exception {
+        String s = "";
+        int off = 2;
+        int len = 3;
+        response.setContentLength(3);
+
+        response.getWriter().write(s,off,len);
+
+        assertThat(committed).isTrue();
+    }
+
+
+    @Test
+    public void contentLengthPrintWriterWriteStringCommits() throws IOException {
+        String body = "something";
+        response.setContentLength(body.length());
+
+        response.getWriter().write(body);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void printWriterWriteStringContentLengthCommits() throws IOException {
+        String body = "something";
+        response.getWriter().write(body);
+
+        response.setContentLength(body.length());
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void printWriterWriteStringDoesNotCommit() throws IOException {
+        String body = "something";
+
+        response.getWriter().write(body);
+
+        assertThat(committed).isFalse();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintBooleanCommits() throws Exception {
+        boolean b = true;
+        response.setContentLength(1);
+
+        response.getWriter().print(b);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintCharCommits() throws Exception {
+        char c = 1;
+        response.setContentLength(1);
+
+        response.getWriter().print(c);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintIntCommits() throws Exception {
+        int i = 1234;
+        response.setContentLength(String.valueOf(i).length());
+
+        response.getWriter().print(i);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintLongCommits() throws Exception {
+        long l = 12345;
+        response.setContentLength(String.valueOf(l).length());
+
+        response.getWriter().print(l);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintFloatCommits() throws Exception {
+        float f = 12345;
+        response.setContentLength(String.valueOf(f).length());
+
+        response.getWriter().print(f);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintDoubleCommits() throws Exception {
+        double x = 1.2345;
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getWriter().print(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintCharArrayCommits() throws Exception {
+        char[] x = new char[10];
+        response.setContentLength(x.length);
+
+        response.getWriter().print(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintStringCommits() throws Exception {
+        String x = "12345";
+        response.setContentLength(x.length());
+
+        response.getWriter().print(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintObjectCommits() throws Exception {
+        Object x = "12345";
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getWriter().print(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnCommits() throws Exception {
+        response.setContentLength(NL.length());
+
+        response.getWriter().println();
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnBooleanCommits() throws Exception {
+        boolean b = true;
+        response.setContentLength(1);
+
+        response.getWriter().println(b);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnCharCommits() throws Exception {
+        char c = 1;
+        response.setContentLength(1);
+
+        response.getWriter().println(c);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnIntCommits() throws Exception {
+        int i = 12345;
+        response.setContentLength(String.valueOf(i).length());
+
+        response.getWriter().println(i);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnLongCommits() throws Exception {
+        long l = 12345678;
+        response.setContentLength(String.valueOf(l).length());
+
+        response.getWriter().println(l);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnFloatCommits() throws Exception {
+        float f = 1234;
+        response.setContentLength(String.valueOf(f).length());
+
+        response.getWriter().println(f);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnDoubleCommits() throws Exception {
+        double x = 1;
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getWriter().println(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnCharArrayCommits() throws Exception {
+        char[] x = new char[20];
+        response.setContentLength(x.length);
+
+        response.getWriter().println(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnStringCommits() throws Exception {
+        String x = "1";
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getWriter().println(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterPrintlnObjectCommits() throws Exception {
+        Object x = "1";
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getWriter().println(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterAppendCharSequenceCommits() throws Exception {
+        String x = "a";
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getWriter().append(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterAppendCharSequenceIntIntCommits() throws Exception {
+        String x = "abcdef";
+        int start = 1;
+        int end = 3;
+        response.setContentLength(end - start);
+
+        response.getWriter().append(x, start, end);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPrintWriterAppendCharCommits() throws Exception {
+        char x = 1;
+        response.setContentLength(1);
+
+        response.getWriter().append(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamWriteIntCommits() throws Exception {
+        int expected = 1;
+        response.setContentLength(String.valueOf(expected).length());
+
+        response.getOutputStream().write(expected);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamWriteIntMultiDigitCommits() throws Exception {
+        int expected = 10000;
+        response.setContentLength(String.valueOf(expected).length());
+
+        response.getOutputStream().write(expected);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthPlus1OutputStreamWriteIntMultiDigitCommits() throws Exception {
+        int expected = 10000;
+        response.setContentLength(String.valueOf(expected).length() + 1);
+
+        response.getOutputStream().write(expected);
+
+        assertThat(committed).isFalse();
+
+        response.getOutputStream().write(1);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintBooleanCommits() throws Exception {
+        boolean b = true;
+        response.setContentLength(1);
+
+        response.getOutputStream().print(b);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintCharCommits() throws Exception {
+        char c = 1;
+        response.setContentLength(1);
+
+        response.getOutputStream().print(c);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintIntCommits() throws Exception {
+        int i = 1234;
+        response.setContentLength(String.valueOf(i).length());
+
+        response.getOutputStream().print(i);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintLongCommits() throws Exception {
+        long l = 12345;
+        response.setContentLength(String.valueOf(l).length());
+
+        response.getOutputStream().print(l);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintFloatCommits() throws Exception {
+        float f = 12345;
+        response.setContentLength(String.valueOf(f).length());
+
+        response.getOutputStream().print(f);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintDoubleCommits() throws Exception {
+        double x = 1.2345;
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getOutputStream().print(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintStringCommits() throws Exception {
+        String x = "12345";
+        response.setContentLength(x.length());
+
+        response.getOutputStream().print(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnCommits() throws Exception {
+        response.setContentLength(NL.length());
+
+        response.getOutputStream().println();
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnBooleanCommits() throws Exception {
+        boolean b = true;
+        response.setContentLength(1);
+
+        response.getOutputStream().println(b);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnCharCommits() throws Exception {
+        char c = 1;
+        response.setContentLength(1);
+
+        response.getOutputStream().println(c);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnIntCommits() throws Exception {
+        int i = 12345;
+        response.setContentLength(String.valueOf(i).length());
+
+        response.getOutputStream().println(i);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnLongCommits() throws Exception {
+        long l = 12345678;
+        response.setContentLength(String.valueOf(l).length());
+
+        response.getOutputStream().println(l);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnFloatCommits() throws Exception {
+        float f = 1234;
+        response.setContentLength(String.valueOf(f).length());
+
+        response.getOutputStream().println(f);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnDoubleCommits() throws Exception {
+        double x = 1;
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getOutputStream().println(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthOutputStreamPrintlnStringCommits() throws Exception {
+        String x = "1";
+        response.setContentLength(String.valueOf(x).length());
+
+        response.getOutputStream().println(x);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void contentLengthDoesNotCommit() throws IOException {
+        String body = "something";
+
+        response.setContentLength(body.length());
+
+        assertThat(committed).isFalse();
+    }
+
+    @Test
+    public void contentLengthOutputStreamWriteStringCommits() throws IOException {
+        String body = "something";
+        response.setContentLength(body.length());
+
+        response.getOutputStream().print(body);
+
+        assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void addHeaderContentLengthPrintWriterWriteStringCommits() throws Exception {
+        int expected = 1234;
+        response.addHeader("Content-Length",String.valueOf(String.valueOf(expected).length()));
+
+        response.getWriter().write(expected);
+
+        assertThat(committed).isTrue();
     }
 }
