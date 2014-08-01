@@ -60,12 +60,12 @@ public class HeaderHttpSessionStrategy implements HttpSessionStrategy {
 
     @Override
     public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
-        response.addHeader(headerName, session.getId());
+        response.setHeader(headerName, session.getId());
     }
 
     @Override
     public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
-        response.addHeader(headerName, "");
+        response.setHeader(headerName, "");
     }
 
     /**
