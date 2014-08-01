@@ -187,7 +187,10 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
      */
     private void checkContentLength(long contentLengthToWrite) {
         contentWritten += contentLengthToWrite;
-        if(contentLength > 0  && contentWritten >= contentLength) {
+        boolean isBodyFullyWritten = contentLength > 0  && contentWritten >= contentLength;
+        int bufferSize = getBufferSize();
+        boolean requiresFlush = bufferSize > 0 && contentWritten >= bufferSize;
+        if(isBodyFullyWritten || requiresFlush) {
             doOnResponseCommitted();
         }
     }

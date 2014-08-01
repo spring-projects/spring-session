@@ -1059,4 +1059,14 @@ public class OnCommittedResponseWrapperTests {
 
         assertThat(committed).isTrue();
     }
+
+    @Test
+    public void bufferSizePrintWriterWriteCommits() throws Exception {
+        String expected = "1234567890";
+        when(response.getBufferSize()).thenReturn(expected.length());
+
+        response.getWriter().write(expected);
+
+        assertThat(committed).isTrue();
+    }
 }
