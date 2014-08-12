@@ -23,7 +23,6 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.ExpiringSession;
-import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import redis.clients.jedis.Protocol;
@@ -64,8 +63,8 @@ public class Config {
 	}
 
 	@Bean
-	public RedisTemplate<String,Session> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, Session> template = new RedisTemplate<String, Session>();
+	public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
+		RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
 		template.setConnectionFactory(connectionFactory);
