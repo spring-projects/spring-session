@@ -11,6 +11,7 @@ Rob Winch
 :doctype: book
 :spring-session-version: 1.0.0.BUILD-SNAPSHOT
 :spring-session-milestone-version: 1.0.0.M1
+:spring-version: 4.1.0.RELEASE
 
 Spring Session aims to provide a common infrastructure for managing sessions. This provides many <<benefits>> including:
 
