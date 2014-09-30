@@ -19,7 +19,6 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
-import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 
 
@@ -122,6 +121,7 @@ public class RedisOperationsSessionRepositoryTests {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void getSessionNotFound() {
         String id = "abc";
         when(redisOperations.boundHashOps(getKey(id))).thenReturn(boundHashOperations);
@@ -131,6 +131,7 @@ public class RedisOperationsSessionRepositoryTests {
     }
 
     @Test
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void getSessionFound() {
         String attrName = "attrName";
         MapSession expected = new MapSession();
@@ -155,6 +156,7 @@ public class RedisOperationsSessionRepositoryTests {
 
     }
 
+    @SuppressWarnings("rawtypes")
     private Map map(Object...objects) {
         Map<String,Object> result = new HashMap<String,Object>();
         if(objects == null) {

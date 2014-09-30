@@ -23,8 +23,11 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+
 import redis.clients.jedis.Protocol;
 import redis.embedded.RedisServer;
 
@@ -34,50 +37,50 @@ import redis.embedded.RedisServer;
 @Configuration
 public class Config {
 
-	@Bean
-	public RedisServerBean redisServer() {
-		return new RedisServerBean();
-	}
+    @Bean
+    public RedisServerBean redisServer() {
+        return new RedisServerBean();
+    }
 
-	class RedisServerBean implements InitializingBean, DisposableBean {
-		private RedisServer redisServer;
+    class RedisServerBean implements InitializingBean, DisposableBean {
+        private RedisServer redisServer;
 
 
-		@Override
-		public void afterPropertiesSet() throws Exception {
-			redisServer = new RedisServer(Protocol.DEFAULT_PORT);
-			redisServer.start();
-		}
+        @Override
+        public void afterPropertiesSet() throws Exception {
+            redisServer = new RedisServer(Protocol.DEFAULT_PORT);
+            redisServer.start();
+        }
 
-		@Override
-		public void destroy() throws Exception {
-			if(redisServer != null) {
-				redisServer.stop();
-			}
-		}
-	}
+        @Override
+        public void destroy() throws Exception {
+            if(redisServer != null) {
+                redisServer.stop();
+            }
+        }
+    }
 
-	@Bean
-	public JedisConnectionFactory connectionFactory() throws Exception {
-		return new JedisConnectionFactory();
-	}
+    @Bean
+    public JedisConnectionFactory connectionFactory() throws Exception {
+        return new JedisConnectionFactory();
+    }
 
-	@Bean
-	public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
-		template.setKeySerializer(new StringRedisSerializer());
-		template.setHashKeySerializer(new StringRedisSerializer());
-		template.setConnectionFactory(connectionFactory);
-		return template;
-	}
+    @Bean
+    public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setConnectionFactory(connectionFactory);
+        return template;
+    }
 
-	@Bean
-	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
-		return new RedisOperationsSessionRepository(redisTemplate);
-	}
+    @Bean
+    public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
+        return new RedisOperationsSessionRepository(redisTemplate);
+    }
 
-	@Bean
-	public SessionRepositoryFilter sessionFilter(RedisOperationsSessionRepository sessionRepository) {
-		return new SessionRepositoryFilter(sessionRepository);
-	}
+    @Bean
+    public SessionRepositoryFilter<RedisSession> sessionFilter(SessionRepository<RedisSession> sessionRepository) {
+        return new SessionRepositoryFilter<RedisSession>(sessionRepository);
+    }
 }

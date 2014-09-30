@@ -183,30 +183,31 @@ Add the following Spring Configuration:
 @Configuration
 public class Config {
 
-	@Bean
-	public JedisConnectionFactory connectionFactory() throws Exception {
-		return new JedisConnectionFactory();
-	}
+    @Bean
+    public JedisConnectionFactory connectionFactory() throws Exception {
+        return new JedisConnectionFactory();
+    }
 
-	@Bean
-	public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
-		template.setKeySerializer(new StringRedisSerializer());
-		template.setHashKeySerializer(new StringRedisSerializer());
-		template.setConnectionFactory(connectionFactory);
-		return template;
-	}
+    @Bean
+    public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setConnectionFactory(connectionFactory);
+        return template;
+    }
 
-	@Bean
-	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
-		return new RedisOperationsSessionRepository(redisTemplate);
-	}
+    @Bean
+    public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
+        return new RedisOperationsSessionRepository(redisTemplate);
+    }
 
-	@Bean
-	public SessionRepositoryFilter sessionFilter(RedisOperationsSessionRepository sessionRepository) {
-		return new SessionRepositoryFilter(sessionRepository);
-	}
+    @Bean
+    public SessionRepositoryFilter<RedisSession> sessionFilter(SessionRepository<RedisSession> sessionRepository) {
+        return new SessionRepositoryFilter<RedisSession>(sessionRepository);
+    }
 }
+
 ----
 
 In our example, we are connecting to the default port (6379). For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
@@ -221,19 +222,19 @@ We next need to be sure our Servlet Container (i.e. Tomcat) is properly configur
 [source,java]
 ----
 public class Initializer extends AbstractContextLoaderInitializer {
-	@Override
-	public void onStartup(ServletContext servletContext) throws ServletException {
-		super.onStartup(servletContext);
-		servletContext.addFilter("sessionFilter", DelegatingFilterProxy.class)
-				.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
-	}
+    @Override
+    public void onStartup(ServletContext servletContext) throws ServletException {
+        super.onStartup(servletContext);
+        servletContext.addFilter("sessionFilter", DelegatingFilterProxy.class)
+                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
+    }
 
-	@Override
-	protected WebApplicationContext createRootApplicationContext() {
-		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-		context.register(Config.class);
-		return context;
-	}
+    @Override
+    protected WebApplicationContext createRootApplicationContext() {
+        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.register(Config.class);
+        return context;
+    }
 }
 ----
 

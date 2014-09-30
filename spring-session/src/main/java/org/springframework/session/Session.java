@@ -15,7 +15,6 @@
  */
 package org.springframework.session;
 
-import java.io.Serializable;
 import java.util.Set;
 
 /**
