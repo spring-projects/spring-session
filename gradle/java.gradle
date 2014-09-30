@@ -11,7 +11,7 @@ group = 'org.springframework.session'
 ext.jstlVersion = '1.2.1'
 ext.servletApiVersion = '3.0.1'
 ext.springSecurityVersion = '3.2.4.RELEASE'
-ext.springVersion = '4.0.2.RELEASE'
+ext.springVersion = '4.1.0.RELEASE'
 ext.groovyVersion = '2.0.5'
 ext.seleniumVersion = '2.33.0'
 ext.spockVersion = '0.7-groovy-2.0'
@@ -40,6 +40,13 @@ repositories {
     maven { url 'http://clojars.org/repo' }
 }
 
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group == 'org.springframework') {
+                details.useVersion springVersion
+            }
+    }
+}
 // Integration test setup
 configurations {
     integrationTestCompile {

@@ -233,7 +233,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      * @since 1.0
      * @author Rob Winch
      */
-    public final class RedisSession implements ExpiringSession {
+    final class RedisSession implements ExpiringSession {
         private final MapSession cached;
         private Map<String, Object> delta = new HashMap<String,Object>();
 

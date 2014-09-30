@@ -203,8 +203,8 @@ public class Config {
     }
 
     @Bean
-    public SessionRepositoryFilter<RedisSession> sessionFilter(SessionRepository<RedisSession> sessionRepository) {
-        return new SessionRepositoryFilter<RedisSession>(sessionRepository);
+    public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> sessionFilter(SessionRepository<S> sessionRepository) {
+        return new SessionRepositoryFilter<S>(sessionRepository);
     }
 }
 

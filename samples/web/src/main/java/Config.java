@@ -25,7 +25,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 import redis.clients.jedis.Protocol;
@@ -80,7 +79,7 @@ public class Config {
     }
 
     @Bean
-    public SessionRepositoryFilter<RedisSession> sessionFilter(SessionRepository<RedisSession> sessionRepository) {
-        return new SessionRepositoryFilter<RedisSession>(sessionRepository);
+    public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> sessionFilter(SessionRepository<S> sessionRepository) {
+        return new SessionRepositoryFilter<S>(sessionRepository);
     }
 }
