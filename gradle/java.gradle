@@ -71,6 +71,12 @@ task integrationTest(type: Test, dependsOn: jar) {
     }
 }
 
+eclipse {
+    classpath {
+        plusConfigurations += [ configurations.integrationTestCompile ]
+    }
+}
+
 project.idea.module {
     scopes.TEST.plus += [project.configurations.integrationTestRuntime]
 }
