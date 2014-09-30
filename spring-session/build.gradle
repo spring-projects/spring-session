@@ -54,7 +54,7 @@ javadoc {
     options.author = true
     options.header = project.name
     options.links(project.ext.javadocLinks)
-    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('-quiet')
 
     // suppress warnings due to cross-module @see and @link references;
     // note that global 'api' task does display all warnings.
