@@ -181,24 +181,15 @@ In our example, we are connecting to the default port (6379). For more informati
 
 We next need to be sure our Servlet Container (i.e. Tomcat) is properly configured.
 
-. First we need ensure that our `Config` class from above was loaded. In the example below we do this by extending `AbstractContextLoaderInitializer` and implementing `createRootApplicationContext`.
-. Next we need to be sure the `SessionRepositoryFilter` is regsitered with the Servlet Container. We can do this by mapping a `DelegatingFilterProxy` to every request with the same name as the bean name of our `SessionRepositoryFilter`. In our instance, the bean name is the method name we used to create our `SessionRepositoryFilter`.
+. First we need ensure that our `Config` class from above was loaded. In the example below we do this by extending `AbstractHttpSessionApplicationInitializer` and passing our `Config` class to the superclass.
+. Next we need to be sure the `SessionRepositoryFilter` is regsitered with the Servlet Container. We can do this by mapping a `DelegatingFilterProxy` to every request with the same name as the bean name of our `SessionRepositoryFilter`. Fortunately, this is performed automatically by the `AbstractHttpSessionApplicationInitializer`.
 
 [source,java]
 ----
-public class Initializer extends AbstractContextLoaderInitializer {
-    @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
-        super.onStartup(servletContext);
-        servletContext.addFilter("springSessionFilter", DelegatingFilterProxy.class)
-                .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
-    }
+public class Initializer extends AbstractHttpSessionApplicationInitializer {
 
-    @Override
-    protected WebApplicationContext createRootApplicationContext() {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.register(Config.class);
-        return context;
+    public Initializer() {
+        super(Config.class);
     }
 }
 ----
