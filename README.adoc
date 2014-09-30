@@ -164,30 +164,12 @@ Add the following Spring Configuration:
 [source,java]
 ----
 @Configuration
+@EnableRedisHttpSession
 public class Config {
 
     @Bean
     public JedisConnectionFactory connectionFactory() throws Exception {
         return new JedisConnectionFactory();
-    }
-
-    @Bean
-    public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setConnectionFactory(connectionFactory);
-        return template;
-    }
-
-    @Bean
-    public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
-        return new RedisOperationsSessionRepository(redisTemplate);
-    }
-
-    @Bean
-    public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> sessionFilter(SessionRepository<S> sessionRepository) {
-        return new SessionRepositoryFilter<S>(sessionRepository);
     }
 }
 
@@ -208,7 +190,7 @@ public class Initializer extends AbstractContextLoaderInitializer {
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         super.onStartup(servletContext);
-        servletContext.addFilter("sessionFilter", DelegatingFilterProxy.class)
+        servletContext.addFilter("springSessionFilter", DelegatingFilterProxy.class)
                 .addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), false, "/*");
     }
 

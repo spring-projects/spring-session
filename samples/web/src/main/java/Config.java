@@ -18,14 +18,8 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.SessionRepository;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
-import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import redis.clients.jedis.Protocol;
 import redis.embedded.RedisServer;
@@ -34,7 +28,13 @@ import redis.embedded.RedisServer;
  * @author Rob Winch
  */
 @Configuration
+@EnableRedisHttpSession
 public class Config {
+
+    @Bean
+    public JedisConnectionFactory connectionFactory() throws Exception {
+        return new JedisConnectionFactory();
+    }
 
     @Bean
     public RedisServerBean redisServer() {
@@ -57,29 +57,5 @@ public class Config {
                 redisServer.stop();
             }
         }
-    }
-
-    @Bean
-    public JedisConnectionFactory connectionFactory() throws Exception {
-        return new JedisConnectionFactory();
-    }
-
-    @Bean
-    public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setConnectionFactory(connectionFactory);
-        return template;
-    }
-
-    @Bean
-    public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
-        return new RedisOperationsSessionRepository(redisTemplate);
-    }
-
-    @Bean
-    public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> sessionFilter(SessionRepository<S> sessionRepository) {
-        return new SessionRepositoryFilter<S>(sessionRepository);
     }
 }
