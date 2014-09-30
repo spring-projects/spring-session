@@ -1,3 +1,4 @@
+package sample;
 /*
  * Copyright 2002-2014 the original author or authors.
  *

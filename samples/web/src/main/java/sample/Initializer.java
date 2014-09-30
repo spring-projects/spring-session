@@ -1,3 +1,4 @@
+package sample;
 /*
  * Copyright 2002-2014 the original author or authors.
  *
@@ -14,22 +15,15 @@
  * the License.
  */
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+
+import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 
 /**
  * @author Rob Winch
  */
-@Import(EmbeddedRedisConfiguration.class)
-@Configuration
-@EnableRedisHttpSession
-public class Config {
+public class Initializer extends AbstractHttpSessionApplicationInitializer {
 
-    @Bean
-    public JedisConnectionFactory connectionFactory() throws Exception {
-        return new JedisConnectionFactory();
+    public Initializer() {
+        super(Config.class);
     }
 }

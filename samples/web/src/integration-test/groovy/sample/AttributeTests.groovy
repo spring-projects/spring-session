@@ -1,5 +1,7 @@
+package sample
 
 import geb.spock.*
+import sample.pages.HomePage;
 import spock.lang.Stepwise
 import pages.*
 

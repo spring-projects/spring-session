@@ -1,4 +1,4 @@
-package pages
+package sample.pages
 
 import geb.*
 
