@@ -14,19 +14,16 @@
  * the License.
  */
 
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-
-import redis.clients.jedis.Protocol;
-import redis.embedded.RedisServer;
 
 /**
  * @author Rob Winch
  */
+@Import(EmbeddedRedisConfiguration.class)
 @Configuration
 @EnableRedisHttpSession
 public class Config {
@@ -34,28 +31,5 @@ public class Config {
     @Bean
     public JedisConnectionFactory connectionFactory() throws Exception {
         return new JedisConnectionFactory();
-    }
-
-    @Bean
-    public RedisServerBean redisServer() {
-        return new RedisServerBean();
-    }
-
-    class RedisServerBean implements InitializingBean, DisposableBean {
-        private RedisServer redisServer;
-
-
-        @Override
-        public void afterPropertiesSet() throws Exception {
-            redisServer = new RedisServer(Protocol.DEFAULT_PORT);
-            redisServer.start();
-        }
-
-        @Override
-        public void destroy() throws Exception {
-            if(redisServer != null) {
-                redisServer.stop();
-            }
-        }
     }
 }
