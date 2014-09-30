@@ -16,6 +16,10 @@ ext.groovyVersion = '2.0.5'
 ext.seleniumVersion = '2.33.0'
 ext.spockVersion = '0.7-groovy-2.0'
 ext.gebVersion = '0.9.0'
+ext.jedisVersion = '2.4.1'
+ext.commonsPoolVersion = '2.2'
+ext.embeddedRedisVersion = '0.2'
+ext.springDataRedisVersion = '1.3.0.RELEASE'
 
 ext.spockDependencies = [
         dependencies.create("org.spockframework:spock-core:$spockVersion") {

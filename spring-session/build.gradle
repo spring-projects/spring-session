@@ -10,7 +10,7 @@ configurations {
 }
 
 dependencies {
-    optional "org.springframework.data:spring-data-redis:1.3.0.RELEASE"
+    optional "org.springframework.data:spring-data-redis:$springDataRedisVersion"
     provided "javax.servlet:javax.servlet-api:$servletApiVersion"
     integrationTestCompile "redis.clients:jedis:2.4.1",
             "org.apache.commons:commons-pool2:2.2",

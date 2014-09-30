@@ -1,0 +1,9 @@
+apply from: JAVA_GRADLE
+apply from: MAVEN_GRADLE
+
+dependencies {
+    compile project(':spring-session'),
+            "org.springframework.data:spring-data-redis:$springDataRedisVersion",
+            "redis.clients:jedis:$jedisVersion",
+            "org.apache.commons:commons-pool2:$commonsPoolVersion"
+}

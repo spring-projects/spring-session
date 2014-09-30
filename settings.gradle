@@ -1,4 +1,5 @@
 rootProject.name = 'spring-session-build'
 
 include 'spring-session'
+include 'spring-session-data-redis'
 include 'samples:web'
