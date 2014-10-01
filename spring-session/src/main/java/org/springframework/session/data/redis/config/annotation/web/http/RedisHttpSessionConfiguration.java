@@ -15,8 +15,15 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.util.Map;
+
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportAware;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -24,6 +31,7 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.util.ClassUtils;
 
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
@@ -36,7 +44,12 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * @see EnableRedisHttpSession
  */
 @Configuration
-public class RedisHttpSessionConfiguration {
+public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoaderAware {
+
+    private ClassLoader beanClassLoader;
+
+    private Integer maxInactiveIntervalInSeconds;
+
 
     @Bean
     public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
@@ -49,11 +62,43 @@ public class RedisHttpSessionConfiguration {
 
     @Bean
     public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
-        return new RedisOperationsSessionRepository(redisTemplate);
+        RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(redisTemplate);
+        sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
+        return sessionRepository;
     }
 
     @Bean
     public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository) {
         return new SessionRepositoryFilter<S>(sessionRepository);
+    }
+
+    @Override
+    public void setImportMetadata(AnnotationMetadata importMetadata) {
+
+        Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
+        AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
+        if(enableAttrs == null) {
+            // search parent classes
+            Class<?> currentClass = ClassUtils.resolveClassName(importMetadata.getClassName(), beanClassLoader);
+            for(Class<?> classToInspect = currentClass ;classToInspect != null; classToInspect = classToInspect.getSuperclass()) {
+                EnableRedisHttpSession enableWebSecurityAnnotation = AnnotationUtils.findAnnotation(classToInspect, EnableRedisHttpSession.class);
+                if(enableWebSecurityAnnotation == null) {
+                    continue;
+                }
+                enableAttrMap = AnnotationUtils
+                        .getAnnotationAttributes(enableWebSecurityAnnotation);
+                enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
+            }
+        }
+        maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+    }
+
+
+
+    /* (non-Javadoc)
+     * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)
+     */
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        this.beanClassLoader = classLoader;
     }
 }

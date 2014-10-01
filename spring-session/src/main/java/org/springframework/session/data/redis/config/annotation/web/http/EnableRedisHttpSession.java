@@ -52,4 +52,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 @Documented
 @Import(RedisHttpSessionConfiguration.class)
 @Configuration
-public @interface EnableRedisHttpSession {}
+public @interface EnableRedisHttpSession {
+    int maxInactiveIntervalInSeconds() default 1800;
+}
