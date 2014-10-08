@@ -132,7 +132,7 @@ public final class CookieMultipleHttpSessionStrategy implements HttpSessionStrat
 		Assert.notNull(cookieName, "cookieName cannot be null");
 		this.currentCookieName = cookieName;
 	}
-
+	
 	/**
      * Retrieve the first cookie with the given name. Note that multiple
      * cookies can have the same name but different paths or domains.
