@@ -32,7 +32,7 @@ import org.springframework.util.StringUtils;
  * sessions. One cookie stores all valid sessions seperated by a delimiter and
  * the other cookie stores the current session id. Cookie names can be specified
  * by {@link CookieMultipleHttpSessionStrategy#setSessionsCookieName(String)}
- * and {@link CookieMultipleHttpSessionStrategy#setCookieName(String)}. Default
+ * and {@link CookieMultipleHttpSessionStrategy#setCurrentCookieName(String)}. Default
  * values are "SESSIONS" and "CURRENT_SESSION".
  * 
  * When a session is created, the HTTP response will have a cookie with the
@@ -92,9 +92,7 @@ public final class CookieMultipleHttpSessionStrategy implements HttpSessionStrat
 	@Override
 	public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
 		Cookie sessions = getCookie(request, sessionsCookieName);
-		System.out.println("previous sessions found " + sessions);
 		String ids = sessions == null ? session.getId() : sessions.getValue() + DELIM + session.getId();
-		System.out.println("final ids " + ids);
 		setCookie(request, response, sessionsCookieName, ids);
 		setCookie(request, response, currentCookieName, session.getId());
 
@@ -178,14 +176,11 @@ public final class CookieMultipleHttpSessionStrategy implements HttpSessionStrat
 		Assert.notNull(response, "Response must not be null");
 		Cookie cookie = getCookie(request, name);
 		if (cookie == null) {
-			System.out.println("creating new cookie with name " + name + " to value " + value);
 			cookie = new Cookie(name, value);
 		} else {
-			System.out.println("updating cookie with name " + name + " to value " + value);
 			cookie.setValue(value);
 		}
 		if ("".equals(value)) {
-			System.out.println("expiring cookie with name " + name + " to value " + value);
 			cookie.setMaxAge(0);
 		}
 		cookie.setHttpOnly(true);
