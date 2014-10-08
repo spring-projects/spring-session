@@ -134,16 +134,13 @@ public final class CookieMultipleHttpSessionStrategy implements HttpSessionStrat
 	}
 
 	/**
-	 * Retrieve the first cookie with the given name. Note that multiple cookies
-	 * can have the same name but different paths or domains.
-	 * 
-	 * @param request
-	 *            current servlet request
-	 * @param name
-	 *            cookie name
-	 * @return the first cookie with the given name, or {@code null} if none is
-	 *         found
-	 */
+     * Retrieve the first cookie with the given name. Note that multiple
+     * cookies can have the same name but different paths or domains.
+     * 
+     * @param request current servlet request
+     * @param name cookie name
+     * @return the first cookie with the given name, or {@code null} if none is found
+     */
 	private static Cookie getCookie(HttpServletRequest request, String name) {
 		Assert.notNull(request, "Request must not be null");
 		Cookie cookies[] = request.getCookies();
