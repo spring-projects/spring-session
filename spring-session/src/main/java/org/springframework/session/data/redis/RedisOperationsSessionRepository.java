@@ -97,7 +97,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
     /**
      * The prefix for each key of the Redis Hash representing a single session. The suffix is the unique session id.
      */
-    static final String BOUNDED_HASH_KEY_PREFIX = "spring-security-sessions:";
+    static final String BOUNDED_HASH_KEY_PREFIX = "spring:session:sessions:";
 
     /**
      * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getCreationTime()}
