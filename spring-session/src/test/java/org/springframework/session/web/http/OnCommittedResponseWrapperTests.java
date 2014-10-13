@@ -28,7 +28,7 @@ public class OnCommittedResponseWrapperTests {
     @Mock
     ServletOutputStream out;
 
-    HttpServletResponse response;
+    OnCommittedResponseWrapper response;
 
     boolean committed;
 
@@ -1068,5 +1068,21 @@ public class OnCommittedResponseWrapperTests {
         response.getWriter().write(expected);
 
         assertThat(committed).isTrue();
+    }
+
+    @Test
+    public void bufferSizeCommitsOnce() throws Exception {
+        String expected = "1234567890";
+        when(response.getBufferSize()).thenReturn(expected.length());
+
+        response.getWriter().write(expected);
+
+        assertThat(committed).isTrue();
+
+        committed = false;
+
+        response.getWriter().write(expected);
+
+        assertThat(committed).isFalse();
     }
 }
