@@ -36,4 +36,11 @@ public interface ExpiringSession extends Session {
      */
     int getMaxInactiveInterval();
 
+    /**
+     * Returns true if the session is expired.
+     *
+     * @return true if the session is expired, else false.
+     */
+    boolean isExpired();
+
 }

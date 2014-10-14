@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -107,6 +108,17 @@ public final class MapSession implements ExpiringSession {
     @Override
     public int getMaxInactiveInterval() {
         return maxInactiveInterval;
+    }
+
+    public boolean isExpired() {
+        return isExpired(System.currentTimeMillis());
+    }
+
+    boolean isExpired(long now) {
+        if(maxInactiveInterval < 0) {
+            return false;
+        }
+        return now - TimeUnit.SECONDS.toMillis(maxInactiveInterval) >= lastAccessedTime;
     }
 
     @Override

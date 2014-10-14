@@ -1,11 +1,11 @@
 package org.springframework.session;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.fest.assertions.Assertions.assertThat;
 
 import java.util.Set;
 
-import static org.fest.assertions.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
 
 public class MapSessionTests {
 
@@ -14,6 +14,7 @@ public class MapSessionTests {
     @Before
     public void setup() {
         session = new MapSession();
+        session.setLastAccessedTime(1413258262962L);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -48,6 +49,24 @@ public class MapSessionTests {
     public void hashCodeEqualsIdHashCode() {
         session.setId("constantId");
         assertThat(session.hashCode()).isEqualTo(session.getId().hashCode());
+    }
+
+    @Test
+    public void isExpiredExact() {
+        long now = 1413260062962L;
+        assertThat(session.isExpired(now)).isTrue();
+    }
+
+    @Test
+    public void isExpiredOneMsTooSoon() {
+        long now = 1413260062961L;
+        assertThat(session.isExpired(now)).isFalse();
+    }
+
+    @Test
+    public void isExpiredOneMsAfter() {
+        long now = 1413260062963L;
+        assertThat(session.isExpired(now)).isTrue();
     }
 
     static class CustomSession implements ExpiringSession {
@@ -95,6 +114,11 @@ public class MapSessionTests {
         @Override
         public void removeAttribute(String attributeName) {
 
+        }
+
+        @Override
+        public boolean isExpired() {
+            return false;
         }
     }
 
