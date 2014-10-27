@@ -30,7 +30,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 public class Config {
 
     @Bean
-    public JedisConnectionFactory connectionFactory() throws Exception {
+    public JedisConnectionFactory connectionFactory() {
         return new JedisConnectionFactory();
     }
 }

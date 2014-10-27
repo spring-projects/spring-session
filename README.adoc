@@ -168,7 +168,7 @@ Add the following Spring Configuration:
 public class Config {
 
     @Bean
-    public JedisConnectionFactory connectionFactory() throws Exception {
+    public JedisConnectionFactory connectionFactory() {
         return new JedisConnectionFactory();
     }
 }
