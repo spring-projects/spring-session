@@ -18,6 +18,7 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -30,6 +31,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
 
@@ -50,6 +52,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
     private Integer maxInactiveIntervalInSeconds;
 
+    private HttpSessionStrategy httpSessionStrategy;
 
     @Bean
     public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
@@ -69,7 +72,11 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
     @Bean
     public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository) {
-        return new SessionRepositoryFilter<S>(sessionRepository);
+        SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
+        if(httpSessionStrategy != null) {
+            sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
+        }
+        return sessionRepositoryFilter;
     }
 
     @Override
@@ -93,6 +100,10 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
         maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
     }
 
+    @Autowired(required = false)
+    public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
+        this.httpSessionStrategy = httpSessionStrategy;
+    }
 
 
     /* (non-Javadoc)
