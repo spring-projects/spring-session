@@ -15,6 +15,7 @@
  */
 package org.springframework.session.web.http;
 
+import org.springframework.core.Ordered;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.Assert;
@@ -51,7 +52,11 @@ import java.util.Set;
  * @since 1.0
  * @author Rob Winch
  */
-public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter {
+public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter implements Ordered {
+    public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 50;
+
+    private int order = DEFAULT_ORDER;
+
     private final SessionRepository<S> sessionRepository;
 
     private HttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
@@ -332,4 +337,13 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             throw new NoSuchElementException("a");
         }
     };
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
+    @Override
+    public int getOrder() {
+        return order;
+    }
 }
