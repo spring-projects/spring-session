@@ -62,6 +62,10 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
         if(saved == null) {
             return null;
         }
+        if(saved.isExpired()) {
+            delete(saved.getId());
+            return null;
+        }
         MapSession result = new MapSession(saved);
         result.setLastAccessedTime(System.currentTimeMillis());
         return result;
