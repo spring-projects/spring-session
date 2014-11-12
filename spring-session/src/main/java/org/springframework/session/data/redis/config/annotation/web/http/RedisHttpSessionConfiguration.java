@@ -20,6 +20,7 @@ import java.util.Map;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -28,10 +29,13 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.PatternTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.SessionMessageListener;
 import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
@@ -54,6 +58,24 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
     private Integer maxInactiveIntervalInSeconds;
 
     private HttpSessionStrategy httpSessionStrategy;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
+    @Bean
+    public RedisMessageListenerContainer redisMessageListenerContainer(
+            RedisConnectionFactory connectionFactory) {
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(redisSessionMessageListener(),
+                new PatternTopic("__keyspace@0__:spring:session:sessions:*"));
+        return container;
+    }
+
+    @Bean
+    public SessionMessageListener redisSessionMessageListener() {
+        return new SessionMessageListener(eventPublisher);
+    }
 
     @Bean
     public RedisTemplate<String,ExpiringSession> sessionRedisTemplate(RedisConnectionFactory connectionFactory) {

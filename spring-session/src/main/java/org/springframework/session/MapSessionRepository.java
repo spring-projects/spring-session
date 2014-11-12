@@ -15,6 +15,7 @@
  */
 package org.springframework.session;
 
+import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.util.Assert;
 
 import java.util.Map;
@@ -24,6 +25,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * A {@link SessionRepository} backed by a {@link java.util.Map} and that uses a {@link MapSession}. By default a
  * {@link java.util.concurrent.ConcurrentHashMap} is used, but a custom {@link java.util.Map} can be injected to use
  * distributed maps provided by NoSQL stores like Redis and Hazelcast.
+ *
+ * <p>
+ * The implementation does NOT support firing {@link SessionDestroyedEvent}.
+ * </p>
  *
  * @author Rob Winch
  * @since 1.0
