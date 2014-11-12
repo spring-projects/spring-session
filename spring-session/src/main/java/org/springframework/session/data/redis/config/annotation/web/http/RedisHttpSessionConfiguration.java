@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -55,7 +56,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
     private HttpSessionStrategy httpSessionStrategy;
 
     @Bean
-    public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
+    public RedisTemplate<String,ExpiringSession> sessionRedisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
@@ -64,8 +65,17 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
     }
 
     @Bean
-    public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
-        RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(redisTemplate);
+    public RedisTemplate<String,String> expirationRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, String> template = new RedisTemplate<String, String>();
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setConnectionFactory(connectionFactory);
+        return template;
+    }
+
+    @Bean
+    public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> sessionRedisTemplate, @Qualifier("expirationRedisTemplate") RedisTemplate<String,String> expirationRedisTemplate) {
+        RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(sessionRedisTemplate,expirationRedisTemplate);
         sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
         return sessionRepository;
     }

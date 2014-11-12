@@ -1,6 +1,9 @@
 package org.springframework.session.data.redis;
 
-import static org.fest.assertions.Assertions.*;
+import static org.fest.assertions.Assertions.assertThat;
+
+import java.io.IOException;
+import java.net.ServerSocket;
 
 import org.junit.After;
 import org.junit.Before;
@@ -9,24 +12,19 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import redis.embedded.RedisServer;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import redis.embedded.RedisServer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -89,6 +87,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
     }
 
     @Configuration
+    @EnableRedisHttpSession
     static class Config {
         @Bean
         public JedisConnectionFactory connectionFactory() throws Exception {
@@ -96,20 +95,6 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
             factory.setPort(getPort());
             factory.setUsePool(false);
             return factory;
-        }
-
-        @Bean
-        public RedisTemplate<String,ExpiringSession> redisTemplate(RedisConnectionFactory connectionFactory) {
-            RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
-            template.setKeySerializer(new StringRedisSerializer());
-            template.setHashKeySerializer(new StringRedisSerializer());
-            template.setConnectionFactory(connectionFactory);
-            return template;
-        }
-
-        @Bean
-        public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> redisTemplate) {
-            return new RedisOperationsSessionRepository(redisTemplate);
         }
     }
 

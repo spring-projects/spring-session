@@ -15,8 +15,17 @@
  */
 package org.springframework.session.data.redis;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -24,16 +33,13 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 /**
  * <p>
- * A {@link org.springframework.session.SessionRepository} that is implemented using Spring Data's
- * {@link org.springframework.data.redis.core.RedisOperations}. In a web environment, this is typically used in
- * combination with {@link SessionRepositoryFilter}.
+ * A {@link org.springframework.session.SessionRepository} that is implemented
+ * using Spring Data's
+ * {@link org.springframework.data.redis.core.RedisOperations}. In a web
+ * environment, this is typically used in combination with
+ * {@link SessionRepositoryFilter}.
  * </p>
  *
  * <h2>Creating a new instance</h2>
@@ -41,53 +47,67 @@ import java.util.concurrent.TimeUnit;
  * A typical example of how to create a new instance can be seen below:
  *
  * <pre>
- *  JedisConnectionFactory factory = new JedisConnectionFactory();
+ * JedisConnectionFactory factory = new JedisConnectionFactory();
  *
- *  RedisTemplate<String, Session> template = new RedisTemplate<String, Session>();
- *  template.setKeySerializer(new StringRedisSerializer());
- *  template.setHashKeySerializer(new StringRedisSerializer());
- *  template.setConnectionFactory(factory);
- *
- *  RedisOperationsSessionRepository redisSessionRepository = new RedisOperationsSessionRepository(template);
+ * RedisOperationsSessionRepository redisSessionRepository = new RedisOperationsSessionRepository(
+ * 		factory);
  * </pre>
  *
  * <p>
- * For additional information on how to create a RedisTemplate, refer to the
- * <a href="http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/">Spring Data Redis Reference</a>.
+ * For additional information on how to create a RedisTemplate, refer to the <a
+ * href =
+ * "http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/"
+ * >Spring Data Redis Reference</a>.
  * </p>
  *
  * <h2>Storage Details</h2>
  *
  * <p>
- * Each session is stored in Redis as a <a href="http://redis.io/topics/data-types#hashes">Hash</a>. Each session is
- * set and updated using the <a href="http://redis.io/commands/hmset">HMSET command</a>. An example of how each session
- * is stored can be seen below.
+ * Each session is stored in Redis as a <a
+ * href="http://redis.io/topics/data-types#hashes">Hash</a>. Each session is set
+ * and updated using the <a href="http://redis.io/commands/hmset">HMSET
+ * command</a>. An example of how each session is stored can be seen below.
  * </p>
  *
  * <pre>
- *     HMSET spring-security-sessions:<session-id> creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:<attrName> someAttrValue sessionAttr2:<attrName> someAttrValue2
+ *     HMSET spring:session:sessions:<session-id> creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:<attrName> someAttrValue sessionAttr2:<attrName> someAttrValue2
  * </pre>
  *
  * <p>
- * An expiration is associated to each session using the <a href="http://redis.io/commands/expire">EXPIRE command</a> based upon the
- * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveInterval()}.
- * For example:
+ * An expiration is associated to each session using the <a
+ * href="http://redis.io/commands/expire">EXPIRE command</a> based upon the
+ * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveInterval()}
+ * . For example:
  * </p>
  *
  * <pre>
- *    EXPIRE spring-security-sessions:<session-id> 1800
+ *    EXPIRE spring:session:sessions:<session-id> 1800
  * </pre>
  *
  * <p>
- * The {@link RedisSession} keeps track of the properties that have changed and only updates those. This means if an attribute
- * is written once and read many times we only need to write that attribute once. For example, assume the session attribute
- * "sessionAttr2" from earlier was updated. The following would be executed upon saving:
+ * The {@link RedisSession} keeps track of the properties that have changed and
+ * only updates those. This means if an attribute is written once and read many
+ * times we only need to write that attribute once. For example, assume the
+ * session attribute "sessionAttr2" from earlier was updated. The following
+ * would be executed upon saving:
  * </p>
  *
  * <pre>
- *     HMSET spring-security-sessions:<session-id> sessionAttr2:<attrName> newValue
- *     EXPIRE spring-security-sessions:<session-id> 1800
+ *     HMSET spring:session:sessions:<session-id> sessionAttr2:<attrName> newValue
+ *     EXPIRE spring:session:sessions:<session-id> 1800
  * </pre>
+ *
+ * Each session expiration is also tracked to the nearest minute. This allows a
+ * background task to cleanup expired sessions in a deterministic fashion. For
+ * example:
+ *
+ * <pre>
+ *     SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
+ *     EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1800
+ * </pre>
+ *
+ * The Redis expiration is still placed on each key to ensure that if the server
+ * is down when the session expires, it is still cleaned up.
  *
  * @since 1.0
  *
@@ -121,7 +141,9 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      */
     static final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
-    private final RedisOperations<String,ExpiringSession> redisOperations;
+    private final RedisOperations<String,ExpiringSession> sessionRedisOperations;
+
+    private final RedisSessionExpirationPolicy expirationPolicy;
 
     /**
      * If non-null, this value is used to override {@link RedisSession#setDefaultMaxInactiveInterval(int)}.
@@ -129,13 +151,26 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
     private Integer defaultMaxInactiveInterval;
 
     /**
+     * Allows creating an instance and uses a default {@link RedisOperations} for both managing the session and the expirations.
+     *
+     * @param redisConnectionFactory the {@link RedisConnectionFactory} to use.
+     */
+    @SuppressWarnings("unchecked")
+    public RedisOperationsSessionRepository(RedisConnectionFactory redisConnectionFactory) {
+        this(createDefaultTemplate(redisConnectionFactory), createDefaultTemplate(redisConnectionFactory));
+    }
+
+    /**
      * Creates a new instance. For an example, refer to the class level javadoc.
      *
-     * @param redisOperations The {@link RedisOperations} to use. Cannot be null.
+     * @param sessionRedisOperations The {@link RedisOperations} to use for managing the sessions. Cannot be null.
+     * @param expirationRedisOperations The {@link RedisOperations} to use for managing expiration mappings. Cannot be null.
      */
-    public RedisOperationsSessionRepository(RedisOperations<String, ExpiringSession> redisOperations) {
-        Assert.notNull(redisOperations, "RedisOperations cannot be null");
-        this.redisOperations = redisOperations;
+    public RedisOperationsSessionRepository(RedisOperations<String, ExpiringSession> sessionRedisOperations, RedisOperations<String,String> expirationRedisOperations) {
+        Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
+        Assert.notNull(expirationRedisOperations, "expirationRedisOperations cannot be null");
+        this.sessionRedisOperations = sessionRedisOperations;
+        this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, expirationRedisOperations);
     }
 
     /**
@@ -154,8 +189,26 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         session.saveDelta();
     }
 
+    @Scheduled(cron="0 * * * * *")
+    public void cleanupExpiredSessions() {
+        this.expirationPolicy.cleanExpiredSessions();
+    }
+
     @Override
     public RedisSession getSession(String id) {
+        return getSession(id, false);
+    }
+
+    /**
+     *
+     * @param id the session id
+     * @param allowExpired
+     *            if true, will also include expired sessions that have not been
+     *            deleted. If false, will ensure expired sessions are not
+     *            returned.
+     * @return
+     */
+    private RedisSession getSession(String id, boolean allowExpired) {
         Map<Object, Object> entries = getSessionBoundHashOperations(id).entries();
         if(entries.isEmpty()) {
             return null;
@@ -174,15 +227,27 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
                 loaded.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
             }
         }
+        if(!allowExpired && loaded.isExpired()) {
+            return null;
+        }
         RedisSession result = new RedisSession(loaded);
+        result.originalLastAccessTime = loaded.getLastAccessedTime() + TimeUnit.SECONDS.toMillis(loaded.getMaxInactiveInterval());
         result.setLastAccessedTime(System.currentTimeMillis());
         return result;
     }
 
     @Override
     public void delete(String sessionId) {
+        ExpiringSession session = getSession(sessionId, true);
+        if(session == null) {
+            return;
+        }
+
         String key = getKey(sessionId);
-        this.redisOperations.delete(key);
+        expirationPolicy.onDelete(session);
+
+        // always delete they key since session may be null if just expired
+        this.sessionRedisOperations.delete(key);
     }
 
     @Override
@@ -221,7 +286,17 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      */
     private BoundHashOperations<String, Object, Object> getSessionBoundHashOperations(String sessionId) {
         String key = getKey(sessionId);
-        return this.redisOperations.boundHashOps(key);
+        return this.sessionRedisOperations.boundHashOps(key);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static RedisTemplate createDefaultTemplate(RedisConnectionFactory connectionFactory) {
+        Assert.notNull(connectionFactory,"connectionFactory cannot be null");
+        RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setConnectionFactory(connectionFactory);
+        return template;
     }
 
     /**
@@ -235,6 +310,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      */
     final class RedisSession implements ExpiringSession {
         private final MapSession cached;
+        private Long originalLastAccessTime;
         private Map<String, Object> delta = new HashMap<String,Object>();
 
         /**
@@ -260,6 +336,11 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         public void setLastAccessedTime(long lastAccessedTime) {
             cached.setLastAccessedTime(lastAccessedTime);
             delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
+        }
+
+        @Override
+        public boolean isExpired() {
+            return cached.isExpired();
         }
 
         @Override
@@ -314,9 +395,11 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
          * Saves any attributes that have been changed and updates the expiration of this session.
          */
         private void saveDelta() {
-            getSessionBoundHashOperations(getId()).putAll(delta);
-            getSessionBoundHashOperations(getId()).expire(getMaxInactiveInterval(), TimeUnit.SECONDS);
+            String sessionId = getId();
+            getSessionBoundHashOperations(sessionId).putAll(delta);
             delta = new HashMap<String,Object>(delta.size());
+
+            expirationPolicy.onExpirationUpdated(originalLastAccessTime, this);
         }
     }
 }
