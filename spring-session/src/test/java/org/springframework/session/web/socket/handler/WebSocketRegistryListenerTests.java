@@ -1,0 +1,130 @@
+/*
+ * Copyright 2002-2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.springframework.session.web.socket.handler;
+
+import static org.mockito.Mockito.*;
+
+import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.web.socket.events.SessionConnectEvent;
+import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
+
+@RunWith(MockitoJUnitRunner.class)
+public class WebSocketRegistryListenerTests {
+    @Mock
+    WebSocketSession wsSession;
+    @Mock
+    WebSocketSession wsSession2;
+    @Mock
+    Message<byte[]> message;
+    @Mock
+    Principal principal;
+
+    SessionConnectEvent connect;
+
+    SessionConnectEvent connect2;
+
+    SessionDisconnectEvent disconnect;
+
+    SessionDestroyedEvent destroyed;
+
+    Map<String, Object> attributes;
+
+    String sessionId;
+
+    WebSocketRegistryListener listener;
+
+
+    @Before
+    public void setup() {
+        sessionId = "session-id";
+        attributes = new HashMap<>();
+        SessionRepositoryMessageInterceptor.setSessionId(attributes, sessionId);
+
+        when(wsSession.getAttributes()).thenReturn(attributes);
+        when(wsSession.getPrincipal()).thenReturn(principal);
+        when(wsSession.getId()).thenReturn("wsSession-id");
+
+        when(wsSession2.getAttributes()).thenReturn(attributes);
+        when(wsSession2.getPrincipal()).thenReturn(principal);
+        when(wsSession2.getId()).thenReturn("wsSession-id2");
+
+        Map<String,Object> headers = new HashMap<>();
+        headers.put(SimpMessageHeaderAccessor.SESSION_ATTRIBUTES, attributes);
+        when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
+
+        listener = new WebSocketRegistryListener();
+        connect = new SessionConnectEvent(listener,wsSession);
+        connect2 = new SessionConnectEvent(listener,wsSession2);
+        disconnect = new SessionDisconnectEvent(listener, message, wsSession.getId(), CloseStatus.NORMAL);
+        destroyed = new SessionDestroyedEvent(listener, sessionId);
+    }
+
+    @Test
+    public void onApplicationEventConnectSessionDestroyed() throws Exception {
+        listener.onApplicationEvent(connect);
+
+        listener.onApplicationEvent(destroyed);
+
+        verify(wsSession).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
+    }
+
+    @Test
+    public void onApplicationEventConnectSessionDestroyedNullPrincipal() throws Exception {
+        when(wsSession.getPrincipal()).thenReturn(null);
+        listener.onApplicationEvent(connect);
+
+        listener.onApplicationEvent(destroyed);
+
+        verify(wsSession,times(0)).close(any(CloseStatus.class));
+    }
+
+    @Test
+    public void onApplicationEventConnectDisonnect() throws Exception {
+        listener.onApplicationEvent(connect);
+        listener.onApplicationEvent(disconnect);
+
+        listener.onApplicationEvent(destroyed);
+
+        verify(wsSession,times(0)).close(any(CloseStatus.class));
+    }
+
+    @Test
+    public void onApplicationEventConnectConnectDisonnect() throws Exception {
+        listener.onApplicationEvent(connect);
+        listener.onApplicationEvent(connect2);
+        listener.onApplicationEvent(disconnect);
+
+        listener.onApplicationEvent(destroyed);
+
+        verify(wsSession2).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
+        verify(wsSession,times(0)).close(any(CloseStatus.class));
+    }
+}

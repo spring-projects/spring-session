@@ -10,8 +10,8 @@ group = 'org.springframework.session'
 
 ext.jstlVersion = '1.2.1'
 ext.servletApiVersion = '3.0.1'
-ext.springSecurityVersion = '3.2.4.RELEASE'
-ext.springVersion = '4.1.0.RELEASE'
+ext.springSecurityVersion = '4.0.0.CI-SNAPSHOT'
+ext.springVersion = '4.1.2.RELEASE'
 ext.groovyVersion = '2.0.5'
 ext.seleniumVersion = '2.33.0'
 ext.spockVersion = '0.7-groovy-2.0'
@@ -42,6 +42,7 @@ ext.jstlDependencies = [
 repositories {
     mavenCentral()
     maven { url 'http://clojars.org/repo' }
+    maven { url 'https://repo.spring.io/libs-snapshot' }
 }
 
 configurations.all {
