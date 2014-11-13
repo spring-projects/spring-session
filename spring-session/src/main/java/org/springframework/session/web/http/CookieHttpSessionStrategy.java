@@ -103,18 +103,14 @@ public final class CookieHttpSessionStrategy implements HttpSessionStrategy {
     private static Cookie getCookie(HttpServletRequest request, String name) {
         Assert.notNull(request, "Request must not be null");
         Cookie cookies[] = request.getCookies();
-        Cookie result = null;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
                 if (name.equals(cookie.getName())) {
-                    if(cookiePath(request).equals(cookie.getPath())) {
-                        return cookie;
-                    }
-                    result = cookie;
+                    return cookie;
                 }
             }
         }
-        return result;
+        return null;
     }
 
     private static String cookiePath(HttpServletRequest request) {
