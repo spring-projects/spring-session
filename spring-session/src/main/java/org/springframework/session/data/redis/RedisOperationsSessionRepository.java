@@ -298,7 +298,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setConnectionFactory(connectionFactory);
-        template.afterPropertiesSet(); //Force initialization of default values
+        template.afterPropertiesSet();
         return template;
     }
 

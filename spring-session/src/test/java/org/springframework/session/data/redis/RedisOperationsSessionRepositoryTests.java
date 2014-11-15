@@ -23,6 +23,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
@@ -33,6 +35,10 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
 
 @RunWith(MockitoJUnitRunner.class)
 public class RedisOperationsSessionRepositoryTests {
+    @Mock
+    RedisConnectionFactory factory;
+    @Mock
+    RedisConnection connection;
     @Mock
     RedisOperations<String,ExpiringSession> redisOperations;
     @Mock
@@ -56,6 +62,17 @@ public class RedisOperationsSessionRepositoryTests {
     @Test(expected=IllegalArgumentException.class)
     public void constructorNullConnectionFactory() {
         new RedisOperationsSessionRepository(null);
+    }
+
+    // gh-61
+    @Test
+    public void constructorConnectionFactory() {
+        redisRepository = new RedisOperationsSessionRepository(factory);
+        RedisSession session = redisRepository.createSession();
+
+        when(factory.getConnection()).thenReturn(connection);
+
+        redisRepository.save(session);
     }
 
     @Test
