@@ -15,11 +15,10 @@
  */
 package org.springframework.session.web.http;
 
-import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
-import org.springframework.util.Assert;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -53,12 +52,11 @@ import java.util.Set;
  * @since 1.0
  * @author Rob Winch
  */
-public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter implements Ordered {
+@Order(SessionRepositoryFilter.DEFAULT_ORDER)
+public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter {
     public static final String SESSION_REPOSITORY_ATTR = SessionRepository.class.getName();
 
-    public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 50;
-
-    private int order = DEFAULT_ORDER;
+    public static final int DEFAULT_ORDER = Integer.MIN_VALUE + 50;
 
     private final SessionRepository<S> sessionRepository;
 
@@ -70,7 +68,9 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
      * @param sessionRepository the <code>SessionRepository</code> to use. Cannot be null.
      */
     public SessionRepositoryFilter(SessionRepository<S> sessionRepository) {
-        Assert.notNull(sessionRepository, "SessionRepository cannot be null");
+        if(sessionRepository == null) {
+            throw new IllegalArgumentException("SessionRepository cannot be null");
+        }
         this.sessionRepository = sessionRepository;
     }
 
@@ -80,7 +80,9 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
      * @param httpSessionStrategy the {@link HttpSessionStrategy} to use. Cannot be null.
      */
     public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
-        Assert.notNull(httpSessionStrategy,"httpSessionIdStrategy cannot be null");
+        if(sessionRepository == null) {
+            throw new IllegalArgumentException("httpSessionIdStrategy cannot be null");
+        }
         this.httpSessionStrategy = new MultiHttpSessionStrategyAdapter(httpSessionStrategy);
     }
 
@@ -90,7 +92,9 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
      * @param httpSessionStrategy the {@link MultiHttpSessionStrategy} to use. Cannot be null.
      */
     public void setHttpSessionStrategy(MultiHttpSessionStrategy httpSessionStrategy) {
-        Assert.notNull(httpSessionStrategy,"httpSessionIdStrategy cannot be null");
+        if(sessionRepository == null) {
+            throw new IllegalArgumentException("httpSessionIdStrategy cannot be null");
+        }
         this.httpSessionStrategy = httpSessionStrategy;
     }
 
@@ -125,7 +129,9 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
          */
         public SessionRepositoryResponseWrapper(SessionRepositoryRequestWrapper request, HttpServletResponse response) {
             super(response);
-            Assert.notNull(request, "SessionRepositoryRequestWrapper cannot be null");
+            if(request == null) {
+                throw new IllegalArgumentException("request cannot be null");
+            }
             this.request = request;
         }
 
@@ -358,15 +364,6 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             throw new NoSuchElementException("a");
         }
     };
-
-    public void setOrder(int order) {
-        this.order = order;
-    }
-
-    @Override
-    public int getOrder() {
-        return order;
-    }
 
     static class MultiHttpSessionStrategyAdapter implements MultiHttpSessionStrategy {
         private HttpSessionStrategy delegate;

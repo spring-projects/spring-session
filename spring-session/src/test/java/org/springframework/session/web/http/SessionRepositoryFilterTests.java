@@ -2,8 +2,10 @@ package org.springframework.session.web.http;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -25,6 +27,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.OrderUtils;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -908,10 +912,16 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 
     // --- order
 
+    @Test
     public void order() {
-        int expected = 5;
-        filter.setOrder(expected);
-        assertThat(filter.getOrder()).isEqualTo(expected);
+        assertThat(OrderUtils.getOrder(filter.getClass())).isEqualTo(SessionRepositoryFilter.DEFAULT_ORDER);
+    }
+
+    // We want the filter to work without any dependencies on Spring
+    @Test(expected = ClassCastException.class)
+    @SuppressWarnings("unused")
+    public void doesNotImplementOrdered() {
+        Ordered o = (Ordered) filter;
     }
 
     // --- helper methods

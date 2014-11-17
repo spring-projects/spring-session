@@ -15,8 +15,7 @@
  */
 package org.springframework.session;
 
-import org.springframework.util.Assert;
-
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -41,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0
  * @author Rob Winch
  */
-public final class MapSession implements ExpiringSession {
+public final class MapSession implements ExpiringSession, Serializable {
     /**
      * Default {@link #setMaxInactiveInterval(int)} (30 minutes)
      */
@@ -69,7 +68,9 @@ public final class MapSession implements ExpiringSession {
      * @param session the {@link Session} to initialize this {@link Session} with. Cannot be null.
      */
     public MapSession(ExpiringSession session) {
-        Assert.notNull(session, "session cannot be null");
+        if(session == null) {
+            throw new IllegalArgumentException("session cannot be null");
+        }
         this.id = session.getId();
         this.sessionAttrs = new HashMap<String, Object>(session.getAttributeNames().size());
         for (String attrName : session.getAttributeNames()) {
@@ -169,4 +170,6 @@ public final class MapSession implements ExpiringSession {
     public int hashCode() {
         return id.hashCode();
     }
+
+    private static final long serialVersionUID = 7160779239673823561L;
 }
