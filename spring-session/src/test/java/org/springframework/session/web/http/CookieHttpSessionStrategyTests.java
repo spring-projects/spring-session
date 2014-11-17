@@ -132,49 +132,49 @@ public class CookieHttpSessionStrategyTests {
 
     @Test
     public void encodeURLNoExistingQuery() {
-        assertThat(strategy.encodeURL("/url", "2")).isEqualTo("/url?u=2");
+        assertThat(strategy.encodeURL("/url", "2")).isEqualTo("/url?_s=2");
     }
 
     @Test
     public void encodeURLNoExistingQueryEmpty() {
-        assertThat(strategy.encodeURL("/url?", "2")).isEqualTo("/url?u=2");
+        assertThat(strategy.encodeURL("/url?", "2")).isEqualTo("/url?_s=2");
     }
 
     @Test
     public void encodeURLExistingQueryNoAlias() {
-        assertThat(strategy.encodeURL("/url?a=b", "2")).isEqualTo("/url?a=b&u=2");
+        assertThat(strategy.encodeURL("/url?a=b", "2")).isEqualTo("/url?a=b&_s=2");
     }
 
     @Test
     public void encodeURLExistingQueryExistingAliasStart() {
-        assertThat(strategy.encodeURL("/url?u=1&y=z", "2")).isEqualTo("/url?u=2&y=z");
+        assertThat(strategy.encodeURL("/url?_s=1&y=z", "2")).isEqualTo("/url?_s=2&y=z");
     }
 
     @Test
     public void encodeURLExistingQueryExistingAliasMiddle() {
-        assertThat(strategy.encodeURL("/url?a=b&u=1&y=z", "2")).isEqualTo("/url?a=b&u=2&y=z");
+        assertThat(strategy.encodeURL("/url?a=b&_s=1&y=z", "2")).isEqualTo("/url?a=b&_s=2&y=z");
     }
 
     @Test
     public void encodeURLExistingQueryExistingAliasEnd() {
-        assertThat(strategy.encodeURL("/url?a=b&u=1", "2")).isEqualTo("/url?a=b&u=2");
+        assertThat(strategy.encodeURL("/url?a=b&_s=1", "2")).isEqualTo("/url?a=b&_s=2");
     }
 
     //
 
     @Test
     public void encodeURLExistingQueryParamEndsWithActualParamStart() {
-        assertThat(strategy.encodeURL("/url?xu=1&y=z", "2")).isEqualTo("/url?xu=1&y=z&u=2");
+        assertThat(strategy.encodeURL("/url?x_s=1&y=z", "2")).isEqualTo("/url?x_s=1&y=z&_s=2");
     }
 
     @Test
     public void encodeURLExistingQueryParamEndsWithActualParamMiddle() {
-        assertThat(strategy.encodeURL("/url?a=b&xu=1&y=z", "2")).isEqualTo("/url?a=b&xu=1&y=z&u=2");
+        assertThat(strategy.encodeURL("/url?a=b&x_s=1&y=z", "2")).isEqualTo("/url?a=b&x_s=1&y=z&_s=2");
     }
 
     @Test
     public void encodeURLExistingQueryParamEndsWithActualParamEnd() {
-        assertThat(strategy.encodeURL("/url?a=b&xu=1", "2")).isEqualTo("/url?a=b&xu=1&u=2");
+        assertThat(strategy.encodeURL("/url?a=b&x_s=1", "2")).isEqualTo("/url?a=b&x_s=1&_s=2");
     }
 
     //
@@ -197,17 +197,17 @@ public class CookieHttpSessionStrategyTests {
     @Test
     public void encodeURLExistingQueryExistingAliasStartDefaultAlias() {
         // relaxed constraint as result /url?&y=z does not hurt anything (ideally should remove the &)
-        assertThat(strategy.encodeURL("/url?u=1&y=z", "0")).doesNotContain("u=0&u=1");
+        assertThat(strategy.encodeURL("/url?_s=1&y=z", "0")).doesNotContain("_s=0&_s=1");
     }
 
     @Test
     public void encodeURLExistingQueryExistingAliasMiddleDefaultAlias() {
-        assertThat(strategy.encodeURL("/url?a=b&u=1&y=z", "0")).isEqualTo("/url?a=b&y=z");
+        assertThat(strategy.encodeURL("/url?a=b&_s=1&y=z", "0")).isEqualTo("/url?a=b&y=z");
     }
 
     @Test
     public void encodeURLExistingQueryExistingAliasEndDefaultAlias() {
-        assertThat(strategy.encodeURL("/url?a=b&u=1", "0")).isEqualTo("/url?a=b");
+        assertThat(strategy.encodeURL("/url?a=b&_s=1", "0")).isEqualTo("/url?a=b");
     }
 
     // --- getCurrentSessionAlias

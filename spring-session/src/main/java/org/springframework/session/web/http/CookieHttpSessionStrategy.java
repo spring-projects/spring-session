@@ -72,7 +72,7 @@ import org.springframework.util.Assert;
  * </p>
  *
  * <pre>
- * GET /messages/?u=1416195761178 HTTP/1.1
+ * GET /messages/?_s=1416195761178 HTTP/1.1
  * Host: example.com
  * Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6
  * </pre>
@@ -87,7 +87,7 @@ import org.springframework.util.Assert;
  * <p>
  * To use the original session a request without the HTTP parameter u can be
  * made. To use the new session, a request with the HTTP parameter
- * u=1416195761178 can be used. By default URLs will be rewritten to include the
+ * _s=1416195761178 can be used. By default URLs will be rewritten to include the
  * currently selected session.
  * </p>
  *
@@ -150,7 +150,7 @@ import org.springframework.util.Assert;
 public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy, HttpSessionManager {
     static final String DEFAULT_ALIAS = "0";
 
-    static final String DEFAULT_SESSION_ALIAS_PARAM_NAME = "u";
+    static final String DEFAULT_SESSION_ALIAS_PARAM_NAME = "_s";
 
     private String cookieName = "SESSION";
 
