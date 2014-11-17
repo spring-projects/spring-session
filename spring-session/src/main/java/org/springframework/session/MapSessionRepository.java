@@ -16,7 +16,6 @@
 package org.springframework.session;
 
 import org.springframework.session.events.SessionDestroyedEvent;
-import org.springframework.util.Assert;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,7 +48,9 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
      * @param sessions the {@link java.util.Map} to use. Cannot be null.
      */
     public MapSessionRepository(Map<String,ExpiringSession> sessions) {
-        Assert.notNull(sessions, "sessions cannot be null");
+        if(sessions == null) {
+            throw new IllegalArgumentException("sessions cannot be null");
+        }
         this.sessions = sessions;
     }
 
