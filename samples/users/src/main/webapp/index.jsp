@@ -70,7 +70,7 @@
                     </div>
                     <div class="form-group">
                         <label for="password">Password</label>
-                        <input id="password" type="text" name="password"/>
+                        <input id="password" type="password" name="password"/>
                     </div>
                     <input type="submit" value="Login"/>
                 </form>
