@@ -17,6 +17,7 @@ package org.springframework.session.web.http;
 
 import org.springframework.core.Ordered;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.Assert;
 
@@ -53,13 +54,15 @@ import java.util.Set;
  * @author Rob Winch
  */
 public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter implements Ordered {
+    public static final String SESSION_REPOSITORY_ATTR = SessionRepository.class.getName();
+
     public static final int DEFAULT_ORDER = Ordered.HIGHEST_PRECEDENCE + 50;
 
     private int order = DEFAULT_ORDER;
 
     private final SessionRepository<S> sessionRepository;
 
-    private HttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
+    private MultiHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
 
     /**
      * Creates a new instance
@@ -78,14 +81,30 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
      */
     public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
         Assert.notNull(httpSessionStrategy,"httpSessionIdStrategy cannot be null");
+        this.httpSessionStrategy = new MultiHttpSessionStrategyAdapter(httpSessionStrategy);
+    }
+
+    /**
+     * Sets the {@link MultiHttpSessionStrategy} to be used. The default is a {@link CookieHttpSessionStrategy}.
+     *
+     * @param httpSessionStrategy the {@link MultiHttpSessionStrategy} to use. Cannot be null.
+     */
+    public void setHttpSessionStrategy(MultiHttpSessionStrategy httpSessionStrategy) {
+        Assert.notNull(httpSessionStrategy,"httpSessionIdStrategy cannot be null");
         this.httpSessionStrategy = httpSessionStrategy;
     }
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        request.setAttribute(SESSION_REPOSITORY_ATTR, sessionRepository);
+
         SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(request, response);
         SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(wrappedRequest,response);
+
+        HttpServletRequest strategyRequest = httpSessionStrategy.wrapRequest(wrappedRequest, wrappedResponse);
+        HttpServletResponse strategyResponse = httpSessionStrategy.wrapResponse(wrappedRequest, wrappedResponse);
+
         try {
-            filterChain.doFilter(wrappedRequest, wrappedResponse);
+            filterChain.doFilter(strategyRequest, strategyResponse);
         } finally {
             wrappedRequest.commitSession();
         }
@@ -145,7 +164,9 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             } else {
                 S session = wrappedSession.session;
                 sessionRepository.save(session);
-                httpSessionStrategy.onNewSession(session, this, response);
+                if(!requestedValidSession) {
+                    httpSessionStrategy.onNewSession(session, this, response);
+                }
             }
         }
 
@@ -345,5 +366,39 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
     @Override
     public int getOrder() {
         return order;
+    }
+
+    static class MultiHttpSessionStrategyAdapter implements MultiHttpSessionStrategy {
+        private HttpSessionStrategy delegate;
+
+        public MultiHttpSessionStrategyAdapter(HttpSessionStrategy delegate) {
+            this.delegate = delegate;
+        }
+
+        public String getRequestedSessionId(HttpServletRequest request) {
+            return delegate.getRequestedSessionId(request);
+        }
+
+        public void onNewSession(Session session, HttpServletRequest request,
+                HttpServletResponse response) {
+            delegate.onNewSession(session, request, response);
+        }
+
+        public void onInvalidateSession(HttpServletRequest request,
+                HttpServletResponse response) {
+            delegate.onInvalidateSession(request, response);
+        }
+
+        @Override
+        public HttpServletRequest wrapRequest(HttpServletRequest request,
+                HttpServletResponse response) {
+            return request;
+        }
+
+        @Override
+        public HttpServletResponse wrapResponse(HttpServletRequest request,
+                HttpServletResponse response) {
+            return response;
+        }
     }
 }

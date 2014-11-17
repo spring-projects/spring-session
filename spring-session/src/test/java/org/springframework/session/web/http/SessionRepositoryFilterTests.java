@@ -2,6 +2,8 @@ package org.springframework.session.web.http;
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -20,15 +22,23 @@ import javax.servlet.http.HttpSessionContext;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
+@RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("deprecation")
 public class SessionRepositoryFilterTests<S extends ExpiringSession> {
+    @Mock
+    private HttpSessionStrategy strategy;
+
     private SessionRepository<ExpiringSession> sessionRepository;
 
     private SessionRepositoryFilter<ExpiringSession> filter;
@@ -836,6 +846,72 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
                 assertThat(sessionRepository.getSession(id)).isNotNull();
             }
         });
+    }
+
+    // --- MultiHttpSessionStrategyAdapter
+
+    @Test
+    public void doFilterAdapterGetRequestedSessionId() throws Exception {
+        filter.setHttpSessionStrategy(strategy);
+        final String expectedId = "MultiHttpSessionStrategyAdapter-requested-id";
+        when(strategy.getRequestedSessionId(any(HttpServletRequest.class))).thenReturn(expectedId);
+
+        doFilter(new DoInFilter(){
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+                String actualId = wrappedRequest.getRequestedSessionId();
+                assertThat(actualId).isEqualTo(expectedId);
+            }
+        });
+    }
+
+    @Test
+    public void doFilterAdapterOnNewSession() throws Exception {
+        filter.setHttpSessionStrategy(strategy);
+
+        doFilter(new DoInFilter(){
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+                wrappedRequest.getSession();
+            }
+        });
+
+        HttpServletRequest request = (HttpServletRequest) chain.getRequest();
+        Session session = sessionRepository.getSession(request.getSession().getId());
+        verify(strategy).onNewSession(eq(session), any(HttpServletRequest.class),any(HttpServletResponse.class));
+    }
+
+    @Test
+    public void doFilterAdapterOnInvalidate() throws Exception {
+        filter.setHttpSessionStrategy(strategy);
+
+        doFilter(new DoInFilter(){
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+                wrappedRequest.getSession().getId();
+            }
+        });
+
+        HttpServletRequest request = (HttpServletRequest) chain.getRequest();
+        String id = request.getSession().getId();
+        when(strategy.getRequestedSessionId(any(HttpServletRequest.class))).thenReturn(id);
+
+        doFilter(new DoInFilter(){
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+                wrappedRequest.getSession().invalidate();
+            }
+        });
+
+        verify(strategy).onInvalidateSession(any(HttpServletRequest.class),any(HttpServletResponse.class));
+    }
+
+    // --- order
+
+    public void order() {
+        int expected = 5;
+        filter.setOrder(expected);
+        assertThat(filter.getOrder()).isEqualTo(expected);
     }
 
     // --- helper methods
