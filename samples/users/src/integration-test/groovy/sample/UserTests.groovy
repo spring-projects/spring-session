@@ -21,6 +21,26 @@ class UserTests extends GebReportingSpec {
         !username
     }
 
+    def 'invalid login'() {
+        setup:
+        def user = 'rob'
+        when:
+        login(user, user+'invalid')
+        then:
+        !username
+        error == 'Invalid username / password. Please ensure the username is the same as the password.'
+    }
+
+    def 'empty username'() {
+        setup:
+        def user = ''
+        when:
+        login(user, user)
+        then:
+        !username
+        error == 'Invalid username / password. Please ensure the username is the same as the password.'
+    }
+
     def 'login single user'() {
         setup:
         def user = 'rob'

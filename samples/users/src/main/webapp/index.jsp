@@ -62,6 +62,9 @@
                     <li><b>Username</b> rob and <b>Password</b> rob</li>
                     <li><b>Username</b> luke and <b>Password</b> luke</li>
                 </ul>
+                <c:if test="${param.error != null}">
+                    <div id="error" class="alert alert-warning">Invalid username / password. Please ensure the username is the same as the password.</div>
+                </c:if>
                 <c:url value="/login" var="loginUrl"/>
                 <form action="${loginUrl}" method="post">
                     <div class="form-group">

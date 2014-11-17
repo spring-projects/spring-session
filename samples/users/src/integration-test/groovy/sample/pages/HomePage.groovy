@@ -12,6 +12,7 @@ class HomePage extends Page {
     static at = { assert driver.title == 'Demonstrates Multi User Log In'; true}
     static content = {
         navLink { $('#navLink') }
+        error { $('#error').text() }
         form { $('form') }
         username(required:false) { $('#un').text() }
         logout(required:false) { $('#logout') }

@@ -32,9 +32,12 @@ public class LoginServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        if(username != null && username.equals(password)) {
+        if(username != null && !"".equals(username) && username.equals(password)) {
             req.getSession().setAttribute("username", username);
             String url = resp.encodeRedirectURL(req.getContextPath() + "/");
+            resp.sendRedirect(url);
+        } else {
+            String url = resp.encodeRedirectURL(req.getContextPath() + "/?error");
             resp.sendRedirect(url);
         }
     }
