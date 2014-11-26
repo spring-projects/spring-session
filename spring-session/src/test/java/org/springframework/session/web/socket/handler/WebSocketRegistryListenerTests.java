@@ -65,7 +65,7 @@ public class WebSocketRegistryListenerTests {
     @Before
     public void setup() {
         sessionId = "session-id";
-        attributes = new HashMap<>();
+        attributes = new HashMap<String,Object>();
         SessionRepositoryMessageInterceptor.setSessionId(attributes, sessionId);
 
         when(wsSession.getAttributes()).thenReturn(attributes);
@@ -76,7 +76,7 @@ public class WebSocketRegistryListenerTests {
         when(wsSession2.getPrincipal()).thenReturn(principal);
         when(wsSession2.getId()).thenReturn("wsSession-id2");
 
-        Map<String,Object> headers = new HashMap<>();
+        Map<String,Object> headers = new HashMap<String,Object>();
         headers.put(SimpMessageHeaderAccessor.SESSION_ATTRIBUTES, attributes);
         when(message.getHeaders()).thenReturn(new MessageHeaders(headers));
 
@@ -107,7 +107,7 @@ public class WebSocketRegistryListenerTests {
     }
 
     @Test
-    public void onApplicationEventConnectDisonnect() throws Exception {
+    public void onApplicationEventConnectDisconnect() throws Exception {
         listener.onApplicationEvent(connect);
         listener.onApplicationEvent(disconnect);
 

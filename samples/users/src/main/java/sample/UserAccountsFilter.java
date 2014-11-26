@@ -34,12 +34,10 @@ import org.springframework.session.web.http.HttpSessionManager;
 
 public class UserAccountsFilter implements Filter {
 
-    @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
 
     @SuppressWarnings("unchecked")
-    @Override
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
@@ -54,7 +52,7 @@ public class UserAccountsFilter implements Filter {
         String newSessionAlias = String.valueOf(System.currentTimeMillis());
 
         String contextPath = req.getContextPath();
-        List<Account> accounts = new ArrayList<>();
+        List<Account> accounts = new ArrayList<Account>();
         Account currentAccount = null;
         for(Map.Entry<String, String> entry : sessionIds.entrySet()) {
             String alias = entry.getKey();
@@ -88,7 +86,6 @@ public class UserAccountsFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    @Override
     public void destroy() {
     }
 

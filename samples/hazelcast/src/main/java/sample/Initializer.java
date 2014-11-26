@@ -44,7 +44,6 @@ import com.hazelcast.core.HazelcastInstance;
 public class Initializer implements ServletContextListener {
     private HazelcastInstance instance;
 
-    @Override
     public void contextInitialized(ServletContextEvent sce) {
         String sessionMapName = "spring:session:sessions";
         ServletContext sc = sce.getServletContext();
@@ -66,11 +65,10 @@ public class Initializer implements ServletContextListener {
         Map<String,ExpiringSession> sessions = instance.getMap(sessionMapName);
 
         SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(sessions);
-        Dynamic fr = sc.addFilter("springSessionFilter", new SessionRepositoryFilter<>(sessionRepository ));
+        Dynamic fr = sc.addFilter("springSessionFilter", new SessionRepositoryFilter<ExpiringSession>(sessionRepository ));
         fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
     }
 
-    @Override
     public void contextDestroyed(ServletContextEvent sce) {
         instance.shutdown();
     }
