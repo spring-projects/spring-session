@@ -186,7 +186,6 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
     }
 
-    @Override
     public void save(RedisSession session) {
         session.saveDelta();
     }
@@ -196,7 +195,6 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         this.expirationPolicy.cleanExpiredSessions();
     }
 
-    @Override
     public RedisSession getSession(String id) {
         return getSession(id, false);
     }
@@ -238,7 +236,6 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         return result;
     }
 
-    @Override
     public void delete(String sessionId) {
         ExpiringSession session = getSession(sessionId, true);
         if(session == null) {
@@ -252,7 +249,6 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         this.sessionRedisOperations.delete(key);
     }
 
-    @Override
     public RedisSession createSession() {
         RedisSession redisSession = new RedisSession();
         if(defaultMaxInactiveInterval != null) {
@@ -341,54 +337,44 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
             delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
         }
 
-        @Override
         public boolean isExpired() {
             return cached.isExpired();
         }
 
-        @Override
         public long getCreationTime() {
             return cached.getCreationTime();
         }
 
-        @Override
         public String getId() {
             return cached.getId();
         }
 
-        @Override
         public long getLastAccessedTime() {
             return cached.getLastAccessedTime();
         }
 
-        @Override
         public void setMaxInactiveInterval(int interval) {
             cached.setMaxInactiveInterval(interval);
             delta.put(MAX_INACTIVE_ATTR, getMaxInactiveInterval());
         }
 
-        @Override
         public int getMaxInactiveInterval() {
             return cached.getMaxInactiveInterval();
         }
 
-        @Override
         public Object getAttribute(String attributeName) {
             return cached.getAttribute(attributeName);
         }
 
-        @Override
         public Set<String> getAttributeNames() {
             return cached.getAttributeNames();
         }
 
-        @Override
         public void setAttribute(String attributeName, Object attributeValue) {
             cached.setAttribute(attributeName, attributeValue);
             delta.put(getSessionAttrNameKey(attributeName), attributeValue);
         }
 
-        @Override
         public void removeAttribute(String attributeName) {
             cached.removeAttribute(attributeName);
             delta.put(getSessionAttrNameKey(attributeName), null);

@@ -155,14 +155,12 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
     private String sessionParam = DEFAULT_SESSION_ALIAS_PARAM_NAME;
 
-    @Override
     public String getRequestedSessionId(HttpServletRequest request) {
         Map<String,String> sessionIds = getSessionIds(request);
         String sessionAlias = getCurrentSessionAlias(request);
         return sessionIds.get(sessionAlias);
     }
 
-    @Override
     public String getCurrentSessionAlias(HttpServletRequest request) {
         if(sessionParam == null) {
             return DEFAULT_ALIAS;
@@ -174,7 +172,6 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         return u;
     }
 
-    @Override
     public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
         Map<String,String> sessionIds = getSessionIds(request);
         String sessionAlias = getCurrentSessionAlias(request);
@@ -217,7 +214,6 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         return sessionCookie;
     }
 
-    @Override
     public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
         Map<String,String> sessionIds = getSessionIds(request);
         String requestedAlias = getCurrentSessionAlias(request);
@@ -278,7 +274,6 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         return request.getContextPath() + "/";
     }
 
-    @Override
     public Map<String,String> getSessionIds(HttpServletRequest request) {
         Cookie session = getCookie(request, cookieName);
         String sessionCookieValue = session == null ? "" : session.getValue();
@@ -296,13 +291,11 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         return result;
     }
 
-    @Override
     public HttpServletRequest wrapRequest(HttpServletRequest request, HttpServletResponse response) {
         request.setAttribute(HttpSessionManager.class.getName(), this);
         return request;
     }
 
-    @Override
     public HttpServletResponse wrapResponse(HttpServletRequest request, HttpServletResponse response) {
         return new MultiSessionHttpServletResponse(response, request);
     }
@@ -330,7 +323,6 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         }
     }
 
-    @Override
     public String encodeURL(String url, String sessionAlias) {
         int queryStart = url.indexOf("?");
         boolean isDefaultAlias = DEFAULT_ALIAS.equals(sessionAlias);
