@@ -121,7 +121,7 @@ import org.springframework.session.Session;
  *              continue;
  *          }
  *
- *          String username = (String) session.getAttribute("username");
+ *          String username = session.getAttribute("username");
  *          if(username == null) {
  *              newSessionAlias = alias;
  *              continue;

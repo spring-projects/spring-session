@@ -38,8 +38,9 @@ public interface Session {
      *
      * @param attributeName the name of the attribute to get
      * @return the Object associated with the specified name or null if no Object is associated to that name
+     * @param <T> The return type of the attribute
      */
-    Object getAttribute(String attributeName);
+    <T> T getAttribute(String attributeName);
 
     /**
      * Gets the attribute names that have a value associated with it. Each value can be passed into {@link org.springframework.session.Session#getAttribute(String)} to obtain the attribute value.

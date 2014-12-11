@@ -63,7 +63,7 @@ public class UserAccountsFilter implements Filter {
                 continue;
             }
 
-            String username = (String) session.getAttribute("username");
+            String username = session.getAttribute("username");
             if(username == null) {
                 newSessionAlias = alias;
                 continue;
