@@ -33,6 +33,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0
  */
 public class MapSessionRepository implements SessionRepository<ExpiringSession> {
+    /**
+     * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveInterval(int)}.
+     */
+    private Integer defaultMaxInactiveInterval;
+
     private final Map<String,ExpiringSession> sessions;
 
     /**
@@ -52,6 +57,14 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
             throw new IllegalArgumentException("sessions cannot be null");
         }
         this.sessions = sessions;
+    }
+
+    /**
+     * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveInterval(int)}.
+     * @param defaultMaxInactiveInterval
+     */
+    public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+        this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);
     }
 
     public void save(ExpiringSession session) {
@@ -77,6 +90,10 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
     }
 
     public ExpiringSession createSession() {
-        return new MapSession();
+        ExpiringSession result = new MapSession();
+        if(defaultMaxInactiveInterval != null) {
+            result.setMaxInactiveInterval(defaultMaxInactiveInterval);
+        }
+        return result;
     }
 }

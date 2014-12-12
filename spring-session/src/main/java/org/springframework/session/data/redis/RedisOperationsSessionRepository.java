@@ -148,7 +148,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
     private final RedisSessionExpirationPolicy expirationPolicy;
 
     /**
-     * If non-null, this value is used to override {@link RedisSession#setDefaultMaxInactiveInterval(int)}.
+     * If non-null, this value is used to override the default value for {@link RedisSession#setMaxInactiveInterval(int)}.
      */
     private Integer defaultMaxInactiveInterval;
 
