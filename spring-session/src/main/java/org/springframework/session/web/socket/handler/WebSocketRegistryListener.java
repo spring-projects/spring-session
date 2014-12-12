@@ -84,6 +84,9 @@ public final class WebSocketRegistryListener implements ApplicationListener<Appl
     }
 
     private void afterConnectionClosed(String httpSessionId, String wsSessionId) {
+        if(httpSessionId == null) {
+            return;
+        }
 
         Map<String,WebSocketSession> sessions = httpSessionIdToWsSessions.get(httpSessionId);
         if(sessions != null) {

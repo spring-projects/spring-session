@@ -117,6 +117,16 @@ public class WebSocketRegistryListenerTests {
     }
 
     @Test
+    public void onApplicationEventConnectDisconnectNullSession() throws Exception {
+        listener.onApplicationEvent(connect);
+        attributes.clear();
+
+        listener.onApplicationEvent(disconnect);
+
+        // no exception
+    }
+
+    @Test
     public void onApplicationEventConnectConnectDisonnect() throws Exception {
         listener.onApplicationEvent(connect);
         listener.onApplicationEvent(connect2);
