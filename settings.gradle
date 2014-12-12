@@ -1,9 +1,11 @@
 rootProject.name = 'spring-session-build'
 
+include 'samples:boot'
+include 'samples:hazelcast'
+include 'samples:security'
+include 'samples:users'
+include 'samples:web'
+include 'samples:websocket'
+
 include 'spring-session'
 include 'spring-session-data-redis'
-include 'samples:boot'
-include 'samples:web'
-include 'samples:users'
-include 'samples:websocket'
-include 'samples:hazelcast'
