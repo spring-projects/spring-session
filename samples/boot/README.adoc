@@ -1,0 +1,1 @@
+Demonstrates using Spring Session with Spring Boot and Spring Security. You can log in with the username "user" and the password "password".
