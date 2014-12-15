@@ -15,6 +15,7 @@
  */
 package org.springframework.session.web.socket.handler;
 
+import static org.fest.assertions.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import java.security.Principal;
@@ -25,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
@@ -32,6 +34,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.web.socket.events.SessionConnectEvent;
 import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
@@ -114,6 +117,18 @@ public class WebSocketRegistryListenerTests {
         listener.onApplicationEvent(destroyed);
 
         verify(wsSession,times(0)).close(any(CloseStatus.class));
+    }
+
+    // gh-76
+    @Test
+    public void onApplicationEventConnectDisconnectCleanup() {
+        listener.onApplicationEvent(connect);
+
+        listener.onApplicationEvent(disconnect);
+
+        Map<String,Map<String,WebSocketSession>> httpSessionIdToWsSessions =
+                (Map<String, Map<String, WebSocketSession>>) ReflectionTestUtils.getField(listener, "httpSessionIdToWsSessions");
+        assertThat(httpSessionIdToWsSessions).isEmpty();
     }
 
     @Test

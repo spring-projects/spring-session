@@ -47,18 +47,22 @@ public class SessionMessageListener implements MessageListener {
     }
 
     public void onMessage(Message message, byte[] pattern) {
+        byte[] messageChannel = message.getChannel();
         byte[] messageBody = message.getBody();
-        if(messageBody == null) {
+        if(messageChannel == null || messageBody == null) {
+            return;
+        }
+        String channel = new String(messageChannel);
+        if(!(channel.endsWith(":del") || channel.endsWith(":expired"))) {
             return;
         }
         String body = new String(messageBody);
-        if(!("del".equals(body) || "expired".equals(body))) {
+        if(!body.startsWith("spring:session:sessions:")) {
             return;
         }
-        String channel = new String(message.getChannel());
-        int beginIndex = channel.lastIndexOf(":") + 1;
-        int endIndex = channel.length();
-        String sessionId = channel.substring(beginIndex, endIndex);
+        int beginIndex = body.lastIndexOf(":") + 1;
+        int endIndex = body.length();
+        String sessionId = body.substring(beginIndex, endIndex);
 
         publishEvent(new SessionDestroyedEvent(this, sessionId));
     }

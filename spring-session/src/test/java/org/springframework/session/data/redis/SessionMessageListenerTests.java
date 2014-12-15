@@ -72,7 +72,7 @@ public class SessionMessageListenerTests {
 
     @Test
     public void onMessageDel() throws Exception {
-        mockMessage("del","spring:sessions:session:123");
+        mockMessage("__keyevent@0__:del", "spring:session:sessions:123");
 
         listener.onMessage(message, pattern);
 
@@ -82,7 +82,7 @@ public class SessionMessageListenerTests {
 
     @Test
     public void onMessageSource() throws Exception {
-        mockMessage("del","spring:sessions:session:123");
+        mockMessage("__keyevent@0__:del","spring:session:sessions:123");
 
         listener.onMessage(message, pattern);
 
@@ -92,7 +92,7 @@ public class SessionMessageListenerTests {
 
     @Test
     public void onMessageExpired() throws Exception {
-        mockMessage("expired","spring:sessions:session:543");
+        mockMessage("__keyevent@0__:expired","spring:session:sessions:543");
 
         listener.onMessage(message, pattern);
 
@@ -102,7 +102,16 @@ public class SessionMessageListenerTests {
 
     @Test
     public void onMessageHset() throws Exception {
-        mockMessage("hset","spring:sessions:session:123");
+        mockMessage("__keyevent@0__:hset","spring:session:sessions:123");
+
+        listener.onMessage(message, pattern);
+
+        verifyZeroInteractions(eventPublisher);
+    }
+
+    @Test
+    public void onMessageWrongKeyPrefix() throws Exception {
+        mockMessage("__keyevent@0__:del","spring:session:sessionsNo:123");
 
         listener.onMessage(message, pattern);
 
@@ -111,7 +120,7 @@ public class SessionMessageListenerTests {
 
     @Test
     public void onMessageRename() throws Exception {
-        mockMessage("rename","spring:sessions:session:123");
+        mockMessage("__keyevent@0__:rename","spring:session:sessions:123");
 
         listener.onMessage(message, pattern);
 
@@ -120,7 +129,7 @@ public class SessionMessageListenerTests {
 
     @Test
     public void onMessageEventPublisherErrorCaught() throws Exception {
-        mockMessage("del","spring:sessions:session:123");
+        mockMessage("__keyevent@0__:del","spring:session:sessions:123");
         doThrow(new IllegalStateException("Test Exceptions are caught")).when(eventPublisher).publishEvent(any(ApplicationEvent.class));
 
         listener.onMessage(message, pattern);
@@ -128,7 +137,7 @@ public class SessionMessageListenerTests {
         verify(eventPublisher).publishEvent(any(ApplicationEvent.class));
     }
 
-    private void mockMessage(String body, String channel) throws UnsupportedEncodingException {
+    private void mockMessage(String channel, String body) throws UnsupportedEncodingException {
         when(message.getBody()).thenReturn(bytes(body));
         when(message.getChannel()).thenReturn(bytes(channel));
     }

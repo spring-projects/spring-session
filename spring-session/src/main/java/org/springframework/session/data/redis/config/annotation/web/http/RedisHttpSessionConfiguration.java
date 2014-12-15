@@ -15,9 +15,12 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,11 +30,13 @@ import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
@@ -51,6 +56,7 @@ import org.springframework.util.ClassUtils;
  * @see EnableRedisHttpSession
  */
 @Configuration
+@EnableScheduling
 public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoaderAware {
 
     private ClassLoader beanClassLoader;
@@ -68,7 +74,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(redisSessionMessageListener(),
-                new PatternTopic("__keyspace@0__:spring:session:sessions:*"));
+                Arrays.asList(new PatternTopic("__keyevent@*:del"),new PatternTopic("__keyevent@*:expired")));
         return container;
     }
 
@@ -134,6 +140,55 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
     @Autowired(required = false)
     public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
         this.httpSessionStrategy = httpSessionStrategy;
+    }
+
+    @Bean
+    public EnableRedisKeyspaceNotificationsInitializer enableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory) {
+        return new EnableRedisKeyspaceNotificationsInitializer(connectionFactory);
+    }
+
+    /**
+     * Ensures that Redis is configured to send keyspace notifications. This is important to ensure that expiration and
+     * deletion of sessions trigger SessionDestroyedEvents. Without the SessionDestroyedEvent resources may not get
+     * cleaned up properly. For example, the mapping of the Session to WebSocket connections may not get cleaned up.
+     */
+    static class EnableRedisKeyspaceNotificationsInitializer implements InitializingBean {
+        static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
+
+        private final RedisConnectionFactory connectionFactory;
+
+        EnableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory) {
+            this.connectionFactory = connectionFactory;
+        }
+
+
+        @Override
+        public void afterPropertiesSet() throws Exception {
+            RedisConnection connection = connectionFactory.getConnection();
+            String notifyOptions = getNotifyOptions(connection);
+            String customizedNotifyOptions = notifyOptions;
+            if(!customizedNotifyOptions.contains("E")) {
+                customizedNotifyOptions += "E";
+            }
+            boolean A = customizedNotifyOptions.contains("A");
+            if(!(A || customizedNotifyOptions.contains("g"))) {
+                customizedNotifyOptions += "g";
+            }
+            if(!(A || customizedNotifyOptions.contains("x"))) {
+                customizedNotifyOptions += "x";
+            }
+            if(!notifyOptions.equals(customizedNotifyOptions)) {
+                connection.setConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS, customizedNotifyOptions);
+            }
+        }
+
+        private String getNotifyOptions(RedisConnection connection) {
+            List<String> config = connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS);
+            if(config.size() < 2) {
+                return "";
+            }
+            return config.get(1);
+        }
     }
 
 

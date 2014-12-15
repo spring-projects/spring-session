@@ -1,4 +1,20 @@
-package org.springframework.session.data.redis;
+/*
+ * Copyright 2002-2014 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
+package org.springframework.session.data.redis.config.annotation.web.http;
+
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -37,7 +53,7 @@ import redis.embedded.RedisServer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class RedisOperationsSessionRepositoryITests<S extends Session> {
+public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> {
     private RedisServer redisServer;
 
     @Autowired
@@ -54,7 +70,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
     }
 
     @Test
-    public void saves() throws InterruptedException {
+    public void expireFiresSessionDestroyedEvent() throws InterruptedException {
         S toSave = repository.createSession();
         toSave.setAttribute("a", "b");
         Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user","password", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -64,38 +80,15 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 
         repository.save(toSave);
 
-        Session session = repository.getSession(toSave.getId());
-
-        assertThat(session.getId()).isEqualTo(toSave.getId());
-        assertThat(session.getAttributeNames()).isEqualTo(session.getAttributeNames());
-        assertThat(session.getAttribute("a")).isEqualTo(toSave.getAttribute("a"));
-
-        repository.delete(toSave.getId());
-
-        assertThat(repository.getSession(toSave.getId())).isNull();
         synchronized (lock) {
-            lock.wait(3000);
+            lock.wait(1100);
+        }
+        if(!registry.receivedEvent()) {
+            // Redis makes no guarantees on when an expired event will be fired
+            // we can ensure it gets fired by trying to get the session
+            repository.getSession(toSave.getId());
         }
         assertThat(registry.receivedEvent()).isTrue();
-    }
-
-    @Test
-    public void putAllOnSingleAttrDoesNotRemoveOld() {
-        S toSave = repository.createSession();
-        toSave.setAttribute("a", "b");
-
-        repository.save(toSave);
-        toSave = repository.getSession(toSave.getId());
-
-        toSave.setAttribute("1", "2");
-
-        repository.save(toSave);
-        toSave = repository.getSession(toSave.getId());
-
-        Session session = repository.getSession(toSave.getId());
-        assertThat(session.getAttributeNames().size()).isEqualTo(2);
-        assertThat(session.getAttribute("a")).isEqualTo("b");
-        assertThat(session.getAttribute("1")).isEqualTo("2");
     }
 
     static class SessionDestroyedEventRegistry implements ApplicationListener<SessionDestroyedEvent> {
@@ -120,7 +113,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
     }
 
     @Configuration
-    @EnableRedisHttpSession
+    @EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1)
     static class Config {
         @Bean
         public JedisConnectionFactory connectionFactory() throws Exception {
