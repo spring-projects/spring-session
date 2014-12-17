@@ -41,7 +41,10 @@
                           <li class="divider"></li>
                       </c:if>
                       <c:forEach items="${accounts}" var="account">
-                          <li><a id="switchAccount${account.username}" href="${account.switchAccountUrl}"><c:out value="${account.username}"/></a></li>
+                          <c:set var="encodedUsername">
+                            <c:out value="${account.username}"/>
+                          </c:set>
+                          <li><a id="switchAccount${encodedUsername}" href="${account.switchAccountUrl}"><c:out value="${account.username}"/></a></li>
                       </c:forEach>
                     </ul>
                   </li>

@@ -15,9 +15,12 @@
  */
 package org.springframework.session.web.http;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -151,6 +154,8 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
     static final String DEFAULT_SESSION_ALIAS_PARAM_NAME = "_s";
 
+    private Pattern ALIAS_PATTERN = Pattern.compile("^[\\w-]{1,50}$");
+
     private String cookieName = "SESSION";
 
     private String sessionParam = DEFAULT_SESSION_ALIAS_PARAM_NAME;
@@ -167,6 +172,9 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         }
         String u = request.getParameter(sessionParam);
         if(u == null) {
+            return DEFAULT_ALIAS;
+        }
+        if(!ALIAS_PATTERN.matcher(u).matches()) {
             return DEFAULT_ALIAS;
         }
         return u;
@@ -324,23 +332,32 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
     }
 
     public String encodeURL(String url, String sessionAlias) {
+        String encodedSessionAlias = urlEncode(sessionAlias);
         int queryStart = url.indexOf("?");
-        boolean isDefaultAlias = DEFAULT_ALIAS.equals(sessionAlias);
+        boolean isDefaultAlias = DEFAULT_ALIAS.equals(encodedSessionAlias);
         if(queryStart < 0) {
-            return isDefaultAlias ? url : url + "?" + sessionParam + "=" + sessionAlias;
+            return isDefaultAlias ? url : url + "?" + sessionParam + "=" + encodedSessionAlias;
         }
         String path = url.substring(0, queryStart);
         String query = url.substring(queryStart + 1, url.length());
-        String replacement = isDefaultAlias ? "" : "$1"+sessionAlias;
+        String replacement = isDefaultAlias ? "" : "$1"+encodedSessionAlias;
         query = query.replaceFirst( "((^|&)" + sessionParam + "=)([^&]+)?", replacement);
         if(!isDefaultAlias && url.endsWith(query)) {
             // no existing alias
             if(!(query.endsWith("&") || query.length() == 0)) {
                 query += "&";
             }
-            query += sessionParam + "=" + sessionAlias;
+            query += sessionParam + "=" + encodedSessionAlias;
         }
 
         return path + "?" + query;
+    }
+
+    private String urlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

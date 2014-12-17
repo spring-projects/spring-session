@@ -210,6 +210,11 @@ public class CookieHttpSessionStrategyTests {
         assertThat(strategy.encodeURL("/url?a=b&_s=1", "0")).isEqualTo("/url?a=b");
     }
 
+    @Test
+    public void encodeURLMaliciousAlias() {
+        assertThat(strategy.encodeURL("/url?a=b&_s=1", "\"> <script>alert('hi')</script>")).isEqualTo("/url?a=b&_s=%22%3E+%3Cscript%3Ealert%28%27hi%27%29%3C%2Fscript%3E");
+    }
+
     // --- getCurrentSessionAlias
 
     @Test
@@ -224,6 +229,60 @@ public class CookieHttpSessionStrategyTests {
 
         assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
     }
+
+    // protect against malicious users
+    @Test
+    public void getCurrentSessionAliasContainsQuote() {
+        request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here\"this");
+
+        assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+    }
+
+    @Test
+     public void getCurrentSessionAliasContainsSingleQuote() {
+        request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here'this");
+
+        assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+    }
+
+    @Test
+    public void getCurrentSessionAliasContainsSpace() {
+        request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here this");
+
+        assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+    }
+
+    @Test
+    public void getCurrentSessionAliasContainsLt() {
+        request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here<this");
+
+        assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+    }
+
+    @Test
+    public void getCurrentSessionAliasContainsGt() {
+        strategy.setSessionAliasParamName(null);
+        request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here>this");
+
+        assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+    }
+
+    @Test
+    public void getCurrentSessionAliasTooLong() {
+        request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "012345678901234567890123456789012345678901234567890");
+
+        assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+    }
+
+    // We want some sort of length restrictions, but want to ensure some sort of length Technically no hard limit, but chose 50
+    @Test
+    public void getCurrentSessionAliasAllows50() {
+        request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "01234567890123456789012345678901234567890123456789");
+
+        assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo("01234567890123456789012345678901234567890123456789");
+    }
+
+
 
     @Test
     public void getCurrentSession() {
