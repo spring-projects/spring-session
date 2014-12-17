@@ -1,4 +1,3 @@
-package sample;
 /*
  * Copyright 2002-2014 the original author or authors.
  *
@@ -14,12 +13,11 @@ package sample;
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+package sample;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.*;
+import javax.servlet.annotation.*;
+import javax.servlet.http.*;
 import java.io.IOException;
 
 /**
