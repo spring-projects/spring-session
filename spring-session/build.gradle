@@ -25,7 +25,7 @@ dependencies {
             'org.easytesting:fest-assert:1.4',
             "org.springframework.security:spring-security-core:$springSecurityVersion"
 
-    jacoco "org.jacoco:org.jacoco.agent:0.6.2.201302030002:runtime"
+    jacoco "org.jacoco:org.jacoco.agent:0.7.2.201409121644:runtime"
 }
 
 ext.javadocLinks = [
