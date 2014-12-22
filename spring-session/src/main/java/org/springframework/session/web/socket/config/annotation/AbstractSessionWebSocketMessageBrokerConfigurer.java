@@ -47,18 +47,18 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * <p>Example usage</p>
  *
  * <code>
- * @Configuration
- * @EnableScheduling
- * @EnableWebSocketMessageBroker
- * public class WebSocketConfig<S extends ExpiringSession> extends AbstractSessionWebSocketMessageBrokerConfigurer<S> {
+ * {@literal @Configuration}
+ * {@literal @EnableScheduling}
+ * {@literal @EnableWebSocketMessageBroker}
+ * {@literal public class WebSocketConfig<S extends ExpiringSession> extends AbstractSessionWebSocketMessageBrokerConfigurer<S>} {
  *
- *     @Override
+ *     {@literal @Override}
  *     protected void configureStompEndpoints(StompEndpointRegistry registry) {
  *         registry.addEndpoint("/messages")
  *                 .withSockJS();
  *     }
  *
- *     @Override
+ *     {@literal @Override}
  *     public void configureMessageBroker(MessageBrokerRegistry registry) {
  *         registry.enableSimpleBroker("/queue/", "/topic/");
  *         registry.setApplicationDestinationPrefixes("/app");

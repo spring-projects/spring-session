@@ -71,9 +71,7 @@ import org.springframework.util.Assert;
  * command</a>. An example of how each session is stored can be seen below.
  * </p>
  *
- * <pre>
- *     HMSET spring:session:sessions:<session-id> creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:<attrName> someAttrValue sessionAttr2:<attrName> someAttrValue2
- * </pre>
+ * {@code HMSET spring:session:sessions:<session-id> creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:<attrName> someAttrValue sessionAttr2:<attrName> someAttrValue2}
  *
  * <p>
  * An expiration is associated to each session using the <a
@@ -82,9 +80,7 @@ import org.springframework.util.Assert;
  * . For example:
  * </p>
  *
- * <pre>
- *    EXPIRE spring:session:sessions:<session-id> 1800
- * </pre>
+ * {@code EXPIRE spring:session:sessions:<session-id> 1800}
  *
  * <p>
  * The {@link RedisSession} keeps track of the properties that have changed and
@@ -94,19 +90,19 @@ import org.springframework.util.Assert;
  * would be executed upon saving:
  * </p>
  *
- * <pre>
+ * {@code
  *     HMSET spring:session:sessions:<session-id> sessionAttr2:<attrName> newValue
  *     EXPIRE spring:session:sessions:<session-id> 1800
- * </pre>
+ * }
  *
  * Each session expiration is also tracked to the nearest minute. This allows a
  * background task to cleanup expired sessions in a deterministic fashion. For
  * example:
  *
- * <pre>
+ * {@code
  *     SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
  *     EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1800
- * </pre>
+ * }
  *
  * The Redis expiration is still placed on each key to ensure that if the server
  * is down when the session expires, it is still cleaned up.

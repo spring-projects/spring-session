@@ -46,25 +46,25 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  * <p>
  * By default the {@link DelegatingFilterProxy} is registered with support for
- * asynchronous requests, but can be enabled by overriding {@link #isAsyncSecuritySupported()} and
- * {@link #getSecurityDispatcherTypes()}.
+ * asynchronous requests, but can be enabled by overriding {@link #isAsyncSessionSupported()} and
+ * {@link #getSessionDispatcherTypes()}.
  * </p>
  *
  * <p>
  * Additional configuration before and after the springSecurityFilterChain can
  * be added by overriding
- * {@link #afterSpringSecurityFilterChain(ServletContext)}.
+ * {@link #afterSessionRepositoryFilter(ServletContext)}.
  * </p>
  *
  *
  * <h2>Caveats</h2>
  * <p>
- * Subclasses of AbstractDispatcherServletInitializer will register their
+ * Subclasses of {@code AbstractDispatcherServletInitializer} will register their
  * filters before any other {@link Filter}. This means that you will typically
- * want to ensure subclasses of AbstractDispatcherServletInitializer are invoked
+ * want to ensure subclasses of {@code AbstractDispatcherServletInitializer} are invoked
  * first. This can be done by ensuring the {@link Order} or {@link Ordered} of
- * AbstractDispatcherServletInitializer are sooner than subclasses of
- * {@link AbstractSecurityWebApplicationInitializer}.
+ * {@code AbstractDispatcherServletInitializer} are sooner than subclasses of
+ * {@code AbstractSecurityWebApplicationInitializer}.
  * </p>
  *
  * @author Rob Winch
@@ -96,7 +96,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
      * Creates a new instance that will instantiate the
      * {@link ContextLoaderListener} with the specified classes.
      *
-     * @param configurationClasses
+     * @param configurationClasses {@code @Configuration} classes that will be used to configure the context
      */
     protected AbstractHttpSessionApplicationInitializer(Class<?>... configurationClasses) {
         this.configurationClasses = configurationClasses;
@@ -227,7 +227,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 
 
     /**
-     * Return the <servlet-name> to use the DispatcherServlet's
+     * Return the {@code <servlet-name>} to use the DispatcherServlet's
      * {@link WebApplicationContext} to find the {@link DelegatingFilterProxy}
      * or null to use the parent {@link ApplicationContext}.
      *
@@ -238,7 +238,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
      * use the DispatcherServlet's {@link WebApplicationContext}.
      * </p>
      *
-     * @return the <servlet-name> of the DispatcherServlet to use its
+     * @return the {@code <servlet-name>} of the DispatcherServlet to use its
      *         {@link WebApplicationContext} or null (default) to use the parent
      *         {@link ApplicationContext}.
      */
@@ -264,7 +264,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 
     /**
      * Get the {@link DispatcherType} for the springSessionRepositoryFilter.
-     * @return
+     * @return the {@link DispatcherType} for the filter
      */
     protected EnumSet<DispatcherType> getSessionDispatcherTypes() {
         return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC);

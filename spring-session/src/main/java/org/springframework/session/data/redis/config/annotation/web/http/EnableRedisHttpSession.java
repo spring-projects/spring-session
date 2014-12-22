@@ -30,11 +30,11 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
  * must be provided. For example:
  *
  * <code>
- * &#064;Configuration
- * &#064;EnableRedisHttpSession
+ * {@literal @Configuration}
+ * {@literal @EnableRedisHttpSession}
  * public class RedisHttpSessionConfig {
  *
- *     @Bean
+ *     {@literal @Bean}
  *     public JedisConnectionFactory connectionFactory() throws Exception {
  *         return new JedisConnectionFactory();
  *     }

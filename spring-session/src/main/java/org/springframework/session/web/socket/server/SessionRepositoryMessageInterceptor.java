@@ -49,7 +49,6 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * intercepting messages to ensure the
  * {@link ExpiringSession#getLastAccessedTime()} is updated.
  * </li>
- * </li>
  * <li>
  * Intercepts {@link Message}'s that are have {@link SimpMessageType} that
  * corresponds to {@link #setMatchingMessageTypes(Set)} and updates the last

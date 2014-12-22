@@ -99,8 +99,8 @@ import org.springframework.session.Session;
  * attributes. An example is provided below:
  * </p>
  *
- * <code>
- * HttpSessionManager sessionManager =
+ * {@code
+ *      HttpSessionManager sessionManager =
  *              (HttpSessionManager) req.getAttribute(HttpSessionManager.class.getName());
  *      SessionRepository<Session> repo =
  *              (SessionRepository<Session>) req.getAttribute(SessionRepository.class.getName());
@@ -140,7 +140,7 @@ import org.springframework.session.Session;
  *      req.setAttribute("currentAccount", currentAccount);
  *      req.setAttribute("addAccountUrl", sessionManager.encodeURL(contextPath, newSessionAlias));
  *      req.setAttribute("accounts", accounts);
- * </code>
+ * }
  *
  *
  * @since 1.0
@@ -239,7 +239,7 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
     /**
      * Sets the name of the cookie to be used
-     * @param cookieName
+     * @param cookieName the name of the cookie to be used
      */
     public void setCookieName(String cookieName) {
         if(cookieName == null) {
