@@ -102,7 +102,6 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
         this.configurationClasses = configurationClasses;
     }
 
-    @Override
     public void onStartup(ServletContext servletContext)
             throws ServletException {
         beforeSessionRepositoryFilter(servletContext);

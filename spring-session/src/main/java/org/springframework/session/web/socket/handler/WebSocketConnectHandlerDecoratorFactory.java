@@ -57,7 +57,6 @@ public final class WebSocketConnectHandlerDecoratorFactory implements WebSocketH
         this.eventPublisher = eventPublisher;
     }
 
-    @Override
     public WebSocketHandler decorate(WebSocketHandler handler) {
         return new SessionWebSocketHandler(handler);
     }

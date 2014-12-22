@@ -46,7 +46,6 @@ public class SessionMessageListener implements MessageListener {
         this.eventPublisher = eventPublisher;
     }
 
-    @Override
     public void onMessage(Message message, byte[] pattern) {
         byte[] messageBody = message.getBody();
         if(messageBody == null) {

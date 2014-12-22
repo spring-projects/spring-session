@@ -86,7 +86,6 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
         registration.setInterceptors(sessionRepositoryInterceptor());
     }
 
-    @Override
     public final void registerStompEndpoints(StompEndpointRegistry registry) {
         configureStompEndpoints(new SessionStompEndpointRegistry(registry, sessionRepositoryInterceptor()));
     }

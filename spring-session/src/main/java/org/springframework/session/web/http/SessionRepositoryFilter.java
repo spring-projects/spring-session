@@ -230,91 +230,75 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
                 this.servletContext = servletContext;
             }
 
-            @Override
             public long getCreationTime() {
                 checkState();
                 return session.getCreationTime();
             }
 
-            @Override
             public String getId() {
                 return session.getId();
             }
 
-            @Override
             public long getLastAccessedTime() {
                 checkState();
                 return session.getLastAccessedTime();
             }
 
-            @Override
             public ServletContext getServletContext() {
                 return servletContext;
             }
 
-            @Override
             public void setMaxInactiveInterval(int interval) {
                 session.setMaxInactiveInterval(interval);
             }
 
-            @Override
             public int getMaxInactiveInterval() {
                 return session.getMaxInactiveInterval();
             }
 
-            @Override
             @SuppressWarnings("deprecation")
             public HttpSessionContext getSessionContext() {
                 return NOOP_SESSION_CONTEXT;
             }
 
-            @Override
             public Object getAttribute(String name) {
                 checkState();
                 return session.getAttribute(name);
             }
 
-            @Override
             public Object getValue(String name) {
                 return getAttribute(name);
             }
 
-            @Override
             public Enumeration<String> getAttributeNames() {
                 checkState();
                 return Collections.enumeration(session.getAttributeNames());
             }
 
-            @Override
             public String[] getValueNames() {
                 checkState();
                 Set<String> attrs = session.getAttributeNames();
                 return attrs.toArray(new String[0]);
             }
 
-            @Override
             public void setAttribute(String name, Object value) {
                 checkState();
                 session.setAttribute(name, value);
             }
 
-            @Override
             public void putValue(String name, Object value) {
                 setAttribute(name, value);
             }
 
-            @Override
             public void removeAttribute(String name) {
                 checkState();
                 session.removeAttribute(name);
             }
 
-            @Override
             public void removeValue(String name) {
                 removeAttribute(name);
             }
 
-            @Override
             public void invalidate() {
                 checkState();
                 this.invalidated = true;
@@ -326,7 +310,6 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
                 this.old = !isNew;
             }
 
-            @Override
             public boolean isNew() {
                 checkState();
                 return !old;
@@ -342,24 +325,20 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 
     @SuppressWarnings("deprecation")
     private static final HttpSessionContext NOOP_SESSION_CONTEXT = new HttpSessionContext() {
-        @Override
         public HttpSession getSession(String sessionId) {
             return null;
         }
 
-        @Override
         public Enumeration<String> getIds() {
             return EMPTY_ENUMERATION;
         }
     };
 
     private static final Enumeration<String> EMPTY_ENUMERATION = new Enumeration<String>() {
-        @Override
         public boolean hasMoreElements() {
             return false;
         }
 
-        @Override
         public String nextElement() {
             throw new NoSuchElementException("a");
         }
@@ -386,13 +365,11 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             delegate.onInvalidateSession(request, response);
         }
 
-        @Override
         public HttpServletRequest wrapRequest(HttpServletRequest request,
                 HttpServletResponse response) {
             return request;
         }
 
-        @Override
         public HttpServletResponse wrapResponse(HttpServletRequest request,
                 HttpServletResponse response) {
             return response;

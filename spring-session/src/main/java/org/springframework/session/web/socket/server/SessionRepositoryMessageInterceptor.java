@@ -130,7 +130,6 @@ public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession
         return super.preSend(message, channel);
     }
 
-    @Override
     public boolean beforeHandshake(ServerHttpRequest request,
             ServerHttpResponse response, WebSocketHandler wsHandler,
             Map<String, Object> attributes) throws Exception {
@@ -144,7 +143,6 @@ public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession
         return true;
     }
 
-    @Override
     public void afterHandshake(ServerHttpRequest request,
             ServerHttpResponse response, WebSocketHandler wsHandler,
             Exception exception) {

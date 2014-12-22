@@ -111,7 +111,6 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
         return sessionRepositoryFilter;
     }
 
-    @Override
     public void setImportMetadata(AnnotationMetadata importMetadata) {
 
         Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableRedisHttpSession.class.getName());

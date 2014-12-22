@@ -86,27 +86,22 @@ public final class MapSession implements ExpiringSession, Serializable {
         this.lastAccessedTime = lastAccessedTime;
     }
 
-    @Override
     public long getCreationTime() {
         return creationTime;
     }
 
-    @Override
     public String getId() {
         return id;
     }
 
-    @Override
     public long getLastAccessedTime() {
         return lastAccessedTime;
     }
 
-    @Override
     public void setMaxInactiveInterval(int interval) {
         this.maxInactiveInterval = interval;
     }
 
-    @Override
     public int getMaxInactiveInterval() {
         return maxInactiveInterval;
     }
@@ -122,17 +117,14 @@ public final class MapSession implements ExpiringSession, Serializable {
         return now - TimeUnit.SECONDS.toMillis(maxInactiveInterval) >= lastAccessedTime;
     }
 
-    @Override
     public Object getAttribute(String attributeName) {
         return sessionAttrs.get(attributeName);
     }
 
-    @Override
     public Set<String> getAttributeNames() {
         return sessionAttrs.keySet();
     }
 
-    @Override
     public void setAttribute(String attributeName, Object attributeValue) {
         if (attributeValue == null) {
             removeAttribute(attributeName);
@@ -141,7 +133,6 @@ public final class MapSession implements ExpiringSession, Serializable {
         }
     }
 
-    @Override
     public void removeAttribute(String attributeName) {
         sessionAttrs.remove(attributeName);
     }

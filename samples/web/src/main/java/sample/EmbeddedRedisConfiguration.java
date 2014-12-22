@@ -41,13 +41,11 @@ public class EmbeddedRedisConfiguration {
         private RedisServer redisServer;
 
 
-        @Override
         public void afterPropertiesSet() throws Exception {
             redisServer = new RedisServer(Protocol.DEFAULT_PORT);
             redisServer.start();
         }
 
-        @Override
         public void destroy() throws Exception {
             if(redisServer != null) {
                 redisServer.stop();

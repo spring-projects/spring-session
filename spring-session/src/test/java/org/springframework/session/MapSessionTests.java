@@ -71,52 +71,42 @@ public class MapSessionTests {
 
     static class CustomSession implements ExpiringSession {
 
-        @Override
         public long getCreationTime() {
             return 0;
         }
 
-        @Override
         public String getId() {
             return "id";
         }
 
-        @Override
         public long getLastAccessedTime() {
             return 0;
         }
 
-        @Override
         public void setMaxInactiveInterval(int interval) {
 
         }
 
-        @Override
         public int getMaxInactiveInterval() {
             return 0;
         }
 
-        @Override
         public Object getAttribute(String attributeName) {
             return null;
         }
 
-        @Override
         public Set<String> getAttributeNames() {
             return null;
         }
 
-        @Override
         public void setAttribute(String attributeName, Object attributeValue) {
 
         }
 
-        @Override
         public void removeAttribute(String attributeName) {
 
         }
 
-        @Override
         public boolean isExpired() {
             return false;
         }

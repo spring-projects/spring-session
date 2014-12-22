@@ -53,17 +53,14 @@ import javax.servlet.http.HttpServletResponse;
 public class HeaderHttpSessionStrategy implements HttpSessionStrategy {
     private String headerName = "x-auth-token";
 
-    @Override
     public String getRequestedSessionId(HttpServletRequest request) {
         return request.getHeader(headerName);
     }
 
-    @Override
     public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
         response.setHeader(headerName, session.getId());
     }
 
-    @Override
     public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
         response.setHeader(headerName, "");
     }

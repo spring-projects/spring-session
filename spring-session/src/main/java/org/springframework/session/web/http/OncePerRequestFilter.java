@@ -42,7 +42,6 @@ abstract class OncePerRequestFilter implements Filter {
      * "already filtered", proceeding without filtering again if the
      * attribute is already there.
      */
-    @Override
     public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
