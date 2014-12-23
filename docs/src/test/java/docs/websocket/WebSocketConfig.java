@@ -13,29 +13,31 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package sample.config;
-
+package docs.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
+/**
+* @author Rob Winch
+*/
 // tag::class[]
 @Configuration
 @EnableScheduling
 @EnableWebSocketMessageBroker
 public class WebSocketConfig
-      extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> { // <1>
+        extends AbstractWebSocketMessageBrokerConfigurer {
 
-    protected void configureStompEndpoints(StompEndpointRegistry registry) { // <2>
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/messages")
                 .withSockJS();
     }
 
+    @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/queue/", "/topic/");
         registry.setApplicationDestinationPrefixes("/app");

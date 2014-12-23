@@ -1,4 +1,3 @@
-package sample;
 /*
  * Copyright 2002-2014 the original author or authors.
  *
@@ -14,7 +13,7 @@ package sample;
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
+package sample;
 
 import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 
@@ -23,7 +22,4 @@ import org.springframework.session.web.context.AbstractHttpSessionApplicationIni
  */
 public class Initializer extends AbstractHttpSessionApplicationInitializer {
 
-    public Initializer() {
-        super(Config.class, SecurityConfig.class);
-    }
 }

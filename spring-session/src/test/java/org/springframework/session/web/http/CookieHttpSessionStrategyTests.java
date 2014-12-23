@@ -8,9 +8,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.session.web.http.CookieHttpSessionStrategy;
 
 import javax.servlet.http.Cookie;
+import java.util.Map;
 
 public class CookieHttpSessionStrategyTests {
     private MockHttpServletRequest request;
@@ -36,14 +36,14 @@ public class CookieHttpSessionStrategyTests {
 
     @Test
     public void getRequestedSessionIdNotNull() throws Exception {
-        setSessionId(session.getId());
+        setSessionCookie(session.getId());
         assertThat(strategy.getRequestedSessionId(request)).isEqualTo(session.getId());
     }
 
     @Test
     public void getRequestedSessionIdNotNullCustomCookieName() throws Exception {
         setCookieName("CUSTOM");
-        setSessionId(session.getId());
+        setSessionCookie(session.getId());
         assertThat(strategy.getRequestedSessionId(request)).isEqualTo(session.getId());
     }
 
@@ -56,7 +56,7 @@ public class CookieHttpSessionStrategyTests {
     @Test
     public void onNewSessionExistingSessionSameAlias() throws Exception {
         Session existing = new MapSession();
-        setSessionId(existing.getId());
+        setSessionCookie(existing.getId());
         strategy.onNewSession(session, request, response);
         assertThat(getSessionId()).isEqualTo(session.getId());
     }
@@ -64,7 +64,7 @@ public class CookieHttpSessionStrategyTests {
     @Test
     public void onNewSessionExistingSessionNewAlias() throws Exception {
         Session existing = new MapSession();
-        setSessionId(existing.getId());
+        setSessionCookie(existing.getId());
         request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
         strategy.onNewSession(session, request, response);
         assertThat(getSessionId()).isEqualTo("0 " + existing.getId() + " new " + session.getId());
@@ -111,7 +111,7 @@ public class CookieHttpSessionStrategyTests {
     @Test
     public void onDeleteSessionExistingSessionSameAlias() throws Exception {
         Session existing = new MapSession();
-        setSessionId("0 " + existing.getId() + " new " + session.getId());
+        setSessionCookie("0 " + existing.getId() + " new " + session.getId());
         strategy.onInvalidateSession(request, response);
         assertThat(getSessionId()).isEqualTo(session.getId());
     }
@@ -119,7 +119,7 @@ public class CookieHttpSessionStrategyTests {
     @Test
     public void onDeleteSessionExistingSessionNewAlias() throws Exception {
         Session existing = new MapSession();
-        setSessionId("0 " + existing.getId() + " new " + session.getId());
+        setSessionCookie("0 " + existing.getId() + " new " + session.getId());
         request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
         strategy.onInvalidateSession(request, response);
         assertThat(getSessionId()).isEqualTo(existing.getId());
@@ -282,8 +282,6 @@ public class CookieHttpSessionStrategyTests {
         assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo("01234567890123456789012345678901234567890123456789");
     }
 
-
-
     @Test
     public void getCurrentSession() {
         String expectedAlias = "1";
@@ -291,16 +289,126 @@ public class CookieHttpSessionStrategyTests {
         assertThat(strategy.getCurrentSessionAlias(request)).isEqualTo(expectedAlias);
     }
 
+    // --- getNewSessionAlias
+
+    @Test
+    public void getNewSessionAliasNoSessions() {
+        assertThat(strategy.getNewSessionAlias(request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+    }
+
+    @Test
+    public void getNewSessionAliasSingleSession() {
+        setSessionCookie("abc");
+
+        assertThat(strategy.getNewSessionAlias(request)).isEqualTo("1");
+    }
+
+    @Test
+    public void getNewSessionAlias2Sessions() {
+        setCookieWithNSessions(2);
+
+        assertThat(strategy.getNewSessionAlias(request)).isEqualTo("2");
+    }
+
+    @Test
+    public void getNewSessionAlias9Sessions() {
+        setCookieWithNSessions(9);
+
+        assertThat(strategy.getNewSessionAlias(request)).isEqualToIgnoringCase("9");
+    }
+
+    @Test
+    public void getNewSessionAlias10Sessions() {
+        setCookieWithNSessions(10);
+
+        assertThat(strategy.getNewSessionAlias(request)).isEqualToIgnoringCase("a");
+    }
+
+    @Test
+    public void getNewSessionAlias16Sessions() {
+        setCookieWithNSessions(16);
+
+        assertThat(strategy.getNewSessionAlias(request)).isEqualToIgnoringCase("10");
+    }
+
+    @Test
+    public void getNewSessionAliasInvalidAlias() {
+        setSessionCookie("0 1 $ b");
+
+        assertThat(strategy.getNewSessionAlias(request)).isEqualToIgnoringCase("1");
+    }
+
+    // --- getSessionIds
+
+    @Test
+    public void getSessionIdsNone() {
+        assertThat(strategy.getSessionIds(request)).isEmpty();
+    }
+
+    @Test
+    public void getSessionIdsSingle() {
+        String expectedId = "a";
+        setSessionCookie(expectedId);
+
+        Map<String, String> sessionIds = strategy.getSessionIds(request);
+        assertThat(sessionIds.size()).isEqualTo(1);
+        assertThat(sessionIds.get("0")).isEqualTo(expectedId);
+    }
+
+    @Test
+    public void getSessionIdsMulti() {
+        setSessionCookie("0 a 1 b");
+
+        Map<String, String> sessionIds = strategy.getSessionIds(request);
+        assertThat(sessionIds.size()).isEqualTo(2);
+        assertThat(sessionIds.get("0")).isEqualTo("a");
+        assertThat(sessionIds.get("1")).isEqualTo("b");
+    }
+
+    @Test
+    public void getSessionIdsDangling() {
+        setSessionCookie("0 a 1 b noValue");
+
+        Map<String, String> sessionIds = strategy.getSessionIds(request);
+        assertThat(sessionIds.size()).isEqualTo(2);
+        assertThat(sessionIds.get("0")).isEqualTo("a");
+        assertThat(sessionIds.get("1")).isEqualTo("b");
+    }
 
     // --- helper
+
+    @Test
+    public void createSessionCookieValue() {
+        assertThat(createSessionCookieValue(17)).isEqualToIgnoringCase("0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
+    }
+
+    private void setCookieWithNSessions(long size) {
+        setSessionCookie(createSessionCookieValue(size));
+    }
+
+    private String createSessionCookieValue(long size) {
+        StringBuffer buffer = new StringBuffer();
+
+        for(long i=0;i < size; i++) {
+            String hex = Long.toHexString(i);
+            buffer.append(hex);
+            buffer.append(" ");
+            buffer.append(i);
+            if(i < size - 1) {
+                buffer.append(" ");
+            }
+        }
+
+        return buffer.toString();
+    }
 
     public void setCookieName(String cookieName) {
         strategy.setCookieName(cookieName);
         this.cookieName = cookieName;
     }
 
-    public void setSessionId(String id) {
-        request.setCookies(new Cookie(cookieName, id));
+    public void setSessionCookie(String value) {
+        request.setCookies(new Cookie(cookieName, value));
     }
 
     public String getSessionId() {

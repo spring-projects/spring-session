@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
@@ -180,6 +181,29 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         return u;
     }
 
+    public String getNewSessionAlias(HttpServletRequest request) {
+        Set<String> sessionAliases = getSessionIds(request).keySet();
+        if(sessionAliases.isEmpty()) {
+            return DEFAULT_ALIAS;
+        }
+        long lastAlias = Long.decode(DEFAULT_ALIAS);
+        for(String alias : sessionAliases) {
+            long selectedAlias = safeParse(alias);
+            if(selectedAlias > lastAlias) {
+                lastAlias = selectedAlias;
+            }
+        }
+        return Long.toHexString(lastAlias + 1);
+    }
+
+    private long safeParse(String hex) {
+        try {
+            return Long.decode("0x" + hex);
+        } catch(NumberFormatException notNumber) {
+            return 0;
+        }
+    }
+
     public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
         Map<String,String> sessionIds = getSessionIds(request);
         String sessionAlias = getCurrentSessionAlias(request);
@@ -293,6 +317,9 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         }
         while(tokens.hasMoreTokens()) {
             String alias = tokens.nextToken();
+            if(!tokens.hasMoreTokens()) {
+                break;
+            }
             String id = tokens.nextToken();
             result.put(alias, id);
         }

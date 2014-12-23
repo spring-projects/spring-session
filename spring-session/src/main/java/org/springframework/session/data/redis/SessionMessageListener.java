@@ -60,9 +60,14 @@ public class SessionMessageListener implements MessageListener {
         if(!body.startsWith("spring:session:sessions:")) {
             return;
         }
+
         int beginIndex = body.lastIndexOf(":") + 1;
         int endIndex = body.length();
         String sessionId = body.substring(beginIndex, endIndex);
+
+        if(logger.isDebugEnabled()) {
+            logger.debug("Publishing SessionDestroyedEvent for session " + sessionId);
+        }
 
         publishEvent(new SessionDestroyedEvent(this, sessionId));
     }

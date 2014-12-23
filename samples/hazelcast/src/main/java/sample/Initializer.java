@@ -15,10 +15,17 @@
  */
 package sample;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.EnumSet;
-import java.util.Map;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.MapConfig;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import org.springframework.session.ExpiringSession;
+import org.springframework.session.MapSession;
+import org.springframework.session.MapSessionRepository;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration.Dynamic;
@@ -26,19 +33,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.MapSession;
-import org.springframework.session.MapSessionRepository;
-import org.springframework.session.SessionRepository;
-import org.springframework.session.web.http.SessionRepositoryFilter;
-
-import com.hazelcast.config.Config;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.config.SerializerConfig;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.EnumSet;
+import java.util.Map;
 
 @WebListener
 public class Initializer implements ServletContextListener {
@@ -64,8 +62,11 @@ public class Initializer implements ServletContextListener {
         instance = Hazelcast.newHazelcastInstance(cfg);
         Map<String,ExpiringSession> sessions = instance.getMap(sessionMapName);
 
-        SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(sessions);
-        Dynamic fr = sc.addFilter("springSessionFilter", new SessionRepositoryFilter<ExpiringSession>(sessionRepository ));
+        SessionRepository<ExpiringSession> sessionRepository =
+                new MapSessionRepository(sessions);
+        SessionRepositoryFilter<ExpiringSession> filter =
+                new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+        Dynamic fr = sc.addFilter("springSessionFilter", filter);
         fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
     }
 

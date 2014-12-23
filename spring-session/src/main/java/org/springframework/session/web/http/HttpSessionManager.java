@@ -59,4 +59,18 @@ public interface HttpSessionManager {
      * @return the encoded URL
      */
     String encodeURL(String url, String sessionAlias);
+
+    /**
+     * Gets a new and unique Session alias. Typically this will be called to pass into
+     * {@code HttpSessionManager#encodeURL(java.lang.String)}. For example:
+     *
+     * <code>
+     * String newAlias = httpSessionManager.getNewSessionAlias(request);
+     * String addAccountUrl = httpSessionManager.encodeURL("./", newAlias);
+     * </code>
+     *
+     * @param request
+     * @return
+     */
+    String getNewSessionAlias(HttpServletRequest request);
 }

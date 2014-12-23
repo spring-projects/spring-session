@@ -1,0 +1,366 @@
+= Spring Session
+Rob Winch
+:doctype: book
+:indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
+:websocketdoc-test-dir: {docs-test-dir}docs/websocket/
+:toc: left
+
+[[abstract]]
+
+Spring Session provides an API and implementations for managing a user's session information.
+It also provides transparent integration with:
+
+* HttpSession - allows for simple clustered sessions,
+obtaining the session from custom parts of the HTTP request (i.e. HTTP headers),
+and managing multiple user's sessions in a single browser instance (i.e. multiple authenticated accounts similar to Google).
+
+* WebSocket - provides the ability to keep the HttpSession alive when receiving WebSocket messages
+
+[[samples]]
+= Samples and Guides (Start Here)
+
+If you are looking to get started with Spring Session, the best place to start is our Sample Applications.
+
+.Sample Applications
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}httpsession[HttpSession]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
+| link:guides/httpsession.html[HttpSession Guide]
+
+| {gh-samples-url}boot[Spring Boot]
+| Demonstrates how to use Spring Session with Spring Boot.
+| link:guides/boot.html[Spring Boot]
+
+| {gh-samples-url}security[Spring Security]
+| Demonstrates how to use Spring Session with an existing Spring Security application.
+| link:guides/security.html[Spring Security Guide]
+
+| {gh-samples-url}rest[REST]
+| Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
+| TBD
+
+| {gh-samples-url}users[Multiple Sessions]
+| Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
+| link:guides/security.html[Users Guide]
+
+| {gh-samples-url}websocket[WebSocket]
+| Demonstrates how to use Spring Session with WebSockets.
+| link:guides/websocket.html[WebSocket Guide]
+
+[[samples-hazelcast]]
+| {gh-samples-url}hazelcast[Hazelcast]
+| Demonstrates how to use Spring Session with Hazelcast.
+| TBD
+
+|===
+
+[[httpsession]]
+= HttpSession Integration
+
+Spring Session provides transparent integration with `HttpSession`.
+This means that developers can switch the `HttpSession` implementation out with an implementation that is backed by Spring Session.
+
+== HttpSession Usage
+
+Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+
+The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession`.
+You can the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application:
+
+include::guides/httpsession.adoc[tags=config,leveloffset=+1]
+
+[[httpsession-how]]
+== How HttpSession Integration Works
+
+Fortunately both `HttpSession` and `HttpServletRequest` (the API for obtaining an `HttpSession`) are both interfaces.
+This means that we can provide our own implementations for each of these APIs.
+
+First we create a custom `HttpServletRequest` that returns a custom implementation of `HttpSession'.
+It looks something like the following:
+
+[source, java]
+----
+public class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
+
+    public SessionRepositoryRequestWrapper(HttpServletRequest original) {
+        super(original);
+    }
+
+    public HttpSession getSession() {
+        return getSession(true);
+    }
+
+    public HttpSession getSession(boolean createNew) {
+        // create an HttpSession implementation from Spring Session
+    }
+
+    // ... other methods delegate to the original HttpServletRequest ...
+}
+----
+
+Any method that returns an `HttpSession` is overridden.
+All other methods are implemented by `HttpServletRequestWrapper` and simply delegate to the original `HttpServletRequest` implementation.
+
+We replace the `HttpServletRequest` implementation using a servlet `Filter` called `SessionRepositoryFilter`.
+The pseudocode can be found below:
+
+[source, java]
+----
+public class SessionRepositoryFilter implements Filter {
+
+    public doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        SessionRepositoryRequestWrapper customRequest =
+              new SessionRepositoryRequestWrapper(httpRequest);
+
+        chain.doFilter(customRequest, response, chain);
+    }
+
+    // ...
+}
+----
+
+By passing in a custom `HttpServletRequest` implementation into the `FilterChain` we ensure that anything invoked after our `Filter` uses the custom `HttpSession` implementation.
+This highlights why it is important that Spring Session's `SessionRepositoryFilter` must be placed before anything that interacts with the `HttpSession`.
+
+== Multiple Sessions in Single Browser
+
+Spring Session has the ability to support multiple sessions in a single browser instance.
+This provides the ability to support authenticating with multiple users in the same browser instance (i.e. Google Accounts).
+
+The <<samples,Multiple Sessions Sample>> provides a complete working example of managing multiple users in the same browser instance.
+
+include::guides/users.adoc[tags=how-does-it-work]
+
+[[websocket]]
+= WebSocket Integration
+
+Spring Session provides transparent integration with Spring's WebSocket support.
+
+include::guides/websocket.adoc[tags=disclaimer]
+
+[[websocket-why]]
+== Why Spring Session & WebSockets?
+
+So why do we need Spring Session when using WebSockets?
+
+Consider an email application that does much of its work through HTTP requests.
+However, there is also a chat application embedded within it that works over WebSocket APIs.
+If a user is actively chatting with someone, we should not timeout the `HttpSession` since this would be pretty poor user experience.
+However, this is exactly what https://java.net/jira/browse/WEBSOCKET_SPEC-175[JSR-356] does.
+
+Another issue is that according to JSR-356 if the `HttpSession` times out any WebSocket that was created with that HttpSession and an authenticated user should be forcibly closed.
+This means that if we are actively chatting in our application and are not using the HttpSession, then we will also disconnect from our conversation!
+
+[[websocket-usage]]
+== WebSocket Usage
+
+The <<samples, WebSocket Sample>> provides a working sample on how to integrate Spring Session with WebSockets.
+You can the basic steps for integration below, but you are encouraged to follow along with the detailed WebSocket Guide when integrating with your own application:
+
+=== HttpSession Integration
+
+Before using WebSocket integration, you should be sure that you have <<httpsession>> working first.
+
+include::guides/websocket.adoc[tags=config,leveloffset=+1]
+
+
+= API Documentation
+
+== Session
+
+A `Session` is a simplified `Map` of name value pairs.
+
+Typical usage might look like the following:
+
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=repository-demo]
+----
+
+<1> We create a `SessionRepository` instance with a generic type, `S`, that extends `Session`. The generic type is defined in our class.
+<2> We create a new `Session` using our `SessionRepository` and assign it to a variable of type `S`.
+<3> We interact with the `Session`. In our example, we demonstrate saving a `User` to the `Session`.
+<4> We now save the `Session`. This is why we needed the generic type `S`. The `SessionRepository` only allows saving `Session` instances that were created or retrieved using the same `SessionRepository`. This allows for the `SessionRepository` to make implementation specific optimizations (i.e. only writing attributes that have changed).
+<5> We retrieve the `Session` from the `SessionRepository`.
+<6> We obtain the persisted `User` from our `Session` without the need for explicitly casting our attribute.
+
+== ExpiringSession
+
+An `ExpiringSession` extends a `Session` by providing attributes related to the `Session` instance's expiration.
+If there is no need to interact with the expiration information, prefer using the more simple `Session` API.
+
+Typical usage might look like the following:
+
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=expire-repository-demo]
+----
+
+<1> We create a `SessionRepository` instance with a generic type, `S`, that extends `ExpiringSession`. The generic type is defined in our class.
+<2> We create a new `ExpiringSession` using our `SessionRepository` and assign it to a variable of type `S`.
+<3> We interact with the `ExpiringSession`.
+In our example, we demonstrate updating the amount of time the `ExpiringSession` can be inactive before it expires.
+<4> We now save the `ExpiringSession`.
+This is why we needed the generic type `S`.
+The `SessionRepository` only allows saving `ExpiringSession` instances that were created or retrieved using the same `SessionRepository`.
+This allows for the `SessionRepository` to make implementation specific optimizations (i.e. only writing attributes that have changed).
+The last accessed time is automatically updated when the `ExpiringSession` is saved.
+<5> We retrieve the `ExpiringSession` from the `SessionRepository`.
+If the `ExpiringSession` were expired, the result would be null.
+
+== SessionRepository
+
+A `SessionRepository` is in charge of creating, retrieving, and persisting `Session` instances.
+
+If possible, developers should not interact directly with a `SessionRepository` or a `Session`.
+Instead, developers should prefer interacting with `SessionRepository` and `Session` indirectly through the <<httpsession,HttpSession>> and <<websocket,WebSocket>> integration.
+
+== RedisOperationsSessionRepository
+
+`RedisOperationsSessionRepository` is a `SessionRepository` that is implemented using Spring Data's `RedisOperations`.
+In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
+The implementation supports `SessionDestroyedEvent` through `SessionMessageListener`.
+
+=== Instantiating a RedisOperationsSessionRepository
+
+A typical example of how to create a new instance can be seen below:
+
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=new-redisoperationssessionrepository]
+----
+
+For additional information on how to create a `RedisConnectionFactory`, refer to the Spring Data Redis Reference.
+
+=== Storage Details
+
+Each session is stored in Redis as a Hash.
+Each session is set and updated using the HMSET command.
+An example of how each session is stored can be seen below.
+
+    HMSET spring:session:sessions:<session-id> creationTime 1404360000000 \
+          maxInactiveInterval 1800 lastAccessedTime 1404360000000 \
+          sessionAttr:<attrName> someAttrValue sessionAttr:<attrName2> someAttrValue2
+
+==== Session Expiration
+
+An expiration is associated to each session using the EXPIRE command based upon the RedisOperationsSessionRepository.RedisSession.getMaxInactiveInterval().
+For example:
+
+    EXPIRE spring:session:sessions:<session-id> 1800
+
+Each session expiration is also tracked to the nearest minute.
+This allows a background task to cleanup expired sessions in a deterministic fashion.
+For example:
+
+   SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
+   EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1800
+
+The Redis expiration is still placed on each key to ensure that if the server is down when the session expires, it is still cleaned up.
+
+==== Optimized Writes
+
+The `Session` instances managed by `RedisOperationsSessionRepository` keeps track of the properties that have changed and only updates those.
+This means if an attribute is written once and read many times we only need to write that attribute once.
+For example, assume the session attribute "sessionAttr2" from earlier was updated.
+The following would be executed upon saving:
+
+   HMSET spring:session:sessions:<session-id> sessionAttr:<attrName2> newValue
+   EXPIRE spring:session:sessions:<session-id> 1800
+
+=== SessionDestroyedEvent
+
+`RedisOperationsSessionRepository` supports firing a `SessionDestroyedEvent` whenever a `Session` is deleted or when it expires.
+This is necessary to ensure resources associated with the `Session` are properly cleaned up.
+For example, when integrating with WebSockets the `SessionDestroyedEvent` is in charge of closing any active WebSocket connections.
+
+Firing a `SessionDestroyedEvent` is made available through the `SessionMessageListener` which listens to http://redis.io/topics/notifications[Redis Keyspace events].
+In order for this to work, Redis Keyspace events for Generic commands and Expired events needs to be enabled.
+For example:
+
+TIP: If you are using `@EnableRedisHttpSession` the `SessionMessageListener` and enabling the necessary Redis Keyspace events is done automatically.
+
+[source,bash]
+----
+redis-cli config set notify-keyspace-events Egx
+----
+
+=== Viewing the Session in Redis
+
+After http://redis.io/topics/quickstart[installing redis-cli], you can inspect the values in Redis http://redis.io/commands#hash[using the redis-cli].
+For example, enter the following into a terminal:
+
+[source,bash]
+----
+$ redis-cli
+redis 127.0.0.1:6379> keys *
+1) "spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021" <1>
+2) "spring:session:expirations:1418772300000" <2>
+----
+
+<1> The suffix of this key is the session identifier of the Spring Session.
+<2> This key contains all the session ids that should be deleted at the time `1418772300000`.
+
+You can also view the attributes of each session.
+
+[source,bash]
+----
+redis 127.0.0.1:6379> hkeys spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021
+1) "lastAccessedTime"
+2) "creationTime"
+3) "maxInactiveInterval"
+4) "sessionAttr:username"
+redis 127.0.0.1:6379> hget spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021 sessionAttr:username
+"\xac\xed\x00\x05t\x00\x03rob"
+----
+
+== MapSessionRepository
+
+The `MapSessionRepository` allows for persisting `ExpiringSession` in a `Map` with the key being the `ExpiringSession` id and the value being the `ExpiringSession`.
+The implementation can be used with a `ConcurrentHashMap` as a testing or convenience mechanism.
+Alternatively, it can be used with distributed `Map` implementations. For example, it can be used with Hazelcast.
+
+=== Instantiating MapSessionRepository
+
+Creating a new instance is as simple as:
+
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=new-mapsessionrepository]
+----
+
+=== Using Spring Session and Hazlecast
+
+The <<samples,Hazelcast Sample>> is a complete application demonstrating using Spring Session with Hazelcast.
+To run it use the following:
+
+    ./gradlew :samples:hazelcast:tomcatRun
+
+= Spring Session Community
+
+We are glad to consider you a part of our community.
+Please find additional information below.
+
+== Support
+
+You can get help by asking questions on http://stackoverflow.com/questions/tagged/spring-session[StackOverflow with the tag spring-session].
+Similarly we encourage helping others by answering questions on StackOverflow.
+
+== Source Code
+
+Our source code can be found on github at https://github.com/spring-projects/spring-session/
+
+== Issue Tracking
+
+We track issues in github issues at https://github.com/spring-projects/spring-session/issues
+
+== Contributing
+
+We appreciate https://help.github.com/articles/using-pull-requests/[Pull Requests].
+
+== License
+
+Spring Session is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].

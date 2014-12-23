@@ -7,8 +7,7 @@ buildscript {
         classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
         classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
         classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
-        classpath('org.asciidoctor:asciidoctor-gradle-plugin:0.7.0')
-        classpath('org.asciidoctor:asciidoctor-java-integration:0.1.4.preview.1')
+        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
     }
 }
 
@@ -19,7 +18,12 @@ ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.MAVEN_GRADLE = "$rootDir/gradle/publish-maven.gradle"
 ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
 
+ext.releaseBuild = version.endsWith('RELEASE')
+ext.snapshotBuild = version.endsWith('SNAPSHOT')
+ext.milestoneBuild = !(releaseBuild || snapshotBuild)
+
 apply plugin: 'sonar-runner'
+apply plugin: 'base'
 
 
 sonarRunner {
@@ -34,4 +38,23 @@ sonarRunner {
         property "sonar.links.scm_dev", 'https://github.com/spring-projects/spring-session.git'
         property "sonar.java.coveragePlugin", "jacoco"
     }
+}
+
+task configDocsZip(dependsOn: ':docs:asciidoctor') << {
+    project.tasks.docsZip.from(project(':docs').asciidoctor) {
+        into('docs')
+    }
+}
+
+
+task docsZip(type: Zip, dependsOn: 'configDocsZip') {
+    group = "Distribution"
+    baseName = "spring-session"
+    classifier = "docs"
+    description = "Builds -${classifier} archive containing api and reference " +
+            "for deployment."
+}
+
+artifacts {
+    archives docsZip
 }

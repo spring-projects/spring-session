@@ -161,8 +161,6 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
             this.connectionFactory = connectionFactory;
         }
 
-
-        @Override
         public void afterPropertiesSet() throws Exception {
             RedisConnection connection = connectionFactory.getConnection();
             String notifyOptions = getNotifyOptions(connection);

@@ -1,0 +1,134 @@
+= Spring Session - Spring Boot
+Rob Winch
+:toc:
+
+This guide describes how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` when using Spring Boot.
+
+NOTE: The completed guide can be found in the <<boot-sample, boot sample application>>.
+
+== Updating Dependencies
+Before you use Spring Session, you must ensure to update your dependencies.
+We assume you are working with a working Spring Boot web application.
+If you are using Maven, ensure to add the following dependencies:
+
+.pom.xml
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependencies>
+    <!-- ... -->
+
+    <dependency>
+      <groupId>org.springframework.session</groupId>
+      <artifactId>spring-session-data-redis</artifactId>
+      <version>{spring-session-version}</version>
+      <type>pom<type>
+    </dependency>
+</dependencies>
+----
+
+ifeval::["{version-snapshot}" == "true"]
+Since We are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
+Ensure you have the following in your pom.xml:
+
+.pom.xml
+[source,xml]
+----
+<repositories>
+
+    <!-- ... -->
+
+    <repository>
+      <id>spring-snapshot</id>
+      <url>https://repo.spring.io/libs-snapshot</url>
+    </repository>
+</repositories>
+----
+endif::[]
+
+ifeval::["{version-milestone}" == "true"]
+Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
+Ensure you have the following in your pom.xml:
+
+.pom.xml
+[source,xml]
+----
+<repository>
+  <id>spring-milestone</id>
+  <url>https://repo.spring.io/libs-milestone</url>
+</repository>
+----
+endif::[]
+
+[[boot-spring-configuration]]
+== Spring Configuration
+
+After adding the required dependencies, we can create our Spring configuration.
+The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
+Add the following Spring Configuration:
+
+[source,java]
+----
+include::{samples-dir}boot/src/main/java/sample/config/HttpSessionConfig.java[]
+----
+
+<1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
+In this instance Spring Session is backed by Redis.
+<2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
+In our example, we are connecting to localhost on the default port (6379).
+For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
+
+== Servlet Container Initialization
+
+Our <<boot-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
+The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
+
+In order for our `Filter` to do its magic, Spring needs to load our `Config` class.
+Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
+Fortunately, Spring Boot takes care of both of these steps for us.
+
+[[boot-sample]]
+== boot Sample Application
+
+The boot Sample Application demonstrates how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` when using Spring Boot.
+
+=== Running the boot Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+  $ ./gradlew :samples:boot:tomcatRun
+
+You should now be able to access the application at http://localhost:8080/
+
+=== Exploring the security Sample Application
+
+Try using the application. Enter the following to log in:
+
+* **Username** _user_
+* **Password** _password_
+
+Now click the **Login** button.
+You should now see a message indicating your are logged in with the user entered previously.
+The user's information is stored in Redis rather than Tomcat's `HttpSession` implementation.
+
+=== How does it work?
+
+Instead of using Tomcat's `HttpSession`, we are actually persisting the values in Redis.
+Spring Session replaces the `HttpSession` with an implementation that is backed by Redis.
+When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into Redis.
+
+When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
+Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+
+If you like, you can easily remove the session using redis-cli. For example, on a Linux based system you can type:
+
+    $ redis-cli keys '*' | xargs redis-cli del
+
+TIP: The Redis documentation has instructions for http://redis.io/topics/quickstart[installing redis-cli].
+
+Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
+
+    $ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+
+Now visit the application at http://localhost:8080/ and observe that we are no longer authenticated.

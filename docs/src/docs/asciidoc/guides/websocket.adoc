@@ -1,0 +1,130 @@
+= Spring Session - WebSocket
+Rob Winch
+:toc:
+:websocketdoc-test-dir: {docs-test-dir}docs/websocket/
+
+This guide describes how to use Spring Session to ensure that WebSocket messages keep your HttpSession alive.
+
+// tag::disclaimer[]
+
+NOTE: Spring Session's WebSocket support only works with Spring's WebSocket support.
+Specifically it does not work with using https://www.jcp.org/en/jsr/detail?id=356[JSR-356] directly.
+This is due to the fact that JSR-356 does not have a mechanism for intercepting incoming WebSocket messages.
+
+// end::disclaimer[]
+
+== HttpSession Setup
+
+The first step is to integrate Spring Session with the HttpSession. These steps are already outlined in the link:httpsession.html[HttpSession Guide].
+
+Please make sure you have already integrated Spring Session with the HttpSession before proceeding.
+
+// tag::config[]
+
+[[websocket-spring-configuration]]
+== Spring Configuration
+
+In a typical Spring WebSocket application users would extend `AbstractWebSocketMessageBrokerConfigurer`.
+For example, the configuration might look something like the following:
+
+[source,java]
+----
+include::{websocketdoc-test-dir}WebSocketConfig.java[tags=class]
+----
+
+To hook in the Spring Session support, we need to ensure
+
+* `WebSocketConnectHandlerDecoratorFactory` is added as a `WebSocketHandlerDecoratorFactory` to `WebSocketTransportRegistration`.
+This ensures a custom `SessionConnectEvent` is fired that contains the `WebSocketSession`.
+The `WebSocketSession` is necessary to terminate any WebSocket connections that are still open when a Spring Session is terminated.
+* `SessionRepositoryMessageInterceptor` is added as a `HandshakeInterceptor` to every `StompWebSocketEndpointRegistration`.
+This ensures that the Session is added to the WebSocket properties to enable updating the last accessed time.
+* `SessionRepositoryMessageInterceptor` is added as a `ChannelInterceptor` to our inbound `ChannelRegistration`.
+This ensures that every time an inbound message is received, that the last accessed time of our Spring Session is updated.
+* `WebSocketRegistryListener` is created as a Spring Bean.
+This ensures that we have a mapping of all of the Session id to the corresponding WebSocket connections.
+By maintaining this mapping, we can close all the WebSocket connections when a Spring Session (HttpSession) is terminated.
+
+This is quite a bit of work to get things working.
+Fortunately, Spring Session provides a convenience class named `AbstractSessionWebSocketMessageBrokerConfigurer` that hides the complexity of the configuration.
+An example is provided below:
+
+.src/main/java/samples/config/WebSocketConfig.java
+[source,java]
+----
+include::{samples-dir}websocket/src/main/java/sample/config/WebSocketConfig.java[tags=class]
+----
+
+We only need to change two things to use Spring Session:
+
+<1> Instead of extending `AbstractWebSocketMessageBrokerConfigurer` we extend `AbstractSessionWebSocketMessageBrokerConfigurer`
+<2> We rename the `registerStompEndpoints` method to `configureStompEndpoints`
+
+// end::config[]
+
+[[websocket-sample]]
+== websocket Sample Application
+
+The websocket sample application demonstrates how to use Spring Session with WebSockets.
+
+=== Running the websocket Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+[TIP]
+====
+For the purposes of testing session expiration, you may want to change the session expiration to be 1 minute (default is 30 minutes) by removing the comment from the following file before starting the application:
+
+.src/main/java/samples/config/WebSecurityConfig.java
+[source,java]
+----
+include::{samples-dir}websocket/src/main/java/sample/config/WebSecurityConfig.java[tags=enable-redis-httpsession]
+----
+====
+
+  $ ./gradlew :samples:websocket:bootRun
+
+You should now be able to access the application at http://localhost:8080/
+
+=== Exploring the websocket Sample Application
+
+Try using the application. Authenticate with the following information:
+
+* **Username** _rob_
+* **Password** _password_
+
+Now click the **Login** button. You should now be authenticated as the user **rob**.
+
+Open an incognito window and access http://localhost:8080/
+
+You will be prompted with a log in form. Authenticate with the following information:
+
+* **Username** _luke_
+* **Password** _password_
+
+Now send a message from *rob* to *luke*. The message should appear.
+
+Wait for two minutes and try sending a message from *rob* to *luke* again.
+You will see that the message is no longer sent.
+
+[NOTE]
+.Why two minutes?
+====
+Spring Session will expire in 60 seconds, but the notification from Redis is not guaranteed to happen within 60 seconds.
+To ensure the socket is closed in a reasonable amount of time, Spring Session runs a background task every minute at 00 seconds that forcibly cleans up any expired sessions.
+This means you will need to wait at most two minutes before the WebSocket connection is terminated.
+====
+
+Try accessing http://localhost:8080/
+You will be prompted to authenticate again.
+This demonstrates that the session properly expires.
+
+Now repeat the same exercise, but instead of waiting two minutes send a message from *each* of the users every 30 seconds.
+You will see that the messages continue to be sent.
+Try accessing http://localhost:8080/
+You will not be prompted to authenticate again.
+This demonstrates the session is kept alive.
+
+NOTE: Only messages sent from a user keep the session alive.
+This is because only messages coming from a user imply user activity.
+Messages received do not imply activity and thus do not renew the session expiration.

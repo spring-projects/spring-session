@@ -1,4 +1,3 @@
-package sample;
 /*
  * Copyright 2002-2014 the original author or authors.
  *
@@ -14,6 +13,7 @@ package sample;
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+package sample;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,13 +24,13 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 /**
  * @author Rob Winch
  */
-@Import(EmbeddedRedisConfiguration.class)
 @Configuration
-@EnableRedisHttpSession
+@Import(EmbeddedRedisConfiguration.class) // <1>
+@EnableRedisHttpSession // <2>
 public class Config {
 
     @Bean
     public JedisConnectionFactory connectionFactory() {
-        return new JedisConnectionFactory();
+        return new JedisConnectionFactory(); // <3>
     }
 }

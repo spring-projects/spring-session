@@ -183,7 +183,7 @@ public class Initializer extends AbstractHttpSessionApplicationInitializer {
 
 = Sample
 
-The code contains a https://github.com/spring-projects/spring-session/tree/master/samples/web[sample web application]. To run the sample:
+The code contains a https://github.com/spring-projects/spring-session/tree/master/samples/httpsession[sample web application]. To run the sample:
 
 . Obtain the source by https://github.com/spring-projects/spring-session[cloning the repository] or https://github.com/spring-projects/spring-session/archive/master.zip[downloading] it.
 . Run the application using gradle

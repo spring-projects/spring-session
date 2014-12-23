@@ -40,18 +40,20 @@ public class UserAccountsFilter implements Filter {
     @SuppressWarnings("unchecked")
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
 
+        // tag::HttpSessionManager[]
         HttpSessionManager sessionManager =
-                (HttpSessionManager) req.getAttribute(HttpSessionManager.class.getName());
+                (HttpSessionManager) httpRequest.getAttribute(HttpSessionManager.class.getName());
+        // end::HttpSessionManager[]
         SessionRepository<Session> repo =
-                (SessionRepository<Session>) req.getAttribute(SessionRepository.class.getName());
+                (SessionRepository<Session>) httpRequest.getAttribute(SessionRepository.class.getName());
 
-        String currentSessionAlias = sessionManager.getCurrentSessionAlias(req);
-        Map<String, String> sessionIds = sessionManager.getSessionIds(req);
-        String newSessionAlias = String.valueOf(System.currentTimeMillis());
+        String currentSessionAlias = sessionManager.getCurrentSessionAlias(httpRequest);
+        Map<String, String> sessionIds = sessionManager.getSessionIds(httpRequest);
+        String unauthenticatedAlias = null;
 
-        String contextPath = req.getContextPath();
+        String contextPath = httpRequest.getContextPath();
         List<Account> accounts = new ArrayList<Account>();
         Account currentAccount = null;
         for(Map.Entry<String, String> entry : sessionIds.entrySet()) {
@@ -65,7 +67,7 @@ public class UserAccountsFilter implements Filter {
 
             String username = session.getAttribute("username");
             if(username == null) {
-                newSessionAlias = alias;
+                unauthenticatedAlias = alias;
                 continue;
             }
 
@@ -79,9 +81,16 @@ public class UserAccountsFilter implements Filter {
             }
         }
 
-        req.setAttribute("currentAccount", currentAccount);
-        req.setAttribute("addAccountUrl", sessionManager.encodeURL(contextPath, newSessionAlias));
-        req.setAttribute("accounts", accounts);
+        // tag::addAccountUrl[]
+        String addAlias = unauthenticatedAlias == null ? // <1>
+                sessionManager.getNewSessionAlias(httpRequest) : // <2>
+                unauthenticatedAlias; // <3>
+        String addAccountUrl = sessionManager.encodeURL(contextPath, addAlias); // <4>
+        // end::addAccountUrl[]
+
+        httpRequest.setAttribute("currentAccount", currentAccount);
+        httpRequest.setAttribute("addAccountUrl", addAccountUrl);
+        httpRequest.setAttribute("accounts", accounts);
 
         chain.doFilter(request, response);
     }

@@ -22,9 +22,14 @@
             <ul class="nav navbar-nav">
               <c:url value="/" var="homeUrl"/>
               <li class="active"><a id="navHome" href="${homeUrl}">Home</a></li>
-              <c:url value="/link.jsp" var="linkUrl"/>
-              <li><a id="navLink" href="${linkUrl}">Link</a></li>
-
+              <li>
+                  <!-- tag::link[]
+                  -->
+                <c:url value="/link.jsp" var="linkUrl"/>
+                <a id="navLink" href="${linkUrl}">Link</a>
+              <!-- end::link[]
+                              -->
+              </li>
             </ul>
             <c:if test="${currentAccount != null or not empty accounts}">
                 <ul class="nav navbar-nav navbar-right">

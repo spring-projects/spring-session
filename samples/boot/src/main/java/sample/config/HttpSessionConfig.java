@@ -24,11 +24,11 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  * @author Rob Winch
  */
 @Configuration
-@EnableRedisHttpSession
+@EnableRedisHttpSession // <1>
 public class HttpSessionConfig {
 
     @Bean
     public JedisConnectionFactory connectionFactory() {
-        return new JedisConnectionFactory();
+        return new JedisConnectionFactory(); // <2>
     }
 }
