@@ -1,0 +1,24 @@
+apply from: JAVA_GRADLE
+apply from: TOMCAT_GRADLE
+
+tasks.findByPath("artifactoryPublish")?.enabled = false
+sonarRunner {
+    skipProject = true
+}
+
+dependencies {
+    compile project(':spring-session-data-redis'),
+            "org.springframework:spring-webmvc:$springVersion",
+            "redis.embedded:embedded-redis:0.2",
+            "org.springframework.security:spring-security-config:$springSecurityVersion",
+            "org.springframework.security:spring-security-web:$springSecurityVersion",
+            "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            jstlDependencies
+
+    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+
+    testCompile 'junit:junit:4.11'
+
+    integrationTestCompile spockDependencies,
+                    'org.codehaus.groovy.modules.http-builder:http-builder:0.7'
+}
