@@ -11,6 +11,8 @@ group = 'org.springframework.session'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
+ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : '1.1.0.BUILD-SNAPSHOT'
+
 ext.spockDependencies = [
         dependencies.create("org.spockframework:spock-core:$spockVersion") {
             exclude group: 'junit', module: 'junit-dep'

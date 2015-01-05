@@ -1,9 +1,13 @@
 apply from: JAVA_GRADLE
 apply from: MAVEN_GRADLE
 
+apply plugin: 'spring-io'
+
 dependencies {
     compile project(':spring-session'),
             "org.springframework.data:spring-data-redis:$springDataRedisVersion",
             "redis.clients:jedis:$jedisVersion",
             "org.apache.commons:commons-pool2:$commonsPoolVersion"
+
+    springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
 }
