@@ -74,6 +74,8 @@ include::guides/httpsession.adoc[tags=config,leveloffset=+1]
 [[httpsession-how]]
 == How HttpSession Integration Works
 
+This section describes how Spring Session provides transparent integration with `HttpSession`. The intent is so that user's can understand what is happening under the covers. This functionality is already integrated and you do NOT need to implement this logic yourself.
+
 Fortunately both `HttpSession` and `HttpServletRequest` (the API for obtaining an `HttpSession`) are both interfaces.
 This means that we can provide our own implementations for each of these APIs.
 
