@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
  */
 public final class MapSession implements ExpiringSession, Serializable {
     /**
-     * Default {@link #setMaxInactiveInterval(int)} (30 minutes)
+     * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes)
      */
     public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
@@ -79,7 +79,7 @@ public final class MapSession implements ExpiringSession, Serializable {
         }
         this.lastAccessedTime = session.getLastAccessedTime();
         this.creationTime = session.getCreationTime();
-        this.maxInactiveInterval = session.getMaxInactiveInterval();
+        this.maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
     }
 
     public void setLastAccessedTime(long lastAccessedTime) {
@@ -98,11 +98,11 @@ public final class MapSession implements ExpiringSession, Serializable {
         return lastAccessedTime;
     }
 
-    public void setMaxInactiveInterval(int interval) {
+    public void setMaxInactiveIntervalInSeconds(int interval) {
         this.maxInactiveInterval = interval;
     }
 
-    public int getMaxInactiveInterval() {
+    public int getMaxInactiveIntervalInSeconds() {
         return maxInactiveInterval;
     }
 

@@ -83,11 +83,11 @@ public class MapSessionTests {
             return 0;
         }
 
-        public void setMaxInactiveInterval(int interval) {
+        public void setMaxInactiveIntervalInSeconds(int interval) {
 
         }
 
-        public int getMaxInactiveInterval() {
+        public int getMaxInactiveIntervalInSeconds() {
             return 0;
         }
 

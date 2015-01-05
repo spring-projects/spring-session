@@ -78,7 +78,7 @@ public class RedisOperationsSessionRepositoryTests {
     @Test
     public void createSessionDefaultMaxInactiveInterval() throws Exception {
         ExpiringSession session = redisRepository.createSession();
-        assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
+        assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
     }
 
     @Test
@@ -86,7 +86,7 @@ public class RedisOperationsSessionRepositoryTests {
         int interval = 1;
         redisRepository.setDefaultMaxInactiveInterval(interval);
         ExpiringSession session = redisRepository.createSession();
-        assertThat(session.getMaxInactiveInterval()).isEqualTo(interval);
+        assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(interval);
     }
 
     @Test
@@ -164,7 +164,7 @@ public class RedisOperationsSessionRepositoryTests {
         Map map = map(
                 getSessionAttrNameKey(attrName), expected.getAttribute(attrName),
                 CREATION_TIME_ATTR, expected.getCreationTime(),
-                MAX_INACTIVE_ATTR, expected.getMaxInactiveInterval(),
+                MAX_INACTIVE_ATTR, expected.getMaxInactiveIntervalInSeconds(),
                 LAST_ACCESSED_ATTR, expected.getLastAccessedTime());
         when(boundHashOperations.entries()).thenReturn(map);
         when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
@@ -206,7 +206,7 @@ public class RedisOperationsSessionRepositoryTests {
         Map map = map(
                 getSessionAttrNameKey(attrName), expected.getAttribute(attrName),
                 CREATION_TIME_ATTR, expected.getCreationTime(),
-                MAX_INACTIVE_ATTR, expected.getMaxInactiveInterval(),
+                MAX_INACTIVE_ATTR, expected.getMaxInactiveIntervalInSeconds(),
                 LAST_ACCESSED_ATTR, expected.getLastAccessedTime());
         when(boundHashOperations.entries()).thenReturn(map);
 
@@ -216,7 +216,7 @@ public class RedisOperationsSessionRepositoryTests {
         assertThat(session.getAttributeNames()).isEqualTo(expected.getAttributeNames());
         assertThat(session.getAttribute(attrName)).isEqualTo(expected.getAttribute(attrName));
         assertThat(session.getCreationTime()).isEqualTo(expected.getCreationTime());
-        assertThat(session.getMaxInactiveInterval()).isEqualTo(expected.getMaxInactiveInterval());
+        assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(expected.getMaxInactiveIntervalInSeconds());
         assertThat(session.getLastAccessedTime()).isGreaterThanOrEqualTo(now);
 
     }

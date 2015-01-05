@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MapSessionRepository implements SessionRepository<ExpiringSession> {
     /**
-     * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveInterval(int)}.
+     * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
      */
     private Integer defaultMaxInactiveInterval;
 
@@ -60,7 +60,7 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
     }
 
     /**
-     * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveInterval(int)}.
+     * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
      * @param defaultMaxInactiveInterval the number of seconds that the {@link Session} should be kept alive between client requests.
      */
     public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
@@ -92,7 +92,7 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
     public ExpiringSession createSession() {
         ExpiringSession result = new MapSession();
         if(defaultMaxInactiveInterval != null) {
-            result.setMaxInactiveInterval(defaultMaxInactiveInterval);
+            result.setMaxInactiveIntervalInSeconds(defaultMaxInactiveInterval);
         }
         return result;
     }

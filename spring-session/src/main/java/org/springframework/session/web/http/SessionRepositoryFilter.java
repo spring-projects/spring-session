@@ -249,11 +249,11 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             }
 
             public void setMaxInactiveInterval(int interval) {
-                session.setMaxInactiveInterval(interval);
+                session.setMaxInactiveIntervalInSeconds(interval);
             }
 
             public int getMaxInactiveInterval() {
-                return session.getMaxInactiveInterval();
+                return session.getMaxInactiveIntervalInSeconds();
             }
 
             @SuppressWarnings("deprecation")

@@ -76,7 +76,7 @@ public class IndexDocTests {
         public void demo() {
             S toSave = repository.createSession(); // <2>
             // ...
-            toSave.setMaxInactiveInterval(30); // <3>
+            toSave.setMaxInactiveIntervalInSeconds(30); // <3>
 
             repository.save(toSave); // <4>
 

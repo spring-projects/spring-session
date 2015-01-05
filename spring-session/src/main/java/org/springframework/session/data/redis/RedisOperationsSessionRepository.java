@@ -76,7 +76,7 @@ import org.springframework.util.Assert;
  * <p>
  * An expiration is associated to each session using the <a
  * href="http://redis.io/commands/expire">EXPIRE command</a> based upon the
- * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveInterval()}
+ * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveIntervalInSeconds()}
  * . For example:
  * </p>
  *
@@ -123,7 +123,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
     static final String CREATION_TIME_ATTR = "creationTime";
 
     /**
-     * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getMaxInactiveInterval()}
+     * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getMaxInactiveIntervalInSeconds()}
      */
     static final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
 
@@ -144,7 +144,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
     private final RedisSessionExpirationPolicy expirationPolicy;
 
     /**
-     * If non-null, this value is used to override the default value for {@link RedisSession#setMaxInactiveInterval(int)}.
+     * If non-null, this value is used to override the default value for {@link RedisSession#setMaxInactiveIntervalInSeconds(int)}.
      */
     private Integer defaultMaxInactiveInterval;
 
@@ -216,7 +216,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
             if(CREATION_TIME_ATTR.equals(key)) {
                 loaded.setCreationTime((Long) entry.getValue());
             } else if(MAX_INACTIVE_ATTR.equals(key)) {
-                loaded.setMaxInactiveInterval((Integer) entry.getValue());
+                loaded.setMaxInactiveIntervalInSeconds((Integer) entry.getValue());
             } else if(LAST_ACCESSED_ATTR.equals(key)) {
                 loaded.setLastAccessedTime((Long) entry.getValue());
             } else if(key.startsWith(SESSION_ATTR_PREFIX)) {
@@ -227,7 +227,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
             return null;
         }
         RedisSession result = new RedisSession(loaded);
-        result.originalLastAccessTime = loaded.getLastAccessedTime() + TimeUnit.SECONDS.toMillis(loaded.getMaxInactiveInterval());
+        result.originalLastAccessTime = loaded.getLastAccessedTime() + TimeUnit.SECONDS.toMillis(loaded.getMaxInactiveIntervalInSeconds());
         result.setLastAccessedTime(System.currentTimeMillis());
         return result;
     }
@@ -248,7 +248,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
     public RedisSession createSession() {
         RedisSession redisSession = new RedisSession();
         if(defaultMaxInactiveInterval != null) {
-            redisSession.setMaxInactiveInterval(defaultMaxInactiveInterval);
+            redisSession.setMaxInactiveIntervalInSeconds(defaultMaxInactiveInterval);
         }
         return redisSession;
     }
@@ -314,7 +314,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
         RedisSession() {
             this(new MapSession());
             delta.put(CREATION_TIME_ATTR, getCreationTime());
-            delta.put(MAX_INACTIVE_ATTR, getMaxInactiveInterval());
+            delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
             delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
         }
 
@@ -349,13 +349,13 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
             return cached.getLastAccessedTime();
         }
 
-        public void setMaxInactiveInterval(int interval) {
-            cached.setMaxInactiveInterval(interval);
-            delta.put(MAX_INACTIVE_ATTR, getMaxInactiveInterval());
+        public void setMaxInactiveIntervalInSeconds(int interval) {
+            cached.setMaxInactiveIntervalInSeconds(interval);
+            delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
         }
 
-        public int getMaxInactiveInterval() {
-            return cached.getMaxInactiveInterval();
+        public int getMaxInactiveIntervalInSeconds() {
+            return cached.getMaxInactiveIntervalInSeconds();
         }
 
         public Object getAttribute(String attributeName) {

@@ -27,14 +27,14 @@ public interface ExpiringSession extends Session {
      *
      * @param interval the number of seconds that the {@link Session} should be kept alive between client requests.
      */
-    void setMaxInactiveInterval(int interval);
+    void setMaxInactiveIntervalInSeconds(int interval);
 
     /**
      * Gets the maximum inactive interval in seconds between requests before this session will be invalidated. A negative time indicates that the session will never timeout.
      *
      * @return the maximum inactive interval in seconds between requests before this session will be invalidated. A negative time indicates that the session will never timeout.
      */
-    int getMaxInactiveInterval();
+    int getMaxInactiveIntervalInSeconds();
 
     /**
      * Returns true if the session is expired.

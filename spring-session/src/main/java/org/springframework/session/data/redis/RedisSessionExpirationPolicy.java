@@ -67,7 +67,7 @@ final class RedisSessionExpirationPolicy {
 
     public void onDelete(ExpiringSession session) {
         long lastAccessedTime = session.getLastAccessedTime();
-        int maxInactiveInterval = session.getMaxInactiveInterval();
+        int maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
 
         long toExpire = roundUpToNextMinute(lastAccessedTime, maxInactiveInterval);
         String expireKey = getExpirationKey(toExpire);
@@ -80,12 +80,12 @@ final class RedisSessionExpirationPolicy {
             expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
         }
 
-        long toExpire = roundUpToNextMinute(session.getLastAccessedTime(), session.getMaxInactiveInterval());
+        long toExpire = roundUpToNextMinute(session.getLastAccessedTime(), session.getMaxInactiveIntervalInSeconds());
 
         String expireKey = getExpirationKey(toExpire);
         expirationRedisOperations.boundSetOps(expireKey).add(session.getId());
 
-        long redisExpirationInSeconds = session.getMaxInactiveInterval();
+        long redisExpirationInSeconds = session.getMaxInactiveIntervalInSeconds();
         String sessionKey = getSessionKey(session.getId());
         expirationRedisOperations.boundSetOps(expireKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
         sessionRedisOperations.boundHashOps(sessionKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
