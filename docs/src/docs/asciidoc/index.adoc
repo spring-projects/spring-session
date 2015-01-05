@@ -39,11 +39,11 @@ If you are looking to get started with Spring Session, the best place to start i
 
 | {gh-samples-url}rest[REST]
 | Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
-| link:guides/security.html[REST Guide]
+| link:guides/rest.html[REST Guide]
 
 | {gh-samples-url}users[Multiple Sessions]
 | Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
-| link:guides/security.html[Users Guide]
+| link:guides/users.html[Users Guide]
 
 | {gh-samples-url}websocket[WebSocket]
 | Demonstrates how to use Spring Session with WebSockets.
