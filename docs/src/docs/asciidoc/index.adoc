@@ -39,7 +39,7 @@ If you are looking to get started with Spring Session, the best place to start i
 
 | {gh-samples-url}rest[REST]
 | Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
-| TBD
+| link:guides/security.html[REST Guide]
 
 | {gh-samples-url}users[Multiple Sessions]
 | Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
@@ -133,6 +133,12 @@ This provides the ability to support authenticating with multiple users in the s
 The <<samples,Multiple Sessions Sample>> provides a complete working example of managing multiple users in the same browser instance.
 
 include::guides/users.adoc[tags=how-does-it-work]
+
+== RESTful APIs
+
+Spring Session has can work with RESTful APIs by allowing the session to be provided in a header.
+
+The <<samples,REST Sample>> provides a complete working example of using Spring Session with a RESTful API.
 
 [[websocket]]
 = WebSocket Integration

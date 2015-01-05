@@ -22,11 +22,13 @@ import sample.SecurityConfig;
 /**
  * @author Rob Winch
  */
-public class MvcInializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+public class MvcInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
+    // tag::config[]
     @Override
     protected Class<?>[] getRootConfigClasses() {
         return new Class[] {SecurityConfig.class, HttpSessionConfig.class};
     }
+    // end::config[]
 
     @Override
     protected Class<?>[] getServletConfigClasses() {
