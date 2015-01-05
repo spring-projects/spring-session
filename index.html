@@ -1,0 +1,75 @@
+---
+# The name of your project
+title: Spring Session
+
+badges:
+
+  # Specify your project's twitter handle, if any. Delete if none.
+  #twitter: SpringData
+
+  # Customize your project's badges. Delete any entries that do not apply.
+  custom:
+    - name: Source (GitHub)
+      url:  https://github.com/spring-projects/spring-session
+      icon: github
+
+    - name: Issues (GitHub)
+      url:  https://github.com/spring-projects/spring-session/issues
+      icon: tracking
+
+    - name: CI (Bamboo)
+      url:  https://build.spring.io/browse/SESSION
+      icon: ci
+
+    - name: StackOverflow
+      url:  http://stackoverflow.com/questions/tagged/spring-session
+      icon: stackoverflow
+
+    - name: Metrics (SonarQube)
+      url:  https://sonar.spring.io/dashboard/index?id=org.springframework.session%3Aspring-session-build
+      icon: metrics
+
+---
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+<!-- Specify the parent of this project (or delete if none) to influence the rendering of the breadcrumb -->
+{% capture parent_link %}
+[Spring Parent]({{ site.projects_site_url }}/spring-parent)
+{% endcapture %}
+
+
+{% capture billboard_description %}
+
+Spring Session provides an API and implementations for managing a user’s session information.
+
+{% endcapture %}
+
+{% capture main_content %}
+
+Spring Session provides an API and implementations for managing a user’s session information.
+
+## Features
+
+It also provides transparent integration with:
+
+* HttpSession - allows for simple clustered sessions, obtaining the session from custom parts of the HTTP request (i.e. HTTP headers), and managing multiple user’s sessions in a single browser instance (i.e. multiple authenticated accounts similar to Google).
+* WebSocket - provides the ability to keep the HttpSession alive when receiving WebSocket messages
+
+
+<span id="quick-start"></span>
+## Quick Start
+
+Refer to the [Samples](http://docs.spring.io/spring-session/current-SNAPSHOT/docs/html5/#samples) and their corresponding guides for a quickstart.
+
+{% include download_widget.md %}
+
+{% endcapture %}
+
+{% capture related_resources %}
+
+{% endcapture %}
+
+
+{% include project_page.html %}
+</html>
