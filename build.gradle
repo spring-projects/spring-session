@@ -42,7 +42,7 @@ sonarRunner {
 
 task configDocsZip(dependsOn: ':docs:asciidoctor') << {
     project.tasks.docsZip.from(project(':docs').asciidoctor) {
-        into('docs')
+        into('reference')
     }
 }
 
