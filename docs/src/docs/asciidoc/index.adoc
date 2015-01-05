@@ -175,6 +175,8 @@ include::guides/websocket.adoc[tags=config,leveloffset=+1]
 
 = API Documentation
 
+You can browse the complete link:../../api/[Javadoc] online. The key APIs are described below:
+
 == Session
 
 A `Session` is a simplified `Map` of name value pairs.
