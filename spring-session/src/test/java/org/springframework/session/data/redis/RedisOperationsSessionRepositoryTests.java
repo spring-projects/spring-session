@@ -40,9 +40,7 @@ public class RedisOperationsSessionRepositoryTests {
     @Mock
     RedisConnection connection;
     @Mock
-    RedisOperations<String,ExpiringSession> redisOperations;
-    @Mock
-    RedisOperations<String,String> expirationRedisOperations;
+    RedisOperations redisOperations;
     @Mock
     BoundHashOperations<String, Object, Object> boundHashOperations;
     @Mock
@@ -56,12 +54,12 @@ public class RedisOperationsSessionRepositoryTests {
 
     @Before
     public void setup() {
-        this.redisRepository = new RedisOperationsSessionRepository(redisOperations,expirationRedisOperations);
+        this.redisRepository = new RedisOperationsSessionRepository(redisOperations);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void constructorNullConnectionFactory() {
-        new RedisOperationsSessionRepository(null);
+        new RedisOperationsSessionRepository((RedisConnectionFactory)null);
     }
 
     // gh-61
@@ -93,7 +91,7 @@ public class RedisOperationsSessionRepositoryTests {
     public void saveNewSession() {
         RedisSession session = redisRepository.createSession();
         when(redisOperations.boundHashOps(getKey(session.getId()))).thenReturn(boundHashOperations);
-        when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+        when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
 
         redisRepository.save(session);
 
@@ -110,7 +108,7 @@ public class RedisOperationsSessionRepositoryTests {
         RedisSession session = redisRepository.new RedisSession(new MapSession());
         session.setLastAccessedTime(12345678L);
         when(redisOperations.boundHashOps(getKey(session.getId()))).thenReturn(boundHashOperations);
-        when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+        when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
 
         redisRepository.save(session);
 
@@ -123,7 +121,7 @@ public class RedisOperationsSessionRepositoryTests {
         RedisSession session = redisRepository.new RedisSession(new MapSession());
         session.setAttribute(attrName, "attrValue");
         when(redisOperations.boundHashOps(getKey(session.getId()))).thenReturn(boundHashOperations);
-        when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+        when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
 
         redisRepository.save(session);
 
@@ -136,7 +134,7 @@ public class RedisOperationsSessionRepositoryTests {
         RedisSession session = redisRepository.new RedisSession(new MapSession());
         session.removeAttribute(attrName);
         when(redisOperations.boundHashOps(getKey(session.getId()))).thenReturn(boundHashOperations);
-        when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+        when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
 
         redisRepository.save(session);
 
@@ -167,7 +165,7 @@ public class RedisOperationsSessionRepositoryTests {
                 MAX_INACTIVE_ATTR, expected.getMaxInactiveIntervalInSeconds(),
                 LAST_ACCESSED_ATTR, expected.getLastAccessedTime());
         when(boundHashOperations.entries()).thenReturn(map);
-        when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+        when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
 
         String id = expected.getId();
         redisRepository.delete(id);
@@ -176,13 +174,13 @@ public class RedisOperationsSessionRepositoryTests {
 
     @Test
     public void deleteNullSession() {
-        when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+        when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
         when(redisOperations.boundHashOps(anyString())).thenReturn(boundHashOperations);
 
         String id = "abc";
         redisRepository.delete(id);
         verify(redisOperations,times(0)).delete(anyString());
-        verify(expirationRedisOperations,times(0)).delete(anyString());
+        verify(redisOperations,times(0)).delete(anyString());
     }
 
     @Test
@@ -238,7 +236,7 @@ public class RedisOperationsSessionRepositoryTests {
     public void cleanupExpiredSessions() {
         String expiredId = "expired-id";
         when(redisOperations.boundHashOps(getKey(expiredId))).thenReturn(boundHashOperations);
-        when(expirationRedisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+        when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
         Set<String> expiredIds = new HashSet<String>(Arrays.asList("expired-key1","expired-key2"));
         when(boundSetOperations.members()).thenReturn(expiredIds);
 

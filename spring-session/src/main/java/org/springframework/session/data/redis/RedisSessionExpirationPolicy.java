@@ -58,11 +58,10 @@ final class RedisSessionExpirationPolicy {
     private final RedisOperations<String,String> expirationRedisOperations;
 
     public RedisSessionExpirationPolicy(
-            RedisOperations<String, ExpiringSession> sessionRedisOperations,
-            RedisOperations<String, String> expirationRedisOperations) {
+            RedisOperations sessionRedisOperations) {
         super();
         this.sessionRedisOperations = sessionRedisOperations;
-        this.expirationRedisOperations = expirationRedisOperations;
+        this.expirationRedisOperations = sessionRedisOperations;
     }
 
     public void onDelete(ExpiringSession session) {

@@ -155,20 +155,18 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
      */
     @SuppressWarnings("unchecked")
     public RedisOperationsSessionRepository(RedisConnectionFactory redisConnectionFactory) {
-        this(createDefaultTemplate(redisConnectionFactory), createDefaultTemplate(redisConnectionFactory));
+        this(createDefaultTemplate(redisConnectionFactory));
     }
 
     /**
      * Creates a new instance. For an example, refer to the class level javadoc.
      *
      * @param sessionRedisOperations The {@link RedisOperations} to use for managing the sessions. Cannot be null.
-     * @param expirationRedisOperations The {@link RedisOperations} to use for managing expiration mappings. Cannot be null.
      */
-    public RedisOperationsSessionRepository(RedisOperations<String, ExpiringSession> sessionRedisOperations, RedisOperations<String,String> expirationRedisOperations) {
+    public RedisOperationsSessionRepository(RedisOperations<String, ExpiringSession> sessionRedisOperations) {
         Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
-        Assert.notNull(expirationRedisOperations, "expirationRedisOperations cannot be null");
         this.sessionRedisOperations = sessionRedisOperations;
-        this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, expirationRedisOperations);
+        this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations);
     }
 
     /**
