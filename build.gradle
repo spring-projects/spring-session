@@ -40,9 +40,12 @@ sonarRunner {
     }
 }
 
-task configDocsZip(dependsOn: ':docs:asciidoctor') << {
+task configDocsZip(dependsOn: [':docs:asciidoctor',':spring-session:javadoc']) << {
     project.tasks.docsZip.from(project(':docs').asciidoctor) {
         into('reference')
+    }
+    project.tasks.docsZip.from(project(':spring-session').javadoc) {
+        into('api')
     }
 }
 
