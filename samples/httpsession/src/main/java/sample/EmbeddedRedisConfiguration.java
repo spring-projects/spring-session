@@ -62,10 +62,8 @@ public class EmbeddedRedisConfiguration {
             }
         }
 
-        @Override
         public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
 
-        @Override
         public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
     }
 }
