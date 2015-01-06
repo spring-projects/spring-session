@@ -6,8 +6,6 @@ This guide describes how to use Spring Session to transparently leverage Redis t
 
 NOTE: The completed guide can be found in the <<rest-sample, rest sample application>>.
 
-// tag::config[]
-
 == Updating Dependencies
 Before you use Spring Session, you must ensure to update your dependencies.
 If you are using Maven, ensure to add the following dependencies:
@@ -65,6 +63,8 @@ Ensure you have the following in your pom.xml:
 </repository>
 ----
 endif::[]
+
+// tag::config[]
 
 [[rest-spring-configuration]]
 == Spring Configuration
