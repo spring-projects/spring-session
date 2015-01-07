@@ -12,6 +12,8 @@ apply plugin: 'spring-boot'
 apply from: JAVA_GRADLE
 apply from: TOMCAT_GRADLE
 
+tasks.findByPath("artifactoryPublish")?.enabled = false
+
 group = 'samples'
 
 dependencies {
