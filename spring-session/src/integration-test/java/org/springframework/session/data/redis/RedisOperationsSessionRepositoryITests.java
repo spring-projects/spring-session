@@ -179,6 +179,6 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
             availablePort = socket.getLocalPort();
             socket.close();
         }
-        return Protocol.DEFAULT_PORT;
+        return availablePort;
     }
 }

@@ -179,6 +179,6 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
             availablePort = socket.getLocalPort();
             socket.close();
         }
-        return Protocol.DEFAULT_PORT;
+        return availablePort;
     }
 }
