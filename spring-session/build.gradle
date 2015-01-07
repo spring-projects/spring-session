@@ -3,6 +3,8 @@ apply from: MAVEN_GRADLE
 
 apply plugin: 'spring-io'
 
+description = "Spring Session"
+
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 1, project.configurations.getByName("integrationTestCompile"), Conf2ScopeMappingContainer.TEST)
 project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, project.configurations.getByName("integrationTestRuntime"), Conf2ScopeMappingContainer.TEST)
 check.dependsOn integrationTest

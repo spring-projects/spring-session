@@ -3,6 +3,8 @@ apply from: MAVEN_GRADLE
 
 apply plugin: 'spring-io'
 
+description = "Aggregator for Spring Session and Spring Data Redis"
+
 dependencies {
     compile project(':spring-session'),
             "org.springframework.data:spring-data-redis:$springDataRedisVersion",
