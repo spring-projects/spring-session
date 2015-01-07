@@ -71,7 +71,7 @@ import org.springframework.util.Assert;
  * command</a>. An example of how each session is stored can be seen below.
  * </p>
  *
- * {@code HMSET spring:session:sessions:<session-id> creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:<attrName> someAttrValue sessionAttr2:<attrName> someAttrValue2}
+ * <pre>HMSET spring:session:sessions:&lt;session-id&gt; creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:&lt;attrName&gt; someAttrValue sessionAttr2:&lt;attrName&gt; someAttrValue2</pre>
  *
  * <p>
  * An expiration is associated to each session using the <a
@@ -80,7 +80,7 @@ import org.springframework.util.Assert;
  * . For example:
  * </p>
  *
- * {@code EXPIRE spring:session:sessions:<session-id> 1800}
+ * <pre>EXPIRE spring:session:sessions:&lt;session-id&gt; 1800</pre>
  *
  * <p>
  * The {@link RedisSession} keeps track of the properties that have changed and
@@ -90,19 +90,19 @@ import org.springframework.util.Assert;
  * would be executed upon saving:
  * </p>
  *
- * {@code
- *     HMSET spring:session:sessions:<session-id> sessionAttr2:<attrName> newValue
- *     EXPIRE spring:session:sessions:<session-id> 1800
- * }
+ * <pre>
+ *     HMSET spring:session:sessions:&lt;session-id&gt; sessionAttr2:&lt;attrName&gt; newValue
+ *     EXPIRE spring:session:sessions:&lt;session-id&gt; 1800
+ * </pre>
  *
  * Each session expiration is also tracked to the nearest minute. This allows a
  * background task to cleanup expired sessions in a deterministic fashion. For
  * example:
  *
- * {@code
- *     SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
- *     EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1800
- * }
+ * <pre>
+ *     SADD spring:session:expirations:&lt;expire-rounded-up-to-nearest-minute&gt; &lt;session-id&gt;
+ *     EXPIRE spring:session:expirations:&lt;expire-rounded-up-to-nearest-minute&gt; 1800
+ * </pre>
  *
  * <p>
  * The background task will then use these mappings to explicitly request each key.
