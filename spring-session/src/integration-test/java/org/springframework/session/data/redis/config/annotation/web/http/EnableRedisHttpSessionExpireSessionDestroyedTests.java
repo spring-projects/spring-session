@@ -102,7 +102,6 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
         private boolean receivedEvent;
         private Object lock;
 
-        @Override
         public void onApplicationEvent(SessionDestroyedEvent event) {
             synchronized (lock) {
                 receivedEvent = true;
@@ -150,23 +149,19 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
             private RedisServer redisServer;
 
 
-            @Override
             public void afterPropertiesSet() throws Exception {
                 redisServer = new RedisServer(getPort());
                 redisServer.start();
             }
 
-            @Override
             public void destroy() throws Exception {
                 if(redisServer != null) {
                     redisServer.stop();
                 }
             }
 
-            @Override
             public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
 
-            @Override
             public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
         }
     }

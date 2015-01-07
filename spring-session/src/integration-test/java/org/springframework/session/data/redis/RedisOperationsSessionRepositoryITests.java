@@ -102,7 +102,6 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
         private boolean receivedEvent;
         private Object lock;
 
-        @Override
         public void onApplicationEvent(SessionDestroyedEvent event) {
             receivedEvent = true;
             synchronized (lock) {
@@ -150,23 +149,19 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
             private RedisServer redisServer;
 
 
-            @Override
             public void afterPropertiesSet() throws Exception {
                 redisServer = new RedisServer(getPort());
                 redisServer.start();
             }
 
-            @Override
             public void destroy() throws Exception {
                 if(redisServer != null) {
                     redisServer.stop();
                 }
             }
 
-            @Override
             public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
 
-            @Override
             public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
         }
     }
