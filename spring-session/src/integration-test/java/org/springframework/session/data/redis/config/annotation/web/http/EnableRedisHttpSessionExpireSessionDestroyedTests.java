@@ -41,6 +41,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
@@ -53,7 +54,7 @@ import redis.embedded.RedisServer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> {
+public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends ExpiringSession> {
     private RedisServer redisServer;
 
     @Autowired
@@ -81,12 +82,18 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
         repository.save(toSave);
 
         synchronized (lock) {
-            lock.wait(1100);
+            lock.wait((toSave.getMaxInactiveIntervalInSeconds() * 1000) + 1);
         }
         if(!registry.receivedEvent()) {
             // Redis makes no guarantees on when an expired event will be fired
             // we can ensure it gets fired by trying to get the session
             repository.getSession(toSave.getId());
+            synchronized (lock) {
+                if(!registry.receivedEvent()) {
+                    // wait at most second to process the event
+                    lock.wait(1000);
+                }
+            }
         }
         assertThat(registry.receivedEvent()).isTrue();
     }
@@ -97,8 +104,8 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 
         @Override
         public void onApplicationEvent(SessionDestroyedEvent event) {
-            receivedEvent = true;
             synchronized (lock) {
+                receivedEvent = true;
                 lock.notifyAll();
             }
         }
