@@ -301,6 +301,9 @@ For example:
    SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
    EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1800
 
+The background task will then use these mappings to explicitly request each key.
+By accessing they key, rather than deleting it, we ensure that Redis deletes the key for us only if the TTL is expired.
+
 The Redis expiration is still placed on each key to ensure that if the server is down when the session expires, it is still cleaned up.
 
 [[api-redisoperationssessionrepository-writes]]

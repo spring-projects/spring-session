@@ -35,7 +35,7 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
  * order to ensure expired session events are processed in a timely fashion the
  * expiration (rounded to the nearest minute) is mapped to all the sessions that
  * expire at that time. Whenever {@link #cleanExpiredSessions()} is invoked, the
- * sessions for the previous minute are then deleted explicitly.
+ * sessions for the previous minute are then accessed to ensure they are deleted if expired.
  *
  * In some instances the {@link #cleanExpiredSessions()} method may not be not
  * invoked for a specific time. For example, this may happen when a server is
@@ -108,18 +108,21 @@ final class RedisSessionExpirationPolicy {
 
         String expirationKey = getExpirationKey(prevMin);
         Set<String> sessionsToExpire = expirationRedisOperations.boundSetOps(expirationKey).members();
-        Set<String> keysToDelete = new HashSet<String>(sessionsToExpire.size() + 1);
-        keysToDelete.add(expirationKey);
+        touch(expirationKey);
         for(String session : sessionsToExpire) {
             String sessionKey = getSessionKey(session);
-            keysToDelete.add(sessionKey);
+            touch(sessionKey);
         }
+    }
 
-        sessionRedisOperations.delete(keysToDelete);
-
-        if(logger.isDebugEnabled()) {
-            logger.debug("The following expired Sessions were deleted " + keysToDelete);
-        }
+    /**
+     * By trying to access the session we only trigger a deletion if it the TTL is expired. This is done to handle
+     * https://github.com/spring-projects/spring-session/issues/93
+     *
+     * @param key
+     */
+    private void touch(String key) {
+        sessionRedisOperations.hasKey(key);
     }
 
     private long roundUpToNextMinute(long timeInMs, int inactiveIntervalInSec) {

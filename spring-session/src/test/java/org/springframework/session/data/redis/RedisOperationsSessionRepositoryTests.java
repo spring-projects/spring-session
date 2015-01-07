@@ -47,8 +47,6 @@ public class RedisOperationsSessionRepositoryTests {
     BoundSetOperations<String, String> boundSetOperations;
     @Captor
     ArgumentCaptor<Map<String,Object>> delta;
-    @Captor
-    ArgumentCaptor<Set<String>> keys;
 
     private RedisOperationsSessionRepository redisRepository;
 
@@ -237,19 +235,17 @@ public class RedisOperationsSessionRepositoryTests {
         String expiredId = "expired-id";
         when(redisOperations.boundHashOps(getKey(expiredId))).thenReturn(boundHashOperations);
         when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+
         Set<String> expiredIds = new HashSet<String>(Arrays.asList("expired-key1","expired-key2"));
         when(boundSetOperations.members()).thenReturn(expiredIds);
 
         redisRepository.cleanupExpiredSessions();
 
-        verify(redisOperations).delete(keys.capture());
-
         for(String id : expiredIds) {
             String expiredKey = RedisOperationsSessionRepository.BOUNDED_HASH_KEY_PREFIX + id;
-            assertThat(keys.getValue()).contains(expiredKey);
+            // https://github.com/spring-projects/spring-session/issues/93
+            verify(redisOperations).hasKey(expiredKey);
         }
-        // the key that maps the expiration time to the expired ids
-        assertThat(keys.getValue().size()).isEqualTo(expiredIds.size() + 1);
     }
 
     @SuppressWarnings("rawtypes")
