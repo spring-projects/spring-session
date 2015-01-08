@@ -95,9 +95,29 @@ import org.springframework.util.Assert;
  *     EXPIRE spring:session:sessions:&lt;session-id&gt; 1800
  * </pre>
  *
- * Each session expiration is also tracked to the nearest minute. This allows a
- * background task to cleanup expired sessions in a deterministic fashion. For
- * example:
+ * <p>
+ * Spring Session relies on the expired and delete <a href="http://redis.io/topics/notifications">keyspace notifications</a> from Redis to fire a <<SessionDestroyedEvent>>.
+ * It is the `SessionDestroyedEvent` that ensures resources associated with the Session are cleaned up.
+ * For example, when using Spring Session's WebSocket support the Redis expired or delete event is what triggers any
+ * WebSocket connections associated with the session to be closed.
+ * </p>
+ *
+ * <p>
+ * One problem with this approach is that Redis makes no guarantee of when the expired event will be fired if they key has not been accessed.
+ * Specifically the background task that Redis uses to clean up expired keys is a low priority task and may not trigger the key expiration.
+ * For additional details see <a href="http://redis.io/topics/notifications">Timing of expired events</a> section in the Redis documentation.
+ * </p>
+ *
+ * <p>
+ * To circumvent the fact that expired events are not guaranteed to happen we can ensure that each key is accessed when it is expected to expire.
+ * This means that if the TTL is expired on the key, Redis will remove the key and fire the expired event when we try to access they key.
+ * </p>
+ *
+ * <p>
+ * For this reason, each session expiration is also tracked to the nearest minute.
+ * This allows a background task to access the potentially expired sessions to ensure that Redis expired events are fired in a more deterministic fashion.
+ * For example:
+ * </p>
  *
  * <pre>
  *     SADD spring:session:expirations:&lt;expire-rounded-up-to-nearest-minute&gt; &lt;session-id&gt;
@@ -109,8 +129,9 @@ import org.springframework.util.Assert;
  * By accessing they key, rather than deleting it, we ensure that Redis deletes the key for us only if the TTL is expired.
  * </p>
  * <p>
- * The Redis expiration is still placed on each key to ensure that if the server
- * is down when the session expires, it is still cleaned up.
+ * <b>NOTE</b>: We do not explicitly delete the keys since in some instances there may be a race condition that incorrectly identifies a key as expired when it is not.
+ * Short of using distributed locks (which would kill our performance) there is no way to ensure the consistency of the expiration mapping.
+ * By simply accessing the key, we ensure that the key is only removed if the TTL on that key is expired.
  * </p>
  *
  * @since 1.0
