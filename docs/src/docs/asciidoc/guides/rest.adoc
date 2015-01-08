@@ -170,7 +170,7 @@ You will see in the output that the x-auth-token provides an empty String indica
 HTTP/1.1 204 No Content
 ...
 x-auth-token:
----
+----
 
 === How does it work?
 
