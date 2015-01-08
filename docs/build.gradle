@@ -5,6 +5,8 @@ asciidoctorj {
 
 }
 
+tasks.findByPath("artifactoryPublish")?.enabled = false
+
 dependencies {
         testCompile project(':spring-session'),
                 "org.springframework.data:spring-data-redis:$springDataRedisVersion",
