@@ -35,6 +35,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
 | link:guides/httpsession.html[HttpSession Guide]
 
+| {gh-samples-url}httpsession-xml[HttpSession XML]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using XML based configuration.
+| TBD
+
 | {gh-samples-url}boot[Spring Boot]
 | Demonstrates how to use Spring Session with Spring Boot.
 | link:guides/boot.html[Spring Boot Guide]
