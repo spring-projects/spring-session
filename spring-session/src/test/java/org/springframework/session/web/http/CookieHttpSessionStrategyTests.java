@@ -382,6 +382,19 @@ public class CookieHttpSessionStrategyTests {
         assertThat(createSessionCookieValue(17)).isEqualToIgnoringCase("0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
     }
 
+    @Test
+    public void cookieExpiration() {
+        // Default cookie expiration is -1 which means "session cookie", e.g. expire after exiting the web browser
+        assertThat(strategy.getMaxAge()).isEqualTo(-1);
+
+        // Validate we can change the cookie age
+        strategy.setMaxAge(24 * 60 * 60);
+        strategy.onNewSession(session, request, response);
+        Cookie sessionCookie = response.getCookie(cookieName);
+
+        assertThat(sessionCookie.getMaxAge()).isEqualTo(24 * 60 * 60);
+    }
+
     private void setCookieWithNSessions(long size) {
         setSessionCookie(createSessionCookieValue(size));
     }
