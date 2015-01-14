@@ -75,8 +75,8 @@ include::{samples-dir}boot/src/main/java/sample/config/HttpSessionConfig.java[]
 <1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by Redis.
-<2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
-In our example, we are connecting to localhost on the default port (6379).
+<2> Spring Boot automatically creates a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
+In our example, we are connecting to localhost on the default port (6379). In a production environment you need to ensure to configure your JedisConnectionFactory bean to point to your Redis instance.
 For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
 
 == Servlet Container Initialization
