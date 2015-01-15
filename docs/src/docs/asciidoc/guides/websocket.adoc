@@ -32,11 +32,7 @@ For example, the configuration might look something like the following:
 include::{websocketdoc-test-dir}WebSocketConfig.java[tags=class]
 ----
 
-To hook in the Spring Session support we only need to change two things:
-
-<1> Instead of extending `AbstractWebSocketMessageBrokerConfigurer` we extend `AbstractSessionWebSocketMessageBrokerConfigurer`
-<2> We rename the `registerStompEndpoints` method to `configureStompEndpoints`
-
+We can easily update our configuration to use Spring Session's WebSocket support.
 For example:
 
 .src/main/java/samples/config/WebSocketConfig.java
@@ -45,7 +41,12 @@ For example:
 include::{samples-dir}websocket/src/main/java/sample/config/WebSocketConfig.java[tags=class]
 ----
 
-If interested in more details, here are the things the base class does:
+To hook in the Spring Session support we only need to change two things:
+
+<1> Instead of extending `AbstractWebSocketMessageBrokerConfigurer` we extend `AbstractSessionWebSocketMessageBrokerConfigurer`
+<2> We rename the `registerStompEndpoints` method to `configureStompEndpoints`
+
+What does `AbstractSessionWebSocketMessageBrokerConfigurer` do behind the scenes?
 
 * `WebSocketConnectHandlerDecoratorFactory` is added as a `WebSocketHandlerDecoratorFactory` to `WebSocketTransportRegistration`.
 This ensures a custom `SessionConnectEvent` is fired that contains the `WebSocketSession`.
