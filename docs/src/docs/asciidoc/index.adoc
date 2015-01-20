@@ -161,7 +161,7 @@ include::guides/users.adoc[tags=how-does-it-work,leveloffset=+1]
 [[httpsession-rest]]
 === HttpSession & RESTful APIs
 
-Spring Session has can work with RESTful APIs by allowing the session to be provided in a header.
+Spring Session can work with RESTful APIs by allowing the session to be provided in a header.
 
 
 NOTE: The <<samples, REST Sample>> provides a working sample on how to use Spring Session in a REST application to support authenticating with a header.
