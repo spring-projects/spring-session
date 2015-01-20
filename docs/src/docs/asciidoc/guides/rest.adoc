@@ -80,7 +80,7 @@ include::{samples-dir}rest/src/main/java/sample/HttpSessionConfig.java[]
 
 <1> We import an embedded Redis Server so that there is no need to start up Redis external of our application.
 In a production application this is not necessary since we would point our connection to an external Redis instance.
-<2> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+<2> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements `Filter`.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by Redis.
 <3> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
