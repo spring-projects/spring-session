@@ -87,7 +87,7 @@ We have already mentioned that Spring Session provides transparent integration w
 Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
 
 NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession`.
-You can the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
 include::guides/httpsession.adoc[tags=config,leveloffset=+2]
 
