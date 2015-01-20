@@ -111,7 +111,7 @@ The boot Sample Application demonstrates how to use Spring Session to transparen
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-  $ ./gradlew :samples:boot:tomcatRun
+  $ ./gradlew :samples:boot:bootRun
 
 You should now be able to access the application at http://localhost:8080/
 
