@@ -107,7 +107,7 @@ The value is an alias that points to an existing unauthenticated session.
 If no such session exists, the value is null.
 This ensures if we have an existing unauthenticated session that we use it instead of creating a new session.
 <2> If all of our sessions are already associated to a user, we create a new session alias.
-<3> If a there exists a session that is not associated to a user, we use its session alias.
+<3> If there is an existing session that is not associated to a user, we use its session alias.
 <4> Finally, we create the add account URL.
 The URL contains a session alias that either points to an existing unauthenticated session or is an alias that is unused thus signaling to create a new session associated to that alias.
 
