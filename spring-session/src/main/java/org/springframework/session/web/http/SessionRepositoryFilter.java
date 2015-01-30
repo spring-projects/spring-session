@@ -62,6 +62,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 
     private MultiHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
 
+	public boolean alwaysSendCookie;
+	
     /**
      * Creates a new instance
      *
@@ -97,6 +99,16 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
         }
         this.httpSessionStrategy = httpSessionStrategy;
     }
+
+	/**
+	 * Flag to indicate that the filter should always send a cookie with the session id,
+	 * even if the caller sent a valid value in the incoming request.
+	 *  
+	 * @param alwaysSendCookie flag value (default false)
+	 */
+	public void setAlwaysSendCookie(boolean alwaysSendCookie) {
+		this.alwaysSendCookie = alwaysSendCookie;
+	}
 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         request.setAttribute(SESSION_REPOSITORY_ATTR, sessionRepository);
@@ -170,7 +182,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             } else {
                 S session = wrappedSession.session;
                 sessionRepository.save(session);
-                if(!requestedValidSession) {
+                if(!requestedValidSession || alwaysSendCookie) {
                     httpSessionStrategy.onNewSession(session, this, response);
                 }
             }

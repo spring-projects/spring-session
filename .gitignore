@@ -7,5 +7,6 @@ bin
 .settings
 .project
 target
+pom.xml
 out
 .springBeans
