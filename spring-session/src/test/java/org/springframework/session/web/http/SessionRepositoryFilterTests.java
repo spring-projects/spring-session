@@ -328,8 +328,14 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
     }
 
     @Test
-    public void doFilterIsNewTrueWithFlag() throws Exception {
-    	filter.setAlwaysSendCookie(true);
+    public void doFilterSetsCookieIfChanged() throws Exception {
+        sessionRepository = new MapSessionRepository() {
+        	@Override
+        	public ExpiringSession getSession(String id) {
+				return createSession();
+        	}
+        };
+        filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
         doFilter(new DoInFilter() {
             @Override
             public void doFilter(HttpServletRequest wrappedRequest) {
