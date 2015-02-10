@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+                         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+        <security:http auto-config="false" use-expressions="true" >
+
+            <security:intercept-url pattern="/login" access="permitAll" />
+            <security:intercept-url pattern="/login/sessionExpired" access="permitAll" />
+            <security:intercept-url pattern="/login/**" access="permitAll" />
+
+            <security:intercept-url pattern="/**" access="isAuthenticated()" />
+
+            <!-- START: comment this out to make it work without the redirect loop! -->
+            <security:session-management session-fixation-protection="newSession"
+                invalid-session-url="/login/sessionExpired" >
+            </security:session-management>
+
+            <security:form-login default-target-url="/index.jsp" />
+            <security:logout delete-cookies="SESSION"/>
+            <security:anonymous enabled="false" granted-authority="ANONYMOUS" />
+
+        </security:http>
+
+        <security:authentication-manager>
+            <security:authentication-provider>
+                <security:user-service>
+                    <security:user name="admin" password="admin" authorities="ROLE_USER,ROLE_ADMINISTRATOR" />
+                    <security:user name="user" password="pass" authorities="ROLE_USER" />
+                </security:user-service>
+            </security:authentication-provider>
+        </security:authentication-manager>
+</beans>
