@@ -323,6 +323,38 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
                 assertThat(wrappedRequest.getSession().isNew()).isFalse();
             }
         });
+
+        assertThat(response.getCookie("SESSION")).isNull();
+    }
+
+    @Test
+    public void doFilterSetsCookieIfChanged() throws Exception {
+        sessionRepository = new MapSessionRepository() {
+            @Override
+            public ExpiringSession getSession(String id) {
+                return createSession();
+            }
+        };
+        filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                wrappedRequest.getSession();
+            }
+        });
+        assertThat(response.getCookie("SESSION")).isNotNull();
+        
+        setupSession();
+
+        response.reset();        
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                assertThat(wrappedRequest.getSession().isNew()).isFalse();
+            }
+        });
+        
+        assertThat(response.getCookie("SESSION")).isNotNull();
     }
 
     @Test
