@@ -316,6 +316,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
         });
 
         setupSession();
+        response.reset();
 
         doFilter(new DoInFilter() {
             @Override
