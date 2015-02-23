@@ -96,7 +96,7 @@ import org.springframework.util.Assert;
  * </pre>
  *
  * <p>
- * Spring Session relies on the expired and delete <a href="http://redis.io/topics/notifications">keyspace notifications</a> from Redis to fire a <<SessionDestroyedEvent>>.
+ * Spring Session relies on the expired and delete <a href="http://redis.io/topics/notifications">keyspace notifications</a> from Redis to fire a &lt;&lt;SessionDestroyedEvent&gt;&gt;.
  * It is the `SessionDestroyedEvent` that ensures resources associated with the Session are cleaned up.
  * For example, when using Spring Session's WebSocket support the Redis expired or delete event is what triggers any
  * WebSocket connections associated with the session to be closed.
