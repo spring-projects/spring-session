@@ -22,7 +22,7 @@ dependencies {
     provided "javax.servlet:javax.servlet-api:$servletApiVersion"
     integrationTestCompile "redis.clients:jedis:2.4.1",
             "org.apache.commons:commons-pool2:2.2",
-            "redis.embedded:embedded-redis:0.2"
+            "redis.embedded:embedded-redis:0.4"
     testCompile 'junit:junit:4.11',
             'org.mockito:mockito-core:1.9.5',
             "org.springframework:spring-test:$springVersion",
