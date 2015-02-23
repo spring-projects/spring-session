@@ -32,7 +32,21 @@ For example, the configuration might look something like the following:
 include::{websocketdoc-test-dir}WebSocketConfig.java[tags=class]
 ----
 
-To hook in the Spring Session support, we need to ensure
+We can easily update our configuration to use Spring Session's WebSocket support.
+For example:
+
+.src/main/java/samples/config/WebSocketConfig.java
+[source,java]
+----
+include::{samples-dir}websocket/src/main/java/sample/config/WebSocketConfig.java[tags=class]
+----
+
+To hook in the Spring Session support we only need to change two things:
+
+<1> Instead of extending `AbstractWebSocketMessageBrokerConfigurer` we extend `AbstractSessionWebSocketMessageBrokerConfigurer`
+<2> We rename the `registerStompEndpoints` method to `configureStompEndpoints`
+
+What does `AbstractSessionWebSocketMessageBrokerConfigurer` do behind the scenes?
 
 * `WebSocketConnectHandlerDecoratorFactory` is added as a `WebSocketHandlerDecoratorFactory` to `WebSocketTransportRegistration`.
 This ensures a custom `SessionConnectEvent` is fired that contains the `WebSocketSession`.
@@ -45,20 +59,6 @@ This ensures that every time an inbound message is received, that the last acces
 This ensures that we have a mapping of all of the Session id to the corresponding WebSocket connections.
 By maintaining this mapping, we can close all the WebSocket connections when a Spring Session (HttpSession) is terminated.
 
-This is quite a bit of work to get things working.
-Fortunately, Spring Session provides a convenience class named `AbstractSessionWebSocketMessageBrokerConfigurer` that hides the complexity of the configuration.
-An example is provided below:
-
-.src/main/java/samples/config/WebSocketConfig.java
-[source,java]
-----
-include::{samples-dir}websocket/src/main/java/sample/config/WebSocketConfig.java[tags=class]
-----
-
-We only need to change two things to use Spring Session:
-
-<1> Instead of extending `AbstractWebSocketMessageBrokerConfigurer` we extend `AbstractSessionWebSocketMessageBrokerConfigurer`
-<2> We rename the `registerStompEndpoints` method to `configureStompEndpoints`
 
 // end::config[]
 

@@ -150,7 +150,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
      */
     private final class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
         private HttpSessionWrapper currentSession;
-        private boolean requestedValidSession;
+        private Boolean requestedSessionIdValid;
         private final HttpServletResponse response;
 
         private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
@@ -170,14 +170,31 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             } else {
                 S session = wrappedSession.session;
                 sessionRepository.save(session);
-                if(!requestedValidSession) {
+                if(!isRequestedSessionIdValid() || !session.getId().equals(getRequestedSessionId())) {
                     httpSessionStrategy.onNewSession(session, this, response);
                 }
             }
         }
 
+        public boolean isRequestedSessionIdValid() {
+            if(requestedSessionIdValid == null) {
+                String sessionId = getRequestedSessionId();
+                S session = sessionId == null ? null : sessionRepository.getSession(sessionId);
+                return isRequestedSessionIdValid(session);
+            }
+
+            return requestedSessionIdValid;
+        }
+
+        private boolean isRequestedSessionIdValid(S session) {
+            if(requestedSessionIdValid == null) {
+                requestedSessionIdValid = session != null;
+            }
+            return requestedSessionIdValid;
+        }
+
         private boolean isInvalidateClientSession() {
-            return currentSession == null && requestedValidSession;
+            return currentSession == null && isRequestedSessionIdValid();
         }
 
         @Override
@@ -189,7 +206,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
             if(requestedSessionId != null) {
                 S session = sessionRepository.getSession(requestedSessionId);
                 if(session != null) {
-                    this.requestedValidSession = true;
+                    this.requestedSessionIdValid = true;
                     currentSession = new HttpSessionWrapper(session, getServletContext());
                     currentSession.setNew(false);
                     return currentSession;

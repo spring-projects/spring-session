@@ -32,9 +32,7 @@ public interface HttpSessionManager {
     /**
      * Gets the current session's alias from the {@link HttpServletRequest}.
      *
-     * @param request
-     *            the {@link HttpServletRequest} to obtain the current session's
-     *            alias from.
+     * @param request the {@link HttpServletRequest} to obtain the current session's alias from.
      * @return the current sessions' alias. Cannot be null.
      */
     String getCurrentSessionAlias(HttpServletRequest request);
@@ -43,9 +41,7 @@ public interface HttpSessionManager {
      * Gets a mapping of the session alias to the session id from the
      * {@link HttpServletRequest}
      *
-     * @param request
-     *            the {@link HttpServletRequest} to obtain the mapping from.
-     *            Cannot be null.
+     * @param request the {@link HttpServletRequest} to obtain the mapping from. Cannot be null.
      * @return a mapping of the session alias to the session id from the
      *         {@link HttpServletRequest}. Cannot be null.
      */
@@ -69,7 +65,7 @@ public interface HttpSessionManager {
      * String addAccountUrl = httpSessionManager.encodeURL("./", newAlias);
      * </code>
      *
-     * @param request
+     * @param request the {@link HttpServletRequest} to get a new alias from
      * @return
      */
     String getNewSessionAlias(HttpServletRequest request);

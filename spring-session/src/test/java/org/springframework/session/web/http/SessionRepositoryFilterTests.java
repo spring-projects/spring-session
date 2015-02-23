@@ -316,6 +316,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
         });
 
         setupSession();
+        response.reset();
 
         doFilter(new DoInFilter() {
             @Override
@@ -323,6 +324,38 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
                 assertThat(wrappedRequest.getSession().isNew()).isFalse();
             }
         });
+
+        assertThat(response.getCookie("SESSION")).isNull();
+    }
+
+    @Test
+    public void doFilterSetsCookieIfChanged() throws Exception {
+        sessionRepository = new MapSessionRepository() {
+            @Override
+            public ExpiringSession getSession(String id) {
+                return createSession();
+            }
+        };
+        filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                wrappedRequest.getSession();
+            }
+        });
+        assertThat(response.getCookie("SESSION")).isNotNull();
+        
+        setupSession();
+
+        response.reset();        
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                assertThat(wrappedRequest.getSession().isNew()).isFalse();
+            }
+        });
+        
+        assertThat(response.getCookie("SESSION")).isNotNull();
     }
 
     @Test
@@ -359,6 +392,52 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
         });
 
         assertNoSession();
+    }
+
+    @Test
+    public void doFilterIsRequestedValidSessionTrue() throws Exception {
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                wrappedRequest.getSession();
+            }
+        });
+
+        setupSession();
+        request.setRequestedSessionIdValid(false); // ensure we are using wrapped request
+
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                assertThat(wrappedRequest.isRequestedSessionIdValid()).isTrue();
+            }
+        });
+    }
+
+    // gh-142, gh-153
+    @Test
+    public void doFilterIsRequestedValidSessionFalseInvalidId() throws Exception {
+        setSessionCookie("invalid");
+        request.setRequestedSessionIdValid(true); // ensure we are using wrapped request
+
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                assertThat(wrappedRequest.isRequestedSessionIdValid()).isFalse();
+            }
+        });
+    }
+
+    @Test
+    public void doFilterIsRequestedValidSessionFalse() throws Exception {
+        request.setRequestedSessionIdValid(true); // ensure we are using wrapped request
+
+        doFilter(new DoInFilter() {
+            @Override
+            public void doFilter(HttpServletRequest wrappedRequest) {
+                assertThat(wrappedRequest.isRequestedSessionIdValid()).isFalse();
+            }
+        });
     }
 
     @Test

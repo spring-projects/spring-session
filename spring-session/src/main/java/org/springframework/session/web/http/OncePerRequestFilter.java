@@ -77,6 +77,7 @@ abstract class OncePerRequestFilter implements Filter {
      * just invoked once per request within a single request thread.
      * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the
      * default ServletRequest and ServletResponse ones.
+     * @see Filter#doFilter
      */
     protected abstract void doFilterInternal(
             HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
