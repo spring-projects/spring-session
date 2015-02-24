@@ -103,6 +103,7 @@ import org.springframework.session.Session;
  * attributes. An example is provided below:
  * </p>
  *
+ * <pre><code>
  * {@code
  *      HttpSessionManager sessionManager =
  *              (HttpSessionManager) req.getAttribute(HttpSessionManager.class.getName());
@@ -145,7 +146,7 @@ import org.springframework.session.Session;
  *      req.setAttribute("addAccountUrl", sessionManager.encodeURL(contextPath, newSessionAlias));
  *      req.setAttribute("accounts", accounts);
  * }
- *
+ * </code></pre>
  *
  * @since 1.0
  * @author Rob Winch
@@ -160,6 +161,65 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
     private String cookieName = "SESSION";
 
     private String sessionParam = DEFAULT_SESSION_ALIAS_PARAM_NAME;
+
+    private boolean cookieHttpOnly = true;
+    private Boolean cookieSecure = null;
+    private Integer cookieMaxAge = null;
+    private String cookieDomain;
+
+    private String cookiePath;
+
+    private CookiePathCalculationStrategy cookiePathCalculationStrategy = new DefaultCookiePathCalculationStrategy();
+
+    /**
+     * If set, sets the domain of the {@link Cookie#domain} property to the specified value
+     */
+    public void setCookieDomain(final String cookieDomain) {
+        this.cookieDomain = cookieDomain;
+    }
+
+    /**
+     * Override to set the {@link Cookie#isHttpOnly} flag, default value is true
+     */
+    public void setCookieHttpOnly(final boolean cookieHttpOnly) {
+        this.cookieHttpOnly = cookieHttpOnly;
+    }
+
+    /**
+     * If set, sets the {@link Cookie#maxAge} property to a fixed value.
+     */
+    public void setCookieMaxAge(final Integer cookieMaxAge) {
+        this.cookieMaxAge = cookieMaxAge;
+    }
+
+    /**
+     * If set, overrides the {@link Cookie#path} to a fixed value. (see detailed description!)
+     *
+     * By default, the {@link Cookie#path} gets calculated by the default {@link CookiePathCalculationStrategy}
+     * (which is {@link org.springframework.session.web.http.CookieHttpSessionStrategy.DefaultCookiePathCalculationStrategy})
+     * You can override the default by using {@link #setCookiePathCalculationStrategy(CookiePathCalculationStrategy)}
+     * Do <u>NOT</u> use this method if you want to override the default {@link CookiePathCalculationStrategy}, as this
+     * method overrides the Strategy.
+     */
+    public void setCookiePath(final String cookiePath) {
+        this.cookiePath = cookiePath;
+    }
+
+    /**
+     * Allows to override how the {@link Cookie#path} is calculated. (see detailed description!)
+     * The default is to use {@link org.springframework.session.web.http.CookieHttpSessionStrategy.DefaultCookiePathCalculationStrategy}
+     * If you override the strategy, be sure to <u>NOT</u> use {@link #setCookiePath(String)}
+     */
+    public void setCookiePathCalculationStrategy(final CookiePathCalculationStrategy cookiePathCalculationStrategy) {
+        this.cookiePathCalculationStrategy = cookiePathCalculationStrategy;
+    }
+
+    /**
+     * If set, sets the {@link Cookie#secure} flag of the {@link Cookie}
+     */
+    public void setCookieSecure(final Boolean cookieSecure) {
+        this.cookieSecure = cookieSecure;
+    }
 
     public String getRequestedSessionId(HttpServletRequest request) {
         Map<String,String> sessionIds = getSessionIds(request);
@@ -212,13 +272,28 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         response.addCookie(sessionCookie);
     }
 
-    private Cookie createSessionCookie(HttpServletRequest request,
+    /*
+    Package scoped for testing
+     */
+    Cookie createSessionCookie(HttpServletRequest request,
             Map<String, String> sessionIds) {
         Cookie sessionCookie = new Cookie(cookieName,"");
-        sessionCookie.setHttpOnly(true);
-        sessionCookie.setSecure(request.isSecure());
-        sessionCookie.setPath(cookiePath(request));
-        // TODO set domain?
+
+        sessionCookie.setHttpOnly(cookieHttpOnly);
+        sessionCookie.setSecure(cookieSecure == null ? request.isSecure() : cookieSecure);
+        if(cookieMaxAge != null){
+            sessionCookie.setMaxAge(cookieMaxAge);
+        }
+
+        if (cookiePath != null) {
+            sessionCookie.setPath(cookiePath);
+        } else {
+            sessionCookie.setPath(cookiePathCalculationStrategy.calculateCookiePath(request));
+        }
+
+        if(cookieDomain != null){
+            sessionCookie.setDomain(cookieDomain);
+        }
 
         if(sessionIds.isEmpty()) {
             sessionCookie.setMaxAge(0);
@@ -302,10 +377,6 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         return null;
     }
 
-    private static String cookiePath(HttpServletRequest request) {
-        return request.getContextPath() + "/";
-    }
-
     public Map<String,String> getSessionIds(HttpServletRequest request) {
         Cookie session = getCookie(request, cookieName);
         String sessionCookieValue = session == null ? "" : session.getValue();
@@ -385,6 +456,14 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
             return URLEncoder.encode(value, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public class DefaultCookiePathCalculationStrategy implements CookiePathCalculationStrategy {
+
+        @Override
+        public String calculateCookiePath(final HttpServletRequest request) {
+            return request.getContextPath() + "/";
         }
     }
 }

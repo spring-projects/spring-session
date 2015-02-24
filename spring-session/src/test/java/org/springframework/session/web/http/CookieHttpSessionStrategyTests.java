@@ -10,6 +10,8 @@ import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.Map;
 
 public class CookieHttpSessionStrategyTests {
@@ -382,6 +384,74 @@ public class CookieHttpSessionStrategyTests {
         assertThat(createSessionCookieValue(17)).isEqualToIgnoringCase("0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
     }
 
+    @Test
+    public void testCreateSessionCookieWithCustomDomain() throws Exception {
+        strategy.setCookieDomain("test.com");
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.getDomain()).isEqualTo("test.com");
+    }
+
+    @Test
+    public void testCreateSessionCookieWithCustomMaxAge() throws Exception {
+        strategy.setCookieMaxAge(5000);
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.getMaxAge()).isEqualTo(5000);
+    }
+
+    @Test
+    public void testCreateSessionCookieWithSecureFlagTrue() throws Exception {
+        strategy.setCookieSecure(true);
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.getSecure()).isEqualTo(true);
+    }
+
+    @Test
+    public void testCreateSessionCookieWithSecureFlagFromRequest() throws Exception {
+        request.setSecure(true);
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.getSecure()).isEqualTo(true);
+    }
+
+    @Test
+    public void testCreateSessionCookieWithHttpOnlyTrue() throws Exception {
+        strategy.setCookieHttpOnly(true);
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.isHttpOnly()).isEqualTo(true);
+    }
+
+    @Test
+    public void testCreateSessionCookieWithHttpOnlyFalse() throws Exception {
+        strategy.setCookieHttpOnly(false);
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.isHttpOnly()).isEqualTo(false);
+    }
+
+    @Test
+    public void testCreateSessionCookieWithDefaultPath() throws Exception {
+        request.setContextPath("/abc");
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.getPath()).isEqualTo("/abc/");
+    }
+
+    @Test
+    public void testCreateSessionCookieOverridePath() throws Exception {
+        strategy.setCookiePath("/bcd/");
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.getPath()).isEqualTo("/bcd/");
+    }
+
+    @Test
+    public void testCreateSessionCookieOverridePathWithStrategy() throws Exception {
+        strategy.setCookiePathCalculationStrategy(new CookiePathCalculationStrategy() {
+            @Override
+            public String calculateCookiePath(final HttpServletRequest request) {
+                return "/ccc/";
+            }
+        });
+        Cookie c = strategy.createSessionCookie(request, getSampleSessionIds());
+        assertThat(c.getPath()).isEqualTo("/ccc/");
+    }
+
     private void setCookieWithNSessions(long size) {
         setSessionCookie(createSessionCookieValue(size));
     }
@@ -413,5 +483,12 @@ public class CookieHttpSessionStrategyTests {
 
     public String getSessionId() {
         return response.getCookie(cookieName).getValue();
+    }
+
+    public Map<String,String> getSampleSessionIds(){
+        Map<String,String> sessionIds = new HashMap<String, String>();
+        sessionIds.put("0", "aaa");
+        sessionIds.put("1", "bbb");
+        return sessionIds;
     }
 }
