@@ -882,6 +882,25 @@ public class OnCommittedResponseWrapperTests {
         assertThat(committed).isTrue();
     }
 
+    // gh-171
+    @Test
+    public void contentLengthPlus1OutputStreamWriteByteArrayMultiDigitCommits() throws Exception {
+        String expected = "{\n" +
+                "  \"parameterName\" : \"_csrf\",\n" +
+                "  \"token\" : \"06300b65-c4aa-4c8f-8cda-39ee17f545a0\",\n" +
+                "  \"headerName\" : \"X-CSRF-TOKEN\"\n" +
+                "}";
+        response.setContentLength(expected.length() + 1);
+
+        response.getOutputStream().write(expected.getBytes());
+
+        assertThat(committed).isFalse();
+
+        response.getOutputStream().write("1".getBytes("UTF-8"));
+
+        assertThat(committed).isTrue();
+    }
+
     @Test
     public void contentLengthOutputStreamPrintBooleanCommits() throws Exception {
         boolean b = true;

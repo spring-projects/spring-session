@@ -155,6 +155,10 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
         trackContentLength(String.valueOf(content));
     }
 
+    private void trackContentLength(byte[] content) {
+        checkContentLength(content == null ? 0 : content.length);
+    }
+
     private void trackContentLength(char[] content) {
         checkContentLength(content == null ? 0 : content.length);
     }
