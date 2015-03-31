@@ -3,6 +3,7 @@ Rob Winch
 :doctype: book
 :indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
+:httpdoc-test-dir: {docs-test-dir}docs/http/
 :toc: left
 
 [[abstract]]
@@ -157,6 +158,36 @@ NOTE: The <<samples,Manage Multiple Users Guide>> provides a complete working ex
 You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed Manage Multiple Users Guide when integrating with your own application.
 
 include::guides/users.adoc[tags=how-does-it-work,leveloffset=+1]
+
+[[httpsession-cookies]]
+=== Cookies
+
+Spring Session has the ability to override the default values for cookies associated with the `HttpSession`.
+
+The following values are configurable:
+
+* **Name** - The name of the cookie. The default value is SESSION.
+* **Maximum Age** - The maximum age of the cookie in seconds. This value has the same behaviour as http://docs.oracle.com/javaee/7/api/javax/servlet/http/Cookie.html#setMaxAge%28int%29[javax.servlet.http.Cookie.setMaxAge] The default value is -1.
+
+The default cookie values can be overridden by setting `CookieHttpSessionStrategy` as the `httpSessionStrategy` on the `SessionRepositoryFilter`.
+[source,xml]
+----
+<bean id="sessionRepositoryFilter"
+      class="org.springframework.session.web.http.SessionRepositoryFilter">
+  <constructor-arg ref="sessionRepository"/>
+  <property name="httpSessionStrategy">
+    <bean class="org.springframework.session.web.http.CookieHttpSessionStrategy">
+      <property name="cookieName" value="JSESSIONID" />
+      <property name="maxAge" value="100" />
+    </bean>
+  </property>
+</bean>
+----
+
+[source,java]
+----
+include::{httpdoc-test-dir}CookieHttpSessionConfig.java[tags=class]
+----
 
 [[httpsession-rest]]
 === HttpSession & RESTful APIs

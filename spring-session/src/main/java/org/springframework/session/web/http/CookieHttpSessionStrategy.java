@@ -161,6 +161,8 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
     private String sessionParam = DEFAULT_SESSION_ALIAS_PARAM_NAME;
 
+    private int maxAge = -1;
+
     public String getRequestedSessionId(HttpServletRequest request) {
         Map<String,String> sessionIds = getSessionIds(request);
         String sessionAlias = getCurrentSessionAlias(request);
@@ -218,6 +220,7 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         sessionCookie.setHttpOnly(true);
         sessionCookie.setSecure(request.isSecure());
         sessionCookie.setPath(cookiePath(request));
+        sessionCookie.setMaxAge(getMaxAge());
         // TODO set domain?
 
         if(sessionIds.isEmpty()) {
@@ -386,5 +389,13 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public int getMaxAge() {
+        return maxAge;
+    }
+
+    public void setMaxAge(int maxAge) {
+        this.maxAge = maxAge;
     }
 }
