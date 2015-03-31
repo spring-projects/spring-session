@@ -154,7 +154,7 @@ Spring Session has the ability to support multiple sessions in a single browser 
 This provides the ability to support authenticating with multiple users in the same browser instance (i.e. Google Accounts).
 
 NOTE: The <<samples,Manage Multiple Users Guide>> provides a complete working example of managing multiple users in the same browser instance.
-You can the basic steps for integration below, but you are encouraged to follow along with the detailed Manage Multiple Users Guide when integrating with your own application.
+You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed Manage Multiple Users Guide when integrating with your own application.
 
 include::guides/users.adoc[tags=how-does-it-work,leveloffset=+1]
 
@@ -165,7 +165,7 @@ Spring Session can work with RESTful APIs by allowing the session to be provided
 
 
 NOTE: The <<samples, REST Sample>> provides a working sample on how to use Spring Session in a REST application to support authenticating with a header.
-You can the basic steps for integration below, but you are encouraged to follow along with the detailed REST Guide when integrating with your own application.
+You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed REST Guide when integrating with your own application.
 
 include::guides/rest.adoc[tags=config,leveloffset=+1]
 
@@ -194,7 +194,7 @@ This means that if we are actively chatting in our application and are not using
 === WebSocket Usage
 
 The <<samples, WebSocket Sample>> provides a working sample on how to integrate Spring Session with WebSockets.
-You can the basic steps for integration below, but you are encouraged to follow along with the detailed WebSocket Guide when integrating with your own application:
+You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed WebSocket Guide when integrating with your own application:
 
 [[websocket-httpsession]]
 ==== HttpSession Integration
