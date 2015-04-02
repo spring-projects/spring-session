@@ -10,87 +10,87 @@ project.conf2ScopeMappings.addMapping(MavenPlugin.TEST_COMPILE_PRIORITY + 2, pro
 check.dependsOn integrationTest
 
 configurations {
-    jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
+	jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
 }
 
 dependencies {
-    optional "org.springframework.data:spring-data-redis:$springDataRedisVersion",
-            "org.springframework:spring-context:$springVersion",
-            "org.springframework:spring-web:$springVersion",
-            "org.springframework:spring-messaging:$springVersion",
-            "org.springframework:spring-websocket:$springVersion"
-    provided "javax.servlet:javax.servlet-api:$servletApiVersion"
-    integrationTestCompile "redis.clients:jedis:2.4.1",
-            "org.apache.commons:commons-pool2:2.2",
-            "redis.embedded:embedded-redis:0.4"
-    testCompile 'junit:junit:4.11',
-            'org.mockito:mockito-core:1.9.5',
-            "org.springframework:spring-test:$springVersion",
-            'org.easytesting:fest-assert:1.4',
-            "org.springframework.security:spring-security-core:$springSecurityVersion"
+	optional "org.springframework.data:spring-data-redis:$springDataRedisVersion",
+			"org.springframework:spring-context:$springVersion",
+			"org.springframework:spring-web:$springVersion",
+			"org.springframework:spring-messaging:$springVersion",
+			"org.springframework:spring-websocket:$springVersion"
+	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
+	integrationTestCompile "redis.clients:jedis:2.4.1",
+			"org.apache.commons:commons-pool2:2.2",
+			"redis.embedded:embedded-redis:0.4"
+	testCompile 'junit:junit:4.11',
+			'org.mockito:mockito-core:1.9.5',
+			"org.springframework:spring-test:$springVersion",
+			'org.easytesting:fest-assert:1.4',
+			"org.springframework.security:spring-security-core:$springSecurityVersion"
 
-    jacoco "org.jacoco:org.jacoco.agent:0.7.2.201409121644:runtime"
+	jacoco "org.jacoco:org.jacoco.agent:0.7.2.201409121644:runtime"
 
-    springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
+	springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
 }
 
 ext.javadocLinks = [
-        "http://docs.oracle.com/javase/8/docs/api/",
-        "http://docs.oracle.com/javaee/7/api/",
-        "http://docs.oracle.com/cd/E13222_01/wls/docs90/javadocs/",  // CommonJ
-        "http://pic.dhe.ibm.com/infocenter/wasinfo/v7r0/topic/com.ibm.websphere.javadoc.doc/web/apidocs/",
-        "http://glassfish.java.net/nonav/docs/v3/api/",
-        "http://docs.jboss.org/jbossas/javadoc/4.0.5/connector/",
-        "http://docs.jboss.org/jbossas/javadoc/7.1.2.Final/",
-        "http://commons.apache.org/proper/commons-lang/javadocs/api-2.5/",
-        "http://commons.apache.org/proper/commons-codec/apidocs/",
-        "http://commons.apache.org/proper/commons-dbcp/apidocs/",
-        "http://portals.apache.org/pluto/portlet-2.0-apidocs/",
-        "http://tiles.apache.org/tiles-request/apidocs/",
-        "http://tiles.apache.org/framework/apidocs/",
-        "http://aopalliance.sourceforge.net/doc/",
-        "http://www.eclipse.org/aspectj/doc/released/aspectj5rt-api/",
-        "http://ehcache.org/apidocs/",
-        "http://quartz-scheduler.org/api/2.2.0/",
-        "http://fasterxml.github.com/jackson-core/javadoc/2.3.0/",
-        "http://fasterxml.github.com/jackson-databind/javadoc/2.3.0/",
-        "http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/"
+		"http://docs.oracle.com/javase/8/docs/api/",
+		"http://docs.oracle.com/javaee/7/api/",
+		"http://docs.oracle.com/cd/E13222_01/wls/docs90/javadocs/",  // CommonJ
+		"http://pic.dhe.ibm.com/infocenter/wasinfo/v7r0/topic/com.ibm.websphere.javadoc.doc/web/apidocs/",
+		"http://glassfish.java.net/nonav/docs/v3/api/",
+		"http://docs.jboss.org/jbossas/javadoc/4.0.5/connector/",
+		"http://docs.jboss.org/jbossas/javadoc/7.1.2.Final/",
+		"http://commons.apache.org/proper/commons-lang/javadocs/api-2.5/",
+		"http://commons.apache.org/proper/commons-codec/apidocs/",
+		"http://commons.apache.org/proper/commons-dbcp/apidocs/",
+		"http://portals.apache.org/pluto/portlet-2.0-apidocs/",
+		"http://tiles.apache.org/tiles-request/apidocs/",
+		"http://tiles.apache.org/framework/apidocs/",
+		"http://aopalliance.sourceforge.net/doc/",
+		"http://www.eclipse.org/aspectj/doc/released/aspectj5rt-api/",
+		"http://ehcache.org/apidocs/",
+		"http://quartz-scheduler.org/api/2.2.0/",
+		"http://fasterxml.github.com/jackson-core/javadoc/2.3.0/",
+		"http://fasterxml.github.com/jackson-databind/javadoc/2.3.0/",
+		"http://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/"
 ] as String[]
 
 javadoc {
-    description = "Generates project-level javadoc for use in -javadoc jar"
+	description = "Generates project-level javadoc for use in -javadoc jar"
 
-    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    options.author = true
-    options.header = project.name
-    options.links(project.ext.javadocLinks)
-    options.addStringOption('-quiet')
+	options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+	options.author = true
+	options.header = project.name
+	options.links(project.ext.javadocLinks)
+	options.addStringOption('-quiet')
 
-    // suppress warnings due to cross-module @see and @link references;
-    // note that global 'api' task does display all warnings.
-    logging.captureStandardError LogLevel.INFO
-    logging.captureStandardOutput LogLevel.INFO // suppress "## warnings" message
+	// suppress warnings due to cross-module @see and @link references;
+	// note that global 'api' task does display all warnings.
+	logging.captureStandardError LogLevel.INFO
+	logging.captureStandardOutput LogLevel.INFO // suppress "## warnings" message
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-    // don't include or exclude anything explicitly by default. See SPR-12085.
+	classifier = 'sources'
+	from sourceSets.main.allSource
+	// don't include or exclude anything explicitly by default. See SPR-12085.
 }
 
 task javadocJar(type: Jar) {
-    classifier = "javadoc"
-    from javadoc
+	classifier = "javadoc"
+	from javadoc
 }
 
 artifacts {
-    archives sourcesJar
-    archives javadocJar
+	archives sourcesJar
+	archives javadocJar
 }
 
 test {
-    jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
+	jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
 }
 integrationTest {
-    jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
+	jvmArgs "-javaagent:${configurations.jacoco.asPath}=destfile=${buildDir}/jacoco.exec,includes=${project.group}.*"
 }

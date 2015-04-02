@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,51 +40,51 @@ import java.util.Map;
 
 @WebListener
 public class Initializer implements ServletContextListener {
-    private HazelcastInstance instance;
+	private HazelcastInstance instance;
 
-    public void contextInitialized(ServletContextEvent sce) {
-        String sessionMapName = "spring:session:sessions";
-        ServletContext sc = sce.getServletContext();
+	public void contextInitialized(ServletContextEvent sce) {
+		String sessionMapName = "spring:session:sessions";
+		ServletContext sc = sce.getServletContext();
 
-        Config cfg = new Config();
-        NetworkConfig netConfig = new NetworkConfig();
-        netConfig.setPort(getAvailablePort());
-        cfg.setNetworkConfig(netConfig);
-        SerializerConfig serializer = new SerializerConfig()
-            .setTypeClass(Object.class)
-            .setImplementation(new ObjectStreamSerializer());
-        cfg.getSerializationConfig().addSerializerConfig(serializer);
-        MapConfig mc = new MapConfig();
-        mc.setName(sessionMapName);
-        mc.setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
-        cfg.addMapConfig(mc);
+		Config cfg = new Config();
+		NetworkConfig netConfig = new NetworkConfig();
+		netConfig.setPort(getAvailablePort());
+		cfg.setNetworkConfig(netConfig);
+		SerializerConfig serializer = new SerializerConfig()
+			.setTypeClass(Object.class)
+			.setImplementation(new ObjectStreamSerializer());
+		cfg.getSerializationConfig().addSerializerConfig(serializer);
+		MapConfig mc = new MapConfig();
+		mc.setName(sessionMapName);
+		mc.setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		cfg.addMapConfig(mc);
 
-        instance = Hazelcast.newHazelcastInstance(cfg);
-        Map<String,ExpiringSession> sessions = instance.getMap(sessionMapName);
+		instance = Hazelcast.newHazelcastInstance(cfg);
+		Map<String,ExpiringSession> sessions = instance.getMap(sessionMapName);
 
-        SessionRepository<ExpiringSession> sessionRepository =
-                new MapSessionRepository(sessions);
-        SessionRepositoryFilter<ExpiringSession> filter =
-                new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
-        Dynamic fr = sc.addFilter("springSessionFilter", filter);
-        fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
-    }
+		SessionRepository<ExpiringSession> sessionRepository =
+				new MapSessionRepository(sessions);
+		SessionRepositoryFilter<ExpiringSession> filter =
+				new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+		Dynamic fr = sc.addFilter("springSessionFilter", filter);
+		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
+	}
 
-    public void contextDestroyed(ServletContextEvent sce) {
-        instance.shutdown();
-    }
+	public void contextDestroyed(ServletContextEvent sce) {
+		instance.shutdown();
+	}
 
-    private static int getAvailablePort() {
-        ServerSocket socket = null;
-        try {
-            socket = new ServerSocket(0);
-            return socket.getLocalPort();
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                socket.close();
-            }catch(IOException e) {}
-        }
-    }
+	private static int getAvailablePort() {
+		ServerSocket socket = null;
+		try {
+			socket = new ServerSocket(0);
+			return socket.getLocalPort();
+		} catch(IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			try {
+				socket.close();
+			}catch(IOException e) {}
+		}
+	}
 }

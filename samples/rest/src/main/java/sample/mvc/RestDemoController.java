@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,16 +15,16 @@
  */
 package sample.mvc;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-import javax.servlet.http.HttpSession;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author Rob Winch
@@ -32,16 +32,16 @@ import java.util.Map;
 @RestController
 public class RestDemoController {
 
-    @RequestMapping(value="/",produces = "application/json")
-    public Map<String,String> helloUser(Principal principal) {
-        HashMap<String,String> result = new HashMap<String,String>();
-        result.put("username", principal.getName());
-        return result;
-    }
+	@RequestMapping(value="/",produces = "application/json")
+	public Map<String,String> helloUser(Principal principal) {
+		HashMap<String,String> result = new HashMap<String,String>();
+		result.put("username", principal.getName());
+		return result;
+	}
 
-    @RequestMapping("/logout")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void logout(HttpSession session) {
-        session.invalidate();
-    }
+	@RequestMapping("/logout")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void logout(HttpSession session) {
+		session.invalidate();
+	}
 }

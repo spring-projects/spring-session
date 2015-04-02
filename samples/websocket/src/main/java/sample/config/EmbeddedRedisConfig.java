@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -33,36 +33,34 @@ import redis.embedded.RedisServer;
 @Configuration
 public class EmbeddedRedisConfig {
 
-    @Bean
-    public static RedisServerBean redisServer() {
-        return new RedisServerBean();
-    }
+	@Bean
+	public static RedisServerBean redisServer() {
+		return new RedisServerBean();
+	}
 
-    /**
-     * Implements BeanDefinitionRegistryPostProcessor to ensure this Bean
-     * is initialized before any other Beans. Specifically, we want to ensure
-     * that the Redis Server is started before RedisHttpSessionConfiguration
-     * attempts to enable Keyspace notifications.
-     */
-    static class RedisServerBean implements InitializingBean, DisposableBean, BeanDefinitionRegistryPostProcessor {
-        private RedisServer redisServer;
+	/**
+	 * Implements BeanDefinitionRegistryPostProcessor to ensure this Bean
+	 * is initialized before any other Beans. Specifically, we want to ensure
+	 * that the Redis Server is started before RedisHttpSessionConfiguration
+	 * attempts to enable Keyspace notifications.
+	 */
+	static class RedisServerBean implements InitializingBean, DisposableBean, BeanDefinitionRegistryPostProcessor {
+		private RedisServer redisServer;
 
 
-        public void afterPropertiesSet() throws Exception {
-            redisServer = new RedisServer(Protocol.DEFAULT_PORT);
-            redisServer.start();
-        }
+		public void afterPropertiesSet() throws Exception {
+			redisServer = new RedisServer(Protocol.DEFAULT_PORT);
+			redisServer.start();
+		}
 
-        public void destroy() throws Exception {
-            if(redisServer != null) {
-                redisServer.stop();
-            }
-        }
+		public void destroy() throws Exception {
+			if(redisServer != null) {
+				redisServer.stop();
+			}
+		}
 
-        @Override
-        public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
+		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
 
-        @Override
-        public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
-    }
+		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
+	}
 }

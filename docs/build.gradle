@@ -8,37 +8,37 @@ asciidoctorj {
 tasks.findByPath("artifactoryPublish")?.enabled = false
 
 dependencies {
-        testCompile project(':spring-session'),
-                "org.springframework.data:spring-data-redis:$springDataRedisVersion",
-                "org.springframework:spring-websocket:${springVersion}",
-                "org.springframework:spring-messaging:${springVersion}",
-                'junit:junit:4.11',
-                'org.mockito:mockito-core:1.9.5',
-                "org.springframework:spring-test:$springVersion",
-                'org.easytesting:fest-assert:1.4',
-                "redis.clients:jedis:2.4.1"
+		testCompile project(':spring-session'),
+				"org.springframework.data:spring-data-redis:$springDataRedisVersion",
+				"org.springframework:spring-websocket:${springVersion}",
+				"org.springframework:spring-messaging:${springVersion}",
+				'junit:junit:4.11',
+				'org.mockito:mockito-core:1.9.5',
+				"org.springframework:spring-test:$springVersion",
+				'org.easytesting:fest-assert:1.4',
+				"redis.clients:jedis:2.4.1"
 }
 
 asciidoctor {
-    def ghTag = snapshotBuild ? 'master' : project.version
-    def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag/"
-    attributes	'version-snapshot': snapshotBuild,
-            'version-milestone': milestoneBuild,
-            'version-release': releaseBuild,
-            'gh-url': ghUrl,
-            'gh-samples-url': "$ghUrl/samples/",
-            'download-url' : "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
-            'spring-session-version' : version,
-            'spring-version' : springVersion,
-            'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
-            'samples-dir' : rootProject.projectDir.path + '/samples/',
+	def ghTag = snapshotBuild ? 'master' : project.version
+	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag/"
+	attributes	'version-snapshot': snapshotBuild,
+			'version-milestone': milestoneBuild,
+			'version-release': releaseBuild,
+			'gh-url': ghUrl,
+			'gh-samples-url': "$ghUrl/samples/",
+			'download-url' : "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
+			'spring-session-version' : version,
+			'spring-version' : springVersion,
+			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
+			'samples-dir' : rootProject.projectDir.path + '/samples/',
 
-            'source-highlighter' : 'coderay',
-            'imagesdir':'./images',
-            'icons': 'font',
-            'sectanchors':'',
-            'idprefix':'',
-            'idseparator':'-',
-            'docinfo1':'true',
-            'revnumber' : project.version
+			'source-highlighter' : 'coderay',
+			'imagesdir':'./images',
+			'icons': 'font',
+			'sectanchors':'',
+			'idprefix':'',
+			'idseparator':'-',
+			'docinfo1':'true',
+			'revnumber' : project.version
 }

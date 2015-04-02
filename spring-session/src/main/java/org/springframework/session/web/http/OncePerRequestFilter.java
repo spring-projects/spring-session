@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -28,62 +28,62 @@ import java.io.IOException;
  * @author Rob Winch
  */
 abstract class OncePerRequestFilter implements Filter {
-    /**
-     * Suffix that gets appended to the filter name for the
-     * "already filtered" request attribute.
-     */
-    public static final String ALREADY_FILTERED_SUFFIX = ".FILTERED";
+	/**
+	 * Suffix that gets appended to the filter name for the
+	 * "already filtered" request attribute.
+	 */
+	public static final String ALREADY_FILTERED_SUFFIX = ".FILTERED";
 
-    private String alreadyFilteredAttributeName = getClass().getName().concat(ALREADY_FILTERED_SUFFIX);
-
-
-    /**
-     * This {@code doFilter} implementation stores a request attribute for
-     * "already filtered", proceeding without filtering again if the
-     * attribute is already there.
-     */
-    public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-
-        if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
-            throw new ServletException("OncePerRequestFilter just supports HTTP requests");
-        }
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        boolean hasAlreadyFilteredAttribute = request.getAttribute(alreadyFilteredAttributeName) != null;
+	private String alreadyFilteredAttributeName = getClass().getName().concat(ALREADY_FILTERED_SUFFIX);
 
 
-        if (hasAlreadyFilteredAttribute) {
+	/**
+	 * This {@code doFilter} implementation stores a request attribute for
+	 * "already filtered", proceeding without filtering again if the
+	 * attribute is already there.
+	 */
+	public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
-            // Proceed without invoking this filter...
-            filterChain.doFilter(request, response);
-        }
-        else {
-            // Do invoke this filter...
-            request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
-            try {
-                doFilterInternal(httpRequest, httpResponse, filterChain);
-            }
-            finally {
-                // Remove the "already filtered" request attribute for this request.
-                request.removeAttribute(alreadyFilteredAttributeName);
-            }
-        }
-    }
+		if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+			throw new ServletException("OncePerRequestFilter just supports HTTP requests");
+		}
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		boolean hasAlreadyFilteredAttribute = request.getAttribute(alreadyFilteredAttributeName) != null;
 
 
-    /**
-     * Same contract as for {@code doFilter}, but guaranteed to be
-     * just invoked once per request within a single request thread.
-     * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the
-     * default ServletRequest and ServletResponse ones.
-     * @see Filter#doFilter
-     */
-    protected abstract void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException;
+		if (hasAlreadyFilteredAttribute) {
 
-    public void init(FilterConfig config) {}
+			// Proceed without invoking this filter...
+			filterChain.doFilter(request, response);
+		}
+		else {
+			// Do invoke this filter...
+			request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
+			try {
+				doFilterInternal(httpRequest, httpResponse, filterChain);
+			}
+			finally {
+				// Remove the "already filtered" request attribute for this request.
+				request.removeAttribute(alreadyFilteredAttributeName);
+			}
+		}
+	}
 
-    public void destroy() {}
+
+	/**
+	 * Same contract as for {@code doFilter}, but guaranteed to be
+	 * just invoked once per request within a single request thread.
+	 * <p>Provides HttpServletRequest and HttpServletResponse arguments instead of the
+	 * default ServletRequest and ServletResponse ones.
+	 * @see Filter#doFilter
+	 */
+	protected abstract void doFilterInternal(
+			HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException;
+
+	public void init(FilterConfig config) {}
+
+	public void destroy() {}
 }

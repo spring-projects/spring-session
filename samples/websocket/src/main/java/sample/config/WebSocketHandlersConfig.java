@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -31,13 +31,13 @@ import sample.websocket.WebSocketDisconnectHandler;
 @Configuration
 public class WebSocketHandlersConfig<S extends ExpiringSession> {
 
-    @Bean
-    public WebSocketConnectHandler<S> webSocketConnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
-        return new WebSocketConnectHandler<S>(messagingTemplate, repository);
-    }
+	@Bean
+	public WebSocketConnectHandler<S> webSocketConnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
+		return new WebSocketConnectHandler<S>(messagingTemplate, repository);
+	}
 
-    @Bean
-    public WebSocketDisconnectHandler<S> webSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
-        return new WebSocketDisconnectHandler<S>(messagingTemplate, repository);
-    }
+	@Bean
+	public WebSocketDisconnectHandler<S> webSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
+		return new WebSocketDisconnectHandler<S>(messagingTemplate, repository);
+	}
 }

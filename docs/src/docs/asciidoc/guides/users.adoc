@@ -17,7 +17,9 @@ The users application demonstrates how to allow an application to manage multipl
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-  $ ./gradlew :samples:users:tomcatRun
+----
+$ ./gradlew :samples:users:tomcatRun
+----
 
 You should now be able to access the application at http://localhost:8080/
 
@@ -71,7 +73,7 @@ Let's take a look at how Spring Session keeps track of multiple sessions.
 Spring Session keeps track of the `HttpSession` by adding a value to a cookie named SESSION.
 For example, the SESSION cookie might have a value of:
 
-    7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+	7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 
 === Adding a Session
 
@@ -113,7 +115,7 @@ The URL contains a session alias that either points to an existing unauthenticat
 
 Now our SESSION cookie looks something like this:
 
-    0 7e8383a4-082c-4ffe-a4bc-c40fd3363c5e 1 1d526d4a-c462-45a4-93d9-84a39b6d44ad
+	0 7e8383a4-082c-4ffe-a4bc-c40fd3363c5e 1 1d526d4a-c462-45a4-93d9-84a39b6d44ad
 
 Such that:
 

@@ -1,6 +1,5 @@
-package sample;
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,7 +13,7 @@ package sample;
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
+package sample;
 
 import javax.servlet.ServletContext;
 
@@ -25,12 +24,12 @@ import org.springframework.session.web.context.AbstractHttpSessionApplicationIni
  */
 public class Initializer extends AbstractHttpSessionApplicationInitializer {
 
-    public Initializer() {
-        super(Config.class);
-    }
+	public Initializer() {
+		super(Config.class);
+	}
 
-    @Override
-    protected void afterSessionRepositoryFilter(ServletContext servletContext) {
-        appendFilters(servletContext, new UserAccountsFilter());
-    }
+	@Override
+	protected void afterSessionRepositoryFilter(ServletContext servletContext) {
+		appendFilters(servletContext, new UserAccountsFilter());
+	}
 }

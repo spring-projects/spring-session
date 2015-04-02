@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +26,21 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
 
-    @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        String username = req.getParameter("username");
-        String password = req.getParameter("password");
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		String username = req.getParameter("username");
+		String password = req.getParameter("password");
 
-        if(username != null && !"".equals(username) && username.equals(password)) {
-            req.getSession().setAttribute("username", username);
-            String url = resp.encodeRedirectURL(req.getContextPath() + "/");
-            resp.sendRedirect(url);
-        } else {
-            String url = resp.encodeRedirectURL(req.getContextPath() + "/?error");
-            resp.sendRedirect(url);
-        }
-    }
+		if(username != null && !"".equals(username) && username.equals(password)) {
+			req.getSession().setAttribute("username", username);
+			String url = resp.encodeRedirectURL(req.getContextPath() + "/");
+			resp.sendRedirect(url);
+		} else {
+			String url = resp.encodeRedirectURL(req.getContextPath() + "/?error");
+			resp.sendRedirect(url);
+		}
+	}
 
-    private static final long serialVersionUID = -8157634860354132501L;
+	private static final long serialVersionUID = -8157634860354132501L;
 }

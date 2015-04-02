@@ -82,7 +82,9 @@ include::{samples-dir}websocket/src/main/java/sample/config/WebSecurityConfig.ja
 ----
 ====
 
-  $ ./gradlew :samples:websocket:bootRun
+----
+$ ./gradlew :samples:websocket:bootRun
+----
 
 You should now be able to access the application at http://localhost:8080/
 

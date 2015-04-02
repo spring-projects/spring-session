@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -41,126 +41,126 @@ import java.util.concurrent.TimeUnit;
  * @author Rob Winch
  */
 public final class MapSession implements ExpiringSession, Serializable {
-    /**
-     * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes)
-     */
-    public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
+	/**
+	 * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes)
+	 */
+	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
-    private String id = UUID.randomUUID().toString();
-    private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
-    private long creationTime = System.currentTimeMillis();
-    private long lastAccessedTime = creationTime;
+	private String id = UUID.randomUUID().toString();
+	private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
+	private long creationTime = System.currentTimeMillis();
+	private long lastAccessedTime = creationTime;
 
-    /**
-     * Defaults to 30 minutes
-     */
-    private int maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+	/**
+	 * Defaults to 30 minutes
+	 */
+	private int maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-    /**
-     * Creates a new instance
-     */
-    public MapSession() {
-    }
+	/**
+	 * Creates a new instance
+	 */
+	public MapSession() {
+	}
 
-    /**
-     * Creates a new instance from the provided {@link Session}
-     *
-     * @param session the {@link Session} to initialize this {@link Session} with. Cannot be null.
-     */
-    public MapSession(ExpiringSession session) {
-        if(session == null) {
-            throw new IllegalArgumentException("session cannot be null");
-        }
-        this.id = session.getId();
-        this.sessionAttrs = new HashMap<String, Object>(session.getAttributeNames().size());
-        for (String attrName : session.getAttributeNames()) {
-            Object attrValue = session.getAttribute(attrName);
-            this.sessionAttrs.put(attrName, attrValue);
-        }
-        this.lastAccessedTime = session.getLastAccessedTime();
-        this.creationTime = session.getCreationTime();
-        this.maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
-    }
+	/**
+	 * Creates a new instance from the provided {@link Session}
+	 *
+	 * @param session the {@link Session} to initialize this {@link Session} with. Cannot be null.
+	 */
+	public MapSession(ExpiringSession session) {
+		if(session == null) {
+			throw new IllegalArgumentException("session cannot be null");
+		}
+		this.id = session.getId();
+		this.sessionAttrs = new HashMap<String, Object>(session.getAttributeNames().size());
+		for (String attrName : session.getAttributeNames()) {
+			Object attrValue = session.getAttribute(attrName);
+			this.sessionAttrs.put(attrName, attrValue);
+		}
+		this.lastAccessedTime = session.getLastAccessedTime();
+		this.creationTime = session.getCreationTime();
+		this.maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
+	}
 
-    public void setLastAccessedTime(long lastAccessedTime) {
-        this.lastAccessedTime = lastAccessedTime;
-    }
+	public void setLastAccessedTime(long lastAccessedTime) {
+		this.lastAccessedTime = lastAccessedTime;
+	}
 
-    public long getCreationTime() {
-        return creationTime;
-    }
+	public long getCreationTime() {
+		return creationTime;
+	}
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public long getLastAccessedTime() {
-        return lastAccessedTime;
-    }
+	public long getLastAccessedTime() {
+		return lastAccessedTime;
+	}
 
-    public void setMaxInactiveIntervalInSeconds(int interval) {
-        this.maxInactiveInterval = interval;
-    }
+	public void setMaxInactiveIntervalInSeconds(int interval) {
+		this.maxInactiveInterval = interval;
+	}
 
-    public int getMaxInactiveIntervalInSeconds() {
-        return maxInactiveInterval;
-    }
+	public int getMaxInactiveIntervalInSeconds() {
+		return maxInactiveInterval;
+	}
 
-    public boolean isExpired() {
-        return isExpired(System.currentTimeMillis());
-    }
+	public boolean isExpired() {
+		return isExpired(System.currentTimeMillis());
+	}
 
-    boolean isExpired(long now) {
-        if(maxInactiveInterval < 0) {
-            return false;
-        }
-        return now - TimeUnit.SECONDS.toMillis(maxInactiveInterval) >= lastAccessedTime;
-    }
+	boolean isExpired(long now) {
+		if(maxInactiveInterval < 0) {
+			return false;
+		}
+		return now - TimeUnit.SECONDS.toMillis(maxInactiveInterval) >= lastAccessedTime;
+	}
 
-    public Object getAttribute(String attributeName) {
-        return sessionAttrs.get(attributeName);
-    }
+	public Object getAttribute(String attributeName) {
+		return sessionAttrs.get(attributeName);
+	}
 
-    public Set<String> getAttributeNames() {
-        return sessionAttrs.keySet();
-    }
+	public Set<String> getAttributeNames() {
+		return sessionAttrs.keySet();
+	}
 
-    public void setAttribute(String attributeName, Object attributeValue) {
-        if (attributeValue == null) {
-            removeAttribute(attributeName);
-        } else {
-            sessionAttrs.put(attributeName, attributeValue);
-        }
-    }
+	public void setAttribute(String attributeName, Object attributeValue) {
+		if (attributeValue == null) {
+			removeAttribute(attributeName);
+		} else {
+			sessionAttrs.put(attributeName, attributeValue);
+		}
+	}
 
-    public void removeAttribute(String attributeName) {
-        sessionAttrs.remove(attributeName);
-    }
+	public void removeAttribute(String attributeName) {
+		sessionAttrs.remove(attributeName);
+	}
 
-    /**
-     * Sets the time that this {@link Session} was created in milliseconds since midnight of 1/1/1970 GMT. The default is when the {@link Session} was instantiated.
-     * @param creationTime the time that this {@link Session} was created in milliseconds since midnight of 1/1/1970 GMT.
-     */
-    public void setCreationTime(long creationTime) {
-        this.creationTime = creationTime;
-    }
+	/**
+	 * Sets the time that this {@link Session} was created in milliseconds since midnight of 1/1/1970 GMT. The default is when the {@link Session} was instantiated.
+	 * @param creationTime the time that this {@link Session} was created in milliseconds since midnight of 1/1/1970 GMT.
+	 */
+	public void setCreationTime(long creationTime) {
+		this.creationTime = creationTime;
+	}
 
-    /**
-     * Sets the identifier for this {@link Session}. The id should be a secure random generated value to prevent malicious users from guessing this value.   The default is a secure random generated identifier.
-     *
-     * @param id the identifier for this session.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
+	/**
+	 * Sets the identifier for this {@link Session}. The id should be a secure random generated value to prevent malicious users from guessing this value.   The default is a secure random generated identifier.
+	 *
+	 * @param id the identifier for this session.
+	 */
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public boolean equals(Object obj) {
-        return obj instanceof Session && id.equals(((Session) obj).getId());
-    }
+	public boolean equals(Object obj) {
+		return obj instanceof Session && id.equals(((Session) obj).getId());
+	}
 
-    public int hashCode() {
-        return id.hashCode();
-    }
+	public int hashCode() {
+		return id.hashCode();
+	}
 
-    private static final long serialVersionUID = 7160779239673823561L;
+	private static final long serialVersionUID = 7160779239673823561L;
 }

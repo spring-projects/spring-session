@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package org.springframework.session.data.redis;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -46,101 +45,102 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
  */
 final class RedisSessionExpirationPolicy {
 
-    private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
+	private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
 
-    /**
-     * The prefix for each key of the Redis Hash representing a single session. The suffix is the unique session id.
-     */
-    static final String EXPIRATION_BOUNDED_HASH_KEY_PREFIX = "spring:session:expirations:";
+	/**
+	 * The prefix for each key of the Redis Hash representing a single session. The suffix is the unique session id.
+	 */
+	static final String EXPIRATION_BOUNDED_HASH_KEY_PREFIX = "spring:session:expirations:";
 
-    private final RedisOperations<String,ExpiringSession> sessionRedisOperations;
+	private final RedisOperations<String,ExpiringSession> sessionRedisOperations;
 
-    private final RedisOperations<String,String> expirationRedisOperations;
+	private final RedisOperations<String,String> expirationRedisOperations;
 
-    public RedisSessionExpirationPolicy(
-            RedisOperations sessionRedisOperations) {
-        super();
-        this.sessionRedisOperations = sessionRedisOperations;
-        this.expirationRedisOperations = sessionRedisOperations;
-    }
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public RedisSessionExpirationPolicy(
+			RedisOperations sessionRedisOperations) {
+		super();
+		this.sessionRedisOperations = sessionRedisOperations;
+		this.expirationRedisOperations = sessionRedisOperations;
+	}
 
-    public void onDelete(ExpiringSession session) {
-        long lastAccessedTime = session.getLastAccessedTime();
-        int maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
+	public void onDelete(ExpiringSession session) {
+		long lastAccessedTime = session.getLastAccessedTime();
+		int maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
 
-        long toExpire = roundUpToNextMinute(lastAccessedTime, maxInactiveInterval);
-        String expireKey = getExpirationKey(toExpire);
-        expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
-    }
+		long toExpire = roundUpToNextMinute(lastAccessedTime, maxInactiveInterval);
+		String expireKey = getExpirationKey(toExpire);
+		expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
+	}
 
-    public void onExpirationUpdated(Long originalExpirationTime, ExpiringSession session) {
-        if(originalExpirationTime != null) {
-            String expireKey = getExpirationKey(originalExpirationTime);
-            expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
-        }
+	public void onExpirationUpdated(Long originalExpirationTime, ExpiringSession session) {
+		if(originalExpirationTime != null) {
+			String expireKey = getExpirationKey(originalExpirationTime);
+			expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
+		}
 
-        long toExpire = roundUpToNextMinute(session.getLastAccessedTime(), session.getMaxInactiveIntervalInSeconds());
+		long toExpire = roundUpToNextMinute(session.getLastAccessedTime(), session.getMaxInactiveIntervalInSeconds());
 
-        String expireKey = getExpirationKey(toExpire);
-        expirationRedisOperations.boundSetOps(expireKey).add(session.getId());
+		String expireKey = getExpirationKey(toExpire);
+		expirationRedisOperations.boundSetOps(expireKey).add(session.getId());
 
-        long redisExpirationInSeconds = session.getMaxInactiveIntervalInSeconds();
-        String sessionKey = getSessionKey(session.getId());
-        expirationRedisOperations.boundSetOps(expireKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
-        sessionRedisOperations.boundHashOps(sessionKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
-    }
+		long redisExpirationInSeconds = session.getMaxInactiveIntervalInSeconds();
+		String sessionKey = getSessionKey(session.getId());
+		expirationRedisOperations.boundSetOps(expireKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
+		sessionRedisOperations.boundHashOps(sessionKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
+	}
 
-    private String getExpirationKey(long expires) {
-        return EXPIRATION_BOUNDED_HASH_KEY_PREFIX + expires;
-    }
+	private String getExpirationKey(long expires) {
+		return EXPIRATION_BOUNDED_HASH_KEY_PREFIX + expires;
+	}
 
-    private String getSessionKey(String sessionId) {
-        return RedisOperationsSessionRepository.BOUNDED_HASH_KEY_PREFIX + sessionId;
-    }
+	private String getSessionKey(String sessionId) {
+		return RedisOperationsSessionRepository.BOUNDED_HASH_KEY_PREFIX + sessionId;
+	}
 
-    public void cleanExpiredSessions() {
-        long now = System.currentTimeMillis();
-        long prevMin = roundDownMinute(now);
+	public void cleanExpiredSessions() {
+		long now = System.currentTimeMillis();
+		long prevMin = roundDownMinute(now);
 
-        if(logger.isDebugEnabled()) {
-            logger.debug("Cleaning up sessions expiring at "+ new Date(prevMin));
-        }
+		if(logger.isDebugEnabled()) {
+			logger.debug("Cleaning up sessions expiring at "+ new Date(prevMin));
+		}
 
-        String expirationKey = getExpirationKey(prevMin);
-        Set<String> sessionsToExpire = expirationRedisOperations.boundSetOps(expirationKey).members();
-        touch(expirationKey);
-        for(String session : sessionsToExpire) {
-            String sessionKey = getSessionKey(session);
-            touch(sessionKey);
-        }
-    }
+		String expirationKey = getExpirationKey(prevMin);
+		Set<String> sessionsToExpire = expirationRedisOperations.boundSetOps(expirationKey).members();
+		touch(expirationKey);
+		for(String session : sessionsToExpire) {
+			String sessionKey = getSessionKey(session);
+			touch(sessionKey);
+		}
+	}
 
-    /**
-     * By trying to access the session we only trigger a deletion if it the TTL is expired. This is done to handle
-     * https://github.com/spring-projects/spring-session/issues/93
-     *
-     * @param key
-     */
-    private void touch(String key) {
-        sessionRedisOperations.hasKey(key);
-    }
+	/**
+	 * By trying to access the session we only trigger a deletion if it the TTL is expired. This is done to handle
+	 * https://github.com/spring-projects/spring-session/issues/93
+	 *
+	 * @param key
+	 */
+	private void touch(String key) {
+		sessionRedisOperations.hasKey(key);
+	}
 
-    private long roundUpToNextMinute(long timeInMs, int inactiveIntervalInSec) {
+	private long roundUpToNextMinute(long timeInMs, int inactiveIntervalInSec) {
 
-        Calendar date = Calendar.getInstance();
-        date.setTimeInMillis(timeInMs + TimeUnit.SECONDS.toMillis(inactiveIntervalInSec));
-        date.add(Calendar.MINUTE, 1);
-        date.clear(Calendar.SECOND);
-        date.clear(Calendar.MILLISECOND);
-        return date.getTimeInMillis();
-    }
+		Calendar date = Calendar.getInstance();
+		date.setTimeInMillis(timeInMs + TimeUnit.SECONDS.toMillis(inactiveIntervalInSec));
+		date.add(Calendar.MINUTE, 1);
+		date.clear(Calendar.SECOND);
+		date.clear(Calendar.MILLISECOND);
+		return date.getTimeInMillis();
+	}
 
-    private long roundDownMinute(long timeInMs) {
-        Calendar date = Calendar.getInstance();
-        date.setTimeInMillis(timeInMs);
-        date.add(Calendar.MINUTE, -1);
-        date.clear(Calendar.SECOND);
-        date.clear(Calendar.MILLISECOND);
-        return date.getTimeInMillis();
-    }
+	private long roundDownMinute(long timeInMs) {
+		Calendar date = Calendar.getInstance();
+		date.setTimeInMillis(timeInMs);
+		date.add(Calendar.MINUTE, -1);
+		date.clear(Calendar.SECOND);
+		date.clear(Calendar.MILLISECOND);
+		return date.getTimeInMillis();
+	}
 }

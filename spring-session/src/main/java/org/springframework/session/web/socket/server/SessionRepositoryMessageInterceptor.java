@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,93 +66,93 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * @since 1.0
  */
 public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession> extends ChannelInterceptorAdapter
-    implements HandshakeInterceptor {
+	implements HandshakeInterceptor {
 
-    private static final String SPRING_SESSION_ID_ATTR_NAME = "SPRING.SESSION.ID";
+	private static final String SPRING_SESSION_ID_ATTR_NAME = "SPRING.SESSION.ID";
 
-    private final SessionRepository<S> sessionRepository;
+	private final SessionRepository<S> sessionRepository;
 
-    private Set<SimpMessageType> matchingMessageTypes;
+	private Set<SimpMessageType> matchingMessageTypes;
 
-    /**
-     * Creates a new instance
-     *
-     * @param sessionRepository the {@link SessionRepository} to use. Cannot be null.
-     */
-    public SessionRepositoryMessageInterceptor(SessionRepository<S> sessionRepository) {
-        Assert.notNull(sessionRepository, "sessionRepository cannot be null");
-        this.sessionRepository = sessionRepository;
-        this.matchingMessageTypes = EnumSet.of(SimpMessageType.CONNECT, SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE, SimpMessageType.UNSUBSCRIBE);
-    }
+	/**
+	 * Creates a new instance
+	 *
+	 * @param sessionRepository the {@link SessionRepository} to use. Cannot be null.
+	 */
+	public SessionRepositoryMessageInterceptor(SessionRepository<S> sessionRepository) {
+		Assert.notNull(sessionRepository, "sessionRepository cannot be null");
+		this.sessionRepository = sessionRepository;
+		this.matchingMessageTypes = EnumSet.of(SimpMessageType.CONNECT, SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE, SimpMessageType.UNSUBSCRIBE);
+	}
 
-    /**
-     * <p>
-     * Sets the {@link SimpMessageType} to match on. If the {@link Message}
-     * matches, then {@link #preSend(Message, MessageChannel)} ensures the
-     * {@link Session} is not expired and updates the
-     * {@link ExpiringSession#getLastAccessedTime()}
-     * </p>
-     *
-     * <p>
-     * The default is: SimpMessageType.CONNECT, SimpMessageType.MESSAGE,
-     * SimpMessageType.SUBSCRIBE, SimpMessageType.UNSUBSCRIBE.
-     * </p>
-     *
-     * @param matchingMessageTypes
-     *            the {@link SimpMessageType} to match on in
-     *            {@link #preSend(Message, MessageChannel)}, else the
-     *            {@link Message} is continued without accessing or updating the
-     *            {@link Session}
-     */
-    public void setMatchingMessageTypes(Set<SimpMessageType> matchingMessageTypes) {
-        Assert.notEmpty(matchingMessageTypes,"matchingMessageTypes cannot be null or empty");
-        this.matchingMessageTypes = matchingMessageTypes;
-    }
+	/**
+	 * <p>
+	 * Sets the {@link SimpMessageType} to match on. If the {@link Message}
+	 * matches, then {@link #preSend(Message, MessageChannel)} ensures the
+	 * {@link Session} is not expired and updates the
+	 * {@link ExpiringSession#getLastAccessedTime()}
+	 * </p>
+	 *
+	 * <p>
+	 * The default is: SimpMessageType.CONNECT, SimpMessageType.MESSAGE,
+	 * SimpMessageType.SUBSCRIBE, SimpMessageType.UNSUBSCRIBE.
+	 * </p>
+	 *
+	 * @param matchingMessageTypes
+	 *            the {@link SimpMessageType} to match on in
+	 *            {@link #preSend(Message, MessageChannel)}, else the
+	 *            {@link Message} is continued without accessing or updating the
+	 *            {@link Session}
+	 */
+	public void setMatchingMessageTypes(Set<SimpMessageType> matchingMessageTypes) {
+		Assert.notEmpty(matchingMessageTypes,"matchingMessageTypes cannot be null or empty");
+		this.matchingMessageTypes = matchingMessageTypes;
+	}
 
-    @Override
-    public Message<?> preSend(Message<?> message, MessageChannel channel) {
-        if(message == null) {
-            return message;
-        }
-        SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(message.getHeaders());
-        if(!this.matchingMessageTypes.contains(messageType)) {
-            return super.preSend(message, channel);
-        }
-        Map<String, Object> sessionHeaders = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
-        String sessionId = sessionHeaders == null ? null : (String) sessionHeaders.get(SPRING_SESSION_ID_ATTR_NAME);
-        if (sessionId != null) {
-            S session = sessionRepository.getSession(sessionId);
-            if (session != null) {
-                // update the last accessed time
-                sessionRepository.save(session);
-            }
-        }
-        return super.preSend(message, channel);
-    }
+	@Override
+	public Message<?> preSend(Message<?> message, MessageChannel channel) {
+		if(message == null) {
+			return message;
+		}
+		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(message.getHeaders());
+		if(!this.matchingMessageTypes.contains(messageType)) {
+			return super.preSend(message, channel);
+		}
+		Map<String, Object> sessionHeaders = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
+		String sessionId = sessionHeaders == null ? null : (String) sessionHeaders.get(SPRING_SESSION_ID_ATTR_NAME);
+		if (sessionId != null) {
+			S session = sessionRepository.getSession(sessionId);
+			if (session != null) {
+				// update the last accessed time
+				sessionRepository.save(session);
+			}
+		}
+		return super.preSend(message, channel);
+	}
 
-    public boolean beforeHandshake(ServerHttpRequest request,
-            ServerHttpResponse response, WebSocketHandler wsHandler,
-            Map<String, Object> attributes) throws Exception {
-        if (request instanceof ServletServerHttpRequest) {
-            ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
-            HttpSession session = servletRequest.getServletRequest().getSession(false);
-            if (session != null) {
-                setSessionId(attributes, session.getId());
-            }
-        }
-        return true;
-    }
+	public boolean beforeHandshake(ServerHttpRequest request,
+			ServerHttpResponse response, WebSocketHandler wsHandler,
+			Map<String, Object> attributes) throws Exception {
+		if (request instanceof ServletServerHttpRequest) {
+			ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
+			HttpSession session = servletRequest.getServletRequest().getSession(false);
+			if (session != null) {
+				setSessionId(attributes, session.getId());
+			}
+		}
+		return true;
+	}
 
-    public void afterHandshake(ServerHttpRequest request,
-            ServerHttpResponse response, WebSocketHandler wsHandler,
-            Exception exception) {
-    }
+	public void afterHandshake(ServerHttpRequest request,
+			ServerHttpResponse response, WebSocketHandler wsHandler,
+			Exception exception) {
+	}
 
-    public static String getSessionId(Map<String, Object> attributes) {
-        return (String) attributes.get(SPRING_SESSION_ID_ATTR_NAME);
-    }
+	public static String getSessionId(Map<String, Object> attributes) {
+		return (String) attributes.get(SPRING_SESSION_ID_ATTR_NAME);
+	}
 
-    public static void setSessionId(Map<String, Object> attributes, String sessionId) {
-        attributes.put(SPRING_SESSION_ID_ATTR_NAME, sessionId);
-    }
+	public static void setSessionId(Map<String, Object> attributes, String sessionId) {
+		attributes.put(SPRING_SESSION_ID_ATTR_NAME, sessionId);
+	}
 }

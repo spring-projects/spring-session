@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,73 +40,73 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Entity
 public class User implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
 
-    @NotEmpty(message = "First name is required.")
-    private String firstName;
+	@NotEmpty(message = "First name is required.")
+	private String firstName;
 
-    @NotEmpty(message = "Last name is required.")
-    private String lastName;
+	@NotEmpty(message = "Last name is required.")
+	private String lastName;
 
-    @Email(message = "Please provide a valid email address.")
-    @NotEmpty(message = "Email is required.")
-    @Column(unique=true, nullable = false)
-    private String email;
+	@Email(message = "Please provide a valid email address.")
+	@NotEmpty(message = "Email is required.")
+	@Column(unique=true, nullable = false)
+	private String email;
 
-    @NotEmpty(message = "Password is required.")
-    private String password;
+	@NotEmpty(message = "Password is required.")
+	private String password;
 
-    public User() {}
+	public User() {}
 
-    public User(User user) {
-        this.id = user.id;
-        this.firstName = user.firstName;
-        this.lastName = user.lastName;
-        this.email = user.email;
-        this.password = user.password;
-    }
+	public User(User user) {
+		this.id = user.id;
+		this.firstName = user.firstName;
+		this.lastName = user.lastName;
+		this.email = user.email;
+		this.password = user.password;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public String getPassword() {
+		return password;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public String getFirstName() {
-        return firstName;
-    }
+	public String getFirstName() {
+		return firstName;
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	public String getLastName() {
+		return lastName;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    private static final long serialVersionUID = 2738859149330833739L;
+	private static final long serialVersionUID = 2738859149330833739L;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,40 +23,40 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MapSessionRepositoryTests {
-    MapSessionRepository repository;
+	MapSessionRepository repository;
 
-    MapSession session;
+	MapSession session;
 
-    @Before
-    public void setup() {
-        repository = new MapSessionRepository();
-        session = new MapSession();
-    }
+	@Before
+	public void setup() {
+		repository = new MapSessionRepository();
+		session = new MapSession();
+	}
 
-    @Test
-    public void getSessionExpired() {
-        session.setMaxInactiveIntervalInSeconds(1);
-        session.setLastAccessedTime(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
-        repository.save(session);
+	@Test
+	public void getSessionExpired() {
+		session.setMaxInactiveIntervalInSeconds(1);
+		session.setLastAccessedTime(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		repository.save(session);
 
-        assertThat(repository.getSession(session.getId())).isNull();
-    }
+		assertThat(repository.getSession(session.getId())).isNull();
+	}
 
-    @Test
-    public void createSessionDefaultExpiration() {
-        ExpiringSession session = repository.createSession();
+	@Test
+	public void createSessionDefaultExpiration() {
+		ExpiringSession session = repository.createSession();
 
-        assertThat(session).isInstanceOf(MapSession.class);
-        assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
-    }
+		assertThat(session).isInstanceOf(MapSession.class);
+		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
+	}
 
-    @Test
-    public void createSessionCustomDefaultExpiration() {
-        final int expectedMaxInterval = new MapSession().getMaxInactiveIntervalInSeconds() + 10;
-        repository.setDefaultMaxInactiveInterval(expectedMaxInterval);
+	@Test
+	public void createSessionCustomDefaultExpiration() {
+		final int expectedMaxInterval = new MapSession().getMaxInactiveIntervalInSeconds() + 10;
+		repository.setDefaultMaxInactiveInterval(expectedMaxInterval);
 
-        ExpiringSession session = repository.createSession();
+		ExpiringSession session = repository.createSession();
 
-        assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(expectedMaxInterval);
-    }
+		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(expectedMaxInterval);
+	}
 }

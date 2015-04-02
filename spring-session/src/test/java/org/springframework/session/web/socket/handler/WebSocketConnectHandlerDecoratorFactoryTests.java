@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,44 +33,44 @@ import org.springframework.web.socket.WebSocketSession;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebSocketConnectHandlerDecoratorFactoryTests {
-    @Mock
-    ApplicationEventPublisher eventPublisher;
-    @Mock
-    WebSocketHandler delegate;
-    @Mock
-    WebSocketSession session;
-    @Captor
-    ArgumentCaptor<SessionConnectEvent> event;
+	@Mock
+	ApplicationEventPublisher eventPublisher;
+	@Mock
+	WebSocketHandler delegate;
+	@Mock
+	WebSocketSession session;
+	@Captor
+	ArgumentCaptor<SessionConnectEvent> event;
 
-    WebSocketConnectHandlerDecoratorFactory factory;
+	WebSocketConnectHandlerDecoratorFactory factory;
 
-    @Before
-    public void setup() {
-        factory = new WebSocketConnectHandlerDecoratorFactory(eventPublisher);
-    }
+	@Before
+	public void setup() {
+		factory = new WebSocketConnectHandlerDecoratorFactory(eventPublisher);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullEventPublisher() {
-        new WebSocketConnectHandlerDecoratorFactory(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullEventPublisher() {
+		new WebSocketConnectHandlerDecoratorFactory(null);
+	}
 
-    @Test
-    public void decorateAfterConnectionEstablished() throws Exception {
-        WebSocketHandler decorated = factory.decorate(delegate);
+	@Test
+	public void decorateAfterConnectionEstablished() throws Exception {
+		WebSocketHandler decorated = factory.decorate(delegate);
 
-        decorated.afterConnectionEstablished(session);
+		decorated.afterConnectionEstablished(session);
 
-        verify(eventPublisher).publishEvent(event.capture());
-        assertThat(event.getValue().getWebSocketSession()).isSameAs(session);
-    }
+		verify(eventPublisher).publishEvent(event.capture());
+		assertThat(event.getValue().getWebSocketSession()).isSameAs(session);
+	}
 
-    @Test
-    public void decorateAfterConnectionEstablishedEventError() throws Exception {
-        WebSocketHandler decorated = factory.decorate(delegate);
-        doThrow(new IllegalStateException("Test throw on publishEvent")).when(eventPublisher).publishEvent(any(ApplicationEvent.class));
+	@Test
+	public void decorateAfterConnectionEstablishedEventError() throws Exception {
+		WebSocketHandler decorated = factory.decorate(delegate);
+		doThrow(new IllegalStateException("Test throw on publishEvent")).when(eventPublisher).publishEvent(any(ApplicationEvent.class));
 
-        decorated.afterConnectionEstablished(session);
+		decorated.afterConnectionEstablished(session);
 
-        verify(eventPublisher).publishEvent(any(SessionConnectEvent.class));
-    }
+		verify(eventPublisher).publishEvent(any(SessionConnectEvent.class));
+	}
 }

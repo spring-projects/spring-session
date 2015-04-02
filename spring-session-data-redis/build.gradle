@@ -6,10 +6,10 @@ apply plugin: 'spring-io'
 description = "Aggregator for Spring Session and Spring Data Redis"
 
 dependencies {
-    compile project(':spring-session'),
-            "org.springframework.data:spring-data-redis:$springDataRedisVersion",
-            "redis.clients:jedis:$jedisVersion",
-            "org.apache.commons:commons-pool2:$commonsPoolVersion"
+	compile project(':spring-session'),
+			"org.springframework.data:spring-data-redis:$springDataRedisVersion",
+			"redis.clients:jedis:$jedisVersion",
+			"org.apache.commons:commons-pool2:$commonsPoolVersion"
 
-    springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
+	springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
 }

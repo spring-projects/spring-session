@@ -1,51 +1,51 @@
 apply plugin: 'propdeps-maven'
 
 install {
-    repositories.mavenInstaller {
-        customizePom(pom, project)
-    }
+	repositories.mavenInstaller {
+		customizePom(pom, project)
+	}
 }
 
 def customizePom(pom, gradleProject) {
-    pom.whenConfigured { generatedPom ->
+	pom.whenConfigured { generatedPom ->
 
-        // sort to make pom dependencies order consistent to ease comparison of older poms
-        generatedPom.dependencies = generatedPom.dependencies.sort { dep ->
-            "$dep.scope:$dep.groupId:$dep.artifactId"
-        }
+		// sort to make pom dependencies order consistent to ease comparison of older poms
+		generatedPom.dependencies = generatedPom.dependencies.sort { dep ->
+			"$dep.scope:$dep.groupId:$dep.artifactId"
+		}
 
-        // add all items necessary for maven central publication
-        generatedPom.project {
-            name = gradleProject.description
-            description = gradleProject.description
-            url = "https://github.com/spring-projects/spring-session"
-            organization {
-                name = "Spring IO"
-                url = "http://projects.spring.io/spring-session"
-            }
-            licenses {
-                license {
-                    name "The Apache Software License, Version 2.0"
-                    url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                    distribution "repo"
-                }
-            }
-            scm {
-                url = "https://github.com/spring-projects/spring-session"
-                connection = "scm:git:git://github.com/spring-projects/spring-session"
-                developerConnection = "scm:git:git://github.com/spring-projects/spring-session"
-            }
-            developers {
-                developer {
-                    id = "rwinch"
-                    name = "Rob Winch"
-                    email = "rwinch@pivotal.io"
-                }
-            }
-            issueManagement {
-                system = "GitHub"
-                url = "https://github.com/spring-projects/spring-session/issues"
-            }
-        }
-    }
+		// add all items necessary for maven central publication
+		generatedPom.project {
+			name = gradleProject.description
+			description = gradleProject.description
+			url = "https://github.com/spring-projects/spring-session"
+			organization {
+				name = "Spring IO"
+				url = "http://projects.spring.io/spring-session"
+			}
+			licenses {
+				license {
+					name "The Apache Software License, Version 2.0"
+					url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+					distribution "repo"
+				}
+			}
+			scm {
+				url = "https://github.com/spring-projects/spring-session"
+				connection = "scm:git:git://github.com/spring-projects/spring-session"
+				developerConnection = "scm:git:git://github.com/spring-projects/spring-session"
+			}
+			developers {
+				developer {
+					id = "rwinch"
+					name = "Rob Winch"
+					email = "rwinch@pivotal.io"
+				}
+			}
+			issueManagement {
+				system = "GitHub"
+				url = "https://github.com/spring-projects/spring-session/issues"
+			}
+		}
+	}
 }

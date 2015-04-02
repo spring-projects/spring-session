@@ -3,18 +3,18 @@ apply from: TOMCAT_GRADLE
 
 tasks.findByPath("artifactoryPublish")?.enabled = false
 sonarRunner {
-    skipProject = true
+	skipProject = true
 }
 
 dependencies {
-    compile project(':spring-session-data-redis'),
-            "org.springframework:spring-web:$springVersion",
-            "redis.embedded:embedded-redis:0.2",
-            jstlDependencies
+	compile project(':spring-session-data-redis'),
+			"org.springframework:spring-web:$springVersion",
+			"redis.embedded:embedded-redis:0.2",
+			jstlDependencies
 
-    providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-    testCompile 'junit:junit:4.11'
+	testCompile 'junit:junit:4.11'
 
-    integrationTestCompile gebDependencies
+	integrationTestCompile gebDependencies
 }

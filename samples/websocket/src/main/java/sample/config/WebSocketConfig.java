@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,7 +15,6 @@
  */
 package sample.config;
 
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -29,16 +28,16 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 @EnableScheduling
 @EnableWebSocketMessageBroker
 public class WebSocketConfig
-      extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> { // <1>
+	  extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> { // <1>
 
-    protected void configureStompEndpoints(StompEndpointRegistry registry) { // <2>
-        registry.addEndpoint("/messages")
-                .withSockJS();
-    }
+	protected void configureStompEndpoints(StompEndpointRegistry registry) { // <2>
+		registry.addEndpoint("/messages")
+				.withSockJS();
+	}
 
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/queue/", "/topic/");
-        registry.setApplicationDestinationPrefixes("/app");
-    }
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+		registry.enableSimpleBroker("/queue/", "/topic/");
+		registry.setApplicationDestinationPrefixes("/app");
+	}
 }
 // end::class[]

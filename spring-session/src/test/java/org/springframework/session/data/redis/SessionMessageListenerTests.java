@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,109 +40,109 @@ import org.springframework.session.events.SessionDestroyedEvent;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SessionMessageListenerTests {
-    @Mock
-    ApplicationEventPublisher eventPublisher;
+	@Mock
+	ApplicationEventPublisher eventPublisher;
 
-    @Mock
-    Message message;
+	@Mock
+	Message message;
 
-    @Captor
-    ArgumentCaptor<SessionDestroyedEvent> event;
+	@Captor
+	ArgumentCaptor<SessionDestroyedEvent> event;
 
-    byte[] pattern;
+	byte[] pattern;
 
-    SessionMessageListener listener;
+	SessionMessageListener listener;
 
-    @Before
-    public void setup() {
-        listener = new SessionMessageListener(eventPublisher);
-    }
+	@Before
+	public void setup() {
+		listener = new SessionMessageListener(eventPublisher);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void constructorNullEventPublisher() {
-        new SessionMessageListener(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullEventPublisher() {
+		new SessionMessageListener(null);
+	}
 
-    @Test
-    public void onMessageNullBody() throws Exception {
-        listener.onMessage(message, pattern);
+	@Test
+	public void onMessageNullBody() throws Exception {
+		listener.onMessage(message, pattern);
 
-        verifyZeroInteractions(eventPublisher);
-    }
+		verifyZeroInteractions(eventPublisher);
+	}
 
-    @Test
-    public void onMessageDel() throws Exception {
-        mockMessage("__keyevent@0__:del", "spring:session:sessions:123");
+	@Test
+	public void onMessageDel() throws Exception {
+		mockMessage("__keyevent@0__:del", "spring:session:sessions:123");
 
-        listener.onMessage(message, pattern);
+		listener.onMessage(message, pattern);
 
-        verify(eventPublisher).publishEvent(event.capture());
-        assertThat(event.getValue().getSessionId()).isEqualTo("123");
-    }
+		verify(eventPublisher).publishEvent(event.capture());
+		assertThat(event.getValue().getSessionId()).isEqualTo("123");
+	}
 
-    @Test
-    public void onMessageSource() throws Exception {
-        mockMessage("__keyevent@0__:del","spring:session:sessions:123");
+	@Test
+	public void onMessageSource() throws Exception {
+		mockMessage("__keyevent@0__:del","spring:session:sessions:123");
 
-        listener.onMessage(message, pattern);
+		listener.onMessage(message, pattern);
 
-        verify(eventPublisher).publishEvent(event.capture());
-        assertThat(event.getValue().getSource()).isEqualTo(listener);
-    }
+		verify(eventPublisher).publishEvent(event.capture());
+		assertThat(event.getValue().getSource()).isEqualTo(listener);
+	}
 
-    @Test
-    public void onMessageExpired() throws Exception {
-        mockMessage("__keyevent@0__:expired","spring:session:sessions:543");
+	@Test
+	public void onMessageExpired() throws Exception {
+		mockMessage("__keyevent@0__:expired","spring:session:sessions:543");
 
-        listener.onMessage(message, pattern);
+		listener.onMessage(message, pattern);
 
-        verify(eventPublisher).publishEvent(event.capture());
-        assertThat(event.getValue().getSessionId()).isEqualTo("543");
-    }
+		verify(eventPublisher).publishEvent(event.capture());
+		assertThat(event.getValue().getSessionId()).isEqualTo("543");
+	}
 
-    @Test
-    public void onMessageHset() throws Exception {
-        mockMessage("__keyevent@0__:hset","spring:session:sessions:123");
+	@Test
+	public void onMessageHset() throws Exception {
+		mockMessage("__keyevent@0__:hset","spring:session:sessions:123");
 
-        listener.onMessage(message, pattern);
+		listener.onMessage(message, pattern);
 
-        verifyZeroInteractions(eventPublisher);
-    }
+		verifyZeroInteractions(eventPublisher);
+	}
 
-    @Test
-    public void onMessageWrongKeyPrefix() throws Exception {
-        mockMessage("__keyevent@0__:del","spring:session:sessionsNo:123");
+	@Test
+	public void onMessageWrongKeyPrefix() throws Exception {
+		mockMessage("__keyevent@0__:del","spring:session:sessionsNo:123");
 
-        listener.onMessage(message, pattern);
+		listener.onMessage(message, pattern);
 
-        verifyZeroInteractions(eventPublisher);
-    }
+		verifyZeroInteractions(eventPublisher);
+	}
 
-    @Test
-    public void onMessageRename() throws Exception {
-        mockMessage("__keyevent@0__:rename","spring:session:sessions:123");
+	@Test
+	public void onMessageRename() throws Exception {
+		mockMessage("__keyevent@0__:rename","spring:session:sessions:123");
 
-        listener.onMessage(message, pattern);
+		listener.onMessage(message, pattern);
 
-        verifyZeroInteractions(eventPublisher);
-    }
+		verifyZeroInteractions(eventPublisher);
+	}
 
-    @Test
-    public void onMessageEventPublisherErrorCaught() throws Exception {
-        mockMessage("__keyevent@0__:del","spring:session:sessions:123");
-        doThrow(new IllegalStateException("Test Exceptions are caught")).when(eventPublisher).publishEvent(any(ApplicationEvent.class));
+	@Test
+	public void onMessageEventPublisherErrorCaught() throws Exception {
+		mockMessage("__keyevent@0__:del","spring:session:sessions:123");
+		doThrow(new IllegalStateException("Test Exceptions are caught")).when(eventPublisher).publishEvent(any(ApplicationEvent.class));
 
-        listener.onMessage(message, pattern);
+		listener.onMessage(message, pattern);
 
-        verify(eventPublisher).publishEvent(any(ApplicationEvent.class));
-    }
+		verify(eventPublisher).publishEvent(any(ApplicationEvent.class));
+	}
 
-    private void mockMessage(String channel, String body) throws UnsupportedEncodingException {
-        when(message.getBody()).thenReturn(bytes(body));
-        when(message.getChannel()).thenReturn(bytes(channel));
-    }
+	private void mockMessage(String channel, String body) throws UnsupportedEncodingException {
+		when(message.getBody()).thenReturn(bytes(body));
+		when(message.getChannel()).thenReturn(bytes(channel));
+	}
 
-    private static byte[] bytes(String s) throws UnsupportedEncodingException {
-        return s.getBytes("UTF-8");
-    }
+	private static byte[] bytes(String s) throws UnsupportedEncodingException {
+		return s.getBytes("UTF-8");
+	}
 }

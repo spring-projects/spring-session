@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,33 +27,33 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface RequestResponsePostProcessor {
 
-    /**
-     * Allows customizing the {@link HttpServletRequest}.
-     *
-     * @param request
-     *            the original {@link HttpServletRequest}. Cannot be null.
-     * @param response
-     *            the original {@link HttpServletResponse}. This is NOT the
-     *            result of
-     *            {@link #wrapResponse(HttpServletRequest, HttpServletResponse)}
-     *            Cannot be null. .
-     * @return a non-null {@link HttpServletRequest}
-     */
-    HttpServletRequest wrapRequest(HttpServletRequest request,
-            HttpServletResponse response);
+	/**
+	 * Allows customizing the {@link HttpServletRequest}.
+	 *
+	 * @param request
+	 *            the original {@link HttpServletRequest}. Cannot be null.
+	 * @param response
+	 *            the original {@link HttpServletResponse}. This is NOT the
+	 *            result of
+	 *            {@link #wrapResponse(HttpServletRequest, HttpServletResponse)}
+	 *            Cannot be null. .
+	 * @return a non-null {@link HttpServletRequest}
+	 */
+	HttpServletRequest wrapRequest(HttpServletRequest request,
+			HttpServletResponse response);
 
-    /**
-     * Allows customizing the {@link HttpServletResponse}.
-     *
-     * @param request
-     *            the original {@link HttpServletRequest}. This is NOT the
-     *            result of
-     *            {@link #wrapRequest(HttpServletRequest, HttpServletResponse)}.
-     *            Cannot be null.
-     * @param response
-     *            the original {@link HttpServletResponse}. Cannot be null.
-     * @return a non-null {@link HttpServletResponse}
-     */
-    HttpServletResponse wrapResponse(HttpServletRequest request,
-            HttpServletResponse response);
+	/**
+	 * Allows customizing the {@link HttpServletResponse}.
+	 *
+	 * @param request
+	 *            the original {@link HttpServletRequest}. This is NOT the
+	 *            result of
+	 *            {@link #wrapRequest(HttpServletRequest, HttpServletResponse)}.
+	 *            Cannot be null.
+	 * @param response
+	 *            the original {@link HttpServletResponse}. Cannot be null.
+	 * @return a non-null {@link HttpServletResponse}
+	 */
+	HttpServletResponse wrapResponse(HttpServletRequest request,
+			HttpServletResponse response);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,28 +32,28 @@ import com.hazelcast.nio.serialization.StreamSerializer;
  *
  */
 public class ObjectStreamSerializer implements StreamSerializer<Object> {
-    public int getTypeId() {
-        return 2;
-    }
+	public int getTypeId() {
+		return 2;
+	}
 
-    public void write(ObjectDataOutput objectDataOutput, Object object)
-           throws IOException {
-        ObjectOutputStream out = new ObjectOutputStream((OutputStream) objectDataOutput);
-        out.writeObject(object);
-        out.flush();
-    }
+	public void write(ObjectDataOutput objectDataOutput, Object object)
+		   throws IOException {
+		ObjectOutputStream out = new ObjectOutputStream((OutputStream) objectDataOutput);
+		out.writeObject(object);
+		out.flush();
+	}
 
-    public Object read(ObjectDataInput objectDataInput)
-           throws IOException {
-        ObjectInputStream in = new ObjectInputStream((InputStream) objectDataInput);
-        try {
-            return in.readObject();
-        } catch (ClassNotFoundException e) {
-            throw new IOException(e);
-        }
-    }
+	public Object read(ObjectDataInput objectDataInput)
+		   throws IOException {
+		ObjectInputStream in = new ObjectInputStream((InputStream) objectDataInput);
+		try {
+			return in.readObject();
+		} catch (ClassNotFoundException e) {
+			throw new IOException(e);
+		}
+	}
 
-    public void destroy() {
-    }
+	public void destroy() {
+	}
 
 }

@@ -106,19 +106,19 @@ It looks something like the following:
 ----
 public class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
 
-    public SessionRepositoryRequestWrapper(HttpServletRequest original) {
-        super(original);
-    }
+	public SessionRepositoryRequestWrapper(HttpServletRequest original) {
+		super(original);
+	}
 
-    public HttpSession getSession() {
-        return getSession(true);
-    }
+	public HttpSession getSession() {
+		return getSession(true);
+	}
 
-    public HttpSession getSession(boolean createNew) {
-        // create an HttpSession implementation from Spring Session
-    }
+	public HttpSession getSession(boolean createNew) {
+		// create an HttpSession implementation from Spring Session
+	}
 
-    // ... other methods delegate to the original HttpServletRequest ...
+	// ... other methods delegate to the original HttpServletRequest ...
 }
 ----
 
@@ -132,15 +132,15 @@ The pseudocode can be found below:
 ----
 public class SessionRepositoryFilter implements Filter {
 
-    public doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        SessionRepositoryRequestWrapper customRequest =
-              new SessionRepositoryRequestWrapper(httpRequest);
+	public doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		SessionRepositoryRequestWrapper customRequest =
+			  new SessionRepositoryRequestWrapper(httpRequest);
 
-        chain.doFilter(customRequest, response, chain);
-    }
+		chain.doFilter(customRequest, response, chain);
+	}
 
-    // ...
+	// ...
 }
 ----
 
@@ -286,9 +286,9 @@ Each session is stored in Redis as a Hash.
 Each session is set and updated using the HMSET command.
 An example of how each session is stored can be seen below.
 
-    HMSET spring:session:sessions:<session-id> creationTime 1404360000000 \
-          maxInactiveInterval 1800 lastAccessedTime 1404360000000 \
-          sessionAttr:<attrName> someAttrValue sessionAttr:<attrName2> someAttrValue2
+	HMSET spring:session:sessions:<session-id> creationTime 1404360000000 \
+		  maxInactiveInterval 1800 lastAccessedTime 1404360000000 \
+		  sessionAttr:<attrName> someAttrValue sessionAttr:<attrName2> someAttrValue2
 
 [[api-redisoperationssessionrepository-expiration]]
 ===== Session Expiration
@@ -296,7 +296,7 @@ An example of how each session is stored can be seen below.
 An expiration is associated to each session using the EXPIRE command based upon the RedisOperationsSessionRepository.RedisSession.getMaxInactiveInterval().
 For example:
 
-    EXPIRE spring:session:sessions:<session-id> 1800
+	EXPIRE spring:session:sessions:<session-id> 1800
 
 Spring Session relies on the expired and delete http://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<SessionDestroyedEvent>>.
 It is the `SessionDestroyedEvent` that ensures resources associated with the Session are cleaned up.
@@ -313,8 +313,8 @@ For this reason, each session expiration is also tracked to the nearest minute.
 This allows a background task to access the potentially expired sessions to ensure that Redis expired events are fired in a more deterministic fashion.
 For example:
 
-   SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
-   EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1800
+SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
+EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1800
 
 The background task will then use these mappings to explicitly request each key.
 By accessing they key, rather than deleting it, we ensure that Redis deletes the key for us only if the TTL is expired.
@@ -331,8 +331,8 @@ This means if an attribute is written once and read many times we only need to w
 For example, assume the session attribute "sessionAttr2" from earlier was updated.
 The following would be executed upon saving:
 
-   HMSET spring:session:sessions:<session-id> sessionAttr:<attrName2> newValue
-   EXPIRE spring:session:sessions:<session-id> 1800
+HMSET spring:session:sessions:<session-id> sessionAttr:<attrName2> newValue
+EXPIRE spring:session:sessions:<session-id> 1800
 
 [[api-redisoperationssessionrepository-sessiondestroyedevent]]
 ==== SessionDestroyedEvent
@@ -405,7 +405,7 @@ include::{indexdoc-tests}[tags=new-mapsessionrepository]
 The <<samples,Hazelcast Sample>> is a complete application demonstrating using Spring Session with Hazelcast.
 To run it use the following:
 
-    ./gradlew :samples:hazelcast:tomcatRun
+	./gradlew :samples:hazelcast:tomcatRun
 
 [[community]]
 == Spring Session Community

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,27 +25,27 @@ import sample.data.ActiveWebSocketUser;
 import sample.data.ActiveWebSocketUserRepository;
 
 public class WebSocketDisconnectHandler<S> implements ApplicationListener<SessionDisconnectEvent> {
-    private ActiveWebSocketUserRepository repository;
-    private SimpMessageSendingOperations messagingTemplate;
+	private ActiveWebSocketUserRepository repository;
+	private SimpMessageSendingOperations messagingTemplate;
 
-    public WebSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
-        super();
-        this.messagingTemplate = messagingTemplate;
-        this.repository = repository;
-    }
+	public WebSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
+		super();
+		this.messagingTemplate = messagingTemplate;
+		this.repository = repository;
+	}
 
-    public void onApplicationEvent(SessionDisconnectEvent event) {
-        String id = event.getSessionId();
-        if(id == null) {
-            return;
-        }
-        ActiveWebSocketUser user = repository.findOne(id);
-        if(user == null) {
-            return;
-        }
+	public void onApplicationEvent(SessionDisconnectEvent event) {
+		String id = event.getSessionId();
+		if(id == null) {
+			return;
+		}
+		ActiveWebSocketUser user = repository.findOne(id);
+		if(user == null) {
+			return;
+		}
 
-        repository.delete(id);
-        messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
+		repository.delete(id);
+		messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
 
-    }
+	}
 }

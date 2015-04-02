@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -26,41 +26,41 @@ import java.util.Set;
  */
 public interface Session {
 
-    /**
-     * Gets a unique string that identifies the {@link Session}
-     *
-     * @return a unique string that identifies the {@link Session}
-     */
-    String getId();
+	/**
+	 * Gets a unique string that identifies the {@link Session}
+	 *
+	 * @return a unique string that identifies the {@link Session}
+	 */
+	String getId();
 
-    /**
-     * Gets the Object associated with the specified name or null if no Object is associated to that name.
-     *
-     * @param attributeName the name of the attribute to get
-     * @return the Object associated with the specified name or null if no Object is associated to that name
-     * @param <T> The return type of the attribute
-     */
-    <T> T getAttribute(String attributeName);
+	/**
+	 * Gets the Object associated with the specified name or null if no Object is associated to that name.
+	 *
+	 * @param attributeName the name of the attribute to get
+	 * @return the Object associated with the specified name or null if no Object is associated to that name
+	 * @param <T> The return type of the attribute
+	 */
+	<T> T getAttribute(String attributeName);
 
-    /**
-     * Gets the attribute names that have a value associated with it. Each value can be passed into {@link org.springframework.session.Session#getAttribute(String)} to obtain the attribute value.
-     *
-     * @return the attribute names that have a value associated with it.
-     * @see #getAttribute(String)
-     */
-    Set<String> getAttributeNames();
+	/**
+	 * Gets the attribute names that have a value associated with it. Each value can be passed into {@link org.springframework.session.Session#getAttribute(String)} to obtain the attribute value.
+	 *
+	 * @return the attribute names that have a value associated with it.
+	 * @see #getAttribute(String)
+	 */
+	Set<String> getAttributeNames();
 
-    /**
-     * Sets the attribute value for the provided attribute name. If the attributeValue is null, it has the same result as removing the attribute with {@link org.springframework.session.Session#removeAttribute(String)} .
-     *
-     * @param attributeName the attribute name to set
-     * @param attributeValue the value of the attribute to set. If null, the attribute will be removed.
-     */
-    void setAttribute(String attributeName, Object attributeValue);
+	/**
+	 * Sets the attribute value for the provided attribute name. If the attributeValue is null, it has the same result as removing the attribute with {@link org.springframework.session.Session#removeAttribute(String)} .
+	 *
+	 * @param attributeName the attribute name to set
+	 * @param attributeValue the value of the attribute to set. If null, the attribute will be removed.
+	 */
+	void setAttribute(String attributeName, Object attributeValue);
 
-    /**
-     * Removes the attribute with the provided attribute name
-     * @param attributeName the name of the attribute to remove
-     */
-    void removeAttribute(String attributeName);
+	/**
+	 * Removes the attribute with the provided attribute name
+	 * @param attributeName the name of the attribute to remove
+	 */
+	void removeAttribute(String attributeName);
 }

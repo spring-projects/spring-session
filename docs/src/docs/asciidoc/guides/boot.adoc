@@ -16,14 +16,14 @@ If you are using Maven, ensure to add the following dependencies:
 [subs="verbatim,attributes"]
 ----
 <dependencies>
-    <!-- ... -->
+	<!-- ... -->
 
-    <dependency>
-      <groupId>org.springframework.session</groupId>
-      <artifactId>spring-session-data-redis</artifactId>
-      <version>{spring-session-version}</version>
-      <type>pom<type>
-    </dependency>
+	<dependency>
+		<groupId>org.springframework.session</groupId>
+		<artifactId>spring-session-data-redis</artifactId>
+		<version>{spring-session-version}</version>
+		<type>pom<type>
+	</dependency>
 </dependencies>
 ----
 
@@ -36,12 +36,12 @@ Ensure you have the following in your pom.xml:
 ----
 <repositories>
 
-    <!-- ... -->
+	<!-- ... -->
 
-    <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/libs-snapshot</url>
-    </repository>
+	<repository>
+		<id>spring-snapshot</id>
+		<url>https://repo.spring.io/libs-snapshot</url>
+	</repository>
 </repositories>
 ----
 endif::[]
@@ -54,8 +54,8 @@ Ensure you have the following in your pom.xml:
 [source,xml]
 ----
 <repository>
-  <id>spring-milestone</id>
-  <url>https://repo.spring.io/libs-milestone</url>
+	<id>spring-milestone</id>
+	<url>https://repo.spring.io/libs-milestone</url>
 </repository>
 ----
 endif::[]
@@ -69,7 +69,7 @@ Add the following Spring Configuration:
 
 [source,java]
 ----
-include::{samples-dir}boot/src/main/java/sample/config/HttpSessionConfig.java[]
+include::{samples-dir}boot/src/main/java/sample/config/HttpSessionConfig.java[tags=class]
 ----
 
 <1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
@@ -111,7 +111,9 @@ The boot Sample Application demonstrates how to use Spring Session to transparen
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-  $ ./gradlew :samples:boot:bootRun
+----
+$ ./gradlew :samples:boot:bootRun
+----
 
 You should now be able to access the application at http://localhost:8080/
 
@@ -139,12 +141,12 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 
 If you like, you can easily remove the session using redis-cli. For example, on a Linux based system you can type:
 
-    $ redis-cli keys '*' | xargs redis-cli del
+	$ redis-cli keys '*' | xargs redis-cli del
 
 TIP: The Redis documentation has instructions for http://redis.io/topics/quickstart[installing redis-cli].
 
 Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
 
-    $ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+	$ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 
 Now visit the application at http://localhost:8080/ and observe that we are no longer authenticated.

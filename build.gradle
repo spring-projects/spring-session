@@ -1,14 +1,14 @@
 buildscript {
-    repositories {
-        maven { url "https://repo.spring.io/plugins-release" }
-    }
-    dependencies {
-        classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.3")
-        classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
-        classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
-        classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
-        classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
-    }
+	repositories {
+		maven { url "https://repo.spring.io/plugins-release" }
+	}
+	dependencies {
+		classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.3")
+		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
+		classpath("org.springframework.build.gradle:spring-io-plugin:0.0.3.RELEASE")
+		classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
+		classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
+	}
 }
 
 group = 'org.springframework.session'
@@ -27,37 +27,37 @@ apply plugin: 'base'
 
 
 sonarRunner {
-    sonarProperties {
-        property "sonar.java.coveragePlugin", "jacoco"
-        property "sonar.projectName", "Spring Session"
-        property "sonar.jacoco.reportPath", "${buildDir.name}/jacoco.exec"
-        property "sonar.links.homepage", 'https://github.com/spring-projects/spring-session'
-        property "sonar.links.ci", 'https://build.spring.io/browse/SESSION'
-        property "sonar.links.issue", 'https://github.com/spring-projects/spring-session/issues'
-        property "sonar.links.scm", 'https://github.com/spring-projects/spring-session'
-        property "sonar.links.scm_dev", 'https://github.com/spring-projects/spring-session.git'
-        property "sonar.java.coveragePlugin", "jacoco"
-    }
+	sonarProperties {
+		property "sonar.java.coveragePlugin", "jacoco"
+		property "sonar.projectName", "Spring Session"
+		property "sonar.jacoco.reportPath", "${buildDir.name}/jacoco.exec"
+		property "sonar.links.homepage", 'https://github.com/spring-projects/spring-session'
+		property "sonar.links.ci", 'https://build.spring.io/browse/SESSION'
+		property "sonar.links.issue", 'https://github.com/spring-projects/spring-session/issues'
+		property "sonar.links.scm", 'https://github.com/spring-projects/spring-session'
+		property "sonar.links.scm_dev", 'https://github.com/spring-projects/spring-session.git'
+		property "sonar.java.coveragePlugin", "jacoco"
+	}
 }
 
 task configDocsZip(dependsOn: [':docs:asciidoctor',':spring-session:javadoc']) << {
-    project.tasks.docsZip.from(project(':docs').asciidoctor) {
-        into('reference')
-    }
-    project.tasks.docsZip.from(project(':spring-session').javadoc) {
-        into('api')
-    }
+	project.tasks.docsZip.from(project(':docs').asciidoctor) {
+		into('reference')
+	}
+	project.tasks.docsZip.from(project(':spring-session').javadoc) {
+		into('api')
+	}
 }
 
 
 task docsZip(type: Zip, dependsOn: 'configDocsZip') {
-    group = "Distribution"
-    baseName = "spring-session"
-    classifier = "docs"
-    description = "Builds -${classifier} archive containing api and reference " +
-            "for deployment."
+	group = "Distribution"
+	baseName = "spring-session"
+	classifier = "docs"
+	description = "Builds -${classifier} archive containing api and reference " +
+			"for deployment."
 }
 
 artifacts {
-    archives docsZip
+	archives docsZip
 }

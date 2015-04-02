@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,214 +43,214 @@ import org.springframework.session.SessionRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SessionRepositoryMessageInterceptorTests {
-    @Mock
-    SessionRepository<ExpiringSession> sessionRepository;
-    @Mock
-    MessageChannel channel;
-    @Mock
-    ExpiringSession session;
+	@Mock
+	SessionRepository<ExpiringSession> sessionRepository;
+	@Mock
+	MessageChannel channel;
+	@Mock
+	ExpiringSession session;
 
-    Message<?> createMessage;
+	Message<?> createMessage;
 
-    SimpMessageHeaderAccessor headers;
+	SimpMessageHeaderAccessor headers;
 
-    SessionRepositoryMessageInterceptor<ExpiringSession> interceptor;
+	SessionRepositoryMessageInterceptor<ExpiringSession> interceptor;
 
-    @Before
-    public void setup() {
-        interceptor = new SessionRepositoryMessageInterceptor<ExpiringSession>(sessionRepository);
-        headers = SimpMessageHeaderAccessor.create();
-        headers.setSessionId("session");
-        headers.setSessionAttributes(new HashMap<String,Object>());
-        setMessageType(SimpMessageType.MESSAGE);
-        String sessionId = "http-session";
-        setSessionId(sessionId);
-        when(sessionRepository.getSession(sessionId)).thenReturn(session);
-    }
+	@Before
+	public void setup() {
+		interceptor = new SessionRepositoryMessageInterceptor<ExpiringSession>(sessionRepository);
+		headers = SimpMessageHeaderAccessor.create();
+		headers.setSessionId("session");
+		headers.setSessionAttributes(new HashMap<String,Object>());
+		setMessageType(SimpMessageType.MESSAGE);
+		String sessionId = "http-session";
+		setSessionId(sessionId);
+		when(sessionRepository.getSession(sessionId)).thenReturn(session);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void preSendconstructorNullRepository() {
-        new SessionRepositoryMessageInterceptor<ExpiringSession>(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void preSendconstructorNullRepository() {
+		new SessionRepositoryMessageInterceptor<ExpiringSession>(null);
+	}
 
-    @Test
-    public void preSendNullMessage() {
-        assertThat(interceptor.preSend(null, channel)).isNull();
-    }
+	@Test
+	public void preSendNullMessage() {
+		assertThat(interceptor.preSend(null, channel)).isNull();
+	}
 
-    @Test
-    public void preSendConnectAckDoesNotInvokeSessionRepository() {
-        setMessageType(SimpMessageType.CONNECT_ACK);
+	@Test
+	public void preSendConnectAckDoesNotInvokeSessionRepository() {
+		setMessageType(SimpMessageType.CONNECT_ACK);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test
-    public void preSendHeartbeatDoesNotInvokeSessionRepository() {
-        setMessageType(SimpMessageType.HEARTBEAT);
+	@Test
+	public void preSendHeartbeatDoesNotInvokeSessionRepository() {
+		setMessageType(SimpMessageType.HEARTBEAT);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test
-    public void preSendDisconnectDoesNotInvokeSessionRepository() {
-        setMessageType(SimpMessageType.DISCONNECT);
+	@Test
+	public void preSendDisconnectDoesNotInvokeSessionRepository() {
+		setMessageType(SimpMessageType.DISCONNECT);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test
-    public void preSendOtherDoesNotInvokeSessionRepository() {
-        setMessageType(SimpMessageType.OTHER);
+	@Test
+	public void preSendOtherDoesNotInvokeSessionRepository() {
+		setMessageType(SimpMessageType.OTHER);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setMatchingMessageTypesNull() {
-        interceptor.setMatchingMessageTypes(null);
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setMatchingMessageTypesNull() {
+		interceptor.setMatchingMessageTypes(null);
+	}
 
-    @Test(expected = IllegalArgumentException.class)
-    public void setMatchingMessageTypesEmpty() {
-        interceptor.setMatchingMessageTypes(Collections.<SimpMessageType>emptySet());
-    }
+	@Test(expected = IllegalArgumentException.class)
+	public void setMatchingMessageTypesEmpty() {
+		interceptor.setMatchingMessageTypes(Collections.<SimpMessageType>emptySet());
+	}
 
-    @Test
-    public void preSendSetMatchingMessageTypes() {
-        interceptor.setMatchingMessageTypes(EnumSet.of(SimpMessageType.DISCONNECT));
-        setMessageType(SimpMessageType.DISCONNECT);
+	@Test
+	public void preSendSetMatchingMessageTypes() {
+		interceptor.setMatchingMessageTypes(EnumSet.of(SimpMessageType.DISCONNECT));
+		setMessageType(SimpMessageType.DISCONNECT);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verify(sessionRepository).getSession(anyString());
-        verify(sessionRepository).save(session);
-    }
+		verify(sessionRepository).getSession(anyString());
+		verify(sessionRepository).save(session);
+	}
 
-    @Test
-    public void preSendConnectUpdatesLastUpdateTime() {
-        setMessageType(SimpMessageType.CONNECT);
+	@Test
+	public void preSendConnectUpdatesLastUpdateTime() {
+		setMessageType(SimpMessageType.CONNECT);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verify(sessionRepository).getSession(anyString());
-        verify(sessionRepository).save(session);
-    }
+		verify(sessionRepository).getSession(anyString());
+		verify(sessionRepository).save(session);
+	}
 
-    @Test
-    public void preSendMessageUpdatesLastUpdateTime() {
-        setMessageType(SimpMessageType.MESSAGE);
+	@Test
+	public void preSendMessageUpdatesLastUpdateTime() {
+		setMessageType(SimpMessageType.MESSAGE);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verify(sessionRepository).getSession(anyString());
-        verify(sessionRepository).save(session);
-    }
+		verify(sessionRepository).getSession(anyString());
+		verify(sessionRepository).save(session);
+	}
 
-    @Test
-    public void preSendSubscribeUpdatesLastUpdateTime() {
-        setMessageType(SimpMessageType.SUBSCRIBE);
+	@Test
+	public void preSendSubscribeUpdatesLastUpdateTime() {
+		setMessageType(SimpMessageType.SUBSCRIBE);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verify(sessionRepository).getSession(anyString());
-        verify(sessionRepository).save(session);
-    }
+		verify(sessionRepository).getSession(anyString());
+		verify(sessionRepository).save(session);
+	}
 
-    @Test
-    public void preSendUnsubscribeUpdatesLastUpdateTime() {
-        setMessageType(SimpMessageType.UNSUBSCRIBE);
+	@Test
+	public void preSendUnsubscribeUpdatesLastUpdateTime() {
+		setMessageType(SimpMessageType.UNSUBSCRIBE);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verify(sessionRepository).getSession(anyString());
-        verify(sessionRepository).save(session);
-    }
+		verify(sessionRepository).getSession(anyString());
+		verify(sessionRepository).save(session);
+	}
 
-    // This will updated when SPR-12288 is resolved
-    @Test
-    public void preSendExpiredSession() {
-        setSessionId("expired");
+	// This will updated when SPR-12288 is resolved
+	@Test
+	public void preSendExpiredSession() {
+		setSessionId("expired");
 
-        interceptor.preSend(createMessage(), channel);
+		interceptor.preSend(createMessage(), channel);
 
-        verify(sessionRepository,times(0)).save(any(ExpiringSession.class));
-    }
+		verify(sessionRepository,times(0)).save(any(ExpiringSession.class));
+	}
 
-    @Test
-    public void preSendNullSessionId() {
-        setSessionId(null);
+	@Test
+	public void preSendNullSessionId() {
+		setSessionId(null);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test
-    public void preSendNullSessionAttributes() {
-        headers.setSessionAttributes(null);
+	@Test
+	public void preSendNullSessionAttributes() {
+		headers.setSessionAttributes(null);
 
-        assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
+		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test
-    public void beforeHandshakeNotServletServerHttpRequest() throws Exception {
-        assertThat(interceptor.beforeHandshake(null,null,null,null)).isTrue();
+	@Test
+	public void beforeHandshakeNotServletServerHttpRequest() throws Exception {
+		assertThat(interceptor.beforeHandshake(null,null,null,null)).isTrue();
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test
-    public void beforeHandshakeNullSession() throws Exception {
-        ServletServerHttpRequest request = new ServletServerHttpRequest(new MockHttpServletRequest());
-        assertThat(interceptor.beforeHandshake(request,null,null,null)).isTrue();
+	@Test
+	public void beforeHandshakeNullSession() throws Exception {
+		ServletServerHttpRequest request = new ServletServerHttpRequest(new MockHttpServletRequest());
+		assertThat(interceptor.beforeHandshake(request,null,null,null)).isTrue();
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    @Test
-    public void beforeHandshakeSession() throws Exception {
-        MockHttpServletRequest httpRequest = new MockHttpServletRequest();
-        HttpSession httpSession = httpRequest.getSession();
-        ServletServerHttpRequest request = new ServletServerHttpRequest(httpRequest);
-        Map<String,Object> attributes = new HashMap<String,Object>();
+	@Test
+	public void beforeHandshakeSession() throws Exception {
+		MockHttpServletRequest httpRequest = new MockHttpServletRequest();
+		HttpSession httpSession = httpRequest.getSession();
+		ServletServerHttpRequest request = new ServletServerHttpRequest(httpRequest);
+		Map<String,Object> attributes = new HashMap<String,Object>();
 
-        assertThat(interceptor.beforeHandshake(request,null,null,attributes)).isTrue();
+		assertThat(interceptor.beforeHandshake(request,null,null,attributes)).isTrue();
 
-        assertThat(attributes.size()).isEqualTo(1);
-        assertThat(SessionRepositoryMessageInterceptor.getSessionId(attributes)).isEqualTo(httpSession.getId());
-    }
+		assertThat(attributes.size()).isEqualTo(1);
+		assertThat(SessionRepositoryMessageInterceptor.getSessionId(attributes)).isEqualTo(httpSession.getId());
+	}
 
-    /**
-     * At the moment there is no need for afterHandshake to do anything.
-     */
-    @Test
-    public void afterHandshakeDoesNothing() {
-        interceptor.afterHandshake(null,null,null,null);
+	/**
+	 * At the moment there is no need for afterHandshake to do anything.
+	 */
+	@Test
+	public void afterHandshakeDoesNothing() {
+		interceptor.afterHandshake(null,null,null,null);
 
-        verifyZeroInteractions(sessionRepository);
-    }
+		verifyZeroInteractions(sessionRepository);
+	}
 
-    private void setSessionId(String id) {
-        SessionRepositoryMessageInterceptor.setSessionId(headers.getSessionAttributes(), id);
-    }
+	private void setSessionId(String id) {
+		SessionRepositoryMessageInterceptor.setSessionId(headers.getSessionAttributes(), id);
+	}
 
-    private Message<?> createMessage() {
-        createMessage = MessageBuilder.createMessage("", headers.getMessageHeaders());
-        return createMessage;
-    }
+	private Message<?> createMessage() {
+		createMessage = MessageBuilder.createMessage("", headers.getMessageHeaders());
+		return createMessage;
+	}
 
-    private void setMessageType(SimpMessageType type) {
-        headers.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, type);
-    }
+	private void setMessageType(SimpMessageType type) {
+		headers.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, type);
+	}
 }

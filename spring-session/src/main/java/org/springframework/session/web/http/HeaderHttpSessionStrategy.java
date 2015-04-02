@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -51,27 +51,27 @@ import javax.servlet.http.HttpServletResponse;
  * @author Rob Winch
  */
 public class HeaderHttpSessionStrategy implements HttpSessionStrategy {
-    private String headerName = "x-auth-token";
+	private String headerName = "x-auth-token";
 
-    public String getRequestedSessionId(HttpServletRequest request) {
-        return request.getHeader(headerName);
-    }
+	public String getRequestedSessionId(HttpServletRequest request) {
+		return request.getHeader(headerName);
+	}
 
-    public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
-        response.setHeader(headerName, session.getId());
-    }
+	public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader(headerName, session.getId());
+	}
 
-    public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
-        response.setHeader(headerName, "");
-    }
+	public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader(headerName, "");
+	}
 
-    /**
-     * The name of the header to obtain the session id from. Default is "x-auth-token".
-     *
-     * @param headerName the name of the header to obtain the session id from.
-     */
-    public void setHeaderName(String headerName) {
-        Assert.notNull(headerName, "headerName cannot be null");
-        this.headerName = headerName;
-    }
+	/**
+	 * The name of the header to obtain the session id from. Default is "x-auth-token".
+	 *
+	 * @param headerName the name of the header to obtain the session id from.
+	 */
+	public void setHeaderName(String headerName) {
+		Assert.notNull(headerName, "headerName cannot be null");
+		this.headerName = headerName;
+	}
 }

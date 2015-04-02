@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,16 @@ import javax.servlet.http.HttpSession;
 @WebServlet("/logout")
 public class LogoutServlet extends HttpServlet {
 
-    @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        HttpSession session = req.getSession(false);
-        if(session != null) {
-            session.invalidate();
-        }
-        String url = resp.encodeRedirectURL(req.getContextPath() + "/");
-        resp.sendRedirect(url);
-    }
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
+		HttpSession session = req.getSession(false);
+		if(session != null) {
+			session.invalidate();
+		}
+		String url = resp.encodeRedirectURL(req.getContextPath() + "/");
+		resp.sendRedirect(url);
+	}
 
-    private static final long serialVersionUID = 4061762524521437433L;
+	private static final long serialVersionUID = 4061762524521437433L;
 }

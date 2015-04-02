@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,29 @@
 package sample;
 
 public class Account {
-    private String username;
+	private String username;
 
-    private String logoutUrl;
+	private String logoutUrl;
 
-    private String switchAccountUrl;
+	private String switchAccountUrl;
 
-    public Account(String username, String logoutUrl, String switchAccountUrl) {
-        super();
-        this.username = username;
-        this.logoutUrl = logoutUrl;
-        this.switchAccountUrl = switchAccountUrl;
-    }
+	public Account(String username, String logoutUrl, String switchAccountUrl) {
+		super();
+		this.username = username;
+		this.logoutUrl = logoutUrl;
+		this.switchAccountUrl = switchAccountUrl;
+	}
 
-    public String getUsername() {
-        return username;
-    }
+	public String getUsername() {
+		return username;
+	}
 
-    public String getLogoutUrl() {
-        return logoutUrl;
-    }
+	public String getLogoutUrl() {
+		return logoutUrl;
+	}
 
-    public String getSwitchAccountUrl() {
-        return switchAccountUrl;
-    }
+	public String getSwitchAccountUrl() {
+		return switchAccountUrl;
+	}
 
 }

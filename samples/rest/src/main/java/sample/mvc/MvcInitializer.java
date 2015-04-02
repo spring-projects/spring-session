@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -23,20 +23,20 @@ import sample.SecurityConfig;
  * @author Rob Winch
  */
 public class MvcInitializer extends AbstractAnnotationConfigDispatcherServletInitializer {
-    // tag::config[]
-    @Override
-    protected Class<?>[] getRootConfigClasses() {
-        return new Class[] {SecurityConfig.class, HttpSessionConfig.class};
-    }
-    // end::config[]
+	// tag::config[]
+	@Override
+	protected Class<?>[] getRootConfigClasses() {
+		return new Class[] {SecurityConfig.class, HttpSessionConfig.class};
+	}
+	// end::config[]
 
-    @Override
-    protected Class<?>[] getServletConfigClasses() {
-        return new Class[] { MvcConfig.class };
-    }
+	@Override
+	protected Class<?>[] getServletConfigClasses() {
+		return new Class[] { MvcConfig.class };
+	}
 
-    @Override
-    protected String[] getServletMappings() {
-        return new String[] { "/" };
-    }
+	@Override
+	protected String[] getServletMappings() {
+		return new String[] { "/" };
+	}
 }

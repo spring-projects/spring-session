@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -22,7 +22,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -40,29 +39,29 @@ import sample.security.CurrentUser;
 @Controller
 @RequestMapping("/")
 public class MessageController {
-    private SimpMessageSendingOperations messagingTemplate;
-    private ActiveWebSocketUserRepository activeUserRepository;
+	private SimpMessageSendingOperations messagingTemplate;
+	private ActiveWebSocketUserRepository activeUserRepository;
 
-    @Autowired
-    public MessageController(ActiveWebSocketUserRepository activeUserRepository,SimpMessageSendingOperations messagingTemplate) {
-        this.activeUserRepository = activeUserRepository;
-        this.messagingTemplate = messagingTemplate;
-    }
+	@Autowired
+	public MessageController(ActiveWebSocketUserRepository activeUserRepository,SimpMessageSendingOperations messagingTemplate) {
+		this.activeUserRepository = activeUserRepository;
+		this.messagingTemplate = messagingTemplate;
+	}
 
-    @RequestMapping("/")
-    public String im() {
-        return "index";
-    }
+	@RequestMapping("/")
+	public String im() {
+		return "index";
+	}
 
-    @MessageMapping("/im")
-    public void im(InstantMessage im, @CurrentUser User currentUser) {
-        im.setFrom(currentUser.getEmail());
-        messagingTemplate.convertAndSendToUser(im.getTo(),"/queue/messages",im);
-        messagingTemplate.convertAndSendToUser(im.getFrom(),"/queue/messages",im);
-    }
+	@MessageMapping("/im")
+	public void im(InstantMessage im, @CurrentUser User currentUser) {
+		im.setFrom(currentUser.getEmail());
+		messagingTemplate.convertAndSendToUser(im.getTo(),"/queue/messages",im);
+		messagingTemplate.convertAndSendToUser(im.getFrom(),"/queue/messages",im);
+	}
 
-    @SubscribeMapping("/users")
-    public List<String> subscribeMessages() throws Exception {
-        return activeUserRepository.findAllActiveUsers();
-    }
+	@SubscribeMapping("/users")
+	public List<String> subscribeMessages() throws Exception {
+		return activeUserRepository.findAllActiveUsers();
+	}
 }

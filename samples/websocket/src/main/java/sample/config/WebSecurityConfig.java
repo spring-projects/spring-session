@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,31 +34,34 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 // tag::enable-redis-httpsession[]
 @EnableRedisHttpSession//(maxInactiveIntervalInSeconds = 60)
 public class WebSecurityConfig
-    extends WebSecurityConfigurerAdapter {
+	extends WebSecurityConfigurerAdapter {
 // end::enable-redis-httpsession[]
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+	// @formatter:off
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.authorizeRequests()
+				.anyRequest().authenticated()
+				.and()
+			.formLogin()
+				.and()
+			.logout()
+				.permitAll();
+	}
+	// @formatter:on
 
-        http
-            .authorizeRequests()
-                .anyRequest().authenticated()
-                .and()
-            .formLogin()
-                .and()
-            .logout()
-                .permitAll();
-    }
+	// @formatter:off
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
+		auth
+			.userDetailsService(userDetailsService)
+				.passwordEncoder(new BCryptPasswordEncoder());
+	}
+	// @formatter:on
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
-        auth
-            .userDetailsService(userDetailsService)
-                .passwordEncoder(new BCryptPasswordEncoder());
-    }
-
-    @Bean
-    public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
-        return new SecurityEvaluationContextExtension();
-    }
+	@Bean
+	public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
+		return new SecurityEvaluationContextExtension();
+	}
 }

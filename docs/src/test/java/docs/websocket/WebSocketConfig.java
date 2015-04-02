@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -30,17 +30,17 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 @EnableScheduling
 @EnableWebSocketMessageBroker
 public class WebSocketConfig
-        extends AbstractWebSocketMessageBrokerConfigurer {
+		extends AbstractWebSocketMessageBrokerConfigurer {
 
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/messages")
-                .withSockJS();
-    }
+	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		registry.addEndpoint("/messages")
+				.withSockJS();
+	}
 
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/queue/", "/topic/");
-        registry.setApplicationDestinationPrefixes("/app");
-    }
+	@Override
+	public void configureMessageBroker(MessageBrokerRegistry registry) {
+		registry.enableSimpleBroker("/queue/", "/topic/");
+		registry.setApplicationDestinationPrefixes("/app");
+	}
 }
 // end::class[]

@@ -1,6 +1,5 @@
-package sample;
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,14 +13,14 @@ package sample;
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+package sample;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import redis.clients.jedis.Protocol;
 import redis.embedded.RedisServer;
@@ -34,21 +33,21 @@ import redis.embedded.RedisServer;
  * @author Rob Winch
  */
 public class RedisServerBean implements InitializingBean, DisposableBean, BeanDefinitionRegistryPostProcessor {
-    private RedisServer redisServer;
+	private RedisServer redisServer;
 
 
-    public void afterPropertiesSet() throws Exception {
-        redisServer = new RedisServer(Protocol.DEFAULT_PORT);
-        redisServer.start();
-    }
+	public void afterPropertiesSet() throws Exception {
+		redisServer = new RedisServer(Protocol.DEFAULT_PORT);
+		redisServer.start();
+	}
 
-    public void destroy() throws Exception {
-        if(redisServer != null) {
-            redisServer.stop();
-        }
-    }
+	public void destroy() throws Exception {
+		if(redisServer != null) {
+			redisServer.stop();
+		}
+	}
 
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
+	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
 
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
 }

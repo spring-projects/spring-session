@@ -15,19 +15,19 @@ If you are using Maven, ensure to add the following dependencies:
 [subs="verbatim,attributes"]
 ----
 <dependencies>
-    <!-- ... -->
+	<!-- ... -->
 
-    <dependency>
-      <groupId>org.springframework.session</groupId>
-      <artifactId>spring-session-data-redis</artifactId>
-      <version>{spring-session-version}</version>
-      <type>pom<type>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>{spring-version}</version>
-    </dependency>
+	<dependency>
+		<groupId>org.springframework.session</groupId>
+		<artifactId>spring-session-data-redis</artifactId>
+		<version>{spring-session-version}</version>
+		<type>pom<type>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-web</artifactId>
+		<version>{spring-version}</version>
+	</dependency>
 </dependencies>
 ----
 
@@ -40,12 +40,12 @@ Ensure you have the following in your pom.xml:
 ----
 <repositories>
 
-    <!-- ... -->
+	<!-- ... -->
 
-    <repository>
-      <id>spring-snapshot</id>
-      <url>https://repo.spring.io/libs-snapshot</url>
-    </repository>
+	<repository>
+		<id>spring-snapshot</id>
+		<url>https://repo.spring.io/libs-snapshot</url>
+	</repository>
 </repositories>
 ----
 endif::[]
@@ -58,8 +58,8 @@ Ensure you have the following in your pom.xml:
 [source,xml]
 ----
 <repository>
-  <id>spring-milestone</id>
-  <url>https://repo.spring.io/libs-milestone</url>
+	<id>spring-milestone</id>
+	<url>https://repo.spring.io/libs-milestone</url>
 </repository>
 ----
 endif::[]
@@ -75,7 +75,7 @@ Add the following Spring Configuration:
 
 [source,java]
 ----
-include::{samples-dir}rest/src/main/java/sample/HttpSessionConfig.java[]
+include::{samples-dir}rest/src/main/java/sample/HttpSessionConfig.java[tags=class]
 ----
 
 <1> We import an embedded Redis Server so that there is no need to start up Redis external of our application.
@@ -107,7 +107,7 @@ Fortunately, Spring Session provides a utility class named `AbstractHttpSessionA
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
-include::{samples-dir}rest/src/main/java/sample/Initializer.java[]
+include::{samples-dir}rest/src/main/java/sample/Initializer.java[tags=class]
 ----
 
 NOTE: The name of our class (Initializer) does not matter. What is important is that we extend `AbstractHttpSessionApplicationInitializer`.
@@ -121,7 +121,9 @@ NOTE: The name of our class (Initializer) does not matter. What is important is 
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-  $ ./gradlew :samples:rest:tomcatRun
+----
+$ ./gradlew :samples:rest:tomcatRun
+----
 
 You should now be able to access the application at http://localhost:8080/
 
@@ -129,14 +131,14 @@ You should now be able to access the application at http://localhost:8080/
 
 Try using the application. Use your favorite REST client to request http://localhost:8080/
 
-    $ curl -v http://localhost:8080/
+	$ curl -v http://localhost:8080/
 
 Observe that we are prompted for basic authentication. Provide the following information for the username and password:
 
 * **Username** *user*
 * **Password** *password*
 
-   $ curl -v http://localhost:8080/ -u user:password
+$ curl -v http://localhost:8080/ -u user:password
 
 In the output you will notice the following:
 
@@ -156,13 +158,13 @@ Specifically, we notice the following things about our response:
 
 We can now use the *x-auth-token* to make another request without providing the username and password again. For example, the following outputs the the username just as before:
 
-    $ curl -v http://localhost:8080/ -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
+	$ curl -v http://localhost:8080/ -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
 
 The only difference is that the session id is not provided in the response headers because we are reusing an existing session.
 
 If we invalidate the session, then the x-auth-token is displayed in the response with an empty value. For example, the following will invalidate our session:
 
-    $ curl -v http://localhost:8080/logout -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
+	$ curl -v http://localhost:8080/logout -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
 
 You will see in the output that the x-auth-token provides an empty String indicating that the previous session was invalidated.
 
@@ -181,7 +183,7 @@ Spring Session creates a header named x-auth-token in your browser that contains
 
 If you like, you can easily see that the session is created in Redis. First create a session using the following:
 
-   $ curl -v http://localhost:8080/ -u user:password
+$ curl -v http://localhost:8080/ -u user:password
 
 In the output you will notice the following:
 
@@ -195,14 +197,14 @@ x-auth-token: 7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 
 Now remove the session using redis-cli. For example, on a Linux based system you can type:
 
-    $ redis-cli keys '*' | xargs redis-cli del
+	$ redis-cli keys '*' | xargs redis-cli del
 
 TIP: The Redis documentation has instructions for http://redis.io/topics/quickstart[installing redis-cli].
 
 Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
 
-    $ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+	$ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 
 We can now use the *x-auth-token* to make another request with the session we deleted and observe we are prompted for a authentication. For example, the following returns an HTTP 401:
 
-    $ curl -v http://localhost:8080/ -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
+	$ curl -v http://localhost:8080/ -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"

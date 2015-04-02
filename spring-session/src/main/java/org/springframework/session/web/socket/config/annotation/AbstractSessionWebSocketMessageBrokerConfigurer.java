@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,71 +74,71 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  */
 public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends ExpiringSession> extends AbstractWebSocketMessageBrokerConfigurer {
 
-    @Autowired
-    @SuppressWarnings("rawtypes")
-    private SessionRepository sessionRepository;
+	@Autowired
+	@SuppressWarnings("rawtypes")
+	private SessionRepository sessionRepository;
 
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
+	@Autowired
+	private ApplicationEventPublisher eventPublisher;
 
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.setInterceptors(sessionRepositoryInterceptor());
-    }
+	@Override
+	public void configureClientInboundChannel(ChannelRegistration registration) {
+		registration.setInterceptors(sessionRepositoryInterceptor());
+	}
 
-    public final void registerStompEndpoints(StompEndpointRegistry registry) {
-        configureStompEndpoints(new SessionStompEndpointRegistry(registry, sessionRepositoryInterceptor()));
-    }
+	public final void registerStompEndpoints(StompEndpointRegistry registry) {
+		configureStompEndpoints(new SessionStompEndpointRegistry(registry, sessionRepositoryInterceptor()));
+	}
 
 
-    /**
-     * Register STOMP endpoints mapping each to a specific URL and (optionally)
-     * enabling and configuring SockJS fallback options with a
-     * {@link SessionRepositoryMessageInterceptor} automatically added as an
-     * interceptor.
-     *
-     * @param registry
-     *            the {@link StompEndpointRegistry} which automatically has a
-     *            {@link SessionRepositoryMessageInterceptor} added to it.
-     */
-    protected abstract void configureStompEndpoints(StompEndpointRegistry registry);
+	/**
+	 * Register STOMP endpoints mapping each to a specific URL and (optionally)
+	 * enabling and configuring SockJS fallback options with a
+	 * {@link SessionRepositoryMessageInterceptor} automatically added as an
+	 * interceptor.
+	 *
+	 * @param registry
+	 *            the {@link StompEndpointRegistry} which automatically has a
+	 *            {@link SessionRepositoryMessageInterceptor} added to it.
+	 */
+	protected abstract void configureStompEndpoints(StompEndpointRegistry registry);
 
-    @Override
-    public void configureWebSocketTransport(
-            WebSocketTransportRegistration registration) {
-        registration.addDecoratorFactory(wsConnectHandlerDecoratorFactory());
-    }
+	@Override
+	public void configureWebSocketTransport(
+			WebSocketTransportRegistration registration) {
+		registration.addDecoratorFactory(wsConnectHandlerDecoratorFactory());
+	}
 
-    @Bean
-    public WebSocketRegistryListener webSocketRegistryListener() {
-        return new WebSocketRegistryListener();
-    }
+	@Bean
+	public WebSocketRegistryListener webSocketRegistryListener() {
+		return new WebSocketRegistryListener();
+	}
 
-    @Bean
-    public WebSocketConnectHandlerDecoratorFactory wsConnectHandlerDecoratorFactory() {
-        return new WebSocketConnectHandlerDecoratorFactory(eventPublisher);
-    }
+	@Bean
+	public WebSocketConnectHandlerDecoratorFactory wsConnectHandlerDecoratorFactory() {
+		return new WebSocketConnectHandlerDecoratorFactory(eventPublisher);
+	}
 
-    @Bean
-    @SuppressWarnings("unchecked")
-    public SessionRepositoryMessageInterceptor<S> sessionRepositoryInterceptor() {
-        return new SessionRepositoryMessageInterceptor<S>(sessionRepository);
-    }
+	@Bean
+	@SuppressWarnings("unchecked")
+	public SessionRepositoryMessageInterceptor<S> sessionRepositoryInterceptor() {
+		return new SessionRepositoryMessageInterceptor<S>(sessionRepository);
+	}
 
-    static class SessionStompEndpointRegistry implements StompEndpointRegistry {
-        private final StompEndpointRegistry registry;
-        private final HandshakeInterceptor interceptor;
+	static class SessionStompEndpointRegistry implements StompEndpointRegistry {
+		private final StompEndpointRegistry registry;
+		private final HandshakeInterceptor interceptor;
 
-        public SessionStompEndpointRegistry(StompEndpointRegistry registry,
-                HandshakeInterceptor interceptor) {
-            this.registry = registry;
-            this.interceptor = interceptor;
-        }
+		public SessionStompEndpointRegistry(StompEndpointRegistry registry,
+				HandshakeInterceptor interceptor) {
+			this.registry = registry;
+			this.interceptor = interceptor;
+		}
 
-        public StompWebSocketEndpointRegistration addEndpoint(String... paths) {
-            StompWebSocketEndpointRegistration endpoints = registry.addEndpoint(paths);
-            endpoints.addInterceptors(interceptor);
-            return endpoints;
-        }
-    }
+		public StompWebSocketEndpointRegistration addEndpoint(String... paths) {
+			StompWebSocketEndpointRegistration endpoints = registry.addEndpoint(paths);
+			endpoints.addInterceptors(interceptor);
+			return endpoints;
+		}
+	}
 }
