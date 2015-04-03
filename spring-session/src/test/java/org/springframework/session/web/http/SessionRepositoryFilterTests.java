@@ -432,6 +432,60 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 		});
 	}
 
+	// gh-152
+	@Test
+	public void doFilterChangeSessionId() throws Exception {
+		final String ATTR = "ATTRIBUTE";
+		final String VALUE = "VALUE";
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				wrappedRequest.getSession().setAttribute(ATTR, VALUE);
+			}
+		});
+
+		final String originalSessionId = getSessionCookie().getValue();
+		nextRequest();
+
+		// change the session id
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId");
+			}
+		});
+
+		// the old session was removed
+		final String changedSessionId = getSessionCookie().getValue();
+		assertThat(originalSessionId).isNotEqualTo(changedSessionId);
+		assertThat(sessionRepository.getSession(originalSessionId)).isNull();
+
+		nextRequest();
+
+		// The attributes from previous session were migrated
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				assertThat(wrappedRequest.getSession().getAttribute(ATTR)).isEqualTo(VALUE);
+			}
+		});
+	}
+
+	@Test
+	public void doFilterChangeSessionIdNoSession() throws Exception {
+		// change the session id
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				try {
+					ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId");
+					fail("Exected Exception");
+				} catch(IllegalStateException success) {}
+			}
+		});
+	}
+
 	// gh-142, gh-153
 	@Test
 	public void doFilterIsRequestedValidSessionFalseInvalidId() throws Exception {

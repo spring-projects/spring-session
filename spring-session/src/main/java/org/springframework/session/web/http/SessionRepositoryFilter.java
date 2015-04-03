@@ -15,21 +15,27 @@
  */
 package org.springframework.session.web.http;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import org.springframework.core.annotation.Order;
+import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 
 /**
  * Switches the {@link javax.servlet.http.HttpSession} implementation to be backed by a {@link org.springframework.session.Session}.
@@ -174,6 +180,37 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 					httpSessionStrategy.onNewSession(session, this, response);
 				}
 			}
+		}
+
+		@SuppressWarnings("unused")
+		public String changeSessionId() {
+			HttpSession session = getSession(false);
+
+			if(session == null) {
+				throw new IllegalStateException("Cannot change session ID. There is no session associated with this request.");
+			}
+
+			// eagerly get session attributes in case implementation lazily loads them
+			Map<String,Object> attrs = new HashMap<String,Object>();
+			Enumeration<String> iAttrNames = session.getAttributeNames();
+			while(iAttrNames.hasMoreElements()) {
+				String attrName = iAttrNames.nextElement();
+				Object value = session.getAttribute(attrName);
+
+				attrs.put(attrName, value);
+			}
+
+			sessionRepository.delete(session.getId());
+			currentSession = null;
+
+			HttpSession newSession = getSession();
+			newSession.setMaxInactiveInterval(session.getMaxInactiveInterval());
+			for(Map.Entry<String, Object> attr : attrs.entrySet()) {
+				String attrName = attr.getKey();
+				Object attrValue = attr.getValue();
+				newSession.setAttribute(attrName, attrValue);
+			}
+			return newSession.getId();
 		}
 
 		public boolean isRequestedSessionIdValid() {
