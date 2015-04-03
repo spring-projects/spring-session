@@ -23,8 +23,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.servlet.FilterChain;
@@ -51,6 +55,7 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("deprecation")
@@ -72,9 +77,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 	public void setup() throws Exception {
 		sessionRepository = new MapSessionRepository();
 		filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		setupRequest();
 	}
 
 	@Test
@@ -92,7 +95,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 
 		final long expectedCreationTime = (Long) request.getAttribute(CREATE_ATTR);
 		Thread.sleep(50L);
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -117,7 +120,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 		});
 
 		Thread.sleep(10L);
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -208,7 +211,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -231,7 +234,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -241,7 +244,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -254,7 +257,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -277,7 +280,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -287,7 +290,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -300,7 +303,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -330,7 +333,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 		response.reset();
 
 		doFilter(new DoInFilter() {
@@ -360,7 +363,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 		});
 		assertThat(response.getCookie("SESSION")).isNotNull();
 
-		setupSession();
+		nextRequest();
 
 		response.reset();
 		doFilter(new DoInFilter() {
@@ -418,7 +421,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 		request.setRequestedSessionIdValid(false); // ensure we are using wrapped request
 
 		doFilter(new DoInFilter() {
@@ -464,7 +467,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			}
 		});
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -529,7 +532,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 
 		assertNewSession();
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -796,7 +799,7 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 
 		assertNewSession();
 
-		setupSession();
+		nextRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1044,8 +1047,29 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 		request.setCookies(new Cookie[]{new Cookie("SESSION", sessionId)});
 	}
 
-	private void setupSession() {
-		setSessionCookie(getSessionCookie().getValue());
+	private void setupRequest() {
+		request = new MockHttpServletRequest();
+		response = new MockHttpServletResponse();
+		chain = new MockFilterChain();
+	}
+
+	private void nextRequest() throws Exception {
+		Map<String,Cookie> nameToCookie = new HashMap<String,Cookie>();
+		if (request.getCookies() != null) {
+			for(Cookie cookie : request.getCookies()) {
+				nameToCookie.put(cookie.getName(), cookie);
+			}
+		}
+		if (response.getCookies() != null) {
+			for(Cookie cookie : response.getCookies()) {
+				nameToCookie.put(cookie.getName(), cookie);
+			}
+		}
+		Cookie[] nextRequestCookies = new ArrayList<Cookie>(nameToCookie.values()).toArray(new Cookie[0]);
+
+		setupRequest();
+
+		request.setCookies(nextRequestCookies);
 	}
 
 	@SuppressWarnings("serial")
