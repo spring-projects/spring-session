@@ -20,9 +20,12 @@ If you are using Maven, ensure to add the following dependencies:
 
 	<dependency>
 		<groupId>org.springframework.session</groupId>
-		<artifactId>spring-session-data-redis</artifactId>
+		<artifactId>spring-session</artifactId>
 		<version>{spring-session-version}</version>
-		<type>pom<type>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-redis</artifactId>
 	</dependency>
 </dependencies>
 ----

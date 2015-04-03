@@ -16,7 +16,8 @@ tasks.findByPath("artifactoryPublish")?.enabled = false
 group = 'samples'
 
 dependencies {
-	compile project(':spring-session-data-redis'),
+	compile project(':spring-session'),
+			"org.springframework.boot:spring-boot-starter-redis",
 			"org.springframework.boot:spring-boot-starter-web",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",
 			"redis.embedded:embedded-redis:$embeddedRedisVersion",
