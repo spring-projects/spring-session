@@ -24,7 +24,7 @@ dependencies {
 			"org.springframework.boot:spring-boot-starter-websocket",
 			"org.springframework:spring-websocket:${springVersion}",
 			"org.springframework.data:spring-data-jpa:1.7.0.RELEASE",
-			"redis.embedded:embedded-redis:0.2",
+			"redis.embedded:embedded-redis:$embeddedRedisVersion",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
 			"com.h2database:h2",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
