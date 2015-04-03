@@ -60,7 +60,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 	private ClassLoader beanClassLoader;
 
-	private Integer maxInactiveIntervalInSeconds;
+	private Integer maxInactiveIntervalInSeconds = 1800;
 
 	private HttpSessionStrategy httpSessionStrategy;
 
@@ -105,6 +105,10 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 			sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
 		}
 		return sessionRepositoryFilter;
+	}
+
+	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
+		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
