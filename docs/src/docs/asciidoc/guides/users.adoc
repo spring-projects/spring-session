@@ -152,4 +152,4 @@ will output a link of:
 <a id="navLink" href="/link.jsp?_s=1">Link</a>
 ----
 
-end::how-does-it-work[]
+// end::how-does-it-work[]
