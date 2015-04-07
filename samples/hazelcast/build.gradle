@@ -8,12 +8,12 @@ sonarRunner {
 
 dependencies {
 	compile project(':spring-session'),
-			"com.hazelcast:hazelcast-client:3.3.3",
+			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			jstlDependencies
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-	testCompile 'junit:junit:4.11'
+	testCompile "junit:junit:$junitVersion"
 
 	integrationTestCompile gebDependencies
 }

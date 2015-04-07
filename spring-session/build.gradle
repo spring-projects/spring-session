@@ -23,7 +23,7 @@ dependencies {
 	integrationTestCompile "redis.clients:jedis:2.4.1",
 			"org.apache.commons:commons-pool2:2.2",
 			"redis.embedded:embedded-redis:$embeddedRedisVersion"
-	testCompile 'junit:junit:4.11',
+	testCompile "junit:junit:$junitVersion",
 			'org.mockito:mockito-core:1.9.5',
 			"org.springframework:spring-test:$springVersion",
 			'org.easytesting:fest-assert:1.4',

@@ -6,9 +6,23 @@ function ApplicationModel(stompClient) {
 	self.username = ko.observable();
 	self.conversation = ko.observable(new ImConversationModel(stompClient,this.username));
 	self.notifications = ko.observableArray();
+	self.csrfToken = ko.computed(function() {
+		return JSON.parse($.ajax({
+			type: 'GET',
+			url: 'csrf',
+			dataType: 'json',
+			success: function() { },
+			data: {},
+			async: false
+		}).responseText);
+	}, this);
 
 	self.connect = function() {
-			stompClient.connect({}, function(frame) {
+		var headers = {};
+		var csrf = self.csrfToken();
+		var headers = {};
+		headers[csrf.headerName] = csrf.token;
+		stompClient.connect(headers, function(frame) {
 
 			console.log('Connected ' + frame);
 			self.username(frame.headers['user-name']);
@@ -43,7 +57,7 @@ function ApplicationModel(stompClient) {
 					self.conversation().receiveMessage(JSON.parse(message.body));
 			});
 		}, function(error) {
-			 self.pushNotification(error)
+			self.pushNotification(error)
 			console.log("STOMP protocol error " + error);
 		});
 	}
