@@ -1,5 +1,5 @@
 apply from: JAVA_GRADLE
-apply from: TOMCAT_GRADLE
+apply from: TOMCAT_6_GRADLE
 
 tasks.findByPath("artifactoryPublish")?.enabled = false
 sonarRunner {

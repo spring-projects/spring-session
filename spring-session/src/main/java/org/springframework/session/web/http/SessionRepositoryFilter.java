@@ -66,6 +66,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 
 	private final SessionRepository<S> sessionRepository;
 
+	private ServletContext servletContext;
+
 	private MultiHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
 
 	/**
@@ -107,7 +109,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		request.setAttribute(SESSION_REPOSITORY_ATTR, sessionRepository);
 
-		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(request, response);
+		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(request, response, servletContext);
 		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(wrappedRequest,response);
 
 		HttpServletRequest strategyRequest = httpSessionStrategy.wrapRequest(wrappedRequest, wrappedResponse);
@@ -118,6 +120,10 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		} finally {
 			wrappedRequest.commitSession();
 		}
+	}
+
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
 	}
 
 	/**
@@ -158,10 +164,12 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		private HttpSessionWrapper currentSession;
 		private Boolean requestedSessionIdValid;
 		private final HttpServletResponse response;
+		private final ServletContext servletContext;
 
-		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
+		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response, ServletContext servletContext) {
 			super(request);
 			this.response = response;
+			this.servletContext = servletContext;
 		}
 
 		/**
@@ -255,6 +263,14 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			S session = sessionRepository.createSession();
 			currentSession = new HttpSessionWrapper(session, getServletContext());
 			return currentSession;
+		}
+
+		public ServletContext getServletContext() {
+			if(servletContext != null) {
+				return servletContext;
+			}
+			// Servlet 3.0+
+			return super.getServletContext();
 		}
 
 		@Override

@@ -50,6 +50,7 @@ import org.springframework.core.annotation.OrderUtils;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
@@ -184,6 +185,22 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				ServletContext context = wrappedRequest.getSession().getServletContext();
 				assertThat(context).isSameAs(wrappedRequest.getServletContext());
+			}
+		});
+	}
+
+	// gh-111
+	@Test
+	public void doFilterServletContextExplicit() throws Exception {
+		final ServletContext expectedContext = new MockServletContext();
+		filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+		filter.setServletContext(expectedContext);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				ServletContext context = wrappedRequest.getSession().getServletContext();
+				assertThat(context).isSameAs(expectedContext);
 			}
 		});
 	}

@@ -17,6 +17,8 @@ ext.springBootVersion = '1.2.3.RELEASE'
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.MAVEN_GRADLE = "$rootDir/gradle/publish-maven.gradle"
 ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
+ext.TOMCAT_6_GRADLE = "$rootDir/gradle/tomcat6.gradle"
+ext.TOMCAT_7_GRADLE = "$rootDir/gradle/tomcat7.gradle"
 
 ext.releaseBuild = version.endsWith('RELEASE')
 ext.snapshotBuild = version.endsWith('SNAPSHOT')

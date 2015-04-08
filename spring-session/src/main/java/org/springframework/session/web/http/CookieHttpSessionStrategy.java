@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -161,6 +162,8 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
 	private String sessionParam = DEFAULT_SESSION_ALIAS_PARAM_NAME;
 
+	private boolean isServlet3Plus = isServlet3();
+
 	public String getRequestedSessionId(HttpServletRequest request) {
 		Map<String,String> sessionIds = getSessionIds(request);
 		String sessionAlias = getCurrentSessionAlias(request);
@@ -215,7 +218,9 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 	private Cookie createSessionCookie(HttpServletRequest request,
 			Map<String, String> sessionIds) {
 		Cookie sessionCookie = new Cookie(cookieName,"");
-		sessionCookie.setHttpOnly(true);
+		if(isServlet3Plus) {
+			sessionCookie.setHttpOnly(true);
+		}
 		sessionCookie.setSecure(request.isSecure());
 		sessionCookie.setPath(cookiePath(request));
 		// TODO set domain?
@@ -386,5 +391,17 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Returns true if the Servlet 3 APIs are detected.
+	 * @return
+	 */
+	private boolean isServlet3() {
+		try {
+			ServletRequest.class.getMethod("startAsync");
+			return true;
+		} catch(NoSuchMethodException e) {}
+		return false;
 	}
 }

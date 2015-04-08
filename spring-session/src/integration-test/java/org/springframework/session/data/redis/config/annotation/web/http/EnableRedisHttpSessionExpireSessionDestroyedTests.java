@@ -45,11 +45,13 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import redis.embedded.RedisServer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
+@WebAppConfiguration
 public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends ExpiringSession> {
 	@Autowired
 	private SessionRepository<S> repository;

@@ -16,12 +16,10 @@
 package sample;
 
 import javax.servlet.*;
-import javax.servlet.annotation.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 
 // tag::class[]
-@WebServlet("/session")
 public class SessionServlet extends HttpServlet {
 
 	@Override
