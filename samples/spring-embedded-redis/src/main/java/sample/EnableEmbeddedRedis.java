@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.redis.config.annotation.web.http;
+package sample;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -21,37 +21,44 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 
 /**
- * Add this annotation to an {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
- * backed by Redis. In order to leverage the annotation, a single {@link RedisConnectionFactory}
- * must be provided. For example:
+ * <p>
+ * Runs an embedded Redis instance on a random available port.This is only necessary
+ * sincewe do not want users to have to setup a Redis instance. In a production
+ * environment, this would not be used since a Redis Server would be setup.
+ * </p>
+ * <p>
+ * The port being used can be identified by using {@literal @RedisServerPort} on a Spring
+ * Bean. For example:
+ * </p>
  *
  * <pre>
  * {@literal @Configuration}
- * {@literal @EnableRedisHttpSession}
+ * {@literal @EnableEmbeddedRedis}
  * public class RedisHttpSessionConfig {
  *
  *     {@literal @Bean}
- *     public JedisConnectionFactory connectionFactory() throws Exception {
- *         return new JedisConnectionFactory();
+ *     public JedisConnectionFactory connectionFactory({@literal @RedisServerPort} int port) throws Exception {
+ *         JedisConnectionFactory connection = new JedisConnectionFactory();
+ *         connection.setPort(port);
+ *         return connection;
  *     }
  *
  * }
  * </pre>
  *
- * More advanced configurations can extend {@link RedisHttpSessionConfiguration} instead.
+ * See <a href="https://github.com/spring-projects/spring-session/issues/121"
+ * >spring-projects/spring-session/issues/121</a> for details on exposing embedded Redis
+ * support.
  *
  * @author Rob Winch
- * @since 1.0
+ * @see RedisServerPort
+ *
  */
 @Retention(value=java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(value={java.lang.annotation.ElementType.TYPE})
 @Documented
-@Import(RedisHttpSessionConfiguration.class)
+@Import(EmbeddedRedisConfiguration.class)
 @Configuration
-public @interface EnableRedisHttpSession {
-	int maxInactiveIntervalInSeconds() default 1800;
-}
+public @interface EnableEmbeddedRedis {}

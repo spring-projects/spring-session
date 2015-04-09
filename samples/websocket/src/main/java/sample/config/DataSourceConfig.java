@@ -23,6 +23,8 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
+import sample.RedisServerPort;
+
 @Configuration
 public class DataSourceConfig {
 
@@ -33,7 +35,9 @@ public class DataSourceConfig {
 	}
 
 	@Bean
-	public JedisConnectionFactory connectionFactory() throws Exception {
-		return new JedisConnectionFactory();
+	public JedisConnectionFactory connectionFactory(@RedisServerPort int port) {
+		JedisConnectionFactory connection = new JedisConnectionFactory(); // <3>
+		connection.setPort(port);
+		return connection;
 	}
 }

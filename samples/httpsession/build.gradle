@@ -8,8 +8,8 @@ sonarRunner {
 
 dependencies {
 	compile project(':spring-session-data-redis'),
+			project(':samples:spring-embedded-redis'),
 			"org.springframework:spring-web:$springVersion",
-			"redis.embedded:embedded-redis:$embeddedRedisVersion",
 			jstlDependencies
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"

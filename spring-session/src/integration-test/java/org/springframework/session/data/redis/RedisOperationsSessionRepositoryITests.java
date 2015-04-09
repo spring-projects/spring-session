@@ -17,22 +17,14 @@ package org.springframework.session.data.redis;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -47,7 +39,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import redis.embedded.RedisServer;
+import sample.EmbeddedRedisConfiguration;
+import sample.EnableEmbeddedRedis;
+import sample.RedisServerPort;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -133,60 +127,19 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 
 	@Configuration
 	@EnableRedisHttpSession
+	@EnableEmbeddedRedis
 	static class Config {
 		@Bean
-		public JedisConnectionFactory connectionFactory() throws Exception {
+		public JedisConnectionFactory connectionFactory(@RedisServerPort int port) throws Exception {
 			JedisConnectionFactory factory = new JedisConnectionFactory();
-			factory.setPort(getPort());
+			factory.setPort(port);
 			factory.setUsePool(false);
 			return factory;
-		}
-
-		@Bean
-		public static RedisServerBean redisServer() {
-			return new RedisServerBean();
 		}
 
 		@Bean
 		public SessionDestroyedEventRegistry sessionDestroyedEventRegistry() {
 			return new SessionDestroyedEventRegistry();
 		}
-
-		/**
-		 * Implements BeanDefinitionRegistryPostProcessor to ensure this Bean
-		 * is initialized before any other Beans. Specifically, we want to ensure
-		 * that the Redis Server is started before RedisHttpSessionConfiguration
-		 * attempts to enable Keyspace notifications.
-		 */
-		static class RedisServerBean implements InitializingBean, DisposableBean, BeanDefinitionRegistryPostProcessor {
-			private RedisServer redisServer;
-
-
-			public void afterPropertiesSet() throws Exception {
-				redisServer = new RedisServer(getPort());
-				redisServer.start();
-			}
-
-			public void destroy() throws Exception {
-				if(redisServer != null) {
-					redisServer.stop();
-				}
-			}
-
-			public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
-
-			public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
-		}
-	}
-
-	private static Integer availablePort;
-
-	private static int getPort() throws IOException {
-		if(availablePort == null) {
-			ServerSocket socket = new ServerSocket(0);
-			availablePort = socket.getLocalPort();
-			socket.close();
-		}
-		return availablePort;
 	}
 }

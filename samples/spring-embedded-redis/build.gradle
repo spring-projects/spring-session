@@ -1,0 +1,14 @@
+apply from: JAVA_GRADLE
+
+tasks.findByPath("artifactoryPublish")?.enabled = false
+sonarRunner {
+	skipProject = true
+}
+
+dependencies {
+	compile "redis.embedded:embedded-redis:$embeddedRedisVersion",
+			"org.springframework:spring-context:$springVersion"
+
+	testCompile "junit:junit:$junitVersion",
+				"org.springframework.security:spring-security-test:$springSecurityVersion"
+}
