@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 package sample;
+import java.io.IOException;
+import java.net.ServerSocket;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -22,8 +25,10 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.PropertySource;
 
-import redis.clients.jedis.Protocol;
 import redis.embedded.RedisServer;
 
 /**
@@ -34,11 +39,19 @@ import redis.embedded.RedisServer;
  * @author Rob Winch
  */
 @Configuration
+//@org.springframework.context.annotation.PropertySource("classpath:application.properties")
 public class EmbeddedRedisConfiguration {
 
 	@Bean
-	public static RedisServerBean redisServer() {
-		return new RedisServerBean();
+	public static RedisServerBean redisServer(ConfigurableEnvironment env) {
+		RedisServerBean bean = new RedisServerBean();
+		env.getPropertySources().addLast(bean);
+		return bean;
+	}
+
+	@Bean
+	public static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
 	}
 
 	/**
@@ -47,11 +60,18 @@ public class EmbeddedRedisConfiguration {
 	 * that the Redis Server is started before RedisHttpSessionConfiguration
 	 * attempts to enable Keyspace notifications.
 	 */
-	static class RedisServerBean implements InitializingBean, DisposableBean, BeanDefinitionRegistryPostProcessor {
+	static class RedisServerBean extends PropertySource<RedisServerBean> implements InitializingBean, DisposableBean, BeanDefinitionRegistryPostProcessor {
+		public static final String SERVER_PORT_PROP_NAME = "redis.server.port";
+		private final int port = getAvailablePort();
+
 		private RedisServer redisServer;
 
+		public RedisServerBean() {
+			super("redisServerPortPropertySource");
+		}
+
 		public void afterPropertiesSet() throws Exception {
-			redisServer = new RedisServer(Protocol.DEFAULT_PORT);
+			redisServer = new RedisServer(port);
 			redisServer.start();
 		}
 
@@ -64,5 +84,27 @@ public class EmbeddedRedisConfiguration {
 		public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {}
 
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {}
+
+		@Override
+		public Object getProperty(String name) {
+			if(SERVER_PORT_PROP_NAME.equals(name)) {
+				return port;
+			}
+			return null;
+		}
+
+		private static int getAvailablePort() {
+			ServerSocket socket = null;
+			try {
+				socket = new ServerSocket(0);
+				return socket.getLocalPort();
+			} catch(IOException e) {
+				throw new RuntimeException(e);
+			} finally {
+				try {
+					socket.close();
+				}catch(IOException e) {}
+			}
+		}
 	}
 }

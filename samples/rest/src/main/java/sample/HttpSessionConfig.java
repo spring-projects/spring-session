@@ -15,6 +15,7 @@
  */
 package sample;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -30,8 +31,10 @@ import org.springframework.session.web.http.HttpSessionStrategy;
 public class HttpSessionConfig {
 
 	@Bean
-	public JedisConnectionFactory connectionFactory() {
-		return new JedisConnectionFactory(); // <3>
+	public JedisConnectionFactory connectionFactory(@Value("${redis.server.port}") int port) {
+		JedisConnectionFactory factory = new JedisConnectionFactory();  // <3>
+		factory.setPort(port);
+		return factory;
 	}
 
 	@Bean
