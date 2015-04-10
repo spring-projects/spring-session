@@ -6,31 +6,38 @@
 	- Location of the XML file that defines the root application context
 	- Applied by ContextLoaderListener.
 	-->
+	<!-- tag::context-param[] -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
 			/WEB-INF/spring/*.xml
 		</param-value>
 	</context-param>
+	<!-- end::context-param[] -->
 
+	<!-- tag::springSessionRepositoryFilter[] -->
 	<filter>
 		<filter-name>springSessionRepositoryFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
 	</filter>
-
 	<filter-mapping>
 		<filter-name>springSessionRepositoryFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+	<!-- end::springSessionRepositoryFilter[] -->
 
 	<!--
 	- Loads the root application context of this web app at startup.
 	- The application context is then available via
 	- WebApplicationContextUtils.getWebApplicationContext(servletContext).
 	-->
+	<!-- tag::listeners[] -->
 	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+		<listener-class>
+			org.springframework.web.context.ContextLoaderListener
+		</listener-class>
 	</listener>
+	<!-- end::listeners[] -->
 
 	<servlet>
 		<servlet-name>session</servlet-name>

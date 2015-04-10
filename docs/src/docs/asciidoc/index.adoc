@@ -37,7 +37,7 @@ If you are looking to get started with Spring Session, the best place to start i
 
 | {gh-samples-url}httpsession-xml[HttpSession XML]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using XML based configuration.
-| TBD
+| link:guides/httpsession-xml.html[HttpSession XML Guide]
 
 | {gh-samples-url}boot[Spring Boot]
 | Demonstrates how to use Spring Session with Spring Boot.
@@ -85,11 +85,30 @@ We have already mentioned that Spring Session provides transparent integration w
 === HttpSession with Redis
 
 Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+You can choose from enabling this using either:
 
-NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession`.
+* <<httpsession-redis-jc,Java Based Configuration>>
+* <<httpsession-redis-xml,XML Based Configuration>>
+
+[[httpsession-redis-jc]]
+==== Redis Java Based Configuration
+
+This section describes how to use Redis to back `HttpSession` using Java based configuration.
+
+NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using XML configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
-include::guides/httpsession.adoc[tags=config,leveloffset=+2]
+include::guides/httpsession.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-redis-xml]]
+==== Redis XML Based Configuration
+
+This section describes how to use Redis to back `HttpSession` using XML based configuration.
+
+NOTE: The <<samples, HttpSession XML Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using XML configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession XML Guide when integrating with your own application.
+
+include::guides/httpsession-xml.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-how]]
 === How HttpSession Integration Works
@@ -135,7 +154,7 @@ public class SessionRepositoryFilter implements Filter {
 	public doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		SessionRepositoryRequestWrapper customRequest =
-			  new SessionRepositoryRequestWrapper(httpRequest);
+			new SessionRepositoryRequestWrapper(httpRequest);
 
 		chain.doFilter(customRequest, response, chain);
 	}
@@ -287,8 +306,8 @@ Each session is set and updated using the HMSET command.
 An example of how each session is stored can be seen below.
 
 	HMSET spring:session:sessions:<session-id> creationTime 1404360000000 \
-		  maxInactiveInterval 1800 lastAccessedTime 1404360000000 \
-		  sessionAttr:<attrName> someAttrValue sessionAttr:<attrName2> someAttrValue2
+		maxInactiveInterval 1800 lastAccessedTime 1404360000000 \
+		sessionAttr:<attrName> someAttrValue sessionAttr:<attrName2> someAttrValue2
 
 [[api-redisoperationssessionrepository-expiration]]
 ===== Session Expiration

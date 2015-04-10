@@ -6,13 +6,15 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
+	<!-- tag::beans[] -->
+	<bean class="sample.EmbeddedRedisConfiguration"/> <!--1-->
 
-	<bean class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
-		p:port="${spring.redis.port}"/>
-
+	<!--2-->
 	<context:annotation-config/>
 	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>
 
-
-	<bean class="sample.EmbeddedRedisConfiguration"/>
+	<!--3-->
+	<bean class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		p:port="${spring.redis.port}"/>
+	<!-- end::beans[] -->
 </beans>
