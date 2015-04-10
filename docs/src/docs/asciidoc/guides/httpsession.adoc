@@ -2,7 +2,7 @@
 Rob Winch
 :toc:
 
-This guide describes how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession`.
+This guide describes how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` with Java Configuration.
 
 NOTE: The completed guide can be found in the <<httpsession-sample, httpsession sample application>>.
 
@@ -32,7 +32,7 @@ If you are using Maven, ensure to add the following dependencies:
 ----
 
 ifeval::["{version-snapshot}" == "true"]
-Since We are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
+Since we are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
 Ensure you have the following in your pom.xml:
 
 .pom.xml
@@ -67,7 +67,7 @@ endif::[]
 // tag::config[]
 
 [[httpsession-spring-configuration]]
-== Spring Configuration
+== Spring Java Configuration
 
 After adding the required dependencies, we can create our Spring configuration.
 The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
@@ -84,10 +84,10 @@ In a production application this is not necessary since we would point our conne
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by Redis.
 <3> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
-In our example, we are connecting to localhost on the default port (6379).
+We use a http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#xsd-config-body-schemas-context-pphc[PropertyPlaceholderConfigurer] to externalize the port location.
 For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
 
-== Servlet Container Initialization
+== Java Servlet Container Initialization
 
 Our <<httpsession-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
@@ -130,8 +130,8 @@ You should now be able to access the application at http://localhost:8080/
 
 Try using the application. Fill out the form with the following information:
 
-* **Attribute Name** *username*
-* **Attribute Value** *rob*
+* **Attribute Name:** _username_
+* **Attribute Value:** _rob_
 
 Now click the **Set Attribute** button. You should now see the values displayed in the table.
 
