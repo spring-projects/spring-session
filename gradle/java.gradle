@@ -33,7 +33,6 @@ ext.jstlDependencies = [
 
 repositories {
 	mavenCentral()
-	maven { url 'http://clojars.org/repo' }
 	maven { url 'https://repo.spring.io/libs-snapshot' }
 }
 

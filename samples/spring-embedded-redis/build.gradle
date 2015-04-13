@@ -6,7 +6,7 @@ sonarRunner {
 }
 
 dependencies {
-	compile "redis.embedded:embedded-redis:$embeddedRedisVersion",
+	compile "com.github.kstyrc:embedded-redis:$embeddedRedisVersion",
 			"org.springframework:spring-context:$springVersion"
 
 	testCompile "junit:junit:$junitVersion",
