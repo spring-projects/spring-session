@@ -22,8 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-
-import sample.RedisServerPort;
+import org.springframework.session.redis.embedded.RedisServerPort;
 
 @Configuration
 public class DataSourceConfig {

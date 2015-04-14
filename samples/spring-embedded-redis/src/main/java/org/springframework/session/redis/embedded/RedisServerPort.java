@@ -13,25 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sample;
+package org.springframework.session.redis.embedded;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
- * <p>
- * Runs an embedded Redis instance on a random available port.This is only necessary
- * sincewe do not want users to have to setup a Redis instance. In a production
- * environment, this would not be used since a Redis Server would be setup.
- * </p>
- * <p>
- * The port being used can be identified by using {@literal @RedisServerPort} on a Spring
- * Bean. For example:
- * </p>
+ * A convenience for finding the Redis Server port when using {@link EnableEmbeddedRedis}. For example:
  *
  * <pre>
  * {@literal @Configuration}
@@ -48,17 +41,10 @@ import org.springframework.context.annotation.Import;
  * }
  * </pre>
  *
- * See <a href="https://github.com/spring-projects/spring-session/issues/121"
- * >spring-projects/spring-session/issues/121</a> for details on exposing embedded Redis
- * support.
- *
  * @author Rob Winch
- * @see RedisServerPort
- *
  */
-@Retention(value=java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target(value={java.lang.annotation.ElementType.TYPE})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.ANNOTATION_TYPE})
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(EmbeddedRedisConfiguration.class)
-@Configuration
-public @interface EnableEmbeddedRedis {}
+@Value("${"+EmbeddedRedisConfiguration.SERVER_PORT_PROP_NAME+"}")
+public @interface RedisServerPort { }

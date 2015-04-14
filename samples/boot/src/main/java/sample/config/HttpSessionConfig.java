@@ -16,8 +16,8 @@
 package sample.config;
 
 import org.springframework.session.data.redis.config.annotation.web.http.*;
+import org.springframework.session.redis.embedded.EnableEmbeddedRedis;
 
-import sample.EnableEmbeddedRedis;
 
 @EnableEmbeddedRedis
 // tag::class[]

@@ -34,12 +34,11 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.redis.embedded.EnableEmbeddedRedis;
+import org.springframework.session.redis.embedded.RedisServerPort;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-
-import sample.EnableEmbeddedRedis;
-import sample.RedisServerPort;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration

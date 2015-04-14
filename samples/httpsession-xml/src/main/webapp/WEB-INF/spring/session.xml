@@ -7,7 +7,7 @@
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<!-- tag::beans[] -->
-	<bean class="sample.EmbeddedRedisConfiguration"/> <!--1-->
+	<bean class="org.springframework.session.redis.embedded.EmbeddedRedisConfiguration"/> <!--1-->
 
 	<!--2-->
 	<context:annotation-config/>
