@@ -19,8 +19,12 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -1101,6 +1105,32 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 		});
 
 		verify(strategy,never()).onInvalidateSession(any(HttpServletRequest.class),any(HttpServletResponse.class));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void doFilterRequestSessionNoRequestSessionNoSessionRepositoryInteractions() throws Exception {
+		SessionRepository<ExpiringSession> sessionRepository = spy(new MapSessionRepository());
+
+		filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+
+		doFilter(new DoInFilter(){
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+				wrappedRequest.getSession().getId();
+			}
+		});
+
+		reset(sessionRepository);
+		setupRequest();
+
+		doFilter(new DoInFilter(){
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+			}
+		});
+
+		verifyZeroInteractions(sessionRepository);
 	}
 
 	// --- order
