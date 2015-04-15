@@ -16,7 +16,6 @@
 package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -42,6 +41,8 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.SessionMessageListener;
+import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
@@ -68,6 +69,8 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 	@Autowired
 	private ApplicationEventPublisher eventPublisher;
+
+	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
 
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
@@ -141,7 +144,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 	@Bean
 	public EnableRedisKeyspaceNotificationsInitializer enableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory) {
-		return new EnableRedisKeyspaceNotificationsInitializer(connectionFactory);
+		return new EnableRedisKeyspaceNotificationsInitializer(connectionFactory, configureRedisAction);
 	}
 
 	/**
@@ -154,38 +157,28 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 		private final RedisConnectionFactory connectionFactory;
 
-		EnableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory) {
+		private ConfigureRedisAction configure;
+
+		EnableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory, ConfigureRedisAction configure) {
 			this.connectionFactory = connectionFactory;
+			this.configure = configure;
 		}
 
 		public void afterPropertiesSet() throws Exception {
 			RedisConnection connection = connectionFactory.getConnection();
-			String notifyOptions = getNotifyOptions(connection);
-			String customizedNotifyOptions = notifyOptions;
-			if(!customizedNotifyOptions.contains("E")) {
-				customizedNotifyOptions += "E";
-			}
-			boolean A = customizedNotifyOptions.contains("A");
-			if(!(A || customizedNotifyOptions.contains("g"))) {
-				customizedNotifyOptions += "g";
-			}
-			if(!(A || customizedNotifyOptions.contains("x"))) {
-				customizedNotifyOptions += "x";
-			}
-			if(!notifyOptions.equals(customizedNotifyOptions)) {
-				connection.setConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS, customizedNotifyOptions);
-			}
-		}
-
-		private String getNotifyOptions(RedisConnection connection) {
-			List<String> config = connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS);
-			if(config.size() < 2) {
-				return "";
-			}
-			return config.get(1);
+			configure.configure(connection);
 		}
 	}
 
+	/**
+	 * Sets the action to perform for configuring Redis.
+	 *
+	 * @param configureRedisAction the configureRedis to set. The default is {@link ConfigureNotifyKeyspaceEventsAction}.
+	 */
+	@Autowired(required = false)
+	public void setConfigureRedisAction(ConfigureRedisAction configureRedisAction) {
+		this.configureRedisAction = configureRedisAction;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)

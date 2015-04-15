@@ -30,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 
 import java.util.Arrays;
 
@@ -50,7 +51,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void setup() {
 		when(connectionFactory.getConnection()).thenReturn(connection);
 
-		initializer = new EnableRedisKeyspaceNotificationsInitializer(connectionFactory);
+		initializer = new EnableRedisKeyspaceNotificationsInitializer(connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
 	}
 
 	@Test

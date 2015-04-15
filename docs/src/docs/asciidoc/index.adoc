@@ -364,11 +364,28 @@ Firing a `SessionDestroyedEvent` is made available through the `SessionMessageLi
 In order for this to work, Redis Keyspace events for Generic commands and Expired events needs to be enabled.
 For example:
 
-TIP: If you are using `@EnableRedisHttpSession` the `SessionMessageListener` and enabling the necessary Redis Keyspace events is done automatically.
-
 [source,bash]
 ----
 redis-cli config set notify-keyspace-events Egx
+----
+
+If you are using `@EnableRedisHttpSession` the `SessionMessageListener` and enabling the necessary Redis Keyspace events is done automatically.
+However, in a secured Redis enviornment the config command is disabled.
+This means that Spring Session cannot configure Redis Keyspace events for you.
+To disable the automatic configuration add `ConfigureRedisAction.NO_OP` as a bean.
+
+For example, Java Configuration can use the following:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/RedisHttpSessionConfigurationNoOpConfigureRedisActionTests.java[tags=configure-redis-action]
+----
+
+XML Configuraiton can use the following:
+
+[source,xml,indent=0]
+----
+include::{docs-test-resources-dir}docs/HttpSessionConfigurationNoOpConfigureRedisActionXmlTests-context.xml[tags=configure-redis-action]
 ----
 
 [[api-redisoperationssessionrepository-cli]]
