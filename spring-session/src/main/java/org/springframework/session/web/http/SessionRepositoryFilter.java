@@ -163,6 +163,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	private final class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
 		private HttpSessionWrapper currentSession;
 		private Boolean requestedSessionIdValid;
+		private boolean requestedSessionInvalidated;
 		private final HttpServletResponse response;
 		private final ServletContext servletContext;
 
@@ -239,7 +240,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		}
 
 		private boolean isInvalidateClientSession() {
-			return currentSession == null && isRequestedSessionIdValid();
+			return currentSession == null && requestedSessionInvalidated;
 		}
 
 		@Override
@@ -372,6 +373,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			public void invalidate() {
 				checkState();
 				this.invalidated = true;
+				requestedSessionInvalidated = true;
 				currentSession = null;
 				sessionRepository.delete(getId());
 			}

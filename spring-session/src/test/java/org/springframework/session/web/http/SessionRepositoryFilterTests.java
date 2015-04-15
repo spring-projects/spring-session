@@ -19,6 +19,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -1075,6 +1076,31 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 		});
 
 		verify(strategy).onInvalidateSession(any(HttpServletRequest.class),any(HttpServletResponse.class));
+	}
+
+	// gh-188
+	@Test
+	public void doFilterRequestSessionNoRequestSessionDoesNotInvalidate() throws Exception {
+		filter.setHttpSessionStrategy(strategy);
+
+		doFilter(new DoInFilter(){
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+				wrappedRequest.getSession().getId();
+			}
+		});
+
+		HttpServletRequest request = (HttpServletRequest) chain.getRequest();
+		String id = request.getSession().getId();
+		when(strategy.getRequestedSessionId(any(HttpServletRequest.class))).thenReturn(id);
+
+		doFilter(new DoInFilter(){
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+			}
+		});
+
+		verify(strategy,never()).onInvalidateSession(any(HttpServletRequest.class),any(HttpServletResponse.class));
 	}
 
 	// --- order
