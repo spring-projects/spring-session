@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
@@ -65,36 +66,36 @@ final class RedisSessionExpirationPolicy {
 	}
 
 	public void onDelete(ExpiringSession session) {
-		long lastAccessedTime = session.getLastAccessedTime();
-		int maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
-
-		long toExpire = roundUpToNextMinute(lastAccessedTime, maxInactiveInterval);
+		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 		String expireKey = getExpirationKey(toExpire);
 		expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
 	}
 
-	public void onExpirationUpdated(Long originalExpirationTime, ExpiringSession session) {
-		if(originalExpirationTime != null) {
-			String expireKey = getExpirationKey(originalExpirationTime);
+	public void onExpirationUpdated(Long originalExpirationTimeInMilli, ExpiringSession session) {
+		if(originalExpirationTimeInMilli != null) {
+			long originalRoundedUp = roundUpToNextMinute(originalExpirationTimeInMilli);
+			String expireKey = getExpirationKey(originalRoundedUp);
 			expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
 		}
 
-		long toExpire = roundUpToNextMinute(session.getLastAccessedTime(), session.getMaxInactiveIntervalInSeconds());
+		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 
 		String expireKey = getExpirationKey(toExpire);
-		expirationRedisOperations.boundSetOps(expireKey).add(session.getId());
+		BoundSetOperations<String, String> expireOperations = expirationRedisOperations.boundSetOps(expireKey);
+		expireOperations.add(session.getId());
 
-		long redisExpirationInSeconds = session.getMaxInactiveIntervalInSeconds();
+		long sessionExpireInSeconds = session.getMaxInactiveIntervalInSeconds();
 		String sessionKey = getSessionKey(session.getId());
-		expirationRedisOperations.boundSetOps(expireKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
-		sessionRedisOperations.boundHashOps(sessionKey).expire(redisExpirationInSeconds, TimeUnit.SECONDS);
+
+		expireOperations.expire(sessionExpireInSeconds + 60, TimeUnit.SECONDS);
+		sessionRedisOperations.boundHashOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
 	}
 
-	private String getExpirationKey(long expires) {
+	String getExpirationKey(long expires) {
 		return EXPIRATION_BOUNDED_HASH_KEY_PREFIX + expires;
 	}
 
-	private String getSessionKey(String sessionId) {
+	String getSessionKey(String sessionId) {
 		return RedisOperationsSessionRepository.BOUNDED_HASH_KEY_PREFIX + sessionId;
 	}
 
@@ -108,7 +109,7 @@ final class RedisSessionExpirationPolicy {
 
 		String expirationKey = getExpirationKey(prevMin);
 		Set<String> sessionsToExpire = expirationRedisOperations.boundSetOps(expirationKey).members();
-		touch(expirationKey);
+		expirationRedisOperations.delete(expirationKey);
 		for(String session : sessionsToExpire) {
 			String sessionKey = getSessionKey(session);
 			touch(sessionKey);
@@ -125,20 +126,25 @@ final class RedisSessionExpirationPolicy {
 		sessionRedisOperations.hasKey(key);
 	}
 
-	private long roundUpToNextMinute(long timeInMs, int inactiveIntervalInSec) {
+	static long expiresInMillis(ExpiringSession session) {
+		int maxInactiveInSeconds = session.getMaxInactiveIntervalInSeconds();
+		long lastAccessedTimeInMillis = session.getLastAccessedTime();
+		return lastAccessedTimeInMillis + TimeUnit.SECONDS.toMillis(maxInactiveInSeconds);
+	}
+
+	static long roundUpToNextMinute(long timeInMs) {
 
 		Calendar date = Calendar.getInstance();
-		date.setTimeInMillis(timeInMs + TimeUnit.SECONDS.toMillis(inactiveIntervalInSec));
+		date.setTimeInMillis(timeInMs);
 		date.add(Calendar.MINUTE, 1);
 		date.clear(Calendar.SECOND);
 		date.clear(Calendar.MILLISECOND);
 		return date.getTimeInMillis();
 	}
 
-	private long roundDownMinute(long timeInMs) {
+	static long roundDownMinute(long timeInMs) {
 		Calendar date = Calendar.getInstance();
 		date.setTimeInMillis(timeInMs);
-		date.add(Calendar.MINUTE, -1);
 		date.clear(Calendar.SECOND);
 		date.clear(Calendar.MILLISECOND);
 		return date.getTimeInMillis();
