@@ -27,10 +27,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.redis.embedded.EnableEmbeddedRedis;
 
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableEmbeddedRedis
 // tag::enable-redis-httpsession[]
 @EnableRedisHttpSession//(maxInactiveIntervalInSeconds = 60)
 public class WebSecurityConfig
