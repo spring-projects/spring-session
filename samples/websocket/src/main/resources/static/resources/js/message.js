@@ -20,7 +20,6 @@ function ApplicationModel(stompClient) {
 	self.connect = function() {
 		var headers = {};
 		var csrf = self.csrfToken();
-		var headers = {};
 		headers[csrf.headerName] = csrf.token;
 		stompClient.connect(headers, function(frame) {
 
