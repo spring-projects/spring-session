@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -45,12 +46,19 @@ import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
+import org.springframework.session.MapSessionRepository;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings({"unchecked","rawtypes"})
 public class RedisOperationsSessionRepositoryTests {
+	
+	private static String createUUIDSessionId() {
+		return UUID.randomUUID().toString();
+	}
+	
 	@Mock
 	RedisConnectionFactory factory;
 	@Mock
@@ -90,7 +98,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void createSessionDefaultMaxInactiveInterval() throws Exception {
 		ExpiringSession session = redisRepository.createSession();
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
+		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession(createUUIDSessionId()).getMaxInactiveIntervalInSeconds());
 	}
 
 	@Test
@@ -119,7 +127,7 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveLastAccessChanged() {
-		RedisSession session = redisRepository.new RedisSession(new MapSession());
+		RedisSession session = redisRepository.new RedisSession(new MapSession(createUUIDSessionId()));
 		session.setLastAccessedTime(12345678L);
 		when(redisOperations.boundHashOps(getKey(session.getId()))).thenReturn(boundHashOperations);
 		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
@@ -132,7 +140,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void saveSetAttribute() {
 		String attrName = "attrName";
-		RedisSession session = redisRepository.new RedisSession(new MapSession());
+		RedisSession session = redisRepository.new RedisSession(new MapSession(createUUIDSessionId()));
 		session.setAttribute(attrName, "attrValue");
 		when(redisOperations.boundHashOps(getKey(session.getId()))).thenReturn(boundHashOperations);
 		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
@@ -145,7 +153,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void saveRemoveAttribute() {
 		String attrName = "attrName";
-		RedisSession session = redisRepository.new RedisSession(new MapSession());
+		RedisSession session = redisRepository.new RedisSession(new MapSession(createUUIDSessionId()));
 		session.removeAttribute(attrName);
 		when(redisOperations.boundHashOps(getKey(session.getId()))).thenReturn(boundHashOperations);
 		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
@@ -158,7 +166,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void redisSessionGetAttributes() {
 		String attrName = "attrName";
-		RedisSession session = redisRepository.new RedisSession(new MapSession());
+		RedisSession session = redisRepository.new RedisSession(new MapSession(createUUIDSessionId()));
 		assertThat(session.getAttributeNames()).isEmpty();
 		session.setAttribute(attrName, "attrValue");
 		assertThat(session.getAttributeNames()).containsOnly(attrName);
@@ -169,7 +177,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void delete() {
 		String attrName = "attrName";
-		MapSession expected = new MapSession();
+		MapSession expected = new MapSession(createUUIDSessionId());
 		expected.setLastAccessedTime(System.currentTimeMillis() - 60000);
 		expected.setAttribute(attrName, "attrValue");
 		when(redisOperations.boundHashOps(getKey(expected.getId()))).thenReturn(boundHashOperations);
@@ -209,7 +217,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void getSessionFound() {
 		String attrName = "attrName";
-		MapSession expected = new MapSession();
+		MapSession expected = new MapSession(createUUIDSessionId());
 		expected.setLastAccessedTime(System.currentTimeMillis() - 60000);
 		expected.setAttribute(attrName, "attrValue");
 		when(redisOperations.boundHashOps(getKey(expected.getId()))).thenReturn(boundHashOperations);
@@ -259,6 +267,21 @@ public class RedisOperationsSessionRepositoryTests {
 			// https://github.com/spring-projects/spring-session/issues/93
 			verify(redisOperations).hasKey(expiredKey);
 		}
+	}
+	
+	@Test
+	public void setSessionIdStrategy() {
+		RedisOperationsSessionRepository repoCustomizedId =
+				new RedisOperationsSessionRepository(redisOperations);
+		repoCustomizedId.setSessionIdStrategy(
+			new SessionIdStrategy() {
+				public String createSessionId() {
+					return "ABC";
+				}
+			}
+		);
+		ExpiringSession sessionCustomizedId = repoCustomizedId.createSession();
+		assertThat(sessionCustomizedId.getId()).isEqualTo("ABC");
 	}
 
 	private Map map(Object...objects) {

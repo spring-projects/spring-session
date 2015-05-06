@@ -28,6 +28,9 @@ import javax.servlet.http.Cookie;
 import java.util.Map;
 
 public class CookieHttpSessionStrategyTests {
+	
+	private static final String SESSION_ID="54067AC8-E653-4F49-B06F-132582D91DA1";
+	
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
 
@@ -38,7 +41,7 @@ public class CookieHttpSessionStrategyTests {
 	@Before
 	public void setup() throws Exception {
 		cookieName = "SESSION";
-		session = new MapSession();
+		session = new MapSession(SESSION_ID);
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
 		strategy = new CookieHttpSessionStrategy();
@@ -70,7 +73,7 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void onNewSessionExistingSessionSameAlias() throws Exception {
-		Session existing = new MapSession();
+		Session existing = new MapSession(SESSION_ID);
 		setSessionCookie(existing.getId());
 		strategy.onNewSession(session, request, response);
 		assertThat(getSessionId()).isEqualTo(session.getId());
@@ -78,7 +81,7 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void onNewSessionExistingSessionNewAlias() throws Exception {
-		Session existing = new MapSession();
+		Session existing = new MapSession(SESSION_ID);
 		setSessionCookie(existing.getId());
 		request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		strategy.onNewSession(session, request, response);
@@ -125,7 +128,7 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void onDeleteSessionExistingSessionSameAlias() throws Exception {
-		Session existing = new MapSession();
+		Session existing = new MapSession(SESSION_ID);
 		setSessionCookie("0 " + existing.getId() + " new " + session.getId());
 		strategy.onInvalidateSession(request, response);
 		assertThat(getSessionId()).isEqualTo(session.getId());
@@ -133,7 +136,7 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void onDeleteSessionExistingSessionNewAlias() throws Exception {
-		Session existing = new MapSession();
+		Session existing = new MapSession(SESSION_ID);
 		setSessionCookie("0 " + existing.getId() + " new " + session.getId());
 		request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		strategy.onInvalidateSession(request, response);

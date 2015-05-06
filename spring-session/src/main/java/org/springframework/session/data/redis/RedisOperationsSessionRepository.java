@@ -29,8 +29,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.id.UUIDSessionIdStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 
@@ -174,6 +176,12 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 * If non-null, this value is used to override the default value for {@link RedisSession#setMaxInactiveIntervalInSeconds(int)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
+	
+	/**
+	 * The strategy for generating the session id.  Defaults to using a UUID.
+	 */
+	private SessionIdStrategy sessionIdStrategy = new UUIDSessionIdStrategy();
+
 
 	/**
 	 * Allows creating an instance and uses a default {@link RedisOperations} for both managing the session and the expirations.
@@ -207,6 +215,10 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
+	public void setSessionIdStrategy(SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
+	}
+
 	public void save(RedisSession session) {
 		session.saveDelta();
 	}
@@ -234,8 +246,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		if(entries.isEmpty()) {
 			return null;
 		}
-		MapSession loaded = new MapSession();
-		loaded.setId(id);
+		MapSession loaded = new MapSession(id);
 		for(Map.Entry<Object,Object> entry : entries.entrySet()) {
 			String key = (String) entry.getKey();
 			if(CREATION_TIME_ATTR.equals(key)) {
@@ -271,7 +282,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	}
 
 	public RedisSession createSession() {
-		RedisSession redisSession = new RedisSession();
+		RedisSession redisSession = new RedisSession(sessionIdStrategy.createSessionId());
 		if(defaultMaxInactiveInterval != null) {
 			redisSession.setMaxInactiveIntervalInSeconds(defaultMaxInactiveInterval);
 		}
@@ -336,8 +347,8 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be persisted in the next save operation.
 		 */
-		RedisSession() {
-			this(new MapSession());
+		RedisSession(String id) {
+			this(new MapSession(id));
 			delta.put(CREATION_TIME_ATTR, getCreationTime());
 			delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
 			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());

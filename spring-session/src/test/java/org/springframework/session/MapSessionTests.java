@@ -23,18 +23,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class MapSessionTests {
+	
+	private static final String SESSION_ID="826653e3-8220-48d5-8f2c-e4e2f3c78e99";
 
 	private MapSession session;
 
 	@Before
 	public void setup() {
-		session = new MapSession();
+		session = new MapSession(SESSION_ID);
 		session.setLastAccessedTime(1413258262962L);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullSession() {
-		new MapSession(null);
+		new MapSession((ExpiringSession) null);
 	}
 
 	/**
