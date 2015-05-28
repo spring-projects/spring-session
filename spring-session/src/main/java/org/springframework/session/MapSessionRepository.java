@@ -16,6 +16,7 @@
 package org.springframework.session;
 
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.keepalive.KeepAliveCondition;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,6 +40,8 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 	private Integer defaultMaxInactiveInterval;
 
 	private final Map<String,ExpiringSession> sessions;
+
+	private KeepAliveCondition keepAliveCondition = KeepAliveCondition.ALWAYS;
 
 	/**
 	 * Creates an instance backed by a {@link java.util.concurrent.ConcurrentHashMap}
@@ -81,7 +84,9 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 			return null;
 		}
 		MapSession result = new MapSession(saved);
-		result.setLastAccessedTime(System.currentTimeMillis());
+		if (keepAliveCondition.keepAlive()) {
+			result.setLastAccessedTime(System.currentTimeMillis());
+		}
 		return result;
 	}
 
@@ -95,5 +100,9 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 			result.setMaxInactiveIntervalInSeconds(defaultMaxInactiveInterval);
 		}
 		return result;
+	}
+
+	public void setKeepAliveCondition(KeepAliveCondition keepAliveCondition) {
+		this.keepAliveCondition = keepAliveCondition;
 	}
 }

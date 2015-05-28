@@ -21,15 +21,24 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.session.keepalive.KeepAliveCondition;
 
 public class MapSessionRepositoryTests {
 	MapSessionRepository repository;
 
 	MapSession session;
+	
+	boolean keepAlive = true;
 
 	@Before
 	public void setup() {
 		repository = new MapSessionRepository();
+		repository.setKeepAliveCondition(new KeepAliveCondition() {
+			@Override
+			public boolean keepAlive() {
+				return keepAlive;
+			}
+		});
 		session = new MapSession();
 	}
 
@@ -58,5 +67,25 @@ public class MapSessionRepositoryTests {
 		ExpiringSession session = repository.createSession();
 
 		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(expectedMaxInterval);
+	}
+
+	@Test
+	public void keepAliveConditionFalse() {
+		keepAlive = false;
+		long lastAccess = System.currentTimeMillis();
+		session.setMaxInactiveIntervalInSeconds(1);
+		session.setLastAccessedTime(lastAccess);
+		repository.save(session);
+		assertThat(repository.getSession(session.getId()).getLastAccessedTime()).isEqualTo(lastAccess);
+		keepAlive = true;
+	}
+
+	@Test
+	public void keepAliveConditionTrue() {
+		long lastAccess = System.currentTimeMillis() - 1;
+		session.setMaxInactiveIntervalInSeconds(1);
+		session.setLastAccessedTime(lastAccess);
+		repository.save(session);
+		assertThat(repository.getSession(session.getId()).getLastAccessedTime()).isGreaterThan(lastAccess);
 	}
 }
