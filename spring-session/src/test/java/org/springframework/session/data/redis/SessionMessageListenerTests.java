@@ -15,11 +15,6 @@
  */
 package org.springframework.session.data.redis;
 
-import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
-import java.io.UnsupportedEncodingException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +26,11 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.session.events.SessionDestroyedEvent;
+
+import java.io.UnsupportedEncodingException;
+
+import static org.fest.assertions.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -55,12 +55,12 @@ public class SessionMessageListenerTests {
 
 	@Before
 	public void setup() {
-		listener = new SessionMessageListener(eventPublisher);
+		listener = new SessionMessageListener(eventPublisher, "spring:session:sessions:");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullEventPublisher() {
-		new SessionMessageListener(null);
+		new SessionMessageListener(null, null);
 	}
 
 	@Test

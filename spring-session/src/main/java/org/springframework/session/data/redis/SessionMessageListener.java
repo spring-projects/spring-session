@@ -35,15 +35,20 @@ public class SessionMessageListener implements MessageListener {
 	private static final Log logger = LogFactory.getLog(SessionMessageListener.class);
 
 	private final ApplicationEventPublisher eventPublisher;
+	private String boundedHashKeyPrefix;
 
 	/**
 	 * Creates a new instance
 	 *
 	 * @param eventPublisher the {@link ApplicationEventPublisher} to use. Cannot be null.
 	 */
-	public SessionMessageListener(ApplicationEventPublisher eventPublisher) {
+	public SessionMessageListener(ApplicationEventPublisher eventPublisher, String boundedHashKeyPrefix) {
 		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
 		this.eventPublisher = eventPublisher;
+		if (boundedHashKeyPrefix == null) {
+			this.boundedHashKeyPrefix = "spring:session:sessions:";
+		}
+		this.boundedHashKeyPrefix = boundedHashKeyPrefix;
 	}
 
 	public void onMessage(Message message, byte[] pattern) {
@@ -57,7 +62,7 @@ public class SessionMessageListener implements MessageListener {
 			return;
 		}
 		String body = new String(messageBody);
-		if(!body.startsWith("spring:session:sessions:")) {
+		if(!body.startsWith(this.boundedHashKeyPrefix)) {
 			return;
 		}
 

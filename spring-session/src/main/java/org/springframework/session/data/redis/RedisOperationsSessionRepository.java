@@ -15,11 +15,6 @@
  */
 package org.springframework.session.data.redis;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
@@ -33,6 +28,11 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -175,6 +175,8 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 */
 	private Integer defaultMaxInactiveInterval;
 
+	private String boundedHashKeyPrefix;
+
 	/**
 	 * Allows creating an instance and uses a default {@link RedisOperations} for both managing the session and the expirations.
 	 *
@@ -205,6 +207,10 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
+	}
+
+	public void setBoundedHashKeyPrefix(String boundedHashKeyPrefix) {
+	    this.boundedHashKeyPrefix = boundedHashKeyPrefix;
 	}
 
 	public void save(RedisSession session) {
@@ -284,8 +290,8 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 * @param sessionId the session id
 	 * @return the Hash key for this session by prefixing it appropriately.
 	 */
-	static String getKey(String sessionId) {
-		return BOUNDED_HASH_KEY_PREFIX + sessionId;
+	public String getKey(String sessionId) {
+		return this.getBoundedHashKeyPrefix() + sessionId;
 	}
 
 	/**
@@ -296,6 +302,13 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 */
 	static String getSessionAttrNameKey(String attributeName) {
 		return SESSION_ATTR_PREFIX + attributeName;
+	}
+
+	private String getBoundedHashKeyPrefix() {
+		if (this.boundedHashKeyPrefix != null) {
+			return this.boundedHashKeyPrefix;
+		}
+		return BOUNDED_HASH_KEY_PREFIX;
 	}
 
 	/**
