@@ -11,7 +11,7 @@ Spring Session aims to provide a common infrastructure for managing sessions. Th
 
 = Spring Session Project Site
 
-You can find the documentation, issue management, support, samples, and guides for using Spring Session at http://spring.io/spring-session/
+You can find the documentation, issue management, support, samples, and guides for using Spring Session at http://projects.spring.io/spring-session/
 
 = License
 
