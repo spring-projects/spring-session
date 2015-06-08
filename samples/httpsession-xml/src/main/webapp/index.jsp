@@ -18,8 +18,8 @@
         <h1>Try it</h1>
 
         <form class="form-inline" role="form" action="./session" method="post">
-            <label for="attributeValue">Attribute Name</label>
-            <input id="attributeValue" type="text" name="attributeName"/>
+            <label for="attributeName">Attribute Name</label>
+            <input id="attributeName" type="text" name="attributeName"/>
             <label for="attributeValue">Attribute Value</label>
             <input id="attributeValue" type="text" name="attributeValue"/>
             <input type="submit" value="Set Attribute"/>
