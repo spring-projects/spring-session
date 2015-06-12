@@ -77,7 +77,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	 */
 	public SessionRepositoryFilter(SessionRepository<S> sessionRepository) {
 		if(sessionRepository == null) {
-			throw new IllegalArgumentException("SessionRepository cannot be null");
+			throw new IllegalArgumentException("sessionRepository cannot be null");
 		}
 		this.sessionRepository = sessionRepository;
 	}
@@ -88,8 +88,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	 * @param httpSessionStrategy the {@link HttpSessionStrategy} to use. Cannot be null.
 	 */
 	public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
-		if(sessionRepository == null) {
-			throw new IllegalArgumentException("httpSessionIdStrategy cannot be null");
+		if(httpSessionStrategy == null) {
+			throw new IllegalArgumentException("httpSessionStrategy cannot be null");
 		}
 		this.httpSessionStrategy = new MultiHttpSessionStrategyAdapter(httpSessionStrategy);
 	}
@@ -100,8 +100,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	 * @param httpSessionStrategy the {@link MultiHttpSessionStrategy} to use. Cannot be null.
 	 */
 	public void setHttpSessionStrategy(MultiHttpSessionStrategy httpSessionStrategy) {
-		if(sessionRepository == null) {
-			throw new IllegalArgumentException("httpSessionIdStrategy cannot be null");
+		if(httpSessionStrategy == null) {
+			throw new IllegalArgumentException("httpSessionStrategy cannot be null");
 		}
 		this.httpSessionStrategy = httpSessionStrategy;
 	}
