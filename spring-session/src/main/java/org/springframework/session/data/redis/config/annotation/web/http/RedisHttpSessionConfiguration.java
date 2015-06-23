@@ -153,8 +153,6 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	 * cleaned up properly. For example, the mapping of the Session to WebSocket connections may not get cleaned up.
 	 */
 	static class EnableRedisKeyspaceNotificationsInitializer implements InitializingBean {
-		static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
-
 		private final RedisConnectionFactory connectionFactory;
 
 		private ConfigureRedisAction configure;
