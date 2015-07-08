@@ -10,6 +10,12 @@ dependencies {
 			"org.springframework.data:spring-data-redis:$springDataRedisVersion",
 			"redis.clients:jedis:$jedisVersion",
 			"org.apache.commons:commons-pool2:$commonsPoolVersion"
+}
 
-	springIoVersions "io.spring.platform:platform-versions:${springIoVersion}@properties"
+dependencyManagement {
+	springIoTestRuntime {
+		imports {
+			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+		}
+	}
 }
