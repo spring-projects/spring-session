@@ -15,6 +15,7 @@
  */
 package rest;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -24,6 +25,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,12 +58,29 @@ public class RestMockMvcTests {
 		mvc = MockMvcBuilders.webAppContextSetup(context)
 				.alwaysDo(print())
 				.addFilters(sessionRepositoryFilter)
-				.apply(springSecurity()).build();
+				.apply(springSecurity())
+				.build();
 	}
 
 	@Test
 	public void noSessionOnNoCredentials() throws Exception {
 		mvc.perform(get("/"))
-			.andExpect(header().doesNotExist("x-auth-token"));
+			.andExpect(header().doesNotExist("x-auth-token"))
+			.andExpect(status().isUnauthorized());
+	}
+
+	@WithMockUser
+	@Test
+	public void autheticatedAnnotation() throws Exception {
+		mvc.perform(get("/"))
+			.andExpect(content().string("{\"username\":\"user\"}"));
+
+	}
+
+	@Test
+	public void autheticatedRequestPostProcessor() throws Exception {
+		mvc.perform(get("/").with(user("user")))
+			.andExpect(content().string("{\"username\":\"user\"}"));
+
 	}
 }
