@@ -34,8 +34,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionDestroyedEvent;
-import org.springframework.session.redis.embedded.EnableEmbeddedRedis;
-import org.springframework.session.redis.embedded.RedisServerPort;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -107,12 +105,10 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 
 	@Configuration
 	@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1)
-	@EnableEmbeddedRedis
 	static class Config {
 		@Bean
-		public JedisConnectionFactory connectionFactory(@RedisServerPort int port) throws Exception {
+		public JedisConnectionFactory connectionFactory() throws Exception {
 			JedisConnectionFactory factory = new JedisConnectionFactory();
-			factory.setPort(port);
 			factory.setUsePool(false);
 			return factory;
 		}

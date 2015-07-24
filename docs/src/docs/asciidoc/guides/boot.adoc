@@ -82,8 +82,9 @@ In this instance Spring Session is backed by Redis.
 [[boot-redis-configuration]]
 == Configuring the Redis Connection
 
-Spring Boot automatically creates a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
-In a production environment you need to ensure to update your configuration to point to your Redis server. For example, you can include the following in your *application.properties*
+Spring Boot automatically creates a `RedisConnectionFactory` that connects Spring Session to a Redis Server on localhost on port 6379 (default port).
+In a production environment you need to ensure to update your configuration to point to your Redis server.
+For example, you can include the following in your *application.properties*
 
 .src/main/resources/application.properties
 ----
@@ -113,6 +114,12 @@ The boot Sample Application demonstrates how to use Spring Session to transparen
 === Running the boot Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+[NOTE]
+====
+For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
+====
 
 ----
 $ ./gradlew :samples:boot:bootRun

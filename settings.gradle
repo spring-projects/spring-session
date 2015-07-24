@@ -3,7 +3,6 @@ rootProject.name = 'spring-session-build'
 include 'docs'
 
 include 'samples:boot'
-include 'samples:spring-embedded-redis'
 include 'samples:hazelcast'
 include 'samples:httpsession'
 include 'samples:httpsession-xml'

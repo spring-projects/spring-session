@@ -78,15 +78,13 @@ Add the following Spring Configuration:
 include::{samples-dir}rest/src/main/java/sample/HttpSessionConfig.java[tags=class]
 ----
 
-<1> We import an embedded Redis Server so that there is no need to start up Redis external of our application.
-In a production application this is not necessary since we would point our connection to an external Redis instance.
-<2> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements `Filter`.
+<1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements `Filter`.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by Redis.
-<3> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
-In our example, we are connecting to localhost on the default port (6379).
+<2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
+We configure the connection to connect to localhost on the default port (6379)
 For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
-<4> We customize Spring Session's HttpSession integration to use HTTP headers to convey the current session information instead of cookies.
+<3> We customize Spring Session's HttpSession integration to use HTTP headers to convey the current session information instead of cookies.
 
 == Servlet Container Initialization
 
@@ -120,6 +118,12 @@ NOTE: The name of our class (Initializer) does not matter. What is important is 
 === Running the rest Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+[NOTE]
+====
+For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
+====
 
 ----
 $ ./gradlew :samples:rest:tomcatRun

@@ -19,20 +19,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.session.redis.embedded.EnableEmbeddedRedis;
-import org.springframework.session.redis.embedded.RedisServerPort;
 
 // tag::class[]
 @Configuration
-@EnableEmbeddedRedis // <1>
-@EnableRedisHttpSession // <2>
+@EnableRedisHttpSession // <1>
 public class Config {
 
 	@Bean
-	public JedisConnectionFactory connectionFactory(@RedisServerPort int port) {
-		JedisConnectionFactory connection = new JedisConnectionFactory(); // <3>
-		connection.setPort(port);
-		return connection;
+	public JedisConnectionFactory connectionFactory() {
+		return new JedisConnectionFactory(); // <2>
 	}
 }
 // end::class[]

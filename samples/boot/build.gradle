@@ -17,7 +17,6 @@ group = 'samples'
 
 dependencies {
 	compile project(':spring-session'),
-			project(':samples:spring-embedded-redis'),
 			"org.springframework.boot:spring-boot-starter-redis",
 			"org.springframework.boot:spring-boot-starter-web",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",

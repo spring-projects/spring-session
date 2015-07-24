@@ -15,11 +15,9 @@
  */
 package sample.config;
 
-import org.springframework.session.data.redis.config.annotation.web.http.*;
-import org.springframework.session.redis.embedded.EnableEmbeddedRedis;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 
-@EnableEmbeddedRedis
 // tag::class[]
 @EnableRedisHttpSession // <1>
 public class HttpSessionConfig { }

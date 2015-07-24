@@ -20,8 +20,7 @@ dependencies {
 			"org.springframework:spring-messaging:$springVersion",
 			"org.springframework:spring-websocket:$springVersion"
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
-	integrationTestCompile project(':samples:spring-embedded-redis'),
-			"redis.clients:jedis:2.4.1",
+	integrationTestCompile "redis.clients:jedis:2.4.1",
 			"org.apache.commons:commons-pool2:2.2"
 
 	testCompile "junit:junit:$junitVersion",

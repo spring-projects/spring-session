@@ -17,6 +17,12 @@ The users application demonstrates how to allow an application to manage multipl
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
+[NOTE]
+====
+For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
+====
+
 ----
 $ ./gradlew :samples:users:tomcatRun
 ----

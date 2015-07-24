@@ -22,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.session.redis.embedded.RedisServerPort;
 
 @Configuration
 public class DataSourceConfig {
@@ -34,9 +33,7 @@ public class DataSourceConfig {
 	}
 
 	@Bean
-	public JedisConnectionFactory connectionFactory(@RedisServerPort int port) {
-		JedisConnectionFactory connection = new JedisConnectionFactory(); // <3>
-		connection.setPort(port);
-		return connection;
+	public JedisConnectionFactory connectionFactory() {
+		return new JedisConnectionFactory();
 	}
 }

@@ -78,13 +78,11 @@ Add the following Spring Configuration:
 include::{samples-dir}httpsession/src/main/java/sample/Config.java[tags=class]
 ----
 
-<1> We import an embedded Redis Server so that there is no need to start up Redis external of our application.
-In a production application this is not necessary since we would point our connection to an external Redis instance.
-<2> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+<1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by Redis.
-<3> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
-We use a http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#xsd-config-body-schemas-context-pphc[PropertyPlaceholderConfigurer] to externalize the port location.
+<2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
+We configure the connection to connect to localhost on the default port (6379)
 For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
 
 == Java Servlet Container Initialization
@@ -119,6 +117,12 @@ This ensures that the Spring Bean by the name `springSessionRepositoryFilter` is
 === Running the httpsession Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+[NOTE]
+====
+For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
+====
 
 ----
 $ ./gradlew :samples:httpsession:tomcatRun
