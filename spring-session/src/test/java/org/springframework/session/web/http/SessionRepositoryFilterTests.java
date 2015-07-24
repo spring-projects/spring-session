@@ -19,7 +19,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
@@ -1145,6 +1144,16 @@ public class SessionRepositoryFilterTests<S extends ExpiringSession> {
 	@SuppressWarnings("unused")
 	public void doesNotImplementOrdered() {
 		Ordered o = (Ordered) filter;
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setHttpSessionStrategyNull() {
+		filter.setHttpSessionStrategy((HttpSessionStrategy) null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setMultiHttpSessionStrategyNull() {
+		filter.setHttpSessionStrategy((MultiHttpSessionStrategy) null);
 	}
 
 	// --- helper methods
