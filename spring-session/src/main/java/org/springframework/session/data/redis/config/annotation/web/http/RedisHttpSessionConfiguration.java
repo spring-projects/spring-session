@@ -143,7 +143,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	}
 
 	@Bean
-	public EnableRedisKeyspaceNotificationsInitializer enableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory) {
+	public InitializingBean enableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory) {
 		return new EnableRedisKeyspaceNotificationsInitializer(connectionFactory, configureRedisAction);
 	}
 
