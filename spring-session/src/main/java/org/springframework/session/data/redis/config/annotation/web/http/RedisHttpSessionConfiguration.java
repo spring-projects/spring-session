@@ -125,12 +125,12 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 			// search parent classes
 			Class<?> currentClass = ClassUtils.resolveClassName(importMetadata.getClassName(), beanClassLoader);
 			for(Class<?> classToInspect = currentClass ;classToInspect != null; classToInspect = classToInspect.getSuperclass()) {
-				EnableRedisHttpSession enableWebSecurityAnnotation = AnnotationUtils.findAnnotation(classToInspect, EnableRedisHttpSession.class);
-				if(enableWebSecurityAnnotation == null) {
+				EnableRedisHttpSession enableRedisHttpSessionAnnotation = AnnotationUtils.findAnnotation(classToInspect, EnableRedisHttpSession.class);
+				if(enableRedisHttpSessionAnnotation == null) {
 					continue;
 				}
 				enableAttrMap = AnnotationUtils
-						.getAnnotationAttributes(enableWebSecurityAnnotation);
+						.getAnnotationAttributes(enableRedisHttpSessionAnnotation);
 				enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 			}
 		}
