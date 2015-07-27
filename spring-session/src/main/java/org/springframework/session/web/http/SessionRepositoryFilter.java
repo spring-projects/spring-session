@@ -191,7 +191,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			}
 		}
 
-		@SuppressWarnings("unused")
+		@SuppressWarnings({ "unused", "unchecked" })
 		public String changeSessionId() {
 			HttpSession session = getSession(false);
 
@@ -210,9 +210,12 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			}
 
 			sessionRepository.delete(session.getId());
+			HttpSessionWrapper original = currentSession;
 			currentSession = null;
 
 			HttpSession newSession = getSession();
+			original.session = ((HttpSessionWrapper)newSession).session;
+
 			newSession.setMaxInactiveInterval(session.getMaxInactiveInterval());
 			for(Map.Entry<String, Object> attr : attrs.entrySet()) {
 				String attrName = attr.getKey();
@@ -291,7 +294,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		 * @since 1.0
 		 */
 		private final class HttpSessionWrapper implements HttpSession {
-			private final S session;
+			private S session;
 			private final ServletContext servletContext;
 			private boolean invalidated;
 			private boolean old;

@@ -472,7 +472,13 @@ public class SessionRepositoryFilterTests {
 		doFilter(new DoInFilter() {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest) {
-				ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId");
+				HttpSession originalSession = wrappedRequest.getSession();
+				assertThat(originalSession.getId()).isEqualTo(originalSessionId);
+
+				String changeSessionId = ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId");
+				assertThat(changeSessionId).isNotEqualTo(originalSessionId);
+				// gh-227
+				assertThat(originalSession.getId()).isEqualTo(changeSessionId);
 			}
 		});
 
