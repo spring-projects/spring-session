@@ -173,6 +173,7 @@ public class SessionRepositoryFilterTests {
 		});
 
 		final String id = (String) request.getAttribute(ID_ATTR);
+		setupRequest();
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1076,6 +1077,7 @@ public class SessionRepositoryFilterTests {
 		HttpServletRequest request = (HttpServletRequest) chain.getRequest();
 		String id = request.getSession().getId();
 		when(strategy.getRequestedSessionId(any(HttpServletRequest.class))).thenReturn(id);
+		setupRequest();
 
 		doFilter(new DoInFilter(){
 			@Override
