@@ -58,6 +58,7 @@ import org.springframework.session.SessionRepository;
  * @since 1.0
  * @author Rob Winch
  */
+@SuppressWarnings("deprecation")
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter {
 	public static final String SESSION_REPOSITORY_ATTR = SessionRepository.class.getName();
@@ -161,7 +162,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	 * @since 1.0
 	 */
 	private final class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
-		private HttpSessionWrapper currentSession;
+		private final String CURRENT_SESSION_ATTR = HttpServletRequestWrapper.class.getName();
 		private Boolean requestedSessionIdValid;
 		private boolean requestedSessionInvalidated;
 		private final HttpServletResponse response;
@@ -177,7 +178,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		 * Uses the HttpSessionStrategy to write the session id tot he response and persist the Session.
 		 */
 		private void commitSession() {
-			HttpSessionWrapper wrappedSession = currentSession;
+			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if(wrappedSession == null) {
 				if(isInvalidateClientSession()) {
 					httpSessionStrategy.onInvalidateSession(this, response);
@@ -188,6 +189,19 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 				if(!isRequestedSessionIdValid() || !session.getId().equals(getRequestedSessionId())) {
 					httpSessionStrategy.onNewSession(session, this, response);
 				}
+			}
+		}
+
+		@SuppressWarnings("unchecked")
+		private HttpSessionWrapper getCurrentSession() {
+			return (HttpSessionWrapper) getAttribute(CURRENT_SESSION_ATTR);
+		}
+
+		private void setCurrentSession(HttpSessionWrapper currentSession) {
+			if(currentSession == null) {
+				removeAttribute(CURRENT_SESSION_ATTR);
+			} else {
+				setAttribute(CURRENT_SESSION_ATTR, currentSession);
 			}
 		}
 
@@ -210,8 +224,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			}
 
 			sessionRepository.delete(session.getId());
-			HttpSessionWrapper original = currentSession;
-			currentSession = null;
+			HttpSessionWrapper original = getCurrentSession();
+			setCurrentSession(null);
 
 			HttpSession newSession = getSession();
 			original.session = ((HttpSessionWrapper)newSession).session;
@@ -243,11 +257,12 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		}
 
 		private boolean isInvalidateClientSession() {
-			return currentSession == null && requestedSessionInvalidated;
+			return getCurrentSession() == null && requestedSessionInvalidated;
 		}
 
 		@Override
 		public HttpSession getSession(boolean create) {
+			HttpSessionWrapper currentSession = getCurrentSession();
 			if(currentSession != null) {
 				return currentSession;
 			}
@@ -258,6 +273,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 					this.requestedSessionIdValid = true;
 					currentSession = new HttpSessionWrapper(session, getServletContext());
 					currentSession.setNew(false);
+					setCurrentSession(currentSession);
 					return currentSession;
 				}
 			}
@@ -266,6 +282,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			}
 			S session = sessionRepository.createSession();
 			currentSession = new HttpSessionWrapper(session, getServletContext());
+			setCurrentSession(currentSession);
 			return currentSession;
 		}
 
@@ -377,7 +394,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 				checkState();
 				this.invalidated = true;
 				requestedSessionInvalidated = true;
-				currentSession = null;
+				setCurrentSession(null);
 				sessionRepository.delete(getId());
 			}
 

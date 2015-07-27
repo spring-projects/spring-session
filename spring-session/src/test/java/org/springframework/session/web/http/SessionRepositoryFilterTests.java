@@ -67,6 +67,8 @@ public class SessionRepositoryFilterTests {
 	@Mock
 	private HttpSessionStrategy strategy;
 
+	private Map<String, ExpiringSession> sessions;
+
 	private SessionRepository<ExpiringSession> sessionRepository;
 
 	private SessionRepositoryFilter<ExpiringSession> filter;
@@ -79,7 +81,8 @@ public class SessionRepositoryFilterTests {
 
 	@Before
 	public void setup() throws Exception {
-		sessionRepository = new MapSessionRepository();
+		sessions = new HashMap<String, ExpiringSession>();
+		sessionRepository = new MapSessionRepository(sessions);
 		filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
 		setupRequest();
 	}
@@ -556,6 +559,28 @@ public class SessionRepositoryFilterTests {
 				assertThat(wrappedRequest.getSession(false)).isNotNull();
 			}
 		});
+	}
+
+	// gh-229
+	@Test
+	public void doFilterGetSessionGetSessionOnError() throws Exception {
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				wrappedRequest.getSession().setAttribute("a", "b");
+			}
+		});
+
+		// reuse the same request similar to processing an ERROR dispatch
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				assertThat(wrappedRequest.getSession(false)).isNotNull();
+			}
+		});
+
+		assertThat(this.sessions.size()).isEqualTo(1);
 	}
 
 	@Test
