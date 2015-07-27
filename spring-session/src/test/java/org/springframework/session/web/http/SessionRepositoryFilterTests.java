@@ -63,7 +63,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("deprecation")
-public class SessionRepositoryFilterTests<S extends ExpiringSession> {
+public class SessionRepositoryFilterTests {
 	@Mock
 	private HttpSessionStrategy strategy;
 
