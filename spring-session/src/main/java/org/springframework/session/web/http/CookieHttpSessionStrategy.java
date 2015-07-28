@@ -17,6 +17,7 @@ package org.springframework.session.web.http;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -152,6 +153,8 @@ import org.springframework.session.Session;
  * @author Rob Winch
  */
 public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy, HttpSessionManager {
+	private static final String SESSION_IDS_WRITTEN_ATTR = CookieHttpSessionStrategy.class.getName().concat(".SESSIONS_WRITTEN_ATTR");
+
 	static final String DEFAULT_ALIAS = "0";
 
 	static final String DEFAULT_SESSION_ALIAS_PARAM_NAME = "_s";
@@ -208,11 +211,27 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 	}
 
 	public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
+		Set<String> sessionIdsWritten = getSessionIdsWritten(request);
+		if(sessionIdsWritten.contains(session.getId())) {
+			return;
+		}
+		sessionIdsWritten.add(session.getId());
+
 		Map<String,String> sessionIds = getSessionIds(request);
 		String sessionAlias = getCurrentSessionAlias(request);
 		sessionIds.put(sessionAlias, session.getId());
 		Cookie sessionCookie = createSessionCookie(request, sessionIds);
 		response.addCookie(sessionCookie);
+	}
+
+	@SuppressWarnings("unchecked")
+	private Set<String> getSessionIdsWritten(HttpServletRequest request) {
+		Set<String> sessionsWritten = (Set<String>) request.getAttribute(SESSION_IDS_WRITTEN_ATTR);
+		if(sessionsWritten == null) {
+			sessionsWritten = new HashSet<String>();
+			request.setAttribute(SESSION_IDS_WRITTEN_ATTR, sessionsWritten);
+		}
+		return sessionsWritten;
 	}
 
 	private Cookie createSessionCookie(HttpServletRequest request,

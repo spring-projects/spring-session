@@ -69,6 +69,28 @@ public class CookieHttpSessionStrategyTests {
 	}
 
 	@Test
+	public void onNewSessionTwiceSameId() throws Exception {
+		strategy.onNewSession(session, request, response);
+		strategy.onNewSession(session, request, response);
+
+		assertThat(response.getCookies()).hasSize(1);
+	}
+
+	@Test
+	public void onNewSessionTwiceNewId() throws Exception {
+		Session newSession = new MapSession();
+
+		strategy.onNewSession(session, request, response);
+		strategy.onNewSession(newSession, request, response);
+
+		Cookie[] cookies = response.getCookies();
+		assertThat(cookies).hasSize(2);
+
+		assertThat(cookies[0].getValue()).isEqualTo(session.getId());
+		assertThat(cookies[1].getValue()).isEqualTo(newSession.getId());
+	}
+
+	@Test
 	public void onNewSessionExistingSessionSameAlias() throws Exception {
 		Session existing = new MapSession();
 		setSessionCookie(existing.getId());
