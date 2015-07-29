@@ -474,3 +474,20 @@ We appreciate https://help.github.com/articles/using-pull-requests/[Pull Request
 === License
 
 Spring Session is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+
+[[minimum-requirements]]
+== Minimum Requirements
+
+The minimum requirements for Spring Session are:
+
+* Java 5+
+* If you are running in a Servlet Container (not required), Servlet 2.5+
+* If you are using other Spring libraries (not required), the minimum required version is Spring 3.2.14.
+While we re-run all unit tests against Spring 3.2.x, we recommend using the latest Spring 4.x version when possible.
+* `@EnableRedisHttpSession` requires Redis 2.8+. This is necessary to support <<api-redisoperationssessionrepository-expiration,Session Expiration>>
+
+[NOTE]
+====
+At its core Spring Session only has a required dependency on commons-logging.
+For an example of using Spring Session without any other Spring dependencies, refer to the <<samples,hazelcast sample>> application.
+====
