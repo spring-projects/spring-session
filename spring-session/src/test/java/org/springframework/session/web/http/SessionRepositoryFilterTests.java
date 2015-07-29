@@ -50,7 +50,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.OrderUtils;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -1169,7 +1169,7 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void order() {
-		assertThat(OrderUtils.getOrder(filter.getClass())).isEqualTo(SessionRepositoryFilter.DEFAULT_ORDER);
+		assertThat(AnnotationAwareOrderComparator.INSTANCE.compare(filter, new SessionRepositoryFilterDefaultOrder()));
 	}
 
 	// We want the filter to work without any dependencies on Spring
@@ -1256,5 +1256,11 @@ public class SessionRepositoryFilterTests {
 			doFilter(wrappedRequest);
 		}
 		void doFilter(HttpServletRequest wrappedRequest) {}
+	}
+
+	static class SessionRepositoryFilterDefaultOrder implements Ordered {
+		public int getOrder() {
+			return SessionRepositoryFilter.DEFAULT_ORDER;
+		}
 	}
 }
