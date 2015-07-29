@@ -73,6 +73,7 @@ task integrationTest(type: Test, dependsOn: jar) {
 		junitXml.destination = project.file("$project.buildDir/integration-test-results/")
 	}
 }
+check.dependsOn integrationTest
 
 eclipse {
 	classpath {
