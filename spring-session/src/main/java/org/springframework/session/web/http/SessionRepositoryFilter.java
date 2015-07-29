@@ -55,6 +55,11 @@ import org.springframework.session.SessionRepository;
  *     <li>The client is notified that the session id is no longer valid with {@link HttpSessionStrategy#onInvalidateSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}</li>
  * </ul>
  *
+ * <p>
+ * The SessionRepositoryFilter must be placed before any Filter that access the HttpSession or that might commit the response
+ * to ensure the session is overridden and persisted properly.
+ * </p>
+ *
  * @since 1.0
  * @author Rob Winch
  */
