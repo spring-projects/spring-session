@@ -15,13 +15,13 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
@@ -54,4 +54,5 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 @Configuration
 public @interface EnableRedisHttpSession {
 	int maxInactiveIntervalInSeconds() default 1800;
+	String boundedHashKeyPrefix() default "spring:session:sessions:";
 }

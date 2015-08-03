@@ -15,11 +15,6 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import javax.servlet.ServletContext;
-
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +42,10 @@ import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
 
+import javax.servlet.ServletContext;
+import java.util.Arrays;
+import java.util.Map;
+
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
  * "springSessionRepositoryFilter". In order to use this a single
@@ -64,6 +63,8 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	private ClassLoader beanClassLoader;
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
+
+	private String boundedHashKeyPrefix = "spring:session:sessions:";
 
 	private HttpSessionStrategy httpSessionStrategy;
 
@@ -84,7 +85,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 	@Bean
 	public SessionMessageListener redisSessionMessageListener() {
-		return new SessionMessageListener(eventPublisher);
+		return new SessionMessageListener(eventPublisher, boundedHashKeyPrefix);
 	}
 
 	@Bean
@@ -100,6 +101,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> sessionRedisTemplate) {
 		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(sessionRedisTemplate);
 		sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
+		sessionRepository.setBoundedHashKeyPrefix(boundedHashKeyPrefix);
 		return sessionRepository;
 	}
 
@@ -135,6 +137,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 			}
 		}
 		maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+		boundedHashKeyPrefix = enableAttrs.getString("boundedHashKeyPrefix");
 	}
 
 	@Autowired(required = false)
