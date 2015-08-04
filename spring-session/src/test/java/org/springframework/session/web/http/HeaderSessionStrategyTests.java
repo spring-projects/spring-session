@@ -26,6 +26,9 @@ import org.springframework.session.web.http.HeaderHttpSessionStrategy;
 import static org.fest.assertions.Assertions.assertThat;
 
 public class HeaderSessionStrategyTests {
+	
+	private static final String SESSION_ID="54067AC8-E653-4F49-B06F-132582D91DA1";
+	
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
 
@@ -36,7 +39,7 @@ public class HeaderSessionStrategyTests {
 	@Before
 	public void setup() throws Exception {
 		headerName = "x-auth-token";
-		session = new MapSession();
+		session = new MapSession(SESSION_ID);
 		request = new MockHttpServletRequest();
 		response = new MockHttpServletResponse();
 		strategy = new HeaderHttpSessionStrategy();

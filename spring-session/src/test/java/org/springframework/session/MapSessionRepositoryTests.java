@@ -17,6 +17,7 @@ package org.springframework.session;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -26,11 +27,15 @@ public class MapSessionRepositoryTests {
 	MapSessionRepository repository;
 
 	MapSession session;
+	
+	private static String createUUIDSessionId() {
+		return UUID.randomUUID().toString();
+	}
 
 	@Before
 	public void setup() {
 		repository = new MapSessionRepository();
-		session = new MapSession();
+		session = new MapSession(createUUIDSessionId());
 	}
 
 	@Test
@@ -47,16 +52,30 @@ public class MapSessionRepositoryTests {
 		ExpiringSession session = repository.createSession();
 
 		assertThat(session).isInstanceOf(MapSession.class);
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
+		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession(createUUIDSessionId()).getMaxInactiveIntervalInSeconds());
 	}
 
 	@Test
 	public void createSessionCustomDefaultExpiration() {
-		final int expectedMaxInterval = new MapSession().getMaxInactiveIntervalInSeconds() + 10;
+		final int expectedMaxInterval = new MapSession(createUUIDSessionId()).getMaxInactiveIntervalInSeconds() + 10;
 		repository.setDefaultMaxInactiveInterval(expectedMaxInterval);
 
 		ExpiringSession session = repository.createSession();
 
 		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(expectedMaxInterval);
+	}
+	
+	@Test
+	public void setSessionIdStrategy() {
+		MapSessionRepository repoCustomizedId = new MapSessionRepository();
+		repoCustomizedId.setSessionIdStrategy(
+			new SessionIdStrategy() {
+				public String createSessionId() {
+					return "ABC";
+				}
+			}
+		);
+		ExpiringSession sessionCustomizedId = repoCustomizedId.createSession();
+		assertThat(sessionCustomizedId.getId()).isEqualTo("ABC");
 	}
 }

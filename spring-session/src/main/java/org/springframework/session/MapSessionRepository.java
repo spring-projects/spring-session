@@ -16,6 +16,7 @@
 package org.springframework.session;
 
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.id.UUIDSessionIdStrategy;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +38,11 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 	 * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
+	
+	/**
+	 * The strategy for generating the session id.  Defaults to using a UUID.
+	 */
+	private SessionIdStrategy sessionIdStrategy = new UUIDSessionIdStrategy();
 
 	private final Map<String,ExpiringSession> sessions;
 
@@ -66,6 +72,17 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);
 	}
+	
+	/**
+	 * Set the strategy for generating new session ids. 
+	 * @param sessionIdStrategy The session id strategy. Can not be null.
+	 */
+	public void setSessionIdStrategy(SessionIdStrategy sessionIdStrategy) {
+		if (sessionIdStrategy == null) {
+			throw new IllegalArgumentException("sessionIdStrategy can not be null");
+		}
+		this.sessionIdStrategy = sessionIdStrategy;
+	}
 
 	public void save(ExpiringSession session) {
 		sessions.put(session.getId(), new MapSession(session));
@@ -90,10 +107,11 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 	}
 
 	public ExpiringSession createSession() {
-		ExpiringSession result = new MapSession();
+		ExpiringSession result = new MapSession(sessionIdStrategy.createSessionId());
 		if(defaultMaxInactiveInterval != null) {
 			result.setMaxInactiveIntervalInSeconds(defaultMaxInactiveInterval);
 		}
 		return result;
 	}
+
 }

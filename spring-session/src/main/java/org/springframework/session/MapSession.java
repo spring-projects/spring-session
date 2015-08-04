@@ -46,7 +46,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	 */
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
-	private String id = UUID.randomUUID().toString();
+	private String id;
 	private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
 	private long creationTime = System.currentTimeMillis();
 	private long lastAccessedTime = creationTime;
@@ -57,9 +57,15 @@ public final class MapSession implements ExpiringSession, Serializable {
 	private int maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
+	 * 
+	 * @param id the session id. Can not be null.
 	 */
-	public MapSession() {
+	public MapSession(String id) {
+		if(id == null) {
+			throw new IllegalArgumentException("id cannot be null");
+		}
+		this.id = id;
 	}
 
 	/**
@@ -80,6 +86,17 @@ public final class MapSession implements ExpiringSession, Serializable {
 		this.lastAccessedTime = session.getLastAccessedTime();
 		this.creationTime = session.getCreationTime();
 		this.maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
+	}
+	
+	/**
+	 * Creates a new instance creating the session id using a random UUID.
+	 * This is here for compatibility with older implementations of {@link SessionRepository}.
+	 * 
+	 * @deprecated - {@link SessionRepository} classes should now use the constructor that passes an id. 
+	 */
+	@Deprecated
+	public MapSession() {
+		this.id = UUID.randomUUID().toString();
 	}
 
 	public void setLastAccessedTime(long lastAccessedTime) {
