@@ -31,6 +31,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.keepalive.KeepAliveCondition;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 
@@ -170,6 +171,8 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
 
+	private KeepAliveCondition keepAliveCondition = KeepAliveCondition.ALWAYS;
+
 	/**
 	 * If non-null, this value is used to override the default value for {@link RedisSession#setMaxInactiveIntervalInSeconds(int)}.
 	 */
@@ -253,7 +256,9 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		}
 		RedisSession result = new RedisSession(loaded);
 		result.originalLastAccessTime = loaded.getLastAccessedTime() + TimeUnit.SECONDS.toMillis(loaded.getMaxInactiveIntervalInSeconds());
-		result.setLastAccessedTime(System.currentTimeMillis());
+		if (keepAliveCondition.keepAlive()) {
+			result.setLastAccessedTime(System.currentTimeMillis());
+		}
 		return result;
 	}
 
@@ -317,6 +322,10 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		template.setConnectionFactory(connectionFactory);
 		template.afterPropertiesSet();
 		return template;
+	}
+
+	public void setKeepAliveCondition(KeepAliveCondition keepAliveCondition) {
+		this.keepAliveCondition = keepAliveCondition;
 	}
 
 	/**
