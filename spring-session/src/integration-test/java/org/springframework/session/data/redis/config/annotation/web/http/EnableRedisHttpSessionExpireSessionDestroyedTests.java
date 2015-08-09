@@ -33,7 +33,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -46,7 +46,7 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 	private SessionRepository<S> repository;
 
 	@Autowired
-	private SessionDestroyedEventRegistry registry;
+	private SessionExpiredEventRegistry registry;
 
 	private final Object lock = new Object();
 
@@ -56,7 +56,7 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 	}
 
 	@Test
-	public void expireFiresSessionDestroyedEvent() throws InterruptedException {
+	public void expireFiresSessionExpiredEvent() throws InterruptedException {
 		S toSave = repository.createSession();
 		toSave.setAttribute("a", "b");
 		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user","password", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -83,11 +83,11 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 		assertThat(registry.receivedEvent()).isTrue();
 	}
 
-	static class SessionDestroyedEventRegistry implements ApplicationListener<SessionDestroyedEvent> {
+	static class SessionExpiredEventRegistry implements ApplicationListener<SessionExpiredEvent> {
 		private boolean receivedEvent;
 		private Object lock;
 
-		public void onApplicationEvent(SessionDestroyedEvent event) {
+		public void onApplicationEvent(SessionExpiredEvent event) {
 			synchronized (lock) {
 				receivedEvent = true;
 				lock.notifyAll();
@@ -114,8 +114,8 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 		}
 
 		@Bean
-		public SessionDestroyedEventRegistry sessionDestroyedEventRegistry() {
-			return new SessionDestroyedEventRegistry();
+		public SessionExpiredEventRegistry sessionDestroyedEventRegistry() {
+			return new SessionExpiredEventRegistry();
 		}
 	}
 }
