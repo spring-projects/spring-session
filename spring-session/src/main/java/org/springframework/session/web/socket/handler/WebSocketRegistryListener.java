@@ -35,7 +35,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 /**
  * <p>
  * Keeps track of mapping the Spring Session ID to the {@link WebSocketSession}
- * and ensuring when a {@link SessionDestroyedEvent} is fired that the
+ * and ensuring when a {@link SessionDestroyedEvent} or {@link SessionExpiredEvent} is fired that the
  * {@link WebSocketSession} is closed.
  * </p>
  *

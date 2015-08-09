@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * distributed maps provided by NoSQL stores like Redis and Hazelcast.
  *
  * <p>
- * The implementation does NOT support firing {@link SessionDestroyedEvent}.
+ * The implementation does NOT support firing {@link SessionDestroyedEvent} or {@link SessionExpiredEvent}.
  * </p>
  *
  * @author Rob Winch

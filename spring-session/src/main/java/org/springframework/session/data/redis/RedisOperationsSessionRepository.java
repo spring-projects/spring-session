@@ -41,7 +41,7 @@ import org.springframework.util.Assert;
  * {@link org.springframework.data.redis.core.RedisOperations}. In a web
  * environment, this is typically used in combination with
  * {@link SessionRepositoryFilter}. This implementation supports
- * {@link SessionDestroyedEvent} through {@link SessionMessageListener}.
+ * {@link SessionDestroyedEvent} and {@link SessionExpiredEvent} through {@link SessionMessageListener}.
  * </p>
  *
  * <h2>Creating a new instance</h2>
