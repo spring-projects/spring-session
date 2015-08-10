@@ -36,6 +36,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.context.SessionContext;
+import org.springframework.session.context.SessionContextHolder;
 
 /**
  * Switches the {@link javax.servlet.http.HttpSession} implementation to be backed by a {@link org.springframework.session.Session}.
@@ -122,14 +124,32 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		HttpServletResponse strategyResponse = httpSessionStrategy.wrapResponse(wrappedRequest, wrappedResponse);
 
 		try {
+			SessionContextHolder.setContext(new HttpRequestSessionContext(wrappedRequest));
 			filterChain.doFilter(strategyRequest, strategyResponse);
 		} finally {
 			wrappedRequest.commitSession();
+			SessionContextHolder.clearContext();
 		}
 	}
 
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+
+	private final class HttpRequestSessionContext implements SessionContext {
+
+		private SessionRepositoryRequestWrapper request;
+
+		public HttpRequestSessionContext(SessionRepositoryRequestWrapper request) {
+			super();
+			this.request = request;
+		}
+
+		@SuppressWarnings("unchecked")
+		public Session getSession() {
+			return ((SessionRepositoryRequestWrapper.HttpSessionWrapper)request.getSession()).session;
+		}
+		
 	}
 
 	/**
@@ -180,7 +200,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		}
 
 		/**
-		 * Uses the HttpSessionStrategy to write the session id tot he response and persist the Session.
+		 * Uses the HttpSessionStrategy to write the session id to the response and persist the Session.
 		 */
 		private void commitSession() {
 			HttpSessionWrapper wrappedSession = getCurrentSession();

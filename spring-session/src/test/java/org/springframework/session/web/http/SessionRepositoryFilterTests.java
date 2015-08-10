@@ -45,6 +45,7 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -59,6 +60,7 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.context.SessionContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,6 +80,11 @@ public class SessionRepositoryFilterTests {
 	private MockHttpServletResponse response;
 
 	private MockFilterChain chain;
+
+	@BeforeClass
+	public static void beforeClass() {
+		SessionContextHolder.setStrategyName(SessionContextHolder.MODE_GLOBAL);
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -398,6 +405,19 @@ public class SessionRepositoryFilterTests {
 		});
 
 		assertThat(response.getCookie("SESSION")).isNotNull();
+	}
+
+	@Test
+	public void doFilterSessionContextHolderGetSession() throws Exception {
+		assertThat(SessionContextHolder.getSession()).isNull();
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				assertThat(SessionContextHolder.getSession()).isNotNull();
+			}
+		});
+		assertThat(SessionContextHolder.getSession()).isNull();
+		assertNewSession();
 	}
 
 	@Test
