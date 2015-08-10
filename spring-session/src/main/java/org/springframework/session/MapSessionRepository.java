@@ -16,6 +16,7 @@
 package org.springframework.session;
 
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionExpiredEvent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
