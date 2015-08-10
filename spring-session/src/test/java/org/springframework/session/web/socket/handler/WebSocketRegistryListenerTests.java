@@ -34,6 +34,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.socket.events.SessionConnectEvent;
 import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -59,6 +60,8 @@ public class WebSocketRegistryListenerTests {
 	SessionDisconnectEvent disconnect;
 
 	SessionDestroyedEvent destroyed;
+	
+	SessionExpiredEvent expired;
 
 	Map<String, Object> attributes;
 
@@ -90,6 +93,7 @@ public class WebSocketRegistryListenerTests {
 		connect2 = new SessionConnectEvent(listener,wsSession2);
 		disconnect = new SessionDisconnectEvent(listener, message, wsSession.getId(), CloseStatus.NORMAL);
 		destroyed = new SessionDestroyedEvent(listener, sessionId);
+		expired = new SessionExpiredEvent(listener, sessionId);
 	}
 
 	@Test
@@ -100,6 +104,16 @@ public class WebSocketRegistryListenerTests {
 
 		verify(wsSession).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
 	}
+	
+	@Test
+	public void onApplicationEventConnectSessionExpired() throws Exception {
+		listener.onApplicationEvent(connect);
+
+		listener.onApplicationEvent(expired);
+
+		verify(wsSession).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
+	}
+
 
 	@Test
 	public void onApplicationEventConnectSessionDestroyedNullPrincipal() throws Exception {

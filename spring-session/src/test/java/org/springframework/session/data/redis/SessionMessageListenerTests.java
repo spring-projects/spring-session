@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionExpiredEvent;
 
 
 /**
@@ -47,7 +48,10 @@ public class SessionMessageListenerTests {
 	Message message;
 
 	@Captor
-	ArgumentCaptor<SessionDestroyedEvent> event;
+	ArgumentCaptor<SessionDestroyedEvent> destroyedEvent;
+	
+	@Captor
+	ArgumentCaptor<SessionExpiredEvent> expiredEvent;
 
 	byte[] pattern;
 
@@ -76,18 +80,28 @@ public class SessionMessageListenerTests {
 
 		listener.onMessage(message, pattern);
 
-		verify(eventPublisher).publishEvent(event.capture());
-		assertThat(event.getValue().getSessionId()).isEqualTo("123");
+		verify(eventPublisher).publishEvent(destroyedEvent.capture());
+		assertThat(destroyedEvent.getValue().getSessionId()).isEqualTo("123");
 	}
 
 	@Test
-	public void onMessageSource() throws Exception {
+	public void onMessageDelSource() throws Exception {
 		mockMessage("__keyevent@0__:del","spring:session:sessions:123");
 
 		listener.onMessage(message, pattern);
 
-		verify(eventPublisher).publishEvent(event.capture());
-		assertThat(event.getValue().getSource()).isEqualTo(listener);
+		verify(eventPublisher).publishEvent(destroyedEvent.capture());
+		assertThat(destroyedEvent.getValue().getSource()).isEqualTo(listener);
+	}
+	
+	@Test
+	public void onMessageExpiredSource() throws Exception {
+		mockMessage("__keyevent@0__:expired","spring:session:sessions:123");
+
+		listener.onMessage(message, pattern);
+
+		verify(eventPublisher).publishEvent(expiredEvent.capture());
+		assertThat(expiredEvent.getValue().getSource()).isEqualTo(listener);
 	}
 
 	@Test
@@ -96,8 +110,8 @@ public class SessionMessageListenerTests {
 
 		listener.onMessage(message, pattern);
 
-		verify(eventPublisher).publishEvent(event.capture());
-		assertThat(event.getValue().getSessionId()).isEqualTo("543");
+		verify(eventPublisher).publishEvent(expiredEvent.capture());
+		assertThat(expiredEvent.getValue().getSessionId()).isEqualTo("543");
 	}
 
 	@Test
