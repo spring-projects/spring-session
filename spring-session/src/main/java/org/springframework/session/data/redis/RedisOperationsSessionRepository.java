@@ -167,7 +167,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 */
 	static final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
-	private final RedisOperations<String,ExpiringSession> sessionRedisOperations;
+	private final RedisOperations<Object,Object> sessionRedisOperations;
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
 
@@ -181,7 +181,6 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 *
 	 * @param redisConnectionFactory the {@link RedisConnectionFactory} to use.
 	 */
-	@SuppressWarnings("unchecked")
 	public RedisOperationsSessionRepository(RedisConnectionFactory redisConnectionFactory) {
 		this(createDefaultTemplate(redisConnectionFactory));
 	}
@@ -191,7 +190,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 *
 	 * @param sessionRedisOperations The {@link RedisOperations} to use for managing the sessions. Cannot be null.
 	 */
-	public RedisOperationsSessionRepository(RedisOperations<String, ExpiringSession> sessionRedisOperations) {
+	public RedisOperationsSessionRepository(RedisOperations<Object, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
 		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations);
@@ -304,15 +303,14 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	 * @param sessionId the id of the {@link Session} to work with
 	 * @return the {@link BoundHashOperations} to operate on a {@link Session}
 	 */
-	private BoundHashOperations<String, Object, Object> getSessionBoundHashOperations(String sessionId) {
+	private BoundHashOperations<Object, Object, Object> getSessionBoundHashOperations(String sessionId) {
 		String key = getKey(sessionId);
 		return this.sessionRedisOperations.boundHashOps(key);
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static RedisTemplate createDefaultTemplate(RedisConnectionFactory connectionFactory) {
+	private static RedisTemplate<Object,Object> createDefaultTemplate(RedisConnectionFactory connectionFactory) {
 		Assert.notNull(connectionFactory,"connectionFactory cannot be null");
-		RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
+		RedisTemplate<Object, Object> template = new RedisTemplate<Object, Object>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
 		template.setConnectionFactory(connectionFactory);

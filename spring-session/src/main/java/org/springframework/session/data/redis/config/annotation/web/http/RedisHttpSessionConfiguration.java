@@ -88,8 +88,8 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	}
 
 	@Bean
-	public RedisTemplate<String,ExpiringSession> sessionRedisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, ExpiringSession> template = new RedisTemplate<String, ExpiringSession>();
+	public RedisTemplate<Object,Object> sessionRedisTemplate(RedisConnectionFactory connectionFactory) {
+		RedisTemplate<Object, Object> template = new RedisTemplate<Object, Object>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
 		template.setConnectionFactory(connectionFactory);
@@ -97,7 +97,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	}
 
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository(RedisTemplate<String, ExpiringSession> sessionRedisTemplate) {
+	public RedisOperationsSessionRepository sessionRepository(@Qualifier("sessionRedisTemplate") RedisOperations<Object, Object> sessionRedisTemplate) {
 		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(sessionRedisTemplate);
 		sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
 		return sessionRepository;

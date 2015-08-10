@@ -53,42 +53,38 @@ final class RedisSessionExpirationPolicy {
 	 */
 	static final String EXPIRATION_BOUNDED_HASH_KEY_PREFIX = "spring:session:expirations:";
 
-	private final RedisOperations<String,ExpiringSession> sessionRedisOperations;
+	private final RedisOperations<Object,Object> redis;
 
-	private final RedisOperations<String,String> expirationRedisOperations;
-
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public RedisSessionExpirationPolicy(
-			RedisOperations sessionRedisOperations) {
+			RedisOperations<Object,Object> sessionRedisOperations) {
 		super();
-		this.sessionRedisOperations = sessionRedisOperations;
-		this.expirationRedisOperations = sessionRedisOperations;
+		this.redis = sessionRedisOperations;
 	}
 
 	public void onDelete(ExpiringSession session) {
 		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 		String expireKey = getExpirationKey(toExpire);
-		expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
+		redis.boundSetOps(expireKey).remove(session.getId());
 	}
 
 	public void onExpirationUpdated(Long originalExpirationTimeInMilli, ExpiringSession session) {
 		if(originalExpirationTimeInMilli != null) {
 			long originalRoundedUp = roundUpToNextMinute(originalExpirationTimeInMilli);
 			String expireKey = getExpirationKey(originalRoundedUp);
-			expirationRedisOperations.boundSetOps(expireKey).remove(session.getId());
+			redis.boundSetOps(expireKey).remove(expireKey);
 		}
 
 		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 
 		String expireKey = getExpirationKey(toExpire);
-		BoundSetOperations<String, String> expireOperations = expirationRedisOperations.boundSetOps(expireKey);
+		BoundSetOperations<Object, Object> expireOperations = redis.boundSetOps(expireKey);
 		expireOperations.add(session.getId());
 
 		long sessionExpireInSeconds = session.getMaxInactiveIntervalInSeconds();
 		String sessionKey = getSessionKey(session.getId());
 
 		expireOperations.expire(sessionExpireInSeconds + 60, TimeUnit.SECONDS);
-		sessionRedisOperations.boundHashOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
+		redis.boundHashOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
 	}
 
 	String getExpirationKey(long expires) {
@@ -108,10 +104,10 @@ final class RedisSessionExpirationPolicy {
 		}
 
 		String expirationKey = getExpirationKey(prevMin);
-		Set<String> sessionsToExpire = expirationRedisOperations.boundSetOps(expirationKey).members();
-		expirationRedisOperations.delete(expirationKey);
-		for(String session : sessionsToExpire) {
-			String sessionKey = getSessionKey(session);
+		Set<Object> sessionsToExpire = redis.boundSetOps(expirationKey).members();
+		redis.delete(expirationKey);
+		for(Object session : sessionsToExpire) {
+			String sessionKey = getSessionKey((String) session);
 			touch(sessionKey);
 		}
 	}
@@ -123,7 +119,7 @@ final class RedisSessionExpirationPolicy {
 	 * @param key
 	 */
 	private void touch(String key) {
-		sessionRedisOperations.hasKey(key);
+		redis.hasKey(key);
 	}
 
 	static long expiresInMillis(ExpiringSession session) {
