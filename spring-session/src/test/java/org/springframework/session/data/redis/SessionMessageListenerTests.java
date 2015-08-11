@@ -48,7 +48,7 @@ public class SessionMessageListenerTests {
 	Message message;
 
 	@Captor
-	ArgumentCaptor<SessionDestroyedEvent> destroyedEvent;
+	ArgumentCaptor<SessionDestroyedEvent> deletedEvent;
 	
 	@Captor
 	ArgumentCaptor<SessionExpiredEvent> expiredEvent;
@@ -80,8 +80,8 @@ public class SessionMessageListenerTests {
 
 		listener.onMessage(message, pattern);
 
-		verify(eventPublisher).publishEvent(destroyedEvent.capture());
-		assertThat(destroyedEvent.getValue().getSessionId()).isEqualTo("123");
+		verify(eventPublisher).publishEvent(deletedEvent.capture());
+		assertThat(deletedEvent.getValue().getSessionId()).isEqualTo("123");
 	}
 
 	@Test
@@ -90,8 +90,8 @@ public class SessionMessageListenerTests {
 
 		listener.onMessage(message, pattern);
 
-		verify(eventPublisher).publishEvent(destroyedEvent.capture());
-		assertThat(destroyedEvent.getValue().getSource()).isEqualTo(listener);
+		verify(eventPublisher).publishEvent(deletedEvent.capture());
+		assertThat(deletedEvent.getValue().getSource()).isEqualTo(listener);
 	}
 	
 	@Test

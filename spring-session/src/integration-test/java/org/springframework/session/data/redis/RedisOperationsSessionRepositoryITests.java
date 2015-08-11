@@ -33,7 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -46,7 +46,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 	private SessionRepository<S> repository;
 
 	@Autowired
-	private SessionDestroyedEventRegistry registry;
+	private SessionDeletedEventRegistry registry;
 
 	private final Object lock = new Object();
 
@@ -100,11 +100,11 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		assertThat(session.getAttribute("1")).isEqualTo("2");
 	}
 
-	static class SessionDestroyedEventRegistry implements ApplicationListener<SessionDestroyedEvent> {
+	static class SessionDeletedEventRegistry implements ApplicationListener<SessionDeletedEvent> {
 		private boolean receivedEvent;
 		private Object lock;
 
-		public void onApplicationEvent(SessionDestroyedEvent event) {
+		public void onApplicationEvent(SessionDeletedEvent event) {
 			receivedEvent = true;
 			synchronized (lock) {
 				lock.notifyAll();
@@ -131,8 +131,8 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		}
 
 		@Bean
-		public SessionDestroyedEventRegistry sessionDestroyedEventRegistry() {
-			return new SessionDestroyedEventRegistry();
+		public SessionDeletedEventRegistry sessionDestroyedEventRegistry() {
+			return new SessionDeletedEventRegistry();
 		}
 	}
 }

@@ -21,13 +21,13 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
 
 /**
  * Listen for Redis {@link Message} notifications. If it is a "del"
- * translate into a {@link SessionDestroyedEvent}. If it is an "expired"
+ * translate into a {@link SessionDeletedEvent}. If it is an "expired"
  * translate into a {@link SessionExpiredEvent}.
  *
  * @author Rob Winch
@@ -72,7 +72,7 @@ public class SessionMessageListener implements MessageListener {
 		}
 
 		if(channel.endsWith(":del")) {
-			publishEvent(new SessionDestroyedEvent(this, sessionId));
+			publishEvent(new SessionDeletedEvent(this, sessionId));
 		} else {
 			publishEvent(new SessionExpiredEvent(this, sessionId));
 		}

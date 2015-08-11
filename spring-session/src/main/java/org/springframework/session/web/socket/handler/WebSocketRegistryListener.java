@@ -26,7 +26,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.session.events.SessionDestroyedEvent;
-import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.socket.events.SessionConnectEvent;
 import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
 import org.springframework.web.socket.CloseStatus;
@@ -36,7 +35,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 /**
  * <p>
  * Keeps track of mapping the Spring Session ID to the {@link WebSocketSession}
- * and ensuring when a {@link SessionDestroyedEvent} or {@link SessionExpiredEvent} is fired that the
+ * and ensuring when a {@link SessionDesroyedEvent} is fired that the
  * {@link WebSocketSession} is closed.
  * </p>
  *

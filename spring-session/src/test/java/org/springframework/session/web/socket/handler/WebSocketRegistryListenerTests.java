@@ -33,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.socket.events.SessionConnectEvent;
 import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
@@ -59,7 +59,7 @@ public class WebSocketRegistryListenerTests {
 
 	SessionDisconnectEvent disconnect;
 
-	SessionDestroyedEvent destroyed;
+	SessionDeletedEvent deleted;
 	
 	SessionExpiredEvent expired;
 
@@ -92,15 +92,15 @@ public class WebSocketRegistryListenerTests {
 		connect = new SessionConnectEvent(listener,wsSession);
 		connect2 = new SessionConnectEvent(listener,wsSession2);
 		disconnect = new SessionDisconnectEvent(listener, message, wsSession.getId(), CloseStatus.NORMAL);
-		destroyed = new SessionDestroyedEvent(listener, sessionId);
+		deleted = new SessionDeletedEvent(listener, sessionId);
 		expired = new SessionExpiredEvent(listener, sessionId);
 	}
 
 	@Test
-	public void onApplicationEventConnectSessionDestroyed() throws Exception {
+	public void onApplicationEventConnectSessionDeleted() throws Exception {
 		listener.onApplicationEvent(connect);
 
-		listener.onApplicationEvent(destroyed);
+		listener.onApplicationEvent(deleted);
 
 		verify(wsSession).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
 	}
@@ -116,11 +116,11 @@ public class WebSocketRegistryListenerTests {
 
 
 	@Test
-	public void onApplicationEventConnectSessionDestroyedNullPrincipal() throws Exception {
+	public void onApplicationEventConnectSessionDeletedNullPrincipal() throws Exception {
 		when(wsSession.getPrincipal()).thenReturn(null);
 		listener.onApplicationEvent(connect);
 
-		listener.onApplicationEvent(destroyed);
+		listener.onApplicationEvent(deleted);
 
 		verify(wsSession,times(0)).close(any(CloseStatus.class));
 	}
@@ -130,7 +130,7 @@ public class WebSocketRegistryListenerTests {
 		listener.onApplicationEvent(connect);
 		listener.onApplicationEvent(disconnect);
 
-		listener.onApplicationEvent(destroyed);
+		listener.onApplicationEvent(deleted);
 
 		verify(wsSession,times(0)).close(any(CloseStatus.class));
 	}
@@ -164,7 +164,7 @@ public class WebSocketRegistryListenerTests {
 		listener.onApplicationEvent(connect2);
 		listener.onApplicationEvent(disconnect);
 
-		listener.onApplicationEvent(destroyed);
+		listener.onApplicationEvent(deleted);
 
 		verify(wsSession2).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
 		verify(wsSession,times(0)).close(any(CloseStatus.class));

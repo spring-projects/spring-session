@@ -15,7 +15,7 @@
  */
 package org.springframework.session;
 
-import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 
 import java.util.Map;
@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * distributed maps provided by NoSQL stores like Redis and Hazelcast.
  *
  * <p>
- * The implementation does NOT support firing {@link SessionDestroyedEvent} or {@link SessionExpiredEvent}.
+ * The implementation does NOT support firing {@link SessionDeletedEvent} or {@link SessionExpiredEvent}.
  * </p>
  *
  * @author Rob Winch
