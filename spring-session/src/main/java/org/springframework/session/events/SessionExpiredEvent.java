@@ -23,6 +23,7 @@ import org.springframework.session.SessionRepository;
  * fired when a {@link Session} is destroyed via expiration.
  *
  * @author Mark Anderson
+ * @author Rob Winch
  * @since 1.1
  *
  */
@@ -31,5 +32,9 @@ public class SessionExpiredEvent extends SessionDestroyedEvent {
 
 	public SessionExpiredEvent(Object source, String sessionId) {
 		super(source, sessionId);
+	}
+
+	public SessionExpiredEvent(Object source, Session session) {
+		super(source, session);
 	}
 }

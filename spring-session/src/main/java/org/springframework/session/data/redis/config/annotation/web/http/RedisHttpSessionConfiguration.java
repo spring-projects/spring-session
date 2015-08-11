@@ -23,6 +23,7 @@ import javax.servlet.ServletContext;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +33,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -67,24 +69,16 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 	private HttpSessionStrategy httpSessionStrategy;
 
-	@Autowired
-	private ApplicationEventPublisher eventPublisher;
-
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
 
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
-			RedisConnectionFactory connectionFactory) {
+			RedisConnectionFactory connectionFactory, RedisOperationsSessionRepository redisSessionMessageListener) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
-		container.addMessageListener(redisSessionMessageListener(),
+		container.addMessageListener(redisSessionMessageListener,
 				Arrays.asList(new PatternTopic("__keyevent@*:del"),new PatternTopic("__keyevent@*:expired")));
 		return container;
-	}
-
-	@Bean
-	public SessionMessageListener redisSessionMessageListener() {
-		return new SessionMessageListener(eventPublisher);
 	}
 
 	@Bean
@@ -97,8 +91,9 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	}
 
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository(@Qualifier("sessionRedisTemplate") RedisOperations<Object, Object> sessionRedisTemplate) {
+	public RedisOperationsSessionRepository sessionRepository(@Qualifier("sessionRedisTemplate") RedisOperations<Object, Object> sessionRedisTemplate, ApplicationEventPublisher applicationEventPublisher) {
 		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(sessionRedisTemplate);
+		sessionRepository.setApplicationEventPublisher(applicationEventPublisher);
 		sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
 		return sessionRepository;
 	}

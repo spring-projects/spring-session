@@ -68,23 +68,27 @@ final class RedisSessionExpirationPolicy {
 	}
 
 	public void onExpirationUpdated(Long originalExpirationTimeInMilli, ExpiringSession session) {
+		String keyToExpire = "expires:" + session.getId();
 		if(originalExpirationTimeInMilli != null) {
 			long originalRoundedUp = roundUpToNextMinute(originalExpirationTimeInMilli);
 			String expireKey = getExpirationKey(originalRoundedUp);
-			redis.boundSetOps(expireKey).remove(expireKey);
+			redis.boundSetOps(expireKey).remove(keyToExpire);
 		}
 
 		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 
 		String expireKey = getExpirationKey(toExpire);
 		BoundSetOperations<Object, Object> expireOperations = redis.boundSetOps(expireKey);
-		expireOperations.add(session.getId());
+		expireOperations.add(keyToExpire);
 
 		long sessionExpireInSeconds = session.getMaxInactiveIntervalInSeconds();
-		String sessionKey = getSessionKey(session.getId());
+		long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
+		String sessionKey = getSessionKey(keyToExpire);
 
-		expireOperations.expire(sessionExpireInSeconds + 60, TimeUnit.SECONDS);
-		redis.boundHashOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
+		expireOperations.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+		redis.boundValueOps(sessionKey).append("");
+		redis.boundValueOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
+		redis.boundHashOps(getSessionKey(session.getId())).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 	}
 
 	String getExpirationKey(long expires) {

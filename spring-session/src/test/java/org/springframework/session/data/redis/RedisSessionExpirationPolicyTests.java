@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundSetOperations;
+import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.MapSession;
 
@@ -33,7 +34,6 @@ import org.springframework.session.MapSession;
  * @author Rob Winch
  */
 @RunWith(MockitoJUnitRunner.class)
-@SuppressWarnings({"rawtypes","unchecked"})
 public class RedisSessionExpirationPolicyTests {
 	// Wed Apr 15 10:28:32 CDT 2015
 	final static Long NOW = 1429111712346L;
@@ -42,11 +42,13 @@ public class RedisSessionExpirationPolicyTests {
 	final static Long ONE_MINUTE_AGO = 1429111652346L;
 
 	@Mock
-	RedisOperations sessionRedisOperations;
+	RedisOperations<Object,Object> sessionRedisOperations;
 	@Mock
-	BoundSetOperations setOperations;
+	BoundSetOperations<Object,Object> setOperations;
 	@Mock
-	BoundHashOperations hashOperations;
+	BoundHashOperations<Object,Object, Object> hashOperations;
+	@Mock
+	BoundValueOperations<Object, Object> valueOperations;
 
 	RedisSessionExpirationPolicy policy;
 
@@ -61,6 +63,7 @@ public class RedisSessionExpirationPolicyTests {
 
 		when(sessionRedisOperations.boundSetOps(anyString())).thenReturn(setOperations);
 		when(sessionRedisOperations.boundHashOps(anyString())).thenReturn(hashOperations);
+		when(sessionRedisOperations.boundValueOps(anyString())).thenReturn(valueOperations);
 	}
 
 	// gh-169
@@ -74,7 +77,7 @@ public class RedisSessionExpirationPolicyTests {
 
 		// verify the original is removed
 		verify(sessionRedisOperations).boundSetOps(originalExpireKey);
-		verify(setOperations).remove(session.getId());
+		verify(setOperations).remove("expires:"+ session.getId());
 	}
 
 	@Test
@@ -86,8 +89,8 @@ public class RedisSessionExpirationPolicyTests {
 		policy.onExpirationUpdated(null, session);
 
 		verify(sessionRedisOperations).boundSetOps(expectedExpireKey);
-		verify(setOperations).add(session.getId());
-		verify(setOperations).expire(session.getMaxInactiveIntervalInSeconds() + 60, TimeUnit.SECONDS);
+		verify(setOperations).add("expires:" + session.getId());
+		verify(setOperations).expire(session.getMaxInactiveIntervalInSeconds() + TimeUnit.MINUTES.toSeconds(5), TimeUnit.SECONDS);
 	}
 
 	@Test
@@ -97,6 +100,6 @@ public class RedisSessionExpirationPolicyTests {
 		policy.onExpirationUpdated(null, session);
 
 		verify(sessionRedisOperations).boundHashOps(sessionKey);
-		verify(hashOperations).expire(session.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
+		verify(hashOperations).expire(session.getMaxInactiveIntervalInSeconds() + TimeUnit.MINUTES.toSeconds(5), TimeUnit.SECONDS);
 	}
 }

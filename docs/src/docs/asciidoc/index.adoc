@@ -301,27 +301,94 @@ For additional information on how to create a `RedisConnectionFactory`, refer to
 [[api-redisoperationssessionrepository-storage]]
 ==== Storage Details
 
+The sections below outline how Redis is updated for each operation.
+An example of creating a new session can be found below.
+The subsequent sections describe the details.
+
+----
+HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe creationTime 1404360000000 \
+	maxInactiveInterval 1800 \
+	lastAccessedTime 1404360000000 \
+	sessionAttr:attrName someAttrValue \
+	sessionAttr2:attrName someAttrValue2
+EXPIRE spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe 2100
+APPEND spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe ""
+EXPIRE spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe 1800
+SADD spring:session:expirations:1439245080000 expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe
+EXPIRE spring:session:expirations1439245080000 2100
+----
+
+===== Saving a Session
+
 Each session is stored in Redis as a Hash.
 Each session is set and updated using the HMSET command.
 An example of how each session is stored can be seen below.
 
-	HMSET spring:session:sessions:<session-id> creationTime 1404360000000 \
-		maxInactiveInterval 1800 lastAccessedTime 1404360000000 \
-		sessionAttr:<attrName> someAttrValue sessionAttr:<attrName2> someAttrValue2
+
+----
+HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe creationTime 1404360000000 \
+	maxInactiveInterval 1800 \
+	lastAccessedTime 1404360000000 \
+	sessionAttr:attrName someAttrValue \
+	sessionAttr2:attrName someAttrValue2
+----
+
+In this example, the session following statements are true about the session:
+
+* The session id is 33fdd1b6-b496-4b33-9f7d-df96679d32fe
+* The session was created at 1404360000000 in milliseconds since midnight of 1/1/1970 GMT.
+* The session expires in 1800 seconds (30 minutes).
+* The session was last accessed at 1404360000000 in milliseconds since midnight of 1/1/1970 GMT.
+* The session has two attributes.
+The first is "attrName" with the value of "someAttrValue".
+The second session attribute is named "attrName2" with the value of "someAttrValue2".
+
+[[api-redisoperationssessionrepository-writes]]
+===== Optimized Writes
+
+The `Session` instances managed by `RedisOperationsSessionRepository` keeps track of the properties that have changed and only updates those.
+This means if an attribute is written once and read many times we only need to write that attribute once.
+For example, assume the session attribute "sessionAttr2" from earlier was updated.
+The following would be executed upon saving:
+
+----
+HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe sessionAttr:attrName2 newValue
+----
 
 [[api-redisoperationssessionrepository-expiration]]
 ===== Session Expiration
 
-An expiration is associated to each session using the EXPIRE command based upon the RedisOperationsSessionRepository.RedisSession.getMaxInactiveInterval().
+An expiration is associated to each session using the EXPIRE command based upon the `ExpiringSession.getMaxInactiveInterval()`.
 For example:
 
-	EXPIRE spring:session:sessions:<session-id> 1800
+----
+EXPIRE spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe 2100
+----
+
+You will note that the expiration that is set is 5 minutes after the session actually expires.
+This is necessary so that the value of the session can be accessed when the session expires.
+An expiration is set on the session itself five minutes after it actually expires to ensure it is cleaned up, but only after we perform any necessary processing.
+
+[NOTE]
+====
+The `SessionRepository.getSession(String)` method ensures that no expired sessions will be returned.
+This means there is no need to check the expiration before using a session.
+====
 
 Spring Session relies on the expired and delete http://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionDeletedEvent>> and <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionExpiredEvent>> respectively.
 It is the `SessionDeletedEvent` or `SessionExpiredEvent` that ensures resources associated with the Session are cleaned up.
 For example, when using Spring Session's WebSocket support the Redis expired or delete event is what triggers any WebSocket connections associated with the session to be closed.
 
-One problem with this approach is that Redis makes no guarantee of when the expired event will be fired if they key has not been accessed.
+Expiration is not tracked directly on the session key itself since this would mean the session data would no longer be available. Instead a special session expires key is used. In our example the expires key is:
+
+----
+APPEND spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe ""
+EXPIRE spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe 1800
+----
+
+When a session expires key is deleted or expires, the keyspace notification triggers a lookup of the actual session and a SessionDestroyedEvent is fired.
+
+One problem with relying on Redis expiration exclusively is that Redis makes no guarantee of when the expired event will be fired if they key has not been accessed.
 Specifically the background task that Redis uses to clean up expired keys is a low priority task and may not trigger the key expiration.
 For additional details see http://redis.io/topics/notifications[Timing of expired events] section in the Redis documentation.
 
@@ -332,26 +399,21 @@ For this reason, each session expiration is also tracked to the nearest minute.
 This allows a background task to access the potentially expired sessions to ensure that Redis expired events are fired in a more deterministic fashion.
 For example:
 
-SADD spring:session:expirations:<expire-rounded-up-to-nearest-minute> <session-id>
-EXPIRE spring:session:expirations:<expire-rounded-up-to-nearest-minute> 1860
+----
+SADD spring:session:expirations:1439245080000 expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe
+EXPIRE spring:session:expirations1439245080000 2100
+----
 
 The background task will then use these mappings to explicitly request each key.
 By accessing they key, rather than deleting it, we ensure that Redis deletes the key for us only if the TTL is expired.
 
-NOTE: We do not explicitly delete the keys since in some instances there may be a race condition that incorrectly identifies a key as expired when it is not.
+[NOTE]
+====
+We do not explicitly delete the keys since in some instances there may be a race condition that incorrectly identifies a key as expired when it is not.
 Short of using distributed locks (which would kill our performance) there is no way to ensure the consistency of the expiration mapping.
 By simply accessing the key, we ensure that the key is only removed if the TTL on that key is expired.
+====
 
-[[api-redisoperationssessionrepository-writes]]
-===== Optimized Writes
-
-The `Session` instances managed by `RedisOperationsSessionRepository` keeps track of the properties that have changed and only updates those.
-This means if an attribute is written once and read many times we only need to write that attribute once.
-For example, assume the session attribute "sessionAttr2" from earlier was updated.
-The following would be executed upon saving:
-
-HMSET spring:session:sessions:<session-id> sessionAttr:<attrName2> newValue
-EXPIRE spring:session:sessions:<session-id> 1800
 
 [[api-redisoperationssessionrepository-sessiondestroyedevent]]
 ==== SessionDeletedEvent and SessionExpiredEvent

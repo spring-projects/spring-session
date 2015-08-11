@@ -33,7 +33,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.session.events.SessionDeletedEvent;
+import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -46,7 +46,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 	private SessionRepository<S> repository;
 
 	@Autowired
-	private SessionDeletedEventRegistry registry;
+	private SessionDestroyedEventRegistry registry;
 
 	private final Object lock = new Object();
 
@@ -58,7 +58,9 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 	@Test
 	public void saves() throws InterruptedException {
 		S toSave = repository.createSession();
-		toSave.setAttribute("a", "b");
+		String expectedAttributeName = "a";
+		String expectedAttributeValue = "b";
+		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
 		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user","password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
@@ -70,7 +72,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(session.getAttributeNames());
-		assertThat(session.getAttribute("a")).isEqualTo(toSave.getAttribute("a"));
+		assertThat(session.getAttribute(expectedAttributeName)).isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		repository.delete(toSave.getId());
 
@@ -79,6 +81,9 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 			lock.wait(3000);
 		}
 		assertThat(registry.receivedEvent()).isTrue();
+
+
+		assertThat(registry.getEvent().getSession().getAttribute(expectedAttributeName)).isEqualTo(expectedAttributeValue);
 	}
 
 	@Test
@@ -100,19 +105,23 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		assertThat(session.getAttribute("1")).isEqualTo("2");
 	}
 
-	static class SessionDeletedEventRegistry implements ApplicationListener<SessionDeletedEvent> {
-		private boolean receivedEvent;
+	static class SessionDestroyedEventRegistry implements ApplicationListener<SessionDestroyedEvent> {
+		private SessionDestroyedEvent event;
 		private Object lock;
 
-		public void onApplicationEvent(SessionDeletedEvent event) {
-			receivedEvent = true;
+		public void onApplicationEvent(SessionDestroyedEvent event) {
+			this.event = event;
 			synchronized (lock) {
 				lock.notifyAll();
 			}
 		}
 
 		public boolean receivedEvent() {
-			return receivedEvent;
+			return this.event != null;
+		}
+
+		public SessionDestroyedEvent getEvent() {
+			return event;
 		}
 
 		public void setLock(Object lock) {
@@ -131,8 +140,8 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		}
 
 		@Bean
-		public SessionDeletedEventRegistry sessionDestroyedEventRegistry() {
-			return new SessionDeletedEventRegistry();
+		public SessionDestroyedEventRegistry sessionDestroyedEventRegistry() {
+			return new SessionDestroyedEventRegistry();
 		}
 	}
 }

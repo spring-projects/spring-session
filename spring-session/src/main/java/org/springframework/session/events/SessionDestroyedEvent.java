@@ -29,9 +29,30 @@ import org.springframework.session.Session;
 public class SessionDestroyedEvent extends ApplicationEvent {
 	private final String sessionId;
 
+	private final Session session;
+
 	public SessionDestroyedEvent(Object source, String sessionId) {
 		super(source);
 		this.sessionId = sessionId;
+		this.session = null;
+	}
+
+	public SessionDestroyedEvent(Object source, Session session) {
+		super(source);
+		this.session = session;
+		this.sessionId = session.getId();
+	}
+
+	/**
+	 * Gets the {@link Session} that was destroyed. For some
+	 * {@link SessionRepository} implementations it may not be possible to get
+	 * the original session in which case this may be null.
+	 *
+	 * @return the expired {@link Session} or null if the data store does not support obtaining it
+	 */
+	@SuppressWarnings("unchecked")
+	public <S extends Session> S getSession() {
+		return (S) session;
 	}
 
 	public String getSessionId() {
