@@ -37,6 +37,7 @@ import org.springframework.session.events.SessionExpiredEvent;
 /**
  *
  * @author Rob Winch
+ * @author Mark Anderson
  *
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -49,7 +50,7 @@ public class SessionMessageListenerTests {
 
 	@Captor
 	ArgumentCaptor<SessionDestroyedEvent> deletedEvent;
-	
+
 	@Captor
 	ArgumentCaptor<SessionExpiredEvent> expiredEvent;
 
@@ -93,7 +94,7 @@ public class SessionMessageListenerTests {
 		verify(eventPublisher).publishEvent(deletedEvent.capture());
 		assertThat(deletedEvent.getValue().getSource()).isEqualTo(listener);
 	}
-	
+
 	@Test
 	public void onMessageExpiredSource() throws Exception {
 		mockMessage("__keyevent@0__:expired","spring:session:sessions:123");

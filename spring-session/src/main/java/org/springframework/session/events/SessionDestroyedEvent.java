@@ -26,7 +26,7 @@ import org.springframework.session.Session;
  *
  */
 @SuppressWarnings("serial")
-public abstract class SessionDestroyedEvent extends ApplicationEvent {
+public class SessionDestroyedEvent extends ApplicationEvent {
 	private final String sessionId;
 
 	public SessionDestroyedEvent(Object source, String sessionId) {

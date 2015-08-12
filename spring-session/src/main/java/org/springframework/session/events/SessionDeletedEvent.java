@@ -22,7 +22,7 @@ import org.springframework.session.SessionRepository;
  * For {@link SessionRepository} implementations that support it, this event is
  * fired when a {@link Session} is destroyed via deletion.
  *
- * @author Rob Winch
+ * @author Mark Anderson
  * @since 1.1
  *
  */
@@ -32,5 +32,5 @@ public class SessionDeletedEvent extends SessionDestroyedEvent {
 	public SessionDeletedEvent(Object source, String sessionId) {
 		super(source, sessionId);
 	}
-	
+
 }

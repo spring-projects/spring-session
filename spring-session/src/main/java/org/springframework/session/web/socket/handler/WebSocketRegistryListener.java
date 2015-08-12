@@ -41,6 +41,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
  *
  *
  * @author Rob Winch
+ * @author Mark Anderson
  * @since 1.0
  */
 public final class WebSocketRegistryListener implements ApplicationListener<ApplicationEvent> {

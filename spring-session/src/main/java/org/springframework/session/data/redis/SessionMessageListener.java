@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  * translate into a {@link SessionExpiredEvent}.
  *
  * @author Rob Winch
+ * @author Mark Anderson
  * @since 1.0
  */
 public class SessionMessageListener implements MessageListener {
