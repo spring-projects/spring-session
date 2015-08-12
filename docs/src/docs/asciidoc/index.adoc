@@ -188,6 +188,31 @@ You can follow the basic steps for integration below, but you are encouraged to 
 
 include::guides/rest.adoc[tags=config,leveloffset=+2]
 
+[[httpsession-httpsessionlistener]]
+=== HttpSessionListener
+
+Spring Session supports `HttpSessionListener` by translating `SessionDestroyedEvent` and `SessionCreatedEvent` into `HttpSessionEvent` by declaring `SessionEventHttpSessionListenerAdapter`.
+To use this support, you need to:
+
+* Ensure your `SessionRepository` implementation supports and is configured to fire `SessionDestroyedEvent` and `SessionCreatedEvent`.
+* Configure `SessionEventHttpSessionListenerAdapter` as a Spring bean.
+* Inject every `HttpSessionListener` into the `SessionEventHttpSessionListenerAdapter`
+
+If you are using the configuration support documented in <<httpsession-redis,HttpSession with Redis>>, then all you need to do is register every `HttpSessionListener` as a bean.
+For example, assume you want to support Spring Security's concurrency control and need to use `HttpSessionEventPublisher` you can simply add `HttpSessionEventPublisher` as a bean.
+In Java configuration, this might look like:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/http/RedisHttpSessionConfig.java[tags=config]
+----
+
+In XML configuration, this might look like:
+
+[source,xml,indent=0]
+----
+include::{docs-test-resources-dir}docs/http/HttpSessionListenerXmlTests-context.xml[tags=config]
+----
 
 [[websocket]]
 == WebSocket Integration

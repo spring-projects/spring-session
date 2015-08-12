@@ -12,6 +12,7 @@ dependencies {
 				"org.springframework.data:spring-data-redis:$springDataRedisVersion",
 				"org.springframework:spring-websocket:${springVersion}",
 				"org.springframework:spring-messaging:${springVersion}",
+				"org.springframework.security:spring-security-web:${springSecurityVersion}",
 				'junit:junit:4.11',
 				'org.mockito:mockito-core:1.9.5',
 				"org.springframework:spring-test:$springVersion",

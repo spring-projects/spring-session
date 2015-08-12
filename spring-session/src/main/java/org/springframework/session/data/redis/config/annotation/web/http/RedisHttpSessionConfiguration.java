@@ -15,10 +15,13 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSessionListener;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -31,14 +34,12 @@ import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.ExpiringSession;
@@ -47,6 +48,7 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.web.http.HttpSessionStrategy;
+import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
 
@@ -71,6 +73,13 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	private HttpSessionStrategy httpSessionStrategy;
 
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
+
+	private List<HttpSessionListener> httpSessionListeners = new ArrayList<HttpSessionListener>();
+
+	@Bean
+	public SessionEventHttpSessionListenerAdapter sessionEventHttpSessionListenerAdapter() {
+		return new SessionEventHttpSessionListenerAdapter(httpSessionListeners);
+	}
 
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
@@ -138,6 +147,11 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 	@Autowired(required = false)
 	public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
 		this.httpSessionStrategy = httpSessionStrategy;
+	}
+
+	@Autowired(required = false)
+	public void setHttpSessionListeners(List<HttpSessionListener> listeners) {
+		this.httpSessionListeners = listeners;
 	}
 
 	@Bean
