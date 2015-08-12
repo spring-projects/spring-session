@@ -30,7 +30,8 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.events.SessionDeletedEvent;
+import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 
@@ -41,7 +42,7 @@ import org.springframework.util.Assert;
  * {@link org.springframework.data.redis.core.RedisOperations}. In a web
  * environment, this is typically used in combination with
  * {@link SessionRepositoryFilter}. This implementation supports
- * {@link SessionDestroyedEvent} through {@link SessionMessageListener}.
+ * {@link SessionDeletedEvent} and {@link SessionExpiredEvent} through {@link SessionMessageListener}.
  * </p>
  *
  * <h2>Creating a new instance</h2>
