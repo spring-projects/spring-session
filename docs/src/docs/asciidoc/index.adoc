@@ -186,7 +186,7 @@ Spring Session can work with RESTful APIs by allowing the session to be provided
 NOTE: The <<samples, REST Sample>> provides a working sample on how to use Spring Session in a REST application to support authenticating with a header.
 You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed REST Guide when integrating with your own application.
 
-include::guides/rest.adoc[tags=config,leveloffset=+1]
+include::guides/rest.adoc[tags=config,leveloffset=+2]
 
 
 [[websocket]]
