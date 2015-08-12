@@ -30,13 +30,17 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
+import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
@@ -126,6 +130,21 @@ import org.springframework.util.Assert;
  * HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe sessionAttr:attrName2 newValue
  * </pre>
  *
+ * <h3>SessionCreatedEvent</h3>
+ *
+ * <p>
+ * When a session is created an event is sent to Redis with the channel of
+ * "spring:session:channel:created:33fdd1b6-b496-4b33-9f7d-df96679d32fe" such
+ * that "33fdd1b6-b496-4b33-9f7d-df96679d32fe" is the sesion id. The body of the
+ * event will be the session that was created.
+ * </p>
+ *
+ * <p>
+ * If registered as a {@link MessageListener}, then
+ * {@link RedisOperationsSessionRepository} will then translate the Redis
+ * message into a {@link SessionCreatedEvent}.
+ * </p>
+ *
  * <h3>Expiration</h3>
  *
  * <p>
@@ -156,11 +175,11 @@ import org.springframework.util.Assert;
  * <p>
  * Spring Session relies on the expired and delete
  * <a href="http://redis.io/topics/notifications">keyspace notifications</a>
- * from Redis to fire a SessionDestroyedEvent. It is the
- * SessionDestroyedEvent that ensures resources associated with the Session
- * are cleaned up. For example, when using Spring Session's WebSocket support
- * the Redis expired or delete event is what triggers any WebSocket connections
- * associated with the session to be closed.
+ * from Redis to fire a SessionDestroyedEvent. It is the SessionDestroyedEvent
+ * that ensures resources associated with the Session are cleaned up. For
+ * example, when using Spring Session's WebSocket support the Redis expired or
+ * delete event is what triggers any WebSocket connections associated with the
+ * session to be closed.
  * </p>
  *
  * <p>
@@ -228,6 +247,11 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class RedisOperationsSessionRepository implements SessionRepository<RedisOperationsSessionRepository.RedisSession>, MessageListener {
+	/**
+	 * The prefix for SessionCreated event channel. The suffix is the session id.
+	 */
+	private static final String SPRING_SESSION_CREATED_PREFIX = "spring:session:event:created:";
+
 	private static final Log logger = LogFactory.getLog(SessionMessageListener.class);
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
@@ -318,6 +342,10 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
 	public void save(RedisSession session) {
 		session.saveDelta();
+		if(session.isNew()) {
+			this.sessionRedisOperations.convertAndSend(SPRING_SESSION_CREATED_PREFIX + session.getId(), session.delta);
+			session.setNew(false);
+		}
 	}
 
 	@Scheduled(cron="0 * * * * *")
@@ -343,6 +371,17 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		if(entries.isEmpty()) {
 			return null;
 		}
+		MapSession loaded = loadSession(id, entries);
+		if(!allowExpired && loaded.isExpired()) {
+			return null;
+		}
+		RedisSession result = new RedisSession(loaded);
+		result.originalLastAccessTime = loaded.getLastAccessedTime() + TimeUnit.SECONDS.toMillis(loaded.getMaxInactiveIntervalInSeconds());
+		result.setLastAccessedTime(System.currentTimeMillis());
+		return result;
+	}
+
+	private MapSession loadSession(String id, Map<Object, Object> entries) {
 		MapSession loaded = new MapSession();
 		loaded.setId(id);
 		for(Map.Entry<Object,Object> entry : entries.entrySet()) {
@@ -357,13 +396,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 				loaded.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()), entry.getValue());
 			}
 		}
-		if(!allowExpired && loaded.isExpired()) {
-			return null;
-		}
-		RedisSession result = new RedisSession(loaded);
-		result.originalLastAccessTime = loaded.getLastAccessedTime() + TimeUnit.SECONDS.toMillis(loaded.getMaxInactiveIntervalInSeconds());
-		result.setLastAccessedTime(System.currentTimeMillis());
-		return result;
+		return loaded;
 	}
 
 	public void delete(String sessionId) {
@@ -392,8 +425,6 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		}
 		return redisSession;
 	}
-
-
 	public void onMessage(Message message, byte[] pattern) {
 		byte[] messageChannel = message.getChannel();
 		byte[] messageBody = message.getBody();
@@ -402,6 +433,14 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		}
 
 		String channel = new String(messageChannel);
+
+
+		if(channel.startsWith(SPRING_SESSION_CREATED_PREFIX)) {
+			RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer();
+			Map<Object,Object> loaded = (Map<Object, Object>) serializer.deserialize(message.getBody());
+			handleCreated(loaded, channel);
+			return;
+		}
 
 		String body = new String(messageBody);
 		if(!body.startsWith("spring:session:sessions:expires")) {
@@ -428,6 +467,12 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
 			return;
 		}
+	}
+
+	public void handleCreated(Map<Object,Object> loaded, String channel) {
+		String id = channel.substring(channel.lastIndexOf(":"));
+		ExpiringSession session = loadSession(id, loaded);
+		publishEvent(new SessionCreatedEvent(this, session));
 	}
 
 	private void handleDeleted(String sessionId, RedisSession session) {
@@ -508,6 +553,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		private final MapSession cached;
 		private Long originalLastAccessTime;
 		private Map<String, Object> delta = new HashMap<String,Object>();
+		private boolean isNew;
 
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be persisted in the next save operation.
@@ -517,6 +563,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 			delta.put(CREATION_TIME_ATTR, getCreationTime());
 			delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
 			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
+			this.isNew = true;
 		}
 
 
@@ -531,6 +578,10 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 			this.cached = cached;
 		}
 
+		public void setNew(boolean isNew) {
+			this.isNew = isNew;
+		}
+
 		public void setLastAccessedTime(long lastAccessedTime) {
 			cached.setLastAccessedTime(lastAccessedTime);
 			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
@@ -538,6 +589,10 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
 		public boolean isExpired() {
 			return cached.isExpired();
+		}
+
+		public boolean isNew() {
+			return isNew;
 		}
 
 		public long getCreationTime() {

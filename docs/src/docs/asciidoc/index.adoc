@@ -284,7 +284,7 @@ Instead, developers should prefer interacting with `SessionRepository` and `Sess
 
 `RedisOperationsSessionRepository` is a `SessionRepository` that is implemented using Spring Data's `RedisOperations`.
 In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
-The implementation supports `SessionDeletedEvent` and `SessionExpiredEvent` through `SessionMessageListener`.
+The implementation supports `SessionDestroyedEvent` and `SessionCreatedEvent` through `SessionMessageListener`.
 
 [[api-redisoperationssessionrepository-new]]
 ==== Instantiating a RedisOperationsSessionRepository
@@ -452,6 +452,14 @@ XML Configuraiton can use the following:
 ----
 include::{docs-test-resources-dir}docs/HttpSessionConfigurationNoOpConfigureRedisActionXmlTests-context.xml[tags=configure-redis-action]
 ----
+
+[[api-redisoperationssessionrepository-sessioncreatedevent]]
+==== SessionCreatedEvent
+
+When a session is created an event is sent to Redis with the channel of `spring:session:channel:created:33fdd1b6-b496-4b33-9f7d-df96679d32fe`
+such that `33fdd1b6-b496-4b33-9f7d-df96679d32fe` is the session id. The body of the event will be the session that was created.
+
+If registered as a MessageListener (default), then `RedisOperationsSessionRepository` will then translate the Redis message into a `SessionCreatedEvent`.
 
 [[api-redisoperationssessionrepository-cli]]
 ==== Viewing the Session in Redis

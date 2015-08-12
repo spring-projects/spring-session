@@ -33,6 +33,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.events.AbstractSessionEvent;
+import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -46,14 +48,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 	private SessionRepository<S> repository;
 
 	@Autowired
-	private SessionDestroyedEventRegistry registry;
-
-	private final Object lock = new Object();
-
-	@Before
-	public void setup() {
-		registry.setLock(lock);
-	}
+	private SessionEventRegistry registry;
 
 	@Test
 	public void saves() throws InterruptedException {
@@ -65,8 +60,12 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
+		registry.clear();
 
 		repository.save(toSave);
+
+		assertThat(registry.receivedEvent()).isTrue();
+		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
 
 		Session session = repository.getSession(toSave.getId());
 
@@ -74,13 +73,12 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		assertThat(session.getAttributeNames()).isEqualTo(session.getAttributeNames());
 		assertThat(session.getAttribute(expectedAttributeName)).isEqualTo(toSave.getAttribute(expectedAttributeName));
 
+		registry.clear();
+
 		repository.delete(toSave.getId());
 
 		assertThat(repository.getSession(toSave.getId())).isNull();
-		synchronized (lock) {
-			lock.wait(3000);
-		}
-		assertThat(registry.receivedEvent()).isTrue();
+		assertThat(registry.getEvent()).isInstanceOf(SessionDestroyedEvent.class);
 
 
 		assertThat(registry.getEvent().getSession().getAttribute(expectedAttributeName)).isEqualTo(expectedAttributeValue);
@@ -105,27 +103,38 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		assertThat(session.getAttribute("1")).isEqualTo("2");
 	}
 
-	static class SessionDestroyedEventRegistry implements ApplicationListener<SessionDestroyedEvent> {
-		private SessionDestroyedEvent event;
-		private Object lock;
+	static class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
+		private AbstractSessionEvent event;
+		private final Object lock = new Object();
 
-		public void onApplicationEvent(SessionDestroyedEvent event) {
+		public void onApplicationEvent(AbstractSessionEvent event) {
 			this.event = event;
 			synchronized (lock) {
 				lock.notifyAll();
 			}
 		}
 
-		public boolean receivedEvent() {
-			return this.event != null;
+		public void clear() {
+			this.event = null;
 		}
 
-		public SessionDestroyedEvent getEvent() {
-			return event;
+		public boolean receivedEvent() throws InterruptedException {
+			return waitForEvent() != null;
 		}
 
-		public void setLock(Object lock) {
-			this.lock = lock;
+		@SuppressWarnings("unchecked")
+		public <E extends AbstractSessionEvent> E getEvent() throws InterruptedException {
+			return (E) waitForEvent();
+		}
+
+		@SuppressWarnings("unchecked")
+		private <E extends AbstractSessionEvent> E waitForEvent() throws InterruptedException {
+			synchronized(lock) {
+				if(event == null) {
+					lock.wait(3000);
+				}
+			}
+			return (E) event;
 		}
 	}
 
@@ -140,8 +149,8 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		}
 
 		@Bean
-		public SessionDestroyedEventRegistry sessionDestroyedEventRegistry() {
-			return new SessionDestroyedEventRegistry();
+		public SessionEventRegistry sessionEventRegistry() {
+			return new SessionEventRegistry();
 		}
 	}
 }
