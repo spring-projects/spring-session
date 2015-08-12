@@ -284,7 +284,7 @@ Instead, developers should prefer interacting with `SessionRepository` and `Sess
 
 `RedisOperationsSessionRepository` is a `SessionRepository` that is implemented using Spring Data's `RedisOperations`.
 In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
-The implementation supports `SessionDestroyedEvent` and `SessionExpiredEvent` through `SessionMessageListener`.
+The implementation supports `SessionDeletedEvent` and `SessionExpiredEvent` through `SessionMessageListener`.
 
 [[api-redisoperationssessionrepository-new]]
 ==== Instantiating a RedisOperationsSessionRepository
@@ -317,8 +317,8 @@ For example:
 
 	EXPIRE spring:session:sessions:<session-id> 1800
 
-Spring Session relies on the expired and delete http://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionDestroyedEvent>> and <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionExpiredEvent>> respectively.
-It is the `SessionDestroyedEvent` or `SessionExpiredEvent` that ensures resources associated with the Session are cleaned up.
+Spring Session relies on the expired and delete http://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionDeletedEvent>> and <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionExpiredEvent>> respectively.
+It is the `SessionDeletedEvent` or `SessionExpiredEvent` that ensures resources associated with the Session are cleaned up.
 For example, when using Spring Session's WebSocket support the Redis expired or delete event is what triggers any WebSocket connections associated with the session to be closed.
 
 One problem with this approach is that Redis makes no guarantee of when the expired event will be fired if they key has not been accessed.
@@ -354,13 +354,16 @@ HMSET spring:session:sessions:<session-id> sessionAttr:<attrName2> newValue
 EXPIRE spring:session:sessions:<session-id> 1800
 
 [[api-redisoperationssessionrepository-sessiondestroyedevent]]
-==== SessionDestroyedEvent and SessionExpiredEvent
+==== SessionDeletedEvent and SessionExpiredEvent
 
-`RedisOperationsSessionRepository` supports firing a `SessionDestroyedEvent` whenever a `Session` is deleted or a `SessionExpiredEvent` when it expires.
+`SessionDeletedEvent` and `SessionExpiredEvent` are both types of `SessionDestroyedEvent`.
+
+`RedisOperationsSessionRepository` supports firing a `SessionDeletedEvent` whenever a `Session` is deleted or a `SessionExpiredEvent` when it expires.
 This is necessary to ensure resources associated with the `Session` are properly cleaned up.
+
 For example, when integrating with WebSockets the `SessionDestroyedEvent` is in charge of closing any active WebSocket connections.
 
-Firing `SessionDestroyedEvent` or `SessionExpiredEvent` is made available through the `SessionMessageListener` which listens to http://redis.io/topics/notifications[Redis Keyspace events].
+Firing `SessionDeletedEvent` or `SessionExpiredEvent` is made available through the `SessionMessageListener` which listens to http://redis.io/topics/notifications[Redis Keyspace events].
 In order for this to work, Redis Keyspace events for Generic commands and Expired events needs to be enabled.
 For example:
 
