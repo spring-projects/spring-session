@@ -1,5 +1,20 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.kordamp.gradle:livereload-gradle-plugin:0.2.1'
+    }
+}
+
+apply plugin: 'org.kordamp.gradle.livereload'
 apply plugin: 'java'
 apply plugin: 'org.asciidoctor.convert'
+
+liveReload {
+	docRoot asciidoctor.sourceDir.canonicalPath
+}
 
 asciidoctorj {
 
