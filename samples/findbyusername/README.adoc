@@ -1,0 +1,4 @@
+Demonstrates using Spring Session to lookup a user's session by the username.
+The sample provides a hook to add the current username to the session (required for finding the user) by providing a custom implementation of Spring Security's `AuthenticationSuccessHandler`.
+
+NOTE: This product includes GeoLite2 data created by MaxMind, available from http://www.maxmind.com

@@ -17,6 +17,9 @@ package org.springframework.session.data.redis;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.Map;
+import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,11 +28,13 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.session.FindByPrincipalNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
@@ -45,27 +50,36 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 public class RedisOperationsSessionRepositoryITests<S extends Session> {
 	@Autowired
-	private SessionRepository<S> repository;
+	private FindByPrincipalNameSessionRepository<S> repository;
 
 	@Autowired
 	private SessionEventRegistry registry;
 
+	@Autowired
+	RedisOperations<Object, Object> redis;
+
 	@Test
 	public void saves() throws InterruptedException {
+		String username = "saves-"+System.currentTimeMillis();
+
+		String usernameSessionKey = RedisOperationsSessionRepository.PRINCIPAL_NAME_PREFIX + username;
+
 		S toSave = repository.createSession();
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user","password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
+		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, username);
 		registry.clear();
 
 		repository.save(toSave);
 
 		assertThat(registry.receivedEvent()).isTrue();
 		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(redis.boundSetOps(usernameSessionKey).members()).contains(toSave.getId());
 
 		Session session = repository.getSession(toSave.getId());
 
@@ -79,6 +93,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 
 		assertThat(repository.getSession(toSave.getId())).isNull();
 		assertThat(registry.getEvent()).isInstanceOf(SessionDestroyedEvent.class);
+		assertThat(redis.boundSetOps(usernameSessionKey).members()).excludes(toSave.getId());
 
 
 		assertThat(registry.getEvent().getSession().getAttribute(expectedAttributeName)).isEqualTo(expectedAttributeValue);
@@ -101,6 +116,28 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
 		assertThat(session.getAttribute("a")).isEqualTo("b");
 		assertThat(session.getAttribute("1")).isEqualTo("2");
+	}
+
+	@Test
+	public void findByPrincipalName() throws Exception {
+		String principalName = "findByPrincipalName" + UUID.randomUUID();
+		S toSave = repository.createSession();
+		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+
+		repository.save(toSave);
+
+		Map<String, S> findByPrincipalName = repository.findByPrincipalName(principalName);
+
+		assertThat(findByPrincipalName).hasSize(1);
+		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
+
+		repository.delete(toSave.getId());
+		registry.receivedEvent();
+
+		findByPrincipalName = repository.findByPrincipalName(principalName);
+
+		assertThat(findByPrincipalName).hasSize(0);
+		assertThat(findByPrincipalName.keySet()).excludes(toSave.getId());
 	}
 
 	static class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {

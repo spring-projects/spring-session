@@ -1,0 +1,172 @@
+= Spring Session - find by username
+Rob Winch
+:toc:
+
+This guide describes how to use Spring Session to find sessions by username.
+
+NOTE: The completed guide can be found in the <<findbyusername-sample, findbyusername application>>.
+
+[[findbyusername-assumptions]]
+== Assumptions
+
+The guide assumes you have already added Spring Session using the built in Redis configuration support to your application.
+The guide also assumes you have already applied Spring Security to your application.
+However, we the guide will be somewhat general purpose and can be applied to any technology with minimal changes we will discuss.
+
+[NOTE]
+====
+If you need to learn how to add Spring Session to your project, please refer to the listing of link:../#samples[samples and guides]
+====
+
+== About the Sample
+
+Our sample is using this feature to invalidate the users session that might have been compromised.
+Consider the following scenario:
+
+* User goes to library and authenticates to the application
+* User goes home and realizes they forgot to log out
+* User can log in and terminate the session from the library using clues like the location, created time, last accessed time, etc.
+
+Wouldn't it be nice if we could allow the user to invalidate the session at the library from any device they authenticate with?
+This sample demonstrates how this is possible.
+
+[[findbyusernamesessionrepository]]
+== FindByUsernameSessionRepository
+
+In order to look up a user by their username, you must first choose a `SessionRepository` that implements <<index.doc#ap-findbyusernamesessionrepository,FindByUsernameSessionRepository>>.
+Our sample application assumes that the Redis support is already setup, so we are ready to go.
+
+== Mapping the username
+
+`FindByUsernameSessionRepository` can only find a session by the username, if the developer instructs Spring Session what user is associated with the `Session`.
+This is done by ensuring that the session attribute with the name `Session.FindByUsernameSessionRepository` is populated with the username.
+
+Generally, speaking this can be done with the following code immediately after the user authenticates:
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/session/SpringSessionPrincipalNameSuccessHandler.java[tags=set-username]
+----
+
+== Mapping the username with Spring Security
+
+Since we are using Spring Security, it makes perfect sense to provide a custom `AuthenticationSuccessHandler` that populates the username.
+For example:
+
+[NOTE]
+====
+We plan to provide first class integration with Spring Security to make this process easier in the future.
+For details track https://github.com/spring-projects/spring-session/issues/266[gh-266].
+====
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/session/SpringSessionPrincipalNameSuccessHandler.java[tags=class]
+----
+
+In order to support multiple handlers, we need to also create a custom `AuthenticationSuccessHandler` that delegates to multiple `AuthenticationSuccessHandler` instances.
+For example:
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/session/CompositeAuthenticationSuccessHandler.java[tags=class]
+----
+
+Next we need to provide a custom `AuthenticationSuccessHandler` with Spring Security.
+In Java configuration, we can do this using the following:
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/config/SecurityConfig.java[tags=handler]
+----
+
+We can then configure authentication success with the following:
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/config/SecurityConfig.java[tags=config]
+----
+
+== Adding Additional Data to Session
+
+It may be nice to associate additional information (i.e. IP Address, the browser, location, etc) to the session.
+This makes it easier for the user to know which session they are looking at.
+
+To do this simply determine which session attribute you want to use and what information you wish to provide.
+Then create a Java bean that is added as a session attribute.
+For example, our sample application includes the location and access type of the session
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/session/SessionDetails.java[tags=class]
+----
+
+We then inject that information into the session on each HTTP request using a `SessionDetailsFilter`.
+For example:
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/session/SessionDetailsFilter.java[tags=dofilterinternal]
+----
+
+We obtain the information we want and then set the `SessionDetails` as an attribute in the `Session`.
+When we retrieve the `Session` by username, we can then use the session to access our `SessionDetails` just like any other session attribute.
+
+[NOTE]
+====
+You might be wondering at this point why Spring Session does not provide `SessionDetails` functionality out of the box.
+The reason, is twofold.
+The first is that it is very trivial for applications to implement this themselves.
+The second reason is that the information that is populated in the session (and how frequently that information is updated) is highly application dependent.
+====
+
+== Finding sessions for a specific user
+
+We can now find all the sessions for a specific user.
+
+[source,java,indent=0]
+----
+include::{samples-dir}findbyusername/src/main/java/sample/mvc/IndexController.java[tags=findbyusername]
+----
+
+In our instance, we find all sessions for the currently logged in user.
+However, this could easily be modified for an administrator to use a form to specify which user to look up.
+
+[[findbyusername-sample]]
+== findbyusername Sample Application
+
+=== Running the findbyusername Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+[NOTE]
+====
+For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
+====
+
+----
+$ ./gradlew :samples:findbyusername:tomcatRun
+----
+
+You should now be able to access the application at http://localhost:8080/
+
+=== Exploring the security Sample Application
+
+Try using the application. Enter the following to log in:
+
+* **Username** _user_
+* **Password** _password_
+
+Now click the **Login** button.
+You should now see a message indicating your are logged in with the user entered previously.
+You should also see a listing of active sessions for the currently logged in user.
+
+Let's emulate the flow we discussed in the <<About the Sample>> section
+
+* Open a new incognito window and navigate to  http://localhost:8080/
+* Enter the following to log in:
+** **Username** _user_
+** **Password** _password_
+* Terminate your original session
+* Refresh the original window and see you are logged out

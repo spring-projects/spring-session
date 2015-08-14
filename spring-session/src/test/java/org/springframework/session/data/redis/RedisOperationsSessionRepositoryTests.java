@@ -27,6 +27,7 @@ import static org.springframework.session.data.redis.RedisOperationsSessionRepos
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.getSessionAttrNameKey;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -306,6 +307,46 @@ public class RedisOperationsSessionRepositoryTests {
 		when(boundHashOperations.entries()).thenReturn(map);
 
 		assertThat(redisRepository.getSession(expiredId)).isNull();
+	}
+
+	@Test
+	public void findByPrincipalNameExpired() {
+		String expiredId = "expired-id";
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(boundSetOperations.members()).thenReturn(Collections.<Object>singleton(expiredId));
+		when(redisOperations.boundHashOps(getKey(expiredId))).thenReturn(boundHashOperations);
+		Map map = map(
+				MAX_INACTIVE_ATTR, 1,
+				LAST_ACCESSED_ATTR, System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		when(boundHashOperations.entries()).thenReturn(map);
+
+		assertThat(redisRepository.findByPrincipalName("principal")).isEmpty();
+	}
+
+	@Test
+	public void findByPrincipalName() {
+		long lastAccessed = System.currentTimeMillis() - 10;
+		long createdTime = lastAccessed - 10;
+		int maxInactive = 3600;
+		String sessionId = "some-id";
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(boundSetOperations.members()).thenReturn(Collections.<Object>singleton(sessionId));
+		when(redisOperations.boundHashOps(getKey(sessionId))).thenReturn(boundHashOperations);
+		Map map = map(
+				CREATION_TIME_ATTR, createdTime,
+				MAX_INACTIVE_ATTR, maxInactive,
+				LAST_ACCESSED_ATTR, lastAccessed);
+		when(boundHashOperations.entries()).thenReturn(map);
+
+		Map<String, RedisSession> sessionIdToSessions = redisRepository.findByPrincipalName("principal");
+
+		assertThat(sessionIdToSessions).hasSize(1);
+		RedisSession session = sessionIdToSessions.get(sessionId);
+		assertThat(session).isNotNull();
+		assertThat(session.getId()).isEqualTo(sessionId);
+		assertThat(session.getLastAccessedTime()).isEqualTo(lastAccessed);
+		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(maxInactive);
+		assertThat(session.getCreationTime()).isEqualTo(createdTime);
 	}
 
 	@Test

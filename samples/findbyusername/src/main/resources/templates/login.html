@@ -1,0 +1,47 @@
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="layout">
+<head>
+<title>Log In</title>
+</head>
+<body>
+	<div layout:fragment="content">
+		<form name="f" th:action="@{/login}" method="post">
+			<fieldset>
+				<legend>Please Login</legend>
+				<div th:if="${param.error}" class="alert alert-error">Invalid
+					username and password.</div>
+				<div th:if="${param.logout}" class="alert alert-success">You
+					have been logged out.</div>
+				<label for="username">Username</label> <input type="text"
+					id="username" name="username" /> <label for="password">Password</label>
+				<input type="password" id="password" name="password" />
+				<div class="form-actions">
+					<button type="submit" class="btn">Log in</button>
+				</div>
+			</fieldset>
+		</form>
+
+		<div class="container">
+			<p>The intention is to demo a way to terminate a user's active
+				session without access to the device. Consider the following</p>
+			<ul>
+				<li>User goes to library and authenticates to the application</li>
+				<li>User goes home and realizes they forgot to log out</li>
+				<li>User can log in and terminate the session from the library
+					using clues like the location, created time, last accessed time,
+					etc.</li>
+			</ul>
+
+			<p>To emulate the workflow:</p>
+
+			<ul>
+				<li>Sign in with the <b>username</b> "user" and <b>password</b> "password"</li>
+				<li>Sign in again using an incognito window</li>
+				<li>Terminate your original session</li>
+				<li>Refresh the original window and see you are logged out</li>
+			</ul>
+		</div>
+	</div>
+</body>
+</html>

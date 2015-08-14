@@ -27,6 +27,22 @@ import java.util.Set;
 public interface Session {
 
 	/**
+	 * <p>
+	 * A common session attribute that contains the current principal name (i.e.
+	 * username).
+	 * </p>
+	 *
+	 * <p>
+	 * It is the responsibility of the developer to ensure the attribute
+	 * is populated since Spring Session is not aware of the authentication
+	 * mechanism being used.
+	 * </p>
+	 *
+	 * @since 1.1
+	 */
+	String PRINCIPAL_NAME_ATTRIBUTE_NAME = Session.class.getName().concat(".PRINCIPAL_NAME_ATTRIBUTE_NAME");
+
+	/**
 	 * Gets a unique string that identifies the {@link Session}
 	 *
 	 * @return a unique string that identifies the {@link Session}

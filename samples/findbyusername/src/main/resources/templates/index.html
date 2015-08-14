@@ -1,0 +1,36 @@
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+<head>
+	<title>Secured Content</title>
+</head>
+<body>
+	<div layout:fragment="content">
+		<h1>Secured Page</h1>
+		<p>This page is secured using Spring Boot, Spring Session, and Spring Security.</p>
+
+		<p>Your current session id is <span id="session-id" th:text="${#httpSession.id}"></span></p>
+
+		<table class="table table-stripped">
+			<tr>
+				<th>Id Suffix</th>
+				<th>Location</th>
+				<th>Created</th>
+				<th>Last Updated</th>
+				<th>Information</th>
+				<th>Terminate</th>
+			</tr>
+			<tr th:each="session : ${sessions}" th:with="details=${session.getAttribute('SESSION_DETAILS')}">
+				<td th:text="${session.id.substring(30)}"></td>
+				<td th:text="${details.location}"></td>
+				<td th:text="${#dates.format(new java.util.Date(session.creationTime),'dd/MMM/yyyy HH:mm:ss')}"></td>
+				<td th:text="${#dates.format(new java.util.Date(session.lastAccessedTime),'dd/MMM/yyyy HH:mm:ss')}"></td>
+				<td th:text="${details.accessType}"></td>
+				<td>
+					<form th:action="@{'/sessions/' + ${session.id}}" th:method="delete">
+						<input th:id="'terminate-' + ${session.id}" type="submit" value="Terminate" th:disabled="${session.id == #httpSession.id}"/>
+					</form>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>

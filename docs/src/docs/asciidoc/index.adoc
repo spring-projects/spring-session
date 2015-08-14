@@ -51,6 +51,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
 | link:guides/rest.html[REST Guide]
 
+| {gh-samples-url}findbyusername[Find by Username]
+| Demonstrates how to use Spring Session to find sessions by username.
+| link:guides/findbyusername.html[Find by Username]
+
 | {gh-samples-url}users[Multiple Users]
 | Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
 | link:guides/users.html[Manage Multiple Users Guide]
@@ -303,6 +307,19 @@ A `SessionRepository` is in charge of creating, retrieving, and persisting `Sess
 
 If possible, developers should not interact directly with a `SessionRepository` or a `Session`.
 Instead, developers should prefer interacting with `SessionRepository` and `Session` indirectly through the <<httpsession,HttpSession>> and <<websocket,WebSocket>> integration.
+
+[[api-findbyusernamesessionrepository]]
+== FindByUsernameSessionRepository
+
+Spring Session's most basic API for using a `Session` is the `SessionRepository`.
+This API is intentionally very simple, so that it is easy to provide additional implementations with basic functionality.
+
+The `FindByUsernameSessionRepository` adds a single method to look up all the sessions for a particular user.
+This is done by ensuring that the session attribute with the name `Session.PRINCIPAL_NAME_ATTRIBUTE_NAME` is populated with the username.
+It is the responsibility of the developer to ensure the attribute is populated since Spring Session is not aware of the authentication mechanism being used.
+
+Some `SessionRepository` implementations may choose to implement `FindByUsernameSessionRepository` also.
+For example, Spring's Redis support implements `FindByUsernameSessionRepository`.
 
 [[api-redisoperationssessionrepository]]
 === RedisOperationsSessionRepository

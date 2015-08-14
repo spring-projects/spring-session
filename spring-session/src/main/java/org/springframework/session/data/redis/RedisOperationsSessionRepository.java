@@ -35,6 +35,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.FindByPrincipalNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -246,23 +247,28 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  */
-public class RedisOperationsSessionRepository implements SessionRepository<RedisOperationsSessionRepository.RedisSession>, MessageListener {
+public class RedisOperationsSessionRepository implements FindByPrincipalNameSessionRepository<RedisOperationsSessionRepository.RedisSession>, MessageListener {
+	private static final Log logger = LogFactory.getLog(SessionMessageListener.class);
+
+	/**
+	 * The prefix for each key in Redis used by Spring Session
+	 */
+	static final String SPRING_SESSION_KEY_PREFIX = "spring:session:";
+
+	/**
+	 * The prefix for each key that contains a mapping of the Principal name (i.e. username) to the session ids.
+	 */
+	static final String PRINCIPAL_NAME_PREFIX = SPRING_SESSION_KEY_PREFIX + "index:" + Session.PRINCIPAL_NAME_ATTRIBUTE_NAME + ":";
+
 	/**
 	 * The prefix for SessionCreated event channel. The suffix is the session id.
 	 */
-	private static final String SPRING_SESSION_CREATED_PREFIX = "spring:session:event:created:";
-
-	private static final Log logger = LogFactory.getLog(SessionMessageListener.class);
-
-	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
-		public void publishEvent(ApplicationEvent event) {
-		}
-	};
+	private static final String SPRING_SESSION_CREATED_PREFIX = SPRING_SESSION_KEY_PREFIX + "event:created:";
 
 	/**
 	 * The prefix for each key of the Redis Hash representing a single session. The suffix is the unique session id.
 	 */
-	static final String BOUNDED_HASH_KEY_PREFIX = "spring:session:sessions:";
+	static final String BOUNDED_HASH_KEY_PREFIX = SPRING_SESSION_KEY_PREFIX + "sessions:";
 
 	/**
 	 * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getCreationTime()}
@@ -289,6 +295,11 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 	private final RedisOperations<Object,Object> sessionRedisOperations;
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
+
+	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
+		public void publishEvent(ApplicationEvent event) {
+		}
+	};
 
 	/**
 	 * If non-null, this value is used to override the default value for {@link RedisSession#setMaxInactiveIntervalInSeconds(int)}.
@@ -357,6 +368,24 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		return getSession(id, false);
 	}
 
+	public Map<String,RedisSession> findByPrincipalName(String principalName) {
+		String principalKey = getPrincipalKey(principalName);
+		Set<Object> sessionIds = sessionRedisOperations.boundSetOps(principalKey).members();
+		Map<String,RedisSession> sessions = new HashMap<String,RedisSession>(sessionIds.size());
+		for(Object id : sessionIds) {
+			RedisSession session = getSession((String) id);
+			if(session != null) {
+				session.setLastAccessedTime(session.originalLastAccessTime);
+				sessions.put(session.getId(), session);
+			}
+		}
+		return sessions;
+	}
+
+	private String getPrincipalKey(String principalName) {
+		return PRINCIPAL_NAME_PREFIX + principalName;
+	}
+
 	/**
 	 *
 	 * @param id the session id
@@ -376,7 +405,7 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 			return null;
 		}
 		RedisSession result = new RedisSession(loaded);
-		result.originalLastAccessTime = loaded.getLastAccessedTime() + TimeUnit.SECONDS.toMillis(loaded.getMaxInactiveIntervalInSeconds());
+		result.originalLastAccessTime = loaded.getLastAccessedTime();
 		result.setLastAccessedTime(System.currentTimeMillis());
 		return result;
 	}
@@ -457,6 +486,11 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 
 			if(logger.isDebugEnabled()) {
 				logger.debug("Publishing SessionDestroyedEvent for session " + sessionId);
+			}
+
+			String principal = (String) session.getAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME);
+			if(principal != null) {
+				sessionRedisOperations.boundSetOps(getPrincipalKey(principal)).remove(sessionId);
 			}
 
 			if(isDeleted) {
@@ -640,9 +674,17 @@ public class RedisOperationsSessionRepository implements SessionRepository<Redis
 		private void saveDelta() {
 			String sessionId = getId();
 			getSessionBoundHashOperations(sessionId).putAll(delta);
+			String key = getSessionAttrNameKey(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME);
+			if(delta.containsKey(key)) {
+				Object principal = delta.get(key);
+				String principalKey = getPrincipalKey((String) principal);
+				sessionRedisOperations.boundSetOps(principalKey).add(sessionId);
+			}
+
 			delta = new HashMap<String,Object>(delta.size());
 
-			expirationPolicy.onExpirationUpdated(originalLastAccessTime, this);
+			Long originalExpiration = originalLastAccessTime == null ? null : originalLastAccessTime + TimeUnit.SECONDS.toMillis(getMaxInactiveIntervalInSeconds())    ;
+			expirationPolicy.onExpirationUpdated(originalExpiration, this);
 		}
 	}
 }
