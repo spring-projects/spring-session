@@ -20,7 +20,6 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +33,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.session.FindByPrincipalNameSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -48,9 +46,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisOperationsSessionRepositoryITests<S extends Session> {
+public class RedisOperationsSessionRepositoryITests {
 	@Autowired
-	private FindByPrincipalNameSessionRepository<S> repository;
+	private RedisOperationsSessionRepository repository;
 
 	@Autowired
 	private SessionEventRegistry registry;
@@ -62,9 +60,9 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 	public void saves() throws InterruptedException {
 		String username = "saves-"+System.currentTimeMillis();
 
-		String usernameSessionKey = RedisOperationsSessionRepository.PRINCIPAL_NAME_PREFIX + username;
+		String usernameSessionKey = "spring:session:index:" + Session.PRINCIPAL_NAME_ATTRIBUTE_NAME + ":" + username;
 
-		S toSave = repository.createSession();
+		RedisSession toSave = repository.createSession();
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
@@ -101,7 +99,7 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 
 	@Test
 	public void putAllOnSingleAttrDoesNotRemoveOld() {
-		S toSave = repository.createSession();
+		RedisSession toSave = repository.createSession();
 		toSave.setAttribute("a", "b");
 
 		repository.save(toSave);
@@ -121,12 +119,12 @@ public class RedisOperationsSessionRepositoryITests<S extends Session> {
 	@Test
 	public void findByPrincipalName() throws Exception {
 		String principalName = "findByPrincipalName" + UUID.randomUUID();
-		S toSave = repository.createSession();
+		RedisSession toSave = repository.createSession();
 		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
 
 		repository.save(toSave);
 
-		Map<String, S> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());

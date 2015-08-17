@@ -56,6 +56,7 @@ public class RedisSessionExpirationPolicyTests {
 
 	@Before
 	public void setup() {
+		RedisOperationsSessionRepository repository = new RedisOperationsSessionRepository(sessionRedisOperations);
 		policy = new RedisSessionExpirationPolicy(sessionRedisOperations);
 		session = new MapSession();
 		session.setLastAccessedTime(1429116694665L);

@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.CREATION_TIME_ATTR;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.LAST_ACCESSED_ATTR;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.MAX_INACTIVE_ATTR;
-import static org.springframework.session.data.redis.RedisOperationsSessionRepository.getKey;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.getSessionAttrNameKey;
 
 import java.util.Arrays;
@@ -361,10 +360,14 @@ public class RedisOperationsSessionRepositoryTests {
 		redisRepository.cleanupExpiredSessions();
 
 		for(Object id : expiredIds) {
-			String expiredKey = RedisOperationsSessionRepository.BOUNDED_HASH_KEY_PREFIX + id;
+			String expiredKey = "spring:session:sessions:" + id;
 			// https://github.com/spring-projects/spring-session/issues/93
 			verify(redisOperations).hasKey(expiredKey);
 		}
+	}
+
+	private String getKey(String id) {
+		return "spring:session:sessions:" + id;
 	}
 
 	private Map map(Object...objects) {
