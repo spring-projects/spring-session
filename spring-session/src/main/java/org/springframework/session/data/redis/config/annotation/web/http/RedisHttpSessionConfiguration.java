@@ -51,6 +51,7 @@ import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
@@ -76,6 +77,8 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<HttpSessionListener>();
 
+	private String redisNamespace = "";
+
 	@Bean
 	public SessionEventHttpSessionListenerAdapter sessionEventHttpSessionListenerAdapter() {
 		return new SessionEventHttpSessionListenerAdapter(httpSessionListeners);
@@ -89,7 +92,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 		container.setConnectionFactory(connectionFactory);
 		container.addMessageListener(messageListener,
 				Arrays.asList(new PatternTopic("__keyevent@*:del"), new PatternTopic("__keyevent@*:expired")));
-		container.addMessageListener(messageListener, Arrays.asList(new PatternTopic("spring:session:event:created:*")));
+		container.addMessageListener(messageListener, Arrays.asList(new PatternTopic(messageListener.getSessionCreatedChannelPrefix() + "*")));
 		return container;
 	}
 
@@ -107,6 +110,11 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(sessionRedisTemplate);
 		sessionRepository.setApplicationEventPublisher(applicationEventPublisher);
 		sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
+
+		String redisNamespace = getRedisNamespace();
+		if(StringUtils.hasText(redisNamespace)) {
+			sessionRepository.setRedisKeyNamespace(redisNamespace);
+		}
 		return sessionRepository;
 	}
 
@@ -122,6 +130,17 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	}
+
+	public void setRedisNamespace(String namespace) {
+		this.redisNamespace = namespace;
+	}
+
+	private String getRedisNamespace() {
+		if(StringUtils.hasText(this.redisNamespace)) {
+			return this.redisNamespace;
+		}
+		return System.getProperty("spring.session.redis.namespace","");
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -142,6 +161,7 @@ public class RedisHttpSessionConfiguration implements ImportAware, BeanClassLoad
 			}
 		}
 		maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+		this.redisNamespace = enableAttrs.getString("redisNamespace");
 	}
 
 	@Autowired(required = false)

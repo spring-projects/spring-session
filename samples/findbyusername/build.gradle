@@ -43,6 +43,8 @@ integrationTest {
 		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
 		systemProperties['server.port'] = port
 		systemProperties['management.port'] = 0
+
+		systemProperties['spring.session.redis.namespace'] = project.name
 	}
 }
 

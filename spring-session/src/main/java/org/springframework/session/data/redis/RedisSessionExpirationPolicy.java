@@ -48,17 +48,16 @@ final class RedisSessionExpirationPolicy {
 
 	private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
 
-	/**
-	 * The prefix for each key of the Redis Hash representing a single session. The suffix is the unique session id.
-	 */
-	static final String EXPIRATION_BOUNDED_HASH_KEY_PREFIX = "spring:session:expirations:";
 
 	private final RedisOperations<Object,Object> redis;
 
+	private final RedisOperationsSessionRepository redisSession;
+
 	public RedisSessionExpirationPolicy(
-			RedisOperations<Object,Object> sessionRedisOperations) {
+			RedisOperations<Object,Object> sessionRedisOperations, RedisOperationsSessionRepository redisSession) {
 		super();
 		this.redis = sessionRedisOperations;
+		this.redisSession = redisSession;
 	}
 
 	public void onDelete(ExpiringSession session) {
@@ -92,11 +91,11 @@ final class RedisSessionExpirationPolicy {
 	}
 
 	String getExpirationKey(long expires) {
-		return EXPIRATION_BOUNDED_HASH_KEY_PREFIX + expires;
+		return this.redisSession.getExpirationsKey(expires);
 	}
 
 	String getSessionKey(String sessionId) {
-		return RedisOperationsSessionRepository.BOUNDED_HASH_KEY_PREFIX + sessionId;
+		return this.redisSession.getSessionKey(sessionId);
 	}
 
 	public void cleanExpiredSessions() {

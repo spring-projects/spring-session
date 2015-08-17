@@ -31,6 +31,8 @@ task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
 		httpPort = ports[0]
 		ajpPort = ports[1]
 		stopPort = ports[2]
+
+		System.setProperty('spring.session.redis.namespace',project.name)
 	}
 }
 

@@ -340,6 +340,16 @@ include::{indexdoc-tests}[tags=new-redisoperationssessionrepository]
 
 For additional information on how to create a `RedisConnectionFactory`, refer to the Spring Data Redis Reference.
 
+[[api-redisoperationssessionrepository-config]]
+==== EnableRedisHttpSession
+
+In a web environment, the simplest way to create a new `RedisOperationsSessionRepository` is to use `@EnableRedisHttpSession`.
+Complete example usage can be found in the <<samples>>
+You can use the following attributes to customize the configuration:
+
+* **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds
+* **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel ids will start with the prefix of `spring:session:<redisNamespace>:`.
+
 [[api-redisoperationssessionrepository-storage]]
 ==== Storage Details
 

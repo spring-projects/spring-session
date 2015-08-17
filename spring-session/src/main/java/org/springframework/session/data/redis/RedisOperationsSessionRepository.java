@@ -251,24 +251,9 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	private static final Log logger = LogFactory.getLog(SessionMessageListener.class);
 
 	/**
-	 * The prefix for each key in Redis used by Spring Session
+	 * The default prefix for each key and channel in Redis used by Spring Session
 	 */
-	static final String SPRING_SESSION_KEY_PREFIX = "spring:session:";
-
-	/**
-	 * The prefix for each key that contains a mapping of the Principal name (i.e. username) to the session ids.
-	 */
-	static final String PRINCIPAL_NAME_PREFIX = SPRING_SESSION_KEY_PREFIX + "index:" + Session.PRINCIPAL_NAME_ATTRIBUTE_NAME + ":";
-
-	/**
-	 * The prefix for SessionCreated event channel. The suffix is the session id.
-	 */
-	private static final String SPRING_SESSION_CREATED_PREFIX = SPRING_SESSION_KEY_PREFIX + "event:created:";
-
-	/**
-	 * The prefix for each key of the Redis Hash representing a single session. The suffix is the unique session id.
-	 */
-	static final String BOUNDED_HASH_KEY_PREFIX = SPRING_SESSION_KEY_PREFIX + "sessions:";
+	static final String DEFAULT_SPRING_SESSION_REDIS_PREFIX = "spring:session:";
 
 	/**
 	 * The key in the Hash representing {@link org.springframework.session.ExpiringSession#getCreationTime()}
@@ -291,6 +276,11 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	 * sessionAttr:attributeName that mapped to its value.
 	 */
 	static final String SESSION_ATTR_PREFIX = "sessionAttr:";
+
+	/**
+	 * The prefix for every key used by Spring Session in Redis.
+	 */
+	private String keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX;
 
 	private final RedisOperations<Object,Object> sessionRedisOperations;
 
@@ -323,7 +313,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	public RedisOperationsSessionRepository(RedisOperations<Object, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
-		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations);
+		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, this);
 	}
 
 	/**
@@ -354,7 +344,8 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	public void save(RedisSession session) {
 		session.saveDelta();
 		if(session.isNew()) {
-			this.sessionRedisOperations.convertAndSend(SPRING_SESSION_CREATED_PREFIX + session.getId(), session.delta);
+			String sessionCreatedKey = getSessionCreatedChannel(session.getId());
+			this.sessionRedisOperations.convertAndSend(sessionCreatedKey, session.delta);
 			session.setNew(false);
 		}
 	}
@@ -380,10 +371,6 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 			}
 		}
 		return sessions;
-	}
-
-	private String getPrincipalKey(String principalName) {
-		return PRINCIPAL_NAME_PREFIX + principalName;
 	}
 
 	/**
@@ -443,10 +430,6 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		save(session);
 	}
 
-	private String getExpiredKey(String sessionId) {
-		return getKey("expires:" + sessionId);
-	}
-
 	public RedisSession createSession() {
 		RedisSession redisSession = new RedisSession();
 		if(defaultMaxInactiveInterval != null) {
@@ -464,7 +447,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		String channel = new String(messageChannel);
 
 
-		if(channel.startsWith(SPRING_SESSION_CREATED_PREFIX)) {
+		if(channel.startsWith(getSessionCreatedChannelPrefix())) {
 			RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer();
 			Map<Object,Object> loaded = (Map<Object, Object>) serializer.deserialize(message.getBody());
 			handleCreated(loaded, channel);
@@ -472,7 +455,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		}
 
 		String body = new String(messageBody);
-		if(!body.startsWith("spring:session:sessions:expires")) {
+		if(!body.startsWith(getExpiredKeyPrefix())) {
 			return;
 		}
 
@@ -534,14 +517,57 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		}
 	}
 
+	public void setRedisKeyNamespace(String namespace) {
+		this.keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX + namespace + ":";
+	}
+
 	/**
 	 * Gets the Hash key for this session by prefixing it appropriately.
 	 *
 	 * @param sessionId the session id
 	 * @return the Hash key for this session by prefixing it appropriately.
 	 */
-	static String getKey(String sessionId) {
-		return BOUNDED_HASH_KEY_PREFIX + sessionId;
+	String getSessionKey(String sessionId) {
+		return this.keyPrefix + "sessions:" + sessionId;
+	}
+
+	String getPrincipalKey(String principalName) {
+		return this.keyPrefix + "index:" + Session.PRINCIPAL_NAME_ATTRIBUTE_NAME + ":" + principalName;
+	}
+
+	String getExpirationsKey(long expiration) {
+		return this.keyPrefix + "expirations:" + expiration;
+	}
+
+	private String getExpiredKey(String sessionId) {
+		return getExpiredKeyPrefix() + sessionId;
+	}
+
+	private String getSessionCreatedChannel(String sessionId) {
+		return getSessionCreatedChannelPrefix() + sessionId;
+	}
+
+	private String getExpiredKeyPrefix() {
+		return this.keyPrefix + "sessions:" + "expires:";
+	}
+
+	/**
+	 * Gets the prefix for the channel that SessionCreatedEvent are published to. The suffix is the session id of the session that was created.
+	 *
+	 * @return
+	 */
+	public String getSessionCreatedChannelPrefix() {
+		return this.keyPrefix + "event:created:";
+	}
+
+	/**
+	 * Gets the {@link BoundHashOperations} to operate on a {@link Session}
+	 * @param sessionId the id of the {@link Session} to work with
+	 * @return the {@link BoundHashOperations} to operate on a {@link Session}
+	 */
+	private BoundHashOperations<Object, Object, Object> getSessionBoundHashOperations(String sessionId) {
+		String key = getSessionKey(sessionId);
+		return this.sessionRedisOperations.boundHashOps(key);
 	}
 
 	/**
@@ -552,16 +578,6 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	 */
 	static String getSessionAttrNameKey(String attributeName) {
 		return SESSION_ATTR_PREFIX + attributeName;
-	}
-
-	/**
-	 * Gets the {@link BoundHashOperations} to operate on a {@link Session}
-	 * @param sessionId the id of the {@link Session} to work with
-	 * @return the {@link BoundHashOperations} to operate on a {@link Session}
-	 */
-	private BoundHashOperations<Object, Object, Object> getSessionBoundHashOperations(String sessionId) {
-		String key = getKey(sessionId);
-		return this.sessionRedisOperations.boundHashOps(key);
 	}
 
 	private static RedisTemplate<Object,Object> createDefaultTemplate(RedisConnectionFactory connectionFactory) {
