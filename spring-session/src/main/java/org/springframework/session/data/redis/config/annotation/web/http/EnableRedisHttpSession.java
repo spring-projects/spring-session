@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
@@ -29,6 +30,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
  * backed by Redis. In order to leverage the annotation, a single {@link RedisConnectionFactory}
  * must be provided. For example:
  * <pre>
+ * <code>
  * {@literal @Configuration}
  * {@literal @EnableRedisHttpSession}
  * public class RedisHttpSessionConfig {
@@ -39,12 +41,14 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
  *     }
  *
  * }
+ * </code>
  * </pre>
  *
  * More advanced configurations can extend {@link RedisHttpSessionConfiguration} instead.
  *
  * @author Rob Winch
  * @since 1.0
+ * @see EnableSpringHttpSession
  */
 @Retention(value=java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(value={java.lang.annotation.ElementType.TYPE})

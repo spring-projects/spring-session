@@ -321,6 +321,22 @@ It is the responsibility of the developer to ensure the attribute is populated s
 Some `SessionRepository` implementations may choose to implement `FindByUsernameSessionRepository` also.
 For example, Spring's Redis support implements `FindByUsernameSessionRepository`.
 
+[[api-enablespringhttpsession]]
+=== EnableSpringHttpSession
+
+The `@EnableSpringHttpSession` annotation can be added to an `@Configuration` class to expose the `SessionRepositoryFilter` as a bean named "springSessionRepositoryFilter".
+In order to leverage the annotation, a single `SessionRepository` bean must be provided.
+For example:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/SpringHttpSessionConfig.java[tags=class]
+----
+
+It is important to note that no infrastructure for session expirations is configured for you out of the box.
+This is because things like session expiration are highly implementation dependent.
+This means if you require cleaning up expired sessions, you are responsible for cleaning up the expired sessions.
+
 [[api-redisoperationssessionrepository]]
 === RedisOperationsSessionRepository
 

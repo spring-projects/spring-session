@@ -15,12 +15,19 @@
  */
 package docs;
 
-import org.junit.Test;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.session.*;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
-
 import static org.fest.assertions.Assertions.assertThat;
+
+import org.junit.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.mock.web.MockServletContext;
+import org.springframework.session.ExpiringSession;
+import org.springframework.session.MapSessionRepository;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 /**
  * @author Rob Winch
@@ -102,6 +109,20 @@ public class IndexDocTests {
 		// tag::new-mapsessionrepository[]
 		SessionRepository<? extends ExpiringSession> repository = new MapSessionRepository();
 		// end::new-mapsessionrepository[]
+	}
+
+	@Test
+	public void runSpringHttpSessionConfig() {
+		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+		context.register(SpringHttpSessionConfig.class);
+		context.setServletContext(new MockServletContext());
+		context.refresh();
+
+		try {
+			context.getBean(SessionRepositoryFilter.class);
+		} finally {
+			context.close();
+		}
 	}
 
 	private static class User {
