@@ -309,7 +309,7 @@ If possible, developers should not interact directly with a `SessionRepository` 
 Instead, developers should prefer interacting with `SessionRepository` and `Session` indirectly through the <<httpsession,HttpSession>> and <<websocket,WebSocket>> integration.
 
 [[api-findbyusernamesessionrepository]]
-== FindByUsernameSessionRepository
+=== FindByUsernameSessionRepository
 
 Spring Session's most basic API for using a `Session` is the `SessionRepository`.
 This API is intentionally very simple, so that it is easy to provide additional implementations with basic functionality.
