@@ -71,7 +71,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
  * </ul>
  *
  * @author Rob Winch
- * @since 1.0
+ * @since 1.2
  */
 @Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(value = { java.lang.annotation.ElementType.TYPE })
