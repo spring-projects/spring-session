@@ -22,9 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * @author Rob Winch
- */
 @WebServlet("/session")
 public class SessionServlet extends HttpServlet {
 

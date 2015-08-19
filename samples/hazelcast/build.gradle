@@ -8,6 +8,9 @@ sonarRunner {
 
 dependencies {
 	compile project(':spring-session'),
+			"org.springframework:spring-web:$springVersion",
+			"org.springframework.security:spring-security-config:$springSecurityVersion",
+			"org.springframework.security:spring-security-web:$springSecurityVersion",
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			jstlDependencies
 

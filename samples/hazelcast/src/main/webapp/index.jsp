@@ -2,47 +2,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Session Attributes</title>
-    <link rel="stylesheet" href="assets/bootstrap.min.css">
-    <style type="text/css">
-        body {
-            padding: 1em;
-        }
-    </style>
+	<title>Secured Content</title>
+	<link rel="stylesheet" href="assets/bootstrap.min.css">
+	<style type="text/css">
+		body {
+			padding: 1em;
+		}
+		#un {
+			font-weight: bold;
+		}
+	</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Description</h1>
-        <p>This application demonstrates how to use Hazelcast to back your session. Notice that there is no JSESSIONID cookie. We are also able to customize the way of identifying what the requested session id is.</p>
+	<div class="container">
+		<h1>Description</h1>
+		<p>This demonstrates how Spring Session and Hazelcast can be combined with Spring Security. The important thing to ensure is that Spring Session's Filter is included before Spring Security's Filter.</p>
 
-        <h1>Try it</h1>
+		<h1>Logged in as</h1>
 
-        <form class="form-inline" role="form" action="./session" method="post">
-            <label for="attributeName">Attribute Name</label>
-            <input id="attributeName" type="text" name="attributeName"/>
-            <label for="attributeValue">Attribute Value</label>
-            <input id="attributeValue" type="text" name="attributeValue"/>
-            <input type="submit" value="Set Attribute"/>
-        </form>
+		<p>You are currently logged in as <span id="un"><c:out value="${pageContext.request.remoteUser}"/></span>.</p>
 
-        <hr/>
-
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Attribute Name</th>
-                <th>Attribute Value</th>
-            </tr>
-            </thead>
-            <tbody>
-            <c:forEach items="${sessionScope}" var="attr">
-                <tr>
-                    <td><c:out value="${attr.key}"/></td>
-                    <td><c:out value="${attr.value}"/></td>
-                </tr>
-            </c:forEach>
-            </tbody>
-        </table>
-    </div>
+		<c:url value="/logout" var="logoutUrl"/>
+		<form action="${logoutUrl}" method="post">
+			<input type="submit" value="Log Out"/>
+			<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+		</form>
+	</div>
 </body>
 </html>

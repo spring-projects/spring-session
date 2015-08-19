@@ -15,10 +15,14 @@
  */
 package sample;
 
-import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
+import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 
 // tag::class[]
-public class Initializer extends AbstractHttpSessionApplicationInitializer {
+public class SecurityInitializer extends
+		AbstractSecurityWebApplicationInitializer {
 
+	public SecurityInitializer() {
+		super(SecurityConfig.class, Config.class);
+	}
 }
 // end::class[]
