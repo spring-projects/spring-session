@@ -398,8 +398,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	}
 
 	private MapSession loadSession(String id, Map<Object, Object> entries) {
-		MapSession loaded = new MapSession();
-		loaded.setId(id);
+		MapSession loaded = new MapSession(id);
 		for(Map.Entry<Object,Object> entry : entries.entrySet()) {
 			String key = (String) entry.getKey();
 			if(CREATION_TIME_ATTR.equals(key)) {

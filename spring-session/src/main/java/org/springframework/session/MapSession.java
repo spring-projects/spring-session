@@ -46,7 +46,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	 */
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
-	private String id = UUID.randomUUID().toString();
+	private String id;
 	private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
 	private long creationTime = System.currentTimeMillis();
 	private long lastAccessedTime = creationTime;
@@ -57,9 +57,21 @@ public final class MapSession implements ExpiringSession, Serializable {
 	private int maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance with a secure randomly generated identifier.
 	 */
 	public MapSession() {
+		this(UUID.randomUUID().toString());
+	}
+
+	/**
+	 * Creates a new instance with the specified id. This is preferred to the
+	 * default constructor when the id is known to prevent unnecessary consumption on
+	 * entropy which can be slow.
+	 *
+	 * @param id the identifier to use
+	 */
+	public MapSession(String id) {
+		this.id = id;
 	}
 
 	/**
