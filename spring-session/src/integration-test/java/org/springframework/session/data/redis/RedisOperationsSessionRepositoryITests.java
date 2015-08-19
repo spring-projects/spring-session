@@ -114,6 +114,8 @@ public class RedisOperationsSessionRepositoryITests {
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
 		assertThat(session.getAttribute("a")).isEqualTo("b");
 		assertThat(session.getAttribute("1")).isEqualTo("2");
+
+		repository.delete(toSave.getId());
 	}
 
 	@Test
@@ -174,7 +176,7 @@ public class RedisOperationsSessionRepositoryITests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession
+	@EnableRedisHttpSession(redisNamespace = "RedisOperationsSessionRepositoryITests")
 	static class Config {
 		@Bean
 		public JedisConnectionFactory connectionFactory() throws Exception {
