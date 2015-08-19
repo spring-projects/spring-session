@@ -20,6 +20,7 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,11 +57,16 @@ public class RedisOperationsSessionRepositoryITests {
 	@Autowired
 	RedisOperations<Object, Object> redis;
 
+	@Before
+	public void setup() {
+		registry.clear();
+	}
+
 	@Test
 	public void saves() throws InterruptedException {
 		String username = "saves-"+System.currentTimeMillis();
 
-		String usernameSessionKey = "spring:session:index:" + Session.PRINCIPAL_NAME_ATTRIBUTE_NAME + ":" + username;
+		String usernameSessionKey = "spring:session:RedisOperationsSessionRepositoryITests:index:" + Session.PRINCIPAL_NAME_ATTRIBUTE_NAME + ":" + username;
 
 		RedisSession toSave = repository.createSession();
 		String expectedAttributeName = "a";
@@ -114,6 +120,8 @@ public class RedisOperationsSessionRepositoryITests {
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
 		assertThat(session.getAttribute("a")).isEqualTo("b");
 		assertThat(session.getAttribute("1")).isEqualTo("2");
+
+		repository.delete(toSave.getId());
 	}
 
 	@Test
@@ -174,7 +182,7 @@ public class RedisOperationsSessionRepositoryITests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession
+	@EnableRedisHttpSession(redisNamespace = "RedisOperationsSessionRepositoryITests")
 	static class Config {
 		@Bean
 		public JedisConnectionFactory connectionFactory() throws Exception {

@@ -34,7 +34,7 @@ public class MapSessionTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullSession() {
-		new MapSession(null);
+		new MapSession((ExpiringSession) null);
 	}
 
 	/**
