@@ -77,8 +77,8 @@ public class Config {
  	@Bean
 	public MapSessionRepository sessionRepository(HazelcastInstance instance, SessionRemovedListener removeListener, SessionEvictedListener evictListener) {
  		IMap<String,ExpiringSession> sessions = instance.getMap(sessionMapName);
- 		sessions.addEntryListener(removeListener, false);
- 		sessions.addEntryListener(evictListener, false);
+ 		sessions.addEntryListener(removeListener, true);
+ 		sessions.addEntryListener(evictListener, true);
 		return new MapSessionRepository(sessions);
 	}
  	
