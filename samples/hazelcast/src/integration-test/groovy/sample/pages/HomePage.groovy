@@ -15,7 +15,7 @@
  */
 package sample.pages
 
-import geb.*
+import geb.Page
 
 /**
  * The home page
@@ -24,22 +24,9 @@ import geb.*
  */
 class HomePage extends Page {
 	static url = ''
-	static at = { assert driver.title == 'Session Attributes'; true}
+	static at = { assert driver.title == 'Secured Content'; true}
 	static content = {
-		form { $('form') }
-		submit { $('input[type=submit]') }
-		createAttribute(required:false) { name, value ->
-			form.attributeName = name
-			form.attributeValue = value
-			submit.click(HomePage)
-		}
-		attributes { moduleList AttributeRow, $("table tr").tail() }
-	}
-}
-class AttributeRow extends Module {
-	static content = {
-		cell { $("td", it) }
-		name { cell(0).text() }
-		value { cell(1).text() }
+		username { $('#un').text() }
+		logout(to:LoginPage) { $('input[type=submit]').click() }
 	}
 }

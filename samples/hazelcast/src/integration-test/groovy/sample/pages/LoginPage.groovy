@@ -13,33 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sample
+package sample.pages
 
-import geb.spock.*
-import sample.pages.HomePage;
-import spock.lang.Stepwise
-import pages.*
+import geb.Page
 
 /**
- * Tests the CAS sample application using service tickets.
+ * The Links Page
  *
  * @author Rob Winch
  */
-@Stepwise
-class AttributeTests extends GebReportingSpec {
-	def 'first visit no attributes'() {
-		when:
-		to HomePage
-		then:
-		attributes.empty
-	}
-
-	def 'create attribute'() {
-		when:
-		createAttribute('a','b')
-		then:
-		attributes.size() == 1
-		attributes[0].name == 'a'
-		attributes[0].value == 'b'
+class LoginPage extends Page {
+	static url = '/login'
+	static at = { assert driver.title == 'Login Page'; true}
+	static content = {
+		form { $('form') }
+		submit { $('input[type=submit]') }
+		login(required:false) { user='user', pass='password' ->
+			form.username = user
+			form.password = pass
+			submit.click(HomePage)
+		}
 	}
 }
