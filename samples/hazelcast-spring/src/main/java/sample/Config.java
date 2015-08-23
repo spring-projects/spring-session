@@ -15,9 +15,6 @@
  */
 package sample;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-
 import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +25,7 @@ import org.springframework.session.MapSessionRepository;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.util.SocketUtils;
 
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.config.NetworkConfig;
@@ -49,7 +47,7 @@ public class Config {
  	public HazelcastInstance hazelcastInstance() {
  		com.hazelcast.config.Config cfg = new com.hazelcast.config.Config();
 		NetworkConfig netConfig = new NetworkConfig();
-		netConfig.setPort(getAvailablePort());
+		netConfig.setPort(SocketUtils.findAvailableTcpPort());
 		cfg.setNetworkConfig(netConfig);
 		SerializerConfig serializer = new SerializerConfig()
 			.setTypeClass(Object.class)
@@ -96,20 +94,6 @@ public class Config {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
 		sessionRepositoryFilter.setServletContext(servletContext);
 		return sessionRepositoryFilter;
-	}
-	
-	private static int getAvailablePort() {
-		ServerSocket socket = null;
-		try {
-			socket = new ServerSocket(0);
-			return socket.getLocalPort();
-		} catch(IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			try {
-				socket.close();
-			}catch(IOException e) {}
-		}
 	}
 }
 // end::class[]
