@@ -65,6 +65,11 @@ If you are looking to get started with Spring Session, the best place to start i
 
 [[samples-hazelcast]]
 | {gh-samples-url}hazelcast[Hazelcast]
+| Demonstrates how to use Spring Session with Hazelcast.
+| TBD
+
+[[samples-hazelcast-spring]]
+| {gh-samples-url}hazelcast-spring[Hazelcast Spring]
 | Demonstrates how to use Spring Session and Hazelcast with an existing Spring Security application.
 | TBD
 
@@ -579,13 +584,19 @@ include::{indexdoc-tests}[tags=new-mapsessionrepository]
 [[api-mapsessionrepository-hazelcast]]
 ==== Using Spring Session and Hazlecast
 
-The <<samples,Hazelcast Sample>> is a complete application demonstrating using Spring Session with Hazelcast and Spring Security.
-
-It includes examples of Hazelcast `MapListener` implementations that support firing `SessionCreatedEvent`, `SessionDeletedEvent` and `SessionExpiredEvent`.
+The <<samples,Hazelcast Sample>> is a complete application demonstrating using Spring Session with Hazelcast.
 
 To run it use the following:
 
 	./gradlew :samples:hazelcast:tomcatRun
+	
+The <<samples,Hazelcast Spring Sample>> is a complete application demonstrating using Spring Session with Hazelcast and Spring Security.
+
+It includes example Hazelcast `MapListener` implementations that support firing `SessionCreatedEvent`, `SessionDeletedEvent` and `SessionExpiredEvent`.
+
+To run it use the following:
+
+	./gradlew :samples:hazelcast-spring:tomcatRun
 
 [[community]]
 == Spring Session Community
@@ -633,4 +644,5 @@ While we re-run all unit tests against Spring 3.2.x, we recommend using the late
 [NOTE]
 ====
 At its core Spring Session only has a required dependency on commons-logging.
+For an example of using Spring Session without any other Spring dependencies, refer to the <<samples,hazelcast sample>> application.
 ====
