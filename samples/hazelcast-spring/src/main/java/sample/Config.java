@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,20 +37,19 @@ import com.hazelcast.core.IMap;
 @Configuration
 public class Config {
 
- 	private String sessionMapName = "spring:session:sessions";
- 	
+	private String sessionMapName = "spring:session:sessions";
+
 	@Autowired
 	private ApplicationEventPublisher eventPublisher;
-	
- 	@Bean(destroyMethod = "shutdown")
- 	public HazelcastInstance hazelcastInstance() {
- 		com.hazelcast.config.Config cfg = new com.hazelcast.config.Config();
+
+	@Bean(destroyMethod = "shutdown")
+	public HazelcastInstance hazelcastInstance() {
+		com.hazelcast.config.Config cfg = new com.hazelcast.config.Config();
 		NetworkConfig netConfig = new NetworkConfig();
 		netConfig.setPort(SocketUtils.findAvailableTcpPort());
 		cfg.setNetworkConfig(netConfig);
-		SerializerConfig serializer = new SerializerConfig()
-			.setTypeClass(Object.class)
-			.setImplementation(new ObjectStreamSerializer());
+		SerializerConfig serializer = new SerializerConfig().setTypeClass(
+				Object.class).setImplementation(new ObjectStreamSerializer());
 		cfg.getSerializationConfig().addSerializerConfig(serializer);
 		MapConfig mc = new MapConfig();
 		mc.setName(sessionMapName);
@@ -58,32 +58,31 @@ public class Config {
 		cfg.addMapConfig(mc);
 
 		return Hazelcast.newHazelcastInstance(cfg);
- 	}
- 	
- 	@Bean
- 	public SessionRemovedListener removeListener() {
- 		return new SessionRemovedListener(eventPublisher);
- 	}
- 	
- 	@Bean
- 	public SessionEvictedListener evictListener() {
- 		return new SessionEvictedListener(eventPublisher);
- 	}
- 	
- 	@Bean
- 	public SessionCreatedListener addListener() {
- 		return new SessionCreatedListener(eventPublisher);
- 	}
- 	
- 	@Bean
+	}
+
+	@Bean
+	public SessionRemovedListener removeListener() {
+		return new SessionRemovedListener(eventPublisher);
+	}
+
+	@Bean
+	public SessionEvictedListener evictListener() {
+		return new SessionEvictedListener(eventPublisher);
+	}
+
+	@Bean
+	public SessionCreatedListener addListener() {
+		return new SessionCreatedListener(eventPublisher);
+	}
+
+	@Bean
 	public MapSessionRepository sessionRepository(HazelcastInstance instance,
-			                                      SessionRemovedListener removeListener,
-			                                      SessionEvictedListener evictListener,
-			                                      SessionCreatedListener addListener) {
- 		IMap<String,ExpiringSession> sessions = instance.getMap(sessionMapName);
- 		sessions.addEntryListener(removeListener, true);
- 		sessions.addEntryListener(evictListener, true);
- 		sessions.addEntryListener(addListener, true);
+			SessionRemovedListener removeListener, SessionEvictedListener evictListener,
+			SessionCreatedListener addListener) {
+		IMap<String, ExpiringSession> sessions = instance.getMap(sessionMapName);
+		sessions.addEntryListener(removeListener, true);
+		sessions.addEntryListener(evictListener, true);
+		sessions.addEntryListener(addListener, true);
 		return new MapSessionRepository(sessions);
 	}
 }
