@@ -15,16 +15,13 @@
  */
 package sample;
 
-import javax.servlet.ServletContext;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.MapSessionRepository;
-import org.springframework.session.SessionRepository;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.ExpiringSession;
-import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.SocketUtils;
 
 import com.hazelcast.config.MapConfig;
@@ -35,6 +32,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 // tag::class[]
+@EnableSpringHttpSession
 @Configuration
 public class Config {
 
@@ -87,13 +85,6 @@ public class Config {
  		sessions.addEntryListener(evictListener, true);
  		sessions.addEntryListener(addListener, true);
 		return new MapSessionRepository(sessions);
-	}
- 	
-	@Bean
-	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository, ServletContext servletContext) {
-		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
-		sessionRepositoryFilter.setServletContext(servletContext);
-		return sessionRepositoryFilter;
 	}
 }
 // end::class[]
