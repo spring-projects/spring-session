@@ -13,7 +13,8 @@ dependencies {
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
 			jstlDependencies
 
-	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion",
+					"javax.servlet:jsp-api:$jspApiVersion"
 
 	testCompile "junit:junit:$junitVersion"
 
