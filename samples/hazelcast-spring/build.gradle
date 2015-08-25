@@ -14,7 +14,8 @@ dependencies {
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			jstlDependencies
 
-	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion",
+					"javax.servlet:jsp-api:$jspApiVersion"
 
 	testCompile "junit:junit:$junitVersion"
 

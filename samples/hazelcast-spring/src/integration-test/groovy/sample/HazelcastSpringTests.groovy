@@ -27,7 +27,7 @@ import spock.lang.Stepwise
  * @author Rob Winch
  */
 @Stepwise
-class SecurityTests extends GebReportingSpec {
+class HazelcastSpringTests extends GebReportingSpec {
 
 	def 'Unauthenticated user sent to log in page'() {
 		when: 'unauthenticated user request protected page'
