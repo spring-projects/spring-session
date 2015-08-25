@@ -46,6 +46,10 @@ import com.hazelcast.core.HazelcastInstance;
 @Configuration
 public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware, BeanClassLoaderAware {
 	
+	/** This is the magic value to use if you do not want this configuration 
+	 * overriding the maxIdleSeconds value for the Map backing the session data. */
+	public static final String DO_NOT_CONFIGURE_INACTIVE_INTERVAL_STRING = "";
+	
 	private ClassLoader beanClassLoader;
 	
 	private Integer maxInactiveIntervalInSeconds = 1800;
@@ -70,7 +74,9 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	 */
 	private void configureSessionMap(HazelcastInstance hazelcastInstance) {
 		MapConfig sessionMapConfig = hazelcastInstance.getConfig().getMapConfig(sessionMapName);
-		sessionMapConfig.setMaxIdleSeconds(maxInactiveIntervalInSeconds);
+		if (this.maxInactiveIntervalInSeconds != null) {
+			sessionMapConfig.setMaxIdleSeconds(this.maxInactiveIntervalInSeconds);
+		}
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -90,8 +96,24 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 			}
 		}
 		
-		this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+		if (DO_NOT_CONFIGURE_INACTIVE_INTERVAL_STRING.equals(enableAttrs.getString("maxInactiveIntervalInSeconds"))) {
+			this.maxInactiveIntervalInSeconds = null;
+		} else {
+			this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+		}
 		this.sessionMapName = enableAttrs.getString("sessionMapName");
+	}
+	
+	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
+		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	}
+	
+	public String getSessionMapName() {
+		return this.sessionMapName;
+	}
+	
+	public void setSessionMapName(String sessionMapName) {
+		this.sessionMapName = sessionMapName;
 	}
 
 	public void setBeanClassLoader(ClassLoader classLoader) {
