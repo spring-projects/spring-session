@@ -96,10 +96,22 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 			}
 		}
 		
-		if (DO_NOT_CONFIGURE_INACTIVE_INTERVAL_STRING.equals(enableAttrs.getString("maxInactiveIntervalInSeconds"))) {
+		transferAnnotationAttributes(enableAttrs);
+	}
+	
+	private void transferAnnotationAttributes(AnnotationAttributes enableAttrs) {
+		String maxInactiveIntervalString = enableAttrs.getString("maxInactiveIntervalInSeconds");
+		
+		if (DO_NOT_CONFIGURE_INACTIVE_INTERVAL_STRING.equals(maxInactiveIntervalString)) {
 			this.maxInactiveIntervalInSeconds = null;
 		} else {
-			this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+			try {
+				this.maxInactiveIntervalInSeconds = Integer.parseInt(maxInactiveIntervalString);
+			} catch (NumberFormatException nfe) {
+				throw new IllegalArgumentException(
+						"@EnableHazelcastHttpSession's maxInactiveIntervalInSeconds expects an int format String but was '"
+								+ maxInactiveIntervalString + "' instead.", nfe);
+			}
 		}
 		this.sessionMapName = enableAttrs.getString("sessionMapName");
 	}
