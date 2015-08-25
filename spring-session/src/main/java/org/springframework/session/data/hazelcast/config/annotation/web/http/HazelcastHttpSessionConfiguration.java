@@ -48,7 +48,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	
 	/** This is the magic value to use if you do not want this configuration 
 	 * overriding the maxIdleSeconds value for the Map backing the session data. */
-	public static final String DO_NOT_CONFIGURE_INACTIVE_INTERVAL_STRING = "";
+	private static final String DO_NOT_CONFIGURE_INACTIVE_INTERVAL_STRING = "";
 	
 	private ClassLoader beanClassLoader;
 	
