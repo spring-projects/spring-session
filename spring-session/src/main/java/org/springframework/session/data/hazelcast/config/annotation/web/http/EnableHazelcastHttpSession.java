@@ -35,11 +35,8 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
  * public class HazelcastHttpSessionConfig {
  *
  *     {@literal @Bean}
- *     {@literal @ConditionalOnMissingBean}
- *     public HazelcastInstance hazelcastInstance(Config hazelcastConfig) {
- *         if (StringUtils.hasText(hazelcastConfig.getInstanceName())) {
- *             return Hazelcast.getOrCreateHazelcastInstance(hazelcastConfig);
- *         }
+ *     public HazelcastInstance embeddedHazelcast() {
+ *         Config hazelcastConfig = new Config();
  *         return Hazelcast.newHazelcastInstance(hazelcastConfig);
  *     }
  *
