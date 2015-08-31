@@ -448,7 +448,7 @@ The `SessionRepository.getSession(String)` method ensures that no expired sessio
 This means there is no need to check the expiration before using a session.
 ====
 
-Spring Session relies on the expired and delete http://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionDeletedEvent>> and <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionExpiredEvent>> respectively.
+Spring Session relies on the delete and expired http://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionDeletedEvent>> and <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionExpiredEvent>> respectively.
 It is the `SessionDeletedEvent` or `SessionExpiredEvent` that ensures resources associated with the Session are cleaned up.
 For example, when using Spring Session's WebSocket support the Redis expired or delete event is what triggers any WebSocket connections associated with the session to be closed.
 
