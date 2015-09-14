@@ -35,6 +35,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
@@ -67,6 +68,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private String redisNamespace = "";
 
+	private RedisSerializer<Object> defaultRedisSerializer;
+
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
 			RedisConnectionFactory connectionFactory, RedisOperationsSessionRepository messageListener) {
@@ -84,6 +87,9 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		RedisTemplate<Object, Object> template = new RedisTemplate<Object, Object>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
+		if(defaultRedisSerializer != null) {
+			template.setDefaultSerializer(defaultRedisSerializer);
+		}
 		template.setConnectionFactory(connectionFactory);
 		return template;
 	}
@@ -171,6 +177,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	@Autowired(required = false)
 	public void setConfigureRedisAction(ConfigureRedisAction configureRedisAction) {
 		this.configureRedisAction = configureRedisAction;
+	}
+
+	@Autowired(required = false)
+	@Qualifier("defaultRedisSerializer")
+	public void setDefaultRedisSerializer(RedisSerializer<Object> defaultRedisSerializer) {
+		this.defaultRedisSerializer = defaultRedisSerializer;
 	}
 
 	/* (non-Javadoc)
