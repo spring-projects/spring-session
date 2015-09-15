@@ -17,7 +17,10 @@ package org.springframework.session.data.hazelcast.config.annotation.web.http;
 
 import java.util.Map;
 
+import javax.annotation.PreDestroy;
+
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -28,11 +31,13 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
+import org.springframework.session.data.hazelcast.SessionEntryListener;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
 
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
@@ -55,15 +60,30 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	private Integer maxInactiveIntervalInSeconds = 1800;
 	
 	private String sessionMapName = "spring:session:sessions";
+	
+	private String sessionListenerUid;
+	
+	private IMap<String, ExpiringSession> sessionsMap;
 
 	@Bean
-	public SessionRepository<ExpiringSession> sessionRepository(HazelcastInstance hazelcastInstance) {
+	public SessionRepository<ExpiringSession> sessionRepository(HazelcastInstance hazelcastInstance, SessionEntryListener sessionListener) {
 		configureSessionMap(hazelcastInstance);
-		Map<String,ExpiringSession> sessions = hazelcastInstance.getMap(sessionMapName);
+		this.sessionsMap = hazelcastInstance.getMap(sessionMapName);
+		sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener, true);
 
-		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(sessions);
+		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(this.sessionsMap);
 		
 		return sessionRepository;
+	}
+	
+	@PreDestroy
+	private void removeSessionListener() {
+		this.sessionsMap.removeEntryListener(sessionListenerUid);
+	}
+	
+	@Bean
+	public SessionEntryListener sessionListener(ApplicationEventPublisher eventPublisher) {
+		return new SessionEntryListener(eventPublisher);
 	}
 	
 	/**
@@ -132,5 +152,4 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.beanClassLoader = classLoader;
 	}
 	
-	// TODO Support SessionEvents
 }
