@@ -56,17 +56,17 @@ public class SessionEntryListener implements EntryAddedListener<String, Expiring
 
 	public void entryAdded(EntryEvent<String, ExpiringSession> event) {
 		logger.debug("Session created with id: " + event.getValue().getId());
-		eventPublisher.publishEvent(new SessionCreatedEvent(this, event.getValue()));
+		this.eventPublisher.publishEvent(new SessionCreatedEvent(this, event.getValue()));
 	}
 
 	public void entryEvicted(EntryEvent<String, ExpiringSession> event) {
 		logger.debug("Session expired with id: " + event.getOldValue().getId());
-		eventPublisher.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
+		this.eventPublisher.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
 	}
 
 	public void entryRemoved(EntryEvent<String, ExpiringSession> event) {
 		logger.debug("Session deleted with id: " + event.getOldValue().getId());
-		eventPublisher.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
+		this.eventPublisher.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
 	}
 
 }

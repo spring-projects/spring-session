@@ -69,7 +69,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	public SessionRepository<ExpiringSession> sessionRepository(HazelcastInstance hazelcastInstance, SessionEntryListener sessionListener) {
 		configureSessionMap(hazelcastInstance);
 		this.sessionsMap = hazelcastInstance.getMap(sessionMapName);
-		sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener, true);
+		this.sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener, true);
 
 		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(this.sessionsMap);
 		
@@ -78,7 +78,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	
 	@PreDestroy
 	private void removeSessionListener() {
-		this.sessionsMap.removeEntryListener(sessionListenerUid);
+		this.sessionsMap.removeEntryListener(this.sessionListenerUid);
 	}
 	
 	@Bean
