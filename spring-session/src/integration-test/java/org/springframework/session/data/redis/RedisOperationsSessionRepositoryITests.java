@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -35,9 +34,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.Session;
+import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
@@ -88,7 +87,7 @@ public class RedisOperationsSessionRepositoryITests {
 		Session session = repository.getSession(toSave.getId());
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
-		assertThat(session.getAttributeNames()).isEqualTo(session.getAttributeNames());
+		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
 		assertThat(session.getAttribute(expectedAttributeName)).isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		registry.clear();
@@ -144,41 +143,6 @@ public class RedisOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).excludes(toSave.getId());
-	}
-
-	static class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
-		private AbstractSessionEvent event;
-		private final Object lock = new Object();
-
-		public void onApplicationEvent(AbstractSessionEvent event) {
-			this.event = event;
-			synchronized (lock) {
-				lock.notifyAll();
-			}
-		}
-
-		public void clear() {
-			this.event = null;
-		}
-
-		public boolean receivedEvent() throws InterruptedException {
-			return waitForEvent() != null;
-		}
-
-		@SuppressWarnings("unchecked")
-		public <E extends AbstractSessionEvent> E getEvent() throws InterruptedException {
-			return (E) waitForEvent();
-		}
-
-		@SuppressWarnings("unchecked")
-		private <E extends AbstractSessionEvent> E waitForEvent() throws InterruptedException {
-			synchronized(lock) {
-				if(event == null) {
-					lock.wait(3000);
-				}
-			}
-			return (E) event;
-		}
 	}
 
 	@Configuration
