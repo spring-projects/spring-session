@@ -71,7 +71,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.sessionsMap = hazelcastInstance.getMap(sessionMapName);
 		this.sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener, true);
 
-		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(this.sessionsMap);
+		MapSessionRepository sessionRepository = new MapSessionRepository(this.sessionsMap);
+		sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
 		
 		return sessionRepository;
 	}
