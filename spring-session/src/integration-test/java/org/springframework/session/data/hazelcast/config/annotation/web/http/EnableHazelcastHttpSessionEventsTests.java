@@ -38,8 +38,10 @@ import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.util.SocketUtils;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -147,6 +149,9 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		@Bean
 		public HazelcastInstance embeddedHazelcast() {
 			Config hazelcastConfig = new Config();
+			NetworkConfig netConfig = new NetworkConfig();
+			netConfig.setPort(SocketUtils.findAvailableTcpPort());
+			hazelcastConfig.setNetworkConfig(netConfig);
 			return Hazelcast.newHazelcastInstance(hazelcastConfig);
 		}
 		
