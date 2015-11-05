@@ -73,12 +73,7 @@ javadoc {
 	options.author = true
 	options.header = project.name
 	options.links(project.ext.javadocLinks)
-	options.addStringOption('-quiet')
 
-	// suppress warnings due to cross-module @see and @link references;
-	// note that global 'api' task does display all warnings.
-	logging.captureStandardError LogLevel.INFO
-	logging.captureStandardOutput LogLevel.INFO // suppress "## warnings" message
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
