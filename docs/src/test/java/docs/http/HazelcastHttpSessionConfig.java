@@ -17,7 +17,7 @@ package docs.http;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.data.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
+import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;

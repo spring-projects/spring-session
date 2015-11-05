@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.hazelcast;
+package org.springframework.session.hazelcast;
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.data.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
+import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;

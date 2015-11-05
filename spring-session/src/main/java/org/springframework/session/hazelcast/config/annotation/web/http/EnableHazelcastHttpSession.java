@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.hazelcast.config.annotation.web.http;
+package org.springframework.session.hazelcast.config.annotation.web.http;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -26,7 +26,7 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
 /**
  * Add this annotation to a {@code @Configuration} class to expose the
  * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
- * backed by Hazelcast. In order to leverage the annotation, a single {@link HazelcastInstance}
+ * backed by Hazelcast. In order to leverage the annotation, a single HazelcastInstance
  * must be provided. For example:
  * <pre>
  * <code>
@@ -45,7 +45,7 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
  * </pre>
  *
  * More advanced configurations can extend {@link HazelcastHttpSessionConfiguration} instead.
- * 
+ *
  * @author Tommy Ludwig
  * @since 1.1
  * @see EnableSpringHttpSession
@@ -62,11 +62,11 @@ public @interface EnableHazelcastHttpSession {
 	 * <p>If you wish to use external configuration (outside of this annotation) to set this value, you can
 	 * set this to "" (an empty String), which will prevent this configuration from overriding
 	 * the external configuration for this value.</p>
-	 * 
+	 *
 	 * @return the seconds a session can be inactive before expiring
 	 */
 	String maxInactiveIntervalInSeconds() default "1800";
-	
+
 	/**
 	 * This is the name of the Map that will be used in Hazelcast to store the session data.
 	 * Default is "spring:session:sessions".

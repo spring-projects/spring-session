@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.hazelcast;
+package org.springframework.session.hazelcast;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,11 +34,11 @@ import com.hazelcast.map.listener.EntryRemovedListener;
  * translate those events into the corresponding Spring Session events.
  * Publish the Spring Session events with the given {@link ApplicationEventPublisher}.
  * <ul>
- * 		<li>entryAdded --> {@link SessionCreatedEvent}</li>
- * 		<li>entryEvicted --> {@link SessionExpiredEvent}</li>
- * 		<li>entryRemoved --> {@link SessionDeletedEvent}</li>
+ * 		<li>entryAdded - {@link SessionCreatedEvent}</li>
+ * 		<li>entryEvicted - {@link SessionExpiredEvent}</li>
+ * 		<li>entryRemoved - {@link SessionDeletedEvent}</li>
  * </ul>
- * 
+ *
  * @author Tommy Ludwig
  * @author Mark Anderson
  * @since 1.1
@@ -46,7 +46,7 @@ import com.hazelcast.map.listener.EntryRemovedListener;
 public class SessionEntryListener implements EntryAddedListener<String, ExpiringSession>,
 		EntryEvictedListener<String, ExpiringSession>, EntryRemovedListener<String, ExpiringSession> {
 	private static final Log logger = LogFactory.getLog(SessionEntryListener.class);
-	
+
 	private ApplicationEventPublisher eventPublisher;
 
 	public SessionEntryListener(ApplicationEventPublisher eventPublisher) {
@@ -55,17 +55,23 @@ public class SessionEntryListener implements EntryAddedListener<String, Expiring
 	}
 
 	public void entryAdded(EntryEvent<String, ExpiringSession> event) {
-		logger.debug("Session created with id: " + event.getValue().getId());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Session created with id: " + event.getValue().getId());
+		}
 		this.eventPublisher.publishEvent(new SessionCreatedEvent(this, event.getValue()));
 	}
 
 	public void entryEvicted(EntryEvent<String, ExpiringSession> event) {
-		logger.debug("Session expired with id: " + event.getOldValue().getId());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Session expired with id: " + event.getOldValue().getId());
+		}
 		this.eventPublisher.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
 	}
 
 	public void entryRemoved(EntryEvent<String, ExpiringSession> event) {
-		logger.debug("Session deleted with id: " + event.getOldValue().getId());
+		if(logger.isDebugEnabled()) {
+			logger.debug("Session deleted with id: " + event.getOldValue().getId());
+		}
 		this.eventPublisher.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
 	}
 
