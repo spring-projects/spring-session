@@ -32,6 +32,7 @@ dependencies {
 				'org.mockito:mockito-core:1.9.5',
 				"org.springframework:spring-test:$springVersion",
 				'org.easytesting:fest-assert:1.4',
+				"com.hazelcast:hazelcast:$hazelcastVersion",
 				"redis.clients:jedis:2.4.1",
 				"javax.servlet:javax.servlet-api:$servletApiVersion"
 }
@@ -47,6 +48,7 @@ asciidoctor {
 			'download-url' : "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
 			'spring-session-version' : version,
 			'spring-version' : springVersion,
+			'hazelcast-version' : hazelcastVersion,
 			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
 			'docs-test-resources-dir' : rootProject.projectDir.path + '/docs/src/test/resources/',
 			'samples-dir' : rootProject.projectDir.path + '/samples/',

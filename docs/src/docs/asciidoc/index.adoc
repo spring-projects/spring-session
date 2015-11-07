@@ -71,7 +71,7 @@ If you are looking to get started with Spring Session, the best place to start i
 [[samples-hazelcast-spring]]
 | {gh-samples-url}hazelcast-spring[Hazelcast Spring]
 | Demonstrates how to use Spring Session and Hazelcast with an existing Spring Security application.
-| TBD
+| link:guides/hazelcast-spring.html[Hazelcast Spring Guide]
 
 |===
 
@@ -341,6 +341,43 @@ include::{docs-test-dir}docs/SpringHttpSessionConfig.java[tags=class]
 It is important to note that no infrastructure for session expirations is configured for you out of the box.
 This is because things like session expiration are highly implementation dependent.
 This means if you require cleaning up expired sessions, you are responsible for cleaning up the expired sessions.
+
+[[api-enablehazelcasthttpsession]]
+=== EnableHazelcastHttpSession
+
+If you wish to use http://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, then the `@EnableHazelcastHttpSession` annotation 
+can be added to an `@Configuration` class. This extends the functionality provided by the `@EnableSpringHttpSession` annotation but makes the `SessionRepository` for you in Hazelcast.
+You must provide a single `HazelcastInstance` bean for the configuration to work.
+For example:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/http/HazelcastHttpSessionConfig.java[tags=config]
+----
+
+This will configure Hazelcast in embedded mode with default configuration.
+See the http://docs.hazelcast.org/docs/latest/manual/html-single/hazelcast-documentation.html#hazelcast-configuration[Hazelcast documentation] for 
+detailed information on configuration options for Hazelcast.
+
+[[api-enablehazelcasthttpsession-storage]]
+==== Storage Details
+
+Sessions will be stored in a distributed `Map` in Hazelcast using a <<api-mapsessionrepository,MapSessionRepository>>.
+The `Map` interface methods will be used to `get()` and `put()` Sessions.
+The expiration of a session in the `Map` is handled by Hazelcast's native support for configuring a map's `max-idle-seconds` setting.
+Entries (sessions) that have been idle longer than the max idle setting will be automatically removed from the `Map`.
+
+[[api-enablehazelcasthttpsession-customize]]
+==== Basic Customization
+You can use the following attributes on `@EnableHazelcastHttpSession` to customize the configuration:
+
+* **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds. Default is 1800 seconds (30 minutes)
+* **sessionMapName** - the name of the distributed `Map` that will be used in Hazelcast to store the session data.
+
+[[api-enablehazelcasthttpsession-events]]
+==== Session Events
+Using a `MapListener` to respond to entries being added, evicted, and removed from the distributed `Map`, these events will trigger 
+publishing SessionCreatedEvent, SessionExpiredEvent, and SessionDeletedEvent events respectively using the `ApplicationEventPublisher`.
 
 [[api-redisoperationssessionrepository]]
 === RedisOperationsSessionRepository
