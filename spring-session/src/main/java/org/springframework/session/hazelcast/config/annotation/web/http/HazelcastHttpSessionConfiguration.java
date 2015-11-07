@@ -89,7 +89,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	/**
 	 * Make a {@link MapConfig} for the given sessionMapName if one does not exist.
-	 * Ensure that maxIdleSeconds is set to maxInactiveIntervalInSeconds for proper session expiration.
+	 * Set Hazelcast's maxIdleSeconds to maxInactiveIntervalInSeconds if set (not "").
+	 * Otherwise get the externally configured maxIdleSeconds for the distributed sessions map.
 	 *
 	 * @param hazelcastInstance the {@link HazelcastInstance} to configure
 	 */
@@ -97,6 +98,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		MapConfig sessionMapConfig = hazelcastInstance.getConfig().getMapConfig(sessionMapName);
 		if (this.maxInactiveIntervalInSeconds != null) {
 			sessionMapConfig.setMaxIdleSeconds(this.maxInactiveIntervalInSeconds);
+		} else {
+			this.maxInactiveIntervalInSeconds = sessionMapConfig.getMaxIdleSeconds();
 		}
 	}
 
