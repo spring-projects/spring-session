@@ -29,6 +29,8 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.web.http.CookieHttpSessionStrategy;
+import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -82,9 +84,12 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @EnableScheduling
 public class SpringHttpSessionConfiguration {
 
-	private HttpSessionStrategy httpSessionStrategy;
+	private CookieHttpSessionStrategy defaultHttpSessionStrategy = new CookieHttpSessionStrategy();
+
+	private HttpSessionStrategy httpSessionStrategy = defaultHttpSessionStrategy;
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<HttpSessionListener>();
+
 
 	@Bean
 	public SessionEventHttpSessionListenerAdapter sessionEventHttpSessionListenerAdapter() {
@@ -95,10 +100,13 @@ public class SpringHttpSessionConfiguration {
 	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository, ServletContext servletContext) {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
 		sessionRepositoryFilter.setServletContext(servletContext);
-		if(httpSessionStrategy != null) {
-			sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
-		}
+		sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
 		return sessionRepositoryFilter;
+	}
+
+	@Autowired(required = false)
+	public void setCookieSerializer(CookieSerializer cookieSerializer) {
+		this.defaultHttpSessionStrategy.setCookieSerializer(cookieSerializer);
 	}
 
 	@Autowired(required = false)

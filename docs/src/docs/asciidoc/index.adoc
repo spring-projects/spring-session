@@ -39,6 +39,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using XML based configuration.
 | link:guides/httpsession-xml.html[HttpSession XML Guide]
 
+| {gh-samples-url}custom-cookie[Custom Cookie]
+| Demonstrates how to use Spring Session and customize the cookie.
+| link:guides/custom-cookie.html[Custom Cookie Guide]
+
 | {gh-samples-url}boot[Spring Boot]
 | Demonstrates how to use Spring Session with Spring Boot.
 | link:guides/boot.html[Spring Boot Guide]
@@ -345,7 +349,7 @@ This means if you require cleaning up expired sessions, you are responsible for 
 [[api-enablehazelcasthttpsession]]
 === EnableHazelcastHttpSession
 
-If you wish to use http://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, then the `@EnableHazelcastHttpSession` annotation 
+If you wish to use http://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, then the `@EnableHazelcastHttpSession` annotation
 can be added to an `@Configuration` class. This extends the functionality provided by the `@EnableSpringHttpSession` annotation but makes the `SessionRepository` for you in Hazelcast.
 You must provide a single `HazelcastInstance` bean for the configuration to work.
 For example:
@@ -356,7 +360,7 @@ include::{docs-test-dir}docs/http/HazelcastHttpSessionConfig.java[tags=config]
 ----
 
 This will configure Hazelcast in embedded mode with default configuration.
-See the http://docs.hazelcast.org/docs/latest/manual/html-single/hazelcast-documentation.html#hazelcast-configuration[Hazelcast documentation] for 
+See the http://docs.hazelcast.org/docs/latest/manual/html-single/hazelcast-documentation.html#hazelcast-configuration[Hazelcast documentation] for
 detailed information on configuration options for Hazelcast.
 
 [[api-enablehazelcasthttpsession-storage]]
@@ -376,7 +380,7 @@ You can use the following attributes on `@EnableHazelcastHttpSession` to customi
 
 [[api-enablehazelcasthttpsession-events]]
 ==== Session Events
-Using a `MapListener` to respond to entries being added, evicted, and removed from the distributed `Map`, these events will trigger 
+Using a `MapListener` to respond to entries being added, evicted, and removed from the distributed `Map`, these events will trigger
 publishing SessionCreatedEvent, SessionExpiredEvent, and SessionDeletedEvent events respectively using the `ApplicationEventPublisher`.
 
 [[api-redisoperationssessionrepository]]
@@ -626,7 +630,7 @@ The <<samples,Hazelcast Sample>> is a complete application demonstrating using S
 To run it use the following:
 
 	./gradlew :samples:hazelcast:tomcatRun
-	
+
 The <<samples,Hazelcast Spring Sample>> is a complete application demonstrating using Spring Session with Hazelcast and Spring Security.
 
 It includes example Hazelcast `MapListener` implementations that support firing `SessionCreatedEvent`, `SessionDeletedEvent` and `SessionExpiredEvent`.
@@ -634,6 +638,9 @@ It includes example Hazelcast `MapListener` implementations that support firing 
 To run it use the following:
 
 	./gradlew :samples:hazelcast-spring:tomcatRun
+
+[[api-mapsessionrepository-hazelcast]]
+==== Using Spring Session and Hazlecast
 
 [[community]]
 == Spring Session Community

@@ -162,6 +162,7 @@ public class CookieHttpSessionStrategyTests {
 		assertThat(getSessionId()).isEqualTo(existing.getId());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test(expected = IllegalArgumentException.class)
 	public void setCookieNameNull() throws Exception {
 		strategy.setCookieName(null);
@@ -439,6 +440,7 @@ public class CookieHttpSessionStrategyTests {
 		return buffer.toString();
 	}
 
+	@SuppressWarnings("deprecation")
 	public void setCookieName(String cookieName) {
 		strategy.setCookieName(cookieName);
 		this.cookieName = cookieName;
