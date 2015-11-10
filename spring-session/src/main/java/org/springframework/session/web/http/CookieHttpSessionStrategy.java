@@ -234,15 +234,34 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		return sessionsWritten;
 	}
 
+
+	private Boolean httpOnly = true;
+	public void setHttpOnly(Boolean _httpOnly) {
+		this.httpOnly = _httpOnly;
+	}
+	public Boolean getHttpOnly() {
+		return httpOnly;
+	}
+
+	private String domain;
+	public void setDomain(String _domain) {
+		this.domain = _domain;
+	}
+	public String getDomain() {
+		return domain;
+	}
+
 	private Cookie createSessionCookie(HttpServletRequest request,
 			Map<String, String> sessionIds) {
 		Cookie sessionCookie = new Cookie(cookieName,"");
 		if(isServlet3Plus) {
-			sessionCookie.setHttpOnly(true);
+			sessionCookie.setHttpOnly(this.httpOnly);
 		}
 		sessionCookie.setSecure(request.isSecure());
 		sessionCookie.setPath(cookiePath(request));
-		// TODO set domain?
+		if (this.domain != null) {
+			sessionCookie.setDomain(this.domain);
+		}
 
 		if(sessionIds.isEmpty()) {
 			sessionCookie.setMaxAge(0);
