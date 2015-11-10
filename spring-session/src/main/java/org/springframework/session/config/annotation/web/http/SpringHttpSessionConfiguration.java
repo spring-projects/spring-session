@@ -32,6 +32,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.web.http.CookieHttpSessionStrategy;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.HttpSessionStrategy;
+import org.springframework.session.web.http.MultiHttpSessionStrategy;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
@@ -100,7 +101,11 @@ public class SpringHttpSessionConfiguration {
 	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository, ServletContext servletContext) {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
 		sessionRepositoryFilter.setServletContext(servletContext);
-		sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
+		if(httpSessionStrategy instanceof MultiHttpSessionStrategy) {
+			sessionRepositoryFilter.setHttpSessionStrategy((MultiHttpSessionStrategy) httpSessionStrategy);
+		} else {
+			sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
+		}
 		return sessionRepositoryFilter;
 	}
 
