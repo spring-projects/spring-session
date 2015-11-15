@@ -106,19 +106,6 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		if (enableAttrs == null) {
-			// search parent classes
-			Class<?> currentClass = ClassUtils.resolveClassName(importMetadata.getClassName(), beanClassLoader);
-			for (Class<?> classToInspect = currentClass; classToInspect != null; classToInspect = classToInspect.getSuperclass()) {
-				EnableHazelcastHttpSession enableHazelcastHttpSessionAnnotation = AnnotationUtils.findAnnotation(classToInspect, EnableHazelcastHttpSession.class);
-				if (enableHazelcastHttpSessionAnnotation == null) {
-					continue;
-				}
-				enableAttrMap = AnnotationUtils
-						.getAnnotationAttributes(enableHazelcastHttpSessionAnnotation);
-				enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-			}
-		}
 
 		transferAnnotationAttributes(enableAttrs);
 	}
