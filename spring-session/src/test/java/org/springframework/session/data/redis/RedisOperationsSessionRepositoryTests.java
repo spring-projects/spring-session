@@ -16,10 +16,8 @@
 package org.springframework.session.data.redis;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.CREATION_TIME_ATTR;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.LAST_ACCESSED_ATTR;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.MAX_INACTIVE_ATTR;
@@ -216,6 +214,21 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	public void saveExpired() {
+		RedisSession session = redisRepository.new RedisSession(new MapSession());
+		session.setMaxInactiveIntervalInSeconds(0);
+		when(redisOperations.boundHashOps(anyString())).thenReturn(boundHashOperations);
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(redisOperations.boundValueOps(anyString())).thenReturn(boundValueOperations);
+
+		redisRepository.save(session);
+
+		String id = session.getId();
+		verify(redisOperations,atLeastOnce()).delete(getKey("expires:"+id));
+		verify(redisOperations,never()).boundValueOps(getKey("expires:"+id));
+	}
+
+	@Test
 	public void redisSessionGetAttributes() {
 		String attrName = "attrName";
 		RedisSession session = redisRepository.new RedisSession();
@@ -247,7 +260,8 @@ public class RedisOperationsSessionRepositoryTests {
 		redisRepository.delete(id);
 
 		assertThat(getDelta().get(MAX_INACTIVE_ATTR)).isEqualTo(0);
-		verify(redisOperations).delete(getKey("expires:"+id));
+		verify(redisOperations,atLeastOnce()).delete(getKey("expires:"+id));
+		verify(redisOperations,never()).boundValueOps(getKey("expires:"+id));
 	}
 
 	@Test

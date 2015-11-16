@@ -85,8 +85,12 @@ final class RedisSessionExpirationPolicy {
 		String sessionKey = getSessionKey(keyToExpire);
 
 		expireOperations.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
-		redis.boundValueOps(sessionKey).append("");
-		redis.boundValueOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
+		if(sessionExpireInSeconds == 0) {
+			redis.delete(sessionKey);
+		} else {
+			redis.boundValueOps(sessionKey).append("");
+			redis.boundValueOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
+		}
 		redis.boundHashOps(getSessionKey(session.getId())).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 	}
 
