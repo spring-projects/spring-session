@@ -126,19 +126,6 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		if(enableAttrs == null) {
-			// search parent classes
-			Class<?> currentClass = ClassUtils.resolveClassName(importMetadata.getClassName(), beanClassLoader);
-			for(Class<?> classToInspect = currentClass ;classToInspect != null; classToInspect = classToInspect.getSuperclass()) {
-				EnableRedisHttpSession enableRedisHttpSessionAnnotation = AnnotationUtils.findAnnotation(classToInspect, EnableRedisHttpSession.class);
-				if(enableRedisHttpSessionAnnotation == null) {
-					continue;
-				}
-				enableAttrMap = AnnotationUtils
-						.getAnnotationAttributes(enableRedisHttpSessionAnnotation);
-				enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-			}
-		}
 		maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
 		this.redisNamespace = enableAttrs.getString("redisNamespace");
 	}
