@@ -38,7 +38,6 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByPrincipalNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -248,7 +247,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class RedisOperationsSessionRepository implements FindByPrincipalNameSessionRepository<RedisOperationsSessionRepository.RedisSession>, MessageListener {
-	private static final Log logger = LogFactory.getLog(SessionMessageListener.class);
+	private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
 
 	/**
 	 * The default prefix for each key and channel in Redis used by Spring Session
@@ -436,6 +435,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		}
 		return redisSession;
 	}
+
 	public void onMessage(Message message, byte[] pattern) {
 		byte[] messageChannel = message.getChannel();
 		byte[] messageBody = message.getBody();
