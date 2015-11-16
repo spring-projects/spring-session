@@ -33,7 +33,9 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Mark Anderson
  * @since 1.0
+ * @deprecated Use {@link RedisOperationsSessionRepository} instead.
  */
+@Deprecated
 public class SessionMessageListener implements MessageListener {
 	private static final Log logger = LogFactory.getLog(SessionMessageListener.class);
 
