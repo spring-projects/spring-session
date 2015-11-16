@@ -486,7 +486,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	}
 
 	public void handleCreated(Map<Object,Object> loaded, String channel) {
-		String id = channel.substring(channel.lastIndexOf(":"));
+		String id = channel.substring(channel.lastIndexOf(":") + 1);
 		ExpiringSession session = loadSession(id, loaded);
 		publishEvent(new SessionCreatedEvent(this, session));
 	}

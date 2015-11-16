@@ -16,8 +16,12 @@
 package org.springframework.session.data.redis;
 
 import static org.fest.assertions.Assertions.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.CREATION_TIME_ATTR;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.LAST_ACCESSED_ATTR;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.MAX_INACTIVE_ATTR;
@@ -38,15 +42,19 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.connection.DefaultMessage;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
+import org.springframework.session.events.AbstractSessionEvent;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -64,12 +72,17 @@ public class RedisOperationsSessionRepositoryTests {
 	BoundHashOperations<Object, Object, Object> boundHashOperations;
 	@Mock
 	BoundSetOperations<Object, Object> boundSetOperations;
+	@Mock
+	ApplicationEventPublisher publisher;
+	@Captor
+	ArgumentCaptor<AbstractSessionEvent> event;
 	@Captor
 	ArgumentCaptor<Map<String,Object>> delta;
 
 	private MapSession cached;
 
 	private RedisOperationsSessionRepository redisRepository;
+
 
 	@Before
 	public void setup() {
@@ -378,6 +391,22 @@ public class RedisOperationsSessionRepositoryTests {
 			// https://github.com/spring-projects/spring-session/issues/93
 			verify(redisOperations).hasKey(expiredKey);
 		}
+	}
+
+	@Test
+	public void onMessageCreated() throws Exception {
+		MapSession session = cached;
+		byte[] pattern = "".getBytes("UTF-8");
+		String channel = "spring:session:event:created:" + session.getId();
+		byte[] body = new JdkSerializationRedisSerializer().serialize(new HashMap());
+		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body);
+
+		redisRepository.setApplicationEventPublisher(publisher);
+
+		redisRepository.onMessage(message, pattern);
+
+		verify(publisher).publishEvent(event.capture());
+		assertThat(event.getValue().getSessionId()).isEqualTo(session.getId());
 	}
 
 	private String getKey(String id) {
