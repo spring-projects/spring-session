@@ -52,6 +52,22 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using XML based configuration.
 | link:guides/httpsession-xml.html[HttpSession XML Guide]
 
+| {gh-samples-url}httpsession-gemfire-clientserver[HttpSession with GemFire (Client/Server)]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
+| link:guides/httpsession-gemfire-clientserver.html[HttpSession GemFire Client/Server Guide]
+
+| {gh-samples-url}httpsession-gemfire-clientserver-xml[HttpSession with GemFire (Client/Server) using XML]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology configured with XML.
+| link:guides/httpsession-gemfire-clientserver-xml.html[HttpSession GemFire Client/Server XML Guide]
+
+| {gh-samples-url}httpsession-gemfire-p2p[HttpSession with GemFire (P2P)]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a P2P topology.
+| link:guides/httpsession-gemfire-p2p.html[HttpSession GemFire P2P Guide]
+
+| {gh-samples-url}httpsession-gemfire-p2p-xml[HttpSession with GemFire (P2P) using XML]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a P2P topology configured with XML.
+| link:guides/httpsession-gemfire-p2p-xml.html[HttpSession GemFire P2P XML Guide]
+
 | {gh-samples-url}custom-cookie[Custom Cookie]
 | Demonstrates how to use Spring Session and customize the cookie.
 | link:guides/custom-cookie.html[Custom Cookie Guide]
@@ -135,6 +151,110 @@ NOTE: The <<samples, HttpSession XML Sample>> provides a working sample on how t
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession XML Guide when integrating with your own application.
 
 include::guides/httpsession-xml.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-gemfire]]
+=== HttpSession with Pivotal GemFire
+
+When https://pivotal.io/big-data/pivotal-gemfire[Pivotal GemFire] is used with Spring Session, a web application's
+`HttpSession` can be replaced with a **clustered** implementation managed by GemFire and conveniently accessed
+with Spring Session's API.
+
+The two most common topologies to manage Spring Sessions using GemFire include:
+
+* <<httpsession-gemfire-clientserver,Client-Server>>
+* <<httpsession-gemfire-p2p,Peer-To-Peer (P2P)>>
+
+Additionally, GemFire supports site-to-site replication using http://gemfire.docs.pivotal.io/docs-gemfire/topologies_and_comm/multi_site_configuration/chapter_overview.html[WAN functionality].
+The ability to configure and use GemFire's WAN support is independent of Spring Session, and is beyond the scope
+of this document. More details on GemFire WAN functionality can be found http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/#bootstrap:gateway[here].
+
+[[httpsession-gemfire-clientserver]]
+==== GemFire Client-Server
+
+The http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client-Server]
+topology will probably be the more common configuration preference for users when using GemFire as a provider in
+Spring Session since a GemFire server will have significantly different and unique JVM heap requirements when compared
+to the application. Using a client-server topology enables an application to manage (e.g. replicate) application state
+independently from other application processes.
+
+In a client-server topology, an application using Spring Session will open a client cache connection to a (remote)
+GemFire server cluster to manage and provide consistent access to all `HttpSession` state.
+
+You can configure a Client-Server topology with either:
+
+* <<httpsession-gemfire-clientserver-java,Java-based Configuration>>
+* <<httpsession-gemfire-clientserver-xml,XML-based Configuration>>
+
+[[httpsession-gemfire-clientserver-java]]
+===== GemFire Client-Server Java-based Configuration
+
+This section describes how to use GemFire's Client-Server topology to back an `HttpSession` with Java-based configuration.
+
+NOTE: The <<samples,HttpSession with GemFire (Client-Server) Sample>> provides a working sample on how to integrate
+Spring Session and GemFire to replace the HttpSession using Java configuration. You can read the basic steps for
+integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (Client-Server)
+Guide when integrating with your own application.
+
+include::guides/httpsession-gemfire-clientserver.adoc[tags=config,leveloffset=+3]
+
+[[http-session-gemfire-clientserver-xml]]
+===== GemFire Client-Server XML-based Configuration
+
+This section describes how to use GemFire's Client-Server topology to back an `HttpSession` with XML-based configuration.
+
+NOTE: The <<samples,HttpSession with GemFire (Client-Server) using XML Sample>> provides a working sample on how to
+integrate Spring Session and GemFire to replace the `HttpSession` using XML configuration. You can read the basic steps
+for integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (Client-Server)
+using XML Guide when integrating with your own application.
+
+include::guides/httpsession-gemfire-clientserver-xml.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-gemfire-p2p]]
+==== GemFire Peer-To-Peer (P2P)
+
+Perhaps less common would be to configure the Spring Session application as a peer member in the GemFire cluster using
+the http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/p2p_configuration/chapter_overview.html[Peer-To-Peer (P2P)] topology.
+In this configuration, a Spring Session application would be an actual data node (server) in the GemFire cluster,
+and **not** a cache client as before.
+
+One advantage to this approach is the proximity of the application to the application's state (i.e. it's data). However,
+there are other effective means of accomplishing similar data dependent computations, such as using GemFire's
+http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/function_exec/chapter_overview.html[Function Execution].
+Any of GemFire's other http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/product_intro.html[features]
+can be used when GemFire is serving as a provider in Spring Session.
+
+P2P is very useful for both testing purposes as well as smaller, more focused and self-contained applications,
+such as those found in a microservices architecture, and will most certainly improve on your application's latency,
+throughput and consistency needs.
+
+You can configure a Peer-To-Peer (P2P) topology with either:
+
+* <<httpsession-gemfire-p2p-java,Java-based Configuration>>
+* <<httpsession-gemfire-p2p-xml,XML-based Configuration>>
+
+[[httpsession-gemfire-p2p-java]]
+===== GemFire Peer-To-Peer (P2P) Java-based Configuration
+
+This section describes how to use GemFire's Peer-To-Peer (P2P) topology to back an `HttpSession` using Java-based configuration.
+
+NOTE: The <<samples, HttpSession with GemFire (P2P) Sample>> provides a working sample on how to integrate
+Spring Session and GemFire to replace the `HttpSession` using Java configuration. You can read the basic steps
+for integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (P2P) Guide
+when integrating with your own application.
+
+include::guides/httpsession-gemfire-p2p.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-gemfire-p2p-xml]]
+===== GemFire Peer-To-Peer (P2P) XML-based Configuration
+
+This section describes how to use GemFire's Peer-To-Peer (P2P) topology to back an `HttpSession` using XML-based configuration.
+
+NOTE: The <<samples, HttpSession with GemFire (P2P) using XML Sample>> provides a working sample on how to integrate
+Spring Session and GemFire to replace the `HttpSession` using XML configuration. You can read the basic steps for
+integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (P2P) using XML
+Guide when integrating with your own application.
+
+include::guides/httpsession-gemfire-p2p-xml.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-how]]
 === How HttpSession Integration Works

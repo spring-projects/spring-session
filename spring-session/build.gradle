@@ -17,6 +17,7 @@ configurations {
 dependencies {
 	optional "org.springframework.data:spring-data-redis:$springDataRedisVersion",
 			"com.hazelcast:hazelcast:$hazelcastVersion",
+		  	"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
 			"org.springframework:spring-context:$springVersion",
 			"org.springframework:spring-web:$springVersion",
 			"org.springframework:spring-messaging:$springVersion",
@@ -25,8 +26,11 @@ dependencies {
 	integrationTestCompile "redis.clients:jedis:2.4.1",
 			"org.apache.commons:commons-pool2:2.2"
 
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+
 	testCompile "junit:junit:$junitVersion",
-			'org.mockito:mockito-core:1.9.5',
+			'org.mockito:mockito-core:1.10.19',
+			"edu.umd.cs.mtc:multithreadedtc:1.01",
 			"org.springframework:spring-test:$springVersion",
 			"org.assertj:assertj-core:$assertjVersion",
 			"org.springframework.security:spring-security-core:$springSecurityVersion"
