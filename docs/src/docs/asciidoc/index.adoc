@@ -22,6 +22,19 @@ Additional features include:
 
 * <<websocket,WebSocket>> - provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
 
+== What's New in 1.1
+
+Below are the highlights of what is new in Spring Session 1.1. You can find a complete list in the https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.1.0+M1%22[changelog].
+
+* https://github.com/spring-projects/spring-session/issues/7[#7] - link:guides/findbyusername.html[Query by Username]
+* https://github.com/spring-projects/spring-session/issues/299[#299] - link:guides/custom-cookie.html[Customize Cookie Creation]
+* https://github.com/spring-projects/spring-session/issues/4[#4] - Add <<httpsession-httpsessionlistener,HttpSessionListener>> support
+* https://github.com/spring-projects/spring-session/issues/283[#283] - Allow override default `RedisSerializer`
+* https://github.com/spring-projects/spring-session/issues/277[#277] - Added link:guides/hazelcast-spring.html[@EnableHazelcastHttpSession]
+* https://github.com/spring-projects/spring-session/issues/271[#271] - Performance improvements
+* https://github.com/spring-projects/spring-session/pull/218[#218] - Allow scoping the session in Redis using <<api-redisoperationssessionrepository-config,redisNamespace>>
+* https://github.com/spring-projects/spring-session/issues/272[#272] - Add `ExpiringSession.setLastAccessedTime(long)`
+
 [[samples]]
 == Samples and Guides (Start Here)
 
