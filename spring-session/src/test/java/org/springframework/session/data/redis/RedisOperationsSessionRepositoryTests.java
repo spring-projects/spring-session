@@ -312,7 +312,6 @@ public class RedisOperationsSessionRepositoryTests {
 				LAST_ACCESSED_ATTR, expected.getLastAccessedTime());
 		when(boundHashOperations.entries()).thenReturn(map);
 
-		long now = System.currentTimeMillis();
 		RedisSession session = redisRepository.getSession(expected.getId());
 		assertThat(session.getId()).isEqualTo(expected.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(expected.getAttributeNames());

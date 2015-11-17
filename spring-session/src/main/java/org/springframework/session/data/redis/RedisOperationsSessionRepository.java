@@ -434,6 +434,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		return redisSession;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void onMessage(Message message, byte[] pattern) {
 		byte[] messageChannel = message.getChannel();
 		byte[] messageBody = message.getBody();
@@ -663,6 +664,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 			return cached.getMaxInactiveIntervalInSeconds();
 		}
 
+		@SuppressWarnings("unchecked")
 		public Object getAttribute(String attributeName) {
 			return cached.getAttribute(attributeName);
 		}
