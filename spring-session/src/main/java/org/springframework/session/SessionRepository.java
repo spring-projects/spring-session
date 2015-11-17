@@ -49,12 +49,6 @@ public interface SessionRepository<S extends Session> {
 	/**
 	 * Gets the {@link Session} by the {@link Session#getId()} or null if no {@link Session} is found.
 	 *
-	 * <p>
-	 * If the {@link Session} extends {@link ExpiringSession}, then {@link ExpiringSession#getLastAccessedTime()} will be
-	 * updated on the returned object. In order to persist this change, {@link #save(Session)} must be invoked on the returned
-	 * instance.
-	 * </p>
-	 *
 	 * @param id the {@link org.springframework.session.Session#getId()} to lookup
 	 * @return the {@link Session} by the {@link Session#getId()} or null if no {@link Session} is found.
 	 */

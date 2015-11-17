@@ -319,7 +319,7 @@ public class RedisOperationsSessionRepositoryTests {
 		assertThat(session.getAttribute(attrName)).isEqualTo(expected.getAttribute(attrName));
 		assertThat(session.getCreationTime()).isEqualTo(expected.getCreationTime());
 		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(expected.getMaxInactiveIntervalInSeconds());
-		assertThat(session.getLastAccessedTime()).isGreaterThanOrEqualTo(now);
+		assertThat(session.getLastAccessedTime()).isEqualTo(expected.getLastAccessedTime());
 
 	}
 

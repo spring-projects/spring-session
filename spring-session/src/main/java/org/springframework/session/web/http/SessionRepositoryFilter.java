@@ -242,7 +242,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		public boolean isRequestedSessionIdValid() {
 			if(requestedSessionIdValid == null) {
 				String sessionId = getRequestedSessionId();
-				S session = sessionId == null ? null : sessionRepository.getSession(sessionId);
+				S session = sessionId == null ? null : getSession(sessionId);
 				return isRequestedSessionIdValid(session);
 			}
 
@@ -260,6 +260,15 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			return getCurrentSession() == null && requestedSessionInvalidated;
 		}
 
+		private S getSession(String sessionId) {
+			S session = sessionRepository.getSession(sessionId);
+			if(session == null) {
+				return null;
+			}
+			session.setLastAccessedTime(System.currentTimeMillis());
+			return session;
+		}
+
 		@Override
 		public HttpSessionWrapper getSession(boolean create) {
 			HttpSessionWrapper currentSession = getCurrentSession();
@@ -268,7 +277,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			}
 			String requestedSessionId = getRequestedSessionId();
 			if(requestedSessionId != null) {
-				S session = sessionRepository.getSession(requestedSessionId);
+				S session = getSession(requestedSessionId);
 				if(session != null) {
 					this.requestedSessionIdValid = true;
 					currentSession = new HttpSessionWrapper(session, getServletContext());

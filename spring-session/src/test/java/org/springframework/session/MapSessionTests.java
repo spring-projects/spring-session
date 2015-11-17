@@ -94,6 +94,10 @@ public class MapSessionTests {
 			return "id";
 		}
 
+		public void setLastAccessedTime(long lastAccessedTime) {
+			throw new UnsupportedOperationException();
+		}
+
 		public long getLastAccessedTime() {
 			return 0;
 		}

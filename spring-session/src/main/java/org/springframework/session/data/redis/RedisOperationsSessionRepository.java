@@ -365,7 +365,6 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		for(Object id : sessionIds) {
 			RedisSession session = getSession((String) id);
 			if(session != null) {
-				session.setLastAccessedTime(session.originalLastAccessTime);
 				sessions.put(session.getId(), session);
 			}
 		}
@@ -392,7 +391,6 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		}
 		RedisSession result = new RedisSession(loaded);
 		result.originalLastAccessTime = loaded.getLastAccessedTime();
-		result.setLastAccessedTime(System.currentTimeMillis());
 		return result;
 	}
 

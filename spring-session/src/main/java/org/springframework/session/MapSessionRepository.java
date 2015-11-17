@@ -81,9 +81,7 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 			delete(saved.getId());
 			return null;
 		}
-		MapSession result = new MapSession(saved);
-		result.setLastAccessedTime(System.currentTimeMillis());
-		return result;
+		return new MapSession(saved);
 	}
 
 	public void delete(String id) {

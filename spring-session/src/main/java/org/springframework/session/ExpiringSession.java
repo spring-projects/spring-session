@@ -31,6 +31,13 @@ public interface ExpiringSession extends Session {
 	long getCreationTime();
 
 	/**
+	 * Sets the last accessed time in milliseconds since midnight of 1/1/1970 GMT
+	 *
+	 * @param lastAccessedTime the last accessed time in milliseconds since midnight of 1/1/1970 GMT
+	 */
+	void setLastAccessedTime(long lastAccessedTime);
+
+	/**
 	 * Gets the last time this {@link Session} was accessed expressed in milliseconds since midnight of 1/1/1970 GMT
 	 *
 	 * @return the last time the client sent a request associated with the session expressed in milliseconds since midnight of 1/1/1970 GMT
