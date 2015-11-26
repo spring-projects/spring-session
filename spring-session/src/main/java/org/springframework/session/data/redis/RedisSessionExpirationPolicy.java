@@ -68,13 +68,15 @@ final class RedisSessionExpirationPolicy {
 
 	public void onExpirationUpdated(Long originalExpirationTimeInMilli, ExpiringSession session) {
 		String keyToExpire = "expires:" + session.getId();
+		long toExpire = roundUpToNextMinute(expiresInMillis(session));
+
 		if(originalExpirationTimeInMilli != null) {
 			long originalRoundedUp = roundUpToNextMinute(originalExpirationTimeInMilli);
-			String expireKey = getExpirationKey(originalRoundedUp);
-			redis.boundSetOps(expireKey).remove(keyToExpire);
+			if(toExpire != originalRoundedUp) {
+				String expireKey = getExpirationKey(originalRoundedUp);
+				redis.boundSetOps(expireKey).remove(keyToExpire);
+			}
 		}
-
-		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 
 		String expireKey = getExpirationKey(toExpire);
 		BoundSetOperations<Object, Object> expireOperations = redis.boundSetOps(expireKey);
