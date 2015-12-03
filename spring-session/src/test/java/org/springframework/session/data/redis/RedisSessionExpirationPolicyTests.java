@@ -59,7 +59,7 @@ public class RedisSessionExpirationPolicyTests {
 		RedisOperationsSessionRepository repository = new RedisOperationsSessionRepository(sessionRedisOperations);
 		policy = new RedisSessionExpirationPolicy(sessionRedisOperations, repository);
 		session = new MapSession();
-		session.setLastAccessedTime(1429116694665L);
+		session.setLastAccessedTime(1429116694675L);
 		session.setId("12345");
 
 		when(sessionRedisOperations.boundSetOps(anyString())).thenReturn(setOperations);
@@ -79,6 +79,19 @@ public class RedisSessionExpirationPolicyTests {
 		// verify the original is removed
 		verify(sessionRedisOperations).boundSetOps(originalExpireKey);
 		verify(setOperations).remove("expires:"+ session.getId());
+	}
+
+	@Test
+	public void onExpirationUpdatedDoNotSendDeleteWhenExpirationTimeDoesNotChange() throws Exception {
+		long originalExpirationTimeInMs = RedisSessionExpirationPolicy.expiresInMillis(session) - 10;
+		long originalRoundedToNextMinInMs = RedisSessionExpirationPolicy.roundUpToNextMinute(originalExpirationTimeInMs);
+		String originalExpireKey = policy.getExpirationKey(originalRoundedToNextMinInMs);
+
+		policy.onExpirationUpdated(originalExpirationTimeInMs, session);
+
+		// verify the original is not removed
+		verify(sessionRedisOperations).boundSetOps(originalExpireKey);
+		verify(setOperations, never()).remove("expires:"+ session.getId());
 	}
 
 	@Test
