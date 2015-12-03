@@ -624,6 +624,10 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		RedisSession(MapSession cached) {
 			Assert.notNull("MapSession cannot be null");
 			this.cached = cached;
+
+			for (String attributeName : cached.getAttributeNames()) {
+				delta.put(getSessionAttrNameKey(attributeName), cached.getAttribute(attributeName));
+			}
 		}
 
 		public void setNew(boolean isNew) {
