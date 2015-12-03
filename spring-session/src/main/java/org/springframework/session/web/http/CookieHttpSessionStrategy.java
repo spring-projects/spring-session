@@ -238,7 +238,7 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		if(sessionIds.isEmpty()) {
 			return "";
 		}
-		if(sessionIds.size() == 1) {
+		if(sessionIds.size() == 1 && sessionIds.keySet().contains(DEFAULT_ALIAS)) {
 			return sessionIds.values().iterator().next();
 		}
 

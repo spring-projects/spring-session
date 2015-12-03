@@ -107,6 +107,14 @@ public class CookieHttpSessionStrategyTests {
 		assertThat(getSessionId()).isEqualTo("0 " + existing.getId() + " new " + session.getId());
 	}
 
+	// gh-321
+	@Test
+	public void onNewSessionExplicitAlias() throws Exception {
+		request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
+		strategy.onNewSession(session, request, response);
+		assertThat(getSessionId()).isEqualTo("new " + session.getId());
+	}
+
 	@Test
 	public void onNewSessionCookiePath() throws Exception {
 		request.setContextPath("/somethingunique");
@@ -149,8 +157,9 @@ public class CookieHttpSessionStrategyTests {
 	public void onDeleteSessionExistingSessionSameAlias() throws Exception {
 		Session existing = new MapSession();
 		setSessionCookie("0 " + existing.getId() + " new " + session.getId());
+		request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		strategy.onInvalidateSession(request, response);
-		assertThat(getSessionId()).isEqualTo(session.getId());
+		assertThat(getSessionId()).isEqualTo(existing.getId());
 	}
 
 	@Test
