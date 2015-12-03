@@ -91,6 +91,7 @@ public class SpringHttpSessionConfiguration {
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<HttpSessionListener>();
 
+	private ServletContext servletContext;
 
 	@Bean
 	public SessionEventHttpSessionListenerAdapter sessionEventHttpSessionListenerAdapter() {
@@ -98,7 +99,7 @@ public class SpringHttpSessionConfiguration {
 	}
 
 	@Bean
-	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository, ServletContext servletContext) {
+	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository) {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
 		sessionRepositoryFilter.setServletContext(servletContext);
 		if(httpSessionStrategy instanceof MultiHttpSessionStrategy) {
@@ -107,6 +108,11 @@ public class SpringHttpSessionConfiguration {
 			sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
 		}
 		return sessionRepositoryFilter;
+	}
+
+	@Autowired(required=false)
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
 	}
 
 	@Autowired(required = false)
