@@ -1165,6 +1165,39 @@ public class SessionRepositoryFilterTests {
 		verifyZeroInteractions(sessionRepository);
 	}
 
+	@Test
+	public void doFilterLazySessionCreation() throws Exception {
+		SessionRepository<ExpiringSession> sessionRepository = spy(new MapSessionRepository());
+
+		filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+
+		doFilter(new DoInFilter(){
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+			}
+		});
+
+		verifyZeroInteractions(sessionRepository);
+	}
+
+	@Test
+	public void doFilterLazySessionUpdates() throws Exception {
+		ExpiringSession session = this.sessionRepository.createSession();
+		this.sessionRepository.save(session);
+		SessionRepository<ExpiringSession> sessionRepository = spy(this.sessionRepository);
+		setSessionCookie(session.getId());
+
+		filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+
+		doFilter(new DoInFilter(){
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) throws IOException {
+			}
+		});
+
+		verifyZeroInteractions(sessionRepository);
+	}
+
 	// --- order
 
 	@Test
