@@ -290,6 +290,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 				return null;
 			}
 			S session = sessionRepository.createSession();
+			session.setLastAccessedTime(System.currentTimeMillis());
 			currentSession = new HttpSessionWrapper(session, getServletContext());
 			setCurrentSession(currentSession);
 			return currentSession;

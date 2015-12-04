@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -56,6 +57,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -110,6 +112,26 @@ public class SessionRepositoryFilterTests {
 				long creationTime = wrappedRequest.getSession().getCreationTime();
 
 				assertThat(creationTime).isEqualTo(expectedCreationTime);
+			}
+		});
+	}
+
+	@Test
+	public void doFilterCreateSetsLastAccessedTime() throws Exception {
+		MapSession session = new MapSession();
+		session.setLastAccessedTime(0L);
+		this.sessionRepository = spy(this.sessionRepository);
+		when(this.sessionRepository.createSession()).thenReturn(session);
+		this.filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				long now = System.currentTimeMillis();
+				long fiveSecondsAgo = now - TimeUnit.SECONDS.toMillis(5);
+				assertThat(session.getLastAccessedTime()).isLessThanOrEqualTo(now);
+				assertThat(session.getLastAccessedTime()).isGreaterThanOrEqualTo(fiveSecondsAgo);
 			}
 		});
 	}
