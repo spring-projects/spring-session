@@ -23,12 +23,14 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -141,7 +143,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-		verify(sessionRepository).getSession(anyString());
+		verify(session).setLastAccessedTime(longThat(isAlmostNow()));
 		verify(sessionRepository).save(session);
 	}
 
@@ -151,7 +153,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-		verify(sessionRepository).getSession(anyString());
+		verify(session).setLastAccessedTime(longThat(isAlmostNow()));
 		verify(sessionRepository).save(session);
 	}
 
@@ -161,17 +163,18 @@ public class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-		verify(sessionRepository).getSession(anyString());
+		verify(session).setLastAccessedTime(longThat(isAlmostNow()));
 		verify(sessionRepository).save(session);
 	}
 
 	@Test
 	public void preSendUnsubscribeUpdatesLastUpdateTime() {
 		setMessageType(SimpMessageType.UNSUBSCRIBE);
+		session.setLastAccessedTime(0L);
 
 		assertThat(interceptor.preSend(createMessage(), channel)).isSameAs(createMessage);
 
-		verify(sessionRepository).getSession(anyString());
+		verify(session).setLastAccessedTime(longThat(isAlmostNow()));
 		verify(sessionRepository).save(session);
 	}
 
@@ -252,5 +255,22 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	private void setMessageType(SimpMessageType type) {
 		headers.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, type);
+	}
+
+	static AlmostNowMatcher isAlmostNow() {
+		return new AlmostNowMatcher();
+	}
+
+	static class AlmostNowMatcher extends ArgumentMatcher<Long> {
+
+		@Override
+		public boolean matches(Object argument) {
+			long other = (Long) argument;
+			long now = System.currentTimeMillis();
+
+			long delta = now - other;
+			return delta >= 0 && delta < TimeUnit.SECONDS.toMillis(3);
+		}
+
 	}
 }

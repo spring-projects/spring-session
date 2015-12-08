@@ -124,6 +124,7 @@ public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession
 			S session = sessionRepository.getSession(sessionId);
 			if (session != null) {
 				// update the last accessed time
+				session.setLastAccessedTime(System.currentTimeMillis());
 				sessionRepository.save(session);
 			}
 		}
