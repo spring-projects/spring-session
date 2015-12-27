@@ -94,6 +94,9 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(sessionRedisTemplate);
 		sessionRepository.setApplicationEventPublisher(applicationEventPublisher);
 		sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
+		if(defaultRedisSerializer != null) {
+			sessionRepository.setDefaultSerializer(defaultRedisSerializer);
+		}
 
 		String redisNamespace = getRedisNamespace();
 		if(StringUtils.hasText(redisNamespace)) {

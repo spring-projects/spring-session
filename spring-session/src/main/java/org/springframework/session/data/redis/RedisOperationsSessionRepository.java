@@ -302,6 +302,8 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	 */
 	private Integer defaultMaxInactiveInterval;
 
+	private RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer();
+
 	/**
 	 * Allows creating an instance and uses a default {@link RedisOperations} for both managing the session and the expirations.
 	 *
@@ -345,6 +347,17 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
+	}
+
+	/**
+	 * Sets the default redis serializer. Replaces default serializer which is based on
+	 * {@link JdkSerializationRedisSerializer}.
+	 *
+	 * @param defaultSerializer the new default redis serializer
+	 */
+	public void setDefaultSerializer(RedisSerializer<Object> defaultSerializer) {
+		Assert.notNull(defaultSerializer, "defaultSerializer cannot be null");
+		this.defaultSerializer = defaultSerializer;
 	}
 
 	public void save(RedisSession session) {
@@ -456,8 +469,8 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 
 
 		if(channel.startsWith(getSessionCreatedChannelPrefix())) {
-			RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer();
-			Map<Object,Object> loaded = (Map<Object, Object>) serializer.deserialize(message.getBody());
+			// TODO: is this thread safe?
+			Map<Object,Object> loaded = (Map<Object, Object>) defaultSerializer.deserialize(message.getBody());
 			handleCreated(loaded, channel);
 			return;
 		}
