@@ -16,7 +16,7 @@
 package org.springframework.session.data.redis.config.annotation.web.http;
 
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;

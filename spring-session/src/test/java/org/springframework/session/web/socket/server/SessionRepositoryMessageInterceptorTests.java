@@ -15,7 +15,7 @@
  */
 package org.springframework.session.web.socket.server;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 

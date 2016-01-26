@@ -15,7 +15,7 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.*;

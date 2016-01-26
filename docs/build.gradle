@@ -31,7 +31,7 @@ dependencies {
 				'junit:junit:4.11',
 				'org.mockito:mockito-core:1.9.5',
 				"org.springframework:spring-test:$springVersion",
-				'org.easytesting:fest-assert:1.4',
+				"org.assertj:assertj-core:$assertjVersion",
 				"com.hazelcast:hazelcast:$hazelcastVersion",
 				"redis.clients:jedis:2.4.1",
 				"javax.servlet:javax.servlet-api:$servletApiVersion"

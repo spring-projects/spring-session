@@ -15,7 +15,7 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import org.junit.Test;

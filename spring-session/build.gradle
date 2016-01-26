@@ -28,7 +28,7 @@ dependencies {
 	testCompile "junit:junit:$junitVersion",
 			'org.mockito:mockito-core:1.9.5',
 			"org.springframework:spring-test:$springVersion",
-			'org.easytesting:fest-assert:1.4',
+			"org.assertj:assertj-core:$assertjVersion",
 			"org.springframework.security:spring-security-core:$springSecurityVersion"
 
 	jacoco "org.jacoco:org.jacoco.agent:0.7.2.201409121644:runtime"

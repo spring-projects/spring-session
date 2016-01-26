@@ -23,7 +23,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.web.http.HeaderHttpSessionStrategy;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 public class HeaderSessionStrategyTests {
 	private MockHttpServletRequest request;

@@ -15,7 +15,7 @@
  */
 package org.springframework.session;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Set;
 

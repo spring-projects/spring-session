@@ -15,7 +15,7 @@
  */
 package org.springframework.session.data.redis;
 
-import static org.fest.assertions.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -96,7 +96,7 @@ public class RedisOperationsSessionRepositoryITests {
 
 		assertThat(repository.getSession(toSave.getId())).isNull();
 		assertThat(registry.getEvent()).isInstanceOf(SessionDestroyedEvent.class);
-		assertThat(redis.boundSetOps(usernameSessionKey).members()).excludes(toSave.getId());
+		assertThat(redis.boundSetOps(usernameSessionKey).members()).doesNotContain(toSave.getId());
 
 
 		assertThat(registry.getEvent().getSession().getAttribute(expectedAttributeName)).isEqualTo(expectedAttributeValue);
@@ -142,7 +142,7 @@ public class RedisOperationsSessionRepositoryITests {
 		findByPrincipalName = repository.findByPrincipalName(principalName);
 
 		assertThat(findByPrincipalName).hasSize(0);
-		assertThat(findByPrincipalName.keySet()).excludes(toSave.getId());
+		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
 	}
 
 	@Configuration

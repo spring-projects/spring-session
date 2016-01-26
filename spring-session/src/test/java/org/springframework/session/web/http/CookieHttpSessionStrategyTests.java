@@ -15,7 +15,7 @@
  */
 package org.springframework.session.web.http;
 
-import static org.fest.assertions.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -27,7 +27,7 @@ dependencies {
 			"org.apache.httpcomponents:httpclient:4.4.1"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test",
-				'org.easytesting:fest-assert:1.4'
+				"org.assertj:assertj-core:$assertjVersion"
 
 	integrationTestCompile gebDependencies,
 			"org.spockframework:spock-spring:$spockVersion"
