@@ -16,6 +16,10 @@ liveReload {
 	docRoot asciidoctor.sourceDir.canonicalPath
 }
 
+repositories {
+	maven { url 'http://dist.gemstone.com/maven/release' }
+}
+
 asciidoctorj {
 
 }
@@ -25,6 +29,7 @@ tasks.findByPath("artifactoryPublish")?.enabled = false
 dependencies {
 		testCompile project(':spring-session'),
 				"org.springframework.data:spring-data-redis:$springDataRedisVersion",
+				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
 				"org.springframework:spring-websocket:${springVersion}",
 				"org.springframework:spring-messaging:${springVersion}",
 				"org.springframework.security:spring-security-web:${springSecurityVersion}",

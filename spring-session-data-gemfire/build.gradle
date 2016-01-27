@@ -1,0 +1,22 @@
+apply from: JAVA_GRADLE
+apply from: MAVEN_GRADLE
+apply plugin: 'spring-io'
+
+description = "Aggregator for Spring Session and Spring Data GemFire"
+
+dependencies {
+    compile project(':spring-session')
+    compile("org.springframework.data:spring-data-gemfire:$springDataGemFireVersion") {
+        exclude group: "org.slf4j", module: 'slf4j-api'
+        exclude group: "org.slf4j", module: 'jcl-over-slf4j'
+    }
+    runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+}
+
+dependencyManagement {
+    springIoTestRuntime {
+        imports {
+            mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+        }
+    }
+}
