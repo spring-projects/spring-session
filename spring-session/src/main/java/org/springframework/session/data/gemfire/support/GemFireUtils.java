@@ -32,7 +32,7 @@ import com.gemstone.gemfire.internal.cache.GemFireCacheImpl;
  * and is used by Spring Session's GemFire adapter support classes.
  *
  * @author John Blum
- * @since 1.0.0
+ * @since 1.1.0
  */
 public abstract class GemFireUtils {
 

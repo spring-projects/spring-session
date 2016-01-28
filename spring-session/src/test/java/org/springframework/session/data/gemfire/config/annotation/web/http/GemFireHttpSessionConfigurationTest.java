@@ -52,7 +52,7 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  * @see com.gemstone.gemfire.cache.GemFireCache
  * @see com.gemstone.gemfire.cache.Region
  * @see com.gemstone.gemfire.cache.client.ClientCache
- * @since 1.0.0
+ * @since 1.1.0
  */
 public class GemFireHttpSessionConfigurationTest {
 
@@ -196,7 +196,7 @@ public class GemFireHttpSessionConfigurationTest {
 	@SuppressWarnings("unchecked")
 	public void createAndInitializeSpringSessionGemFireRegionTemplate() {
 		GemFireCache mockGemFireCache = mock(GemFireCache.class);
-		Region mockRegion = mock(Region.class);
+		Region<Object,Object> mockRegion = mock(Region.class);
 
 		when(mockGemFireCache.getRegion(eq("Example"))).thenReturn(mockRegion);
 

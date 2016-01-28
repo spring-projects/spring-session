@@ -103,7 +103,6 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@SuppressWarnings("unused")
 @Target(ElementType.TYPE)
 @Configuration
 @Import(GemFireHttpSessionConfiguration.class)

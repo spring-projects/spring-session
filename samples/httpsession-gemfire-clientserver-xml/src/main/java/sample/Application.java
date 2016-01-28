@@ -24,8 +24,10 @@ import org.springframework.context.annotation.ImportResource;
 @ImportResource("META-INF/spring/session-server.xml") // <2>
 public class Application {
 
+	@SuppressWarnings("resource")
 	public static void main(final String[] args) {
-		new AnnotationConfigApplicationContext(Application.class).registerShutdownHook();
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Application.class);
+		context.registerShutdownHook();
 	}
 }
 // tag::end[]

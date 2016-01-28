@@ -26,6 +26,7 @@ Additional features include:
 
 Below are the highlights of what is new in Spring Session 1.1. You can find a complete list in the https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.1.0+M1%22[changelog].
 
+* https://github.com/spring-projects/spring-session/issues/148[#148] - Added <<httpsession-gemfire,GemFire Support>>
 * https://github.com/spring-projects/spring-session/issues/7[#7] - link:guides/findbyusername.html[Query by Username]
 * https://github.com/spring-projects/spring-session/issues/299[#299] - link:guides/custom-cookie.html[Customize Cookie Creation]
 * https://github.com/spring-projects/spring-session/issues/4[#4] - Add <<httpsession-httpsessionlistener,HttpSessionListener>> support

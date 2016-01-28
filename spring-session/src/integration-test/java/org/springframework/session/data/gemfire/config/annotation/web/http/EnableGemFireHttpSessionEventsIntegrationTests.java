@@ -67,7 +67,6 @@ import com.gemstone.gemfire.cache.RegionShortcut;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-@SuppressWarnings("unused")
 public class EnableGemFireHttpSessionEventsIntegrationTests extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;

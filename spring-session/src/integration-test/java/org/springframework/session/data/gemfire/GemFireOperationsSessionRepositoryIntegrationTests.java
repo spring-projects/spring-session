@@ -31,6 +31,7 @@ import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -65,7 +66,6 @@ import com.gemstone.gemfire.pdx.PdxWriter;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-@SuppressWarnings("unused")
 public class GemFireOperationsSessionRepositoryIntegrationTests extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 300;
@@ -162,6 +162,19 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 	@Test
 	public void findsNoSessionsByNonExistingPrincipal() {
 		Map<String, ExpiringSession> nonExistingPrincipalSessions = doFindByPrincipalName("nonExistingPrincipalName");
+
+		assertThat(nonExistingPrincipalSessions).isNotNull();
+		assertThat(nonExistingPrincipalSessions.isEmpty()).isTrue();
+	}
+
+	@Test
+	public void doesNotFindAfterPrincipalRemoved() {
+		String username = "doesNotFindAfterPrincipalRemoved";
+		ExpiringSession session = save(touch(createSession(username)));
+		session.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, null);
+		save(session);
+
+		Map<String, ExpiringSession> nonExistingPrincipalSessions = doFindByPrincipalName(username);
 
 		assertThat(nonExistingPrincipalSessions).isNotNull();
 		assertThat(nonExistingPrincipalSessions.isEmpty()).isTrue();

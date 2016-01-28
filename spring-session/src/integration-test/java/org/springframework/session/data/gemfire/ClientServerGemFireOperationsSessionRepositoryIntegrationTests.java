@@ -85,13 +85,12 @@ import com.gemstone.gemfire.cache.client.Pool;
  * @see com.gemstone.gemfire.cache.client.ClientCache
  * @see com.gemstone.gemfire.cache.client.Pool
  * @see com.gemstone.gemfire.cache.server.CacheServer
- * @since 1.0.0
+ * @since 1.1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes =
 	ClientServerGemFireOperationsSessionRepositoryIntegrationTests.SpringSessionGemFireClientConfiguration.class)
 @WebAppConfiguration
-@SuppressWarnings("unused")
 public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
@@ -124,7 +123,6 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 			String.format("-Dspring.session.data.gemfire.port=%1$d", port));
 
 		assertThat(waitForCacheServerToStart(SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME, port)).isTrue();
-		//assertThat(waitForProcessToStart(gemfireServer, processWorkingDirectory)).isTrue();
 
 		System.err.printf("GemFire Server [startup time = %1$d ms]%n", System.currentTimeMillis() - t0);
 	}
@@ -209,7 +207,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 			MAX_INACTIVE_INTERVAL_IN_SECONDS + 1));
 
 		assertThat(sessionEvent).isInstanceOf(SessionExpiredEvent.class);
-		assertThat(sessionEvent.<ExpiringSession>getSessionId()).isEqualTo(expectedSession.getId());
+		assertThat(sessionEvent.getSessionId()).isEqualTo(expectedSession.getId());
 
 		ExpiringSession expiredSession = gemfireSessionRepository.getSession(expectedSession.getId());
 
@@ -230,7 +228,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 		sessionEvent = sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionDeletedEvent.class);
-		assertThat(sessionEvent.<ExpiringSession>getSessionId()).isEqualTo(expectedSession.getId());
+		assertThat(sessionEvent.getSessionId()).isEqualTo(expectedSession.getId());
 
 		ExpiringSession deletedSession = gemfireSessionRepository.getSession(expectedSession.getId());
 
@@ -299,6 +297,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 		}
 
 		// used for debugging purposes
+		@SuppressWarnings("resource")
 		public static void main(final String[] args) {
 			ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(
 				SpringSessionGemFireClientConfiguration.class);
@@ -362,8 +361,10 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 			return cacheServerFactory;
 		}
 
+		@SuppressWarnings("resource")
 		public static void main(final String[] args) throws IOException {
-			new AnnotationConfigApplicationContext(SpringSessionGemFireServerConfiguration.class).registerShutdownHook();
+			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringSessionGemFireServerConfiguration.class);
+			context.registerShutdownHook();
 			writeProcessControlFile(WORKING_DIRECTORY);
 		}
 	}

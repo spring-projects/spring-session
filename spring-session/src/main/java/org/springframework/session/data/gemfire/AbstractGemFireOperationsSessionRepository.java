@@ -316,6 +316,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see com.gemstone.gemfire.Delta
 	 * @see com.gemstone.gemfire.Instantiator
 	 */
+	@SuppressWarnings("serial")
 	public static class GemFireSession implements Comparable<ExpiringSession>, DataSerializable, Delta, ExpiringSession {
 
 		protected static final boolean DEFAULT_ALLOW_JAVA_SERIALIZATION = true;
@@ -590,6 +591,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see com.gemstone.gemfire.Delta
 	 * @see com.gemstone.gemfire.Instantiator
 	 */
+	@SuppressWarnings("serial")
 	public static class GemFireSessionAttributes implements DataSerializable, Delta {
 
 		protected static final boolean DEFAULT_ALLOW_JAVA_SERIALIZATION = true;

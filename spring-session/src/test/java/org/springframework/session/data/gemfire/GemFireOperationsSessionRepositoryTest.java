@@ -65,7 +65,7 @@ import com.gemstone.gemfire.cache.query.SelectResults;
  * @see org.mockito.Mockito
  * @see org.mockito.runners.MockitoJUnitRunner
  * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository
- * @since 1.0.0
+ * @since 1.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class GemFireOperationsSessionRepositoryTest {
@@ -120,9 +120,9 @@ public class GemFireOperationsSessionRepositoryTest {
 		when(mockSessionTwo.getId()).thenReturn("2");
 		when(mockSessionThree.getId()).thenReturn("3");
 
-		SelectResults mockSelectResults = mock(SelectResults.class);
+		SelectResults<Object> mockSelectResults = mock(SelectResults.class);
 
-		when(mockSelectResults.asList()).thenReturn(Arrays.asList(mockSessionOne, mockSessionTwo, mockSessionThree));
+		when(mockSelectResults.asList()).thenReturn(Arrays.<Object>asList(mockSessionOne, mockSessionTwo, mockSessionThree));
 
 		String principalName = "jblum";
 
@@ -149,7 +149,7 @@ public class GemFireOperationsSessionRepositoryTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void findByPrincipalNameReturnsNoMatchingSessions() {
-		SelectResults mockSelectResults = mock(SelectResults.class);
+		SelectResults<Object> mockSelectResults = mock(SelectResults.class);
 
 		when(mockSelectResults.asList()).thenReturn(Collections.emptyList());
 

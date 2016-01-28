@@ -81,6 +81,7 @@ public class ServerConfig {
 		return cacheServerFactory;
 	}
 
+	@SuppressWarnings("resource")
 	public static void main(final String[] args) throws IOException { // <5>
 		new AnnotationConfigApplicationContext(ServerConfig.class)
 			.registerShutdownHook();

@@ -773,6 +773,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 	@Test
 	public void sessionToData() throws Exception {
+		@SuppressWarnings("serial")
 		GemFireSession session = new GemFireSession("1") {
 			@Override void writeObject(Object obj, DataOutput out) throws IOException {
 				assertThat(obj).isInstanceOf(GemFireSessionAttributes.class);
@@ -811,6 +812,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		when(mockDataInput.readLong()).thenReturn(expectedCreationTime).thenReturn(expectedLastAccessedTime);
 		when(mockDataInput.readInt()).thenReturn(expectedMaxInactiveIntervalInSeconds);
 
+		@SuppressWarnings("serial")
 		GemFireSession session = new GemFireSession("1") {
 			@Override @SuppressWarnings("unchecked")
 			<T> T readObject(DataInput in) throws ClassNotFoundException, IOException {
@@ -852,6 +854,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		final long beforeOrAtCreationTime = System.currentTimeMillis();
 
+		@SuppressWarnings("serial")
 		GemFireSession expectedSession = new GemFireSession("123") {
 			@Override void writeObject(Object obj, DataOutput out) throws IOException {
 				assertThat(obj).isInstanceOf(GemFireSessionAttributes.class);
@@ -869,6 +872,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		expectedSession.toData(new DataOutputStream(outBytes));
 
+		@SuppressWarnings("serial")
 		GemFireSession deserializedSession = new GemFireSession("0") {
 			@SuppressWarnings("unchecked")
 			@Override <T> T readObject(DataInput in) throws ClassNotFoundException, IOException {
@@ -946,6 +950,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	public void sessionToDelta() throws Exception {
 		final DataOutput mockDataOutput = mock(DataOutput.class);
 
+		@SuppressWarnings("serial")
 		GemFireSession session = new GemFireSession() {
 			@Override void writeObject(Object obj, DataOutput out) throws IOException {
 				assertThat(String.valueOf(obj)).isEqualTo("test");
@@ -976,6 +981,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		when(mockDataInput.readLong()).thenReturn(1l);
 		when(mockDataInput.readInt()).thenReturn(600).thenReturn(0);
 
+		@SuppressWarnings("serial")
 		GemFireSession session = new GemFireSession() {
 			@Override @SuppressWarnings("unchecked")
 			<T> T readObject(DataInput in) throws ClassNotFoundException, IOException {
@@ -1086,6 +1092,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	public void sessionAttributesToData() throws Exception {
 		final DataOutput mockDataOutput = mock(DataOutput.class);
 
+		@SuppressWarnings("serial")
 		GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes() {
 			private int count = 0;
 			@Override void writeObject(Object obj, DataOutput out) throws IOException {
@@ -1111,6 +1118,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		when(mockDataInput.readInt()).thenReturn(2);
 		when(mockDataInput.readUTF()).thenReturn("attrOne").thenReturn("attrTwo");
 
+		@SuppressWarnings("serial")
 		GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes() {
 			private int count = 0;
 			@Override @SuppressWarnings("unchecked")
@@ -1154,6 +1162,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	public void sessionAttributesToDelta() throws Exception {
 		final DataOutput mockDataOutput = mock(DataOutput.class);
 
+		@SuppressWarnings("serial")
 		GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes() {
 			private int count = 0;
 			@Override void writeObject(Object obj, DataOutput out) throws IOException {
@@ -1203,6 +1212,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		when(mockDataInput.readInt()).thenReturn(2);
 		when(mockDataInput.readUTF()).thenReturn("attrOne").thenReturn("attrTwo");
 
+		@SuppressWarnings("serial")
 		GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes() {
 			private int count = 0;
 			@Override @SuppressWarnings("unchecked")
@@ -1262,7 +1272,6 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		TestFramework.runOnce(new ThreadSafeSessionTest());
 	}
 
-	@SuppressWarnings("unused")
 	protected static final class ThreadSafeSessionTest extends MultithreadedTestCase {
 
 		private final long beforeOrAtCreationTime = System.currentTimeMillis();

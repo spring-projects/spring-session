@@ -61,7 +61,6 @@ import com.gemstone.gemfire.cache.server.CacheServer;
  * @see com.gemstone.gemfire.cache.server.CacheServer
  * @since 1.1.0
  */
-@SuppressWarnings("unused")
 public class AbstractGemFireIntegrationTests {
 
 	protected static final boolean DEFAULT_ENABLE_QUERY_DEBUGGING = false;
@@ -106,7 +105,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static List<String> createJavaProcessCommandLine(Class type, String... args) {
+	protected static List<String> createJavaProcessCommandLine(Class<? extends Object> type, String... args) {
 		List<String> commandLine = new ArrayList<String>();
 
 		String javaHome = System.getProperty("java.home");
@@ -156,7 +155,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static Process run(Class type, File directory, String... args) throws IOException {
+	protected static Process run(Class<? extends Object> type, File directory, String... args) throws IOException {
 		return new ProcessBuilder()
 			.command(createJavaProcessCommandLine(type, args))
 			.directory(directory)
@@ -348,7 +347,7 @@ public class AbstractGemFireIntegrationTests {
 
 		List<String> regionList = new ArrayList<String>(regions.size());
 
-		for (Region region : regions) {
+		for (Region<?,?> region : regions) {
 			regionList.add(region.getFullPath());
 		}
 

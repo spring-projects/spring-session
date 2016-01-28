@@ -41,7 +41,7 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  * @see org.junit.Test
  * @see org.mockito.Mockito
  * @see org.springframework.session.data.gemfire.support.GemFireUtils
- * @since 1.0.0
+ * @since 1.1.0
  */
 public class GemFireUtilsTest {
 

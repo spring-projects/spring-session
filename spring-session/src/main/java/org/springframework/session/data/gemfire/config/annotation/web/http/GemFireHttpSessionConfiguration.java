@@ -71,7 +71,6 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  * @since 1.1.0
  */
 @Configuration
-@SuppressWarnings("unused")
 public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements BeanClassLoaderAware, ImportAware {
 

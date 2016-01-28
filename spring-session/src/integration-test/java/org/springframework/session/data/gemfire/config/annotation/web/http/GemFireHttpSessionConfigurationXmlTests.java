@@ -48,7 +48,6 @@ import com.gemstone.gemfire.cache.Region;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-@SuppressWarnings("unused")
 public class GemFireHttpSessionConfigurationXmlTests extends AbstractGemFireIntegrationTests {
 
 	@Autowired
