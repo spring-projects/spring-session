@@ -1,0 +1,210 @@
+= Spring Session - HttpSession with GemFire P2P using XML (Quick Start)
+John Blum, Rob Winch
+:toc:
+
+This guide describes how to configure Pivotal GemFire as a provider in Spring Session to transparently back
+a web application's `HttpSession` using XML Configuration.
+
+NOTE: The completed guide can be found in the <<httpsession-gemfire-p2p-xml-sample-app,HttpSession with GemFire (P2P) using XML Sample Application>>.
+
+== Updating Dependencies
+Before using Spring Session, you must ensure that the required dependencies are included.
+If you are using Maven, include the following `dependencies` in your _pom.xml_:
+
+.pom.xml
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependencies>
+	<!-- ... -->
+
+	<dependency>
+		<groupId>org.springframework.session</groupId>
+		<artifactId>spring-session-data-gemfire</artifactId>
+		<version>{spring-session-version}</version>
+		<type>pom</type>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-web</artifactId>
+		<version>{spring-version}</version>
+	</dependency>
+</dependencies>
+----
+
+ifeval::["{version-snapshot}" == "true"]
+Since we are using a SNAPSHOT version, we need to add the Spring Snapshot Maven Repository.
+If you are using Maven, include the following `repository` declaration in your _pom.xml_:
+
+.pom.xml
+[source,xml]
+----
+<repositories>
+	<!-- ... -->
+
+	<repository>
+		<id>spring-snapshot</id>
+		<url>https://repo.spring.io/libs-snapshot</url>
+	</repository>
+</repositories>
+----
+endif::[]
+
+ifeval::["{version-milestone}" == "true"]
+Since we are using a Milestone version, we need to add the Spring Milestone Maven Repository.
+If you are using Maven, include the following `repository` declaration in your _pom.xml_:
+
+.pom.xml
+[source,xml]
+----
+<repositories>
+	<!-- ... -->
+
+	<repository>
+		<id>spring-milestone</id>
+		<url>https://repo.spring.io/libs-milestone</url>
+	</repository>
+</repositories>
+----
+endif::[]
+
+// tag::config[]
+[[httpsession-spring-xml-configuration]]
+== Spring XML Configuration
+
+After adding the required dependencies and repository declarations, we can create our Spring configuration.
+The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession`
+with an implementation backed by Spring Session and GemFire.
+
+Add the following Spring Configuration:
+
+.src/main/webapp/WEB-INF/spring/session.xml
+[source,xml,indent=0]
+----
+include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/webapp/WEB-INF/spring/session.xml[tags=beans]
+----
+
+<1> We use the combination of `<context:annotation-config/>` and `GemFireHttpSessionConfiguration` because Spring Session
+does not yet provide XML Namespace support (see https://github.com/spring-projects/spring-session/issues/104[gh-104]).
+This creates a Spring bean with the name of `springSessionRepositoryFilter` that implements `Filter`. The filter is what
+replaces the `HttpSession` with an implementation backed by Spring Session.
+In this instance, Spring Session is backed by GemFire.
+<2> Then, we configure a GemFire peer cache using standard GemFire System properties.  We give the GemFire data node
+a name using the `name` property and set `mcast-port` to 0.  With the absence of a `locators` property, this data node
+will be a standalone server. GemFire's `log-level` is set using an application-specific System property
+(`sample.httpsession.gemfire.log-level`) that a user can specify on the command-line when running this application
+using either Maven or Gradle (default is "_warning_").
+<3> Finally, we create an instance of the GemFire peer cache that embeds GemFire in the same JVM process as the running
+Spring Session sample application.
+
+TIP: Additionally, we have configured this data node (server) as a GemFire Manager as well using GemFire-specific
+JMX System properties that enable JMX client (e.g. _Gfsh_) to connect to this running data node.
+
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+
+== XML Servlet Container Initialization
+
+Our <<httpsession-spring-xml-configuration,Spring XML Configuration>> created a Spring bean named `springSessionRepositoryFilter`
+that implements `Filter`. The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with
+a custom implementation that is backed by Spring Session and GemFire.
+
+In order for our `Filter` to do its magic, we need to instruct Spring to load our `session.xml` configuration file.
+We do this with the following configuration:
+
+.src/main/webapp/WEB-INF/web.xml
+[source,xml,indent=0]
+----
+include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/webapp/WEB-INF/web.xml[tags=context-param]
+include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/webapp/WEB-INF/web.xml[tags=listeners]
+----
+
+The http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener]
+reads the `contextConfigLocation` context parameter value and picks up our _session.xml_ configuration file.
+
+Finally, we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter`
+for every request.
+
+The following snippet performs this last step for us:
+
+.src/main/webapp/WEB-INF/web.xml
+[source,xml,indent=0]
+----
+include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
+----
+
+The http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy]
+will look up a bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`. For every request that `DelegatingFilterProxy`
+is invoked, the `springSessionRepositoryFilter` will be invoked.
+// end::config[]
+
+[[httpsession-gemfire-p2p-xml-sample-app]]
+== HttpSession with GemFire (P2P) using XML Sample Application
+
+
+=== Running the httpsession-gemfire-p2p-xml Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+----
+$ ./gradlew :samples:httpsession-gemfire-p2p-xml:tomcatRun [-Dsample.httpsession.gemfire.log-level=info]
+----
+
+You should now be able to access the application at http://localhost:8080/
+
+=== Exploring the httpsession-gemfire-p2p-xml Sample Application
+
+Try using the application. Fill out the form with the following information:
+
+* **Attribute Name:** _username_
+* **Attribute Value:** _john_
+
+Now click the **Set Attribute** button. You should now see the values displayed in the table.
+
+=== How does it work?
+
+We interact with the standard `HttpSession` in the `SessionServlet` shown below:
+
+.src/main/java/sample/SessionServlet.java
+[source,java]
+----
+include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/java/sample/SessionServlet.java[tags=class]
+----
+
+Instead of using Tomcat's `HttpSession`, we are actually persisting the values in GemFire.
+Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
+Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome]
+or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+
+NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
+see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+
+If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
+at the command-line:
+
+	$ gfsh
+
+Then, enter the following into _Gfsh_ ensuring to replace `70002719-3c54-4c20-82c3-e7faa6b718f3` with the value
+of your SESSION cookie, or the session ID returned by the GemFire OQL query (which should match):
+
+....
+gfsh>connect --jmx-manager=localhost[1099]
+
+gfsh>query --query='SELECT * FROM /ClusteredSpringSessions.keySet'
+
+Result     : true
+startCount : 0
+endCount   : 20
+Rows       : 1
+
+Result
+------------------------------------
+70002719-3c54-4c20-82c3-e7faa6b718f3
+
+NEXT_STEP_NAME : END
+
+gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
+....
+
+NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+
+Now visit the application at http://localhost:8080/ and observe that the attribute we added is no longer displayed.

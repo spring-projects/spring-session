@@ -1,0 +1,65 @@
+apply from: JAVA_GRADLE
+apply from: TOMCAT_7_GRADLE
+apply plugin: "application"
+
+tasks.findByPath("artifactoryPublish")?.enabled = false
+
+sonarRunner {
+	skipProject = true
+}
+
+dependencies {
+	compile project(':spring-session-data-gemfire'),
+		"org.springframework:spring-web:$springVersion",
+		jstlDependencies
+
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+
+	testCompile "junit:junit:$junitVersion"
+
+	integrationTestCompile gebDependencies
+
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+}
+
+mainClassName = 'sample.Application'
+
+def port
+def process
+
+task availablePort() << {
+	def serverSocket = new ServerSocket(0)
+	port = serverSocket.localPort
+	serverSocket.close()
+}
+
+task runGemFireServer(dependsOn: availablePort) << {
+	println 'STARTING GEMFIRE SERVER...'
+
+	String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
+
+	String[] commandLine = ['java', '-server', '-ea',
+							"-Dspring.session.data.gemfire.port=$port",
+							"-Dsample.httpsession.gemfire.log-level="
+								+ System.getProperty('sample.httpsession.gemfire.log-level', 'warning'),
+							'-classpath', classpath, 'sample.Application' ]
+
+	//println commandLine
+
+	process = commandLine.execute()
+	process.in.close()
+	process.out.close()
+	process.err.close()
+}
+
+integrationTest.doLast {
+	println 'STOPPING GEMFIRE SERVER...'
+	process?.destroyForcibly()
+}
+
+integrationTomcatRun {
+	dependsOn runGemFireServer
+	doFirst {
+		System.setProperty("spring.session.data.gemfire.port", "$port");
+	}
+}
