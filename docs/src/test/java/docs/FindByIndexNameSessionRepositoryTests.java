@@ -44,6 +44,7 @@ public class FindByIndexNameSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unused")
 	public void findByUsername() {
 		// tag::findby-username[]
 		String username = "username";
