@@ -55,6 +55,7 @@ public class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 	@Configuration
 	static class Config {
 		@Bean
+		@SuppressWarnings("unchecked")
 		public RedisSerializer<Object> defaultRedisSerializer() {
 			return mock(RedisSerializer.class);
 		}

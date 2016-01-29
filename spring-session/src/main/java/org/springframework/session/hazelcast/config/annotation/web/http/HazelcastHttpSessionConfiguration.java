@@ -19,13 +19,11 @@ import java.util.Map;
 
 import javax.annotation.PreDestroy;
 
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
@@ -33,7 +31,6 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.SessionEntryListener;
 import org.springframework.session.web.http.SessionRepositoryFilter;
-import org.springframework.util.ClassUtils;
 
 import com.hazelcast.config.MapConfig;
 import com.hazelcast.core.HazelcastInstance;
@@ -49,13 +46,11 @@ import com.hazelcast.core.IMap;
  * @see EnableHazelcastHttpSession
  */
 @Configuration
-public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware, BeanClassLoaderAware {
+public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
 	/** This is the magic value to use if you do not want this configuration
 	 * overriding the maxIdleSeconds value for the Map backing the session data. */
 	private static final String DO_NOT_CONFIGURE_INACTIVE_INTERVAL_STRING = "";
-
-	private ClassLoader beanClassLoader;
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
@@ -134,9 +129,4 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	public void setSessionMapName(String sessionMapName) {
 		this.sessionMapName = sessionMapName;
 	}
-
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.beanClassLoader = classLoader;
-	}
-
 }

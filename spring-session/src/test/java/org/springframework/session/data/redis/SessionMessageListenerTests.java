@@ -41,6 +41,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("deprecation")
 public class SessionMessageListenerTests {
 	@Mock
 	ApplicationEventPublisher eventPublisher;

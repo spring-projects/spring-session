@@ -110,7 +110,7 @@ public class MapSessionTests {
 			return 0;
 		}
 
-		public Object getAttribute(String attributeName) {
+		public <T> T getAttribute(String attributeName) {
 			return null;
 		}
 

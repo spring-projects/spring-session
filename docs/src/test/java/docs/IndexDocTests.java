@@ -75,6 +75,7 @@ public class IndexDocTests {
 		demo.demo();
 	}
 
+	@SuppressWarnings("unused")
 	// tag::expire-repository-demo[]
 	public class ExpiringRepositoryDemo<S extends ExpiringSession> {
 		private SessionRepository<S> repository; // <1>
@@ -95,6 +96,7 @@ public class IndexDocTests {
 	// end::expire-repository-demo[]
 
 	@Test
+	@SuppressWarnings("unused")
 	public void newRedisOperationsSessionRepository() {
 		// tag::new-redisoperationssessionrepository[]
 		JedisConnectionFactory factory = new JedisConnectionFactory();
@@ -104,6 +106,7 @@ public class IndexDocTests {
 	}
 
 	@Test
+	@SuppressWarnings("unused")
 	public void mapRepository() {
 		// tag::new-mapsessionrepository[]
 		SessionRepository<? extends ExpiringSession> repository = new MapSessionRepository();

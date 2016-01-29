@@ -159,8 +159,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	@SuppressWarnings("unchecked")
 	public void gemfireOperationsSessionRepositoryIsProperlyConstructedAndInitialized() throws Exception {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
-		AttributesMutator mockAttributesMutator = mock(AttributesMutator.class);
-		Region mockRegion = mock(Region.class);
+		AttributesMutator<Object,ExpiringSession> mockAttributesMutator = mock(AttributesMutator.class);
+		Region<Object,ExpiringSession> mockRegion = mock(Region.class);
 
 		when(mockRegion.getFullPath()).thenReturn("/Example");
 		when(mockRegion.getAttributesMutator()).thenReturn(mockAttributesMutator);

@@ -18,7 +18,6 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,7 +26,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -43,7 +41,6 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.web.http.SessionRepositoryFilter;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -58,9 +55,7 @@ import org.springframework.util.StringUtils;
  */
 @Configuration
 @EnableScheduling
-public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware, BeanClassLoaderAware {
-
-	private ClassLoader beanClassLoader;
+public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
@@ -170,12 +165,5 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	@Qualifier("defaultRedisSerializer")
 	public void setDefaultRedisSerializer(RedisSerializer<Object> defaultRedisSerializer) {
 		this.defaultRedisSerializer = defaultRedisSerializer;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)
-	 */
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.beanClassLoader = classLoader;
 	}
 }
