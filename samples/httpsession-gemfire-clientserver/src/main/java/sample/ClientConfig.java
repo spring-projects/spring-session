@@ -179,7 +179,6 @@ public class ClientConfig {
 		}, duration);
 	}
 
-	@SuppressWarnings("unused")
 	boolean waitOnCondition(Condition condition) {
 		return waitOnCondition(condition, DEFAULT_WAIT_DURATION);
 	}
