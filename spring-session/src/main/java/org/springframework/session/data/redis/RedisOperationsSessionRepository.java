@@ -602,6 +602,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		private Long originalLastAccessTime;
 		private Map<String, Object> delta = new HashMap<String,Object>();
 		private boolean isNew;
+		private String originalPrincipalName;
 
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be persisted in the next save operation.
@@ -614,8 +615,6 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 			this.isNew = true;
 		}
 
-
-
 		/**
 		 * Creates a new instance from the provided {@link MapSession}
 		 *
@@ -624,6 +623,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 		RedisSession(MapSession cached) {
 			Assert.notNull("MapSession cannot be null");
 			this.cached = cached;
+			this.originalPrincipalName = cached.getAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME);
 		}
 
 		public void setNew(boolean isNew) {
@@ -691,9 +691,16 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 			getSessionBoundHashOperations(sessionId).putAll(delta);
 			String key = getSessionAttrNameKey(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME);
 			if(delta.containsKey(key)) {
-				Object principal = delta.get(key);
-				String principalKey = getPrincipalKey((String) principal);
-				sessionRedisOperations.boundSetOps(principalKey).add(sessionId);
+				if(originalPrincipalName != null) {
+					String originalPrincipalKey = getPrincipalKey((String) originalPrincipalName);
+					sessionRedisOperations.boundSetOps(originalPrincipalKey).remove(sessionId);
+				}
+				String principal = (String) delta.get(key);
+				originalPrincipalName = principal;
+				if(principal != null) {
+					String principalKey = getPrincipalKey( principal);
+					sessionRedisOperations.boundSetOps(principalKey).add(sessionId);
+				}
 			}
 
 			delta = new HashMap<String,Object>(delta.size());
