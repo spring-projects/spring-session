@@ -10,7 +10,6 @@ dependencies {
         exclude group: "org.slf4j", module: 'slf4j-api'
         exclude group: "org.slf4j", module: 'jcl-over-slf4j'
     }
-    runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 }
 
 dependencyManagement {
