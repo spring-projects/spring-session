@@ -129,8 +129,9 @@ public final class MapSession implements ExpiringSession, Serializable {
 		return now - TimeUnit.SECONDS.toMillis(maxInactiveInterval) >= lastAccessedTime;
 	}
 
-	public Object getAttribute(String attributeName) {
-		return sessionAttrs.get(attributeName);
+	@SuppressWarnings("unchecked")
+	public <T> T getAttribute(String attributeName) {
+		return (T) sessionAttrs.get(attributeName);
 	}
 
 	public Set<String> getAttributeNames() {
