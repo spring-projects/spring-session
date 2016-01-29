@@ -552,7 +552,7 @@ public class RedisOperationsSessionRepository implements FindByPrincipalNameSess
 	/**
 	 * Gets the prefix for the channel that SessionCreatedEvent are published to. The suffix is the session id of the session that was created.
 	 *
-	 * @return
+	 * @return the prefix for the channel that SessionCreatedEvent are published to
 	 */
 	public String getSessionCreatedChannelPrefix() {
 		return this.keyPrefix + "event:created:";

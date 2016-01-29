@@ -73,7 +73,7 @@ public @interface EnableRedisHttpSession {
 	 * same Redis instance.
 	 * </p>
 	 *
-	 * @return
+	 * @return the unique namespace for keys
 	 */
 	String redisNamespace() default "";
 }

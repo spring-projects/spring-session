@@ -32,8 +32,8 @@ public class SessionDestroyedEvent extends AbstractSessionEvent {
 	}
 
 	/**
-	 * @param source
-	 * @param session
+	 * @param source The Source of the SessionDestoryedEvent
+	 * @param session the Session that was created
 	 */
 	public SessionDestroyedEvent(Object source, Session session) {
 		super(source, session);

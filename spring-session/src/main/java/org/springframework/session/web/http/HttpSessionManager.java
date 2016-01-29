@@ -66,7 +66,7 @@ public interface HttpSessionManager {
 	 * </code>
 	 *
 	 * @param request the {@link HttpServletRequest} to get a new alias from
-	 * @return
+	 * @return Gets a new and unique Session alias.
 	 */
 	String getNewSessionAlias(HttpServletRequest request);
 }

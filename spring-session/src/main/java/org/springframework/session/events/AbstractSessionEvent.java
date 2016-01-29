@@ -49,6 +49,7 @@ public abstract class AbstractSessionEvent extends ApplicationEvent {
 	 * {@link SessionRepository} implementations it may not be possible to get
 	 * the original session in which case this may be null.
 	 *
+	 * @param <S> The type of Session
 	 * @return the expired {@link Session} or null if the data store does not support obtaining it
 	 */
 	@SuppressWarnings("unchecked")

@@ -35,8 +35,8 @@ public class SessionCreatedEvent extends AbstractSessionEvent {
 	}
 
 	/**
-	 * @param source
-	 * @param session
+	 * @param source The Source of the SessionCreatedEvent
+	 * @param session the Session that was created
 	 */
 	public SessionCreatedEvent(Object source, Session session) {
 		super(source, session);
