@@ -252,6 +252,10 @@ import org.springframework.util.Assert;
 public class RedisOperationsSessionRepository implements FindByIndexNameSessionRepository<RedisOperationsSessionRepository.RedisSession>, MessageListener {
 	private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
 
+	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+
+	static PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
+
 	/**
 	 * The default prefix for each key and channel in Redis used by Spring Session
 	 */
@@ -475,7 +479,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 				logger.debug("Publishing SessionDestroyedEvent for session " + sessionId);
 			}
 
-			String principal = (String) session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
 			if(principal != null) {
 				sessionRedisOperations.boundSetOps(getPrincipalKey(principal)).remove(sessionId);
 			}
@@ -629,7 +633,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		RedisSession(MapSession cached) {
 			Assert.notNull("MapSession cannot be null");
 			this.cached = cached;
-			this.originalPrincipalName = cached.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			this.originalPrincipalName = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
 		}
 
 		public void setNew(boolean isNew) {
@@ -695,17 +699,18 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		private void saveDelta() {
 			String sessionId = getId();
 			getSessionBoundHashOperations(sessionId).putAll(delta);
-			String key = getSessionAttrNameKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
-			if(delta.containsKey(key)) {
+			String principalSessionKey = getSessionAttrNameKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			String securityPrincipalSessionKey = getSessionAttrNameKey(SPRING_SECURITY_CONTEXT);
+			if(delta.containsKey(principalSessionKey) || delta.containsKey(securityPrincipalSessionKey)) {
 				if(originalPrincipalName != null) {
-					String originalPrincipalKey = getPrincipalKey((String) originalPrincipalName);
-					sessionRedisOperations.boundSetOps(originalPrincipalKey).remove(sessionId);
+					String originalPrincipalRedisKey = getPrincipalKey((String) originalPrincipalName);
+					sessionRedisOperations.boundSetOps(originalPrincipalRedisKey).remove(sessionId);
 				}
-				String principal = (String) delta.get(key);
+				String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
 				originalPrincipalName = principal;
 				if(principal != null) {
-					String principalKey = getPrincipalKey( principal);
-					sessionRedisOperations.boundSetOps(principalKey).add(sessionId);
+					String principalRedisKey = getPrincipalKey(principal);
+					sessionRedisOperations.boundSetOps(principalRedisKey).add(sessionId);
 				}
 			}
 
@@ -716,28 +721,20 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		}
 	}
 
-	class PrincipalNameResolver {
-		private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-		private static final String NO_VALUE = "org.springframework.session.data.redis.$PrincipalNameResolver.NO_VALUE";
+	static class PrincipalNameResolver {
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
-		public String resolvePrincipal(Map<String,Object> delta) {
-			String key = getSessionAttrNameKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
-			if(delta.containsKey(key)) {
-				Object principal = delta.get(key);
-				return (String) principal;
+		public String resolvePrincipal(Session session) {
+			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+			if(principalName != null) {
+				return principalName;
 			}
-			key = getSessionAttrNameKey(SPRING_SECURITY_CONTEXT);
-			if(delta.containsKey(key)) {
-				Object authentication = delta.get(key);
-				if(authentication == null) {
-					return null;
-				}
+			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if(authentication != null) {
 				Expression expression = parser.parseExpression("authentication?.name");
 				return expression.getValue(authentication, String.class);
 			}
-
-			return NO_VALUE;
+			return null;
 		}
 
 	}

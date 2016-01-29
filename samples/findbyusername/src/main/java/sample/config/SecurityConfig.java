@@ -20,26 +20,18 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-
-import sample.session.CompositeAuthenticationSuccessHandler;
-import sample.session.SpringSessionPrincipalNameSuccessHandler;
 
 /**
  * @author Rob Winch
  */
-
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	// tag::config[]
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		CompositeAuthenticationSuccessHandler successHandler = createHandler();
-
 		http
 			.formLogin()
-				.successHandler(successHandler)
 				.loginPage("/login")
 				.permitAll()
 				.and()
@@ -51,19 +43,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 				.permitAll();
 	}
 	// end::config[]
-
-	// tag::handler[]
-	private CompositeAuthenticationSuccessHandler createHandler() {
-		SpringSessionPrincipalNameSuccessHandler setUsernameHandler =
-				new SpringSessionPrincipalNameSuccessHandler();
-		SavedRequestAwareAuthenticationSuccessHandler defaultHandler =
-				new SavedRequestAwareAuthenticationSuccessHandler();
-
-		CompositeAuthenticationSuccessHandler successHandler =
-				new CompositeAuthenticationSuccessHandler(setUsernameHandler, defaultHandler);
-		return successHandler;
-	}
-	// end::handler[]
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

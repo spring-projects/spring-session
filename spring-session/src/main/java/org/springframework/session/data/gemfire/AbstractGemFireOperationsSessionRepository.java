@@ -38,6 +38,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.gemfire.GemfireAccessor;
 import org.springframework.data.gemfire.GemfireOperations;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
@@ -331,6 +333,10 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 			});
 		}
 
+		private String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+
+		private SpelExpressionParser parser = new SpelExpressionParser();
+
 		private transient boolean delta = false;
 
 		private int maxInactiveIntervalInSeconds;
@@ -463,7 +469,16 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized String getPrincipalName() {
-			return getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			String principalName = getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			if(principalName != null) {
+				return principalName;
+			}
+			Object authentication = getAttribute(SPRING_SECURITY_CONTEXT);
+			if(authentication != null) {
+				Expression expression = parser.parseExpression("authentication?.name");
+				return expression.getValue(authentication, String.class);
+			}
+			return null;
 		}
 
 		/* (non-Javadoc) */
