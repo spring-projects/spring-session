@@ -226,8 +226,11 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * <p>
 	 * Used to identify which JVM to route to for session affinity. With some
 	 * implementations (i.e. Redis) this provides no performance benefit.
-	 * However, this can help with tracing logs of a particular user.
+	 * However, this can help with tracing logs of a particular user. This will ensure that the value of the cookie is formatted as
 	 * </p>
+	 * <code>
+	 * sessionId + "." jvmRoute
+	 * </code>
 	 * <p>
 	 * To use set a custom route on each JVM instance and setup a frontend proxy
 	 * to forward all requests to the JVM based on the route.
@@ -237,7 +240,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 *            the JVM Route to use (i.e. "node01jvmA", "n01ja", etc)
 	 */
 	public void setJvmRoute(String jvmRoute) {
-		this.jvmRoute = jvmRoute;
+		this.jvmRoute = "." + jvmRoute;
 	}
 
 	private String getDomainName(HttpServletRequest request) {

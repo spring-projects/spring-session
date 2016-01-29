@@ -328,14 +328,14 @@ public class DefaultCookieSerializerTests {
 
 		serializer.writeCookieValue(cookieValue(sessionId));
 
-		assertThat(getCookie().getValue()).isEqualTo(sessionId + jvmRoute);
+		assertThat(getCookie().getValue()).isEqualTo(sessionId + "." + jvmRoute);
 	}
 
 	@Test
 	public void readCookieJvmRoute() {
 		String jvmRoute = "route";
 		serializer.setJvmRoute(jvmRoute);
-		request.setCookies(new Cookie(cookieName, sessionId + jvmRoute));
+		request.setCookies(new Cookie(cookieName, sessionId + "." + jvmRoute));
 
 		assertThat(serializer.readCookieValues(request)).containsOnly(sessionId);
 	}
@@ -353,7 +353,7 @@ public class DefaultCookieSerializerTests {
 	public void readCookieJvmRouteOnlyRoute() {
 		String jvmRoute = "route";
 		serializer.setJvmRoute(jvmRoute);
-		request.setCookies(new Cookie(cookieName, jvmRoute));
+		request.setCookies(new Cookie(cookieName, "." + jvmRoute));
 
 		assertThat(serializer.readCookieValues(request)).containsOnly("");
 	}
