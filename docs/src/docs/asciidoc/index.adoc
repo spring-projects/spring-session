@@ -451,18 +451,37 @@ A `SessionRepository` is in charge of creating, retrieving, and persisting `Sess
 If possible, developers should not interact directly with a `SessionRepository` or a `Session`.
 Instead, developers should prefer interacting with `SessionRepository` and `Session` indirectly through the <<httpsession,HttpSession>> and <<websocket,WebSocket>> integration.
 
-[[api-findbyusernamesessionrepository]]
-=== FindByUsernameSessionRepository
+[[api-findbyindexnamesessionrepository]]
+=== FindByIndexNameSessionRepository
 
 Spring Session's most basic API for using a `Session` is the `SessionRepository`.
 This API is intentionally very simple, so that it is easy to provide additional implementations with basic functionality.
 
-The `FindByUsernameSessionRepository` adds a single method to look up all the sessions for a particular user.
-This is done by ensuring that the session attribute with the name `Session.PRINCIPAL_NAME_ATTRIBUTE_NAME` is populated with the username.
-It is the responsibility of the developer to ensure the attribute is populated since Spring Session is not aware of the authentication mechanism being used.
+Some `SessionRepository` implementations may choose to implement `FindByIndexNameSessionRepository` also.
+For example, Spring's Redis support implements `FindByIndexNameSessionRepository`.
 
-Some `SessionRepository` implementations may choose to implement `FindByUsernameSessionRepository` also.
-For example, Spring's Redis support implements `FindByUsernameSessionRepository`.
+The `FindByIndexNameSessionRepository` adds a single method to look up all the sessions for a particular user.
+This is done by ensuring that the session attribute with the name `FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME` is populated with the username.
+It is the responsibility of the developer to ensure the attribute is populated since Spring Session is not aware of the authentication mechanism being used.
+An example of how this might be used can be seen below:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/FindByIndexNameSessionRepositoryTests.java[tags=set-username]
+----
+
+[NOTE]
+====
+Some implementations of `FindByIndexNameSessionRepository` will provide hooks to automatically index other session attributes.
+For example, many implementations will automatically ensure the current Spring Security user name is indexed with the index name `FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME`.
+====
+
+Once the session is indexed, it can be found using the following:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/FindByIndexNameSessionRepositoryTests.java[tags=findby-username]
+----
 
 [[api-enablespringhttpsession]]
 === EnableSpringHttpSession

@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.session.ExpiringSession;
-import org.springframework.session.Session;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -87,7 +87,7 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 	}
 
 	protected Map<String, ExpiringSession> doFindByPrincipalName(String principalName) {
-		return gemfireSessionRepository.findByPrincipalName(principalName);
+		return gemfireSessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -171,7 +171,7 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 	public void doesNotFindAfterPrincipalRemoved() {
 		String username = "doesNotFindAfterPrincipalRemoved";
 		ExpiringSession session = save(touch(createSession(username)));
-		session.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, null);
+		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, null);
 		save(session);
 
 		Map<String, ExpiringSession> nonExistingPrincipalSessions = doFindByPrincipalName(username);

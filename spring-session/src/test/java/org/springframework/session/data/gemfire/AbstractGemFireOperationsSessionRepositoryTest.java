@@ -62,6 +62,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
 import org.springframework.session.events.AbstractSessionEvent;
@@ -757,16 +758,16 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		session.setPrincipalName("jblum");
 
 		assertThat(session.getPrincipalName()).isEqualTo("jblum");
-		assertThat(session.getAttributeNames()).isEqualTo(asSet(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME));
-		assertThat(String.valueOf(session.getAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME))).isEqualTo("jblum");
+		assertThat(session.getAttributeNames()).isEqualTo(asSet(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME));
+		assertThat(String.valueOf(session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))).isEqualTo("jblum");
 
-		session.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, "rwinch");
+		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, "rwinch");
 
-		assertThat(session.getAttributeNames()).isEqualTo(asSet(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME));
-		assertThat(String.valueOf(session.getAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME))).isEqualTo("rwinch");
+		assertThat(session.getAttributeNames()).isEqualTo(asSet(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME));
+		assertThat(String.valueOf(session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))).isEqualTo("rwinch");
 		assertThat(session.getPrincipalName()).isEqualTo("rwinch");
 
-		session.removeAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME);
+		session.removeAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 
 		assertThat(session.getPrincipalName()).isNull();
 	}
@@ -829,7 +830,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		session.fromData(mockDataInput);
 
-		Set<String> expectedAttributeNames = asSet("attrOne", "attrTwo", Session.PRINCIPAL_NAME_ATTRIBUTE_NAME);
+		Set<String> expectedAttributeNames = asSet("attrOne", "attrTwo", FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 
 		assertThat(session.getId()).isEqualTo("2");
 		assertThat(session.getCreationTime()).isEqualTo(expectedCreationTime);
@@ -840,7 +841,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(session.getAttributeNames().containsAll(expectedAttributeNames)).isTrue();
 		assertThat(String.valueOf(session.getAttribute("attrOne"))).isEqualTo("testOne");
 		assertThat(String.valueOf(session.getAttribute("attrTwo"))).isEqualTo("testTwo");
-		assertThat(String.valueOf(session.getAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME)))
+		assertThat(String.valueOf(session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)))
 			.isEqualTo(expectedPrincipalName);
 
 		verify(mockDataInput, times(2)).readUTF();
@@ -1311,7 +1312,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(60);
 			assertThat(session.getPrincipalName()).isEqualTo("jblum");
 			assertThat(session.getAttributeNames().size()).isEqualTo(1);
-			assertThat(String.valueOf(session.getAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME))).isEqualTo("jblum");
+			assertThat(String.valueOf(session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))).isEqualTo("jblum");
 
 			session.setAttribute("tennis", "ping");
 			session.setAttribute("junk", "test");
@@ -1374,7 +1375,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			super(gemfireOperations);
 		}
 
-		public Map<String, ExpiringSession> findByPrincipalName(String principalName) {
+		public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 			throw new UnsupportedOperationException("not implemented");
 		}
 

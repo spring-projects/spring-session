@@ -51,8 +51,14 @@ import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository.PrincipalNameResolver;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
 
@@ -345,7 +351,7 @@ public class RedisOperationsSessionRepositoryTests {
 				LAST_ACCESSED_ATTR, System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
 		when(boundHashOperations.entries()).thenReturn(map);
 
-		assertThat(redisRepository.findByPrincipalName("principal")).isEmpty();
+		assertThat(redisRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, "principal")).isEmpty();
 	}
 
 	@Test
@@ -363,7 +369,7 @@ public class RedisOperationsSessionRepositoryTests {
 				LAST_ACCESSED_ATTR, lastAccessed);
 		when(boundHashOperations.entries()).thenReturn(map);
 
-		Map<String, RedisSession> sessionIdToSessions = redisRepository.findByPrincipalName("principal");
+		Map<String, RedisSession> sessionIdToSessions = redisRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, "principal");
 
 		assertThat(sessionIdToSessions).hasSize(1);
 		RedisSession session = sessionIdToSessions.get(sessionId);

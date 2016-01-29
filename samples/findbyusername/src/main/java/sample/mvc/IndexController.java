@@ -21,7 +21,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.session.ExpiringSession;
-import org.springframework.session.FindByPrincipalNameSessionRepository;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,12 +38,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class IndexController {
 	// tag::findbyusername[]
 	@Autowired
-	FindByPrincipalNameSessionRepository<? extends ExpiringSession> sessions;
+	FindByIndexNameSessionRepository<? extends ExpiringSession> sessions;
 
 	@RequestMapping("/")
 	public String index(Principal principal, Model model) {
 		Collection<? extends ExpiringSession> usersSessions =
-				sessions.findByPrincipalName(principal.getName()).values();
+				sessions.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						principal.getName()).values();
 		model.addAttribute("sessions", usersSessions);
 		return "index";
 	}
@@ -51,7 +52,8 @@ public class IndexController {
 
 	@RequestMapping(value = "/sessions/{sessionIdToDelete}", method = RequestMethod.DELETE)
 	public String removeSession(Principal principal, @PathVariable String sessionIdToDelete) {
-		Set<String> usersSessionIds = sessions.findByPrincipalName(principal.getName()).keySet();
+		Set<String> usersSessionIds = sessions.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				principal.getName()).keySet();
 		if(usersSessionIds.contains(sessionIdToDelete)) {
 			sessions.delete(sessionIdToDelete);
 		}

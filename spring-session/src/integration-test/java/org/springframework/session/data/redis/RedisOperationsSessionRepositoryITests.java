@@ -34,6 +34,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
@@ -66,7 +67,7 @@ public class RedisOperationsSessionRepositoryITests {
 	public void saves() throws InterruptedException {
 		String username = "saves-"+System.currentTimeMillis();
 
-		String usernameSessionKey = "spring:session:RedisOperationsSessionRepositoryITests:index:" + Session.PRINCIPAL_NAME_ATTRIBUTE_NAME + ":" + username;
+		String usernameSessionKey = "spring:session:RedisOperationsSessionRepositoryITests:index:" + FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME + ":" + username;
 
 		RedisSession toSave = repository.createSession();
 		String expectedAttributeName = "a";
@@ -76,7 +77,7 @@ public class RedisOperationsSessionRepositoryITests {
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, username);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
 		registry.clear();
 
 		repository.save(toSave);
@@ -128,11 +129,11 @@ public class RedisOperationsSessionRepositoryITests {
 	public void findByPrincipalName() throws Exception {
 		String principalName = "findByPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -140,7 +141,7 @@ public class RedisOperationsSessionRepositoryITests {
 		repository.delete(toSave.getId());
 		registry.receivedEvent();
 
-		findByPrincipalName = repository.findByPrincipalName(principalName);
+		findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
@@ -150,7 +151,7 @@ public class RedisOperationsSessionRepositoryITests {
 	public void findByPrincipalNameExpireRemovesIndex() throws Exception {
 		String principalName = "findByPrincipalNameExpireRemovesIndex" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
@@ -160,7 +161,7 @@ public class RedisOperationsSessionRepositoryITests {
 		byte[] pattern = new byte[] {};
 		repository.onMessage(message , pattern);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalName);
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
@@ -170,14 +171,14 @@ public class RedisOperationsSessionRepositoryITests {
 	public void findByPrincipalNameNoPrincipalNameChange() throws Exception {
 		String principalName = "findByPrincipalNameNoPrincipalNameChange" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
 		toSave.setAttribute("other", "value");
 		repository.save(toSave);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -187,7 +188,7 @@ public class RedisOperationsSessionRepositoryITests {
 	public void findByPrincipalNameNoPrincipalNameChangeReload() throws Exception {
 		String principalName = "findByPrincipalNameNoPrincipalNameChangeReload" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
@@ -196,7 +197,7 @@ public class RedisOperationsSessionRepositoryITests {
 		toSave.setAttribute("other", "value");
 		repository.save(toSave);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -206,14 +207,14 @@ public class RedisOperationsSessionRepositoryITests {
 	public void findByDeletedPrincipalName() throws Exception {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, null);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, null);
 		repository.save(toSave);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalName);
 
 		assertThat(findByPrincipalName).isEmpty();
 	}
@@ -223,17 +224,17 @@ public class RedisOperationsSessionRepositoryITests {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalNameChanged);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalNameChanged);
 		repository.save(toSave);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalName);
 		assertThat(findByPrincipalName).isEmpty();
 
-		findByPrincipalName = repository.findByPrincipalName(principalNameChanged);
+		findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalNameChanged);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -243,15 +244,15 @@ public class RedisOperationsSessionRepositoryITests {
 	public void findByDeletedPrincipalNameReload() throws Exception {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
 		RedisSession getSession = repository.getSession(toSave.getId());
-		getSession.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, null);
+		getSession.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, null);
 		repository.save(getSession);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalName);
 
 		assertThat(findByPrincipalName).isEmpty();
 	}
@@ -261,19 +262,19 @@ public class RedisOperationsSessionRepositoryITests {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = repository.createSession();
-		toSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+		toSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
 		RedisSession getSession = repository.getSession(toSave.getId());
 
-		getSession.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalNameChanged);
+		getSession.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalNameChanged);
 		repository.save(getSession);
 
-		Map<String, RedisSession> findByPrincipalName = repository.findByPrincipalName(principalName);
+		Map<String, RedisSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalName);
 		assertThat(findByPrincipalName).isEmpty();
 
-		findByPrincipalName = repository.findByPrincipalName(principalNameChanged);
+		findByPrincipalName = repository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,principalNameChanged);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());

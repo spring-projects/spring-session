@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.gemfire;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,13 +56,17 @@ public class GemFireOperationsSessionRepository extends AbstractGemFireOperation
 	/**
 	 * Looks up all the available Sessions tied to the specific user identified by principal name.
 	 *
-	 * @param principalName the principal name (i.e. username) to search for all existing Spring Sessions.
+	 * @param indexName the name of the indexed value (i.e. FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME).
+	 * @param indexValue the value of the index to search for (i.e. username) to search for all existing Spring Sessions.
 	 * @return a mapping of Session ID to Session instances.
 	 * @see org.springframework.session.ExpiringSession
 	 */
-	public Map<String, ExpiringSession> findByPrincipalName(String principalName) {
+	public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+		if(!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
+			return Collections.emptyMap();
+		}
 		SelectResults<ExpiringSession> results = getTemplate().find(String.format(
-			FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY, getFullyQualifiedRegionName()), principalName);
+			FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY, getFullyQualifiedRegionName()), indexValue);
 
 		Map<String, ExpiringSession> sessions = new HashMap<String, ExpiringSession>(results.size());
 

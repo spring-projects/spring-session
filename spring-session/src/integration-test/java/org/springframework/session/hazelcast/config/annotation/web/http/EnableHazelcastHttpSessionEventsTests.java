@@ -29,6 +29,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.SessionEventRegistry;
@@ -88,7 +89,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		sessionToSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
-		sessionToSave.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, username);
+		sessionToSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
 		
 		repository.save(sessionToSave);
 		

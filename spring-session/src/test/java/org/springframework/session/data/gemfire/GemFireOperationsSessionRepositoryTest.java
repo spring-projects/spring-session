@@ -47,6 +47,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.gemfire.GemfireAccessor;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 
@@ -131,7 +132,7 @@ public class GemFireOperationsSessionRepositoryTest {
 
 		when(mockTemplate.find(eq(expectedOql), eq(principalName))).thenReturn(mockSelectResults);
 
-		Map<String, ExpiringSession> sessions = sessionRepository.findByPrincipalName(principalName);
+		Map<String, ExpiringSession> sessions = sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		assertThat(sessions).isNotNull();
 		assertThat(sessions.size()).isEqualTo(3);
@@ -160,7 +161,7 @@ public class GemFireOperationsSessionRepositoryTest {
 
 		when(mockTemplate.find(eq(expectedOql), eq(principalName))).thenReturn(mockSelectResults);
 
-		Map<String, ExpiringSession> sessions = sessionRepository.findByPrincipalName(principalName);
+		Map<String, ExpiringSession> sessions = sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		assertThat(sessions).isNotNull();
 		assertThat(sessions.isEmpty()).isTrue();

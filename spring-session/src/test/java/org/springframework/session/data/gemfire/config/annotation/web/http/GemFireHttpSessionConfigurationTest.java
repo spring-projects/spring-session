@@ -179,7 +179,7 @@ public class GemFireHttpSessionConfigurationTest {
 
 	@Test
 	public void createAndInitializeSpringSessionRepositoryBean() {
-		GemfireOperations mockGemfireOperations = mock(GemfireOperations.class, 
+		GemfireOperations mockGemfireOperations = mock(GemfireOperations.class,
 			"testCreateAndInitializeSpringSessionRepositoryBean");
 
 		gemfireConfiguration.setMaxInactiveIntervalInSeconds(120);

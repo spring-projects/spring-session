@@ -39,7 +39,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.gemfire.GemfireAccessor;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.session.ExpiringSession;
-import org.springframework.session.FindByPrincipalNameSessionRepository;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -69,7 +69,7 @@ import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
  * @see org.springframework.data.gemfire.GemfireAccessor
  * @see org.springframework.data.gemfire.GemfireOperations
  * @see org.springframework.session.ExpiringSession
- * @see org.springframework.session.FindByPrincipalNameSessionRepository
+ * @see org.springframework.session.FindByIndexNameSessionRepository
  * @see org.springframework.session.Session
  * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
  * @see com.gemstone.gemfire.cache.Region
@@ -77,7 +77,7 @@ import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
  * @since 1.1.0
  */
 public abstract class AbstractGemFireOperationsSessionRepository extends CacheListenerAdapter<Object, ExpiringSession>
-		implements InitializingBean, FindByPrincipalNameSessionRepository<ExpiringSession>,
+		implements InitializingBean, FindByIndexNameSessionRepository<ExpiringSession>,
 			ApplicationEventPublisherAware {
 
 	private int maxInactiveIntervalInSeconds = GemFireHttpSessionConfiguration.DEFAULT_MAX_INACTIVE_INTERVAL_IN_SECONDS;
@@ -458,12 +458,12 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized void setPrincipalName(String principalName) {
-			setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, principalName);
+			setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 		}
 
 		/* (non-Javadoc) */
 		public synchronized String getPrincipalName() {
-			return getAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME);
+			return getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		}
 
 		/* (non-Javadoc) */

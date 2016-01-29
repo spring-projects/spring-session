@@ -33,62 +33,28 @@ Consider the following scenario:
 Wouldn't it be nice if we could allow the user to invalidate the session at the library from any device they authenticate with?
 This sample demonstrates how this is possible.
 
-[[findbyusernamesessionrepository]]
-== FindByUsernameSessionRepository
+[[findbyprincipalnamesessionrepository]]
+== FindByIndexNameSessionRepository
 
-In order to look up a user by their username, you must first choose a `SessionRepository` that implements <<index.doc#ap-findbyusernamesessionrepository,FindByUsernameSessionRepository>>.
+In order to look up a user by their username, you must first choose a `SessionRepository` that implements <<index.doc#api-findbyprincipalnamesessionrepository,FindByIndexNameSessionRepository>>.
 Our sample application assumes that the Redis support is already setup, so we are ready to go.
 
 == Mapping the username
 
-`FindByUsernameSessionRepository` can only find a session by the username, if the developer instructs Spring Session what user is associated with the `Session`.
-This is done by ensuring that the session attribute with the name `Session.FindByUsernameSessionRepository` is populated with the username.
+`FindByIndexNameSessionRepository` can only find a session by the username, if the developer instructs Spring Session what user is associated with the `Session`.
+This is done by ensuring that the session attribute with the name `FindByUsernameSessionRepository.PRINCIPAL_NAME_INDEX_NAME` is populated with the username.
 
 Generally, speaking this can be done with the following code immediately after the user authenticates:
 
 [source,java,indent=0]
 ----
-include::{samples-dir}findbyusername/src/main/java/sample/session/SpringSessionPrincipalNameSuccessHandler.java[tags=set-username]
+include::{docs-test-dir}docs/FindByIndexNameSessionRepositoryTests.java[tags=set-username]
 ----
 
 == Mapping the username with Spring Security
 
-Since we are using Spring Security, it makes perfect sense to provide a custom `AuthenticationSuccessHandler` that populates the username.
-For example:
-
-[NOTE]
-====
-We plan to provide first class integration with Spring Security to make this process easier in the future.
-For details track https://github.com/spring-projects/spring-session/issues/266[gh-266].
-====
-
-[source,java,indent=0]
-----
-include::{samples-dir}findbyusername/src/main/java/sample/session/SpringSessionPrincipalNameSuccessHandler.java[tags=class]
-----
-
-In order to support multiple handlers, we need to also create a custom `AuthenticationSuccessHandler` that delegates to multiple `AuthenticationSuccessHandler` instances.
-For example:
-
-[source,java,indent=0]
-----
-include::{samples-dir}findbyusername/src/main/java/sample/session/CompositeAuthenticationSuccessHandler.java[tags=class]
-----
-
-Next we need to provide a custom `AuthenticationSuccessHandler` with Spring Security.
-In Java configuration, we can do this using the following:
-
-[source,java,indent=0]
-----
-include::{samples-dir}findbyusername/src/main/java/sample/config/SecurityConfig.java[tags=handler]
-----
-
-We can then configure authentication success with the following:
-
-[source,java,indent=0]
-----
-include::{samples-dir}findbyusername/src/main/java/sample/config/SecurityConfig.java[tags=config]
-----
+Since we are using Spring Security, the user name is automatically indexed for us.
+This means we will not have to perform any steps to ensure the user name is indexed.
 
 == Adding Additional Data to Session
 

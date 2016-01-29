@@ -24,8 +24,7 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.session.FindByPrincipalNameSessionRepository;
-import org.springframework.session.Session;
+import org.springframework.session.FindByIndexNameSessionRepository;
 
 /**
  * Inserts the username into Spring session after we successfully authenticate.
@@ -45,7 +44,7 @@ public class SpringSessionPrincipalNameSuccessHandler
 		String currentUsername = authentication.getName();
 
 		// tag::set-username[]
-		session.setAttribute(Session.PRINCIPAL_NAME_ATTRIBUTE_NAME, currentUsername);
+		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, currentUsername);
 		// end::set-username[]
 	}
 }
