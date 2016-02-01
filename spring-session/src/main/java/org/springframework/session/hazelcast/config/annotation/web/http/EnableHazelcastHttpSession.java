@@ -59,9 +59,6 @@ public @interface EnableHazelcastHttpSession {
 	/**
 	 * This is the session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
 	 * This should be a non-negative integer.
-	 * <p>If you wish to use external configuration (outside of this annotation) to set this value, you can
-	 * set this to "" (an empty String), which will prevent this configuration from overriding
-	 * the external configuration for this value.</p>
 	 *
 	 * @return the seconds a session can be inactive before expiring
 	 */
