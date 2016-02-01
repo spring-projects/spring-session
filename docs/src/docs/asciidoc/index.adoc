@@ -513,7 +513,7 @@ include::{docs-test-dir}docs/http/HazelcastHttpSessionConfig.java[tags=config]
 ----
 
 This will configure Hazelcast in embedded mode with default configuration.
-See the http://docs.hazelcast.org/docs/latest/manual/html-single/hazelcast-documentation.html#hazelcast-configuration[Hazelcast documentation] for
+See the http://docs.hazelcast.org/docs/latest/manual/html-single/index.html#hazelcast-configuration[Hazelcast documentation] for
 detailed information on configuration options for Hazelcast.
 
 [[api-enablehazelcasthttpsession-storage]]
@@ -521,8 +521,9 @@ detailed information on configuration options for Hazelcast.
 
 Sessions will be stored in a distributed `Map` in Hazelcast using a <<api-mapsessionrepository,MapSessionRepository>>.
 The `Map` interface methods will be used to `get()` and `put()` Sessions.
-The expiration of a session in the `Map` is handled by Hazelcast's native support for configuring a map's `max-idle-seconds` setting.
-Entries (sessions) that have been idle longer than the max idle setting will be automatically removed from the `Map`.
+The expiration of a session in the `Map` is handled by Hazelcast's support for setting the time to live on an entry when it is `put()` into the `Map`. Entries (sessions) that have been idle longer than the time to live will be automatically removed from the `Map`.
+
+You shouldn't need to configure any settings such as `max-idle-seconds` or `time-to-live-seconds` for the `Map` within the Hazelcast configuration.
 
 [[api-enablehazelcasthttpsession-customize]]
 ==== Basic Customization

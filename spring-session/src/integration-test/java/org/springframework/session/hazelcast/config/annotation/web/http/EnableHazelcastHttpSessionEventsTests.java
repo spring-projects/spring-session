@@ -59,8 +59,7 @@ import com.hazelcast.core.HazelcastInstance;
 @WebAppConfiguration
 public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 	
-	private final static String MAX_INACTIVE_INTERVAL_IN_SECONDS_STR = "1";
-	private final static int MAX_INACTIVE_INTERVAL_IN_SECONDS = Integer.valueOf(MAX_INACTIVE_INTERVAL_IN_SECONDS_STR);
+	private final static int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 	
 	@Autowired
 	private SessionRepository<S> repository;
@@ -143,9 +142,29 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		assertThat(repository.getSession(sessionToSave.getId())).isNull();
 	}
 	
+	@Test
+	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
+		S sessionToSave = repository.createSession();
+
+		repository.save(sessionToSave);
+
+		synchronized (lock) {
+			lock.wait((sessionToSave.getMaxInactiveIntervalInSeconds() * 1000) - 500);
+		}
+
+		// Get and save the session like SessionRepositoryFilter would.
+		S sessionToUpdate = repository.getSession(sessionToSave.getId());
+		repository.save(sessionToUpdate);
+
+		synchronized (lock) {
+			lock.wait((sessionToUpdate.getMaxInactiveIntervalInSeconds() * 1000) - 100);
+		}
+
+		assertThat(repository.getSession(sessionToUpdate.getId())).isNotNull();
+	}
 	
 	@Configuration
-	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS_STR)
+	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class HazelcastSessionConfig {
 		
 		@Bean

@@ -46,66 +46,10 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 	@RunWith(SpringJUnit4ClassRunner.class)
 	@ContextConfiguration
 	@WebAppConfiguration
-	public static class CustomXmlInactiveIntervalTest<S extends ExpiringSession> {
-
-		@Autowired
-		private SessionRepository<S> repository;
-
-		@Autowired
-		private HazelcastInstance hazelcast;
-
-		@Test
-		public void saveSessionTest() throws InterruptedException {
-
-			S sessionToSave = repository.createSession();
-
-			assertThat(sessionToSave.getMaxInactiveIntervalInSeconds())
-					.isEqualTo(150);
-
-			repository.save(sessionToSave);
-
-			S session = repository.getSession(sessionToSave.getId());
-
-			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-			assertThat(session.getMaxInactiveIntervalInSeconds())
-					.isEqualTo(150);
-		}
-
-		@Test
-		public void checkUnderlyingMapSettingsTest() {
-			assertThat(
-					hazelcast.getConfig()
-							.getMapConfig("spring:session:sessions")
-							.getMaxIdleSeconds())
-					.isEqualTo(150);
-		}
-
-		@Configuration
-		@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = "")
-		static class HazelcastSessionXmlConfigCustomIdle {
-
-			@Bean
-			public HazelcastInstance embeddedHazelcast() {
-				Config hazelcastConfig = new ClasspathXmlConfig(
-						"org/springframework/session/hazelcast/config/annotation/web/http/hazelcast-custom-idle-time.xml");
-				NetworkConfig netConfig = new NetworkConfig();
-				netConfig.setPort(SocketUtils.findAvailableTcpPort());
-				hazelcastConfig.setNetworkConfig(netConfig);
-				return Hazelcast.newHazelcastInstance(hazelcastConfig);
-			}
-		}
-	}
-
-	@RunWith(SpringJUnit4ClassRunner.class)
-	@ContextConfiguration
-	@WebAppConfiguration
 	public static class CustomXmlMapNameTest<S extends ExpiringSession> {
 
 		@Autowired
 		private SessionRepository<S> repository;
-
-		@Autowired
-		private HazelcastInstance hazelcast;
 
 		@Test
 		public void saveSessionTest() throws InterruptedException {
@@ -118,15 +62,6 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1800);
-		}
-
-		@Test
-		public void checkUnderlyingMapSettingsTest() {
-			assertThat(
-					hazelcast.getConfig()
-							.getMapConfig("my-sessions")
-							.getMaxIdleSeconds())
-					.isEqualTo(1800);
 		}
 
 		@Configuration
@@ -153,9 +88,6 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 		@Autowired
 		private SessionRepository<S> repository;
 
-		@Autowired
-		private HazelcastInstance hazelcast;
-
 		@Test
 		public void saveSessionTest() throws InterruptedException {
 
@@ -169,17 +101,8 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1200);
 		}
 
-		@Test
-		public void checkUnderlyingMapSettingsTest() {
-			assertThat(
-					hazelcast.getConfig()
-							.getMapConfig("test-sessions")
-							.getMaxIdleSeconds())
-					.isEqualTo(1200);
-		}
-
 		@Configuration
-		@EnableHazelcastHttpSession(sessionMapName = "test-sessions", maxInactiveIntervalInSeconds = "1200")
+		@EnableHazelcastHttpSession(sessionMapName = "test-sessions", maxInactiveIntervalInSeconds = 1200)
 		static class HazelcastSessionXmlConfigCustomMapNameAndIdle {
 
 			@Bean
