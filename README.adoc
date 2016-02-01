@@ -11,6 +11,10 @@ Spring Session aims to provide a common infrastructure for managing sessions. Th
 ** Pluggable strategy for determining the session id
 ** Easily keep the HttpSession alive when a WebSocket is active
 
+== Code of Conduct
+This project adheres to the Contributor Covenant link:CODE_OF_CONDUCT.adoc[code of conduct].
+By participating, you  are expected to uphold this code. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
+
 = Spring Session Project Site
 
 You can find the documentation, issue management, support, samples, and guides for using Spring Session at http://projects.spring.io/spring-session/
