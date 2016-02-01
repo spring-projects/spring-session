@@ -51,9 +51,6 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 		@Autowired
 		private SessionRepository<S> repository;
 
-		@Autowired
-		private HazelcastInstance hazelcast;
-
 		@Test
 		public void saveSessionTest() throws InterruptedException {
 
@@ -65,15 +62,6 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1800);
-		}
-
-		@Test
-		public void checkUnderlyingMapSettingsTest() {
-			assertThat(
-					hazelcast.getConfig()
-							.getMapConfig("my-sessions")
-							.getMaxIdleSeconds())
-					.isEqualTo(1800);
 		}
 
 		@Configuration
@@ -100,9 +88,6 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 		@Autowired
 		private SessionRepository<S> repository;
 
-		@Autowired
-		private HazelcastInstance hazelcast;
-
 		@Test
 		public void saveSessionTest() throws InterruptedException {
 
@@ -114,15 +99,6 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1200);
-		}
-
-		@Test
-		public void checkUnderlyingMapSettingsTest() {
-			assertThat(
-					hazelcast.getConfig()
-							.getMapConfig("test-sessions")
-							.getMaxIdleSeconds())
-					.isEqualTo(1200);
 		}
 
 		@Configuration
