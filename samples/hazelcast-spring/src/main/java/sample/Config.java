@@ -26,7 +26,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 // tag::class[]
-@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = "300")
+@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 300)
 @Configuration
 public class Config {
 
