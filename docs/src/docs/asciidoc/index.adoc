@@ -521,7 +521,7 @@ detailed information on configuration options for Hazelcast.
 
 Sessions will be stored in a distributed `Map` in Hazelcast using a <<api-mapsessionrepository,MapSessionRepository>>.
 The `Map` interface methods will be used to `get()` and `put()` Sessions.
-The expiration of a session in the `Map` is handled by Hazelcast's upport for setting the time to live on an entry when it is `put()` into the `Map`.
+The expiration of a session in the `Map` is handled by Hazelcast's support for setting the time to live on an entry when it is `put()` into the `Map`.
 Entries (sessions) that have been idle longer than the time to live will be automatically removed from the `Map`.
 
 [[api-enablehazelcasthttpsession-customize]]
