@@ -87,15 +87,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	}
 
 	private void transferAnnotationAttributes(AnnotationAttributes enableAttrs) {
-		String maxInactiveIntervalString = enableAttrs.getString("maxInactiveIntervalInSeconds");
-
-		try {
-			this.maxInactiveIntervalInSeconds = Integer.parseInt(maxInactiveIntervalString);
-		} catch (NumberFormatException nfe) {
-			throw new IllegalArgumentException(
-					"@EnableHazelcastHttpSession's maxInactiveIntervalInSeconds expects an int format String but was '"
-							+ maxInactiveIntervalString + "' instead.", nfe);
-		}
+		setMaxInactiveIntervalInSeconds((Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
 	}
 
