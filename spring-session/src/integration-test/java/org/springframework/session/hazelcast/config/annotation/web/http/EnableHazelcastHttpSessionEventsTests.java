@@ -59,8 +59,7 @@ import com.hazelcast.core.HazelcastInstance;
 @WebAppConfiguration
 public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 	
-	private final static String MAX_INACTIVE_INTERVAL_IN_SECONDS_STR = "1";
-	private final static int MAX_INACTIVE_INTERVAL_IN_SECONDS = Integer.valueOf(MAX_INACTIVE_INTERVAL_IN_SECONDS_STR);
+	private final static int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 	
 	@Autowired
 	private SessionRepository<S> repository;
@@ -145,7 +144,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 	
 	
 	@Configuration
-	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS_STR)
+	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class HazelcastSessionConfig {
 		
 		@Bean

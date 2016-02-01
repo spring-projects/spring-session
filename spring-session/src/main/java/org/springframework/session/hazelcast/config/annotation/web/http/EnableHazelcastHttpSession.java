@@ -62,7 +62,7 @@ public @interface EnableHazelcastHttpSession {
 	 *
 	 * @return the seconds a session can be inactive before expiring
 	 */
-	String maxInactiveIntervalInSeconds() default "1800";
+	int maxInactiveIntervalInSeconds() default 1800;
 
 	/**
 	 * This is the name of the Map that will be used in Hazelcast to store the session data.
