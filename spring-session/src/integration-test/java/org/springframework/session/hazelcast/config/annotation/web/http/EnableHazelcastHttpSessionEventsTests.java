@@ -142,6 +142,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		assertThat(repository.getSession(sessionToSave.getId())).isNull();
 	}
 	
+	@Test
 	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
         S sessionToSave = repository.createSession();
 
