@@ -144,23 +144,23 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 	
 	@Test
 	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
-        S sessionToSave = repository.createSession();
+		S sessionToSave = repository.createSession();
 
-        repository.save(sessionToSave);
+		repository.save(sessionToSave);
 
-        synchronized (lock) {
+		synchronized (lock) {
 			lock.wait((sessionToSave.getMaxInactiveIntervalInSeconds() * 1000) - 500);
 		}
 
-        // Get and save the session like SessionRepositoryFilter would.
-        S sessionToUpdate = repository.getSession(sessionToSave.getId());
-        repository.save(sessionToUpdate);
+		// Get and save the session like SessionRepositoryFilter would.
+		S sessionToUpdate = repository.getSession(sessionToSave.getId());
+		repository.save(sessionToUpdate);
 
-        synchronized (lock) {
-            lock.wait((sessionToUpdate.getMaxInactiveIntervalInSeconds() * 1000) - 100);
-        }
+		synchronized (lock) {
+			lock.wait((sessionToUpdate.getMaxInactiveIntervalInSeconds() * 1000) - 100);
+		}
 
-        assertThat(repository.getSession(sessionToUpdate.getId())).isNotNull();
+		assertThat(repository.getSession(sessionToUpdate.getId())).isNotNull();
 	}
 	
 	@Configuration
