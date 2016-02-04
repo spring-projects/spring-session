@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
@@ -61,6 +63,10 @@ import org.springframework.session.SessionRepository;
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerRequestFilter {
+	private static final String SESSION_LOGGER_NAME = SessionRepositoryFilter.class.getName().concat(".SESSION_LOGGER");
+
+	private static final Log SESSION_LOGGER = LogFactory.getLog(SESSION_LOGGER_NAME);
+
 	public static final String SESSION_REPOSITORY_ATTR = SessionRepository.class.getName();
 
 	public static final int DEFAULT_ORDER = Integer.MIN_VALUE + 50;
@@ -288,6 +294,11 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			}
 			if(!create) {
 				return null;
+			}
+			if(SESSION_LOGGER.isDebugEnabled()) {
+				SESSION_LOGGER
+						.debug("A new session was created. To help you troubleshoot where the session was created we provided a StackTrace (this is not an error). You can prevent this from appearing by disabling DEBUG logging for "
+								+ SESSION_LOGGER_NAME, new RuntimeException("For debugging purposes only (not an error)"));
 			}
 			S session = sessionRepository.createSession();
 			session.setLastAccessedTime(System.currentTimeMillis());
