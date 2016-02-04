@@ -21,10 +21,13 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
+import java.util.AbstractSet;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -325,6 +328,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		protected static final DateFormat TO_STRING_DATE_FORMAT = new SimpleDateFormat("YYYY-MM-dd-HH-mm-ss");
 
+		protected static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+
 		static {
 			Instantiator.register(new Instantiator(GemFireSession.class, 800813552) {
 				@Override public DataSerializable newInstance() {
@@ -332,10 +337,6 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 				}
 			});
 		}
-
-		private String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
-		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		private transient boolean delta = false;
 
@@ -345,6 +346,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		private long lastAccessedTime;
 
 		private transient final GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes(this);
+
+		private transient final SpelExpressionParser parser = new SpelExpressionParser();
 
 		private String id;
 
@@ -427,6 +430,11 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		}
 
 		/* (non-Javadoc) */
+		public GemFireSessionAttributes getAttributes() {
+			return sessionAttributes;
+		}
+
+		/* (non-Javadoc) */
 		public synchronized boolean isExpired() {
 			long lastAccessedTime = getLastAccessedTime();
 			long maxInactiveIntervalInSeconds = getMaxInactiveIntervalInSeconds();
@@ -464,21 +472,23 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized void setPrincipalName(String principalName) {
-			setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
+			setAttribute(PRINCIPAL_NAME_INDEX_NAME, principalName);
 		}
 
 		/* (non-Javadoc) */
 		public synchronized String getPrincipalName() {
-			String principalName = getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
-			if(principalName != null) {
-				return principalName;
+			String principalName = getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+
+			if (principalName == null) {
+				Object authentication = getAttribute(SPRING_SECURITY_CONTEXT);
+
+				if (authentication != null) {
+					Expression expression = parser.parseExpression("authentication?.name");
+					principalName = expression.getValue(authentication, String.class);
+				}
 			}
-			Object authentication = getAttribute(SPRING_SECURITY_CONTEXT);
-			if(authentication != null) {
-				Expression expression = parser.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
-			}
-			return null;
+
+			return principalName;
 		}
 
 		/* (non-Javadoc) */
@@ -597,17 +607,20 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/**
-	 * The GemFireSessionAttributes class is a container for a Session attributes that implements both
+	 * The GemFireSessionAttributes class is a container for Session attributes that implements both
 	 * the {@link DataSerializable} and {@link Delta} GemFire interfaces for efficient storage and distribution
-	 * (replication) in GemFire.
+	 * (replication) in GemFire.  Additionally, GemFireSessionAttributes extends {@link AbstractMap} providing
+	 * {@link Map}-like behavior since attributes of a Session are effectively a name to value mapping.
 	 *
+	 * @see java.util.AbstractMap
 	 * @see com.gemstone.gemfire.DataSerializable
 	 * @see com.gemstone.gemfire.DataSerializer
 	 * @see com.gemstone.gemfire.Delta
 	 * @see com.gemstone.gemfire.Instantiator
 	 */
 	@SuppressWarnings("serial")
-	public static class GemFireSessionAttributes implements DataSerializable, Delta {
+	public static class GemFireSessionAttributes extends AbstractMap<String, Object>
+			implements DataSerializable, Delta {
 
 		protected static final boolean DEFAULT_ALLOW_JAVA_SERIALIZATION = true;
 
@@ -675,6 +688,21 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		/* (non-Javadoc) */
 		protected boolean allowJavaSerialization() {
 			return DEFAULT_ALLOW_JAVA_SERIALIZATION;
+		}
+
+		/* (non-Javadoc); NOTE: entrySet implementation is not Thread-safe. */
+		@Override
+		@SuppressWarnings("all")
+		public Set<Entry<String, Object>> entrySet() {
+			return new AbstractSet<Entry<String, Object>>() {
+				@Override public Iterator<Entry<String, Object>> iterator() {
+					return Collections.unmodifiableMap(sessionAttributes).entrySet().iterator();
+				}
+
+				@Override public int size() {
+					return sessionAttributes.size();
+				}
+			};
 		}
 
 		/* (non-Javadoc) */

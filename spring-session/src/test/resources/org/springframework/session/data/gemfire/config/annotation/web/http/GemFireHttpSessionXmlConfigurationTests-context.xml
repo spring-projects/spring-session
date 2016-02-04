@@ -11,15 +11,15 @@
 ">
 
 	<util:properties id="gemfireProperties">
-		<prop key="name">GemFireHttpSessionConfigurationXmlTests</prop>
+		<prop key="name">GemFireHttpSessionXmlConfigurationTests</prop>
 		<prop key="mcast-port">0</prop>
 		<prop key="log-level">warning</prop>
 	</util:properties>
 
-	<gfe:cache properties-ref="gemfireProperties"/>
+	<gfe:cache properties-ref="gemfireProperties" close="true"/>
 
 	<bean class="org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration"
-		p:maxInactiveIntervalInSeconds="3600" p:springSessionGemFireRegionName="Example"
+		p:indexableSessionAttributes="one, two, three" p:maxInactiveIntervalInSeconds="3600" p:springSessionGemFireRegionName="Example"
 		  p:serverRegionShortcut="#{T(com.gemstone.gemfire.cache.RegionShortcut).LOCAL}"/>
 
 </beans>
