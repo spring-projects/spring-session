@@ -565,6 +565,10 @@ You can use the following attributes to customize the configuration:
 * **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds
 * **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel ids will start with the prefix of `spring:session:<redisNamespace>:`.
 
+===== Custom RedisSerializer
+
+You can customize the serialization by creating a Bean named `springSessionDefaultRedisSerializer` that implements `RedisSerializer<Object>`.
+
 [[api-redisoperationssessionrepository-storage]]
 ==== Storage Details
 

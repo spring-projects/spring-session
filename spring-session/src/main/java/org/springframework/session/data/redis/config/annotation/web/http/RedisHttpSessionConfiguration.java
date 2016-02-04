@@ -165,7 +165,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	@Autowired(required = false)
-	@Qualifier("defaultRedisSerializer")
+	@Qualifier("springSessionDefaultRedisSerializer")
 	public void setDefaultRedisSerializer(RedisSerializer<Object> defaultRedisSerializer) {
 		this.defaultRedisSerializer = defaultRedisSerializer;
 	}
