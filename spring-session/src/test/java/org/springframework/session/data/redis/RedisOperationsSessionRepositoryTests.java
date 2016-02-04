@@ -51,6 +51,7 @@ import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -83,6 +84,8 @@ public class RedisOperationsSessionRepositoryTests {
 	BoundSetOperations<Object, Object> boundSetOperations;
 	@Mock
 	ApplicationEventPublisher publisher;
+	@Mock
+	RedisSerializer<Object> defaultSerializer;
 	@Captor
 	ArgumentCaptor<AbstractSessionEvent> event;
 	@Captor
@@ -96,6 +99,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Before
 	public void setup() {
 		this.redisRepository = new RedisOperationsSessionRepository(redisOperations);
+		this.redisRepository.setDefaultSerializer(defaultSerializer);
 
 		cached = new MapSession();
 		cached.setId("session-id");
@@ -406,7 +410,9 @@ public class RedisOperationsSessionRepositoryTests {
 		MapSession session = cached;
 		byte[] pattern = "".getBytes("UTF-8");
 		String channel = "spring:session:event:created:" + session.getId();
-		byte[] body = new JdkSerializationRedisSerializer().serialize(new HashMap());
+		JdkSerializationRedisSerializer defaultSerailizer = new JdkSerializationRedisSerializer();
+		redisRepository.setDefaultSerializer(defaultSerailizer);
+		byte[] body = defaultSerailizer.serialize(new HashMap());
 		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body);
 
 		redisRepository.setApplicationEventPublisher(publisher);
@@ -415,6 +421,24 @@ public class RedisOperationsSessionRepositoryTests {
 
 		verify(publisher).publishEvent(event.capture());
 		assertThat(event.getValue().getSessionId()).isEqualTo(session.getId());
+	}
+
+	// gh-309
+	@Test
+	public void onMessageCreatedCustomSerializer() throws Exception {
+		MapSession session = cached;
+		byte[] pattern = "".getBytes("UTF-8");
+		byte[] body = new byte[0];
+		String channel = "spring:session:event:created:" + session.getId();
+		when(defaultSerializer.deserialize(body)).thenReturn(new HashMap<String,Object>());
+		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body);
+		redisRepository.setApplicationEventPublisher(publisher);
+
+		redisRepository.onMessage(message, pattern);
+
+		verify(publisher).publishEvent(event.capture());
+		assertThat(event.getValue().getSessionId()).isEqualTo(session.getId());
+		verify(defaultSerializer).deserialize(body);
 	}
 
 	@Test
