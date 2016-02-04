@@ -1269,6 +1269,55 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	}
 
 	@Test
+	public void sessionAttributesEntrySetIteratesAttributeNameValues() {
+		GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes();
+
+		sessionAttributes.setAttribute("keyOne", "valueOne");
+		sessionAttributes.setAttribute("keyTwo", "valueTwo");
+
+		Set<Map.Entry<String, Object>> sessionAttributeEntries = sessionAttributes.entrySet();
+
+		assertThat(sessionAttributeEntries).isNotNull();
+		assertThat(sessionAttributeEntries.size()).isEqualTo(2);
+
+		Set<String> expectedNames = asSet("keyOne", "keyTwo");
+		Set<?> expectedValues = asSet("valueOne", "valueTwo");
+
+		for (Map.Entry<String, Object> entry : sessionAttributeEntries) {
+			expectedNames.remove(entry.getKey());
+			expectedValues.remove(entry.getValue());
+		}
+
+		assertThat(expectedNames.isEmpty()).isTrue();
+		assertThat(expectedValues.isEmpty()).isTrue();
+
+		sessionAttributes.setAttribute("keyThree", "valueThree");
+
+		assertThat(sessionAttributeEntries.size()).isEqualTo(3);
+
+		expectedNames = asSet("keyOne", "keyTwo");
+		expectedValues = asSet("valueOne", "valueTwo");
+
+		for (Map.Entry<String, Object> entry : sessionAttributeEntries) {
+			expectedNames.remove(entry.getKey());
+			expectedValues.remove(entry.getValue());
+		}
+
+		assertThat(expectedNames.isEmpty()).isTrue();
+		assertThat(expectedValues.isEmpty()).isTrue();
+
+		sessionAttributes.removeAttribute("keyOne");
+		sessionAttributes.removeAttribute("keyTwo");
+
+		assertThat(sessionAttributeEntries.size()).isEqualTo(1);
+
+		Map.Entry<String, ?> entry = sessionAttributeEntries.iterator().next();
+
+		assertThat(entry.getKey()).isEqualTo("keyThree");
+		assertThat(entry.getValue()).isEqualTo("valueThree");
+	}
+
+	@Test
 	public void sessionWithAttributesAreThreadSafe() throws Throwable {
 		TestFramework.runOnce(new ThreadSafeSessionTest());
 	}

@@ -43,6 +43,7 @@ import com.gemstone.gemfire.cache.GemFireCache;
 import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.client.ClientCache;
 import com.gemstone.gemfire.cache.client.ClientCacheFactory;
+import com.gemstone.gemfire.cache.query.Index;
 import com.gemstone.gemfire.cache.server.CacheServer;
 
 /**
@@ -105,7 +106,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static List<String> createJavaProcessCommandLine(Class<? extends Object> type, String... args) {
+	protected static List<String> createJavaProcessCommandLine(Class<?> type, String... args) {
 		List<String> commandLine = new ArrayList<String>();
 
 		String javaHome = System.getProperty("java.home");
@@ -155,7 +156,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static Process run(Class<? extends Object> type, File directory, String... args) throws IOException {
+	protected static Process run(Class<?> type, File directory, String... args) throws IOException {
 		return new ProcessBuilder()
 			.command(createJavaProcessCommandLine(type, args))
 			.directory(directory)
@@ -316,6 +317,13 @@ public class AbstractGemFireIntegrationTests {
 		assertThat(actualRegion.getFullPath()).isEqualTo(GemFireUtils.toRegionPath(expectedName));
 		assertThat(actualRegion.getAttributes()).isNotNull();
 		assertThat(actualRegion.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);
+	}
+
+	/* (non-Javadoc) */
+	protected void assertIndex(Index index, String expectedExpression, String expectedFromClause) {
+		assertThat(index).isNotNull();
+		assertThat(index.getIndexedExpression()).isEqualTo(expectedExpression);
+		assertThat(index.getFromClause()).isEqualTo(expectedFromClause);
 	}
 
 	/* (non-Javadoc) */

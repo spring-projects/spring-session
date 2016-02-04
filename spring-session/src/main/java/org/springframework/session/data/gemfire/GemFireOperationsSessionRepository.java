@@ -16,7 +16,6 @@
 
 package org.springframework.session.data.gemfire;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +37,10 @@ import com.gemstone.gemfire.cache.query.SelectResults;
  */
 public class GemFireOperationsSessionRepository extends AbstractGemFireOperationsSessionRepository {
 
+	// GemFire OQL query used to lookup Sessions by arbitrary attributes.
+	protected static final String FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY =
+		"SELECT s FROM %1$s s WHERE s.attributes['%2$s'] = $1";
+
 	// GemFire OQL query used to look up Sessions by principal name.
 	protected static final String FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY =
 		"SELECT s FROM %1$s s WHERE s.principalName = $1";
@@ -54,19 +57,18 @@ public class GemFireOperationsSessionRepository extends AbstractGemFireOperation
 	}
 
 	/**
-	 * Looks up all the available Sessions tied to the specific user identified by principal name.
+	 * Looks up all available Sessions with the particular attribute indexed by name having the given value.
 	 *
-	 * @param indexName the name of the indexed value (i.e. FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME).
-	 * @param indexValue the value of the index to search for (i.e. username) to search for all existing Spring Sessions.
+	 * @param indexName name of the indexed Session attribute.
+	 * (e.g. {@link org.springframework.session.FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME}).
+	 * @param indexValue value of the indexed Session attribute to search on (e.g. username).
 	 * @return a mapping of Session ID to Session instances.
 	 * @see org.springframework.session.ExpiringSession
+	 * @see java.util.Map
+	 * @see #prepareQuery(String)
 	 */
 	public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
-		if(!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
-			return Collections.emptyMap();
-		}
-		SelectResults<ExpiringSession> results = getTemplate().find(String.format(
-			FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY, getFullyQualifiedRegionName()), indexValue);
+		SelectResults<ExpiringSession> results = getTemplate().find(prepareQuery(indexName), indexValue);
 
 		Map<String, ExpiringSession> sessions = new HashMap<String, ExpiringSession>(results.size());
 
@@ -75,6 +77,18 @@ public class GemFireOperationsSessionRepository extends AbstractGemFireOperation
 		}
 
 		return sessions;
+	}
+
+	/**
+	 * Prepares the appropriate GemFire OQL query based on the indexed Session attribute name.
+	 *
+	 * @param indexName a String indicating the name of the indexed Session attribute.
+	 * @return an appropriate GemFire OQL statement for querying on a particular indexed Session attribute.
+	 */
+	protected String prepareQuery(String indexName) {
+		return (PRINCIPAL_NAME_INDEX_NAME.equals(indexName)
+			? String.format(FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY, getFullyQualifiedRegionName())
+			: String.format(FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY, getFullyQualifiedRegionName(), indexName));
 	}
 
 	/**
