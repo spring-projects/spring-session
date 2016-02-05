@@ -27,6 +27,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
+import static org.springframework.session.data.gemfire.GemFireOperationsSessionRepository.FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY;
+import static org.springframework.session.data.gemfire.GemFireOperationsSessionRepository.FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY;
 import static org.springframework.session.data.gemfire.GemFireOperationsSessionRepository.GemFireSession;
 
 import java.util.Arrays;
@@ -47,7 +50,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.gemfire.GemfireAccessor;
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.session.ExpiringSession;
-import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 
@@ -66,6 +68,7 @@ import com.gemstone.gemfire.cache.query.SelectResults;
  * @see org.mockito.Mockito
  * @see org.mockito.runners.MockitoJUnitRunner
  * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository
+ * @see com.gemstone.gemfire.cache.Region
  * @since 1.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -112,6 +115,36 @@ public class GemFireOperationsSessionRepositoryTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
+	public void findByIndexNameValueFindsMatchingSession() {
+		ExpiringSession mockSession = mock(ExpiringSession.class, "MockSession");
+
+		when(mockSession.getId()).thenReturn("1");
+
+		SelectResults<Object> mockSelectResults = mock(SelectResults.class);
+
+		when(mockSelectResults.asList()).thenReturn(Collections.<Object>singletonList(mockSession));
+
+		String indexName = "vip";
+		String indexValue = "rwinch";
+
+		String expectedQql = String.format(FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY,
+			sessionRepository.getFullyQualifiedRegionName(), indexName);
+
+		when(mockTemplate.find(eq(expectedQql), eq(indexValue))).thenReturn(mockSelectResults);
+
+		Map<String, ExpiringSession> sessions = sessionRepository.findByIndexNameAndIndexValue(indexName, indexValue);
+
+		assertThat(sessions).isNotNull();
+		assertThat(sessions.size()).isEqualTo(1);
+		assertThat(sessions.get("1")).isEqualTo(mockSession);
+
+		verify(mockTemplate, times(1)).find(eq(expectedQql), eq(indexValue));
+		verify(mockSelectResults, times(1)).asList();
+		verify(mockSession, times(1)).getId();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void findByPrincipalNameFindsMatchingSessions() throws Exception {
 		ExpiringSession mockSessionOne = mock(ExpiringSession.class, "MockSessionOne");
 		ExpiringSession mockSessionTwo = mock(ExpiringSession.class, "MockSessionTwo");
@@ -127,12 +160,13 @@ public class GemFireOperationsSessionRepositoryTest {
 
 		String principalName = "jblum";
 
-		String expectedOql = String.format(GemFireOperationsSessionRepository.FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
+		String expectedOql = String.format(FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
 			sessionRepository.getFullyQualifiedRegionName());
 
 		when(mockTemplate.find(eq(expectedOql), eq(principalName))).thenReturn(mockSelectResults);
 
-		Map<String, ExpiringSession> sessions = sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
+		Map<String, ExpiringSession> sessions = sessionRepository.findByIndexNameAndIndexValue(
+			PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		assertThat(sessions).isNotNull();
 		assertThat(sessions.size()).isEqualTo(3);
@@ -156,18 +190,38 @@ public class GemFireOperationsSessionRepositoryTest {
 
 		String principalName = "jblum";
 
-		String expectedOql = String.format(GemFireOperationsSessionRepository.FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
+		String expectedOql = String.format(FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
 			sessionRepository.getFullyQualifiedRegionName());
 
 		when(mockTemplate.find(eq(expectedOql), eq(principalName))).thenReturn(mockSelectResults);
 
-		Map<String, ExpiringSession> sessions = sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
+		Map<String, ExpiringSession> sessions = sessionRepository.findByIndexNameAndIndexValue(
+			PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		assertThat(sessions).isNotNull();
 		assertThat(sessions.isEmpty()).isTrue();
 
 		verify(mockTemplate, times(1)).find(eq(expectedOql), eq(principalName));
 		verify(mockSelectResults, times(1)).asList();
+	}
+
+	@Test
+	public void prepareQueryReturnsPrincipalNameOql() {
+		String actualQql = sessionRepository.prepareQuery(PRINCIPAL_NAME_INDEX_NAME);
+		String expectedOql = String.format(FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
+			sessionRepository.getFullyQualifiedRegionName());
+
+		assertThat(actualQql).isEqualTo(expectedOql);
+	}
+
+	@Test
+	public void prepareQueryReturnsIndexNameValueOql() {
+		String attributeName = "testAttributeName";
+		String actualOql = sessionRepository.prepareQuery(attributeName);
+		String expectedOql = String.format(FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY,
+			sessionRepository.getFullyQualifiedRegionName(), attributeName);
+
+		assertThat(actualOql).isEqualTo(expectedOql);
 	}
 
 	@Test

@@ -47,6 +47,9 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  * @author John Blum
  * @see org.junit.Test
  * @see org.mockito.Mockito
+ * @see org.springframework.data.gemfire.GemfireOperations
+ * @see org.springframework.data.gemfire.GemfireTemplate
+ * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository
  * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
  * @see com.gemstone.gemfire.cache.Cache
  * @see com.gemstone.gemfire.cache.GemFireCache
@@ -57,6 +60,10 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 public class GemFireHttpSessionConfigurationTest {
 
 	private GemFireHttpSessionConfiguration gemfireConfiguration;
+
+	protected <T> T[] toArray(T... array) {
+		return array;
+	}
 
 	@Before
 	public void setup() {
@@ -89,6 +96,29 @@ public class GemFireHttpSessionConfigurationTest {
 
 		assertThat(gemfireConfiguration.getClientRegionShortcut()).isEqualTo(
 			GemFireHttpSessionConfiguration.DEFAULT_CLIENT_REGION_SHORTCUT);
+	}
+
+	@Test
+	public void setAndGetIndexableSessionAttributes() {
+		assertThat(gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(
+			GemFireHttpSessionConfiguration.DEFAULT_INDEXABLE_SESSION_ATTRIBUTES);
+
+		gemfireConfiguration.setIndexableSessionAttributes(toArray("one", "two", "three"));
+
+		assertThat(gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(toArray("one", "two", "three"));
+		assertThat(gemfireConfiguration.getIndexableSessionAttributesAsGemFireIndexExpression())
+			.isEqualTo("'one', 'two', 'three'");
+
+		gemfireConfiguration.setIndexableSessionAttributes(toArray("one"));
+
+		assertThat(gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(toArray("one"));
+		assertThat(gemfireConfiguration.getIndexableSessionAttributesAsGemFireIndexExpression()).isEqualTo("'one'");
+
+		gemfireConfiguration.setIndexableSessionAttributes(null);
+
+		assertThat(gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(
+			GemFireHttpSessionConfiguration.DEFAULT_INDEXABLE_SESSION_ATTRIBUTES);
+		assertThat(gemfireConfiguration.getIndexableSessionAttributesAsGemFireIndexExpression()).isEqualTo("*");
 	}
 
 	@Test
@@ -160,6 +190,7 @@ public class GemFireHttpSessionConfigurationTest {
 		Map<String, Object> annotationAttributes = new HashMap<String, Object>(4);
 
 		annotationAttributes.put("clientRegionShortcut", ClientRegionShortcut.CACHING_PROXY);
+		annotationAttributes.put("indexableSessionAttributes", toArray("one", "two", "three"));
 		annotationAttributes.put("maxInactiveIntervalInSeconds", 600);
 		annotationAttributes.put("serverRegionShortcut", RegionShortcut.REPLICATE);
 		annotationAttributes.put("regionName", "TEST");
@@ -170,6 +201,7 @@ public class GemFireHttpSessionConfigurationTest {
 		gemfireConfiguration.setImportMetadata(mockAnnotationMetadata);
 
 		assertThat(gemfireConfiguration.getClientRegionShortcut()).isEqualTo(ClientRegionShortcut.CACHING_PROXY);
+		assertThat(gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(toArray("one", "two", "three"));
 		assertThat(gemfireConfiguration.getMaxInactiveIntervalInSeconds()).isEqualTo(600);
 		assertThat(gemfireConfiguration.getServerRegionShortcut()).isEqualTo(RegionShortcut.REPLICATE);
 		assertThat(gemfireConfiguration.getSpringSessionGemFireRegionName()).isEqualTo("TEST");

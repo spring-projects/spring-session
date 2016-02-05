@@ -117,6 +117,14 @@ public @interface EnableGemFireHttpSession {
 	ClientRegionShortcut clientRegionShortcut() default ClientRegionShortcut.PROXY;
 
 	/**
+	 * Identifies the Session attributes by name that should be indexed for query operations.
+	 * For instance, find all Sessions in GemFire having attribute A defined with value X.
+	 *
+	 * @return an array of Strings identifying the names of Session attributes to index.
+	 */
+	String[] indexableSessionAttributes() default {};
+
+	/**
 	 * Defines the maximum interval in seconds that a Session can remain inactive before it is considered expired.
 	 * Defaults to 1800 seconds, or 30 minutes.
 	 *

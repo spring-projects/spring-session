@@ -37,6 +37,7 @@ import org.springframework.session.data.gemfire.AbstractGemFireOperationsSession
 import org.springframework.session.data.gemfire.GemFireOperationsSessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.support.GemFireCacheTypeAwareRegionFactoryBean;
 import org.springframework.session.data.gemfire.support.GemFireUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import com.gemstone.gemfire.cache.ExpirationAction;
@@ -68,6 +69,8 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  * @see com.gemstone.gemfire.cache.GemFireCache
  * @see com.gemstone.gemfire.cache.Region
  * @see com.gemstone.gemfire.cache.RegionAttributes
+ * @see com.gemstone.gemfire.cache.RegionShortcut
+ * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
  * @since 1.1.0
  */
 @Configuration
@@ -85,6 +88,8 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 
 	public static final String DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME = "ClusteredSpringSessions";
 
+	public static final String[] DEFAULT_INDEXABLE_SESSION_ATTRIBUTES = new String[0];
+
 	private int maxInactiveIntervalInSeconds = DEFAULT_MAX_INACTIVE_INTERVAL_IN_SECONDS;
 
 	private ClassLoader beanClassLoader;
@@ -94,6 +99,8 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	private RegionShortcut serverRegionShortcut = DEFAULT_SERVER_REGION_SHORTCUT;
 
 	private String springSessionGemFireRegionName = DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME;
+
+	private String[] indexableSessionAttributes = DEFAULT_INDEXABLE_SESSION_ATTRIBUTES;
 
 	/**
 	 * Sets a reference to the {@link ClassLoader} used to load bean definition class types in a Spring context.
@@ -133,9 +140,53 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 *
 	 * @return the ClientRegionShortcut used to configure the GemFire ClientCache Region.
 	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+	 * @see EnableGemFireHttpSession#clientRegionShortcut()
 	 */
 	protected ClientRegionShortcut getClientRegionShortcut() {
 		return (clientRegionShortcut != null ? clientRegionShortcut : DEFAULT_CLIENT_REGION_SHORTCUT);
+	}
+
+	/**
+	 * Sets the names of all Session attributes that should be indexed by GemFire.
+	 *
+	 * @param indexableSessionAttributes an array of Strings indicating the names of all Session attributes
+	 * for which an Index will be created by GemFire.
+	 */
+	public void setIndexableSessionAttributes(String[] indexableSessionAttributes) {
+		this.indexableSessionAttributes = indexableSessionAttributes;
+	}
+
+	/**
+	 * Get the names of all Session attributes that should be indexed by GemFire.
+	 *
+	 * @return an array of Strings indicating the names of all Session attributes for which an Index
+	 * will be created by GemFire. Defaults to an empty String array if unspecified.
+	 * @see EnableGemFireHttpSession#indexableSessionAttributes()
+	 */
+	protected String[] getIndexableSessionAttributes() {
+		return (indexableSessionAttributes != null ? indexableSessionAttributes : DEFAULT_INDEXABLE_SESSION_ATTRIBUTES);
+	}
+
+	/**
+	 * Gets the names of all Session attributes that will be indexed by GemFire as single String value constituting
+	 * the Index expression of the Index definition.
+	 *
+	 * @return a String composed of all the named Session attributes on which a GemFire Index will be created
+	 * as an Index definition expression.  If the indexable Session attributes were not specified, then the
+	 * wildcard ("*") is returned.
+	 * @see com.gemstone.gemfire.cache.query.Index#getIndexedExpression()
+	 */
+	protected String getIndexableSessionAttributesAsGemFireIndexExpression() {
+		StringBuilder builder = new StringBuilder();
+
+		for (String sessionAttribute : getIndexableSessionAttributes()) {
+			builder.append(builder.length() > 0 ? ", " : "");
+			builder.append(String.format("'%1$s'", sessionAttribute));
+		}
+
+		String indexExpression = builder.toString();
+
+		return (indexExpression.isEmpty() ? "*" : indexExpression);
 	}
 
 	/**
@@ -153,6 +204,7 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 *
 	 * @return an integer value specifying the maximum interval in seconds that a Session can remain inactive
 	 * before it is considered expired.
+	 * @see EnableGemFireHttpSession#maxInactiveIntervalInSeconds()
 	 */
 	protected int getMaxInactiveIntervalInSeconds() {
 		return maxInactiveIntervalInSeconds;
@@ -174,6 +226,7 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 *
 	 * @return the RegionShortcut used to configure the GemFire Cache Region.
 	 * @see com.gemstone.gemfire.cache.RegionShortcut
+	 * @see EnableGemFireHttpSession#serverRegionShortcut()
 	 */
 	protected RegionShortcut getServerRegionShortcut() {
 		return (serverRegionShortcut != null ? serverRegionShortcut : DEFAULT_SERVER_REGION_SHORTCUT);
@@ -195,6 +248,7 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 * @return a String specifying the name of the GemFire (Client)Cache Region
 	 * used to store the Session.
 	 * @see com.gemstone.gemfire.cache.Region#getName()
+	 * @see EnableGemFireHttpSession#regionName()
 	 */
 	protected String getSpringSessionGemFireRegionName() {
 		return (StringUtils.hasText(springSessionGemFireRegionName) ? springSessionGemFireRegionName
@@ -215,6 +269,9 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 
 		setClientRegionShortcut(ClientRegionShortcut.class.cast(enableGemFireHttpSessionAnnotationAttributes.getEnum(
 			"clientRegionShortcut")));
+
+		setIndexableSessionAttributes(enableGemFireHttpSessionAnnotationAttributes.getStringArray(
+			"indexableSessionAttributes"));
 
 		setMaxInactiveIntervalInSeconds(enableGemFireHttpSessionAnnotationAttributes.getNumber(
 			"maxInactiveIntervalInSeconds").intValue());
@@ -359,11 +416,41 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 		};
 
 		index.setCache(gemfireCache);
-		index.setName("principalNameIdx");
+		index.setName("principalNameIndex");
 		index.setExpression("principalName");
 		index.setFrom(GemFireUtils.toRegionPath(getSpringSessionGemFireRegionName()));
 		index.setOverride(true);
 		index.setType(IndexType.HASH);
+
+		return index;
+	}
+
+	/**
+	 * Defines a Spring GemFire Index bean on the GemFire cache {@link Region} storing and managing Sessions,
+	 * specifically on Session attributes for quick lookup and queries on Session attribute names with a given value.
+	 * This index will only be created on a server @{link Region}.
+	 *
+	 * @param gemfireCache a reference to the GemFire cache.
+	 * @return a IndexFactoryBean creating an GemFire Index on attributes of Sessions stored in the GemFire cache {@link Region}.
+	 * @see org.springframework.data.gemfire.IndexFactoryBean
+	 * @see com.gemstone.gemfire.cache.GemFireCache
+	 */
+	@Bean
+	@DependsOn(DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME)
+	public IndexFactoryBean sessionAttributesIndex(final GemFireCache gemfireCache) {
+		IndexFactoryBean index = new IndexFactoryBean() {
+			@Override public void afterPropertiesSet() throws Exception {
+				if (GemFireUtils.isPeer(gemfireCache) && !ObjectUtils.isEmpty(getIndexableSessionAttributes())) {
+					super.afterPropertiesSet();
+				}
+			}
+		};
+
+		index.setCache(gemfireCache);
+		index.setName("sessionAttributesIndex");
+		index.setExpression(String.format("s.attributes[%1$s]", getIndexableSessionAttributesAsGemFireIndexExpression()));
+		index.setFrom(String.format("%1$s s", GemFireUtils.toRegionPath(getSpringSessionGemFireRegionName())));
+		index.setOverride(true);
 
 		return index;
 	}
