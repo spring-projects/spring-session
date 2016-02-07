@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,15 +36,11 @@ import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
-import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
+import org.springframework.session.hazelcast.HazelcastITestUtils;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.SocketUtils;
 
-import com.hazelcast.config.Config;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 /**
@@ -150,11 +146,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		
 		@Bean
 		public HazelcastInstance embeddedHazelcast() {
-			Config hazelcastConfig = new Config();
-			NetworkConfig netConfig = new NetworkConfig();
-			netConfig.setPort(SocketUtils.findAvailableTcpPort());
-			hazelcastConfig.setNetworkConfig(netConfig);
-			return Hazelcast.newHazelcastInstance(hazelcastConfig);
+			return HazelcastITestUtils.embeddedHazelcastServer();
 		}
 		
 		@Bean
