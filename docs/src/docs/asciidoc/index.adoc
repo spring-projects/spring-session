@@ -257,56 +257,6 @@ Guide when integrating with your own application.
 
 include::guides/httpsession-gemfire-p2p-xml.adoc[tags=config,leveloffset=+3]
 
-[[httpsessoin-gemfire-indexing]]
-==== Using Indexes with GemFire
-
-While best practices concerning the proper definition of indexes that positively impact GemFire's performance is beyond
-the scope of this document, it is important to realize that Spring Session Data GemFire creates and uses indexes to
-query and find Sessions efficiently.
-
-Out-of-the-box, Spring Session Data GemFire creates 1 Hash-typed Index on the implementing Session's `principalName`
-property, which corresponds to the Session attribute...
-
-----
- org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME
-----
-
-This enables developers using the `GemFireOperationsSessionRepository` programmatically to query and find all Sessions
-with a given principal name efficiently.
-
-Additionally, Spring Session Data GemFire will create a Range-based Index on the implementing Session's Map-type
-`attributes` property (i.e. on any arbitrary Session attribute) when a developer identifies 1 or more named Session
-attributes that should be indexed by GemFire.
-
-Sessions attributes to index can be specified with the `indexableSessionAttributes` attribute on the `@EnableGemFireHttpSession`
-annotation.  A developer adds this annotation to their Spring application `@Configuration` class when s/he wishes to
-enable Spring Session support for HttpSession backed by GemFire.
-
-For example:
-
-.ApplicationConfiguration.java
-----
-@EnableGemFireHttpSession(indexableSessionAttributes = { "name1", "name2", "name3" })
-class ApplicationConfiguration {
-
-  // @Bean definition methods implemented here
-}
-----
-
-NOTE: Only Session attribute names identified in the `@EnableGemFireHttpSession` annotation's `indexableSessionAttributes`
-attribute will have an Index defined.  All other Session attributes will not be indexed.
-
-However, there is one caveat. Any values stored in indexable Session attributes must implement the `java.lang.Comparable<T>`
-interface. If those object values do not implement `Comparable`, then GemFire will throw an error on startup when the
-Index is defined for Regions with persistent Session data, or when an attempt is made at runtime to assign the indexable
-Session attribute a value that is not `Comparable` and the Session is saved to GemFire.
-
-NOTE: Any Session attribute that is not indexed may store non-`Comparable` values.
-
-To learn more about GemFire's Range-based Indexes, see http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/query_index/creating_map_indexes.html[Creating Indexes on Map Fields].
-
-To learn more about GemFire Indexing in general, see http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/query_index/query_index.html[Working with Indexes].
-
 [[httpsession-how]]
 === How HttpSession Integration Works
 
@@ -811,6 +761,89 @@ redis 127.0.0.1:6379> hkeys spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1e
 redis 127.0.0.1:6379> hget spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021 sessionAttr:username
 "\xac\xed\x00\x05t\x00\x03rob"
 ----
+
+[[api-gemfireoperationssessionrepository]]
+=== GemFireOperationsSessionRepository
+
+`GemFireOperationsSessionRepository` is a `SessionRepository` that is implemented using Spring Data's `GemFireOperationsSessionRepository`.
+In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
+The implementation supports `SessionDestroyedEvent` and `SessionCreatedEvent` through `SessionMessageListener`.
+
+[[api-gemfireoperationssessionrepository-indexing]]
+==== Using Indexes with GemFire
+
+While best practices concerning the proper definition of indexes that positively impact GemFire's performance is beyond
+the scope of this document, it is important to realize that Spring Session Data GemFire creates and uses indexes to
+query and find Sessions efficiently.
+
+Out-of-the-box, Spring Session Data GemFire creates 1 Hash-typed Index on the principal name. There are two different buit in
+strategies for finding the principal name. The first strategy is that the value of the session attribute with the name
+`FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME` will be indexed to the same index name. For example:
+
+[source,java,indent=0]
+----
+include::{docs-itest-dir}docs/http/HttpSessionGemFireIndexingITests.java[tags=findbyindexname-set]
+include::{docs-itest-dir}docs/http/HttpSessionGemFireIndexingITests.java[tags=findbyindexname-get]
+----
+
+[[api-gemfireoperationssessionrepository-indexing-security]]
+==== Using Indexes with GemFire & Spring Security
+
+Alternatively, Spring Session Data GemFire will map Spring Security's current `Authentication#getName()` to the index
+`FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME`. For example, if you are using Spring Security you can
+find the current user's sessions using:
+
+[source,java,indent=0]
+----
+include::{docs-itest-dir}docs/http/HttpSessionGemFireIndexingITests.java[tags=findbyspringsecurityindexname-context]
+include::{docs-itest-dir}docs/http/HttpSessionGemFireIndexingITests.java[tags=findbyspringsecurityindexname-get]
+----
+
+[[api-gemfireoperationssessionrepository-indexing-custom]]
+==== Using Custom Indexes with GemFire
+
+This enables developers using the `GemFireOperationsSessionRepository` programmatically to query and find all Sessions
+with a given principal name efficiently.
+
+Additionally, Spring Session Data GemFire will create a Range-based Index on the implementing Session's Map-type
+`attributes` property (i.e. on any arbitrary Session attribute) when a developer identifies 1 or more named Session
+attributes that should be indexed by GemFire.
+
+Sessions attributes to index can be specified with the `indexableSessionAttributes` attribute on the `@EnableGemFireHttpSession`
+annotation.  A developer adds this annotation to their Spring application `@Configuration` class when s/he wishes to
+enable Spring Session support for HttpSession backed by GemFire.
+
+For example, the following configuration:
+
+[source,java,indent=0]
+----
+include::{docs-itest-dir}docs/http/gemfire/indexablesessionattributes/GemFireHttpSessionConfig.java[tags=class-start]
+	// ...
+}
+----
+
+will allow searching for sessions using the following:
+
+[source,java,indent=0]
+----
+include::{docs-itest-dir}docs/http/gemfire/indexablesessionattributes/HttpSessionGemFireIndexingCustomITests.java[tags=findbyindexname-set]
+include::{docs-itest-dir}docs/http/gemfire/indexablesessionattributes/HttpSessionGemFireIndexingCustomITests.java[tags=findbyindexname-get]
+----
+
+NOTE: Only Session attribute names identified in the `@EnableGemFireHttpSession` annotation's `indexableSessionAttributes`
+attribute will have an Index defined.  All other Session attributes will not be indexed.
+
+However, there is one caveat. Any values stored in indexable Session attributes must implement the `java.lang.Comparable<T>`
+interface. If those object values do not implement `Comparable`, then GemFire will throw an error on startup when the
+Index is defined for Regions with persistent Session data, or when an attempt is made at runtime to assign the indexable
+Session attribute a value that is not `Comparable` and the Session is saved to GemFire.
+
+NOTE: Any Session attribute that is not indexed may store non-`Comparable` values.
+
+To learn more about GemFire's Range-based Indexes, see http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/query_index/creating_map_indexes.html[Creating Indexes on Map Fields].
+
+To learn more about GemFire Indexing in general, see http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/query_index/query_index.html[Working with Indexes].
+
 
 [[api-mapsessionrepository]]
 === MapSessionRepository

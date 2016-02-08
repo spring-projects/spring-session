@@ -111,7 +111,7 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		return doFindByIndexNameAndIndexValue(PRINCIPAL_NAME_INDEX_NAME, principalName);
 	}
 
-	@SuppressWarnings({ "unused", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	protected Map<String, ExpiringSession> doFindByPrincipalName(String regionName, String principalName) {
 		try {
 			Region<String, ExpiringSession> region = gemfireCache.getRegion(regionName);
@@ -327,7 +327,6 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 
 	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
 		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
-	@SuppressWarnings("unused")
 	static class SpringSessionGemFireConfiguration {
 
 		@Bean

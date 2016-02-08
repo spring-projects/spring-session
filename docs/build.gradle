@@ -9,7 +9,7 @@ buildscript {
 }
 
 apply plugin: 'org.kordamp.gradle.livereload'
-apply plugin: 'java'
+apply from: JAVA_GRADLE
 apply plugin: 'org.asciidoctor.convert'
 
 liveReload {
@@ -28,11 +28,13 @@ tasks.findByPath("artifactoryPublish")?.enabled = false
 
 dependencies {
 		testCompile project(':spring-session'),
+				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
 				"org.springframework.data:spring-data-redis:$springDataRedisVersion",
 				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
 				"org.springframework:spring-websocket:${springVersion}",
 				"org.springframework:spring-messaging:${springVersion}",
 				"org.springframework.security:spring-security-web:${springSecurityVersion}",
+				"org.springframework.security:spring-security-test:${springSecurityVersion}",
 				'junit:junit:4.11',
 				'org.mockito:mockito-core:1.9.5',
 				"org.springframework:spring-test:$springVersion",
@@ -54,6 +56,7 @@ asciidoctor {
 			'spring-session-version' : version,
 			'spring-version' : springVersion,
 			'hazelcast-version' : hazelcastVersion,
+			'docs-itest-dir' : rootProject.projectDir.path + '/docs/src/integration-test/java/',
 			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
 			'docs-test-resources-dir' : rootProject.projectDir.path + '/docs/src/test/resources/',
 			'samples-dir' : rootProject.projectDir.path + '/samples/',

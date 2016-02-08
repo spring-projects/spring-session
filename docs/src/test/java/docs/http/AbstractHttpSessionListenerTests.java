@@ -69,7 +69,6 @@ public abstract class AbstractHttpSessionListenerTests {
 		/* (non-Javadoc)
 		 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
 		 */
-		@Override
 		public void onApplicationEvent(SessionDestroyedEvent event) {
 			this.event = event;
 		}
