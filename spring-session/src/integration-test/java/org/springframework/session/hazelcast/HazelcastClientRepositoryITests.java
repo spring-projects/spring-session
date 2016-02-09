@@ -59,7 +59,9 @@ public class HazelcastClientRepositoryITests<S extends ExpiringSession>
 
 	@AfterClass
 	public static void teardown() {
-		hazelcastInstance.shutdown();
+		if(hazelcastInstance != null) {
+			hazelcastInstance.shutdown();
+		}
 	}
 
 	@Configuration
