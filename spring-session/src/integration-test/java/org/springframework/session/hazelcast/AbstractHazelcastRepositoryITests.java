@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
 
 package org.springframework.session.hazelcast;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 /**
  * Abstract base class for Hazelcast integration tests.
- * 
+ *
  * @author Tommy Ludwig
  * @author Vedran Pavic
  */
@@ -41,7 +42,7 @@ public abstract class AbstractHazelcastRepositoryITests<S extends ExpiringSessio
 	private SessionRepository<S> repository;
 
 	@Test
-	public void createAndDestorySession() {
+	public void createAndDestroySession() {
 		S sessionToSave = repository.createSession();
 		String sessionId = sessionToSave.getId();
 

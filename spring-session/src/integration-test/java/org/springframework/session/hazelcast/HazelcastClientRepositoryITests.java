@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 
 package org.springframework.session.hazelcast;
 
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -33,11 +29,17 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.core.HazelcastInstance;
+
 /**
  * Integration tests that check the underlying data source - in this case
  * Hazelcast Client.
  *
  * @author Vedran Pavic
+ * @author Artem Bilan
+ * @since 1.1
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -47,14 +49,17 @@ public class HazelcastClientRepositoryITests<S extends ExpiringSession>
 
 	private static final int PORT = SocketUtils.findAvailableTcpPort();
 
+	private static HazelcastInstance hazelcastInstance;
+
+
 	@BeforeClass
 	public static void setup() {
-		HazelcastITestUtils.embeddedHazelcastServer(PORT);
+		hazelcastInstance = HazelcastITestUtils.embeddedHazelcastServer(PORT);
 	}
 
 	@AfterClass
 	public static void teardown() {
-		Hazelcast.shutdownAll();
+		hazelcastInstance.shutdown();
 	}
 
 	@Configuration
