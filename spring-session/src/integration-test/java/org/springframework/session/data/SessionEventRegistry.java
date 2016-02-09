@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 			lock.notifyAll();
 		}
 	}
-	
+
 	public void setLock(Object lock) {
 		this.lock = lock;
 	}
@@ -50,7 +50,7 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 	private <E extends AbstractSessionEvent> E waitForEvent() throws InterruptedException {
 		synchronized(lock) {
 			if(event == null) {
-				lock.wait(3000);
+				lock.wait(10000);
 			}
 		}
 		return (E) event;
