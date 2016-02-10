@@ -45,38 +45,38 @@ import com.hazelcast.core.HazelcastInstance;
 
 /**
  * Ensure that the appropriate SessionEvents are fired at the expected times.
- * Additionally ensure that the interactions with the {@link SessionRepository} 
+ * Additionally ensure that the interactions with the {@link SessionRepository}
  * abstraction behave as expected after each SessionEvent.
- * 
+ *
  * @author Tommy Ludwig
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
-	
+
 	private final static int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
-	
+
 	@Autowired
 	private SessionRepository<S> repository;
-	
+
 	@Autowired
 	private SessionEventRegistry registry;
-	
+
 	private final Object lock = new Object();
-	
+
 	@Before
 	public void setup() {
 		registry.clear();
 		registry.setLock(lock);
 	}
-	
+
 	@Test
 	public void saveSessionTest() throws InterruptedException {
 		String username = "saves-"+System.currentTimeMillis();
-		
+
 		S sessionToSave = repository.createSession();
-		
+
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		sessionToSave.setAttribute(expectedAttributeName, expectedAttributeValue);
@@ -85,59 +85,59 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		toSaveContext.setAuthentication(toSaveToken);
 		sessionToSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
 		sessionToSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
-		
+
 		repository.save(sessionToSave);
-		
+
 		assertThat(registry.receivedEvent()).isTrue();
 		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
-		
+
 		Session session = repository.getSession(sessionToSave.getId());
 
 		assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(sessionToSave.getAttributeNames());
 		assertThat(session.getAttribute(expectedAttributeName)).isEqualTo(sessionToSave.getAttribute(expectedAttributeName));
 	}
-	
+
 	@Test
 	public void expiredSessionTest() throws InterruptedException {
 		S sessionToSave = repository.createSession();
-		
+
 		repository.save(sessionToSave);
-		
+
 		assertThat(registry.receivedEvent()).isTrue();
 		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
 		registry.clear();
-		
+
 		assertThat(sessionToSave.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
-		
+
 		synchronized (lock) {
 			lock.wait((sessionToSave.getMaxInactiveIntervalInSeconds() * 1000) + 1);
 		}
-		
+
 		assertThat(registry.receivedEvent()).isTrue();
 		assertThat(registry.getEvent()).isInstanceOf(SessionExpiredEvent.class);
-		
+
 		assertThat(repository.getSession(sessionToSave.getId())).isNull();
 	}
-	
+
 	@Test
 	public void deletedSessionTest() throws InterruptedException {
 		S sessionToSave = repository.createSession();
-		
+
 		repository.save(sessionToSave);
-		
+
 		assertThat(registry.receivedEvent()).isTrue();
 		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
 		registry.clear();
-		
+
 		repository.delete(sessionToSave.getId());
-		
+
 		assertThat(registry.receivedEvent()).isTrue();
 		assertThat(registry.getEvent()).isInstanceOf(SessionDeletedEvent.class);
-		
+
 		assertThat(repository.getSession(sessionToSave.getId())).isNull();
 	}
-	
+
 	@Test
 	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
 		S sessionToSave = repository.createSession();
@@ -150,6 +150,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 
 		// Get and save the session like SessionRepositoryFilter would.
 		S sessionToUpdate = repository.getSession(sessionToSave.getId());
+		sessionToUpdate.setLastAccessedTime(System.currentTimeMillis());
 		repository.save(sessionToUpdate);
 
 		synchronized (lock) {
@@ -158,16 +159,16 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 
 		assertThat(repository.getSession(sessionToUpdate.getId())).isNotNull();
 	}
-	
+
 	@Configuration
 	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class HazelcastSessionConfig {
-		
+
 		@Bean
 		public HazelcastInstance embeddedHazelcast() {
 			return HazelcastITestUtils.embeddedHazelcastServer();
 		}
-		
+
 		@Bean
 		public SessionEventRegistry sessionEventRegistry() {
 			return new SessionEventRegistry();
