@@ -18,6 +18,8 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,8 +77,8 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 			repository.getSession(toSave.getId());
 			synchronized (lock) {
 				if(!registry.receivedEvent()) {
-					// wait at most second to process the event
-					lock.wait(1000);
+					// wait at most a minute
+					lock.wait(TimeUnit.MINUTES.toMillis(1));
 				}
 			}
 		}
