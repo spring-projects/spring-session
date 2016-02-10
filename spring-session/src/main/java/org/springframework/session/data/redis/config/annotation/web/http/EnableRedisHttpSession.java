@@ -22,7 +22,9 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+import org.springframework.session.data.redis.RedisFlushMode;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
@@ -76,4 +78,22 @@ public @interface EnableRedisHttpSession {
 	 * @return the unique namespace for keys
 	 */
 	String redisNamespace() default "";
+
+	/**
+	 * <p>
+	 * Sets the flush mode for the Redis sessions. The default is IMMEDIATE
+	 * which only updates the backing Redis when
+	 * {@link SessionRepository#save(org.springframework.session.Session)} is
+	 * invoked. In a web environment this happens just before the HTTP resposne
+	 * is committed.
+	 * </p>
+	 * <p>
+	 * Setting the value to IMMEDIATE will ensure that the any updates to the
+	 * Session are immediately written to the Redis instance.
+	 * </p>
+	 *
+	 * @return the {@link RedisFlushMode} to use
+	 * @since 1.1
+	 */
+	RedisFlushMode redisFlushMode() default RedisFlushMode.ON_SAVE;
 }

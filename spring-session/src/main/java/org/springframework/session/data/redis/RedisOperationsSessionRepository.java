@@ -304,6 +304,8 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 
 	private RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer();
 
+	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
+
 	/**
 	 * Allows creating an instance and uses a default {@link RedisOperations} for both managing the session and the expirations.
 	 *
@@ -358,6 +360,14 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	public void setDefaultSerializer(RedisSerializer<Object> defaultSerializer) {
 		Assert.notNull(defaultSerializer, "defaultSerializer cannot be null");
 		this.defaultSerializer = defaultSerializer;
+	}
+
+	/**
+	 * @param redisFlushMode
+	 */
+	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
+		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
+		this.redisFlushMode = redisFlushMode;
 	}
 
 	public void save(RedisSession session) {
@@ -636,6 +646,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 			delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
 			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
 			this.isNew = true;
+			flushImmediateIfNecessary();
 		}
 
 		/**
@@ -656,6 +667,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		public void setLastAccessedTime(long lastAccessedTime) {
 			cached.setLastAccessedTime(lastAccessedTime);
 			delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
+			flushImmediateIfNecessary();
 		}
 
 		public boolean isExpired() {
@@ -681,6 +693,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		public void setMaxInactiveIntervalInSeconds(int interval) {
 			cached.setMaxInactiveIntervalInSeconds(interval);
 			delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
+			flushImmediateIfNecessary();
 		}
 
 		public int getMaxInactiveIntervalInSeconds() {
@@ -699,11 +712,19 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		public void setAttribute(String attributeName, Object attributeValue) {
 			cached.setAttribute(attributeName, attributeValue);
 			delta.put(getSessionAttrNameKey(attributeName), attributeValue);
+			flushImmediateIfNecessary();
 		}
 
 		public void removeAttribute(String attributeName) {
 			cached.removeAttribute(attributeName);
 			delta.put(getSessionAttrNameKey(attributeName), null);
+			flushImmediateIfNecessary();
+		}
+
+		private void flushImmediateIfNecessary() {
+			if(redisFlushMode == RedisFlushMode.IMMEDIATE) {
+				saveDelta();
+			}
 		}
 
 		/**

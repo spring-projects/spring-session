@@ -15,12 +15,16 @@
  */
 package org.springframework.session.data.redis;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.CREATION_TIME_ATTR;
 import static org.springframework.session.data.redis.RedisOperationsSessionRepository.LAST_ACCESSED_ATTR;
@@ -466,6 +470,132 @@ public class RedisOperationsSessionRepositoryTests {
 		assertThat(resolver.resolvePrincipal(session)).isEqualTo(principal);
 	}
 
+	@Test
+	public void flushModeOnSaveCreate() {
+		redisRepository.createSession();
+
+		verifyZeroInteractions(boundHashOperations);
+	}
+
+	@Test
+	public void flushModeOnSaveSetAttribute() {
+		RedisSession session = redisRepository.createSession();
+		session.setAttribute("something", "here");
+
+		verifyZeroInteractions(boundHashOperations);
+	}
+
+	@Test
+	public void flushModeOnSaveRemoveAttribute() {
+		RedisSession session = redisRepository.createSession();
+		session.removeAttribute("remove");
+
+		verifyZeroInteractions(boundHashOperations);
+	}
+
+	@Test
+	public void flushModeOnSaveSetLastAccessedTime() {
+		RedisSession session = redisRepository.createSession();
+		session.setLastAccessedTime(1L);
+
+		verifyZeroInteractions(boundHashOperations);
+	}
+
+	@Test
+	public void flushModeOnSaveSetMaxInactiveIntervalInSeconds() {
+		RedisSession session = redisRepository.createSession();
+		session.setMaxInactiveIntervalInSeconds(1);
+
+		verifyZeroInteractions(boundHashOperations);
+	}
+
+	@Test
+	public void flushModeImmediateCreate() {
+		when(redisOperations.boundHashOps(anyString())).thenReturn(boundHashOperations);
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(redisOperations.boundValueOps(anyString())).thenReturn(boundValueOperations);
+
+		redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		RedisSession session = redisRepository.createSession();
+
+		Map<String, Object> delta = getDelta();
+		assertThat(delta.size()).isEqualTo(3);
+		Object creationTime = delta.get(CREATION_TIME_ATTR);
+		assertThat(creationTime).isEqualTo(session.getCreationTime());
+		assertThat(delta.get(MAX_INACTIVE_ATTR)).isEqualTo(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		assertThat(delta.get(LAST_ACCESSED_ATTR)).isEqualTo(session.getCreationTime());
+	}
+
+	@Test
+	public void flushModeImmediateSetAttribute() {
+		when(redisOperations.boundHashOps(anyString())).thenReturn(boundHashOperations);
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(redisOperations.boundValueOps(anyString())).thenReturn(boundValueOperations);
+
+		redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		RedisSession session = redisRepository.createSession();
+		String attrName = "someAttribute";
+		session.setAttribute(attrName, "someValue");
+
+		Map<String, Object> delta = getDelta(2);
+		assertThat(delta.size()).isEqualTo(1);
+		assertThat(delta).isEqualTo(map(getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
+	}
+
+	@Test
+	public void flushModeImmediateRemoveAttribute() {
+		when(redisOperations.boundHashOps(anyString())).thenReturn(boundHashOperations);
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(redisOperations.boundValueOps(anyString())).thenReturn(boundValueOperations);
+
+		redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		RedisSession session = redisRepository.createSession();
+		String attrName = "someAttribute";
+		session.removeAttribute(attrName);
+
+		Map<String, Object> delta = getDelta(2);
+		assertThat(delta.size()).isEqualTo(1);
+		assertThat(delta).isEqualTo(map(getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
+	}
+
+	@Test
+	public void flushModeSetMaxInactiveIntervalInSeconds() {
+		when(redisOperations.boundHashOps(anyString())).thenReturn(boundHashOperations);
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(redisOperations.boundValueOps(anyString())).thenReturn(boundValueOperations);
+
+		redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		RedisSession session = redisRepository.createSession();
+
+		reset(boundHashOperations);
+
+		session.setMaxInactiveIntervalInSeconds(1);
+
+		verify(boundHashOperations).expire(anyLong(), any(TimeUnit.class));
+	}
+
+	@Test
+	public void flushModeSetLastAccessedTime() {
+		when(redisOperations.boundHashOps(anyString())).thenReturn(boundHashOperations);
+		when(redisOperations.boundSetOps(anyString())).thenReturn(boundSetOperations);
+		when(redisOperations.boundValueOps(anyString())).thenReturn(boundValueOperations);
+
+		redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		RedisSession session = redisRepository.createSession();
+
+		long now = System.currentTimeMillis();
+		session.setLastAccessedTime(now);
+
+		Map<String, Object> delta = getDelta(2);
+		assertThat(delta.size()).isEqualTo(1);
+		assertThat(delta).isEqualTo(map(LAST_ACCESSED_ATTR, session.getLastAccessedTime()));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setRedisFlushModeNull() {
+		redisRepository.setRedisFlushMode(null);
+	}
+
 	private String getKey(String id) {
 		return "spring:session:sessions:" + id;
 	}
@@ -482,7 +612,11 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	private Map<String,Object> getDelta() {
-		verify(boundHashOperations).putAll(delta.capture());
-		return delta.getValue();
+		return getDelta(1);
+	}
+
+	private Map<String,Object> getDelta(int times) {
+		verify(boundHashOperations,times(times)).putAll(delta.capture());
+		return delta.getAllValues().get(times - 1);
 	}
 }

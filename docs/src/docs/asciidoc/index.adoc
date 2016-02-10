@@ -34,6 +34,7 @@ Below are the highlights of what is new in Spring Session 1.1. You can find a co
 * https://github.com/spring-projects/spring-session/issues/277[#277] - Added link:guides/hazelcast-spring.html[@EnableHazelcastHttpSession]
 * https://github.com/spring-projects/spring-session/issues/271[#271] - Performance improvements
 * https://github.com/spring-projects/spring-session/pull/218[#218] - Allow scoping the session in Redis using <<api-redisoperationssessionrepository-config,redisNamespace>>
+* https://github.com/spring-projects/spring-session/issues/273[#273] - Allow writing to Redis immediately (instead of lazily) using <<api-redisoperationssessionrepository-config,redisFlushMode>>
 * https://github.com/spring-projects/spring-session/issues/272[#272] - Add `ExpiringSession.setLastAccessedTime(long)`
 
 [[samples]]
@@ -565,6 +566,8 @@ You can use the following attributes to customize the configuration:
 
 * **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds
 * **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel ids will start with the prefix of `spring:session:<redisNamespace>:`.
+* **redisFlushMode** - allows specifying when data will be written to Redis. The default is only when `save` is invoked on `SessionRepository`.
+A value of `RedisFlushMode.IMMEDIATE` will write to Redis as soon as possible.
 
 ===== Custom RedisSerializer
 

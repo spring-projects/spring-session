@@ -37,10 +37,12 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
+import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -62,6 +64,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
 
 	private String redisNamespace = "";
+
+	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
 	private RedisSerializer<Object> defaultRedisSerializer;
 
@@ -102,6 +106,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		if(StringUtils.hasText(redisNamespace)) {
 			sessionRepository.setRedisKeyNamespace(redisNamespace);
 		}
+
+		sessionRepository.setRedisFlushMode(redisFlushMode);
 		return sessionRepository;
 	}
 
@@ -111,6 +117,11 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	public void setRedisNamespace(String namespace) {
 		this.redisNamespace = namespace;
+	}
+
+	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
+		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
+		this.redisFlushMode = redisFlushMode;
 	}
 
 	private String getRedisNamespace() {
@@ -126,6 +137,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 		maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
 		this.redisNamespace = enableAttrs.getString("redisNamespace");
+		this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
 	}
 
 	@Bean
