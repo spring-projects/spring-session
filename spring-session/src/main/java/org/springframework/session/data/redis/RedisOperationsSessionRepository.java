@@ -450,6 +450,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 			return;
 		}
 
+		cleanupPrincipalIndex(session);
 		expirationPolicy.onDelete(session);
 
 		String expireKey = getExpiredKey(session.getId());
@@ -502,10 +503,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 				logger.debug("Publishing SessionDestroyedEvent for session " + sessionId);
 			}
 
-			String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
-			if(principal != null) {
-				sessionRedisOperations.boundSetOps(getPrincipalKey(principal)).remove(sessionId);
-			}
+			cleanupPrincipalIndex(session);
 
 			if(isDeleted) {
 				handleDeleted(sessionId, session);
@@ -514,6 +512,17 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 			}
 
 			return;
+		}
+	}
+
+	private void cleanupPrincipalIndex(RedisSession session) {
+		if(session == null) {
+			return;
+		}
+		String sessionId = session.getId();
+		String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
+		if(principal != null) {
+			sessionRedisOperations.boundSetOps(getPrincipalKey(principal)).remove(sessionId);
 		}
 	}
 
