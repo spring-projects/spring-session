@@ -34,9 +34,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.session.AuthenticationParser;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
@@ -765,7 +764,6 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	}
 
 	static class PrincipalNameResolver {
-		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
 			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
@@ -773,11 +771,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 				return principalName;
 			}
 			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if(authentication != null) {
-				Expression expression = parser.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
-			}
-			return null;
+			return AuthenticationParser.extractName(authentication);
 		}
 
 	}

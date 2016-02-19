@@ -99,6 +99,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session with WebSockets.
 | link:guides/websocket.html[WebSocket Guide]
 
+| {gh-samples-url}mongo[Mongo]
+| Demonstrates how to use Spring Session with Mongo.
+| link:guides/mongo.html[Mongo Guide]
+
 [[samples-hazelcast]]
 | {gh-samples-url}hazelcast[Hazelcast]
 | Demonstrates how to use Spring Session with Hazelcast.
@@ -140,7 +144,7 @@ You can choose from enabling this using either:
 
 This section describes how to use Redis to back `HttpSession` using Java based configuration.
 
-NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using XML configuration.
+NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
 include::guides/httpsession.adoc[tags=config,leveloffset=+3]
@@ -258,6 +262,18 @@ integration below, but you are encouraged to follow along with the detailed Http
 Guide when integrating with your own application.
 
 include::guides/httpsession-gemfire-p2p-xml.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-mongo]]
+=== HttpSession with Mongo
+
+Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+
+This section describes how to use Mongo to back `HttpSession` using Java based configuration.
+
+NOTE: The <<samples, HttpSession Mongo Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
+
+include::guides/mongo.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-how]]
 === How HttpSession Integration Works
