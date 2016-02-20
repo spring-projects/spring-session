@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,11 +41,11 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.gemfire.GemfireAccessor;
 import org.springframework.data.gemfire.GemfireOperations;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.PrincipalNameResolver;
 import org.springframework.session.Session;
+import org.springframework.session.security.SpringSecurityPrincipalNameResolver;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -328,8 +328,6 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		protected static final DateFormat TO_STRING_DATE_FORMAT = new SimpleDateFormat("YYYY-MM-dd-HH-mm-ss");
 
-		protected static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
 		static {
 			Instantiator.register(new Instantiator(GemFireSession.class, 800813552) {
 				@Override public DataSerializable newInstance() {
@@ -347,7 +345,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		private transient final GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes(this);
 
-		private transient final SpelExpressionParser parser = new SpelExpressionParser();
+		private transient final PrincipalNameResolver principalNameResolver = new SpringSecurityPrincipalNameResolver();
 
 		private String id;
 
@@ -477,18 +475,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized String getPrincipalName() {
-			String principalName = getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-
-			if (principalName == null) {
-				Object authentication = getAttribute(SPRING_SECURITY_CONTEXT);
-
-				if (authentication != null) {
-					Expression expression = parser.parseExpression("authentication?.name");
-					principalName = expression.getValue(authentication, String.class);
-				}
-			}
-
-			return principalName;
+			return principalNameResolver.resolvePrincipal(this);
 		}
 
 		/* (non-Javadoc) */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,15 +56,9 @@ import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository.PrincipalNameResolver;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
 
@@ -72,7 +66,6 @@ import org.springframework.session.events.AbstractSessionEvent;
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings({"unchecked","rawtypes"})
 public class RedisOperationsSessionRepositoryTests {
-	static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
 
 	@Mock
 	RedisConnectionFactory factory;
@@ -446,31 +439,6 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void resolvePrincipalIndex() {
-		PrincipalNameResolver resolver = RedisOperationsSessionRepository.PRINCIPAL_NAME_RESOLVER;
-		String username = "username";
-		RedisSession session = redisRepository.createSession();
-		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
-
-		assertThat(resolver.resolvePrincipal(session)).isEqualTo(username);
-	}
-
-	@Test
-	public void resolveIndexOnSecurityContext() {
-		String principal = "resolveIndexOnSecurityContext";
-		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "notused", AuthorityUtils.createAuthorityList("ROLE_USER"));
-		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(authentication);
-
-		PrincipalNameResolver resolver = RedisOperationsSessionRepository.PRINCIPAL_NAME_RESOLVER;
-
-		RedisSession session = redisRepository.createSession();
-		session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
-
-		assertThat(resolver.resolvePrincipal(session)).isEqualTo(principal);
-	}
-
-	@Test
 	public void flushModeOnSaveCreate() {
 		redisRepository.createSession();
 
@@ -594,6 +562,11 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setRedisFlushModeNull() {
 		redisRepository.setRedisFlushMode(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setPrincipalNameResolverNull() {
+		redisRepository.setPrincipalNameResolver(null);
 	}
 
 	private String getKey(String id) {
