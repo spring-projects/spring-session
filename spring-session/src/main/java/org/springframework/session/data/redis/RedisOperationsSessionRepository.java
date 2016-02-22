@@ -363,7 +363,9 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	}
 
 	/**
-	 * @param redisFlushMode
+	 * Sets the redis flush mode. Default flush mode is {@link RedisFlushMode#ON_SAVE}.
+	 *
+	 * @param redisFlushMode the new redis flush mode
 	 */
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");

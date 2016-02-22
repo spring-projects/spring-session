@@ -574,6 +574,12 @@ A value of `RedisFlushMode.IMMEDIATE` will write to Redis as soon as possible.
 
 You can customize the serialization by creating a Bean named `springSessionDefaultRedisSerializer` that implements `RedisSerializer<Object>`.
 
+==== Redis TaskExecutor
+
+`RedisOperationsSessionRepository` is subscribed to receive events from redis using a `RedisMessageListenerContainer`.
+You can customize the way those events are dispatched, by creating a Bean named `springSessionRedisTaskExecutor` and/or a Bean `springSessionRedisSubscriptionExecutor`.
+More details on configuring redis task executors can be found http://docs.spring.io/spring-data-redis/docs/current/reference/html/#redis:pubsub:subscribe:containers[here].
+
 [[api-redisoperationssessionrepository-storage]]
 ==== Storage Details
 
