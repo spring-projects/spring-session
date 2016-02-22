@@ -17,6 +17,7 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,12 +70,22 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private RedisSerializer<Object> defaultRedisSerializer;
 
+	private Executor redisTaskExecutor;
+
+	private Executor redisSubscriptionExecutor;
+
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
 			RedisConnectionFactory connectionFactory, RedisOperationsSessionRepository messageListener) {
 
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
+		if (redisTaskExecutor != null) {
+			container.setTaskExecutor(redisTaskExecutor);
+		}
+		if (redisSubscriptionExecutor != null) {
+			container.setSubscriptionExecutor(redisSubscriptionExecutor);
+		}
 		container.addMessageListener(messageListener,
 				Arrays.asList(new PatternTopic("__keyevent@*:del"), new PatternTopic("__keyevent@*:expired")));
 		container.addMessageListener(messageListener, Arrays.asList(new PatternTopic(messageListener.getSessionCreatedChannelPrefix() + "*")));
@@ -180,5 +191,17 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	@Qualifier("springSessionDefaultRedisSerializer")
 	public void setDefaultRedisSerializer(RedisSerializer<Object> defaultRedisSerializer) {
 		this.defaultRedisSerializer = defaultRedisSerializer;
+	}
+
+	@Autowired(required = false)
+	@Qualifier("springSessionRedisTaskExecutor")
+	public void setRedisTaskExecutor(Executor redisTaskExecutor) {
+		this.redisTaskExecutor = redisTaskExecutor;
+	}
+
+	@Autowired(required = false)
+	@Qualifier("springSessionRedisSubscriptionExecutor")
+	public void setRedisSubscriptionExecutor(Executor redisSubscriptionExecutor) {
+		this.redisSubscriptionExecutor = redisSubscriptionExecutor;
 	}
 }
