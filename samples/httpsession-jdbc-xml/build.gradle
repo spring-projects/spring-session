@@ -1,0 +1,20 @@
+apply from: JAVA_GRADLE
+apply from: TOMCAT_6_GRADLE
+
+tasks.findByPath("artifactoryPublish")?.enabled = false
+sonarRunner {
+	skipProject = true
+}
+
+dependencies {
+	compile project(':spring-session-jdbc'),
+			"org.springframework:spring-web:$springVersion",
+			"com.h2database:h2:1.4.191",
+			jstlDependencies
+
+	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
+
+	testCompile "junit:junit:$junitVersion"
+
+	integrationTestCompile gebDependencies
+}
