@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -34,13 +34,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.PrincipalNameResolver;
 import org.springframework.session.Session;
+import org.springframework.session.security.SpringSecurityPrincipalNameResolver;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -250,11 +250,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class RedisOperationsSessionRepository implements FindByIndexNameSessionRepository<RedisOperationsSessionRepository.RedisSession>, MessageListener {
+
 	private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
-	static PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
 	/**
 	 * The default prefix for each key and channel in Redis used by Spring Session
@@ -305,6 +304,8 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	private RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer();
 
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
+
+	private PrincipalNameResolver principalNameResolver = new SpringSecurityPrincipalNameResolver();
 
 	/**
 	 * Allows creating an instance and uses a default {@link RedisOperations} for both managing the session and the expirations.
@@ -370,6 +371,15 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
 		this.redisFlushMode = redisFlushMode;
+	}
+
+	/**
+	 * Sets the principal name resolver.
+	 * @param principalNameResolver the principal name resolver
+	 */
+	public void setPrincipalNameResolver(PrincipalNameResolver principalNameResolver) {
+		Assert.notNull(principalNameResolver, "PrincipalNameResolver cannot be null");
+		this.principalNameResolver = principalNameResolver;
 	}
 
 	public void save(RedisSession session) {
@@ -522,7 +532,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 			return;
 		}
 		String sessionId = session.getId();
-		String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
+		String principal = principalNameResolver.resolvePrincipal(session);
 		if(principal != null) {
 			sessionRedisOperations.boundSetOps(getPrincipalKey(principal)).remove(sessionId);
 		}
@@ -668,7 +678,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		RedisSession(MapSession cached) {
 			Assert.notNull("MapSession cannot be null");
 			this.cached = cached;
-			this.originalPrincipalName = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
+			this.originalPrincipalName = principalNameResolver.resolvePrincipal(this);
 		}
 
 		public void setNew(boolean isNew) {
@@ -751,7 +761,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 					String originalPrincipalRedisKey = getPrincipalKey((String) originalPrincipalName);
 					sessionRedisOperations.boundSetOps(originalPrincipalRedisKey).remove(sessionId);
 				}
-				String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
+				String principal = principalNameResolver.resolvePrincipal(this);
 				originalPrincipalName = principal;
 				if(principal != null) {
 					String principalRedisKey = getPrincipalKey(principal);
@@ -766,21 +776,4 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		}
 	}
 
-	static class PrincipalNameResolver {
-		private SpelExpressionParser parser = new SpelExpressionParser();
-
-		public String resolvePrincipal(Session session) {
-			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if(principalName != null) {
-				return principalName;
-			}
-			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if(authentication != null) {
-				Expression expression = parser.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
-			}
-			return null;
-		}
-
-	}
 }
