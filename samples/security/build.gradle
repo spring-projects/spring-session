@@ -8,6 +8,7 @@ sonarRunner {
 
 dependencies {
 	compile project(':spring-session-data-redis'),
+			project(':spring-session-data-gemfire'),
 			"org.springframework:spring-web:$springVersion",
 			"org.springframework.security:spring-security-config:$springSecurityVersion",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
@@ -15,6 +16,8 @@ dependencies {
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion",
 					"javax.servlet:jsp-api:$jspApiVersion"
+
+	runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 
 	testCompile "junit:junit:$junitVersion"
 
