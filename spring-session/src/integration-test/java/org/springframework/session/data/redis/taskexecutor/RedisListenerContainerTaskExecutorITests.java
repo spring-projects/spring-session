@@ -1,6 +1,11 @@
 package org.springframework.session.data.redis.taskexecutor;
 
-import org.junit.Before;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +21,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * @author Vladimir Tsanev
  */
@@ -30,83 +29,74 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 public class RedisListenerContainerTaskExecutorITests {
 
-    @Autowired
-    SessionTaskExecutor executor;
+	@Autowired
+	SessionTaskExecutor executor;
 
-    @Autowired
-    RedisOperations<Object, Object> redis;
+	@Autowired
+	RedisOperations<Object, Object> redis;
 
-    private final Object lock = new Object();
+	@Test
+	public void testRedisDelEventsAreDispatchedInSessionTaskExecutor() throws InterruptedException {
+		BoundSetOperations<Object, Object> ops = redis
+				.boundSetOps("spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
+		ops.add("value");
+		ops.remove("value");
+		assertThat(executor.taskDispatched()).isTrue();
 
-    @Before
-    public void setup() {
-        executor.setLock(lock);
-    }
+	}
 
+	static class SessionTaskExecutor implements TaskExecutor {
+		private Object lock = new Object();
 
-    @Test
-    public void testRedisDelEventsAreDispatchedInSessionTaskExecutor() throws InterruptedException {
-        BoundSetOperations<Object, Object> ops =
-                        redis.boundSetOps("spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
-        ops.add("value");
-        ops.remove("value");
-        synchronized (lock) {
-            lock.wait(TimeUnit.SECONDS.toMillis(1));
-        }
-        assertThat(executor.taskDispatched()).isTrue();
+		private final Executor executor;
 
-    }
+		private Boolean taskDispatched;
 
-    static class SessionTaskExecutor implements TaskExecutor {
-        private Object lock;
-        private final Executor executor;
+		public SessionTaskExecutor(Executor executor) {
+			this.executor = executor;
+		}
 
-        private boolean taskDispatched;
+		public void execute(Runnable task) {
+			synchronized (lock) {
+				try {
+					executor.execute(task);
+				} finally {
+					taskDispatched = true;
+					lock.notifyAll();
+				}
+			}
+		}
 
-        public SessionTaskExecutor(Executor executor) {
-            this.executor = executor;
-        }
+		public boolean taskDispatched() throws InterruptedException {
+			if(taskDispatched != null) {
+				return taskDispatched;
+			}
+			synchronized (lock) {
+				lock.wait(TimeUnit.SECONDS.toMillis(1));
+			}
+			return taskDispatched == null ? Boolean.FALSE : taskDispatched;
+		}
+	}
 
-        public void setLock(Object lock) {
-            this.lock = lock;
-        }
-
-        @Override
-        public void execute(Runnable task) {
-            synchronized (lock) {
-                try {
-                    executor.execute(task);
-                } finally {
-                    taskDispatched = true;
-                    lock.notifyAll();
-                }
-            }
-        }
-
-        public boolean taskDispatched() {
-            return taskDispatched;
-        }
-    }
-
-    @Configuration
-    @EnableRedisHttpSession(redisNamespace = "RedisListenerContainerTaskExecutorITests")
+	@Configuration
+	@EnableRedisHttpSession(redisNamespace = "RedisListenerContainerTaskExecutorITests")
 	static class Config {
 
-        @Bean
-        JedisConnectionFactory connectionFactory() throws Exception {
-            JedisConnectionFactory factory = new JedisConnectionFactory();
-            factory.setUsePool(false);
-            return factory;
-        }
+		@Bean
+		JedisConnectionFactory connectionFactory() throws Exception {
+			JedisConnectionFactory factory = new JedisConnectionFactory();
+			factory.setUsePool(false);
+			return factory;
+		}
 
 		@Bean
-        Executor springSessionRedisTaskExecutor() {
-            return new SessionTaskExecutor(Executors.newSingleThreadExecutor());
-        }
+		Executor springSessionRedisTaskExecutor() {
+			return new SessionTaskExecutor(Executors.newSingleThreadExecutor());
+		}
 
-        @Bean
-        Executor springSessionRedisSubscriptionExecutor() {
-            return new SimpleAsyncTaskExecutor();
-        }
+		@Bean
+		Executor springSessionRedisSubscriptionExecutor() {
+			return new SimpleAsyncTaskExecutor();
+		}
 	}
 }
