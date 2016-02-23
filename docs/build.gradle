@@ -1,11 +1,11 @@
 buildscript {
-    repositories {
-        jcenter()
-    }
+	repositories {
+		jcenter()
+	}
 
-    dependencies {
-        classpath 'org.kordamp.gradle:livereload-gradle-plugin:0.2.1'
-    }
+	dependencies {
+		classpath 'org.kordamp.gradle:livereload-gradle-plugin:0.2.1'
+	}
 }
 
 apply plugin: 'org.kordamp.gradle.livereload'

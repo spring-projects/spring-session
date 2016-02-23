@@ -40,7 +40,7 @@ task runGemFireServer(dependsOn: availablePort) << {
 	String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
 
 	String[] commandLine = ['java', '-server', '-ea',
-		                    "-Dspring.session.data.gemfire.port=$port",
+							"-Dspring.session.data.gemfire.port=$port",
 							"-Dsample.httpsession.gemfire.log-level="
 								+ System.getProperty('sample.httpsession.gemfire.log-level', 'warning'),
 							'-classpath', classpath, 'sample.ServerConfig']
