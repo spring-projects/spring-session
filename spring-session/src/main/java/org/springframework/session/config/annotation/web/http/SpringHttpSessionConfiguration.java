@@ -24,7 +24,6 @@ import javax.servlet.http.HttpSessionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -82,7 +81,6 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * @see EnableSpringHttpSession
  */
 @Configuration
-@EnableScheduling
 public class SpringHttpSessionConfiguration {
 
 	private CookieHttpSessionStrategy defaultHttpSessionStrategy = new CookieHttpSessionStrategy();
