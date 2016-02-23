@@ -97,8 +97,8 @@ public class RedisOperationsSessionRepositoryITests {
 
 		repository.save(toSave);
 
-		assertThat(registry.receivedEvent()).isTrue();
-		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(registry.receivedEvent(toSave.getId())).isTrue();
+		assertThat(registry.getEvent(toSave.getId())).isInstanceOf(SessionCreatedEvent.class);
 		assertThat(redis.boundSetOps(usernameSessionKey).members()).contains(toSave.getId());
 
 		Session session = repository.getSession(toSave.getId());
@@ -112,10 +112,10 @@ public class RedisOperationsSessionRepositoryITests {
 		repository.delete(toSave.getId());
 
 		assertThat(repository.getSession(toSave.getId())).isNull();
-		assertThat(registry.getEvent()).isInstanceOf(SessionDestroyedEvent.class);
+		assertThat(registry.getEvent(toSave.getId())).isInstanceOf(SessionDestroyedEvent.class);
 		assertThat(redis.boundSetOps(usernameSessionKey).members()).doesNotContain(toSave.getId());
 
-		assertThat(registry.getEvent().getSession().getAttribute(expectedAttributeName))
+		assertThat(registry.getEvent(toSave.getId()).getSession().getAttribute(expectedAttributeName))
 				.isEqualTo(expectedAttributeValue);
 	}
 
@@ -157,7 +157,7 @@ public class RedisOperationsSessionRepositoryITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		repository.delete(toSave.getId());
-		registry.receivedEvent();
+		assertThat(registry.receivedEvent(toSave.getId())).isTrue();
 
 		findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
@@ -319,7 +319,7 @@ public class RedisOperationsSessionRepositoryITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		repository.delete(toSave.getId());
-		registry.receivedEvent();
+		assertThat(registry.receivedEvent(toSave.getId())).isTrue();
 
 		findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 

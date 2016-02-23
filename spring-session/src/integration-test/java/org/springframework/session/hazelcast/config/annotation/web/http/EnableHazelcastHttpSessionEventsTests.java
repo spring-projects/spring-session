@@ -63,12 +63,9 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 	@Autowired
 	private SessionEventRegistry registry;
 
-	private final Object lock = new Object();
-
 	@Before
 	public void setup() {
 		registry.clear();
-		registry.setLock(lock);
 	}
 
 	@Test
@@ -88,8 +85,8 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 
 		repository.save(sessionToSave);
 
-		assertThat(registry.receivedEvent()).isTrue();
-		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
 
 		Session session = repository.getSession(sessionToSave.getId());
 
@@ -104,18 +101,14 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 
 		repository.save(sessionToSave);
 
-		assertThat(registry.receivedEvent()).isTrue();
-		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
 		registry.clear();
 
 		assertThat(sessionToSave.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 
-		synchronized (lock) {
-			lock.wait((sessionToSave.getMaxInactiveIntervalInSeconds() * 1000) + 1);
-		}
-
-		assertThat(registry.receivedEvent()).isTrue();
-		assertThat(registry.getEvent()).isInstanceOf(SessionExpiredEvent.class);
+		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionExpiredEvent.class);
 
 		assertThat(repository.getSession(sessionToSave.getId())).isNull();
 	}
@@ -126,20 +119,22 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 
 		repository.save(sessionToSave);
 
-		assertThat(registry.receivedEvent()).isTrue();
-		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
 		registry.clear();
 
 		repository.delete(sessionToSave.getId());
 
-		assertThat(registry.receivedEvent()).isTrue();
-		assertThat(registry.getEvent()).isInstanceOf(SessionDeletedEvent.class);
+		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionDeletedEvent.class);
 
 		assertThat(repository.getSession(sessionToSave.getId())).isNull();
 	}
 
 	@Test
 	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
+		Object lock = new Object();
+
 		S sessionToSave = repository.createSession();
 
 		repository.save(sessionToSave);

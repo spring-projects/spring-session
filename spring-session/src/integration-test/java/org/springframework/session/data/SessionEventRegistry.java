@@ -15,44 +15,58 @@
  */
 package org.springframework.session.data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.context.ApplicationListener;
 import org.springframework.session.events.AbstractSessionEvent;
 
 public class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
-	private AbstractSessionEvent event;
-	private Object lock = new Object();
+	private Map<String,AbstractSessionEvent> events = new HashMap<String,AbstractSessionEvent>();
+	private Map<String,Object> locks = new HashMap<String,Object>();
 
 	public void onApplicationEvent(AbstractSessionEvent event) {
-		this.event = event;
+		String sessionId = event.getSessionId();
+		this.events.put(sessionId, event);
+		Object lock = getLock(sessionId);
 		synchronized (lock) {
 			lock.notifyAll();
 		}
 	}
 
-	public void setLock(Object lock) {
-		this.lock = lock;
-	}
-
 	public void clear() {
-		this.event = null;
+		this.events.clear();
+		this.locks.clear();
 	}
 
-	public boolean receivedEvent() throws InterruptedException {
-		return waitForEvent() != null;
-	}
-
-	@SuppressWarnings("unchecked")
-	public <E extends AbstractSessionEvent> E getEvent() throws InterruptedException {
-		return (E) waitForEvent();
+	public boolean receivedEvent(String sessionId) throws InterruptedException {
+		return waitForEvent(sessionId) != null;
 	}
 
 	@SuppressWarnings("unchecked")
-	private <E extends AbstractSessionEvent> E waitForEvent() throws InterruptedException {
+	public <E extends AbstractSessionEvent> E getEvent(String sessionId) throws InterruptedException {
+		return (E) waitForEvent(sessionId);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <E extends AbstractSessionEvent> E waitForEvent(String sessionId) throws InterruptedException {
+		Object lock = getLock(sessionId);
 		synchronized(lock) {
-			if(event == null) {
+			if(!events.containsKey(sessionId)) {
 				lock.wait(10000);
 			}
 		}
-		return (E) event;
+		return (E) events.get(sessionId);
+	}
+
+	private Object getLock(String sessionId) {
+		synchronized(locks) {
+			Object lock = locks.get(sessionId);
+			if(lock == null) {
+				lock = new Object();
+				locks.put(sessionId, lock);
+			}
+			return lock;
+		}
 	}
 }
