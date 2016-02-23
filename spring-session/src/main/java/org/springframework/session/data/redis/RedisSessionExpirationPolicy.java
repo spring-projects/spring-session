@@ -46,7 +46,7 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
  */
 final class RedisSessionExpirationPolicy {
 
-	private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
+	private static final Log logger = LogFactory.getLog(RedisSessionExpirationPolicy.class);
 
 
 	private final RedisOperations<Object,Object> redis;
