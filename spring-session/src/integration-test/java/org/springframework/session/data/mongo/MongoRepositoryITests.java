@@ -28,7 +28,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.AbstractITests;
@@ -40,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration;
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,13 +55,13 @@ public class MongoRepositoryITests extends AbstractITests {
 	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 	@Autowired
-	protected MongoSessionRepository repository;
+	protected MongoOperationsSessionRepository repository;
 
 	@Test
 	public void saves() throws InterruptedException {
 		String username = "saves-" + System.currentTimeMillis();
 
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
@@ -97,7 +97,7 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void putAllOnSingleAttrDoesNotRemoveOld() {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute("a", "b");
 
 		repository.save(toSave);
@@ -119,12 +119,12 @@ public class MongoRepositoryITests extends AbstractITests {
 	@Test
 	public void findByPrincipalName() throws Exception {
 		String principalName = "findByPrincipalName" + UUID.randomUUID();
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
@@ -143,7 +143,7 @@ public class MongoRepositoryITests extends AbstractITests {
 	@Test
 	public void findByPrincipalNameNoPrincipalNameChange() throws Exception {
 		String principalName = "findByPrincipalNameNoPrincipalNameChange" + UUID.randomUUID();
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		repository.save(toSave);
@@ -151,7 +151,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute("other", "value");
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
@@ -161,7 +161,7 @@ public class MongoRepositoryITests extends AbstractITests {
 	@Test
 	public void findByPrincipalNameNoPrincipalNameChangeReload() throws Exception {
 		String principalName = "findByPrincipalNameNoPrincipalNameChangeReload" + UUID.randomUUID();
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		repository.save(toSave);
@@ -171,7 +171,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute("other", "value");
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
@@ -181,7 +181,7 @@ public class MongoRepositoryITests extends AbstractITests {
 	@Test
 	public void findByDeletedPrincipalName() throws Exception {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		repository.save(toSave);
@@ -189,7 +189,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute(INDEX_NAME, null);
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
 
 		assertThat(findByPrincipalName).isEmpty();
@@ -199,7 +199,7 @@ public class MongoRepositoryITests extends AbstractITests {
 	public void findByChangedPrincipalName() throws Exception {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		repository.save(toSave);
@@ -207,7 +207,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute(INDEX_NAME, principalNameChanged);
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
 		assertThat(findByPrincipalName).isEmpty();
 
@@ -220,16 +220,16 @@ public class MongoRepositoryITests extends AbstractITests {
 	@Test
 	public void findByDeletedPrincipalNameReload() throws Exception {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
-		ExpiringSession getSession = repository.getSession(toSave.getId());
+		MongoExpiringSession getSession = repository.getSession(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		repository.save(getSession);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
 
 		assertThat(findByPrincipalName).isEmpty();
@@ -239,17 +239,17 @@ public class MongoRepositoryITests extends AbstractITests {
 	public void findByChangedPrincipalNameReload() throws Exception {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		repository.save(toSave);
 
-		ExpiringSession getSession = repository.getSession(toSave.getId());
+		MongoExpiringSession getSession = repository.getSession(toSave.getId());
 
 		getSession.setAttribute(INDEX_NAME, principalNameChanged);
 		repository.save(getSession);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
 		assertThat(findByPrincipalName).isEmpty();
 
@@ -261,12 +261,12 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void findBySecurityPrincipalName() throws Exception {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
@@ -284,7 +284,7 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void findByPrincipalNameNoSecurityPrincipalNameChange() throws Exception {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 
 		repository.save(toSave);
@@ -292,7 +292,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute("other", "value");
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
@@ -301,7 +301,7 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void findByPrincipalNameNoSecurityPrincipalNameChangeReload() throws Exception {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 
 		repository.save(toSave);
@@ -311,7 +311,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute("other", "value");
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
@@ -320,7 +320,7 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void findByDeletedSecurityPrincipalName() throws Exception {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 
 		repository.save(toSave);
@@ -328,7 +328,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, null);
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getSecurityName());
 
 		assertThat(findByPrincipalName).isEmpty();
@@ -336,7 +336,7 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void findByChangedSecurityPrincipalName() throws Exception {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 
 		repository.save(toSave);
@@ -344,7 +344,7 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, changedContext);
 		repository.save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getSecurityName());
 		assertThat(findByPrincipalName).isEmpty();
 
@@ -356,16 +356,16 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void findByDeletedSecurityPrincipalNameReload() throws Exception {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 
 		repository.save(toSave);
 
-		ExpiringSession getSession = repository.getSession(toSave.getId());
+		MongoExpiringSession getSession = repository.getSession(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		repository.save(getSession);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getChangedSecurityName());
 
 		assertThat(findByPrincipalName).isEmpty();
@@ -373,17 +373,17 @@ public class MongoRepositoryITests extends AbstractITests {
 
 	@Test
 	public void findByChangedSecurityPrincipalNameReload() throws Exception {
-		ExpiringSession toSave = repository.createSession();
+		MongoExpiringSession toSave = repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 
 		repository.save(toSave);
 
-		ExpiringSession getSession = repository.getSession(toSave.getId());
+		MongoExpiringSession getSession = repository.getSession(toSave.getId());
 
 		getSession.setAttribute(SPRING_SECURITY_CONTEXT, changedContext);
 		repository.save(getSession);
 
-		Map<String, ExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
+		Map<String, MongoExpiringSession> findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getSecurityName());
 		assertThat(findByPrincipalName).isEmpty();
 
@@ -394,24 +394,15 @@ public class MongoRepositoryITests extends AbstractITests {
 	}
 
 	@Test
-	public void cleanupExpiredSessions() throws Exception {
+	public void loadExpiredSession() throws Exception {
 		//given
-		ExpiringSession goodSession = repository.createSession();
-		long twentyNineMinutesAgo = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(29);
-		goodSession.setLastAccessedTime(twentyNineMinutesAgo);
-		ExpiringSession expiredSession = repository.createSession();
+		MongoExpiringSession expiredSession = repository.createSession();
 		long thirtyOneMinutesAgo = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(31);
 		expiredSession.setLastAccessedTime(thirtyOneMinutesAgo);
-		repository.save(goodSession);
 		repository.save(expiredSession);
 
-		//when
-		repository.cleanupExpiredSessions();
-
 		//then
-		DBObject goodSessionFromDb = repository.findSession(goodSession.getId());
-		assertThat(goodSessionFromDb).isNotNull();
-		DBObject expiredSessionFromDb = repository.findSession(expiredSession.getId());
+		MongoExpiringSession expiredSessionFromDb = repository.getSession(expiredSession.getId());
 		assertThat(expiredSessionFromDb).isNull();
 	}
 

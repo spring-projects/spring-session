@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0
  * @author Rob Winch
  */
-public class MapSession implements ExpiringSession, Serializable {
+public final class MapSession implements ExpiringSession, Serializable {
 	/**
 	 * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes)
 	 */

@@ -160,8 +160,8 @@ If you like, you can easily remove the session using mongo client. For example, 
 	> use test
 	> db.sessions.find().pretty()
 
-Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `93f7aa8578d0464280c05aed07999d33` with the value of your SESSION cookie:
+Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `60f17293-839b-477c-bb92-07a9c3658843` with the value of your SESSION cookie:
 
-	> db.sessions.remove({"_id":"93f7aa8578d0464280c05aed07999d33"})
+	> db.sessions.remove({"_id":"60f17293-839b-477c-bb92-07a9c3658843"})
 
 Now visit the application at http://localhost:8080/ and observe that we are no longer authenticated.

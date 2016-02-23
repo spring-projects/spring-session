@@ -26,11 +26,11 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.MapSession;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
@@ -50,14 +50,16 @@ import static org.mockito.Mockito.when;
  * @author Jakub Kubrynski
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MongoSessionRepositoryTest {
+public class MongoOperationsSessionRepositoryTest {
 
 	@Mock
 	MongoOperations mongoOperations;
 	@Mock
 	ApplicationEventPublisher eventPublisher;
 	@Mock
-	MongoSessionSerializer serializer;
+	Converter<MongoExpiringSession, DBObject> serializer;
+	@Mock
+	Converter<DBObject, MongoExpiringSession> deserializer;
 
 	@Captor
 	ArgumentCaptor<AbstractSessionEvent> event;
@@ -65,11 +67,11 @@ public class MongoSessionRepositoryTest {
 	Integer maxInterval = 1800;
 	String collectionName = "sessions";
 
-	MongoSessionRepository sut;
+	MongoOperationsSessionRepository sut;
 
 	@Before
 	public void setUp() throws Exception {
-		sut = new MongoSessionRepository(mongoOperations, eventPublisher, serializer, maxInterval, collectionName);
+		sut = new MongoOperationsSessionRepository(mongoOperations, eventPublisher, serializer, deserializer, maxInterval, collectionName);
 	}
 
 	@Test
@@ -85,11 +87,11 @@ public class MongoSessionRepositoryTest {
 	@Test
 	public void shouldSaveSession() throws Exception {
 		//given
-		MapSession session = new MapSession();
+		MongoExpiringSession session = new MongoExpiringSession();
 		BasicDBObject dbSession = new BasicDBObject();
 		DBCollection collection = mock(DBCollection.class);
 
-		when(serializer.serializeSession(session)).thenReturn(dbSession);
+		when(serializer.convert(session)).thenReturn(dbSession);
 		when(mongoOperations.getCollection(collectionName)).thenReturn(collection);
 		//when
 		sut.save(session);
@@ -104,8 +106,8 @@ public class MongoSessionRepositoryTest {
 		String sessionId = UUID.randomUUID().toString();
 		BasicDBObject dbSession = new BasicDBObject();
 		when(mongoOperations.findById(sessionId, DBObject.class, collectionName)).thenReturn(dbSession);
-		MapSession session = new MapSession();
-		when(serializer.deserializeSession(dbSession)).thenReturn(session);
+		MongoExpiringSession session = new MongoExpiringSession();
+		when(deserializer.convert(dbSession)).thenReturn(session);
 
 		//when
 		ExpiringSession retrievedSession = sut.getSession(sessionId);
@@ -120,10 +122,10 @@ public class MongoSessionRepositoryTest {
 		String sessionId = UUID.randomUUID().toString();
 		BasicDBObject dbSession = new BasicDBObject();
 		when(mongoOperations.findById(sessionId, DBObject.class, collectionName)).thenReturn(dbSession);
-		MapSession session = mock(MapSession.class);
+		MongoExpiringSession session = mock(MongoExpiringSession.class);
 		when(session.isExpired()).thenReturn(true);
 		when(session.getId()).thenReturn(sessionId);
-		when(serializer.deserializeSession(dbSession)).thenReturn(session);
+		when(deserializer.convert(dbSession)).thenReturn(session);
 
 		//when
 		sut.getSession(sessionId);
@@ -161,10 +163,10 @@ public class MongoSessionRepositoryTest {
 
 		String sessionId = UUID.randomUUID().toString();
 
-		MapSession session = new MapSession(sessionId);
-		when(serializer.deserializeSession(dbSession)).thenReturn(session);
+		MongoExpiringSession session = new MongoExpiringSession(sessionId, 1800);
+		when(deserializer.convert(dbSession)).thenReturn(session);
 		//when
-		Map<String, ExpiringSession> sessionsMap = sut.findByIndexNameAndIndexValue(principalNameIndexName, "john");
+		Map<String, MongoExpiringSession> sessionsMap = sut.findByIndexNameAndIndexValue(principalNameIndexName, "john");
 
 		//then
 		assertThat(sessionsMap).containsOnlyKeys(sessionId);
@@ -177,7 +179,7 @@ public class MongoSessionRepositoryTest {
 		String index = "some_not_supported_index_name";
 
 		//when
-		Map<String, ExpiringSession> sessionsMap = sut.findByIndexNameAndIndexValue(index, "some_value");
+		Map<String, MongoExpiringSession> sessionsMap = sut.findByIndexNameAndIndexValue(index, "some_value");
 
 		//then
 		assertThat(sessionsMap).isEmpty();

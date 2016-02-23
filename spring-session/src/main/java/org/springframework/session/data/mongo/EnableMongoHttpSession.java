@@ -48,7 +48,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(MongoConfiguration.class)
+@Import(MongoHttpSessionConfiguration.class)
 @Configuration
 public @interface EnableMongoHttpSession {
 

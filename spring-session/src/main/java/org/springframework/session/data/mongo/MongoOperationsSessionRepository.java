@@ -19,28 +19,28 @@ import com.mongodb.DBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.index.Index;
+import org.springframework.data.mongodb.core.index.IndexInfo;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.MapSession;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 
+import javax.annotation.PostConstruct;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Session repository implementation which stores sessions in Mongo.
- * Uses {@link MongoSessionSerializer} to transform session objects from/to
+ * Uses {@link Converter} to transform session objects from/to
  * native Mongo representation ({@code DBObject}).
  *
  * Repository is also responsible for removing expired sessions from database.
@@ -48,48 +48,48 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Jakub Kubrynski
  */
-public class MongoSessionRepository implements FindByIndexNameSessionRepository<ExpiringSession> {
+public class MongoOperationsSessionRepository implements FindByIndexNameSessionRepository<MongoExpiringSession> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MongoSessionRepository.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MongoOperationsSessionRepository.class);
 
-	private static final String ID_FIELD_NAME = "_id";
+	public static final String EXPIRES_AT_FIELD = "expireAt";
+	public static final String PRINCIPAL_FIELD_NAME = "principal";
 
 	private final MongoOperations mongoOperations;
 	private final ApplicationEventPublisher eventPublisher;
-	private final MongoSessionSerializer sessionSerializer;
+	private final Converter<MongoExpiringSession, DBObject> sessionSerializer;
+	private final Converter<DBObject, MongoExpiringSession> sessionDeserializer;
 	private final Integer maxInactiveIntervalInSeconds;
 	private final String collectionName;
 
-	public MongoSessionRepository(MongoOperations mongoOperations, ApplicationEventPublisher eventPublisher,
-	                              MongoSessionSerializer mongoSessionSerializer, Integer maxInactiveIntervalInSeconds, String collectionName) {
+	public MongoOperationsSessionRepository(MongoOperations mongoOperations, ApplicationEventPublisher eventPublisher,
+	                                        Converter<MongoExpiringSession, DBObject> mongoSessionSerializer,
+	                                        Converter<DBObject, MongoExpiringSession> mongoSessionDeserializer,
+	                                        Integer maxInactiveIntervalInSeconds, String collectionName) {
 		this.mongoOperations = mongoOperations;
 		this.eventPublisher = eventPublisher;
 		this.sessionSerializer = mongoSessionSerializer;
+		this.sessionDeserializer = mongoSessionDeserializer;
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
 		this.collectionName = collectionName;
 	}
 
-	@Override
-	public ExpiringSession createSession() {
-		MapSession session = new MapSession(UUID.randomUUID().toString().replaceAll("-", ""));
-		session.setMaxInactiveIntervalInSeconds(maxInactiveIntervalInSeconds);
-		return session;
+	public MongoExpiringSession createSession() {
+		return new MongoExpiringSession(maxInactiveIntervalInSeconds);
 	}
 
-	@Override
-	public void save(ExpiringSession session) {
-		DBObject jo = sessionSerializer.serializeSession(session);
+	public void save(MongoExpiringSession session) {
+		DBObject jo = sessionSerializer.convert(session);
 		mongoOperations.getCollection(collectionName).save(jo);
 		eventPublisher.publishEvent(new SessionCreatedEvent(this, session.getId()));
 	}
 
-	@Override
-	public ExpiringSession getSession(String id) {
+	public MongoExpiringSession getSession(String id) {
 		DBObject sessionWrapper = findSession(id);
 		if (sessionWrapper == null) {
 			return null;
 		}
-		ExpiringSession session = sessionSerializer.deserializeSession(sessionWrapper);
+		MongoExpiringSession session = sessionDeserializer.convert(sessionWrapper);
 		if (session.isExpired()) {
 			expireSession(id);
 			return null;
@@ -104,49 +104,50 @@ public class MongoSessionRepository implements FindByIndexNameSessionRepository<
 	 * @param indexValue the value of the index to search for.
 	 * @return sessions map
 	 */
-	@Override
-	public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+	public Map<String, MongoExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
 		}
-		HashMap<String, ExpiringSession> result = new HashMap<String, ExpiringSession>();
+		HashMap<String, MongoExpiringSession> result = new HashMap<String, MongoExpiringSession>();
 		List<DBObject> mapSessions = mongoOperations.find(getPrincipalQuery(indexValue), DBObject.class, collectionName);
 		for (DBObject session : mapSessions) {
-			ExpiringSession mapSession = sessionSerializer.deserializeSession(session);
+			MongoExpiringSession mapSession = sessionDeserializer.convert(session);
 			result.put(mapSession.getId(), mapSession);
 		}
 		return result;
 	}
 
-	@Override
 	public void delete(String id) {
 		mongoOperations.remove(findSession(id), collectionName);
 		eventPublisher.publishEvent(new SessionDeletedEvent(this, id));
 	}
 
 	/**
-	 * Method cleanups expired sessions and emits {@code SessionExpiredEvent} event for expiring sessions
+	 * Method ensures that there is a TTL index on {@literal expireAt} field.
+	 * It's has {@literal expireAfterSeconds} set to zero seconds, so the expiration
+	 * time is controlled by the application
 	 */
-	@Scheduled(cron = "0 * * * * *")
-	public void cleanupExpiredSessions() {
-		long now = System.currentTimeMillis();
-
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("Cleaning up sessions expiring at ", new Date(now));
+	@PostConstruct
+	public void ensureExpirationIndex() {
+		IndexOperations indexOperations = mongoOperations.indexOps(collectionName);
+		List<IndexInfo> indexInfo = indexOperations.getIndexInfo();
+		for (IndexInfo info : indexInfo) {
+			if (EXPIRES_AT_FIELD.equals(info.getName())) {
+				LOG.debug("TTL index on field {} already exists", EXPIRES_AT_FIELD);
+				return;
+			}
 		}
-
-		long threshold = now - TimeUnit.SECONDS.toMillis(maxInactiveIntervalInSeconds);
-
-		List<DBObject> expiredSessions = mongoOperations.find(
-				Query.query(Criteria.where(sessionSerializer.getLastAccessedFieldName()).lt(threshold)), DBObject.class, collectionName);
-
-		for (DBObject expiredSession : expiredSessions) {
-			expireSession((String) expiredSession.get(ID_FIELD_NAME));
-		}
+		LOG.info("Creating TTL index on field {}", EXPIRES_AT_FIELD);
+		indexOperations.ensureIndex(new Index(EXPIRES_AT_FIELD, Sort.Direction.ASC).named(EXPIRES_AT_FIELD).expire(0));
 	}
 
-	private Query getPrincipalQuery(String indexValue) {
-		return Query.query(Criteria.where(sessionSerializer.getPrincipalFieldName()).is(indexValue));
+	/**
+	 * Creates a query for retrieving sessions for given principal name
+	 * @param indexValue principal value to query for
+	 * @return built query
+	 */
+	protected Query getPrincipalQuery(String indexValue) {
+		return Query.query(Criteria.where(PRINCIPAL_FIELD_NAME).is(indexValue));
 	}
 
 	DBObject findSession(String id) {

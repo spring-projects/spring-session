@@ -19,61 +19,44 @@ import com.mongodb.DBObject;
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.MapSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jakub Kubrynski
  */
-public class StandardJdkSerializerTest {
+public class StandardMongoSessionToDBObjectConverterTest {
 
 	@Test
 	public void shouldExtractPrincipalNameFromAttributes() throws Exception {
 		//given
-		StandardJdkSerializer sut = new StandardJdkSerializer();
-		MapSession toSerialize = new MapSession();
+		StandardMongoSessionToDBObjectConverter sut = new StandardMongoSessionToDBObjectConverter();
+		MongoExpiringSession toSerialize = new MongoExpiringSession();
 		String principalName = "john_the_springer";
 		toSerialize.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
 
 		//when
-		DBObject dbObject = sut.serializeSession(toSerialize);
+		DBObject dbObject = sut.convert(toSerialize);
 
 		//then
-		assertThat(dbObject.get(sut.getPrincipalFieldName())).isEqualTo(principalName);
+		assertThat(dbObject.get("principal")).isEqualTo(principalName);
 	}
 
 	@Test
 	public void shouldExtractPrincipalNameFromAuthentication() throws Exception {
 		//given
-		StandardJdkSerializer sut = new StandardJdkSerializer();
-		MapSession toSerialize = new MapSession();
+		StandardMongoSessionToDBObjectConverter sut = new StandardMongoSessionToDBObjectConverter();
+		MongoExpiringSession toSerialize = new MongoExpiringSession();
 		String principalName = "john_the_springer";
 		SecurityContextImpl context = new SecurityContextImpl();
 		context.setAuthentication(new UsernamePasswordAuthenticationToken(principalName, null));
 		toSerialize.setAttribute("SPRING_SECURITY_CONTEXT", context);
 
 		//when
-		DBObject dbObject = sut.serializeSession(toSerialize);
+		DBObject dbObject = sut.convert(toSerialize);
 
 		//then
-		assertThat(dbObject.get(sut.getPrincipalFieldName())).isEqualTo(principalName);
-	}
-
-	@Test
-	public void verifyRoundTripSerialization() throws Exception {
-		//given
-		StandardJdkSerializer sut = new StandardJdkSerializer();
-		MapSession toSerialize = new MapSession();
-		toSerialize.setAttribute("username", "john_the_springer");
-
-		//when
-		DBObject dbObject = sut.serializeSession(toSerialize);
-		ExpiringSession deserialized = sut.deserializeSession(dbObject);
-
-		//then
-		assertThat(deserialized).isEqualToComparingFieldByField(toSerialize);
+		assertThat(dbObject.get("principal")).isEqualTo(principalName);
 	}
 }

@@ -15,12 +15,14 @@
  */
 package org.springframework.session.data.mongo;
 
+import com.mongodb.DBObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -34,22 +36,25 @@ import org.springframework.session.config.annotation.web.http.SpringHttpSessionC
  */
 @Configuration
 @EnableScheduling
-class MongoConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
+class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
 	@Autowired(required = false)
-	private MongoSessionSerializer mongoSessionSerializer = new StandardJdkSerializer();
+	private Converter<MongoExpiringSession, DBObject> mongoSessionSerializer = new StandardMongoSessionToDBObjectConverter();
+
+	@Autowired(required = false)
+	private Converter<DBObject, MongoExpiringSession> mongoSessionDeserializer = new StandardDBObjectToMongoSessionConverter();
 
 	private Integer maxInactiveIntervalInSeconds;
 	private String collectionName;
 
 	@Bean
-	MongoSessionRepository mongoSessionRepository(MongoOperations mongoOperations,
-	                                              ApplicationEventPublisher eventPublisher) {
-		return new MongoSessionRepository(mongoOperations, eventPublisher, mongoSessionSerializer,
+	MongoOperationsSessionRepository mongoSessionRepository(MongoOperations mongoOperations,
+	                                                        ApplicationEventPublisher eventPublisher) {
+		return new MongoOperationsSessionRepository(mongoOperations, eventPublisher,
+				mongoSessionSerializer, mongoSessionDeserializer,
 				maxInactiveIntervalInSeconds, collectionName);
 	}
 
-	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(
 				importMetadata.getAnnotationAttributes(EnableMongoHttpSession.class.getName()));
