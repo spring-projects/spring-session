@@ -40,6 +40,7 @@ import java.util.Map;
  * and stored in {@literal principal} field, to allow querying against this field.
  *
  * @author Jakub Kubrynski
+ * @since 1.2
  */
 class StandardMongoSessionToDBObjectConverter implements Converter<MongoExpiringSession, DBObject> {
 

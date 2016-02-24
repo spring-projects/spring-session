@@ -15,7 +15,6 @@
  */
 package org.springframework.session.data.mongo;
 
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,15 +30,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.AbstractITests;
-import org.springframework.session.data.SessionEventRegistry;
-import org.springframework.session.events.SessionCreatedEvent;
-import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,12 +66,8 @@ public class MongoRepositoryITests extends AbstractITests {
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, toSaveContext);
 		toSave.setAttribute(INDEX_NAME, username);
-		registry.clear();
 
 		repository.save(toSave);
-
-		assertThat(registry.receivedEvent()).isTrue();
-		assertThat(registry.getEvent()).isInstanceOf(SessionCreatedEvent.class);
 
 		Session session = repository.getSession(toSave.getId());
 
@@ -84,15 +75,10 @@ public class MongoRepositoryITests extends AbstractITests {
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
 		assertThat(session.getAttribute(expectedAttributeName)).isEqualTo(toSave.getAttribute(expectedAttributeName));
 
-		registry.clear();
-
 		repository.delete(toSave.getId());
 
 		String id = toSave.getId();
 		assertThat(repository.getSession(id)).isNull();
-		assertThat(registry.getEvent()).isInstanceOf(SessionDestroyedEvent.class);
-
-		assertThat(registry.getEvent().getSessionId()).isEqualTo(id);
 	}
 
 	@Test
@@ -131,13 +117,11 @@ public class MongoRepositoryITests extends AbstractITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		repository.delete(toSave.getId());
-		boolean receivedEvent = registry.receivedEvent();
 
 		findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
-		assertThat(receivedEvent).isTrue();
 	}
 
 	@Test
@@ -273,13 +257,11 @@ public class MongoRepositoryITests extends AbstractITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		repository.delete(toSave.getId());
-		boolean receivedEvent = registry.receivedEvent();
 
 		findByPrincipalName = repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
-		assertThat(receivedEvent).isTrue();
 	}
 
 	@Test
@@ -423,9 +405,5 @@ public class MongoRepositoryITests extends AbstractITests {
 			return new MongoTemplate(new MongoClient(), "test");
 		}
 
-		@Bean
-		public SessionEventRegistry sessionEventRegistry() {
-			return new SessionEventRegistry();
-		}
 	}
 }

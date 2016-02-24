@@ -21,19 +21,13 @@ import com.mongodb.DBObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.events.AbstractSessionEvent;
-import org.springframework.session.events.SessionDeletedEvent;
-import org.springframework.session.events.SessionExpiredEvent;
 
 import java.util.Collections;
 import java.util.Map;
@@ -55,14 +49,9 @@ public class MongoOperationsSessionRepositoryTest {
 	@Mock
 	MongoOperations mongoOperations;
 	@Mock
-	ApplicationEventPublisher eventPublisher;
-	@Mock
 	Converter<MongoExpiringSession, DBObject> serializer;
 	@Mock
 	Converter<DBObject, MongoExpiringSession> deserializer;
-
-	@Captor
-	ArgumentCaptor<AbstractSessionEvent> event;
 
 	Integer maxInterval = 1800;
 	String collectionName = "sessions";
@@ -71,7 +60,7 @@ public class MongoOperationsSessionRepositoryTest {
 
 	@Before
 	public void setUp() throws Exception {
-		sut = new MongoOperationsSessionRepository(mongoOperations, eventPublisher, serializer, deserializer, maxInterval, collectionName);
+		sut = new MongoOperationsSessionRepository(mongoOperations, serializer, deserializer, maxInterval, collectionName);
 	}
 
 	@Test
@@ -132,9 +121,6 @@ public class MongoOperationsSessionRepositoryTest {
 
 		//then
 		verify(mongoOperations).remove(any(DBObject.class), eq(collectionName));
-		verify(eventPublisher).publishEvent(event.capture());
-		assertThat(event.getValue()).isInstanceOf(SessionExpiredEvent.class);
-		assertThat(event.getValue().getSessionId()).isEqualTo(sessionId);
 	}
 
 	@Test
@@ -147,9 +133,6 @@ public class MongoOperationsSessionRepositoryTest {
 
 		//then
 		verify(mongoOperations).remove(any(DBObject.class), eq(collectionName));
-		verify(eventPublisher).publishEvent(event.capture());
-		assertThat(event.getValue()).isInstanceOf(SessionDeletedEvent.class);
-		assertThat(event.getValue().getSessionId()).isEqualTo(sessionId);
 	}
 
 	@Test

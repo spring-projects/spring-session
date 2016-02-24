@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
  * the datetime of expiration
  *
  * @author Jakub Kubrynski
+ * @since 1.2
  */
 public class MongoExpiringSession implements ExpiringSession {
 

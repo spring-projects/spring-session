@@ -17,7 +17,6 @@ package org.springframework.session.data.mongo;
 
 import com.mongodb.DBObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -25,7 +24,6 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 
 /**
@@ -33,9 +31,9 @@ import org.springframework.session.config.annotation.web.http.SpringHttpSessionC
  * To import this configuration use {@link @EnableMongoHttpSession} annotation
  *
  * @author Jakub Kubrynski
+ * @since 1.2
  */
 @Configuration
-@EnableScheduling
 class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
 	@Autowired(required = false)
@@ -48,9 +46,8 @@ class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration imple
 	private String collectionName;
 
 	@Bean
-	MongoOperationsSessionRepository mongoSessionRepository(MongoOperations mongoOperations,
-	                                                        ApplicationEventPublisher eventPublisher) {
-		return new MongoOperationsSessionRepository(mongoOperations, eventPublisher,
+	MongoOperationsSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {
+		return new MongoOperationsSessionRepository(mongoOperations,
 				mongoSessionSerializer, mongoSessionDeserializer,
 				maxInactiveIntervalInSeconds, collectionName);
 	}

@@ -18,7 +18,6 @@ package org.springframework.session.data.mongo;
 import com.mongodb.DBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.IndexOperations;
@@ -28,9 +27,6 @@ import org.springframework.data.mongodb.core.index.IndexInfo;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.events.SessionCreatedEvent;
-import org.springframework.session.events.SessionDeletedEvent;
-import org.springframework.session.events.SessionExpiredEvent;
 
 import javax.annotation.PostConstruct;
 import java.util.Collections;
@@ -47,6 +43,7 @@ import java.util.Map;
  * Cleanup is done every minute.
  *
  * @author Jakub Kubrynski
+ * @since 1.2
  */
 public class MongoOperationsSessionRepository implements FindByIndexNameSessionRepository<MongoExpiringSession> {
 
@@ -56,18 +53,16 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	public static final String PRINCIPAL_FIELD_NAME = "principal";
 
 	private final MongoOperations mongoOperations;
-	private final ApplicationEventPublisher eventPublisher;
 	private final Converter<MongoExpiringSession, DBObject> sessionSerializer;
 	private final Converter<DBObject, MongoExpiringSession> sessionDeserializer;
 	private final Integer maxInactiveIntervalInSeconds;
 	private final String collectionName;
 
-	public MongoOperationsSessionRepository(MongoOperations mongoOperations, ApplicationEventPublisher eventPublisher,
+	public MongoOperationsSessionRepository(MongoOperations mongoOperations,
 	                                        Converter<MongoExpiringSession, DBObject> mongoSessionSerializer,
 	                                        Converter<DBObject, MongoExpiringSession> mongoSessionDeserializer,
 	                                        Integer maxInactiveIntervalInSeconds, String collectionName) {
 		this.mongoOperations = mongoOperations;
-		this.eventPublisher = eventPublisher;
 		this.sessionSerializer = mongoSessionSerializer;
 		this.sessionDeserializer = mongoSessionDeserializer;
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
@@ -81,7 +76,6 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	public void save(MongoExpiringSession session) {
 		DBObject jo = sessionSerializer.convert(session);
 		mongoOperations.getCollection(collectionName).save(jo);
-		eventPublisher.publishEvent(new SessionCreatedEvent(this, session.getId()));
 	}
 
 	public MongoExpiringSession getSession(String id) {
@@ -91,7 +85,7 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 		}
 		MongoExpiringSession session = sessionDeserializer.convert(sessionWrapper);
 		if (session.isExpired()) {
-			expireSession(id);
+			delete(id);
 			return null;
 		}
 		return session;
@@ -119,7 +113,6 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 
 	public void delete(String id) {
 		mongoOperations.remove(findSession(id), collectionName);
-		eventPublisher.publishEvent(new SessionDeletedEvent(this, id));
 	}
 
 	/**
@@ -154,8 +147,4 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 		return mongoOperations.findById(id, DBObject.class, collectionName);
 	}
 
-	private void expireSession(String id) {
-		mongoOperations.remove(findSession(id), collectionName);
-		eventPublisher.publishEvent(new SessionExpiredEvent(this, id));
-	}
 }

@@ -31,6 +31,7 @@ import java.util.Map;
  * {@code Converter} implementation which returns session deserialized from a BSON object
  *
  * @author Jakub Kubrynski
+ * @since 1.2
  */
 class StandardDBObjectToMongoSessionConverter implements Converter<DBObject, MongoExpiringSession> {
 

@@ -21,21 +21,23 @@ import java.util.UUID;
 @WebAppConfiguration
 public abstract class AbstractITests {
 
-    @Autowired
-    protected SessionEventRegistry registry;
+	protected SecurityContext context;
 
-    protected SecurityContext context;
+	protected SecurityContext changedContext;
 
-    protected SecurityContext changedContext;
+	@Autowired(required = false)
+	protected SessionEventRegistry registry;
 
-    @Before
-    public void setup() {
-        registry.clear();
-        context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken("username-"+ UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
+	@Before
+	public void setup() {
+		if (registry != null) {
+			registry.clear();
+		}
+		context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(new UsernamePasswordAuthenticationToken("username-" + UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-        changedContext = SecurityContextHolder.createEmptyContext();
-        changedContext.setAuthentication(new UsernamePasswordAuthenticationToken("changedContext-"+UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
-    }
+		changedContext = SecurityContextHolder.createEmptyContext();
+		changedContext.setAuthentication(new UsernamePasswordAuthenticationToken("changedContext-" + UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
+	}
 
 }
