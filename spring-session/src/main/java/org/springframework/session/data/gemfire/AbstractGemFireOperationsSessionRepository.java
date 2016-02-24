@@ -90,6 +90,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	private ApplicationEventPublisher applicationEventPublisher = new ApplicationEventPublisher() {
 		public void publishEvent(ApplicationEvent event) {
 		}
+		public void publishEvent(Object event) {
+		}
 	};
 
 	private final GemfireOperations template;

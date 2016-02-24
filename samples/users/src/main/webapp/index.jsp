@@ -34,8 +34,8 @@
             <c:if test="${currentAccount != null or not empty accounts}">
                 <ul class="nav navbar-nav navbar-right">
                   <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><c:out value="${username}"/> <span class="caret"></span></a>
-                    <ul class="dropdown-menu" role="menu">
+                    <a id="toggle" href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><c:out value="${username}"/> <span class="caret"></span></a>
+                    <ul id="user-menu" class="dropdown-menu" role="menu">
                       <c:if test="${currentAccount != null}">
                           <li><a id="logout" href="${currentAccount.logoutUrl}">Log Out</a></li>
                           <li><a id="addAccount" href="${addAccountUrl}">Add Account</a></li>

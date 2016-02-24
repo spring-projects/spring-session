@@ -29,9 +29,25 @@ class HomePage extends Page {
 		navLink { $('#navLink') }
 		error { $('#error').text() }
 		form { $('form') }
-		username(required:false) { $('#un').text() }
-		logout(required:false) { $('#logout') }
-		addAccount(required:false) { $('#addAccount') }
+		username(required:false) {
+			$('#un').text()
+		}
+		userMenu() {
+			if(!$('#user-menu').displayed) {
+				$('#toggle').jquery.click()
+			}
+			waitFor {
+				$('#user-menu').displayed
+			}
+		}
+		logout(required:false) {
+			userMenu()
+			$('#logout')
+		}
+		addAccount(required:false) {
+			userMenu()
+			$('#addAccount')
+		}
 		submit { $('input[type=submit]') }
 		login(required:false) { user, pass ->
 			form.username = user
@@ -39,6 +55,7 @@ class HomePage extends Page {
 			submit.click(HomePage)
 		}
 		switchAccount{ un ->
+			userMenu()
 			$("#switchAccount${un}").click(HomePage)
 		}
 		attributes { moduleList AttributeRow, $("table tr").tail() }

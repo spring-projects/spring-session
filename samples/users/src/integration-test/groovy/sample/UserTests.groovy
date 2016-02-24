@@ -28,6 +28,10 @@ import pages.*
  */
 @Stepwise
 class UserTests extends GebReportingSpec {
+	def setup() {
+		browser.driver.javascriptEnabled = true
+	}
+
 	def 'first visit not authenticated'() {
 		when:
 		to HomePage

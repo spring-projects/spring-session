@@ -295,6 +295,8 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 		public void publishEvent(ApplicationEvent event) {
 		}
+		public void publishEvent(Object event) {
+		}
 	};
 
 	/**

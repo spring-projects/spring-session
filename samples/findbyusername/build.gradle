@@ -24,7 +24,7 @@ dependencies {
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
 			"org.springframework.security:spring-security-config:$springSecurityVersion",
 			"com.maxmind.geoip2:geoip2:2.3.1",
-			"org.apache.httpcomponents:httpclient:4.4.1"
+			"org.apache.httpcomponents:httpclient"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test",
 				"org.assertj:assertj-core:$assertjVersion"

@@ -28,8 +28,11 @@ import org.springframework.session.web.socket.server.SessionRepositoryMessageInt
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.StompWebSocketEndpointRegistration;
+import org.springframework.web.socket.config.annotation.WebMvcStompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
+import org.springframework.web.util.UrlPathHelper;
 
 /**
  * Eases configuration of Web Socket and Spring Session integration.
@@ -87,7 +90,10 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	}
 
 	public final void registerStompEndpoints(StompEndpointRegistry registry) {
-		configureStompEndpoints(new SessionStompEndpointRegistry(registry, sessionRepositoryInterceptor()));
+		if(registry instanceof WebMvcStompEndpointRegistry) {
+			WebMvcStompEndpointRegistry mvcRegistry = (WebMvcStompEndpointRegistry) registry;
+			configureStompEndpoints(new SessionStompEndpointRegistry(mvcRegistry, sessionRepositoryInterceptor()));
+		}
 	}
 
 
@@ -126,10 +132,10 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	}
 
 	static class SessionStompEndpointRegistry implements StompEndpointRegistry {
-		private final StompEndpointRegistry registry;
+		private final WebMvcStompEndpointRegistry registry;
 		private final HandshakeInterceptor interceptor;
 
-		public SessionStompEndpointRegistry(StompEndpointRegistry registry,
+		public SessionStompEndpointRegistry(WebMvcStompEndpointRegistry registry,
 				HandshakeInterceptor interceptor) {
 			this.registry = registry;
 			this.interceptor = interceptor;
@@ -139,6 +145,18 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 			StompWebSocketEndpointRegistration endpoints = registry.addEndpoint(paths);
 			endpoints.addInterceptors(interceptor);
 			return endpoints;
+		}
+
+		public void setOrder(int order) {
+			this.registry.setOrder(order);
+		}
+
+		public void setUrlPathHelper(UrlPathHelper urlPathHelper) {
+			this.registry.setUrlPathHelper(urlPathHelper);
+		}
+
+		public WebMvcStompEndpointRegistry setErrorHandler(StompSubProtocolErrorHandler errorHandler) {
+			return this.registry.setErrorHandler(errorHandler);
 		}
 	}
 }

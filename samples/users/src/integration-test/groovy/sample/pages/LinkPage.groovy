@@ -28,7 +28,16 @@ class LinkPage extends Page {
 	static content = {
 		form { $('#navLinks') }
 		username(required:false) { $('#un').text() }
+		userMenu() {
+			if(!$('#user-menu').displayed) {
+				$('#toggle').jquery.click()
+			}
+			waitFor {
+				$('#user-menu').displayed
+			}
+		}
 		switchAccount{ un ->
+			userMenu()
 			$("#switchAccount${un}").click(HomePage)
 		}
 	}
