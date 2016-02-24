@@ -200,6 +200,16 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		region.getAttributesMutator().addCacheListener(this);
 	}
 
+	/* (non-Javadoc) */
+	boolean isExpiringSessionOrNull(Object obj) {
+		return (obj == null || obj instanceof ExpiringSession);
+	}
+
+	/* (non-Javadoc) */
+	ExpiringSession toExpiringSession(Object obj) {
+		return (obj instanceof ExpiringSession ? (ExpiringSession) obj : null);
+	}
+
 	/**
 	 * Callback method triggered when an entry is created in the GemFire cache {@link Region}.
 	 *
@@ -209,7 +219,9 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 */
 	@Override
 	public void afterCreate(EntryEvent<Object, ExpiringSession> event) {
-		handleCreated(event.getKey().toString(), event.getNewValue());
+		if (isExpiringSessionOrNull(event.getNewValue())) {
+			handleCreated(event.getKey().toString(), toExpiringSession(event.getNewValue()));
+		}
 	}
 
 	/**
@@ -221,7 +233,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 */
 	@Override
 	public void afterDestroy(EntryEvent<Object, ExpiringSession> event) {
-		handleDestroyed(event.getKey().toString(), event.getOldValue());
+		handleDestroyed(event.getKey().toString(), toExpiringSession(event.getOldValue()));
 	}
 
 	/**
@@ -233,7 +245,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 */
 	@Override
 	public void afterInvalidate(EntryEvent<Object, ExpiringSession> event) {
-		handleExpired(event.getKey().toString(), event.getOldValue());
+		handleExpired(event.getKey().toString(), toExpiringSession(event.getOldValue()));
 	}
 
 	/**
