@@ -25,7 +25,7 @@ import org.springframework.session.web.context.AbstractHttpSessionApplicationIni
 public class Initializer extends AbstractHttpSessionApplicationInitializer {
 
 	public Initializer() {
-		super(Config.class);
+		super(GemFireConfig.class);
 	}
 
 	@Override
