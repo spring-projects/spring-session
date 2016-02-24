@@ -5,6 +5,7 @@ apply plugin: 'eclipse-wtp'
 apply plugin: 'propdeps'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
+apply plugin: 'com.github.ben-manes.versions'
 
 group = 'org.springframework.session'
 
