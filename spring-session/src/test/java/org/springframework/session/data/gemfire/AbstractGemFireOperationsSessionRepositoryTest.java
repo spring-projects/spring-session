@@ -17,6 +17,7 @@
 package org.springframework.session.data.gemfire;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -245,7 +246,6 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
 		when(mockEntryEvent.getNewValue()).thenReturn(mockSession);
-		when(mockEntryEvent.getOldValue()).thenReturn(null);
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
 		sessionRepository.afterCreate(mockEntryEvent);
@@ -253,7 +253,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
 
 		verify(mockEntryEvent, times(1)).getKey();
-		verify(mockEntryEvent, times(1)).getNewValue();
+		verify(mockEntryEvent, times(2)).getNewValue();
 		verify(mockEntryEvent, never()).getOldValue();
 		verify(mockSession, times(1)).getId();
 		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionCreatedEvent.class));
@@ -286,7 +286,6 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
 		when(mockEntryEvent.getNewValue()).thenReturn(null);
-		when(mockEntryEvent.getOldValue()).thenReturn(null);
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
 		sessionRepository.afterCreate(mockEntryEvent);
@@ -294,15 +293,36 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
 
 		verify(mockEntryEvent, times(1)).getKey();
-		verify(mockEntryEvent, times(1)).getNewValue();
+		verify(mockEntryEvent, times(2)).getNewValue();
 		verify(mockEntryEvent, never()).getOldValue();
 		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionCreatedEvent.class));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
+	public void afterCreatedWithNonSessionTypeDoesNotPublishSessionCreatedEvent() {
+		TestGemFireOperationsSessionRepository sessionRepository = new TestGemFireOperationsSessionRepository(mockGemfireOperations) {
+			@Override protected void handleCreated(final String sessionId, final ExpiringSession session) {
+				fail("handleCreated(..) should not have been called");
+			}
+		};
+
+		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
+
+		when(mockEntryEvent.getKey()).thenReturn("abc123");
+		when(mockEntryEvent.getNewValue()).thenReturn(new Object());
+
+		sessionRepository.afterCreate((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
+
+		verify(mockEntryEvent, never()).getKey();
+		verify(mockEntryEvent, times(1)).getNewValue();
+		verify(mockEntryEvent, never()).getOldValue();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void afterDestroyWithSessionPublishesSessionDestroyedEvent() {
-		final String sessionId = "abc123";
+		final String sessionId = "def456";
 		final ExpiringSession mockSession = mock(ExpiringSession.class);
 
 		when(mockSession.getId()).thenReturn(sessionId);
@@ -328,7 +348,6 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent<Object, ExpiringSession> mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getNewValue()).thenReturn(null);
 		when(mockEntryEvent.getOldValue()).thenReturn(mockSession);
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
@@ -346,7 +365,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void afterDestroyWithSessionIdPublishesSessionDestroyedEvent() {
-		final String sessionId = "abc123";
+		final String sessionId = "def456";
 
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
@@ -369,7 +388,6 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent<Object, ExpiringSession> mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getNewValue()).thenReturn(null);
 		when(mockEntryEvent.getOldValue()).thenReturn(null);
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
@@ -385,8 +403,47 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 	@Test
 	@SuppressWarnings("unchecked")
+	public void afterDestroyWithNonSessionTypePublishesSessionDestroyedEventWithSessionId() {
+		final String sessionId = "def456";
+
+		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
+
+		doAnswer(new Answer<Void>() {
+			public Void answer(final InvocationOnMock invocation) throws Throwable {
+				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
+
+				assertThat(applicationEvent).isInstanceOf(SessionDestroyedEvent.class);
+
+				AbstractSessionEvent sessionEvent = (AbstractSessionEvent) applicationEvent;
+
+				assertThat(sessionEvent.getSource()).isEqualTo(sessionRepository);
+				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
+
+				return null;
+			}
+		}).when(mockApplicationEventPublisher).publishEvent(isA(ApplicationEvent.class));
+
+		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
+
+		when(mockEntryEvent.getKey()).thenReturn(sessionId);
+		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
+
+		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
+		sessionRepository.afterDestroy((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
+
+		assertThat(sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
+
+		verify(mockEntryEvent, times(1)).getKey();
+		verify(mockEntryEvent, never()).getNewValue();
+		verify(mockEntryEvent, times(1)).getOldValue();
+		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionDestroyedEvent.class));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
 	public void afterInvalidateWithSessionPublishesSessionExpiredEvent() {
-		final String sessionId = "abc123";
+		final String sessionId = "ghi789";
 		final ExpiringSession mockSession = mock(ExpiringSession.class);
 
 		when(mockSession.getId()).thenReturn(sessionId);
@@ -412,7 +469,6 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent<Object, ExpiringSession> mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getNewValue()).thenReturn(null);
 		when(mockEntryEvent.getOldValue()).thenReturn(mockSession);
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
@@ -430,7 +486,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void afterInvalidateWithSessionIdPublishesSessionExpiredEvent() {
-		final String sessionId = "abc123";
+		final String sessionId = "ghi789";
 
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
@@ -453,11 +509,49 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent<Object, ExpiringSession> mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getNewValue()).thenReturn(null);
 		when(mockEntryEvent.getOldValue()).thenReturn(null);
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
 		sessionRepository.afterInvalidate(mockEntryEvent);
+
+		assertThat(sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
+
+		verify(mockEntryEvent, times(1)).getKey();
+		verify(mockEntryEvent, never()).getNewValue();
+		verify(mockEntryEvent, times(1)).getOldValue();
+		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionExpiredEvent.class));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void afterInvalidateWithNonSessionTypePublishesSessionExpiredEventWithSessionId() {
+		final String sessionId = "ghi789";
+
+		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
+
+		doAnswer(new Answer<Void>() {
+			public Void answer(final InvocationOnMock invocation) throws Throwable {
+				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
+
+				assertThat(applicationEvent).isInstanceOf(SessionExpiredEvent.class);
+
+				AbstractSessionEvent sessionEvent = (AbstractSessionEvent) applicationEvent;
+
+				assertThat(sessionEvent.getSource()).isEqualTo(sessionRepository);
+				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
+
+				return null;
+			}
+		}).when(mockApplicationEventPublisher).publishEvent(isA(ApplicationEvent.class));
+
+		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
+
+		when(mockEntryEvent.getKey()).thenReturn(sessionId);
+		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
+
+		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
+		sessionRepository.afterInvalidate((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
 
 		assertThat(sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
 
