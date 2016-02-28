@@ -140,7 +140,7 @@ You can choose from enabling this using either:
 
 This section describes how to use Redis to back `HttpSession` using Java based configuration.
 
-NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using XML configuration.
+NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
 include::guides/httpsession.adoc[tags=config,leveloffset=+3]
@@ -889,9 +889,6 @@ It includes example Hazelcast `MapListener` implementations that support firing 
 To run it use the following:
 
 	./gradlew :samples:hazelcast-spring:tomcatRun
-
-[[api-mapsessionrepository-hazelcast]]
-==== Using Spring Session and Hazlecast
 
 [[community]]
 == Spring Session Community
