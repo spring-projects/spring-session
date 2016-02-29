@@ -299,7 +299,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	}
 
 	@Test
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings("unchecked")
 	public void afterCreatedWithNonSessionTypeDoesNotPublishSessionCreatedEvent() {
 		TestGemFireOperationsSessionRepository sessionRepository = new TestGemFireOperationsSessionRepository(mockGemfireOperations) {
 			@Override protected void handleCreated(final String sessionId, final ExpiringSession session) {
@@ -307,12 +307,12 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			}
 		};
 
-		EntryEvent mockEntryEvent = mock(EntryEvent.class);
+		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn("abc123");
 		when(mockEntryEvent.getNewValue()).thenReturn(new Object());
 
-		sessionRepository.afterCreate(mockEntryEvent);
+		sessionRepository.afterCreate((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
 
 		verify(mockEntryEvent, never()).getKey();
 		verify(mockEntryEvent, times(1)).getNewValue();
@@ -427,7 +427,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getOldValue()).thenReturn(null);
+		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
 		sessionRepository.afterDestroy((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
@@ -548,7 +548,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getOldValue()).thenReturn(null);
+		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
 		sessionRepository.afterInvalidate((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
