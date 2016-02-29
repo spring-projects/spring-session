@@ -299,7 +299,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void afterCreatedWithNonSessionTypeDoesNotPublishSessionCreatedEvent() {
 		TestGemFireOperationsSessionRepository sessionRepository = new TestGemFireOperationsSessionRepository(mockGemfireOperations) {
 			@Override protected void handleCreated(final String sessionId, final ExpiringSession session) {
@@ -307,7 +307,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			}
 		};
 
-		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
+		EntryEvent mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn("abc123");
 		when(mockEntryEvent.getNewValue()).thenReturn(new Object());
@@ -402,7 +402,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void afterDestroyWithNonSessionTypePublishesSessionDestroyedEventWithSessionId() {
 		final String sessionId = "def456";
 
@@ -424,7 +424,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			}
 		}).when(mockApplicationEventPublisher).publishEvent(isA(ApplicationEvent.class));
 
-		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
+		EntryEvent mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
 		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
@@ -523,7 +523,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void afterInvalidateWithNonSessionTypePublishesSessionExpiredEventWithSessionId() {
 		final String sessionId = "ghi789";
 
@@ -545,7 +545,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			}
 		}).when(mockApplicationEventPublisher).publishEvent(isA(ApplicationEvent.class));
 
-		EntryEvent<Object, ?> mockEntryEvent = mock(EntryEvent.class);
+		EntryEvent mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
 		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
