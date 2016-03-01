@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
  * @author Jakub Kubrynski
  * @since 1.2
  */
-public class MongoExpiringSession implements ExpiringSession {
+class MongoExpiringSession implements ExpiringSession {
 
 	private static final int DEFAULT_INTERVAL_IN_SECONDS = 1800;
 

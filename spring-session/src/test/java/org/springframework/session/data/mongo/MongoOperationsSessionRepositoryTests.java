@@ -23,7 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.ExpiringSession;
@@ -44,14 +45,12 @@ import static org.mockito.Mockito.when;
  * @author Jakub Kubrynski
  */
 @RunWith(MockitoJUnitRunner.class)
-public class MongoOperationsSessionRepositoryTest {
+public class MongoOperationsSessionRepositoryTests {
 
 	@Mock
 	MongoOperations mongoOperations;
 	@Mock
-	Converter<MongoExpiringSession, DBObject> serializer;
-	@Mock
-	Converter<DBObject, MongoExpiringSession> deserializer;
+	GenericConverter converter;
 
 	Integer maxInterval = 1800;
 	String collectionName = "sessions";
@@ -60,7 +59,7 @@ public class MongoOperationsSessionRepositoryTest {
 
 	@Before
 	public void setUp() throws Exception {
-		sut = new MongoOperationsSessionRepository(mongoOperations, serializer, deserializer, maxInterval, collectionName);
+		sut = new MongoOperationsSessionRepository(mongoOperations, converter, maxInterval, collectionName);
 	}
 
 	@Test
@@ -80,7 +79,7 @@ public class MongoOperationsSessionRepositoryTest {
 		BasicDBObject dbSession = new BasicDBObject();
 		DBCollection collection = mock(DBCollection.class);
 
-		when(serializer.convert(session)).thenReturn(dbSession);
+		when(converter.convert(session, TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class))).thenReturn(dbSession);
 		when(mongoOperations.getCollection(collectionName)).thenReturn(collection);
 		//when
 		sut.save(session);
@@ -96,7 +95,7 @@ public class MongoOperationsSessionRepositoryTest {
 		BasicDBObject dbSession = new BasicDBObject();
 		when(mongoOperations.findById(sessionId, DBObject.class, collectionName)).thenReturn(dbSession);
 		MongoExpiringSession session = new MongoExpiringSession();
-		when(deserializer.convert(dbSession)).thenReturn(session);
+		when(converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class))).thenReturn(session);
 
 		//when
 		ExpiringSession retrievedSession = sut.getSession(sessionId);
@@ -114,7 +113,7 @@ public class MongoOperationsSessionRepositoryTest {
 		MongoExpiringSession session = mock(MongoExpiringSession.class);
 		when(session.isExpired()).thenReturn(true);
 		when(session.getId()).thenReturn(sessionId);
-		when(deserializer.convert(dbSession)).thenReturn(session);
+		when(converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class))).thenReturn(session);
 
 		//when
 		sut.getSession(sessionId);
@@ -147,7 +146,7 @@ public class MongoOperationsSessionRepositoryTest {
 		String sessionId = UUID.randomUUID().toString();
 
 		MongoExpiringSession session = new MongoExpiringSession(sessionId, 1800);
-		when(deserializer.convert(dbSession)).thenReturn(session);
+		when(converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class))).thenReturn(session);
 		//when
 		Map<String, MongoExpiringSession> sessionsMap = sut.findByIndexNameAndIndexValue(principalNameIndexName, "john");
 

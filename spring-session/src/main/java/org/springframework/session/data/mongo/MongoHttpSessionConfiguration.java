@@ -15,13 +15,11 @@
  */
 package org.springframework.session.data.mongo;
 
-import com.mongodb.DBObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
@@ -36,11 +34,7 @@ import org.springframework.session.config.annotation.web.http.SpringHttpSessionC
 @Configuration
 class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
-	@Autowired(required = false)
-	private Converter<MongoExpiringSession, DBObject> mongoSessionSerializer = new StandardMongoSessionToDBObjectConverter();
-
-	@Autowired(required = false)
-	private Converter<DBObject, MongoExpiringSession> mongoSessionDeserializer = new StandardDBObjectToMongoSessionConverter();
+	private GenericConverter mongoSessionConverter = new MongoSessionConverter();
 
 	private Integer maxInactiveIntervalInSeconds;
 	private String collectionName;
@@ -48,8 +42,7 @@ class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration imple
 	@Bean
 	MongoOperationsSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {
 		return new MongoOperationsSessionRepository(mongoOperations,
-				mongoSessionSerializer, mongoSessionDeserializer,
-				maxInactiveIntervalInSeconds, collectionName);
+				mongoSessionConverter, maxInactiveIntervalInSeconds, collectionName);
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -57,5 +50,9 @@ class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration imple
 				importMetadata.getAnnotationAttributes(EnableMongoHttpSession.class.getName()));
 		maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
 		collectionName = attributes.getString("collectionName");
+	}
+
+	public void setMongoSessionConverter(GenericConverter mongoSessionConverter) {
+		this.mongoSessionConverter = mongoSessionConverter;
 	}
 }

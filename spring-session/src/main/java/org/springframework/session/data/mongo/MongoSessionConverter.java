@@ -19,39 +19,58 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * {@code Converter} implementation which returns session as a BSON object with
- * all primitive elements stored as normal fields and attributes map serialized to binary form
- * using standard JDK serialization.
- * <p/>
- * The principal name is extracted from attributes or from {@code Authentication} object
- * and stored in {@literal principal} field, to allow querying against this field.
+ * {@code GenericConverter} implementation transforming {@code MongoExpiringSession} to/from a BSON object
  *
  * @author Jakub Kubrynski
  * @since 1.2
  */
-class StandardMongoSessionToDBObjectConverter implements Converter<MongoExpiringSession, DBObject> {
+class MongoSessionConverter implements GenericConverter {
 
-	private static final Log LOG = LogFactory.getLog(StandardMongoSessionToDBObjectConverter.class);
+	private static final Log LOG = LogFactory.getLog(MongoSessionConverter.class);
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 	private static final String NAME_EXPRESSION = "authentication?.name";
 
 	private static final SpelExpressionParser PARSER = new SpelExpressionParser();
 
-	public DBObject convert(MongoExpiringSession session) {
+	@Override
+	public Set<ConvertiblePair> getConvertibleTypes() {
+		return Collections.singleton(new ConvertiblePair(DBObject.class, MongoExpiringSession.class));
+	}
+
+	@Override
+	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+		if (source == null) {
+			return null;
+		}
+
+		if (DBObject.class.isAssignableFrom(sourceType.getType())) {
+			return convert((DBObject) source);
+		} else {
+			return convert((MongoExpiringSession) source);
+		}
+	}
+
+	private DBObject convert(MongoExpiringSession session) {
 		BasicDBObject basicDBObject = new BasicDBObject();
 		basicDBObject.put(MongoExpiringSession.ID, session.getId());
 		basicDBObject.put(MongoExpiringSession.CREATION_TIME, session.getCreationTime());
@@ -89,6 +108,7 @@ class StandardMongoSessionToDBObjectConverter implements Converter<MongoExpiring
 		}
 	}
 
+
 	/**
 	 * Extracts principal name from authentication
 	 *
@@ -103,4 +123,40 @@ class StandardMongoSessionToDBObjectConverter implements Converter<MongoExpiring
 		return null;
 	}
 
+	private MongoExpiringSession convert(DBObject sessionWrapper) {
+		MongoExpiringSession session =
+				new MongoExpiringSession((String) sessionWrapper.get(MongoExpiringSession.ID), (Integer) sessionWrapper.get(MongoExpiringSession.MAX_INTERVAL));
+		session.setCreationTime((Long) sessionWrapper.get(MongoExpiringSession.CREATION_TIME));
+		session.setLastAccessedTime((Long) sessionWrapper.get(MongoExpiringSession.LAST_ACCESSED_TIME));
+		session.setExpireAt((Date) sessionWrapper.get(MongoOperationsSessionRepository.EXPIRES_AT_FIELD));
+		deserializeAttributes(sessionWrapper, session);
+		return session;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void deserializeAttributes(DBObject sessionWrapper, Session session) {
+		try {
+			ByteArrayInputStream in = new ByteArrayInputStream((byte[]) sessionWrapper.get(MongoExpiringSession.ATTRIBUTES));
+			ObjectInputStream objectInputStream = new ObjectInputStream(in);
+			Map<String, Object> attributes = (Map<String, Object>) objectInputStream.readObject();
+			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+				session.setAttribute(entry.getKey(), entry.getValue());
+			}
+			objectInputStream.close();
+		} catch (IOException e) {
+			LOG.error("Exception during session deserialization", e);
+			throw new IllegalStateException("Cannot deserialize session", e);
+		} catch (ClassNotFoundException e) {
+			LOG.error("Exception during session deserialization", e);
+			throw new IllegalStateException("Cannot deserialize session", e);
+		}
+	}
+
+	MongoExpiringSession convertToSession(DBObject session) {
+		return (MongoExpiringSession) convert(session, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class));
+	}
+
+	DBObject convertToDBObject(MongoExpiringSession session) {
+		return (DBObject) convert(session, TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class));
+	}
 }

@@ -16,9 +16,11 @@
 package org.springframework.session.data.mongo;
 
 import com.mongodb.DBObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -47,24 +49,21 @@ import java.util.Map;
  */
 public class MongoOperationsSessionRepository implements FindByIndexNameSessionRepository<MongoExpiringSession> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MongoOperationsSessionRepository.class);
+	private static final Log LOG = LogFactory.getLog(MongoOperationsSessionRepository.class);
 
 	public static final String EXPIRES_AT_FIELD = "expireAt";
 	public static final String PRINCIPAL_FIELD_NAME = "principal";
 
 	private final MongoOperations mongoOperations;
-	private final Converter<MongoExpiringSession, DBObject> sessionSerializer;
-	private final Converter<DBObject, MongoExpiringSession> sessionDeserializer;
+	private final GenericConverter mongoSessionConverter;
 	private final Integer maxInactiveIntervalInSeconds;
 	private final String collectionName;
 
 	public MongoOperationsSessionRepository(MongoOperations mongoOperations,
-	                                        Converter<MongoExpiringSession, DBObject> mongoSessionSerializer,
-	                                        Converter<DBObject, MongoExpiringSession> mongoSessionDeserializer,
+	                                        GenericConverter mongoSessionConverter,
 	                                        Integer maxInactiveIntervalInSeconds, String collectionName) {
 		this.mongoOperations = mongoOperations;
-		this.sessionSerializer = mongoSessionSerializer;
-		this.sessionDeserializer = mongoSessionDeserializer;
+		this.mongoSessionConverter = mongoSessionConverter;
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
 		this.collectionName = collectionName;
 	}
@@ -74,7 +73,8 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	}
 
 	public void save(MongoExpiringSession session) {
-		DBObject jo = sessionSerializer.convert(session);
+		DBObject jo = (DBObject) mongoSessionConverter
+				.convert(session, TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class));
 		mongoOperations.getCollection(collectionName).save(jo);
 	}
 
@@ -83,7 +83,8 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 		if (sessionWrapper == null) {
 			return null;
 		}
-		MongoExpiringSession session = sessionDeserializer.convert(sessionWrapper);
+		MongoExpiringSession session = (MongoExpiringSession) mongoSessionConverter
+				.convert(sessionWrapper, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class));
 		if (session.isExpired()) {
 			delete(id);
 			return null;
@@ -105,7 +106,7 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 		HashMap<String, MongoExpiringSession> result = new HashMap<String, MongoExpiringSession>();
 		List<DBObject> mapSessions = mongoOperations.find(getPrincipalQuery(indexValue), DBObject.class, collectionName);
 		for (DBObject session : mapSessions) {
-			MongoExpiringSession mapSession = sessionDeserializer.convert(session);
+			MongoExpiringSession mapSession = (MongoExpiringSession) mongoSessionConverter.convert(session, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class));
 			result.put(mapSession.getId(), mapSession);
 		}
 		return result;
@@ -126,11 +127,11 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 		List<IndexInfo> indexInfo = indexOperations.getIndexInfo();
 		for (IndexInfo info : indexInfo) {
 			if (EXPIRES_AT_FIELD.equals(info.getName())) {
-				LOG.debug("TTL index on field {} already exists", EXPIRES_AT_FIELD);
+				LOG.debug("TTL index on field " + EXPIRES_AT_FIELD + " already exists");
 				return;
 			}
 		}
-		LOG.info("Creating TTL index on field {}", EXPIRES_AT_FIELD);
+		LOG.info("Creating TTL index on field " + EXPIRES_AT_FIELD);
 		indexOperations.ensureIndex(new Index(EXPIRES_AT_FIELD, Sort.Direction.ASC).named(EXPIRES_AT_FIELD).expire(0));
 	}
 
