@@ -59,6 +59,9 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			for (Cookie cookie : cookies) {
 				if (cookieName.equals(cookie.getName())) {
 					String sessionId = cookie.getValue();
+					if(sessionId == null) {
+						continue;
+					}
 					if(jvmRoute != null && sessionId.endsWith(jvmRoute)) {
 						sessionId = sessionId.substring(0, sessionId.length() - jvmRoute.length());
 					}

@@ -88,6 +88,30 @@ public class DefaultCookieSerializerTests {
 		assertThat(serializer.readCookieValues(request)).containsExactly(sessionId, secondSession);
 	}
 
+	// gh-392
+	@Test
+	public void readCookieValuesNullCookieValue() {
+		request.setCookies(new Cookie(cookieName, null));
+
+		assertThat(serializer.readCookieValues(request)).isEmpty();
+	}
+
+	@Test
+	public void readCookieValuesNullCookieValueAndJvmRoute() {
+		serializer.setJvmRoute("123");
+		request.setCookies(new Cookie(cookieName, null));
+
+		assertThat(serializer.readCookieValues(request)).isEmpty();
+	}
+
+	@Test
+	public void readCookieValuesNullCookieValueAndNotNullCookie() {
+		serializer.setJvmRoute("123");
+		request.setCookies(new Cookie(cookieName, null), new Cookie(cookieName, sessionId));
+
+		assertThat(serializer.readCookieValues(request)).containsOnly(sessionId);
+	}
+
 	// --- writeCookie ---
 
 	@Test
