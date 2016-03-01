@@ -49,12 +49,12 @@ import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
-import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
 import org.springframework.session.data.gemfire.support.GemFireUtils;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -78,6 +78,7 @@ import com.gemstone.gemfire.cache.client.Pool;
  * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
  * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
  * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
+ * @see org.springframework.test.annotation.DirtiesContext
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
@@ -90,6 +91,7 @@ import com.gemstone.gemfire.cache.client.Pool;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes =
 	ClientServerGemFireOperationsSessionRepositoryIntegrationTests.SpringSessionGemFireClientConfiguration.class)
+@DirtiesContext
 @WebAppConfiguration
 public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests extends AbstractGemFireIntegrationTests {
 
@@ -100,6 +102,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 	private static File processWorkingDirectory;
 
 	private static Process gemfireServer;
+
+	private static final String SPRING_SESSION_GEMFIRE_REGION_NAME = "TestClientServerSessions";
 
 	@Autowired
 	private SessionEventListener sessionEventListener;
@@ -147,7 +151,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 		assertThat(GemFireUtils.isClient(gemfireCache)).isTrue();
 
 		Region<Object, ExpiringSession> springSessionGemFireRegion = gemfireCache.getRegion(
-			GemFireHttpSessionConfiguration.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
+			SPRING_SESSION_GEMFIRE_REGION_NAME);
 
 		assertThat(springSessionGemFireRegion).isNotNull();
 
@@ -235,7 +239,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 		assertThat(deletedSession).isNull();
 	}
 
-	@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession(regionName =  SPRING_SESSION_GEMFIRE_REGION_NAME,
+		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireClientConfiguration {
 
 		//TODO remove when SGF-458 is released
@@ -313,7 +318,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 		}
 	}
 
-	@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
+		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireServerConfiguration {
 
 		static final int MAX_CONNECTIONS = 50;

@@ -227,7 +227,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionCreatedEvent.class);
@@ -267,7 +267,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionCreatedEvent.class);
@@ -302,7 +302,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void afterCreatedWithNonSessionTypeDoesNotPublishSessionCreatedEvent() {
 		TestGemFireOperationsSessionRepository sessionRepository = new TestGemFireOperationsSessionRepository(mockGemfireOperations) {
-			@Override protected void handleCreated(final String sessionId, final ExpiringSession session) {
+			@Override protected void handleCreated(String sessionId, ExpiringSession session) {
 				fail("handleCreated(..) should not have been called");
 			}
 		};
@@ -310,7 +310,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn("abc123");
-		when(mockEntryEvent.getNewValue()).thenReturn(new Object());
+		when(mockEntryEvent.getNewValue()).thenReturn(new Tombstone());
 
 		sessionRepository.afterCreate((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
 
@@ -330,7 +330,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionDestroyedEvent.class);
@@ -370,7 +370,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionDestroyedEvent.class);
@@ -409,7 +409,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionDestroyedEvent.class);
@@ -427,7 +427,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
+		when(mockEntryEvent.getOldValue()).thenReturn(new Tombstone());
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
 		sessionRepository.afterDestroy((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
@@ -451,7 +451,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionExpiredEvent.class);
@@ -491,7 +491,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionExpiredEvent.class);
@@ -530,7 +530,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionExpiredEvent.class);
@@ -548,7 +548,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		EntryEvent mockEntryEvent = mock(EntryEvent.class);
 
 		when(mockEntryEvent.getKey()).thenReturn(sessionId);
-		when(mockEntryEvent.getOldValue()).thenReturn(new Object());
+		when(mockEntryEvent.getOldValue()).thenReturn(new Tombstone());
 
 		sessionRepository.setApplicationEventPublisher(mockApplicationEventPublisher);
 		sessionRepository.afterInvalidate((EntryEvent<Object, ExpiringSession>) mockEntryEvent);
@@ -571,7 +571,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionDeletedEvent.class);
@@ -602,7 +602,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		ApplicationEventPublisher mockApplicationEventPublisher = mock(ApplicationEventPublisher.class);
 
 		doAnswer(new Answer<Void>() {
-			public Void answer(final InvocationOnMock invocation) throws Throwable {
+			public Void answer(InvocationOnMock invocation) throws Throwable {
 				ApplicationEvent applicationEvent = invocation.getArgumentAt(0, ApplicationEvent.class);
 
 				assertThat(applicationEvent).isInstanceOf(SessionDeletedEvent.class);
@@ -1510,6 +1510,9 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		public void finish() {
 			session = null;
 		}
+	}
+
+	static class Tombstone {
 	}
 
 	protected static class TestGemFireOperationsSessionRepository extends AbstractGemFireOperationsSessionRepository {

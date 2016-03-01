@@ -42,10 +42,20 @@ import com.gemstone.gemfire.cache.query.Index;
 import com.gemstone.gemfire.cache.query.QueryService;
 
 /**
- * The GemFireHttpSessionJavaConfigurationTests class...
+ * The GemFireHttpSessionJavaConfigurationTests class is a test suite of test cases testing the configuration of
+ * Spring Session backed by GemFire using Java-based configuration meta-data.
  *
  * @author John Blum
- * @since 1.0.0
+ * @see org.junit.Test
+ * @see org.springframework.session.ExpiringSession
+ * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
+ * @see org.springframework.test.annotation.DirtiesContext
+ * @see org.springframework.test.context.ContextConfiguration
+ * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
+ * @see org.springframework.test.context.web.WebAppConfiguration
+ * @see com.gemstone.gemfire.cache.Cache
+ * @see com.gemstone.gemfire.cache.Region
+ * @since 1.1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -68,7 +78,7 @@ public class GemFireHttpSessionJavaConfigurationTests extends AbstractGemFireInt
 
 	@Test
 	public void gemfireCacheConfigurationIsValid() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "Example",
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "JavaExample",
 			DataPolicy.REPLICATE);
 
 		assertEntryIdleTimeout(example, ExpirationAction.INVALIDATE, 900);
@@ -76,7 +86,7 @@ public class GemFireHttpSessionJavaConfigurationTests extends AbstractGemFireInt
 
 	@Test
 	public void verifyGemFireExampleCacheRegionPrincipalNameIndexWasCreatedSuccessfully() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "Example",
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "JavaExample",
 			DataPolicy.REPLICATE);
 
 		QueryService queryService = example.getRegionService().getQueryService();
@@ -90,7 +100,7 @@ public class GemFireHttpSessionJavaConfigurationTests extends AbstractGemFireInt
 
 	@Test
 	public void verifyGemFireExampleCacheRegionSessionAttributesIndexWasNotCreated() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "Example",
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "JavaExample",
 			DataPolicy.REPLICATE);
 
 		QueryService queryService = example.getRegionService().getQueryService();
@@ -103,7 +113,7 @@ public class GemFireHttpSessionJavaConfigurationTests extends AbstractGemFireInt
 	}
 
 	@EnableGemFireHttpSession(indexableSessionAttributes = {}, maxInactiveIntervalInSeconds = 900,
-		regionName = "Example", serverRegionShortcut = RegionShortcut.REPLICATE)
+		regionName = "JavaExample", serverRegionShortcut = RegionShortcut.REPLICATE)
 	public static class GemFireConfiguration {
 
 		@Bean
