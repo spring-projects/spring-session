@@ -243,11 +243,6 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireClientConfiguration {
 
-		//TODO remove when SGF-458 is released
-		static {
-			System.setProperty("gemfire.log-level", GEMFIRE_LOG_LEVEL);
-		}
-
 		@Bean
 		PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 			return new PropertySourcesPlaceholderConfigurer();
@@ -256,18 +251,19 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests exte
 		@Bean
 		Properties gemfireProperties() {
 			Properties gemfireProperties = new Properties();
-			//TODO uncomment when SGF-458 is released.
-			//gemfireProperties.setProperty("name", ClientServerGemFireOperationsSessionRepositoryIntegrationTests.class.getName());
-			//gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
+			gemfireProperties.setProperty("name", ClientServerGemFireOperationsSessionRepositoryIntegrationTests.class.getName());
+			gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
 			return gemfireProperties;
 		}
 
 		@Bean(name = GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME)
 		PoolFactoryBean gemfirePool(@Value("${spring.session.data.gemfire.port:"+DEFAULT_GEMFIRE_SERVER_PORT+"}") int port) {
-			PoolFactoryBean poolFactory = new PoolFactoryBean();
+			PoolFactoryBean poolFactory = new PoolFactoryBean() {
+				@Override protected Properties resolveGemfireProperties() {
+					return gemfireProperties();
+				}
+			};
 
-			// TODO uncomment when SGF-458 is released
-			//poolFactory.setProperties(gemfireProperties());
 			poolFactory.setName(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
 			poolFactory.setFreeConnectionTimeout(5000); // 5 seconds
 			poolFactory.setKeepAlive(false);
