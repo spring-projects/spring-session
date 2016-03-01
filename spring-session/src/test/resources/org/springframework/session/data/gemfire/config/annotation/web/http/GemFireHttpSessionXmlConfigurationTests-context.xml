@@ -19,7 +19,8 @@
 	<gfe:cache properties-ref="gemfireProperties" close="true"/>
 
 	<bean class="org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration"
-		p:indexableSessionAttributes="one, two, three" p:maxInactiveIntervalInSeconds="3600" p:springSessionGemFireRegionName="Example"
-		  p:serverRegionShortcut="#{T(com.gemstone.gemfire.cache.RegionShortcut).LOCAL}"/>
+		p:indexableSessionAttributes="one, two, three" p:maxInactiveIntervalInSeconds="3600"
+		  p:serverRegionShortcut="#{T(com.gemstone.gemfire.cache.RegionShortcut).LOCAL}"
+		  	p:springSessionGemFireRegionName="XmlExample"/>
 
 </beans>

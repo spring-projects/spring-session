@@ -39,6 +39,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -64,13 +65,17 @@ import com.gemstone.gemfire.pdx.PdxWriter;
  * @see org.junit.runner.RunWith
  * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
  * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository
+ * @see org.springframework.test.annotation.DirtiesContext
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
+ * @see com.gemstone.gemfire.cache.Cache
+ * @see com.gemstone.gemfire.cache.Region
  * @since 1.1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
+@DirtiesContext
 @WebAppConfiguration
 public class GemFireOperationsSessionRepositoryIntegrationTests extends AbstractGemFireIntegrationTests {
 

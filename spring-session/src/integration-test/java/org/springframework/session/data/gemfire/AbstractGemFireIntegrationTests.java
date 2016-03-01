@@ -62,7 +62,7 @@ import com.gemstone.gemfire.cache.server.CacheServer;
  * @see com.gemstone.gemfire.cache.server.CacheServer
  * @since 1.1.0
  */
-public class AbstractGemFireIntegrationTests {
+public abstract class AbstractGemFireIntegrationTests {
 
 	protected static final boolean DEFAULT_ENABLE_QUERY_DEBUGGING = false;
 	protected static final boolean GEMFIRE_QUERY_DEBUG = Boolean.getBoolean("spring.session.data.gemfire.query.debug");

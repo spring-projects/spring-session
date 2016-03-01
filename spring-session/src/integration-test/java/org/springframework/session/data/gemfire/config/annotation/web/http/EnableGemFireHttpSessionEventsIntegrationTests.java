@@ -36,6 +36,7 @@ import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -58,6 +59,7 @@ import com.gemstone.gemfire.cache.RegionShortcut;
  * @see org.springframework.session.events.SessionCreatedEvent
  * @see org.springframework.session.events.SessionDeletedEvent
  * @see org.springframework.session.events.SessionExpiredEvent
+ * @see org.springframework.test.annotation.DirtiesContext
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
@@ -66,6 +68,7 @@ import com.gemstone.gemfire.cache.RegionShortcut;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
+@DirtiesContext
 @WebAppConfiguration
 public class EnableGemFireHttpSessionEventsIntegrationTests extends AbstractGemFireIntegrationTests {
 
