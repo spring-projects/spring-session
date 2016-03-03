@@ -91,11 +91,11 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	 * @return sessions map
 	 */
 	public Map<String, MongoExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
-		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
+		HashMap<String, MongoExpiringSession> result = new HashMap<String, MongoExpiringSession>();
+		Query query = mongoSessionConverter.getQueryForIndex(indexName, indexValue);
+		if (query == null) {
 			return Collections.emptyMap();
 		}
-		HashMap<String, MongoExpiringSession> result = new HashMap<String, MongoExpiringSession>();
-		Query query = Query.query(mongoSessionConverter.getPrincipalQuery().is(indexValue));
 		List<DBObject> mapSessions = mongoOperations.find(query, DBObject.class, collectionName);
 		for (DBObject dbSession : mapSessions) {
 			MongoExpiringSession mapSession = convertToSession(dbSession);

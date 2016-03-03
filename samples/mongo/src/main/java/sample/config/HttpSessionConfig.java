@@ -15,7 +15,7 @@
  */
 package sample.config;
 
-import org.springframework.session.data.mongo.config.EnableMongoHttpSession;
+import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 
 
 // tag::class[]

@@ -21,6 +21,7 @@ import com.mongodb.DBObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.convert.TypeDescriptor;
@@ -35,6 +36,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -137,6 +139,7 @@ public class MongoOperationsSessionRepositoryTests {
 		String principalNameIndexName = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 		DBObject dbSession = new BasicDBObject();
+		when(converter.getQueryForIndex(anyString(), Matchers.anyObject())).thenReturn(mock(Query.class));
 		when(mongoOperations.find(any(Query.class), eq(DBObject.class), eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)))
 				.thenReturn(Collections.singletonList(dbSession));
 

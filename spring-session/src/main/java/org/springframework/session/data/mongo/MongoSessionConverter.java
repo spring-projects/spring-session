@@ -1,7 +1,7 @@
 package org.springframework.session.data.mongo;
 
 import org.springframework.core.convert.converter.GenericConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 /**
  * Interface for serializing and deserializing session objects.
@@ -13,7 +13,16 @@ import org.springframework.data.mongodb.core.query.Criteria;
  */
 public interface MongoSessionConverter extends GenericConverter {
 
-	Criteria getPrincipalQuery();
+	/**
+	 * Returns query to be executed to return sessions based on a particular index
+	 * @param indexName name of the index
+	 * @param indexValue value to query against
+	 * @return built query or null if indexName is not supported
+	 */
+	Query getQueryForIndex(String indexName, Object indexValue);
 
+	/**
+	 * @return field name containing session validity timestamp
+	 */
 	String getExpiresAtFieldName();
 }

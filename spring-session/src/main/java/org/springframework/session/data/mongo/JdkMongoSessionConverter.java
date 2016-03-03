@@ -21,7 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.Session;
 
 import java.io.ByteArrayInputStream;
@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
+import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 /**
  * {@code MongoSessionConverter} implementation transforming {@code MongoExpiringSession} to/from a BSON object
@@ -56,13 +58,17 @@ class JdkMongoSessionConverter implements MongoSessionConverter {
 	private static final String EXPIRES_AT_FIELD = "expireAt";
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
+	public Query getQueryForIndex(String indexName, Object indexValue) {
+		if (PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
+			return Query.query(Criteria.where(PRINCIPAL_FIELD_NAME).is(indexValue));
+		}
+		return null;
+	}
+
 	/**
 	 * Creates a criteria for retrieving sessions for given principal name
 	 * @return built criteria
 	 */
-	public Criteria getPrincipalQuery() {
-		return Criteria.where(PRINCIPAL_FIELD_NAME);
-	}
 
 	public String getExpiresAtFieldName() {
 		return EXPIRES_AT_FIELD;
@@ -118,7 +124,7 @@ class JdkMongoSessionConverter implements MongoSessionConverter {
 		if (resolvedPrincipal != null) {
 			return resolvedPrincipal;
 		} else {
-			return expiringSession.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			return expiringSession.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
 		}
 	}
 
