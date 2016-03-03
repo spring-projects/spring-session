@@ -16,15 +16,7 @@ import java.util.concurrent.TimeUnit;
  * @author Jakub Kubrynski
  * @since 1.2
  */
-class MongoExpiringSession implements ExpiringSession {
-
-	private static final int DEFAULT_INTERVAL_IN_SECONDS = 1800;
-
-	public static final String ID = "_id";
-	public static final String CREATION_TIME = "created";
-	public static final String LAST_ACCESSED_TIME = "accessed";
-	public static final String MAX_INTERVAL = "interval";
-	public static final String ATTRIBUTES = "attr";
+public class MongoExpiringSession implements ExpiringSession {
 
 	private final String id;
 	private long created = System.currentTimeMillis();
@@ -34,7 +26,7 @@ class MongoExpiringSession implements ExpiringSession {
 	private Map<String, Object> attrs = new HashMap<String, Object>();
 
 	public MongoExpiringSession() {
-		this(DEFAULT_INTERVAL_IN_SECONDS);
+		this(MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL);
 	}
 
 	public MongoExpiringSession(int maxInactiveIntervalInSeconds) {

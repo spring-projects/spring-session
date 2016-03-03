@@ -24,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.ExpiringSession;
@@ -50,16 +49,14 @@ public class MongoOperationsSessionRepositoryTests {
 	@Mock
 	MongoOperations mongoOperations;
 	@Mock
-	GenericConverter converter;
-
-	Integer maxInterval = 1800;
-	String collectionName = "sessions";
+	MongoSessionConverter converter;
 
 	MongoOperationsSessionRepository sut;
 
 	@Before
 	public void setUp() throws Exception {
-		sut = new MongoOperationsSessionRepository(mongoOperations, converter, maxInterval, collectionName);
+		sut = new MongoOperationsSessionRepository(mongoOperations);
+		sut.setMongoSessionConverter(converter);
 	}
 
 	@Test
@@ -69,7 +66,7 @@ public class MongoOperationsSessionRepositoryTests {
 
 		//then
 		assertThat(session.getId()).isNotEmpty();
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(maxInterval);
+		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL);
 	}
 
 	@Test
@@ -80,7 +77,7 @@ public class MongoOperationsSessionRepositoryTests {
 		DBCollection collection = mock(DBCollection.class);
 
 		when(converter.convert(session, TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class))).thenReturn(dbSession);
-		when(mongoOperations.getCollection(collectionName)).thenReturn(collection);
+		when(mongoOperations.getCollection(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).thenReturn(collection);
 		//when
 		sut.save(session);
 
@@ -93,7 +90,7 @@ public class MongoOperationsSessionRepositoryTests {
 		//given
 		String sessionId = UUID.randomUUID().toString();
 		BasicDBObject dbSession = new BasicDBObject();
-		when(mongoOperations.findById(sessionId, DBObject.class, collectionName)).thenReturn(dbSession);
+		when(mongoOperations.findById(sessionId, DBObject.class, MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).thenReturn(dbSession);
 		MongoExpiringSession session = new MongoExpiringSession();
 		when(converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class))).thenReturn(session);
 
@@ -109,7 +106,7 @@ public class MongoOperationsSessionRepositoryTests {
 		//given
 		String sessionId = UUID.randomUUID().toString();
 		BasicDBObject dbSession = new BasicDBObject();
-		when(mongoOperations.findById(sessionId, DBObject.class, collectionName)).thenReturn(dbSession);
+		when(mongoOperations.findById(sessionId, DBObject.class, MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).thenReturn(dbSession);
 		MongoExpiringSession session = mock(MongoExpiringSession.class);
 		when(session.isExpired()).thenReturn(true);
 		when(session.getId()).thenReturn(sessionId);
@@ -119,7 +116,7 @@ public class MongoOperationsSessionRepositoryTests {
 		sut.getSession(sessionId);
 
 		//then
-		verify(mongoOperations).remove(any(DBObject.class), eq(collectionName));
+		verify(mongoOperations).remove(any(DBObject.class), eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
 	}
 
 	@Test
@@ -131,7 +128,7 @@ public class MongoOperationsSessionRepositoryTests {
 		sut.delete(sessionId);
 
 		//then
-		verify(mongoOperations).remove(any(DBObject.class), eq(collectionName));
+		verify(mongoOperations).remove(any(DBObject.class), eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
 	}
 
 	@Test
@@ -140,7 +137,7 @@ public class MongoOperationsSessionRepositoryTests {
 		String principalNameIndexName = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 		DBObject dbSession = new BasicDBObject();
-		when(mongoOperations.find(any(Query.class), eq(DBObject.class), eq(collectionName)))
+		when(mongoOperations.find(any(Query.class), eq(DBObject.class), eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)))
 				.thenReturn(Collections.singletonList(dbSession));
 
 		String sessionId = UUID.randomUUID().toString();

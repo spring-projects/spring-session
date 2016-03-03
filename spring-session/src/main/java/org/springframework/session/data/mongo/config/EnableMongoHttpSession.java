@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.mongo;
+package org.springframework.session.data.mongo.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -56,10 +57,10 @@ public @interface EnableMongoHttpSession {
 	/**
 	 * @return default max inactive interval in seconds
 	 */
-	int maxInactiveIntervalInSeconds() default 1800;
+	int maxInactiveIntervalInSeconds() default MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL;
 
 	/**
 	 * @return name of the collection to store session
 	 */
-	String collectionName() default "sessions";
+	String collectionName() default MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME;
 }

@@ -30,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.AbstractITests;
+import org.springframework.session.data.mongo.config.EnableMongoHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.net.UnknownHostException;

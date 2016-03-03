@@ -19,14 +19,11 @@ import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexInfo;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 
@@ -38,7 +35,7 @@ import java.util.Map;
 
 /**
  * Session repository implementation which stores sessions in Mongo.
- * Uses {@link Converter} to transform session objects from/to
+ * Uses {@link MongoSessionConverter} to transform session objects from/to
  * native Mongo representation ({@code DBObject}).
  *
  * Repository is also responsible for removing expired sessions from database.
@@ -51,21 +48,17 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 
 	private static final Log LOG = LogFactory.getLog(MongoOperationsSessionRepository.class);
 
-	public static final String EXPIRES_AT_FIELD = "expireAt";
-	public static final String PRINCIPAL_FIELD_NAME = "principal";
+	public static final int DEFAULT_INACTIVE_INTERVAL = 1800;
+	public static final String DEFAULT_COLLECTION_NAME = "sessions";
 
 	private final MongoOperations mongoOperations;
-	private final GenericConverter mongoSessionConverter;
-	private final Integer maxInactiveIntervalInSeconds;
-	private final String collectionName;
 
-	public MongoOperationsSessionRepository(MongoOperations mongoOperations,
-	                                        GenericConverter mongoSessionConverter,
-	                                        Integer maxInactiveIntervalInSeconds, String collectionName) {
+	private MongoSessionConverter mongoSessionConverter = new JdkMongoSessionConverter();
+	private Integer maxInactiveIntervalInSeconds = DEFAULT_INACTIVE_INTERVAL;
+	private String collectionName = DEFAULT_COLLECTION_NAME;
+
+	public MongoOperationsSessionRepository(MongoOperations mongoOperations) {
 		this.mongoOperations = mongoOperations;
-		this.mongoSessionConverter = mongoSessionConverter;
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
-		this.collectionName = collectionName;
 	}
 
 	public MongoExpiringSession createSession() {
@@ -73,9 +66,8 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	}
 
 	public void save(MongoExpiringSession session) {
-		DBObject jo = (DBObject) mongoSessionConverter
-				.convert(session, TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class));
-		mongoOperations.getCollection(collectionName).save(jo);
+		DBObject sessionDbObject = convertToDBObject(session);
+		mongoOperations.getCollection(collectionName).save(sessionDbObject);
 	}
 
 	public MongoExpiringSession getSession(String id) {
@@ -83,8 +75,7 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 		if (sessionWrapper == null) {
 			return null;
 		}
-		MongoExpiringSession session = (MongoExpiringSession) mongoSessionConverter
-				.convert(sessionWrapper, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class));
+		MongoExpiringSession session = convertToSession(sessionWrapper);
 		if (session.isExpired()) {
 			delete(id);
 			return null;
@@ -104,9 +95,10 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 			return Collections.emptyMap();
 		}
 		HashMap<String, MongoExpiringSession> result = new HashMap<String, MongoExpiringSession>();
-		List<DBObject> mapSessions = mongoOperations.find(getPrincipalQuery(indexValue), DBObject.class, collectionName);
-		for (DBObject session : mapSessions) {
-			MongoExpiringSession mapSession = (MongoExpiringSession) mongoSessionConverter.convert(session, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class));
+		Query query = Query.query(mongoSessionConverter.getPrincipalQuery().is(indexValue));
+		List<DBObject> mapSessions = mongoOperations.find(query, DBObject.class, collectionName);
+		for (DBObject dbSession : mapSessions) {
+			MongoExpiringSession mapSession = convertToSession(dbSession);
 			result.put(mapSession.getId(), mapSession);
 		}
 		return result;
@@ -125,27 +117,40 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	public void ensureExpirationIndex() {
 		IndexOperations indexOperations = mongoOperations.indexOps(collectionName);
 		List<IndexInfo> indexInfo = indexOperations.getIndexInfo();
+		String expiresAtField = mongoSessionConverter.getExpiresAtFieldName();
 		for (IndexInfo info : indexInfo) {
-			if (EXPIRES_AT_FIELD.equals(info.getName())) {
-				LOG.debug("TTL index on field " + EXPIRES_AT_FIELD + " already exists");
+			if (expiresAtField.equals(info.getName())) {
+				LOG.debug("TTL index on field " + expiresAtField + " already exists");
 				return;
 			}
 		}
-		LOG.info("Creating TTL index on field " + EXPIRES_AT_FIELD);
-		indexOperations.ensureIndex(new Index(EXPIRES_AT_FIELD, Sort.Direction.ASC).named(EXPIRES_AT_FIELD).expire(0));
-	}
-
-	/**
-	 * Creates a query for retrieving sessions for given principal name
-	 * @param indexValue principal value to query for
-	 * @return built query
-	 */
-	protected Query getPrincipalQuery(String indexValue) {
-		return Query.query(Criteria.where(PRINCIPAL_FIELD_NAME).is(indexValue));
+		LOG.info("Creating TTL index on field " + expiresAtField);
+		indexOperations.ensureIndex(new Index(expiresAtField, Sort.Direction.ASC).named(expiresAtField).expire(0));
 	}
 
 	DBObject findSession(String id) {
 		return mongoOperations.findById(id, DBObject.class, collectionName);
 	}
 
+	MongoExpiringSession convertToSession(DBObject session) {
+		return (MongoExpiringSession) mongoSessionConverter.convert(session,
+				TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class));
+	}
+
+	DBObject convertToDBObject(MongoExpiringSession session) {
+		return (DBObject) mongoSessionConverter.convert(session,
+				TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class));
+	}
+
+	public void setMongoSessionConverter(MongoSessionConverter mongoSessionConverter) {
+		this.mongoSessionConverter = mongoSessionConverter;
+	}
+
+	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
+		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	}
+
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
+	}
 }

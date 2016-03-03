@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.mongo;
+package org.springframework.session.data.mongo.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
+import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
+import org.springframework.session.data.mongo.MongoSessionConverter;
 
 /**
  * Configuration class registering {@code MongoSessionRepository} bean
@@ -34,15 +36,20 @@ import org.springframework.session.config.annotation.web.http.SpringHttpSessionC
 @Configuration
 class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
-	private GenericConverter mongoSessionConverter = new MongoSessionConverter();
+	private MongoSessionConverter mongoSessionConverter;
 
 	private Integer maxInactiveIntervalInSeconds;
 	private String collectionName;
 
 	@Bean
 	MongoOperationsSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {
-		return new MongoOperationsSessionRepository(mongoOperations,
-				mongoSessionConverter, maxInactiveIntervalInSeconds, collectionName);
+		MongoOperationsSessionRepository repository = new MongoOperationsSessionRepository(mongoOperations);
+		repository.setCollectionName(collectionName);
+		repository.setMaxInactiveIntervalInSeconds(maxInactiveIntervalInSeconds);
+		if (mongoSessionConverter != null) {
+			repository.setMongoSessionConverter(mongoSessionConverter);
+		}
+		return repository;
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -52,7 +59,8 @@ class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration imple
 		collectionName = attributes.getString("collectionName");
 	}
 
-	public void setMongoSessionConverter(GenericConverter mongoSessionConverter) {
+	@Autowired(required = false)
+	public void setMongoSessionConverter(MongoSessionConverter mongoSessionConverter) {
 		this.mongoSessionConverter = mongoSessionConverter;
 	}
 }
