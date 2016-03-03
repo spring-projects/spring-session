@@ -60,15 +60,15 @@ import org.springframework.util.StringUtils;
 @EnableScheduling
 public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
-	private Integer maxInactiveIntervalInSeconds = 1800;
+    protected Integer maxInactiveIntervalInSeconds = 1800;
 
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
 
-	private String redisNamespace = "";
+	protected String redisNamespace = "";
 
-	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
+    protected RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
-	private RedisSerializer<Object> defaultRedisSerializer;
+    protected RedisSerializer<Object> defaultRedisSerializer;
 
 	private Executor redisTaskExecutor;
 
@@ -135,7 +135,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.redisFlushMode = redisFlushMode;
 	}
 
-	private String getRedisNamespace() {
+    protected String getRedisNamespace() {
 		if(StringUtils.hasText(this.redisNamespace)) {
 			return this.redisNamespace;
 		}
@@ -143,8 +143,10 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-
 		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
+		if (enableAttrMap == null)
+            return;
+
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 		maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
 		this.redisNamespace = enableAttrs.getString("redisNamespace");

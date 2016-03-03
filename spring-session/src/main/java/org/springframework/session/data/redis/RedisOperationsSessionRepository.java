@@ -643,7 +643,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 	 * @since 1.0
 	 * @author Rob Winch
 	 */
-	final class RedisSession implements ExpiringSession {
+	public class RedisSession implements ExpiringSession {
 		private final MapSession cached;
 		private Long originalLastAccessTime;
 		private Map<String, Object> delta = new HashMap<String,Object>();
@@ -653,7 +653,7 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be persisted in the next save operation.
 		 */
-		RedisSession() {
+		public RedisSession() {
 			this(new MapSession());
 			delta.put(CREATION_TIME_ATTR, getCreationTime());
 			delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
@@ -665,9 +665,9 @@ public class RedisOperationsSessionRepository implements FindByIndexNameSessionR
 		/**
 		 * Creates a new instance from the provided {@link MapSession}
 		 *
-		 * @param cached the {@MapSession} that represents the persisted session that was retrieved. Cannot be null.
+		 * @param cached the {@link MapSession} that represents the persisted session that was retrieved. Cannot be null.
 		 */
-		RedisSession(MapSession cached) {
+		public RedisSession(MapSession cached) {
 			Assert.notNull("MapSession cannot be null");
 			this.cached = cached;
 			this.originalPrincipalName = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
