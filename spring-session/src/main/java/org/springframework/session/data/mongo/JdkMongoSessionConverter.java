@@ -44,7 +44,7 @@ import static org.springframework.session.FindByIndexNameSessionRepository.PRINC
  * @author Jakub Kubrynski
  * @since 1.2
  */
-class JdkMongoSessionConverter implements MongoSessionConverter {
+class JdkMongoSessionConverter extends MongoSessionConverter {
 
 	private static final Log LOG = LogFactory.getLog(JdkMongoSessionConverter.class);
 
@@ -55,7 +55,6 @@ class JdkMongoSessionConverter implements MongoSessionConverter {
 	private static final String ATTRIBUTES = "attr";
 
 	private static final String PRINCIPAL_FIELD_NAME = "principal";
-	private static final String EXPIRES_AT_FIELD = "expireAt";
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	public Query getQueryForIndex(String indexName, Object indexValue) {
@@ -63,15 +62,6 @@ class JdkMongoSessionConverter implements MongoSessionConverter {
 			return Query.query(Criteria.where(PRINCIPAL_FIELD_NAME).is(indexValue));
 		}
 		return null;
-	}
-
-	/**
-	 * Creates a criteria for retrieving sessions for given principal name
-	 * @return built criteria
-	 */
-
-	public String getExpiresAtFieldName() {
-		return EXPIRES_AT_FIELD;
 	}
 
 	public Set<ConvertiblePair> getConvertibleTypes() {
@@ -97,7 +87,7 @@ class JdkMongoSessionConverter implements MongoSessionConverter {
 		basicDBObject.put(LAST_ACCESSED_TIME, session.getLastAccessedTime());
 		basicDBObject.put(MAX_INTERVAL, session.getMaxInactiveIntervalInSeconds());
 		basicDBObject.put(PRINCIPAL_FIELD_NAME, extractPrincipal(session));
-		basicDBObject.put(EXPIRES_AT_FIELD, session.getExpireAt());
+		basicDBObject.put(EXPIRE_AT_FIELD_NAME, session.getExpireAt());
 		basicDBObject.put(ATTRIBUTES, serializeAttributes(session));
 		return basicDBObject;
 	}
@@ -133,7 +123,7 @@ class JdkMongoSessionConverter implements MongoSessionConverter {
 				new MongoExpiringSession((String) sessionWrapper.get(ID), (Integer) sessionWrapper.get(MAX_INTERVAL));
 		session.setCreationTime((Long) sessionWrapper.get(CREATION_TIME));
 		session.setLastAccessedTime((Long) sessionWrapper.get(LAST_ACCESSED_TIME));
-		session.setExpireAt((Date) sessionWrapper.get(EXPIRES_AT_FIELD));
+		session.setExpireAt((Date) sessionWrapper.get(EXPIRE_AT_FIELD_NAME));
 		deserializeAttributes(sessionWrapper, session);
 		return session;
 	}

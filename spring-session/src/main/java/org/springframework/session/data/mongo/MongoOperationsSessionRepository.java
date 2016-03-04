@@ -16,14 +16,9 @@
 package org.springframework.session.data.mongo;
 
 import com.mongodb.DBObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.index.IndexInfo;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 
@@ -45,8 +40,6 @@ import java.util.Map;
  * @since 1.2
  */
 public class MongoOperationsSessionRepository implements FindByIndexNameSessionRepository<MongoExpiringSession> {
-
-	private static final Log LOG = LogFactory.getLog(MongoOperationsSessionRepository.class);
 
 	public static final int DEFAULT_INACTIVE_INTERVAL = 1800;
 	public static final String DEFAULT_COLLECTION_NAME = "sessions";
@@ -108,24 +101,10 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 		mongoOperations.remove(findSession(id), collectionName);
 	}
 
-	/**
-	 * Method ensures that there is a TTL index on {@literal expireAt} field.
-	 * It's has {@literal expireAfterSeconds} set to zero seconds, so the expiration
-	 * time is controlled by the application
-	 */
 	@PostConstruct
-	public void ensureExpirationIndex() {
+	public void ensureIndexesAreCreated() {
 		IndexOperations indexOperations = mongoOperations.indexOps(collectionName);
-		List<IndexInfo> indexInfo = indexOperations.getIndexInfo();
-		String expiresAtField = mongoSessionConverter.getExpiresAtFieldName();
-		for (IndexInfo info : indexInfo) {
-			if (expiresAtField.equals(info.getName())) {
-				LOG.debug("TTL index on field " + expiresAtField + " already exists");
-				return;
-			}
-		}
-		LOG.info("Creating TTL index on field " + expiresAtField);
-		indexOperations.ensureIndex(new Index(expiresAtField, Sort.Direction.ASC).named(expiresAtField).expire(0));
+		mongoSessionConverter.ensureIndexes(indexOperations);
 	}
 
 	DBObject findSession(String id) {
