@@ -1,0 +1,125 @@
+/*
+ * Copyright 2014-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.session.jdbc.config.annotation.web.http;
+
+import java.util.Map;
+
+import javax.sql.DataSource;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportAware;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
+import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.util.StringUtils;
+
+/**
+ * Spring @Configuration class used to configure and initialize a JDBC based HttpSession
+ * provider implementation in Spring Session.
+ * <p>
+ * Exposes the {@link org.springframework.session.web.http.SessionRepositoryFilter} as a
+ * bean named "springSessionRepositoryFilter". In order to use this a single
+ * {@link DataSource} must be exposed as a Bean.
+ *
+ * @author Vedran Pavic
+ * @since 1.2.0
+ * @see EnableJdbcHttpSession
+ */
+@Configuration
+@EnableScheduling
+public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
+
+	private String tableName = "";
+
+	private Integer maxInactiveIntervalInSeconds = 1800;
+
+	private LobHandler lobHandler;
+
+	private Converter<Object, byte[]> serializingConverter;
+
+	private Converter<byte[], Object> deserializingConverter;
+
+	@Bean
+	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
+		return new JdbcTemplate(dataSource);
+	}
+
+	@Bean
+	public JdbcOperationsSessionRepository sessionRepository(
+			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations) {
+		JdbcOperationsSessionRepository sessionRepository =
+				new JdbcOperationsSessionRepository(jdbcOperations);
+		String tableName = getTableName();
+		if (StringUtils.hasText(tableName)) {
+			sessionRepository.setTableName(tableName);
+		}
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		if (this.lobHandler != null) {
+			sessionRepository.setLobHandler(this.lobHandler);
+		}
+		if (this.serializingConverter != null) {
+			sessionRepository.setSerializingConverter(this.serializingConverter);
+		}
+		if (this.deserializingConverter != null) {
+			sessionRepository.setDeserializingConverter(this.deserializingConverter);
+		}
+		return sessionRepository;
+	}
+
+	@Autowired(required = false)
+	@Qualifier("springSessionLobHandler")
+	public void setLobHandler(LobHandler lobHandler) {
+		this.lobHandler = lobHandler;
+	}
+
+	@Autowired(required = false)
+	@Qualifier("springSessionSerializingConverter")
+	public void setSerializingConverter(Converter<Object, byte[]> serializingConverter) {
+		this.serializingConverter = serializingConverter;
+	}
+
+	@Autowired(required = false)
+	@Qualifier("springSessionDeserializingConverter")
+	public void setDeserializingConverter(Converter<byte[], Object> deserializingConverter) {
+		this.deserializingConverter = deserializingConverter;
+	}
+
+	private String getTableName() {
+		if (StringUtils.hasText(this.tableName)) {
+			return this.tableName;
+		}
+		return System.getProperty("spring.session.jdbc.tableName", "");
+	}
+
+	@Override
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
+		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
+		this.tableName = enableAttrs.getString("tableName");
+		this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+	}
+
+}

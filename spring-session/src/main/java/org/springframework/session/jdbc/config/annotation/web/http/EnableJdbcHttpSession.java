@@ -1,0 +1,83 @@
+/*
+ * Copyright 2014-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.session.jdbc.config.annotation.web.http;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+
+/**
+ * Add this annotation to an {@code @Configuration} class to expose the
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
+ * backed by a relational database. In order to leverage the annotation, a single
+ * {@link javax.sql.DataSource} must be provided. For example:
+ *
+ * <pre class="code">
+ * &#064;Configuration
+ * &#064;EnableJdbcHttpSession
+ * public class JdbcHttpSessionConfig {
+ *
+ *     &#064;Bean
+ *     public DataSource dataSource() {
+ *         return new EmbeddedDatabaseBuilder()
+ *                 .setType(EmbeddedDatabaseType.H2)
+ *                 .addScript("org/springframework/session/jdbc/schema-h2.sql")
+ *                 .build();
+ *     }
+ *
+ *     &#064;Bean
+ *     public PlatformTransactionManager transactionManager(DataSource dataSource) {
+ *         return new DataSourceTransactionManager(dataSource);
+ *     }
+ *
+ * }
+ * </pre>
+ *
+ * More advanced configurations can extend {@link JdbcHttpSessionConfiguration} instead.
+ *
+ * @author Vedran Pavic
+ * @since 1.2.0
+ * @see EnableSpringHttpSession
+ */
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = { ElementType.TYPE })
+@Documented
+@Import(JdbcHttpSessionConfiguration.class)
+@Configuration
+public @interface EnableJdbcHttpSession {
+
+	/**
+	 * The name of database table used by Spring Session to store sessions.
+	 * @return the database table name
+	 */
+	String tableName() default "";
+
+	/**
+	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
+	 * This should be a non-negative integer.
+	 *
+	 * @return the seconds a session can be inactive before expiring
+	 */
+	int maxInactiveIntervalInSeconds() default 1800;
+
+}
