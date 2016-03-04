@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.session.jdbc;
 
 import java.util.ArrayList;
@@ -203,6 +202,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void getSessionNotFound() {
 		String sessionId = "testSessionId";
 
@@ -214,6 +214,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void getSessionExpired() {
 		MapSession expired = new MapSession();
 		expired.setMaxInactiveIntervalInSeconds(0);
@@ -229,6 +230,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void getSessionFound() {
 		MapSession saved = new MapSession();
 		saved.setAttribute("savedName", "savedValue");
@@ -265,6 +267,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValuePrincipalIndexNameNotFound() {
 		String principal = "username";
 
@@ -277,6 +280,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValuePrincipalIndexNameFound() {
 		String principal = "username";
 		Authentication authentication = new UsernamePasswordAuthenticationToken(

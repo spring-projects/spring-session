@@ -197,7 +197,6 @@ public class JdbcOperationsSessionRepository
 		this.conversionService = conversionService;
 	}
 
-	@Override
 	public JdbcSession createSession() {
 		JdbcSession session = new JdbcSession();
 		if (this.defaultMaxInactiveInterval != null) {
@@ -206,12 +205,10 @@ public class JdbcOperationsSessionRepository
 		return session;
 	}
 
-	@Override
 	public void save(final JdbcSession session) {
 		if (session.isNew()) {
 			this.jdbcOperations.update(getQuery(CREATE_SESSION_QUERY), new PreparedStatementSetter() {
 
-				@Override
 				public void setValues(PreparedStatement ps) throws SQLException {
 					ps.setString(1, session.getId());
 					ps.setLong(2, session.getLastAccessedTime());
@@ -226,7 +223,6 @@ public class JdbcOperationsSessionRepository
 			if (session.isAttributesChanged()) {
 				this.jdbcOperations.update(getQuery(UPDATE_SESSION_QUERY), new PreparedStatementSetter() {
 
-					@Override
 					public void setValues(PreparedStatement ps) throws SQLException {
 						ps.setLong(1, session.getLastAccessedTime());
 						ps.setString(2, session.getPrincipalName());
@@ -240,7 +236,6 @@ public class JdbcOperationsSessionRepository
 			else if (session.isLastAccessTimeChanged()) {
 				this.jdbcOperations.update(getQuery(UPDATE_SESSION_LAST_ACCESS_TIME_QUERY), new PreparedStatementSetter() {
 
-					@Override
 					public void setValues(PreparedStatement ps) throws SQLException {
 						ps.setLong(1, session.getLastAccessedTime());
 						ps.setString(2, session.getId());
@@ -255,7 +250,6 @@ public class JdbcOperationsSessionRepository
 		session.clearChangeFlags();
 	}
 
-	@Override
 	public JdbcSession getSession(String id) {
 		ExpiringSession session = null;
 		try {
@@ -276,12 +270,10 @@ public class JdbcOperationsSessionRepository
 		return null;
 	}
 
-	@Override
 	public void delete(String id) {
 		this.jdbcOperations.update(getQuery(DELETE_SESSION_QUERY), id);
 	}
 
-	@Override
 	public Map<String, JdbcSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
@@ -388,60 +380,49 @@ public class JdbcOperationsSessionRepository
 			return PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
 		}
 
-		@Override
 		public long getCreationTime() {
 			return this.delegate.getCreationTime();
 		}
 
-		@Override
 		public void setLastAccessedTime(long lastAccessedTime) {
 			this.delegate.setLastAccessedTime(lastAccessedTime);
 			this.lastAccessTimeChanged = true;
 		}
 
-		@Override
 		public long getLastAccessedTime() {
 			return this.delegate.getLastAccessedTime();
 		}
 
-		@Override
 		public void setMaxInactiveIntervalInSeconds(int interval) {
 			this.delegate.setMaxInactiveIntervalInSeconds(interval);
 			this.attributesChanged = true;
 		}
 
-		@Override
 		public int getMaxInactiveIntervalInSeconds() {
 			return this.delegate.getMaxInactiveIntervalInSeconds();
 		}
 
-		@Override
 		public boolean isExpired() {
 			return this.delegate.isExpired();
 		}
 
-		@Override
 		public String getId() {
 			return this.delegate.getId();
 		}
 
-		@Override
 		public <T> T getAttribute(String attributeName) {
 			return this.delegate.getAttribute(attributeName);
 		}
 
-		@Override
 		public Set<String> getAttributeNames() {
 			return this.delegate.getAttributeNames();
 		}
 
-		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.delegate.setAttribute(attributeName, attributeValue);
 			this.attributesChanged = true;
 		}
 
-		@Override
 		public void removeAttribute(String attributeName) {
 			this.delegate.removeAttribute(attributeName);
 			this.attributesChanged = true;
@@ -472,7 +453,6 @@ public class JdbcOperationsSessionRepository
 
 	private class ExpiringSessionMapper implements RowMapper<ExpiringSession> {
 
-		@Override
 		public ExpiringSession mapRow(ResultSet rs, int rowNum) throws SQLException {
 			return (ExpiringSession) JdbcOperationsSessionRepository.this.conversionService.convert(
 					JdbcOperationsSessionRepository.this.lobHandler.getBlobAsBytes(rs, "SESSION_BYTES"), TypeDescriptor.valueOf(byte[].class), TypeDescriptor.valueOf(ExpiringSession.class));

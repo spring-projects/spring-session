@@ -108,7 +108,6 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return System.getProperty("spring.session.jdbc.tableName", "");
 	}
 
-	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
