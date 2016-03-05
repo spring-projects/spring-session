@@ -1,6 +1,20 @@
-package org.springframework.session.data.redis.taskexecutor;
+/*
+ * Copyright 2014-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.session.data.redis.taskexecutor;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -8,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +35,8 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Vladimir Tsanev
@@ -37,11 +54,11 @@ public class RedisListenerContainerTaskExecutorITests {
 
 	@Test
 	public void testRedisDelEventsAreDispatchedInSessionTaskExecutor() throws InterruptedException {
-		BoundSetOperations<Object, Object> ops = redis
+		BoundSetOperations<Object, Object> ops = this.redis
 				.boundSetOps("spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
 		ops.add("value");
 		ops.remove("value");
-		assertThat(executor.taskDispatched()).isTrue();
+		assertThat(this.executor.taskDispatched()).isTrue();
 
 	}
 
@@ -52,29 +69,30 @@ public class RedisListenerContainerTaskExecutorITests {
 
 		private Boolean taskDispatched;
 
-		public SessionTaskExecutor(Executor executor) {
+		SessionTaskExecutor(Executor executor) {
 			this.executor = executor;
 		}
 
 		public void execute(Runnable task) {
-			synchronized (lock) {
+			synchronized (this.lock) {
 				try {
-					executor.execute(task);
-				} finally {
-					taskDispatched = true;
-					lock.notifyAll();
+					this.executor.execute(task);
+				}
+				finally {
+					this.taskDispatched = true;
+					this.lock.notifyAll();
 				}
 			}
 		}
 
 		public boolean taskDispatched() throws InterruptedException {
-			if(taskDispatched != null) {
-				return taskDispatched;
+			if (this.taskDispatched != null) {
+				return this.taskDispatched;
 			}
-			synchronized (lock) {
-				lock.wait(TimeUnit.SECONDS.toMillis(1));
+			synchronized (this.lock) {
+				this.lock.wait(TimeUnit.SECONDS.toMillis(1));
 			}
-			return taskDispatched == null ? Boolean.FALSE : taskDispatched;
+			return this.taskDispatched == null ? Boolean.FALSE : this.taskDispatched;
 		}
 	}
 

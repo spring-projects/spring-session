@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import java.io.IOException;
@@ -21,7 +22,13 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.annotation.Resource;
+
+import com.gemstone.gemfire.cache.client.Pool;
+import com.gemstone.gemfire.management.membership.ClientMembership;
+import com.gemstone.gemfire.management.membership.ClientMembershipEvent;
+import com.gemstone.gemfire.management.membership.ClientMembershipListenerAdapter;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,15 +37,10 @@ import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.session.data.gemfire.support.GemFireUtils;
 import org.springframework.util.Assert;
 
-import com.gemstone.gemfire.cache.client.Pool;
-import com.gemstone.gemfire.management.membership.ClientMembership;
-import com.gemstone.gemfire.management.membership.ClientMembershipEvent;
-import com.gemstone.gemfire.management.membership.ClientMembershipListenerAdapter;
-
 public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcessor {
 
 	static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
-	static final long DEFAULT_WAIT_INTERVAL = 500l;
+	static final long DEFAULT_WAIT_INTERVAL = 500L;
 
 	static final CountDownLatch latch = new CountDownLatch(1);
 
@@ -65,8 +67,8 @@ public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcess
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 			String host = getServerHost(DEFAULT_SERVER_HOST);
-			Assert.isTrue(waitForCacheServerToStart(host, port), String.format(
-				"GemFire Server failed to start [host: '%1$s', port: %2$d]%n", host, port));
+			Assert.isTrue(waitForCacheServerToStart(host, this.port), String.format(
+				"GemFire Server failed to start [host: '%1$s', port: %2$d]%n", host, this.port));
 		}
 
 		return bean;
@@ -91,7 +93,7 @@ public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcess
 	}
 
 	String getServerHost(String defaultServerHost) {
-		return applicationProperties.getProperty("application.gemfire.client-server.host", defaultServerHost);
+		return this.applicationProperties.getProperty("application.gemfire.client-server.host", defaultServerHost);
 	}
 
 	boolean waitForCacheServerToStart(String host, int port) {

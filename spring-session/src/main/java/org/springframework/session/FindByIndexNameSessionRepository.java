@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session;
 
 import java.util.Map;
@@ -22,11 +23,10 @@ import java.util.Map;
  * the principal name. The principal name is defined by the {@link Session}
  * attribute with the name {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME}.
  *
- * @author Rob Winch
- *
  * @param <S>
  *            the type of Session being managed by this
  *            {@link FindByIndexNameSessionRepository}
+ * @author Rob Winch
  */
 public interface FindByIndexNameSessionRepository<S extends Session> extends SessionRepository<S> {
 

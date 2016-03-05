@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,8 +33,17 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import com.gemstone.gemfire.DataSerializable;
+import com.gemstone.gemfire.DataSerializer;
+import com.gemstone.gemfire.Delta;
+import com.gemstone.gemfire.Instantiator;
+import com.gemstone.gemfire.InvalidDeltaException;
+import com.gemstone.gemfire.cache.EntryEvent;
+import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -54,20 +63,12 @@ import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.gemstone.gemfire.DataSerializable;
-import com.gemstone.gemfire.DataSerializer;
-import com.gemstone.gemfire.Delta;
-import com.gemstone.gemfire.Instantiator;
-import com.gemstone.gemfire.InvalidDeltaException;
-import com.gemstone.gemfire.cache.EntryEvent;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
-
 /**
  * AbstractGemFireOperationsSessionRepository is an abstract base class encapsulating functionality common
  * to all implementations that support SessionRepository operations backed by GemFire.
  *
  * @author John Blum
+ * @since 1.1.0
  * @see org.springframework.beans.factory.InitializingBean
  * @see org.springframework.context.ApplicationEventPublisher
  * @see org.springframework.context.ApplicationEventPublisherAware
@@ -79,7 +80,6 @@ import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
  * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
  * @see com.gemstone.gemfire.cache.Region
  * @see com.gemstone.gemfire.cache.util.CacheListenerAdapter
- * @since 1.1.0
  */
 public abstract class AbstractGemFireOperationsSessionRepository extends CacheListenerAdapter<Object, ExpiringSession>
 		implements InitializingBean, FindByIndexNameSessionRepository<ExpiringSession>,
@@ -140,7 +140,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see org.springframework.context.ApplicationEventPublisher
 	 */
 	protected ApplicationEventPublisher getApplicationEventPublisher() {
-		return applicationEventPublisher;
+		return this.applicationEventPublisher;
 	}
 
 	/**
@@ -150,7 +150,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * and manage Session data.
 	 */
 	protected String getFullyQualifiedRegionName() {
-		return fullyQualifiedRegionName;
+		return this.fullyQualifiedRegionName;
 	}
 
 	/**
@@ -170,7 +170,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * before it is considered expired.
 	 */
 	public int getMaxInactiveIntervalInSeconds() {
-		return maxInactiveIntervalInSeconds;
+		return this.maxInactiveIntervalInSeconds;
 	}
 
 	/**
@@ -181,7 +181,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see org.springframework.data.gemfire.GemfireOperations
 	 */
 	public GemfireOperations getTemplate() {
-		return template;
+		return this.template;
 	}
 
 	/**
@@ -198,7 +198,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		Region<Object, ExpiringSession> region = ((GemfireAccessor) template).getRegion();
 
-		fullyQualifiedRegionName = region.getFullPath();
+		this.fullyQualifiedRegionName = region.getFullPath();
 		region.getAttributesMutator().addCacheListener(this);
 	}
 
@@ -318,7 +318,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 			getApplicationEventPublisher().publishEvent(event);
 		}
 		catch (Throwable t) {
-			logger.error(String.format("error occurred publishing event (%1$s)", event), t);
+			this.logger.error(String.format("error occurred publishing event (%1$s)", event), t);
 		}
 	}
 
@@ -346,7 +346,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		static {
 			Instantiator.register(new Instantiator(GemFireSession.class, 800813552) {
-				@Override public DataSerializable newInstance() {
+				@Override
+				public DataSerializable newInstance() {
 					return new GemFireSession();
 				}
 			});
@@ -415,37 +416,37 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized String getId() {
-			return id;
+			return this.id;
 		}
 
 		/* (non-Javadoc) */
 		public synchronized long getCreationTime() {
-			return creationTime;
+			return this.creationTime;
 		}
 
 		/* (non-Javadoc) */
 		public void setAttribute(String attributeName, Object attributeValue) {
-			sessionAttributes.setAttribute(attributeName, attributeValue);
+			this.sessionAttributes.setAttribute(attributeName, attributeValue);
 		}
 
 		/* (non-Javadoc) */
 		public void removeAttribute(String attributeName) {
-			sessionAttributes.removeAttribute(attributeName);
+			this.sessionAttributes.removeAttribute(attributeName);
 		}
 
 		/* (non-Javadoc) */
 		public <T> T getAttribute(String attributeName) {
-			return sessionAttributes.getAttribute(attributeName);
+			return this.sessionAttributes.getAttribute(attributeName);
 		}
 
 		/* (non-Javadoc) */
 		public Set<String> getAttributeNames() {
-			return sessionAttributes.getAttributeNames();
+			return this.sessionAttributes.getAttributeNames();
 		}
 
 		/* (non-Javadoc) */
 		public GemFireSessionAttributes getAttributes() {
-			return sessionAttributes;
+			return this.sessionAttributes;
 		}
 
 		/* (non-Javadoc) */
@@ -470,7 +471,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized long getLastAccessedTime() {
-			return lastAccessedTime;
+			return this.lastAccessedTime;
 		}
 
 		/* (non-Javadoc) */
@@ -481,7 +482,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized int getMaxInactiveIntervalInSeconds() {
-			return maxInactiveIntervalInSeconds;
+			return this.maxInactiveIntervalInSeconds;
 		}
 
 		/* (non-Javadoc) */
@@ -497,7 +498,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 				Object authentication = getAttribute(SPRING_SECURITY_CONTEXT);
 
 				if (authentication != null) {
-					Expression expression = parser.parseExpression("authentication?.name");
+					Expression expression = this.parser.parseExpression("authentication?.name");
 					principalName = expression.getValue(authentication, String.class);
 				}
 			}
@@ -521,7 +522,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 				out.writeUTF(principalName);
 			}
 
-			writeObject(sessionAttributes, out);
+			writeObject(this.sessionAttributes, out);
 
 			this.delta = false;
 		}
@@ -533,8 +534,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized void fromData(DataInput in) throws ClassNotFoundException, IOException {
-			id = in.readUTF();
-			creationTime = in.readLong();
+			this.id = in.readUTF();
+			this.creationTime = in.readLong();
 			setLastAccessedTime(in.readLong());
 			setMaxInactiveIntervalInSeconds(in.readInt());
 
@@ -544,7 +545,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 				setPrincipalName(in.readUTF());
 			}
 
-			sessionAttributes.from(this.<GemFireSessionAttributes>readObject(in));
+			this.sessionAttributes.from(this.<GemFireSessionAttributes>readObject(in));
 
 			this.delta = false;
 		}
@@ -556,14 +557,14 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public synchronized boolean hasDelta() {
-			return (delta || sessionAttributes.hasDelta());
+			return (this.delta || this.sessionAttributes.hasDelta());
 		}
 
 		/* (non-Javadoc) */
 		public synchronized void toDelta(DataOutput out) throws IOException {
 			out.writeLong(getLastAccessedTime());
 			out.writeInt(getMaxInactiveIntervalInSeconds());
-			sessionAttributes.toDelta(out);
+			this.sessionAttributes.toDelta(out);
 			this.delta = false;
 		}
 
@@ -571,7 +572,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		public synchronized void fromDelta(DataInput in) throws IOException {
 			setLastAccessedTime(in.readLong());
 			setMaxInactiveIntervalInSeconds(in.readInt());
-			sessionAttributes.fromDelta(in);
+			this.sessionAttributes.fromDelta(in);
 			this.delta = false;
 		}
 
@@ -640,7 +641,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		static {
 			Instantiator.register(new Instantiator(GemFireSessionAttributes.class, 800828008) {
-				@Override public DataSerializable newInstance() {
+				@Override
+				public DataSerializable newInstance() {
 					return new GemFireSessionAttributes();
 				}
 			});
@@ -663,10 +665,10 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public void setAttribute(String attributeName, Object attributeValue) {
-			synchronized (lock) {
+			synchronized (this.lock) {
 				if (attributeValue != null) {
-					if (!attributeValue.equals(sessionAttributes.put(attributeName, attributeValue))) {
-						sessionAttributeDeltas.put(attributeName, attributeValue);
+					if (!attributeValue.equals(this.sessionAttributes.put(attributeName, attributeValue))) {
+						this.sessionAttributeDeltas.put(attributeName, attributeValue);
 					}
 				}
 				else {
@@ -677,9 +679,9 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public void removeAttribute(String attributeName) {
-			synchronized (lock) {
-				if (sessionAttributes.remove(attributeName) != null) {
-					sessionAttributeDeltas.put(attributeName, null);
+			synchronized (this.lock) {
+				if (this.sessionAttributes.remove(attributeName) != null) {
+					this.sessionAttributeDeltas.put(attributeName, null);
 				}
 			}
 		}
@@ -687,15 +689,15 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		/* (non-Javadoc) */
 		@SuppressWarnings("unchecked")
 		public <T> T getAttribute(String attributeName) {
-			synchronized (lock) {
-				return (T) sessionAttributes.get(attributeName);
+			synchronized (this.lock) {
+				return (T) this.sessionAttributes.get(attributeName);
 			}
 		}
 
 		/* (non-Javadoc) */
 		public Set<String> getAttributeNames() {
-			synchronized (lock) {
-				return Collections.unmodifiableSet(new HashSet<String>(sessionAttributes.keySet()));
+			synchronized (this.lock) {
+				return Collections.unmodifiableSet(new HashSet<String>(this.sessionAttributes.keySet()));
 			}
 		}
 
@@ -709,19 +711,21 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		@SuppressWarnings("all")
 		public Set<Entry<String, Object>> entrySet() {
 			return new AbstractSet<Entry<String, Object>>() {
-				@Override public Iterator<Entry<String, Object>> iterator() {
-					return Collections.unmodifiableMap(sessionAttributes).entrySet().iterator();
+				@Override
+				public Iterator<Entry<String, Object>> iterator() {
+					return Collections.unmodifiableMap(GemFireSessionAttributes.this.sessionAttributes).entrySet().iterator();
 				}
 
-				@Override public int size() {
-					return sessionAttributes.size();
+				@Override
+				public int size() {
+					return GemFireSessionAttributes.this.sessionAttributes.size();
 				}
 			};
 		}
 
 		/* (non-Javadoc) */
 		public void from(Session session) {
-			synchronized (lock) {
+			synchronized (this.lock) {
 				for (String attributeName : session.getAttributeNames()) {
 					setAttribute(attributeName, session.getAttribute(attributeName));
 				}
@@ -730,7 +734,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public void from(GemFireSessionAttributes sessionAttributes) {
-			synchronized (lock) {
+			synchronized (this.lock) {
 				for (String attributeName : sessionAttributes.getAttributeNames()) {
 					setAttribute(attributeName, sessionAttributes.getAttribute(attributeName));
 				}
@@ -739,7 +743,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public void toData(DataOutput out) throws IOException {
-			synchronized (lock) {
+			synchronized (this.lock) {
 				Set<String> attributeNames = getAttributeNames();
 
 				out.writeInt(attributeNames.size());
@@ -758,44 +762,44 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		/* (non-Javadoc) */
 		public void fromData(DataInput in) throws IOException, ClassNotFoundException {
-			synchronized (lock) {
+			synchronized (this.lock) {
 				for (int count = in.readInt(); count > 0; count--) {
 					setAttribute(in.readUTF(), readObject(in));
 				}
 
-				sessionAttributeDeltas.clear();
+				this.sessionAttributeDeltas.clear();
 			}
 		}
 
 		/* (non-Javadoc) */
-		<T> T readObject(DataInput in) throws ClassNotFoundException , IOException {
+		<T> T readObject(DataInput in) throws ClassNotFoundException, IOException {
 			return DataSerializer.readObject(in);
 		}
 
 		/* (non-Javadoc) */
 		public boolean hasDelta() {
-			synchronized (lock) {
-				return !sessionAttributeDeltas.isEmpty();
+			synchronized (this.lock) {
+				return !this.sessionAttributeDeltas.isEmpty();
 			}
 		}
 
 		/* (non-Javadoc) */
 		public void toDelta(DataOutput out) throws IOException {
-			synchronized (lock) {
-				out.writeInt(sessionAttributeDeltas.size());
+			synchronized (this.lock) {
+				out.writeInt(this.sessionAttributeDeltas.size());
 
-				for (Map.Entry<String, Object> entry : sessionAttributeDeltas.entrySet()) {
+				for (Map.Entry<String, Object> entry : this.sessionAttributeDeltas.entrySet()) {
 					out.writeUTF(entry.getKey());
 					writeObject(entry.getValue(), out);
 				}
 
-				sessionAttributeDeltas.clear();
+				this.sessionAttributeDeltas.clear();
 			}
 		}
 
 		/* (non-Javadoc) */
 		public void fromDelta(DataInput in) throws InvalidDeltaException, IOException {
-			synchronized (lock) {
+			synchronized (this.lock) {
 				try {
 					int count = in.readInt();
 
@@ -807,7 +811,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 					for (Map.Entry<String, Object> entry : deltas.entrySet()) {
 						setAttribute(entry.getKey(), entry.getValue());
-						sessionAttributeDeltas.remove(entry.getKey());
+						this.sessionAttributeDeltas.remove(entry.getKey());
 					}
 				}
 				catch (ClassNotFoundException e) {
@@ -818,7 +822,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		@Override
 		public String toString() {
-			return sessionAttributes.toString();
+			return this.sessionAttributes.toString();
 		}
 	}
 

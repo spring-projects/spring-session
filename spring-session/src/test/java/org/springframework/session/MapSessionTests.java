@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.session;
 
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MapSessionTests {
 
@@ -28,8 +29,8 @@ public class MapSessionTests {
 
 	@Before
 	public void setup() {
-		session = new MapSession();
-		session.setLastAccessedTime(1413258262962L);
+		this.session = new MapSession();
+		this.session.setLastAccessedTime(1413258262962L);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -43,45 +44,45 @@ public class MapSessionTests {
 	@Test
 	public void setAttributeNullObjectRemoves() {
 		String attr = "attr";
-		session.setAttribute(attr, new Object());
-		session.setAttribute(attr, null);
-		assertThat(session.getAttributeNames()).isEmpty();
+		this.session.setAttribute(attr, new Object());
+		this.session.setAttribute(attr, null);
+		assertThat(this.session.getAttributeNames()).isEmpty();
 	}
 
 	@Test
 	public void equalsNonSessionFalse() {
-		assertThat(session.equals(new Object())).isFalse();
+		assertThat(this.session.equals(new Object())).isFalse();
 	}
 
 	@Test
 	public void equalsCustomSession() {
 		CustomSession other = new CustomSession();
-		session.setId(other.getId());
-		assertThat(session.equals(other)).isTrue();
+		this.session.setId(other.getId());
+		assertThat(this.session.equals(other)).isTrue();
 	}
 
 	@Test
 	public void hashCodeEqualsIdHashCode() {
-		session.setId("constantId");
-		assertThat(session.hashCode()).isEqualTo(session.getId().hashCode());
+		this.session.setId("constantId");
+		assertThat(this.session.hashCode()).isEqualTo(this.session.getId().hashCode());
 	}
 
 	@Test
 	public void isExpiredExact() {
 		long now = 1413260062962L;
-		assertThat(session.isExpired(now)).isTrue();
+		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
 	@Test
 	public void isExpiredOneMsTooSoon() {
 		long now = 1413260062961L;
-		assertThat(session.isExpired(now)).isFalse();
+		assertThat(this.session.isExpired(now)).isFalse();
 	}
 
 	@Test
 	public void isExpiredOneMsAfter() {
 		long now = 1413260062963L;
-		assertThat(session.isExpired(now)).isTrue();
+		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
 	static class CustomSession implements ExpiringSession {

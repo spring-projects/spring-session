@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
-import static org.assertj.core.api.Assertions.*;
-
+import com.hazelcast.core.HazelcastInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +42,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import com.hazelcast.core.HazelcastInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Ensure that the appropriate SessionEvents are fired at the expected times.
@@ -65,30 +66,30 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 
 	@Before
 	public void setup() {
-		registry.clear();
+		this.registry.clear();
 	}
 
 	@Test
 	public void saveSessionTest() throws InterruptedException {
-		String username = "saves-"+System.currentTimeMillis();
+		String username = "saves-" + System.currentTimeMillis();
 
-		S sessionToSave = repository.createSession();
+		S sessionToSave = this.repository.createSession();
 
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		sessionToSave.setAttribute(expectedAttributeName, expectedAttributeValue);
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username, "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		sessionToSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
 		sessionToSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
 
-		repository.save(sessionToSave);
+		this.repository.save(sessionToSave);
 
-		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
 
-		Session session = repository.getSession(sessionToSave.getId());
+		Session session = this.repository.getSession(sessionToSave.getId());
 
 		assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(sessionToSave.getAttributeNames());
@@ -97,62 +98,62 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 
 	@Test
 	public void expiredSessionTest() throws InterruptedException {
-		S sessionToSave = repository.createSession();
+		S sessionToSave = this.repository.createSession();
 
-		repository.save(sessionToSave);
+		this.repository.save(sessionToSave);
 
-		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
-		registry.clear();
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
+		this.registry.clear();
 
 		assertThat(sessionToSave.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 
-		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionExpiredEvent.class);
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionExpiredEvent.class);
 
-		assertThat(repository.getSession(sessionToSave.getId())).isNull();
+		assertThat(this.repository.getSession(sessionToSave.getId())).isNull();
 	}
 
 	@Test
 	public void deletedSessionTest() throws InterruptedException {
-		S sessionToSave = repository.createSession();
+		S sessionToSave = this.repository.createSession();
 
-		repository.save(sessionToSave);
+		this.repository.save(sessionToSave);
 
-		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
-		registry.clear();
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
+		this.registry.clear();
 
-		repository.delete(sessionToSave.getId());
+		this.repository.delete(sessionToSave.getId());
 
-		assertThat(registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionDeletedEvent.class);
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionDeletedEvent.class);
 
-		assertThat(repository.getSession(sessionToSave.getId())).isNull();
+		assertThat(this.repository.getSession(sessionToSave.getId())).isNull();
 	}
 
 	@Test
 	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
 		Object lock = new Object();
 
-		S sessionToSave = repository.createSession();
+		S sessionToSave = this.repository.createSession();
 
-		repository.save(sessionToSave);
+		this.repository.save(sessionToSave);
 
 		synchronized (lock) {
 			lock.wait((sessionToSave.getMaxInactiveIntervalInSeconds() * 1000) - 500);
 		}
 
 		// Get and save the session like SessionRepositoryFilter would.
-		S sessionToUpdate = repository.getSession(sessionToSave.getId());
+		S sessionToUpdate = this.repository.getSession(sessionToSave.getId());
 		sessionToUpdate.setLastAccessedTime(System.currentTimeMillis());
-		repository.save(sessionToUpdate);
+		this.repository.save(sessionToUpdate);
 
 		synchronized (lock) {
 			lock.wait((sessionToUpdate.getMaxInactiveIntervalInSeconds() * 1000) - 100);
 		}
 
-		assertThat(repository.getSession(sessionToUpdate.getId())).isNotNull();
+		assertThat(this.repository.getSession(sessionToUpdate.getId())).isNotNull();
 	}
 
 	@Configuration

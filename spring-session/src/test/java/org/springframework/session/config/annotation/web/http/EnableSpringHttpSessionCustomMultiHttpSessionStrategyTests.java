@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.config.annotation.web.http;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+package org.springframework.session.config.annotation.web.http;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -39,6 +36,11 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
@@ -63,18 +65,18 @@ public class EnableSpringHttpSessionCustomMultiHttpSessionStrategyTests {
 
 	@Before
 	public void setup() {
-		chain = new MockFilterChain();
+		this.chain = new MockFilterChain();
 	}
 
 	@Test
 	public void wrapRequestAndResponseUsed() throws Exception {
-		when(strategy.wrapRequest(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(request);
-		when(strategy.wrapResponse(any(HttpServletRequest.class), any(HttpServletResponse.class))).thenReturn(response);
+		given(this.strategy.wrapRequest(any(HttpServletRequest.class), any(HttpServletResponse.class))).willReturn(this.request);
+		given(this.strategy.wrapResponse(any(HttpServletRequest.class), any(HttpServletResponse.class))).willReturn(this.response);
 
-		sessionRepositoryFilter.doFilter(request, response, chain);
+		this.sessionRepositoryFilter.doFilter(this.request, this.response, this.chain);
 
-		verify(strategy).wrapRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
-		verify(strategy).wrapResponse(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.strategy).wrapRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.strategy).wrapResponse(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@EnableSpringHttpSession

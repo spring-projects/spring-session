@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package rest;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+package rest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import sample.HttpSessionConfig;
+import sample.SecurityConfig;
+import sample.mvc.MvcConfig;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.session.ExpiringSession;
@@ -35,13 +35,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import sample.HttpSessionConfig;
-import sample.SecurityConfig;
-import sample.mvc.MvcConfig;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes= {HttpSessionConfig.class,SecurityConfig.class, MvcConfig.class})
+@ContextConfiguration(classes = {HttpSessionConfig.class, SecurityConfig.class, MvcConfig.class})
 @WebAppConfiguration
 public class RestMockMvcTests {
 
@@ -55,16 +59,16 @@ public class RestMockMvcTests {
 
 	@Before
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
 				.alwaysDo(print())
-				.addFilters(sessionRepositoryFilter)
+				.addFilters(this.sessionRepositoryFilter)
 				.apply(springSecurity())
 				.build();
 	}
 
 	@Test
 	public void noSessionOnNoCredentials() throws Exception {
-		mvc.perform(get("/"))
+		this.mvc.perform(get("/"))
 			.andExpect(header().doesNotExist("x-auth-token"))
 			.andExpect(status().isUnauthorized());
 	}
@@ -72,14 +76,14 @@ public class RestMockMvcTests {
 	@WithMockUser
 	@Test
 	public void autheticatedAnnotation() throws Exception {
-		mvc.perform(get("/"))
+		this.mvc.perform(get("/"))
 			.andExpect(content().string("{\"username\":\"user\"}"));
 
 	}
 
 	@Test
 	public void autheticatedRequestPostProcessor() throws Exception {
-		mvc.perform(get("/").with(user("user")))
+		this.mvc.perform(get("/").with(user("user")))
 			.andExpect(content().string("{\"username\":\"user\"}"));
 
 	}

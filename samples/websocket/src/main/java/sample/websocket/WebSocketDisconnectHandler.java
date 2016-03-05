@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.websocket;
 
 import java.util.Arrays;
 
+import sample.data.ActiveWebSocketUser;
+import sample.data.ActiveWebSocketUserRepository;
+
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
-
-import sample.data.ActiveWebSocketUser;
-import sample.data.ActiveWebSocketUserRepository;
 
 public class WebSocketDisconnectHandler<S> implements ApplicationListener<SessionDisconnectEvent> {
 	private ActiveWebSocketUserRepository repository;
@@ -36,16 +37,16 @@ public class WebSocketDisconnectHandler<S> implements ApplicationListener<Sessio
 
 	public void onApplicationEvent(SessionDisconnectEvent event) {
 		String id = event.getSessionId();
-		if(id == null) {
+		if (id == null) {
 			return;
 		}
-		ActiveWebSocketUser user = repository.findOne(id);
-		if(user == null) {
+		ActiveWebSocketUser user = this.repository.findOne(id);
+		if (user == null) {
 			return;
 		}
 
-		repository.delete(id);
-		messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
+		this.repository.delete(id);
+		this.messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
 
 	}
 }

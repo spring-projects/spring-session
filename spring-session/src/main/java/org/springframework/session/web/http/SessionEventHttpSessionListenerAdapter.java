@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
 import java.util.List;
@@ -51,16 +52,17 @@ public class SessionEventHttpSessionListenerAdapter implements ApplicationListen
 	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
 	 */
 	public void onApplicationEvent(AbstractSessionEvent event) {
-		if(listeners.isEmpty()) {
+		if (this.listeners.isEmpty()) {
 			return;
 		}
 
 		HttpSessionEvent httpSessionEvent = createHttpSessionEvent(event);
 
-		for(HttpSessionListener listener : listeners) {
-			if(event instanceof SessionDestroyedEvent) {
+		for (HttpSessionListener listener : this.listeners) {
+			if (event instanceof SessionDestroyedEvent) {
 				listener.sessionDestroyed(httpSessionEvent);
-			} else if(event instanceof SessionCreatedEvent) {
+			}
+			else if (event instanceof SessionCreatedEvent) {
 				listener.sessionCreated(httpSessionEvent);
 			}
 		}
@@ -68,7 +70,7 @@ public class SessionEventHttpSessionListenerAdapter implements ApplicationListen
 
 	private HttpSessionEvent createHttpSessionEvent(AbstractSessionEvent event) {
 		ExpiringSession session = event.getSession();
-		HttpSession httpSession = new ExpiringSessionHttpSession<ExpiringSession>(session, context);
+		HttpSession httpSession = new ExpiringSessionHttpSession<ExpiringSession>(session, this.context);
 		HttpSessionEvent httpSessionEvent = new HttpSessionEvent(httpSession);
 		return httpSessionEvent;
 	}

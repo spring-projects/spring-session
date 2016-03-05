@@ -1,18 +1,19 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.annotation.Order;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
@@ -58,6 +60,7 @@ import org.springframework.session.SessionRepository;
  * to ensure the session is overridden and persisted properly.
  * </p>
  *
+ * @param <S> the {@link ExpiringSession} type.
  * @since 1.0
  * @author Rob Winch
  */
@@ -67,8 +70,14 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 
 	private static final Log SESSION_LOGGER = LogFactory.getLog(SESSION_LOGGER_NAME);
 
+	/**
+	 * The session repository request attribute name.
+	 */
 	public static final String SESSION_REPOSITORY_ATTR = SessionRepository.class.getName();
 
+	/**
+	 * The default filter order.
+	 */
 	public static final int DEFAULT_ORDER = Integer.MIN_VALUE + 50;
 
 	private final SessionRepository<S> sessionRepository;
@@ -78,12 +87,12 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	private MultiHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 *
 	 * @param sessionRepository the <code>SessionRepository</code> to use. Cannot be null.
 	 */
 	public SessionRepositoryFilter(SessionRepository<S> sessionRepository) {
-		if(sessionRepository == null) {
+		if (sessionRepository == null) {
 			throw new IllegalArgumentException("sessionRepository cannot be null");
 		}
 		this.sessionRepository = sessionRepository;
@@ -95,7 +104,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	 * @param httpSessionStrategy the {@link HttpSessionStrategy} to use. Cannot be null.
 	 */
 	public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
-		if(httpSessionStrategy == null) {
+		if (httpSessionStrategy == null) {
 			throw new IllegalArgumentException("httpSessionStrategy cannot be null");
 		}
 		this.httpSessionStrategy = new MultiHttpSessionStrategyAdapter(httpSessionStrategy);
@@ -107,24 +116,25 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 	 * @param httpSessionStrategy the {@link MultiHttpSessionStrategy} to use. Cannot be null.
 	 */
 	public void setHttpSessionStrategy(MultiHttpSessionStrategy httpSessionStrategy) {
-		if(httpSessionStrategy == null) {
+		if (httpSessionStrategy == null) {
 			throw new IllegalArgumentException("httpSessionStrategy cannot be null");
 		}
 		this.httpSessionStrategy = httpSessionStrategy;
 	}
 
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		request.setAttribute(SESSION_REPOSITORY_ATTR, sessionRepository);
+		request.setAttribute(SESSION_REPOSITORY_ATTR, this.sessionRepository);
 
-		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(request, response, servletContext);
-		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(wrappedRequest,response);
+		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(request, response, this.servletContext);
+		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(wrappedRequest, response);
 
-		HttpServletRequest strategyRequest = httpSessionStrategy.wrapRequest(wrappedRequest, wrappedResponse);
-		HttpServletResponse strategyResponse = httpSessionStrategy.wrapResponse(wrappedRequest, wrappedResponse);
+		HttpServletRequest strategyRequest = this.httpSessionStrategy.wrapRequest(wrappedRequest, wrappedResponse);
+		HttpServletResponse strategyResponse = this.httpSessionStrategy.wrapResponse(wrappedRequest, wrappedResponse);
 
 		try {
 			filterChain.doFilter(strategyRequest, strategyResponse);
-		} finally {
+		}
+		finally {
 			wrappedRequest.commitSession();
 		}
 	}
@@ -144,11 +154,13 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		private final SessionRepositoryRequestWrapper request;
 
 		/**
+		 * Create a new {@link SessionRepositoryResponseWrapper}.
+		 * @param request the request to be wrapped
 		 * @param response the response to be wrapped
 		 */
-		public SessionRepositoryResponseWrapper(SessionRepositoryRequestWrapper request, HttpServletResponse response) {
+		SessionRepositoryResponseWrapper(SessionRepositoryRequestWrapper request, HttpServletResponse response) {
 			super(response);
-			if(request == null) {
+			if (request == null) {
 				throw new IllegalArgumentException("request cannot be null");
 			}
 			this.request = request;
@@ -156,7 +168,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 
 		@Override
 		protected void onResponseCommitted() {
-			request.commitSession();
+			this.request.commitSession();
 		}
 	}
 
@@ -185,29 +197,31 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		 */
 		private void commitSession() {
 			HttpSessionWrapper wrappedSession = getCurrentSession();
-			if(wrappedSession == null) {
-				if(isInvalidateClientSession()) {
-					httpSessionStrategy.onInvalidateSession(this, response);
+			if (wrappedSession == null) {
+				if (isInvalidateClientSession()) {
+					SessionRepositoryFilter.this.httpSessionStrategy.onInvalidateSession(this, this.response);
 				}
-			} else {
+			}
+			else {
 				S session = wrappedSession.getSession();
-				sessionRepository.save(session);
-				if(!isRequestedSessionIdValid() || !session.getId().equals(getRequestedSessionId())) {
-					httpSessionStrategy.onNewSession(session, this, response);
+				SessionRepositoryFilter.this.sessionRepository.save(session);
+				if (!isRequestedSessionIdValid() || !session.getId().equals(getRequestedSessionId())) {
+					SessionRepositoryFilter.this.httpSessionStrategy.onNewSession(session, this, this.response);
 				}
 			}
 		}
 
 		@SuppressWarnings("unchecked")
 		private HttpSessionWrapper getCurrentSession() {
-			return (HttpSessionWrapper) getAttribute(CURRENT_SESSION_ATTR);
+			return (HttpSessionWrapper) getAttribute(this.CURRENT_SESSION_ATTR);
 		}
 
 		private void setCurrentSession(HttpSessionWrapper currentSession) {
-			if(currentSession == null) {
-				removeAttribute(CURRENT_SESSION_ATTR);
-			} else {
-				setAttribute(CURRENT_SESSION_ATTR, currentSession);
+			if (currentSession == null) {
+				removeAttribute(this.CURRENT_SESSION_ATTR);
+			}
+			else {
+				setAttribute(this.CURRENT_SESSION_ATTR, currentSession);
 			}
 		}
 
@@ -215,21 +229,21 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		public String changeSessionId() {
 			HttpSession session = getSession(false);
 
-			if(session == null) {
+			if (session == null) {
 				throw new IllegalStateException("Cannot change session ID. There is no session associated with this request.");
 			}
 
 			// eagerly get session attributes in case implementation lazily loads them
-			Map<String,Object> attrs = new HashMap<String,Object>();
+			Map<String, Object> attrs = new HashMap<String, Object>();
 			Enumeration<String> iAttrNames = session.getAttributeNames();
-			while(iAttrNames.hasMoreElements()) {
+			while (iAttrNames.hasMoreElements()) {
 				String attrName = iAttrNames.nextElement();
 				Object value = session.getAttribute(attrName);
 
 				attrs.put(attrName, value);
 			}
 
-			sessionRepository.delete(session.getId());
+			SessionRepositoryFilter.this.sessionRepository.delete(session.getId());
 			HttpSessionWrapper original = getCurrentSession();
 			setCurrentSession(null);
 
@@ -237,7 +251,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 			original.setSession(newSession.getSession());
 
 			newSession.setMaxInactiveInterval(session.getMaxInactiveInterval());
-			for(Map.Entry<String, Object> attr : attrs.entrySet()) {
+			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
 				String attrName = attr.getKey();
 				Object attrValue = attr.getValue();
 				newSession.setAttribute(attrName, attrValue);
@@ -246,29 +260,29 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		}
 
 		public boolean isRequestedSessionIdValid() {
-			if(requestedSessionIdValid == null) {
+			if (this.requestedSessionIdValid == null) {
 				String sessionId = getRequestedSessionId();
 				S session = sessionId == null ? null : getSession(sessionId);
 				return isRequestedSessionIdValid(session);
 			}
 
-			return requestedSessionIdValid;
+			return this.requestedSessionIdValid;
 		}
 
 		private boolean isRequestedSessionIdValid(S session) {
-			if(requestedSessionIdValid == null) {
-				requestedSessionIdValid = session != null;
+			if (this.requestedSessionIdValid == null) {
+				this.requestedSessionIdValid = session != null;
 			}
-			return requestedSessionIdValid;
+			return this.requestedSessionIdValid;
 		}
 
 		private boolean isInvalidateClientSession() {
-			return getCurrentSession() == null && requestedSessionInvalidated;
+			return getCurrentSession() == null && this.requestedSessionInvalidated;
 		}
 
 		private S getSession(String sessionId) {
-			S session = sessionRepository.getSession(sessionId);
-			if(session == null) {
+			S session = SessionRepositoryFilter.this.sessionRepository.getSession(sessionId);
+			if (session == null) {
 				return null;
 			}
 			session.setLastAccessedTime(System.currentTimeMillis());
@@ -278,13 +292,13 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		@Override
 		public HttpSessionWrapper getSession(boolean create) {
 			HttpSessionWrapper currentSession = getCurrentSession();
-			if(currentSession != null) {
+			if (currentSession != null) {
 				return currentSession;
 			}
 			String requestedSessionId = getRequestedSessionId();
-			if(requestedSessionId != null) {
+			if (requestedSessionId != null) {
 				S session = getSession(requestedSessionId);
-				if(session != null) {
+				if (session != null) {
 					this.requestedSessionIdValid = true;
 					currentSession = new HttpSessionWrapper(session, getServletContext());
 					currentSession.setNew(false);
@@ -292,15 +306,15 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 					return currentSession;
 				}
 			}
-			if(!create) {
+			if (!create) {
 				return null;
 			}
-			if(SESSION_LOGGER.isDebugEnabled()) {
+			if (SESSION_LOGGER.isDebugEnabled()) {
 				SESSION_LOGGER
 						.debug("A new session was created. To help you troubleshoot where the session was created we provided a StackTrace (this is not an error). You can prevent this from appearing by disabling DEBUG logging for "
 								+ SESSION_LOGGER_NAME, new RuntimeException("For debugging purposes only (not an error)"));
 			}
-			S session = sessionRepository.createSession();
+			S session = SessionRepositoryFilter.this.sessionRepository.createSession();
 			session.setLastAccessedTime(System.currentTimeMillis());
 			currentSession = new HttpSessionWrapper(session, getServletContext());
 			setCurrentSession(currentSession);
@@ -308,8 +322,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		}
 
 		public ServletContext getServletContext() {
-			if(servletContext != null) {
-				return servletContext;
+			if (this.servletContext != null) {
+				return this.servletContext;
 			}
 			// Servlet 3.0+
 			return super.getServletContext();
@@ -322,7 +336,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 
 		@Override
 		public String getRequestedSessionId() {
-			return httpSessionStrategy.getRequestedSessionId(this);
+			return SessionRepositoryFilter.this.httpSessionStrategy.getRequestedSessionId(this);
 		}
 
 		/**
@@ -333,38 +347,45 @@ public class SessionRepositoryFilter<S extends ExpiringSession> extends OncePerR
 		 */
 		private final class HttpSessionWrapper extends ExpiringSessionHttpSession<S> {
 
-			public HttpSessionWrapper(S session, ServletContext servletContext) {
+			HttpSessionWrapper(S session, ServletContext servletContext) {
 				super(session, servletContext);
 			}
 
 			public void invalidate() {
 				super.invalidate();
-				requestedSessionInvalidated = true;
+				SessionRepositoryRequestWrapper.this.requestedSessionInvalidated = true;
 				setCurrentSession(null);
-				sessionRepository.delete(getId());
+				SessionRepositoryFilter.this.sessionRepository.delete(getId());
 			}
 		}
 	}
 
+	/**
+	 * A delegating implementation of {@link MultiHttpSessionStrategy}.
+	 */
 	static class MultiHttpSessionStrategyAdapter implements MultiHttpSessionStrategy {
 		private HttpSessionStrategy delegate;
 
-		public MultiHttpSessionStrategyAdapter(HttpSessionStrategy delegate) {
+		/**
+		 * Create a new {@link MultiHttpSessionStrategyAdapter} instance.
+		 * @param delegate the delegate HTTP session strategy
+		 */
+		MultiHttpSessionStrategyAdapter(HttpSessionStrategy delegate) {
 			this.delegate = delegate;
 		}
 
 		public String getRequestedSessionId(HttpServletRequest request) {
-			return delegate.getRequestedSessionId(request);
+			return this.delegate.getRequestedSessionId(request);
 		}
 
 		public void onNewSession(Session session, HttpServletRequest request,
 				HttpServletResponse response) {
-			delegate.onNewSession(session, request, response);
+			this.delegate.onNewSession(session, request, response);
 		}
 
 		public void onInvalidateSession(HttpServletRequest request,
 				HttpServletResponse response) {
-			delegate.onInvalidateSession(request, response);
+			this.delegate.onInvalidateSession(request, response);
 		}
 
 		public HttpServletRequest wrapRequest(HttpServletRequest request,

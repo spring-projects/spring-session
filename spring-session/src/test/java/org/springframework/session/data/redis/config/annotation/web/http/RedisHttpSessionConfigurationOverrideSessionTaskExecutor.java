@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.redis.config.annotation.web.http;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.util.concurrent.Executor;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,6 +31,12 @@ import org.springframework.scheduling.SchedulingAwareRunnable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Vladimir Tsanev
@@ -53,7 +55,7 @@ public class RedisHttpSessionConfigurationOverrideSessionTaskExecutor {
 
 	@Test
 	public void overrideSessionTaskExecutor() {
-		verify(springSessionRedisTaskExecutor, times(1)).execute(any(SchedulingAwareRunnable.class));
+		verify(this.springSessionRedisTaskExecutor, times(1)).execute(any(SchedulingAwareRunnable.class));
 	}
 
 	@EnableRedisHttpSession
@@ -68,7 +70,7 @@ public class RedisHttpSessionConfigurationOverrideSessionTaskExecutor {
 		public RedisConnectionFactory connectionFactory() {
 			RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 			RedisConnection connection = mock(RedisConnection.class);
-			when(factory.getConnection()).thenReturn(connection);
+			given(factory.getConnection()).willReturn(connection);
 
 			return factory;
 		}

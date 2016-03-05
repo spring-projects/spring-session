@@ -1,18 +1,19 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
 import java.io.UnsupportedEncodingException;
@@ -150,8 +151,8 @@ import org.springframework.util.Assert;
  * }
  *
  *
- * @since 1.0
  * @author Rob Winch
+ * @since 1.0
  */
 public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy, HttpSessionManager {
 	private static final String SESSION_IDS_WRITTEN_ATTR = CookieHttpSessionStrategy.class.getName().concat(".SESSIONS_WRITTEN_ATTR");
@@ -160,27 +161,27 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
 	static final String DEFAULT_SESSION_ALIAS_PARAM_NAME = "_s";
 
-	private Pattern ALIAS_PATTERN = Pattern.compile("^[\\w-]{1,50}$");
+	private static final Pattern ALIAS_PATTERN = Pattern.compile("^[\\w-]{1,50}$");
 
 	private String sessionParam = DEFAULT_SESSION_ALIAS_PARAM_NAME;
 
 	private CookieSerializer cookieSerializer = new DefaultCookieSerializer();
 
 	public String getRequestedSessionId(HttpServletRequest request) {
-		Map<String,String> sessionIds = getSessionIds(request);
+		Map<String, String> sessionIds = getSessionIds(request);
 		String sessionAlias = getCurrentSessionAlias(request);
 		return sessionIds.get(sessionAlias);
 	}
 
 	public String getCurrentSessionAlias(HttpServletRequest request) {
-		if(sessionParam == null) {
+		if (this.sessionParam == null) {
 			return DEFAULT_ALIAS;
 		}
-		String u = request.getParameter(sessionParam);
-		if(u == null) {
+		String u = request.getParameter(this.sessionParam);
+		if (u == null) {
 			return DEFAULT_ALIAS;
 		}
-		if(!ALIAS_PATTERN.matcher(u).matches()) {
+		if (!ALIAS_PATTERN.matcher(u).matches()) {
 			return DEFAULT_ALIAS;
 		}
 		return u;
@@ -188,13 +189,13 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
 	public String getNewSessionAlias(HttpServletRequest request) {
 		Set<String> sessionAliases = getSessionIds(request).keySet();
-		if(sessionAliases.isEmpty()) {
+		if (sessionAliases.isEmpty()) {
 			return DEFAULT_ALIAS;
 		}
 		long lastAlias = Long.decode(DEFAULT_ALIAS);
-		for(String alias : sessionAliases) {
+		for (String alias : sessionAliases) {
 			long selectedAlias = safeParse(alias);
-			if(selectedAlias > lastAlias) {
+			if (selectedAlias > lastAlias) {
 				lastAlias = selectedAlias;
 			}
 		}
@@ -204,30 +205,31 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 	private long safeParse(String hex) {
 		try {
 			return Long.decode("0x" + hex);
-		} catch(NumberFormatException notNumber) {
+		}
+		catch (NumberFormatException notNumber) {
 			return 0;
 		}
 	}
 
 	public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
 		Set<String> sessionIdsWritten = getSessionIdsWritten(request);
-		if(sessionIdsWritten.contains(session.getId())) {
+		if (sessionIdsWritten.contains(session.getId())) {
 			return;
 		}
 		sessionIdsWritten.add(session.getId());
 
-		Map<String,String> sessionIds = getSessionIds(request);
+		Map<String, String> sessionIds = getSessionIds(request);
 		String sessionAlias = getCurrentSessionAlias(request);
 		sessionIds.put(sessionAlias, session.getId());
 
 		String cookieValue = createSessionCookieValue(sessionIds);
-		cookieSerializer.writeCookieValue(new CookieValue(request,response,cookieValue));
+		this.cookieSerializer.writeCookieValue(new CookieValue(request, response, cookieValue));
 	}
 
 	@SuppressWarnings("unchecked")
 	private Set<String> getSessionIdsWritten(HttpServletRequest request) {
 		Set<String> sessionsWritten = (Set<String>) request.getAttribute(SESSION_IDS_WRITTEN_ATTR);
-		if(sessionsWritten == null) {
+		if (sessionsWritten == null) {
 			sessionsWritten = new HashSet<String>();
 			request.setAttribute(SESSION_IDS_WRITTEN_ATTR, sessionsWritten);
 		}
@@ -235,15 +237,15 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 	}
 
 	private String createSessionCookieValue(Map<String, String> sessionIds) {
-		if(sessionIds.isEmpty()) {
+		if (sessionIds.isEmpty()) {
 			return "";
 		}
-		if(sessionIds.size() == 1 && sessionIds.keySet().contains(DEFAULT_ALIAS)) {
+		if (sessionIds.size() == 1 && sessionIds.keySet().contains(DEFAULT_ALIAS)) {
 			return sessionIds.values().iterator().next();
 		}
 
 		StringBuffer buffer = new StringBuffer();
-		for(Map.Entry<String,String> entry : sessionIds.entrySet()) {
+		for (Map.Entry<String, String> entry : sessionIds.entrySet()) {
 			String alias = entry.getKey();
 			String id = entry.getValue();
 
@@ -252,17 +254,17 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 			buffer.append(id);
 			buffer.append(" ");
 		}
-		buffer.deleteCharAt(buffer.length()-1);
+		buffer.deleteCharAt(buffer.length() - 1);
 		return buffer.toString();
 	}
 
 	public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
-		Map<String,String> sessionIds = getSessionIds(request);
+		Map<String, String> sessionIds = getSessionIds(request);
 		String requestedAlias = getCurrentSessionAlias(request);
 		sessionIds.remove(requestedAlias);
 
 		String cookieValue = createSessionCookieValue(sessionIds);
-		cookieSerializer.writeCookieValue(new CookieValue(request,response,cookieValue));
+		this.cookieSerializer.writeCookieValue(new CookieValue(request, response, cookieValue));
 	}
 
 	/**
@@ -290,7 +292,7 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 	}
 
 	/**
-	 * Sets the name of the cookie to be used
+	 * Sets the name of the cookie to be used.
 	 * @param cookieName the name of the cookie to be used
 	 * @deprecated use {@link #setCookieSerializer(CookieSerializer)}
 	 */
@@ -301,18 +303,18 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		this.cookieSerializer = serializer;
 	}
 
-	public Map<String,String> getSessionIds(HttpServletRequest request) {
-		List<String> cookieValues = cookieSerializer.readCookieValues(request);
+	public Map<String, String> getSessionIds(HttpServletRequest request) {
+		List<String> cookieValues = this.cookieSerializer.readCookieValues(request);
 		String sessionCookieValue = cookieValues.isEmpty() ? "" : cookieValues.iterator().next();
-		Map<String,String> result = new LinkedHashMap<String,String>();
+		Map<String, String> result = new LinkedHashMap<String, String>();
 		StringTokenizer tokens = new StringTokenizer(sessionCookieValue, " ");
-		if(tokens.countTokens() == 1) {
+		if (tokens.countTokens() == 1) {
 			result.put(DEFAULT_ALIAS, tokens.nextToken());
 			return result;
 		}
-		while(tokens.hasMoreTokens()) {
+		while (tokens.hasMoreTokens()) {
 			String alias = tokens.nextToken();
-			if(!tokens.hasMoreTokens()) {
+			if (!tokens.hasMoreTokens()) {
 				break;
 			}
 			String id = tokens.nextToken();
@@ -330,46 +332,23 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		return new MultiSessionHttpServletResponse(response, request);
 	}
 
-	class MultiSessionHttpServletResponse extends HttpServletResponseWrapper {
-		private final HttpServletRequest request;
-
-		public MultiSessionHttpServletResponse(HttpServletResponse response, HttpServletRequest request) {
-			super(response);
-			this.request = request;
-		}
-
-		@Override
-		public String encodeRedirectURL(String url) {
-			url = super.encodeRedirectURL(url);
-			return CookieHttpSessionStrategy.this.encodeURL(url, getCurrentSessionAlias(request));
-		}
-
-		@Override
-		public String encodeURL(String url) {
-			url = super.encodeURL(url);
-
-			String alias = getCurrentSessionAlias(request);
-			return CookieHttpSessionStrategy.this.encodeURL(url, alias);
-		}
-	}
-
 	public String encodeURL(String url, String sessionAlias) {
 		String encodedSessionAlias = urlEncode(sessionAlias);
 		int queryStart = url.indexOf("?");
 		boolean isDefaultAlias = DEFAULT_ALIAS.equals(encodedSessionAlias);
-		if(queryStart < 0) {
-			return isDefaultAlias ? url : url + "?" + sessionParam + "=" + encodedSessionAlias;
+		if (queryStart < 0) {
+			return isDefaultAlias ? url : url + "?" + this.sessionParam + "=" + encodedSessionAlias;
 		}
 		String path = url.substring(0, queryStart);
 		String query = url.substring(queryStart + 1, url.length());
-		String replacement = isDefaultAlias ? "" : "$1"+encodedSessionAlias;
-		query = query.replaceFirst( "((^|&)" + sessionParam + "=)([^&]+)?", replacement);
-		if(!isDefaultAlias && url.endsWith(query)) {
+		String replacement = isDefaultAlias ? "" : "$1" + encodedSessionAlias;
+		query = query.replaceFirst("((^|&)" + this.sessionParam + "=)([^&]+)?", replacement);
+		if (!isDefaultAlias && url.endsWith(query)) {
 			// no existing alias
-			if(!(query.endsWith("&") || query.length() == 0)) {
+			if (!(query.endsWith("&") || query.length() == 0)) {
 				query += "&";
 			}
-			query += sessionParam + "=" + encodedSessionAlias;
+			query += this.sessionParam + "=" + encodedSessionAlias;
 		}
 
 		return path + "?" + query;
@@ -378,8 +357,36 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 	private String urlEncode(String value) {
 		try {
 			return URLEncoder.encode(value, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
+		}
+		catch (UnsupportedEncodingException e) {
 			throw new RuntimeException(e);
 		}
 	}
+
+	/**
+	 * A {@link CookieHttpSessionStrategy} aware {@link HttpServletResponseWrapper}.
+	 */
+	class MultiSessionHttpServletResponse extends HttpServletResponseWrapper {
+		private final HttpServletRequest request;
+
+		MultiSessionHttpServletResponse(HttpServletResponse response, HttpServletRequest request) {
+			super(response);
+			this.request = request;
+		}
+
+		@Override
+		public String encodeRedirectURL(String url) {
+			url = super.encodeRedirectURL(url);
+			return CookieHttpSessionStrategy.this.encodeURL(url, getCurrentSessionAlias(this.request));
+		}
+
+		@Override
+		public String encodeURL(String url) {
+			url = super.encodeURL(url);
+
+			String alias = getCurrentSessionAlias(this.request);
+			return CookieHttpSessionStrategy.this.encodeURL(url, alias);
+		}
+	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.web.http;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+package org.springframework.session.web.http;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,10 +30,16 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * @author Rob Winch
@@ -58,11 +62,11 @@ public class SessionEventHttpSessionListenerAdapterTests {
 
 	@Before
 	public void setup() {
-		this.listener = new SessionEventHttpSessionListenerAdapter(Arrays.asList(listener1, listener2));
+		this.listener = new SessionEventHttpSessionListenerAdapter(Arrays.asList(this.listener1, this.listener2));
 
 		Session session = new MapSession();
-		destroyed = new SessionDestroyedEvent(this, session);
-		created = new SessionCreatedEvent(this, session);
+		this.destroyed = new SessionDestroyedEvent(this, session);
+		this.created = new SessionCreatedEvent(this, session);
 	}
 
 	// We want relaxed constructor that will allow for an empty listeners to
@@ -77,31 +81,31 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	 */
 	@Test
 	public void onApplicationEventEmptyListenersDoesNotUseEvent() {
-		listener = new SessionEventHttpSessionListenerAdapter(Collections.<HttpSessionListener>emptyList());
-		destroyed = mock(SessionDestroyedEvent.class);
+		this.listener = new SessionEventHttpSessionListenerAdapter(Collections.<HttpSessionListener>emptyList());
+		this.destroyed = mock(SessionDestroyedEvent.class);
 
-		listener.onApplicationEvent(destroyed);
+		this.listener.onApplicationEvent(this.destroyed);
 
-		verifyZeroInteractions(destroyed, listener1, listener2);
+		verifyZeroInteractions(this.destroyed, this.listener1, this.listener2);
 	}
 
 	@Test
 	public void onApplicationEventDestroyed() {
-		listener.onApplicationEvent(destroyed);
+		this.listener.onApplicationEvent(this.destroyed);
 
-		verify(listener1).sessionDestroyed(sessionEvent.capture());
-		verify(listener2).sessionDestroyed(sessionEvent.capture());
+		verify(this.listener1).sessionDestroyed(this.sessionEvent.capture());
+		verify(this.listener2).sessionDestroyed(this.sessionEvent.capture());
 
-		assertThat(sessionEvent.getValue().getSession().getId()).isEqualTo(destroyed.getSessionId());
+		assertThat(this.sessionEvent.getValue().getSession().getId()).isEqualTo(this.destroyed.getSessionId());
 	}
 
 	@Test
 	public void onApplicationEventCreated() {
-		listener.onApplicationEvent(created);
+		this.listener.onApplicationEvent(this.created);
 
-		verify(listener1).sessionCreated(sessionEvent.capture());
-		verify(listener2).sessionCreated(sessionEvent.capture());
+		verify(this.listener1).sessionCreated(this.sessionEvent.capture());
+		verify(this.listener2).sessionCreated(this.sessionEvent.capture());
 
-		assertThat(sessionEvent.getValue().getSession().getId()).isEqualTo(created.getSessionId());
+		assertThat(this.sessionEvent.getValue().getSession().getId()).isEqualTo(this.created.getSessionId());
 	}
 }

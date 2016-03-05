@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.redis.config;
 
 import java.util.List;
@@ -49,17 +50,17 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 	public void configure(RedisConnection connection) {
 		String notifyOptions = getNotifyOptions(connection);
 		String customizedNotifyOptions = notifyOptions;
-		if(!customizedNotifyOptions.contains("E")) {
+		if (!customizedNotifyOptions.contains("E")) {
 			customizedNotifyOptions += "E";
 		}
 		boolean A = customizedNotifyOptions.contains("A");
-		if(!(A || customizedNotifyOptions.contains("g"))) {
+		if (!(A || customizedNotifyOptions.contains("g"))) {
 			customizedNotifyOptions += "g";
 		}
-		if(!(A || customizedNotifyOptions.contains("x"))) {
+		if (!(A || customizedNotifyOptions.contains("x"))) {
 			customizedNotifyOptions += "x";
 		}
-		if(!notifyOptions.equals(customizedNotifyOptions)) {
+		if (!notifyOptions.equals(customizedNotifyOptions)) {
 			connection.setConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS, customizedNotifyOptions);
 		}
 	}
@@ -67,11 +68,12 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 	private String getNotifyOptions(RedisConnection connection) {
 		try {
 			List<String> config = connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS);
-			if(config.size() < 2) {
+			if (config.size() < 2) {
 				return "";
 			}
 			return config.get(1);
-		} catch(InvalidDataAccessApiUsageException e) {
+		}
+		catch (InvalidDataAccessApiUsageException e) {
 			throw new IllegalStateException("Unable to configure Redis to keyspace notifications. See http://docs.spring.io/spring-session/docs/current/reference/html5/#api-redisoperationssessionrepository-sessiondestroyedevent", e);
 		}
 	}

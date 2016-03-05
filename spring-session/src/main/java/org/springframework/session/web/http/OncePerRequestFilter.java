@@ -1,31 +1,38 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
-import javax.servlet.*;
+import java.io.IOException;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * Allows for easily ensuring that a request is only invoked once per request. This is a simplified version of spring-web's
  * OncePerRequestFilter and copied to reduce the foot print required to use the session support.
  *
- * @since 1.0
  * @author Rob Winch
+ * @since 1.0
  */
 abstract class OncePerRequestFilter implements Filter {
 	/**
@@ -41,6 +48,11 @@ abstract class OncePerRequestFilter implements Filter {
 	 * This {@code doFilter} implementation stores a request attribute for
 	 * "already filtered", proceeding without filtering again if the
 	 * attribute is already there.
+	 * @param request the request
+	 * @param response the response
+	 * @param filterChain the filter chain
+	 * @throws ServletException if request is not HTTP request
+	 * @throws IOException in case of I/O operation exception
 	 */
 	public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -50,7 +62,7 @@ abstract class OncePerRequestFilter implements Filter {
 		}
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		boolean hasAlreadyFilteredAttribute = request.getAttribute(alreadyFilteredAttributeName) != null;
+		boolean hasAlreadyFilteredAttribute = request.getAttribute(this.alreadyFilteredAttributeName) != null;
 
 
 		if (hasAlreadyFilteredAttribute) {
@@ -60,13 +72,13 @@ abstract class OncePerRequestFilter implements Filter {
 		}
 		else {
 			// Do invoke this filter...
-			request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
+			request.setAttribute(this.alreadyFilteredAttributeName, Boolean.TRUE);
 			try {
 				doFilterInternal(httpRequest, httpResponse, filterChain);
 			}
 			finally {
 				// Remove the "already filtered" request attribute for this request.
-				request.removeAttribute(alreadyFilteredAttributeName);
+				request.removeAttribute(this.alreadyFilteredAttributeName);
 			}
 		}
 	}
@@ -88,7 +100,9 @@ abstract class OncePerRequestFilter implements Filter {
 			HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException;
 
-	public void init(FilterConfig config) {}
+	public void init(FilterConfig config) {
+	}
 
-	public void destroy() {}
+	public void destroy() {
+	}
 }

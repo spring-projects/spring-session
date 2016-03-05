@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.websocket;
 
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Calendar;
 
+import sample.data.ActiveWebSocketUser;
+import sample.data.ActiveWebSocketUserRepository;
+
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
-
-import sample.data.ActiveWebSocketUser;
-import sample.data.ActiveWebSocketUserRepository;
 
 public class WebSocketConnectHandler<S> implements ApplicationListener<SessionConnectEvent> {
 	private ActiveWebSocketUserRepository repository;
@@ -41,11 +42,11 @@ public class WebSocketConnectHandler<S> implements ApplicationListener<SessionCo
 	public void onApplicationEvent(SessionConnectEvent event) {
 		MessageHeaders headers = event.getMessage().getHeaders();
 		Principal user = SimpMessageHeaderAccessor.getUser(headers);
-		if(user == null) {
+		if (user == null) {
 			return;
 		}
 		String id = SimpMessageHeaderAccessor.getSessionId(headers);
-		repository.save(new ActiveWebSocketUser(id, user.getName(), Calendar.getInstance()));
-		messagingTemplate.convertAndSend("/topic/friends/signin", Arrays.asList(user.getName()));
+		this.repository.save(new ActiveWebSocketUser(id, user.getName(), Calendar.getInstance()));
+		this.messagingTemplate.convertAndSend("/topic/friends/signin", Arrays.asList(user.getName()));
 	}
 }

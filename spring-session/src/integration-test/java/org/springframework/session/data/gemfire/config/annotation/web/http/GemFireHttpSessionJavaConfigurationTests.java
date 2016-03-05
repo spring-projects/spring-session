@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,18 @@
 
 package org.springframework.session.data.gemfire.config.annotation.web.http;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.Properties;
 
+import com.gemstone.gemfire.cache.Cache;
+import com.gemstone.gemfire.cache.DataPolicy;
+import com.gemstone.gemfire.cache.ExpirationAction;
+import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.RegionShortcut;
+import com.gemstone.gemfire.cache.query.Index;
+import com.gemstone.gemfire.cache.query.QueryService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.gemfire.CacheFactoryBean;
@@ -33,19 +39,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.ExpirationAction;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.query.Index;
-import com.gemstone.gemfire.cache.query.QueryService;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * The GemFireHttpSessionJavaConfigurationTests class is a test suite of test cases testing the configuration of
  * Spring Session backed by GemFire using Java-based configuration meta-data.
  *
  * @author John Blum
+ * @since 1.1.0
  * @see org.junit.Test
  * @see org.springframework.session.ExpiringSession
  * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
@@ -55,7 +56,6 @@ import com.gemstone.gemfire.cache.query.QueryService;
  * @see org.springframework.test.context.web.WebAppConfiguration
  * @see com.gemstone.gemfire.cache.Cache
  * @see com.gemstone.gemfire.cache.Region
- * @since 1.1.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
@@ -78,7 +78,7 @@ public class GemFireHttpSessionJavaConfigurationTests extends AbstractGemFireInt
 
 	@Test
 	public void gemfireCacheConfigurationIsValid() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "JavaExample",
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache, "JavaExample",
 			DataPolicy.REPLICATE);
 
 		assertEntryIdleTimeout(example, ExpirationAction.INVALIDATE, 900);
@@ -86,7 +86,7 @@ public class GemFireHttpSessionJavaConfigurationTests extends AbstractGemFireInt
 
 	@Test
 	public void verifyGemFireExampleCacheRegionPrincipalNameIndexWasCreatedSuccessfully() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "JavaExample",
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache, "JavaExample",
 			DataPolicy.REPLICATE);
 
 		QueryService queryService = example.getRegionService().getQueryService();
@@ -100,7 +100,7 @@ public class GemFireHttpSessionJavaConfigurationTests extends AbstractGemFireInt
 
 	@Test
 	public void verifyGemFireExampleCacheRegionSessionAttributesIndexWasNotCreated() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(gemfireCache, "JavaExample",
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache, "JavaExample",
 			DataPolicy.REPLICATE);
 
 		QueryService queryService = example.getRegionService().getQueryService();

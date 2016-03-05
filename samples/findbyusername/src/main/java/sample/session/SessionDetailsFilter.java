@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.session;
 
 import java.io.IOException;
@@ -24,14 +25,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.model.CityResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import com.maxmind.geoip2.DatabaseReader;
-import com.maxmind.geoip2.model.CityResponse;
 
 /**
  * Inserts the session details into the session for every request. Some users
@@ -76,18 +77,21 @@ public class SessionDetailsFilter extends OncePerRequestFilter {
 
 	String getGeoLocation(String remoteAddr) {
 		try {
-			CityResponse city = reader.city(InetAddress.getByName(remoteAddr));
+			CityResponse city = this.reader.city(InetAddress.getByName(remoteAddr));
 			String cityName = city.getCity().getName();
 			String countryName = city.getCountry().getName();
-			if(cityName == null && countryName == null) {
+			if (cityName == null && countryName == null) {
 				return null;
-			} else if(cityName == null) {
+			}
+			else if (cityName == null) {
 				return countryName;
-			} else if(countryName == null) {
+			}
+			else if (countryName == null) {
 				return cityName;
 			}
 			return cityName + ", " + countryName;
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			return UNKNOWN;
 
 		}
@@ -97,7 +101,8 @@ public class SessionDetailsFilter extends OncePerRequestFilter {
 		String remoteAddr = request.getHeader("X-FORWARDED-FOR");
 		if (remoteAddr == null) {
 			remoteAddr = request.getRemoteAddr();
-		} else if (remoteAddr.contains(",")) {
+		}
+		else if (remoteAddr.contains(",")) {
 			remoteAddr = remoteAddr.split(",")[0];
 		}
 		return remoteAddr;

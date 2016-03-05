@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import java.io.IOException;
@@ -32,11 +33,12 @@ public class LoginServlet extends HttpServlet {
 		String username = req.getParameter("username");
 		String password = req.getParameter("password");
 
-		if(username != null && !"".equals(username) && username.equals(password)) {
+		if (username != null && !"".equals(username) && username.equals(password)) {
 			req.getSession().setAttribute("username", username);
 			String url = resp.encodeRedirectURL(req.getContextPath() + "/");
 			resp.sendRedirect(url);
-		} else {
+		}
+		else {
 			String url = resp.encodeRedirectURL(req.getContextPath() + "/?error");
 			resp.sendRedirect(url);
 		}

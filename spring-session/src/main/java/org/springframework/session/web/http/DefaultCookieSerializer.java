@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * The default implementation of {@link CookieSerializer}
+ * The default implementation of {@link CookieSerializer}.
  *
  * @author Rob Winch
  * @since 1.1
@@ -53,17 +54,17 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @see org.springframework.session.web.http.CookieSerializer#readCookieValues(javax.servlet.http.HttpServletRequest)
 	 */
 	public List<String> readCookieValues(HttpServletRequest request) {
-		Cookie cookies[] = request.getCookies();
+		Cookie[] cookies = request.getCookies();
 		List<String> matchingCookieValues = new ArrayList<String>();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
-				if (cookieName.equals(cookie.getName())) {
+				if (this.cookieName.equals(cookie.getName())) {
 					String sessionId = cookie.getValue();
-					if(sessionId == null) {
+					if (sessionId == null) {
 						continue;
 					}
-					if(jvmRoute != null && sessionId.endsWith(jvmRoute)) {
-						sessionId = sessionId.substring(0, sessionId.length() - jvmRoute.length());
+					if (this.jvmRoute != null && sessionId.endsWith(this.jvmRoute)) {
+						sessionId = sessionId.substring(0, sessionId.length() - this.jvmRoute.length());
 					}
 					matchingCookieValues.add(sessionId);
 				}
@@ -83,9 +84,9 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		HttpServletResponse response = cookieValue.getResponse();
 
 		String requestedCookieValue = cookieValue.getCookieValue();
-		String actualCookieValue = jvmRoute == null ? requestedCookieValue : requestedCookieValue + jvmRoute;
+		String actualCookieValue = this.jvmRoute == null ? requestedCookieValue : requestedCookieValue + this.jvmRoute;
 
-		Cookie sessionCookie = new Cookie(cookieName, actualCookieValue);
+		Cookie sessionCookie = new Cookie(this.cookieName, actualCookieValue);
 		sessionCookie.setSecure(isSecureCookie(request));
 		sessionCookie.setPath(getCookiePath(request));
 		String domainName = getDomainName(request);
@@ -93,14 +94,15 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			sessionCookie.setDomain(domainName);
 		}
 
-		if (useHttpOnlyCookie) {
+		if (this.useHttpOnlyCookie) {
 			sessionCookie.setHttpOnly(true);
 		}
 
 		if ("".equals(requestedCookieValue)) {
 			sessionCookie.setMaxAge(0);
-		} else {
-			sessionCookie.setMaxAge(cookieMaxAge);
+		}
+		else {
+			sessionCookie.setMaxAge(this.cookieMaxAge);
 		}
 
 		response.addCookie(sessionCookie);
@@ -125,17 +127,17 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 *            determines if the cookie should be marked as HTTP Only.
 	 */
 	public void setUseHttpOnlyCookie(boolean useHttpOnlyCookie) {
-		if(useHttpOnlyCookie && !isServlet3()) {
+		if (useHttpOnlyCookie && !isServlet3()) {
 			throw new IllegalArgumentException("You cannot set useHttpOnlyCookie to true in pre Servlet 3 environment");
 		}
 		this.useHttpOnlyCookie = useHttpOnlyCookie;
 	}
 
 	private boolean isSecureCookie(HttpServletRequest request) {
-		if (useSecureCookie == null) {
+		if (this.useSecureCookie == null) {
 			return request.isSecure();
 		}
-		return useSecureCookie;
+		return this.useSecureCookie;
 	}
 
 	/**
@@ -247,11 +249,11 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	private String getDomainName(HttpServletRequest request) {
-		if (domainName != null) {
-			return domainName;
+		if (this.domainName != null) {
+			return this.domainName;
 		}
-		if (domainNamePattern != null) {
-			Matcher matcher = domainNamePattern.matcher(request.getServerName());
+		if (this.domainNamePattern != null) {
+			Matcher matcher = this.domainNamePattern.matcher(request.getServerName());
 			if (matcher.matches()) {
 				return matcher.group(1);
 			}
@@ -260,22 +262,23 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	private String getCookiePath(HttpServletRequest request) {
-		if (cookiePath == null) {
+		if (this.cookiePath == null) {
 			return request.getContextPath() + "/";
 		}
-		return cookiePath;
+		return this.cookiePath;
 	}
 
 	/**
 	 * Returns true if the Servlet 3 APIs are detected.
 	 *
-	 * @return
+	 * @return whether the Servlet 3 APIs are detected
 	 */
 	private boolean isServlet3() {
 		try {
 			ServletRequest.class.getMethod("startAsync");
 			return true;
-		} catch (NoSuchMethodException e) {
+		}
+		catch (NoSuchMethodException e) {
 		}
 		return false;
 	}

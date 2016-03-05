@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.data;
 
 import java.util.Calendar;
@@ -27,7 +28,7 @@ public class InstantMessage {
 	private Calendar created = Calendar.getInstance();
 
 	public String getTo() {
-		return to;
+		return this.to;
 	}
 
 	public void setTo(String to) {
@@ -35,7 +36,7 @@ public class InstantMessage {
 	}
 
 	public String getFrom() {
-		return from;
+		return this.from;
 	}
 
 	public void setFrom(String from) {
@@ -43,7 +44,7 @@ public class InstantMessage {
 	}
 
 	public String getMessage() {
-		return message;
+		return this.message;
 	}
 
 	public void setMessage(String message) {
@@ -51,7 +52,7 @@ public class InstantMessage {
 	}
 
 	public Calendar getCreated() {
-		return created;
+		return this.created;
 	}
 
 	public void setCreated(Calendar created) {
