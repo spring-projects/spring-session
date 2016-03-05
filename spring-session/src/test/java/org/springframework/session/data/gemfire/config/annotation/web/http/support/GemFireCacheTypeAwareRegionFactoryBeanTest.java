@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,6 @@
 
 package org.springframework.session.data.gemfire.config.annotation.web.http.support;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.data.gemfire.client.Interest;
-import org.springframework.session.ExpiringSession;
-
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.GemFireCache;
 import com.gemstone.gemfire.cache.InterestResultPolicy;
@@ -37,12 +24,26 @@ import com.gemstone.gemfire.cache.RegionAttributes;
 import com.gemstone.gemfire.cache.RegionShortcut;
 import com.gemstone.gemfire.cache.client.ClientCache;
 import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import org.springframework.data.gemfire.client.Interest;
+import org.springframework.session.ExpiringSession;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * The GemFireCacheTypeAwareRegionFactoryBeanTest class is a test suite of test cases testing the contract
  * and functionality of the GemFireCacheTypeAwareRegionFactoryBean class.
  *
  * @author John Blum
+ * @since 1.1.0
  * @see org.junit.Rule
  * @see org.junit.Test
  * @see org.mockito.Mockito
@@ -55,7 +56,6 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  * @see com.gemstone.gemfire.cache.RegionShortcut
  * @see com.gemstone.gemfire.cache.client.ClientCache
  * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
- * @since 1.1.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class GemFireCacheTypeAwareRegionFactoryBeanTest {
@@ -64,66 +64,70 @@ public class GemFireCacheTypeAwareRegionFactoryBeanTest {
 	public ExpectedException expectedException = ExpectedException.none();
 
 	@Mock
-	Region<Object,ExpiringSession> mockClientRegion;
+	Region<Object, ExpiringSession> mockClientRegion;
 	@Mock
-	Region<Object,ExpiringSession> mockServerRegion;
+	Region<Object, ExpiringSession> mockServerRegion;
 	@Mock
 	ClientCache mockClientCache;
 
-	private GemFireCacheTypeAwareRegionFactoryBean<Object,ExpiringSession> regionFactoryBean;
+	private GemFireCacheTypeAwareRegionFactoryBean<Object, ExpiringSession> regionFactoryBean;
 
 	@Before
 	public void setup() {
-		regionFactoryBean = new GemFireCacheTypeAwareRegionFactoryBean<Object,ExpiringSession>();
+		this.regionFactoryBean = new GemFireCacheTypeAwareRegionFactoryBean<Object, ExpiringSession>();
 	}
 
 	@Test
 	public void afterPropertiesSetCreatesClientRegionForClientCache() throws Exception {
-		regionFactoryBean = new GemFireCacheTypeAwareRegionFactoryBean<Object,ExpiringSession>() {
-			@Override protected Region<Object,ExpiringSession> newClientRegion(GemFireCache gemfireCache) throws Exception {
-				assertThat(gemfireCache).isSameAs(mockClientCache);
-				return mockClientRegion;
+		this.regionFactoryBean = new GemFireCacheTypeAwareRegionFactoryBean<Object, ExpiringSession>() {
+			@Override
+			protected Region<Object, ExpiringSession> newClientRegion(GemFireCache gemfireCache) throws Exception {
+				assertThat(gemfireCache).isSameAs(GemFireCacheTypeAwareRegionFactoryBeanTest.this.mockClientCache);
+				return GemFireCacheTypeAwareRegionFactoryBeanTest.this.mockClientRegion;
 			}
 
-			@Override protected Region<Object,ExpiringSession> newServerRegion(final GemFireCache gemfireCache) throws Exception {
-				assertThat(gemfireCache).isSameAs(mockClientCache);
-				return mockServerRegion;
+			@Override
+			protected Region<Object, ExpiringSession> newServerRegion(final GemFireCache gemfireCache) throws Exception {
+				assertThat(gemfireCache).isSameAs(GemFireCacheTypeAwareRegionFactoryBeanTest.this.mockClientCache);
+				return GemFireCacheTypeAwareRegionFactoryBeanTest.this.mockServerRegion;
 			}
 		};
 
-		regionFactoryBean.setGemfireCache(mockClientCache);
-		regionFactoryBean.afterPropertiesSet();
+		this.regionFactoryBean.setGemfireCache(this.mockClientCache);
+		this.regionFactoryBean.afterPropertiesSet();
 
-		assertThat(regionFactoryBean.getGemfireCache()).isSameAs(mockClientCache);
-		assertThat(regionFactoryBean.getObject()).isEqualTo(mockClientRegion);
+		assertThat(this.regionFactoryBean.getGemfireCache()).isSameAs(this.mockClientCache);
+		assertThat(this.regionFactoryBean.getObject()).isEqualTo(this.mockClientRegion);
 	}
 
 	@Test
 	public void afterPropertiesSetCreatesServerRegionForPeerCache() throws Exception {
 		final Cache mockCache = mock(Cache.class);
 
-		regionFactoryBean = new GemFireCacheTypeAwareRegionFactoryBean<Object,ExpiringSession>() {
-			@Override protected Region<Object,ExpiringSession> newClientRegion(GemFireCache gemfireCache) throws Exception {
+		this.regionFactoryBean = new GemFireCacheTypeAwareRegionFactoryBean<Object, ExpiringSession>() {
+			@Override
+			protected Region<Object, ExpiringSession> newClientRegion(GemFireCache gemfireCache) throws Exception {
 				assertThat(gemfireCache).isSameAs(mockCache);
-				return mockClientRegion;
+				return GemFireCacheTypeAwareRegionFactoryBeanTest.this.mockClientRegion;
 			}
 
-			@Override protected Region<Object,ExpiringSession> newServerRegion(final GemFireCache gemfireCache) throws Exception {
+			@Override
+			protected Region<Object, ExpiringSession> newServerRegion(final GemFireCache gemfireCache) throws Exception {
 				assertThat(gemfireCache).isSameAs(mockCache);
-				return mockServerRegion;
+				return GemFireCacheTypeAwareRegionFactoryBeanTest.this.mockServerRegion;
 			}
 		};
 
-		regionFactoryBean.setGemfireCache(mockCache);
-		regionFactoryBean.afterPropertiesSet();
+		this.regionFactoryBean.setGemfireCache(mockCache);
+		this.regionFactoryBean.afterPropertiesSet();
 
-		assertThat(regionFactoryBean.getGemfireCache()).isSameAs(mockCache);
-		assertThat(regionFactoryBean.getObject()).isEqualTo(mockServerRegion);
+		assertThat(this.regionFactoryBean.getGemfireCache()).isSameAs(mockCache);
+		assertThat(this.regionFactoryBean.getObject()).isEqualTo(this.mockServerRegion);
 	}
 
 	@Test
 	public void allKeysInterestRegistration() {
-		Interest<Object>[] interests = regionFactoryBean.registerInterests(true);
+		Interest<Object>[] interests = this.regionFactoryBean.registerInterests(true);
 
 		assertThat(interests).isNotNull();
 		assertThat(interests.length).isEqualTo(1);
@@ -135,7 +139,7 @@ public class GemFireCacheTypeAwareRegionFactoryBeanTest {
 
 	@Test
 	public void emptyInterestsRegistration() {
-		Interest<Object>[] interests = regionFactoryBean.registerInterests(false);
+		Interest<Object>[] interests = this.regionFactoryBean.registerInterests(false);
 
 		assertThat(interests).isNotNull();
 		assertThat(interests.length).isEqualTo(0);
@@ -143,26 +147,26 @@ public class GemFireCacheTypeAwareRegionFactoryBeanTest {
 
 	@Test
 	public void getObjectTypeBeforeInitializationIsRegionClass() {
-		assertThat(regionFactoryBean.getObjectType()).isEqualTo(Region.class);
+		assertThat(this.regionFactoryBean.getObjectType()).isEqualTo(Region.class);
 	}
 
 	@Test
 	public void isSingletonIsTrue() {
-		assertThat(regionFactoryBean.isSingleton()).isTrue();
+		assertThat(this.regionFactoryBean.isSingleton()).isTrue();
 	}
 
 	@Test
 	public void setAndGetClientRegionShortcut() {
-		assertThat(regionFactoryBean.getClientRegionShortcut()).isEqualTo(
+		assertThat(this.regionFactoryBean.getClientRegionShortcut()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_CLIENT_REGION_SHORTCUT);
 
-		regionFactoryBean.setClientRegionShortcut(ClientRegionShortcut.LOCAL_PERSISTENT);
+		this.regionFactoryBean.setClientRegionShortcut(ClientRegionShortcut.LOCAL_PERSISTENT);
 
-		assertThat(regionFactoryBean.getClientRegionShortcut()).isEqualTo(ClientRegionShortcut.LOCAL_PERSISTENT);
+		assertThat(this.regionFactoryBean.getClientRegionShortcut()).isEqualTo(ClientRegionShortcut.LOCAL_PERSISTENT);
 
-		regionFactoryBean.setClientRegionShortcut(null);
+		this.regionFactoryBean.setClientRegionShortcut(null);
 
-		assertThat(regionFactoryBean.getClientRegionShortcut()).isEqualTo(
+		assertThat(this.regionFactoryBean.getClientRegionShortcut()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_CLIENT_REGION_SHORTCUT);
 	}
 
@@ -170,78 +174,78 @@ public class GemFireCacheTypeAwareRegionFactoryBeanTest {
 	public void setAndGetGemfireCache() {
 		Cache mockCache = mock(Cache.class);
 
-		regionFactoryBean.setGemfireCache(mockCache);
+		this.regionFactoryBean.setGemfireCache(mockCache);
 
-		assertThat(regionFactoryBean.getGemfireCache()).isEqualTo(mockCache);
+		assertThat(this.regionFactoryBean.getGemfireCache()).isEqualTo(mockCache);
 	}
 
 	@Test
 	public void setGemfireCacheToNullThrowsIllegalArgumentException() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("The GemFireCache reference must not be null");
-		regionFactoryBean.setGemfireCache(null);
+		this.expectedException.expect(IllegalArgumentException.class);
+		this.expectedException.expectMessage("The GemFireCache reference must not be null");
+		this.regionFactoryBean.setGemfireCache(null);
 	}
 
 	@Test
 	public void getGemfireCacheWhenNullThrowsIllegalStateException() {
-		expectedException.expect(IllegalStateException.class);
-		expectedException.expectMessage("A reference to a GemFireCache was not properly configured");
-		regionFactoryBean.getGemfireCache();
+		this.expectedException.expect(IllegalStateException.class);
+		this.expectedException.expectMessage("A reference to a GemFireCache was not properly configured");
+		this.regionFactoryBean.getGemfireCache();
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void setAndGetRegionAttributes() {
-		RegionAttributes<Object,ExpiringSession> mockRegionAttributes = mock(RegionAttributes.class);
+		RegionAttributes<Object, ExpiringSession> mockRegionAttributes = mock(RegionAttributes.class);
 
-		assertThat(regionFactoryBean.getRegionAttributes()).isNull();
+		assertThat(this.regionFactoryBean.getRegionAttributes()).isNull();
 
-		regionFactoryBean.setRegionAttributes(mockRegionAttributes);
+		this.regionFactoryBean.setRegionAttributes(mockRegionAttributes);
 
-		assertThat(regionFactoryBean.getRegionAttributes()).isSameAs(mockRegionAttributes);
+		assertThat(this.regionFactoryBean.getRegionAttributes()).isSameAs(mockRegionAttributes);
 
-		regionFactoryBean.setRegionAttributes(null);
+		this.regionFactoryBean.setRegionAttributes(null);
 
-		assertThat(regionFactoryBean.getRegionAttributes()).isNull();
+		assertThat(this.regionFactoryBean.getRegionAttributes()).isNull();
 	}
 
 	@Test
 	public void setAndGetRegionName() {
-		assertThat(regionFactoryBean.getRegionName()).isEqualTo(
+		assertThat(this.regionFactoryBean.getRegionName()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
 
-		regionFactoryBean.setRegionName("Example");
+		this.regionFactoryBean.setRegionName("Example");
 
-		assertThat(regionFactoryBean.getRegionName()).isEqualTo("Example");
+		assertThat(this.regionFactoryBean.getRegionName()).isEqualTo("Example");
 
-		regionFactoryBean.setRegionName("  ");
+		this.regionFactoryBean.setRegionName("  ");
 
-		assertThat(regionFactoryBean.getRegionName()).isEqualTo(
+		assertThat(this.regionFactoryBean.getRegionName()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
 
-		regionFactoryBean.setRegionName("");
+		this.regionFactoryBean.setRegionName("");
 
-		assertThat(regionFactoryBean.getRegionName()).isEqualTo(
+		assertThat(this.regionFactoryBean.getRegionName()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
 
-		regionFactoryBean.setRegionName(null);
+		this.regionFactoryBean.setRegionName(null);
 
-		assertThat(regionFactoryBean.getRegionName()).isEqualTo(
+		assertThat(this.regionFactoryBean.getRegionName()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
 	}
 
 	@Test
 	public void setAndGetServerRegionShortcut() {
-		assertThat(regionFactoryBean.getServerRegionShortcut()).isEqualTo(
+		assertThat(this.regionFactoryBean.getServerRegionShortcut()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_SERVER_REGION_SHORTCUT);
 
-		regionFactoryBean.setServerRegionShortcut(RegionShortcut.LOCAL_PERSISTENT);
+		this.regionFactoryBean.setServerRegionShortcut(RegionShortcut.LOCAL_PERSISTENT);
 
-		assertThat(regionFactoryBean.getServerRegionShortcut()).isEqualTo(RegionShortcut.LOCAL_PERSISTENT);
+		assertThat(this.regionFactoryBean.getServerRegionShortcut()).isEqualTo(RegionShortcut.LOCAL_PERSISTENT);
 
-		regionFactoryBean.setServerRegionShortcut(null);
+		this.regionFactoryBean.setServerRegionShortcut(null);
 
-		assertThat(regionFactoryBean.getServerRegionShortcut()).isEqualTo(
+		assertThat(this.regionFactoryBean.getServerRegionShortcut()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_SERVER_REGION_SHORTCUT);
 	}
 

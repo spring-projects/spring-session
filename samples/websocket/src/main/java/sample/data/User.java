@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.data;
 
 import java.io.Serializable;
@@ -25,6 +26,7 @@ import javax.persistence.Id;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -52,13 +54,14 @@ public class User implements Serializable {
 
 	@Email(message = "Please provide a valid email address.")
 	@NotEmpty(message = "Email is required.")
-	@Column(unique=true, nullable = false)
+	@Column(unique = true, nullable = false)
 	private String email;
 
 	@NotEmpty(message = "Password is required.")
 	private String password;
 
-	public User() {}
+	public User() {
+	}
 
 	public User(User user) {
 		this.id = user.id;
@@ -69,7 +72,7 @@ public class User implements Serializable {
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public void setPassword(String password) {
@@ -77,7 +80,7 @@ public class User implements Serializable {
 	}
 
 	public Long getId() {
-		return id;
+		return this.id;
 	}
 
 	public void setId(Long id) {
@@ -85,7 +88,7 @@ public class User implements Serializable {
 	}
 
 	public String getFirstName() {
-		return firstName;
+		return this.firstName;
 	}
 
 	public void setFirstName(String firstName) {
@@ -93,7 +96,7 @@ public class User implements Serializable {
 	}
 
 	public String getLastName() {
-		return lastName;
+		return this.lastName;
 	}
 
 	public void setLastName(String lastName) {
@@ -101,7 +104,7 @@ public class User implements Serializable {
 	}
 
 	public String getEmail() {
-		return email;
+		return this.email;
 	}
 
 	public void setEmail(String email) {

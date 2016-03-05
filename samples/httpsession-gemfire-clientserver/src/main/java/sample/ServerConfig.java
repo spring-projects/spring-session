@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *	   http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
 import java.io.IOException;
 import java.util.Properties;
+
+import com.gemstone.gemfire.cache.Cache;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -25,8 +28,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
-
-import com.gemstone.gemfire.cache.Cache;
 
 // tag::class[]
 @EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 30)// <1>
@@ -68,7 +69,7 @@ public class ServerConfig {
 
 	@Bean
 	CacheServerFactoryBean gemfireCacheServer(Cache gemfireCache, // <4>
-			@Value("${spring.session.data.gemfire.port:"+SERVER_PORT+"}") int port) {
+			@Value("${spring.session.data.gemfire.port:" + SERVER_PORT + "}") int port) {
 
 		CacheServerFactoryBean cacheServerFactory = new CacheServerFactoryBean();
 

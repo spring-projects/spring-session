@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,15 @@
 
 package org.springframework.session.hazelcast;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Abstract base class for Hazelcast integration tests.
@@ -43,19 +42,19 @@ public abstract class AbstractHazelcastRepositoryITests<S extends ExpiringSessio
 
 	@Test
 	public void createAndDestroySession() {
-		S sessionToSave = repository.createSession();
+		S sessionToSave = this.repository.createSession();
 		String sessionId = sessionToSave.getId();
 
-		IMap<String, S> hazelcastMap = hazelcast.getMap("spring:session:sessions");
+		IMap<String, S> hazelcastMap = this.hazelcast.getMap("spring:session:sessions");
 
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 
-		repository.save(sessionToSave);
+		this.repository.save(sessionToSave);
 
 		assertThat(hazelcastMap.size()).isEqualTo(1);
 		assertThat(hazelcastMap.get(sessionId)).isEqualTo(sessionToSave);
 
-		repository.delete(sessionId);
+		this.repository.delete(sessionId);
 
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 	}

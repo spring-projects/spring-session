@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.socket.config.annotation;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +70,10 @@ import org.springframework.web.util.UrlPathHelper;
  * }
  * </code>
  *
- * @author Rob Winch
- * @since 1.0
- *
  * @param <S>
  *            the type of ExpiringSession
+ * @author Rob Winch
+ * @since 1.0
  */
 public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends ExpiringSession> extends AbstractWebSocketMessageBrokerConfigurer {
 
@@ -90,7 +90,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	}
 
 	public final void registerStompEndpoints(StompEndpointRegistry registry) {
-		if(registry instanceof WebMvcStompEndpointRegistry) {
+		if (registry instanceof WebMvcStompEndpointRegistry) {
 			WebMvcStompEndpointRegistry mvcRegistry = (WebMvcStompEndpointRegistry) registry;
 			configureStompEndpoints(new SessionStompEndpointRegistry(mvcRegistry, sessionRepositoryInterceptor()));
 		}
@@ -122,28 +122,31 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 
 	@Bean
 	public WebSocketConnectHandlerDecoratorFactory wsConnectHandlerDecoratorFactory() {
-		return new WebSocketConnectHandlerDecoratorFactory(eventPublisher);
+		return new WebSocketConnectHandlerDecoratorFactory(this.eventPublisher);
 	}
 
 	@Bean
 	@SuppressWarnings("unchecked")
 	public SessionRepositoryMessageInterceptor<S> sessionRepositoryInterceptor() {
-		return new SessionRepositoryMessageInterceptor<S>(sessionRepository);
+		return new SessionRepositoryMessageInterceptor<S>(this.sessionRepository);
 	}
 
+	/**
+	 * A {@link StompEndpointRegistry} that applies {@link HandshakeInterceptor}.
+	 */
 	static class SessionStompEndpointRegistry implements StompEndpointRegistry {
 		private final WebMvcStompEndpointRegistry registry;
 		private final HandshakeInterceptor interceptor;
 
-		public SessionStompEndpointRegistry(WebMvcStompEndpointRegistry registry,
+		SessionStompEndpointRegistry(WebMvcStompEndpointRegistry registry,
 				HandshakeInterceptor interceptor) {
 			this.registry = registry;
 			this.interceptor = interceptor;
 		}
 
 		public StompWebSocketEndpointRegistration addEndpoint(String... paths) {
-			StompWebSocketEndpointRegistration endpoints = registry.addEndpoint(paths);
-			endpoints.addInterceptors(interceptor);
+			StompWebSocketEndpointRegistration endpoints = this.registry.addEndpoint(paths);
+			endpoints.addInterceptors(this.interceptor);
 			return endpoints;
 		}
 

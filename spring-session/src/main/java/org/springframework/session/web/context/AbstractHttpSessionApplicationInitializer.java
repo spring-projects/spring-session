@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.context;
 
 import java.util.Arrays;
@@ -75,6 +76,9 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 
 	private static final String SERVLET_CONTEXT_PREFIX = "org.springframework.web.servlet.FrameworkServlet.CONTEXT.";
 
+	/**
+	 * The default name for Spring Session's repository filter.
+	 */
 	public static final String DEFAULT_FILTER_NAME = "springSessionRepositoryFilter";
 
 	private final Class<?>[] configurationClasses;
@@ -105,9 +109,9 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	public void onStartup(ServletContext servletContext)
 			throws ServletException {
 		beforeSessionRepositoryFilter(servletContext);
-		if(configurationClasses != null) {
+		if (this.configurationClasses != null) {
 			AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();
-			rootAppContext.register(configurationClasses);
+			rootAppContext.register(this.configurationClasses);
 			servletContext.addListener(new ContextLoaderListener(rootAppContext));
 		}
 		insertSessionRepositoryFilter(servletContext);
@@ -115,14 +119,14 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	}
 
 	/**
-	 * Registers the springSessionRepositoryFilter
+	 * Registers the springSessionRepositoryFilter.
 	 * @param servletContext the {@link ServletContext}
 	 */
 	private void insertSessionRepositoryFilter(ServletContext servletContext) {
 		String filterName = DEFAULT_FILTER_NAME;
 		DelegatingFilterProxy springSessionRepositoryFilter = new DelegatingFilterProxy(filterName);
 		String contextAttribute = getWebApplicationContextAttribute();
-		if(contextAttribute != null) {
+		if (contextAttribute != null) {
 			springSessionRepositoryFilter.setContextAttribute(contextAttribute);
 		}
 		registerFilter(servletContext, true, filterName, springSessionRepositoryFilter);
@@ -138,7 +142,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	 * @param filters
 	 *            the {@link Filter}s to register
 	 */
-	protected final void insertFilters(ServletContext servletContext,Filter... filters) {
+	protected final void insertFilters(ServletContext servletContext, Filter... filters) {
 		registerFilters(servletContext, true, filters);
 	}
 
@@ -152,7 +156,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	 * @param filters
 	 *            the {@link Filter}s to register
 	 */
-	protected final void appendFilters(ServletContext servletContext,Filter... filters) {
+	protected final void appendFilters(ServletContext servletContext, Filter... filters) {
 		registerFilters(servletContext, false, filters);
 	}
 
@@ -173,8 +177,8 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	private void registerFilters(ServletContext servletContext, boolean insertBeforeOtherFilters, Filter... filters) {
 		Assert.notEmpty(filters, "filters cannot be null or empty");
 
-		for(Filter filter : filters) {
-			if(filter == null) {
+		for (Filter filter : filters) {
+			if (filter == null) {
 				throw new IllegalArgumentException("filters cannot contain null values. Got " + Arrays.asList(filters));
 			}
 			String filterName = Conventions.getVariableName(filter);
@@ -185,15 +189,15 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	/**
 	 * Registers the provided filter using the {@link #isAsyncSessionSupported()} and {@link #getSessionDispatcherTypes()}.
 	 *
-	 * @param servletContext
+	 * @param servletContext the servlet context
 	 * @param insertBeforeOtherFilters should this Filter be inserted before or after other {@link Filter}
-	 * @param filterName
-	 * @param filter
+	 * @param filterName the filter name
+	 * @param filter the filter
 	 */
-	private final void registerFilter(ServletContext servletContext, boolean insertBeforeOtherFilters, String filterName, Filter filter) {
+	private void registerFilter(ServletContext servletContext, boolean insertBeforeOtherFilters, String filterName, Filter filter) {
 		Dynamic registration = servletContext.addFilter(filterName, filter);
-		if(registration == null) {
-			throw new IllegalStateException("Duplicate Filter registration for '" + filterName +"'. Check to ensure the Filter is only configured once.");
+		if (registration == null) {
+			throw new IllegalStateException("Duplicate Filter registration for '" + filterName + "'. Check to ensure the Filter is only configured once.");
 		}
 		registration.setAsyncSupported(isAsyncSessionSupported());
 		EnumSet<DispatcherType> dispatcherTypes = getSessionDispatcherTypes();
@@ -217,7 +221,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	 */
 	private String getWebApplicationContextAttribute() {
 		String dispatcherServletName = getDispatcherWebApplicationContextSuffix();
-		if(dispatcherServletName == null) {
+		if (dispatcherServletName == null) {
 			return null;
 		}
 		return SERVLET_CONTEXT_PREFIX + dispatcherServletName;

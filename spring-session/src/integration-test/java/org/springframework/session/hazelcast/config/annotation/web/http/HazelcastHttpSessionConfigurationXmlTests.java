@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
-import static org.assertj.core.api.Assertions.*;
-
+import com.hazelcast.config.ClasspathXmlConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,16 +34,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 
-import com.hazelcast.config.ClasspathXmlConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Test the different configuration options for the
  * {@link EnableHazelcastHttpSession} annotation.
- * 
+ *
  * @author Tommy Ludwig
  */
 public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession> {
@@ -54,11 +55,11 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 		@Test
 		public void saveSessionTest() throws InterruptedException {
 
-			S sessionToSave = repository.createSession();
+			S sessionToSave = this.repository.createSession();
 
-			repository.save(sessionToSave);
+			this.repository.save(sessionToSave);
 
-			S session = repository.getSession(sessionToSave.getId());
+			S session = this.repository.getSession(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1800);
@@ -91,11 +92,11 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 		@Test
 		public void saveSessionTest() throws InterruptedException {
 
-			S sessionToSave = repository.createSession();
+			S sessionToSave = this.repository.createSession();
 
-			repository.save(sessionToSave);
+			this.repository.save(sessionToSave);
 
-			S session = repository.getSession(sessionToSave.getId());
+			S session = this.repository.getSession(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1200);

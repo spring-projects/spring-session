@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.security;
 
 import java.util.Collection;
+
+import sample.data.User;
+import sample.data.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,8 +27,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import sample.data.User;
-import sample.data.UserRepository;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,8 +47,8 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 	 */
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {
-		User user = userRepository.findByEmail(username);
-		if(user == null) {
+		User user = this.userRepository.findByEmail(username);
+		if (user == null) {
 			throw new UsernameNotFoundException("Could not find user " + username);
 		}
 		return new CustomUserDetails(user);

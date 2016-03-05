@@ -1,28 +1,27 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.springframework.session.data.redis.config.annotation.web.http;
-
-
-import static org.assertj.core.api.Assertions.*;
 
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +39,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
@@ -54,35 +55,35 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 
 	@Before
 	public void setup() {
-		registry.setLock(lock);
+		this.registry.setLock(this.lock);
 	}
 
 	@Test
 	public void expireFiresSessionExpiredEvent() throws InterruptedException {
-		S toSave = repository.createSession();
+		S toSave = this.repository.createSession();
 		toSave.setAttribute("a", "b");
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user","password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
 
-		repository.save(toSave);
+		this.repository.save(toSave);
 
-		synchronized (lock) {
-			lock.wait((toSave.getMaxInactiveIntervalInSeconds() * 1000) + 1);
+		synchronized (this.lock) {
+			this.lock.wait((toSave.getMaxInactiveIntervalInSeconds() * 1000) + 1);
 		}
-		if(!registry.receivedEvent()) {
+		if (!this.registry.receivedEvent()) {
 			// Redis makes no guarantees on when an expired event will be fired
 			// we can ensure it gets fired by trying to get the session
-			repository.getSession(toSave.getId());
-			synchronized (lock) {
-				if(!registry.receivedEvent()) {
+			this.repository.getSession(toSave.getId());
+			synchronized (this.lock) {
+				if (!this.registry.receivedEvent()) {
 					// wait at most a minute
-					lock.wait(TimeUnit.MINUTES.toMillis(1));
+					this.lock.wait(TimeUnit.MINUTES.toMillis(1));
 				}
 			}
 		}
-		assertThat(registry.receivedEvent()).isTrue();
+		assertThat(this.registry.receivedEvent()).isTrue();
 	}
 
 	static class SessionExpiredEventRegistry implements ApplicationListener<SessionExpiredEvent> {
@@ -90,14 +91,14 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 		private Object lock;
 
 		public void onApplicationEvent(SessionExpiredEvent event) {
-			synchronized (lock) {
-				receivedEvent = true;
-				lock.notifyAll();
+			synchronized (this.lock) {
+				this.receivedEvent = true;
+				this.lock.notifyAll();
 			}
 		}
 
 		public boolean receivedEvent() {
-			return receivedEvent;
+			return this.receivedEvent;
 		}
 
 		public void setLock(Object lock) {

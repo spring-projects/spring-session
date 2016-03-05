@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
 import java.util.Collections;
@@ -29,6 +30,7 @@ import org.springframework.session.ExpiringSession;
 /**
  * Adapts Spring Session's {@link ExpiringSession} to an {@link HttpSession}.
  *
+ * @param <S> the {@link ExpiringSession} type
  * @author Rob Winch
  * @since 1.1
  */
@@ -39,7 +41,7 @@ class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSessi
 	private boolean invalidated;
 	private boolean old;
 
-	public ExpiringSessionHttpSession(S session, ServletContext servletContext) {
+	ExpiringSessionHttpSession(S session, ServletContext servletContext) {
 		this.session = session;
 		this.servletContext = servletContext;
 	}
@@ -49,33 +51,33 @@ class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSessi
 	}
 
 	public S getSession() {
-		return session;
+		return this.session;
 	}
 
 	public long getCreationTime() {
 		checkState();
-		return session.getCreationTime();
+		return this.session.getCreationTime();
 	}
 
 	public String getId() {
-		return session.getId();
+		return this.session.getId();
 	}
 
 	public long getLastAccessedTime() {
 		checkState();
-		return session.getLastAccessedTime();
+		return this.session.getLastAccessedTime();
 	}
 
 	public ServletContext getServletContext() {
-		return servletContext;
+		return this.servletContext;
 	}
 
 	public void setMaxInactiveInterval(int interval) {
-		session.setMaxInactiveIntervalInSeconds(interval);
+		this.session.setMaxInactiveIntervalInSeconds(interval);
 	}
 
 	public int getMaxInactiveInterval() {
-		return session.getMaxInactiveIntervalInSeconds();
+		return this.session.getMaxInactiveIntervalInSeconds();
 	}
 
 	public HttpSessionContext getSessionContext() {
@@ -84,7 +86,7 @@ class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSessi
 
 	public Object getAttribute(String name) {
 		checkState();
-		return session.getAttribute(name);
+		return this.session.getAttribute(name);
 	}
 
 	public Object getValue(String name) {
@@ -93,18 +95,18 @@ class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSessi
 
 	public Enumeration<String> getAttributeNames() {
 		checkState();
-		return Collections.enumeration(session.getAttributeNames());
+		return Collections.enumeration(this.session.getAttributeNames());
 	}
 
 	public String[] getValueNames() {
 		checkState();
-		Set<String> attrs = session.getAttributeNames();
+		Set<String> attrs = this.session.getAttributeNames();
 		return attrs.toArray(new String[0]);
 	}
 
 	public void setAttribute(String name, Object value) {
 		checkState();
-		session.setAttribute(name, value);
+		this.session.setAttribute(name, value);
 	}
 
 	public void putValue(String name, Object value) {
@@ -113,7 +115,7 @@ class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSessi
 
 	public void removeAttribute(String name) {
 		checkState();
-		session.removeAttribute(name);
+		this.session.removeAttribute(name);
 	}
 
 	public void removeValue(String name) {
@@ -131,11 +133,11 @@ class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSessi
 
 	public boolean isNew() {
 		checkState();
-		return !old;
+		return !this.old;
 	}
 
 	private void checkState() {
-		if(invalidated) {
+		if (this.invalidated) {
 			throw new IllegalStateException("The HttpSession has already be invalidated.");
 		}
 	}

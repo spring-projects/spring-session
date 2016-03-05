@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
 import java.util.Collection;
@@ -21,6 +22,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PreDestroy;
+
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -34,9 +38,6 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.SessionEntryListener;
 import org.springframework.session.web.http.SessionRepositoryFilter;
-
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
@@ -60,11 +61,11 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	@Bean
 	public SessionRepository<ExpiringSession> sessionRepository(HazelcastInstance hazelcastInstance, SessionEntryListener sessionListener) {
-		this.sessionsMap = hazelcastInstance.getMap(sessionMapName);
+		this.sessionsMap = hazelcastInstance.getMap(this.sessionMapName);
 		this.sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener, true);
 
 		MapSessionRepository sessionRepository = new MapSessionRepository(new ExpiringSessionMap(this.sessionsMap));
-		sessionRepository.setDefaultMaxInactiveInterval(maxInactiveIntervalInSeconds);
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 
 		return sessionRepository;
 	}
@@ -99,69 +100,72 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.sessionMapName = sessionMapName;
 	}
 
+	/**
+	 * A wrapper for Hazelcast's {@link IMap} which is used to store the sessions.
+	 */
 	static class ExpiringSessionMap implements Map<String, ExpiringSession> {
-		private IMap<String,ExpiringSession> delegate;
+		private IMap<String, ExpiringSession> delegate;
 
-		ExpiringSessionMap(IMap<String,ExpiringSession> delegate) {
+		ExpiringSessionMap(IMap<String, ExpiringSession> delegate) {
 			this.delegate = delegate;
 		}
 		public ExpiringSession put(String key, ExpiringSession value) {
-			if(value == null) {
-				return delegate.put(key, value);
+			if (value == null) {
+				return this.delegate.put(key, value);
 			}
-			return delegate.put(key, value, value.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
+			return this.delegate.put(key, value, value.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
 		}
 
 		public int size() {
-			return delegate.size();
+			return this.delegate.size();
 		}
 
 		public boolean isEmpty() {
-			return delegate.isEmpty();
+			return this.delegate.isEmpty();
 		}
 
 		public boolean containsKey(Object key) {
-			return delegate.containsKey(key);
+			return this.delegate.containsKey(key);
 		}
 
 		public boolean containsValue(Object value) {
-			return delegate.containsValue(value);
+			return this.delegate.containsValue(value);
 		}
 
 		public ExpiringSession get(Object key) {
-			return delegate.get(key);
+			return this.delegate.get(key);
 		}
 
 		public ExpiringSession remove(Object key) {
-			return delegate.remove(key);
+			return this.delegate.remove(key);
 		}
 
 		public void putAll(Map<? extends String, ? extends ExpiringSession> m) {
-			delegate.putAll(m);
+			this.delegate.putAll(m);
 		}
 
 		public void clear() {
-			delegate.clear();
+			this.delegate.clear();
 		}
 
 		public Set<String> keySet() {
-			return delegate.keySet();
+			return this.delegate.keySet();
 		}
 
 		public Collection<ExpiringSession> values() {
-			return delegate.values();
+			return this.delegate.values();
 		}
 
 		public Set<java.util.Map.Entry<String, ExpiringSession>> entrySet() {
-			return delegate.entrySet();
+			return this.delegate.entrySet();
 		}
 
 		public boolean equals(Object o) {
-			return delegate.equals(o);
+			return this.delegate.equals(o);
 		}
 
 		public int hashCode() {
-			return delegate.hashCode();
+			return this.delegate.hashCode();
 		}
 	}
 }

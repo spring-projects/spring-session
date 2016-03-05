@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.session.web.http.HeaderHttpSessionStrategy;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class HeaderSessionStrategyTests {
 	private MockHttpServletRequest request;
@@ -35,57 +36,57 @@ public class HeaderSessionStrategyTests {
 
 	@Before
 	public void setup() throws Exception {
-		headerName = "x-auth-token";
-		session = new MapSession();
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		strategy = new HeaderHttpSessionStrategy();
+		this.headerName = "x-auth-token";
+		this.session = new MapSession();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.strategy = new HeaderHttpSessionStrategy();
 	}
 
 	@Test
 	public void getRequestedSessionIdNull() throws Exception {
-		assertThat(strategy.getRequestedSessionId(request)).isNull();
+		assertThat(this.strategy.getRequestedSessionId(this.request)).isNull();
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNull() throws Exception {
-		setSessionId(session.getId());
-		assertThat(strategy.getRequestedSessionId(request)).isEqualTo(session.getId());
+		setSessionId(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionId(this.request)).isEqualTo(this.session.getId());
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNullCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
-		setSessionId(session.getId());
-		assertThat(strategy.getRequestedSessionId(request)).isEqualTo(session.getId());
+		setSessionId(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionId(this.request)).isEqualTo(this.session.getId());
 	}
 
 	@Test
 	public void onNewSession() throws Exception {
-		strategy.onNewSession(session, request, response);
-		assertThat(getSessionId()).isEqualTo(session.getId());
+		this.strategy.onNewSession(this.session, this.request, this.response);
+		assertThat(getSessionId()).isEqualTo(this.session.getId());
 	}
 
 	// the header is set as apposed to added
 	@Test
 	public void onNewSessionMulti() throws Exception {
-		strategy.onNewSession(session, request, response);
-		strategy.onNewSession(session, request, response);
+		this.strategy.onNewSession(this.session, this.request, this.response);
+		this.strategy.onNewSession(this.session, this.request, this.response);
 
-		assertThat(response.getHeaders(headerName).size()).isEqualTo(1);
-		assertThat(response.getHeaders(headerName)).containsOnly(session.getId());
+		assertThat(this.response.getHeaders(this.headerName).size()).isEqualTo(1);
+		assertThat(this.response.getHeaders(this.headerName)).containsOnly(this.session.getId());
 	}
 
 	@Test
 	public void onNewSessionCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
-		strategy.onNewSession(session, request, response);
-		assertThat(getSessionId()).isEqualTo(session.getId());
+		this.strategy.onNewSession(this.session, this.request, this.response);
+		assertThat(getSessionId()).isEqualTo(this.session.getId());
 	}
 
 	@Test
 	public void onDeleteSession() throws Exception {
-		strategy.onInvalidateSession(request, response);
+		this.strategy.onInvalidateSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
@@ -93,35 +94,35 @@ public class HeaderSessionStrategyTests {
 	// the header is set as apposed to added
 	@Test
 	public void onDeleteSessionMulti() throws Exception {
-		strategy.onInvalidateSession(request, response);
-		strategy.onInvalidateSession(request, response);
+		this.strategy.onInvalidateSession(this.request, this.response);
+		this.strategy.onInvalidateSession(this.request, this.response);
 
-		assertThat(response.getHeaders(headerName).size()).isEqualTo(1);
+		assertThat(this.response.getHeaders(this.headerName).size()).isEqualTo(1);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	@Test
 	public void onDeleteSessionCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
-		strategy.onInvalidateSession(request, response);
+		this.strategy.onInvalidateSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setHeaderNameNull() throws Exception {
-		strategy.setHeaderName(null);
+		this.strategy.setHeaderName(null);
 	}
 
 	public void setHeaderName(String headerName) {
-		strategy.setHeaderName(headerName);
+		this.strategy.setHeaderName(headerName);
 		this.headerName = headerName;
 	}
 
 	public void setSessionId(String id) {
-		request.addHeader(headerName, id);
+		this.request.addHeader(this.headerName, id);
 	}
 
 	public String getSessionId() {
-		return response.getHeader(headerName);
+		return this.response.getHeader(this.headerName);
 	}
 }

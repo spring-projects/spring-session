@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration.*;
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,11 +25,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 
-import java.util.Arrays;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EnableRedisKeyspaceNotificationsInitializerTests {
@@ -45,29 +48,29 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	@Captor
 	ArgumentCaptor<String> options;
 
-	EnableRedisKeyspaceNotificationsInitializer initializer;
+	RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
 
 	@Before
 	public void setup() {
-		when(connectionFactory.getConnection()).thenReturn(connection);
+		given(this.connectionFactory.getConnection()).willReturn(this.connection);
 
-		initializer = new EnableRedisKeyspaceNotificationsInitializer(connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
+		this.initializer = new RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(this.connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
 	}
 
 	@Test
 	public void afterPropertiesSetUnset() throws Exception {
 		setConfigNotification("");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
-		assertOptionsContains("E","g","x");
+		assertOptionsContains("E", "g", "x");
 	}
 
 	@Test
 	public void afterPropertiesSetA() throws Exception {
 		setConfigNotification("A");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("A", "E");
 	}
@@ -76,7 +79,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetE() throws Exception {
 		setConfigNotification("E");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("E", "g", "x");
 	}
@@ -85,7 +88,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetK() throws Exception {
 		setConfigNotification("K");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("K", "E", "g", "x");
 	}
@@ -94,16 +97,16 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetAE() throws Exception {
 		setConfigNotification("AE");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
-		verify(connection, never()).setConfig(anyString(), anyString());
+		verify(this.connection, never()).setConfig(anyString(), anyString());
 	}
 
 	@Test
 	public void afterPropertiesSetAK() throws Exception {
 		setConfigNotification("AK");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("A", "K", "E");
 	}
@@ -112,7 +115,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetEK() throws Exception {
 		setConfigNotification("EK");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("E", "K", "g", "x");
 	}
@@ -121,7 +124,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetEg() throws Exception {
 		setConfigNotification("Eg");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("E", "g", "x");
 	}
@@ -130,7 +133,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetE$() throws Exception {
 		setConfigNotification("E$");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("E", "$", "g", "x");
 	}
@@ -139,7 +142,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetKg() throws Exception {
 		setConfigNotification("Kg");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
 		assertOptionsContains("K", "g", "E", "x");
 	}
@@ -148,20 +151,20 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void afterPropertiesSetAEK() throws Exception {
 		setConfigNotification("AEK");
 
-		initializer.afterPropertiesSet();
+		this.initializer.afterPropertiesSet();
 
-		verify(connection, never()).setConfig(anyString(), anyString());
+		verify(this.connection, never()).setConfig(anyString(), anyString());
 	}
 
 	private void assertOptionsContains(String... expectedValues) {
-		verify(connection).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS), options.capture());
-		for(String expectedValue : expectedValues) {
-			assertThat(options.getValue()).contains(expectedValue);
+		verify(this.connection).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS), this.options.capture());
+		for (String expectedValue : expectedValues) {
+			assertThat(this.options.getValue()).contains(expectedValue);
 		}
-		assertThat(options.getValue().length()).isEqualTo(expectedValues.length);
+		assertThat(this.options.getValue().length()).isEqualTo(expectedValues.length);
 	}
 
 	private void setConfigNotification(String value) {
-		when(connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS)).thenReturn(Arrays.asList(CONFIG_NOTIFY_KEYSPACE_EVENTS, value));
+		given(this.connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS)).willReturn(Arrays.asList(CONFIG_NOTIFY_KEYSPACE_EVENTS, value));
 	}
 }

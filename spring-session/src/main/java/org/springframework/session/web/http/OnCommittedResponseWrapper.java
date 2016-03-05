@@ -1,33 +1,38 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
- * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Locale;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Base class for response wrappers which encapsulate the logic for handling an event when the
  * {@link javax.servlet.http.HttpServletResponse} is committed.
  *
- * @since 1.0
  * @author Rob Winch
+ * @since 1.0
  */
 abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	private final Log logger = LogFactory.getLog(getClass());
@@ -46,15 +51,16 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	private long contentWritten;
 
 	/**
+	 * Create a new {@link OnCommittedResponseWrapper}.
 	 * @param response the response to be wrapped
 	 */
-	public OnCommittedResponseWrapper(HttpServletResponse response) {
+	OnCommittedResponseWrapper(HttpServletResponse response) {
 		super(response);
 	}
 
 	@Override
 	public void addHeader(String name, String value) {
-		if("Content-Length".equalsIgnoreCase(name)) {
+		if ("Content-Length".equalsIgnoreCase(name)) {
 			setContentLength(Long.parseLong(value));
 		}
 		super.addHeader(name, value);
@@ -81,13 +87,14 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse} being committed
+	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse} being committed.
 	 */
 	protected abstract void onResponseCommitted();
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendError()</code>
+	 * superclass <code>sendError()</code>.
+	 * @param sc the error status code
 	 */
 	@Override
 	public final void sendError(int sc) throws IOException {
@@ -97,7 +104,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendError()</code>
+	 * superclass <code>sendError()</code>.
+	 * @param sc the error status code
 	 */
 	@Override
 	public final void sendError(int sc, String msg) throws IOException {
@@ -107,7 +115,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendRedirect()</code>
+	 * superclass <code>sendRedirect()</code>.
+	 * @param location the redirect URL location
 	 */
 	@Override
 	public final void sendRedirect(String location) throws IOException {
@@ -117,7 +126,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the calling
-	 * <code>getOutputStream().close()</code> or <code>getOutputStream().flush()</code>
+	 * <code>getOutputStream().close()</code> or <code>getOutputStream().flush()</code>.
+	 * @throws IOException if an input or output exception occurred
 	 */
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
@@ -126,7 +136,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * <code>getWriter().close()</code> or <code>getWriter().flush()</code>
+	 * <code>getWriter().close()</code> or <code>getWriter().flush()</code>.
+	 * @throws IOException if an input or output exception occurred
 	 */
 	@Override
 	public PrintWriter getWriter() throws IOException {
@@ -135,7 +146,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	/**
 	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>flushBuffer()</code>
+	 * superclass <code>flushBuffer()</code>.
+	 * @throws IOException if an input or output exception occurred
 	 */
 	@Override
 	public void flushBuffer() throws IOException {
@@ -190,25 +202,26 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	 * @param contentLengthToWrite the size of the content that is about to be written.
 	 */
 	private void checkContentLength(long contentLengthToWrite) {
-		contentWritten += contentLengthToWrite;
-		boolean isBodyFullyWritten = contentLength > 0  && contentWritten >= contentLength;
+		this.contentWritten += contentLengthToWrite;
+		boolean isBodyFullyWritten = this.contentLength > 0  && this.contentWritten >= this.contentLength;
 		int bufferSize = getBufferSize();
-		boolean requiresFlush = bufferSize > 0 && contentWritten >= bufferSize;
-		if(isBodyFullyWritten || requiresFlush) {
+		boolean requiresFlush = bufferSize > 0 && this.contentWritten >= bufferSize;
+		if (isBodyFullyWritten || requiresFlush) {
 			doOnResponseCommitted();
 		}
 	}
 
 	/**
 	 * Calls <code>onResponseCommmitted()</code> with the current contents as long as
-	 * {@link #disableOnResponseCommitted()()} was not invoked.
+	 * {@link #disableOnResponseCommitted()} was not invoked.
 	 */
 	private void doOnResponseCommitted() {
-		if(!disableOnCommitted) {
+		if (!this.disableOnCommitted) {
 			onResponseCommitted();
 			disableOnResponseCommitted();
-		} else if(logger.isDebugEnabled()){
-			logger.debug("Skip invoking on");
+		}
+		else if (this.logger.isDebugEnabled()) {
+			this.logger.debug("Skip invoking on");
 		}
 	}
 
@@ -221,195 +234,195 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	private class SaveContextPrintWriter extends PrintWriter {
 		private final PrintWriter delegate;
 
-		public SaveContextPrintWriter(PrintWriter delegate) {
+		SaveContextPrintWriter(PrintWriter delegate) {
 			super(delegate);
 			this.delegate = delegate;
 		}
 
 		public void flush() {
 			doOnResponseCommitted();
-			delegate.flush();
+			this.delegate.flush();
 		}
 
 		public void close() {
 			doOnResponseCommitted();
-			delegate.close();
+			this.delegate.close();
 		}
 
 		public int hashCode() {
-			return delegate.hashCode();
+			return this.delegate.hashCode();
 		}
 
 		public boolean equals(Object obj) {
-			return delegate.equals(obj);
+			return this.delegate.equals(obj);
 		}
 
 		public String toString() {
-			return getClass().getName() + "[delegate=" + delegate.toString() + "]";
+			return getClass().getName() + "[delegate=" + this.delegate.toString() + "]";
 		}
 
 		public boolean checkError() {
-			return delegate.checkError();
+			return this.delegate.checkError();
 		}
 
 		public void write(int c) {
 			trackContentLength(c);
-			delegate.write(c);
+			this.delegate.write(c);
 		}
 
 		public void write(char[] buf, int off, int len) {
 			checkContentLength(len);
-			delegate.write(buf, off, len);
+			this.delegate.write(buf, off, len);
 		}
 
 		public void write(char[] buf) {
 			trackContentLength(buf);
-			delegate.write(buf);
+			this.delegate.write(buf);
 		}
 
 		public void write(String s, int off, int len) {
 			checkContentLength(len);
-			delegate.write(s, off, len);
+			this.delegate.write(s, off, len);
 		}
 
 		public void write(String s) {
 			trackContentLength(s);
-			delegate.write(s);
+			this.delegate.write(s);
 		}
 
 		public void print(boolean b) {
 			trackContentLength(b);
-			delegate.print(b);
+			this.delegate.print(b);
 		}
 
 		public void print(char c) {
 			trackContentLength(c);
-			delegate.print(c);
+			this.delegate.print(c);
 		}
 
 		public void print(int i) {
 			trackContentLength(i);
-			delegate.print(i);
+			this.delegate.print(i);
 		}
 
 		public void print(long l) {
 			trackContentLength(l);
-			delegate.print(l);
+			this.delegate.print(l);
 		}
 
 		public void print(float f) {
 			trackContentLength(f);
-			delegate.print(f);
+			this.delegate.print(f);
 		}
 
 		public void print(double d) {
 			trackContentLength(d);
-			delegate.print(d);
+			this.delegate.print(d);
 		}
 
 		public void print(char[] s) {
 			trackContentLength(s);
-			delegate.print(s);
+			this.delegate.print(s);
 		}
 
 		public void print(String s) {
 			trackContentLength(s);
-			delegate.print(s);
+			this.delegate.print(s);
 		}
 
 		public void print(Object obj) {
 			trackContentLength(obj);
-			delegate.print(obj);
+			this.delegate.print(obj);
 		}
 
 		public void println() {
 			trackContentLengthLn();
-			delegate.println();
+			this.delegate.println();
 		}
 
 		public void println(boolean x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(char x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(int x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(long x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(float x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(double x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(char[] x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(String x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public void println(Object x) {
 			trackContentLength(x);
 			trackContentLengthLn();
-			delegate.println(x);
+			this.delegate.println(x);
 		}
 
 		public PrintWriter printf(String format, Object... args) {
-			return delegate.printf(format, args);
+			return this.delegate.printf(format, args);
 		}
 
 		public PrintWriter printf(Locale l, String format, Object... args) {
-			return delegate.printf(l, format, args);
+			return this.delegate.printf(l, format, args);
 		}
 
 		public PrintWriter format(String format, Object... args) {
-			return delegate.format(format, args);
+			return this.delegate.format(format, args);
 		}
 
 		public PrintWriter format(Locale l, String format, Object... args) {
-			return delegate.format(l, format, args);
+			return this.delegate.format(l, format, args);
 		}
 
 		public PrintWriter append(CharSequence csq) {
 			checkContentLength(csq.length());
-			return delegate.append(csq);
+			return this.delegate.append(csq);
 		}
 
 		public PrintWriter append(CharSequence csq, int start, int end) {
 			checkContentLength(end - start);
-			return delegate.append(csq, start, end);
+			return this.delegate.append(csq, start, end);
 		}
 
 		public PrintWriter append(char c) {
 			trackContentLength(c);
-			return delegate.append(c);
+			return this.delegate.append(c);
 		}
 	}
 
@@ -423,7 +436,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	private class SaveContextServletOutputStream extends ServletOutputStream {
 		private final ServletOutputStream delegate;
 
-		public SaveContextServletOutputStream(ServletOutputStream delegate) {
+		SaveContextServletOutputStream(ServletOutputStream delegate) {
 			this.delegate = delegate;
 		}
 
@@ -434,116 +447,116 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 		public void flush() throws IOException {
 			doOnResponseCommitted();
-			delegate.flush();
+			this.delegate.flush();
 		}
 
 		public void close() throws IOException {
 			doOnResponseCommitted();
-			delegate.close();
+			this.delegate.close();
 		}
 
 		public int hashCode() {
-			return delegate.hashCode();
+			return this.delegate.hashCode();
 		}
 
 		public boolean equals(Object obj) {
-			return delegate.equals(obj);
+			return this.delegate.equals(obj);
 		}
 
 		public void print(boolean b) throws IOException {
 			trackContentLength(b);
-			delegate.print(b);
+			this.delegate.print(b);
 		}
 
 		public void print(char c) throws IOException {
 			trackContentLength(c);
-			delegate.print(c);
+			this.delegate.print(c);
 		}
 
 		public void print(double d) throws IOException {
 			trackContentLength(d);
-			delegate.print(d);
+			this.delegate.print(d);
 		}
 
 		public void print(float f) throws IOException {
 			trackContentLength(f);
-			delegate.print(f);
+			this.delegate.print(f);
 		}
 
 		public void print(int i) throws IOException {
 			trackContentLength(i);
-			delegate.print(i);
+			this.delegate.print(i);
 		}
 
 		public void print(long l) throws IOException {
 			trackContentLength(l);
-			delegate.print(l);
+			this.delegate.print(l);
 		}
 
 		public void print(String s) throws IOException {
 			trackContentLength(s);
-			delegate.print(s);
+			this.delegate.print(s);
 		}
 
 		public void println() throws IOException {
 			trackContentLengthLn();
-			delegate.println();
+			this.delegate.println();
 		}
 
 		public void println(boolean b) throws IOException {
 			trackContentLength(b);
 			trackContentLengthLn();
-			delegate.println(b);
+			this.delegate.println(b);
 		}
 
 		public void println(char c) throws IOException {
 			trackContentLength(c);
 			trackContentLengthLn();
-			delegate.println(c);
+			this.delegate.println(c);
 		}
 
 		public void println(double d) throws IOException {
 			trackContentLength(d);
 			trackContentLengthLn();
-			delegate.println(d);
+			this.delegate.println(d);
 		}
 
 		public void println(float f) throws IOException {
 			trackContentLength(f);
 			trackContentLengthLn();
-			delegate.println(f);
+			this.delegate.println(f);
 		}
 
 		public void println(int i) throws IOException {
 			trackContentLength(i);
 			trackContentLengthLn();
-			delegate.println(i);
+			this.delegate.println(i);
 		}
 
 		public void println(long l) throws IOException {
 			trackContentLength(l);
 			trackContentLengthLn();
-			delegate.println(l);
+			this.delegate.println(l);
 		}
 
 		public void println(String s) throws IOException {
 			trackContentLength(s);
 			trackContentLengthLn();
-			delegate.println(s);
+			this.delegate.println(s);
 		}
 
 		public void write(byte[] b) throws IOException {
 			trackContentLength(b);
-			delegate.write(b);
+			this.delegate.write(b);
 		}
 
 		public void write(byte[] b, int off, int len) throws IOException {
 			checkContentLength(len);
-			delegate.write(b, off, len);
+			this.delegate.write(b, off, len);
 		}
 
 		public String toString() {
-			return getClass().getName() + "[delegate=" + delegate.toString() + "]";
+			return getClass().getName() + "[delegate=" + this.delegate.toString() + "]";
 		}
 	}
 }

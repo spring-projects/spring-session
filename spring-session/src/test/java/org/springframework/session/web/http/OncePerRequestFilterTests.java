@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.mock.web.MockFilterChain;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.session.web.http.OncePerRequestFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -28,11 +26,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import org.springframework.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class OncePerRequestFilterTests {
 	private MockHttpServletRequest request;
@@ -47,15 +48,16 @@ public class OncePerRequestFilterTests {
 	@Before
 	@SuppressWarnings("serial")
 	public void setup() {
-		servlet = new HttpServlet() {};
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
-		invocations = new ArrayList<OncePerRequestFilter>();
-		filter = new OncePerRequestFilter() {
+		this.servlet = new HttpServlet() {
+		};
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
+		this.invocations = new ArrayList<OncePerRequestFilter>();
+		this.filter = new OncePerRequestFilter() {
 			@Override
 			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-				invocations.add(this);
+				OncePerRequestFilterTests.this.invocations.add(this);
 				filterChain.doFilter(request, response);
 			}
 		};
@@ -63,16 +65,16 @@ public class OncePerRequestFilterTests {
 
 	@Test
 	public void doFilterOnce() throws ServletException, IOException {
-		filter.doFilter(request, response, chain);
+		this.filter.doFilter(this.request, this.response, this.chain);
 
-		assertThat(invocations).containsOnly(filter);
+		assertThat(this.invocations).containsOnly(this.filter);
 	}
 
 	@Test
 	public void doFilterMultiOnlyIvokesOnce() throws ServletException, IOException {
-		filter.doFilter(request, response, new MockFilterChain(servlet, filter));
+		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, this.filter));
 
-		assertThat(invocations).containsOnly(filter);
+		assertThat(this.invocations).containsOnly(this.filter);
 	}
 
 	@Test
@@ -80,12 +82,12 @@ public class OncePerRequestFilterTests {
 		OncePerRequestFilter filter2 = new OncePerRequestFilter() {
 			@Override
 			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-				invocations.add(this);
+				OncePerRequestFilterTests.this.invocations.add(this);
 				filterChain.doFilter(request, response);
 			}
 		};
-		filter.doFilter(request, response, new MockFilterChain(servlet, filter2));
+		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, filter2));
 
-		assertThat(invocations).containsOnly(filter, filter2);
+		assertThat(this.invocations).containsOnly(this.filter, filter2);
 	}
 }

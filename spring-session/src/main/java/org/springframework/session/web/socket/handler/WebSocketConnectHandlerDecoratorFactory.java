@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.socket.handler;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.session.Session;
@@ -47,7 +49,7 @@ public final class WebSocketConnectHandlerDecoratorFactory implements WebSocketH
 	private final ApplicationEventPublisher eventPublisher;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 *
 	 * @param eventPublisher the {@link ApplicationEventPublisher} to use. Cannot be null.
 	 */
@@ -63,7 +65,7 @@ public final class WebSocketConnectHandlerDecoratorFactory implements WebSocketH
 
 	private final class SessionWebSocketHandler extends WebSocketHandlerDecorator {
 
-		public SessionWebSocketHandler(WebSocketHandler delegate) {
+		SessionWebSocketHandler(WebSocketHandler delegate) {
 			super(delegate);
 		}
 
@@ -72,12 +74,12 @@ public final class WebSocketConnectHandlerDecoratorFactory implements WebSocketH
 				throws Exception {
 			super.afterConnectionEstablished(wsSession);
 
-			publishEvent(new SessionConnectEvent(this,wsSession));
+			publishEvent(new SessionConnectEvent(this, wsSession));
 		}
 
 		private void publishEvent(ApplicationEvent event) {
 			try {
-				eventPublisher.publishEvent(event);
+				WebSocketConnectHandlerDecoratorFactory.this.eventPublisher.publishEvent(event);
 			}
 			catch (Throwable ex) {
 				logger.error("Error publishing " + event + ".", ex);

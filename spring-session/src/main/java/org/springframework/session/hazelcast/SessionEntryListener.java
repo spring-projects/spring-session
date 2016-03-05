@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.hazelcast;
 
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.map.listener.EntryAddedListener;
+import com.hazelcast.map.listener.EntryEvictedListener;
+import com.hazelcast.map.listener.EntryRemovedListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
-
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.map.listener.EntryAddedListener;
-import com.hazelcast.map.listener.EntryEvictedListener;
-import com.hazelcast.map.listener.EntryRemovedListener;
 
 /**
  * Listen for events on the Hazelcast-backed SessionRepository and
@@ -55,21 +56,21 @@ public class SessionEntryListener implements EntryAddedListener<String, Expiring
 	}
 
 	public void entryAdded(EntryEvent<String, ExpiringSession> event) {
-		if(logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
 			logger.debug("Session created with id: " + event.getValue().getId());
 		}
 		this.eventPublisher.publishEvent(new SessionCreatedEvent(this, event.getValue()));
 	}
 
 	public void entryEvicted(EntryEvent<String, ExpiringSession> event) {
-		if(logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
 			logger.debug("Session expired with id: " + event.getOldValue().getId());
 		}
 		this.eventPublisher.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
 	}
 
 	public void entryRemoved(EntryEvent<String, ExpiringSession> event) {
-		if(logger.isDebugEnabled()) {
+		if (logger.isDebugEnabled()) {
 			logger.debug("Session deleted with id: " + event.getOldValue().getId());
 		}
 		this.eventPublisher.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));

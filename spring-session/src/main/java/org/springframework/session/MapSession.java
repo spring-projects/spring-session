@@ -1,18 +1,19 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.springframework.session;
 
 import java.io.Serializable;
@@ -37,22 +38,22 @@ import java.util.concurrent.TimeUnit;
  * This implementation has no synchronization, so it is best to use the copy constructor when working on multiple threads.
  * </p>
  *
- * @since 1.0
  * @author Rob Winch
+ * @since 1.0
  */
 public final class MapSession implements ExpiringSession, Serializable {
 	/**
-	 * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes)
+	 * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes).
 	 */
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
 	private String id;
 	private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
 	private long creationTime = System.currentTimeMillis();
-	private long lastAccessedTime = creationTime;
+	private long lastAccessedTime = this.creationTime;
 
 	/**
-	 * Defaults to 30 minutes
+	 * Defaults to 30 minutes.
 	 */
 	private int maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
@@ -75,12 +76,12 @@ public final class MapSession implements ExpiringSession, Serializable {
 	}
 
 	/**
-	 * Creates a new instance from the provided {@link Session}
+	 * Creates a new instance from the provided {@link Session}.
 	 *
 	 * @param session the {@link Session} to initialize this {@link Session} with. Cannot be null.
 	 */
 	public MapSession(ExpiringSession session) {
-		if(session == null) {
+		if (session == null) {
 			throw new IllegalArgumentException("session cannot be null");
 		}
 		this.id = session.getId();
@@ -99,15 +100,15 @@ public final class MapSession implements ExpiringSession, Serializable {
 	}
 
 	public long getCreationTime() {
-		return creationTime;
+		return this.creationTime;
 	}
 
 	public String getId() {
-		return id;
+		return this.id;
 	}
 
 	public long getLastAccessedTime() {
-		return lastAccessedTime;
+		return this.lastAccessedTime;
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int interval) {
@@ -115,7 +116,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	}
 
 	public int getMaxInactiveIntervalInSeconds() {
-		return maxInactiveInterval;
+		return this.maxInactiveInterval;
 	}
 
 	public boolean isExpired() {
@@ -123,31 +124,32 @@ public final class MapSession implements ExpiringSession, Serializable {
 	}
 
 	boolean isExpired(long now) {
-		if(maxInactiveInterval < 0) {
+		if (this.maxInactiveInterval < 0) {
 			return false;
 		}
-		return now - TimeUnit.SECONDS.toMillis(maxInactiveInterval) >= lastAccessedTime;
+		return now - TimeUnit.SECONDS.toMillis(this.maxInactiveInterval) >= this.lastAccessedTime;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String attributeName) {
-		return (T) sessionAttrs.get(attributeName);
+		return (T) this.sessionAttrs.get(attributeName);
 	}
 
 	public Set<String> getAttributeNames() {
-		return sessionAttrs.keySet();
+		return this.sessionAttrs.keySet();
 	}
 
 	public void setAttribute(String attributeName, Object attributeValue) {
 		if (attributeValue == null) {
 			removeAttribute(attributeName);
-		} else {
-			sessionAttrs.put(attributeName, attributeValue);
+		}
+		else {
+			this.sessionAttrs.put(attributeName, attributeValue);
 		}
 	}
 
 	public void removeAttribute(String attributeName) {
-		sessionAttrs.remove(attributeName);
+		this.sessionAttrs.remove(attributeName);
 	}
 
 	/**
@@ -168,11 +170,11 @@ public final class MapSession implements ExpiringSession, Serializable {
 	}
 
 	public boolean equals(Object obj) {
-		return obj instanceof Session && id.equals(((Session) obj).getId());
+		return obj instanceof Session && this.id.equals(((Session) obj).getId());
 	}
 
 	public int hashCode() {
-		return id.hashCode();
+		return this.id.hashCode();
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;
