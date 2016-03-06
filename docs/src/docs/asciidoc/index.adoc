@@ -445,6 +445,35 @@ The last accessed time is automatically updated when the `ExpiringSession` is sa
 <5> We retrieve the `ExpiringSession` from the `SessionRepository`.
 If the `ExpiringSession` were expired, the result would be null.
 
+[[api-sessioncontextholder]]
+=== SessionContextHolder
+
+The `SessionContextHolder` class provides some utility methods to access the session associated to the thread from anywhere within the software stack.
+
+Simple usage:
+[source,java,ident=0]
+----
+Session session = SessionContextHolder.getSession();
+----
+
+The method `getSession()` invocation implies in the creation of the session if there isn't any associated to the current context.
+
+In case there is no session context available (i.e. not yet set up), null may be returned.
+
+The session context is stored using an specific strategy. The following strategies are available out of the box:
+<1> `SessionContextHolder.MODE_THREADLOCAL` - this strategy makes use of a `ThreadLocal` to store the `SessionContext`;
+<2> `SessionContextHolder.MODE_INHERITABLETHREADLOCAL` - strategy backed by an `InheritableThreadLocal` to store the `SessionContext`;
+<3> `SessionContextHolder.MODE_GLOBAL` - strategy responsible to hold a single `SessionContext` for the whole JVM.
+
+In order to setup the strategy setting the system property `spring.session.strategy` to one of the values listed below (MODE_THREADLOCAL or 
+MODE_INHERITABLETHREADLOCAL). If a custom strategy should be applied, please refer to `SessionContextHolder` JavaDocs.
+
+[[api-sessioncontextholder-http]]
+==== SessionRespositorFilter Context Configuration
+
+In order to let the developer retrieve the session object using a simple `SessionContextHolder.getSession()`, the session context needs to be set for each 
+request (`SessionContextHolder.setContext(SessionContext)`). This task is done on `SessionRepositoryFilter`, just before proceed with the request handling. 
+
 [[api-sessionrepository]]
 === SessionRepository
 
