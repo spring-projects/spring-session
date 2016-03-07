@@ -60,7 +60,8 @@ public class HttpSessionGemFireIndexingITests extends AbstractGemFireIntegration
 		sessionRepository.save(session);
 
 		// tag::findbyindexname-get[]
-		Map<String, ExpiringSession> idToSessions = sessionRepository.findByIndexNameAndIndexValue(indexName, username);
+		Map<String, ExpiringSession> idToSessions = sessionRepository
+				.findByIndexNameAndIndexValue(indexName, username);
 		// end::findbyindexname-get[]
 
 		assertThat(idToSessions.keySet()).containsOnly(session.getId());
@@ -78,12 +79,15 @@ public class HttpSessionGemFireIndexingITests extends AbstractGemFireIntegration
 		Authentication authentication = context.getAuthentication();
 		// end::findbyspringsecurityindexname-context[]
 
-		session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+		session.setAttribute(
+				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				context);
 		sessionRepository.save(session);
 
 		// tag::findbyspringsecurityindexname-get[]
 		String indexName = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
-		Map<String, ExpiringSession> idToSessions = sessionRepository.findByIndexNameAndIndexValue(indexName, authentication.getName());
+		Map<String, ExpiringSession> idToSessions = sessionRepository
+				.findByIndexNameAndIndexValue(indexName, authentication.getName());
 		// end::findbyspringsecurityindexname-get[]
 
 		assertThat(idToSessions.keySet()).containsOnly(session.getId());

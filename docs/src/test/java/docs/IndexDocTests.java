@@ -68,7 +68,6 @@ public class IndexDocTests {
 	}
 	// end::repository-demo[]
 
-
 	@Test
 	public void expireRepositoryDemo() {
 		ExpiringRepositoryDemo<ExpiringSession> demo = new ExpiringRepositoryDemo<ExpiringSession>();
@@ -102,8 +101,8 @@ public class IndexDocTests {
 	public void newRedisOperationsSessionRepository() {
 		// tag::new-redisoperationssessionrepository[]
 		JedisConnectionFactory factory = new JedisConnectionFactory();
-		SessionRepository<? extends ExpiringSession> repository =
-				new RedisOperationsSessionRepository(factory);
+		SessionRepository<? extends ExpiringSession> repository = new RedisOperationsSessionRepository(
+				factory);
 		// end::new-redisoperationssessionrepository[]
 	}
 

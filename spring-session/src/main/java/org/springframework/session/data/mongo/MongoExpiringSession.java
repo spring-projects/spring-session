@@ -1,6 +1,19 @@
+/*
+ * Copyright 2014-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.springframework.session.data.mongo;
-
-import org.springframework.session.ExpiringSession;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -9,9 +22,10 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.session.ExpiringSession;
+
 /**
- * Session object providing additional information about
- * the datetime of expiration
+ * Session object providing additional information about the datetime of expiration.
  *
  * @author Jakub Kubrynski
  * @since 1.2
@@ -36,36 +50,37 @@ public class MongoExpiringSession implements ExpiringSession {
 	public MongoExpiringSession(String id, int maxInactiveIntervalInSeconds) {
 		this.id = id;
 		this.interval = maxInactiveIntervalInSeconds;
-		setLastAccessedTime(created);
+		setLastAccessedTime(this.created);
 	}
 
 	public String getId() {
-		return id;
+		return this.id;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String attributeName) {
-		return (T) attrs.get(attributeName);
+		return (T) this.attrs.get(attributeName);
 	}
 
 	public Set<String> getAttributeNames() {
-		return attrs.keySet();
+		return this.attrs.keySet();
 	}
 
 	public void setAttribute(String attributeName, Object attributeValue) {
 		if (attributeValue == null) {
 			removeAttribute(attributeName);
-		} else {
-			attrs.put(attributeName, attributeValue);
+		}
+		else {
+			this.attrs.put(attributeName, attributeValue);
 		}
 	}
 
 	public void removeAttribute(String attributeName) {
-		attrs.remove(attributeName);
+		this.attrs.remove(attributeName);
 	}
 
 	public long getCreationTime() {
-		return created;
+		return this.created;
 	}
 
 	public void setCreationTime(long created) {
@@ -74,11 +89,12 @@ public class MongoExpiringSession implements ExpiringSession {
 
 	public void setLastAccessedTime(long lastAccessedTime) {
 		this.accessed = lastAccessedTime;
-		expireAt = new Date(lastAccessedTime + TimeUnit.SECONDS.toMillis(interval));
+		this.expireAt = new Date(
+				lastAccessedTime + TimeUnit.SECONDS.toMillis(this.interval));
 	}
 
 	public long getLastAccessedTime() {
-		return accessed;
+		return this.accessed;
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int interval) {
@@ -86,32 +102,38 @@ public class MongoExpiringSession implements ExpiringSession {
 	}
 
 	public int getMaxInactiveIntervalInSeconds() {
-		return interval;
+		return this.interval;
 	}
 
 	public boolean isExpired() {
-		return new Date().after(expireAt);
+		return new Date().after(this.expireAt);
 	}
 
 	public Date getExpireAt() {
-		return expireAt;
+		return this.expireAt;
 	}
 
 	public void setExpireAt(Date expireAt) {
 		this.expireAt = expireAt;
 	}
 
+	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
 		MongoExpiringSession that = (MongoExpiringSession) o;
 
-		return id.equals(that.id);
+		return this.id.equals(that.id);
 
 	}
 
+	@Override
 	public int hashCode() {
-		return id.hashCode();
+		return this.id.hashCode();
 	}
 }

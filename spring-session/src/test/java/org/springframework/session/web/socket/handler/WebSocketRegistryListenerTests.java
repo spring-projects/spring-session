@@ -71,7 +71,6 @@ public class WebSocketRegistryListenerTests {
 
 	WebSocketRegistryListener listener;
 
-
 	@Before
 	public void setup() {
 		this.sessionId = "session-id";
@@ -93,7 +92,8 @@ public class WebSocketRegistryListenerTests {
 		this.listener = new WebSocketRegistryListener();
 		this.connect = new SessionConnectEvent(this.listener, this.wsSession);
 		this.connect2 = new SessionConnectEvent(this.listener, this.wsSession2);
-		this.disconnect = new SessionDisconnectEvent(this.listener, this.message, this.wsSession.getId(), CloseStatus.NORMAL);
+		this.disconnect = new SessionDisconnectEvent(this.listener, this.message,
+				this.wsSession.getId(), CloseStatus.NORMAL);
 		this.deleted = new SessionDeletedEvent(this.listener, this.sessionId);
 		this.expired = new SessionExpiredEvent(this.listener, this.sessionId);
 	}
@@ -115,7 +115,6 @@ public class WebSocketRegistryListenerTests {
 
 		verify(this.wsSession).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
 	}
-
 
 	@Test
 	public void onApplicationEventConnectSessionDeletedNullPrincipal() throws Exception {
@@ -145,8 +144,8 @@ public class WebSocketRegistryListenerTests {
 
 		this.listener.onApplicationEvent(this.disconnect);
 
-		Map<String, Map<String, WebSocketSession>> httpSessionIdToWsSessions =
-				(Map<String, Map<String, WebSocketSession>>) ReflectionTestUtils.getField(this.listener, "httpSessionIdToWsSessions");
+		Map<String, Map<String, WebSocketSession>> httpSessionIdToWsSessions = (Map<String, Map<String, WebSocketSession>>) ReflectionTestUtils
+				.getField(this.listener, "httpSessionIdToWsSessions");
 		assertThat(httpSessionIdToWsSessions).isEmpty();
 	}
 

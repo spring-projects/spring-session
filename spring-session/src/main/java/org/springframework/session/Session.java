@@ -19,8 +19,8 @@ package org.springframework.session;
 import java.util.Set;
 
 /**
- * Provides a way to identify a user in an agnostic way. This allows the session to be used by an HttpSession, WebSocket
- * Session, or even non web related sessions.
+ * Provides a way to identify a user in an agnostic way. This allows the session to be
+ * used by an HttpSession, WebSocket Session, or even non web related sessions.
  *
  * @author Rob Winch
  * @since 1.0
@@ -35,16 +35,20 @@ public interface Session {
 	String getId();
 
 	/**
-	 * Gets the Object associated with the specified name or null if no Object is associated to that name.
+	 * Gets the Object associated with the specified name or null if no Object is
+	 * associated to that name.
 	 *
 	 * @param attributeName the name of the attribute to get
-	 * @return the Object associated with the specified name or null if no Object is associated to that name
+	 * @return the Object associated with the specified name or null if no Object is
+	 * associated to that name
 	 * @param <T> The return type of the attribute
 	 */
 	<T> T getAttribute(String attributeName);
 
 	/**
-	 * Gets the attribute names that have a value associated with it. Each value can be passed into {@link org.springframework.session.Session#getAttribute(String)} to obtain the attribute value.
+	 * Gets the attribute names that have a value associated with it. Each value can be
+	 * passed into {@link org.springframework.session.Session#getAttribute(String)} to
+	 * obtain the attribute value.
 	 *
 	 * @return the attribute names that have a value associated with it.
 	 * @see #getAttribute(String)
@@ -52,10 +56,13 @@ public interface Session {
 	Set<String> getAttributeNames();
 
 	/**
-	 * Sets the attribute value for the provided attribute name. If the attributeValue is null, it has the same result as removing the attribute with {@link org.springframework.session.Session#removeAttribute(String)} .
+	 * Sets the attribute value for the provided attribute name. If the attributeValue is
+	 * null, it has the same result as removing the attribute with
+	 * {@link org.springframework.session.Session#removeAttribute(String)} .
 	 *
 	 * @param attributeName the attribute name to set
-	 * @param attributeValue the value of the attribute to set. If null, the attribute will be removed.
+	 * @param attributeValue the value of the attribute to set. If null, the attribute
+	 * will be removed.
 	 */
 	void setAttribute(String attributeName, Object attributeValue);
 

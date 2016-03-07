@@ -53,9 +53,10 @@ public class RedisListenerContainerTaskExecutorITests {
 	RedisOperations<Object, Object> redis;
 
 	@Test
-	public void testRedisDelEventsAreDispatchedInSessionTaskExecutor() throws InterruptedException {
-		BoundSetOperations<Object, Object> ops = this.redis
-				.boundSetOps("spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
+	public void testRedisDelEventsAreDispatchedInSessionTaskExecutor()
+			throws InterruptedException {
+		BoundSetOperations<Object, Object> ops = this.redis.boundSetOps(
+				"spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
 		ops.add("value");
 		ops.remove("value");
 		assertThat(this.executor.taskDispatched()).isTrue();

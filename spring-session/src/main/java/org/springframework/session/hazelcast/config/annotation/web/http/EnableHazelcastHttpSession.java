@@ -26,10 +26,9 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
 
 /**
  * Add this annotation to a {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
- * backed by Hazelcast. In order to leverage the annotation, a single HazelcastInstance
- * must be provided. For example:
- * <pre>
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by
+ * Hazelcast. In order to leverage the annotation, a single HazelcastInstance must be
+ * provided. For example: <pre>
  * <code>
  * {@literal @Configuration}
  * {@literal @EnableHazelcastHttpSession}
@@ -42,32 +41,32 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
  *     }
  *
  * }
- * </code>
- * </pre>
+ * </code> </pre>
  *
- * More advanced configurations can extend {@link HazelcastHttpSessionConfiguration} instead.
+ * More advanced configurations can extend {@link HazelcastHttpSessionConfiguration}
+ * instead.
  *
  * @author Tommy Ludwig
  * @since 1.1
  * @see EnableSpringHttpSession
  */
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target({java.lang.annotation.ElementType.TYPE})
+@Target({ java.lang.annotation.ElementType.TYPE })
 @Documented
 @Import(HazelcastHttpSessionConfiguration.class)
 @Configuration
 public @interface EnableHazelcastHttpSession {
 	/**
-	 * This is the session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
-	 * This should be a non-negative integer.
+	 * This is the session timeout in seconds. By default, it is set to 1800 seconds (30
+	 * minutes). This should be a non-negative integer.
 	 *
 	 * @return the seconds a session can be inactive before expiring
 	 */
 	int maxInactiveIntervalInSeconds() default 1800;
 
 	/**
-	 * This is the name of the Map that will be used in Hazelcast to store the session data.
-	 * Default is "spring:session:sessions".
+	 * This is the name of the Map that will be used in Hazelcast to store the session
+	 * data. Default is "spring:session:sessions".
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
 	String sessionMapName() default "spring:session:sessions";

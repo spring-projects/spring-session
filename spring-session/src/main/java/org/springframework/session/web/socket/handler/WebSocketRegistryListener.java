@@ -36,8 +36,8 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 /**
  * <p>
- * Keeps track of mapping the Spring Session ID to the {@link WebSocketSession}
- * and ensuring when a {@link SessionDestroyedEvent} is fired that the
+ * Keeps track of mapping the Spring Session ID to the {@link WebSocketSession} and
+ * ensuring when a {@link SessionDestroyedEvent} is fired that the
  * {@link WebSocketSession} is closed.
  * </p>
  *
@@ -46,11 +46,13 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
  * @author Mark Anderson
  * @since 1.0
  */
-public final class WebSocketRegistryListener implements ApplicationListener<ApplicationEvent> {
+public final class WebSocketRegistryListener
+		implements ApplicationListener<ApplicationEvent> {
 
 	private static final Log logger = LogFactory.getLog(WebSocketRegistryListener.class);
 
-	static final CloseStatus SESSION_EXPIRED_STATUS = new CloseStatus(CloseStatus.POLICY_VIOLATION.getCode(),
+	static final CloseStatus SESSION_EXPIRED_STATUS = new CloseStatus(
+			CloseStatus.POLICY_VIOLATION.getCode(),
 			"This connection was established under an authenticated HTTP Session that has expired");
 
 	private final ConcurrentHashMap<String, Map<String, WebSocketSession>> httpSessionIdToWsSessions = new ConcurrentHashMap<String, Map<String, WebSocketSession>>();
@@ -66,8 +68,10 @@ public final class WebSocketRegistryListener implements ApplicationListener<Appl
 		}
 		else if (event instanceof SessionDisconnectEvent) {
 			SessionDisconnectEvent e = (SessionDisconnectEvent) event;
-			Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor.getSessionAttributes(e.getMessage().getHeaders());
-			String httpSessionId =  sessionAttributes == null ? null : SessionRepositoryMessageInterceptor.getSessionId(sessionAttributes);
+			Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor
+					.getSessionAttributes(e.getMessage().getHeaders());
+			String httpSessionId = sessionAttributes == null ? null
+					: SessionRepositoryMessageInterceptor.getSessionId(sessionAttributes);
 			afterConnectionClosed(httpSessionId, e.getSessionId());
 		}
 	}
@@ -92,7 +96,8 @@ public final class WebSocketRegistryListener implements ApplicationListener<Appl
 			return;
 		}
 
-		Map<String, WebSocketSession> sessions = this.httpSessionIdToWsSessions.get(httpSessionId);
+		Map<String, WebSocketSession> sessions = this.httpSessionIdToWsSessions
+				.get(httpSessionId);
 		if (sessions != null) {
 			boolean result = sessions.remove(wsSessionId) != null;
 			if (logger.isDebugEnabled()) {
@@ -101,17 +106,18 @@ public final class WebSocketRegistryListener implements ApplicationListener<Appl
 			if (sessions.isEmpty()) {
 				this.httpSessionIdToWsSessions.remove(httpSessionId);
 				if (logger.isDebugEnabled()) {
-					logger.debug("Removed the corresponding HTTP Session for " + wsSessionId + " since it contained no WebSocket mappings");
+					logger.debug("Removed the corresponding HTTP Session for "
+							+ wsSessionId + " since it contained no WebSocket mappings");
 				}
 			}
 		}
 	}
 
 	private void registerWsSession(String httpSessionId, WebSocketSession wsSession) {
-		Map<String, WebSocketSession> sessions = this.httpSessionIdToWsSessions.get(httpSessionId);
+		Map<String, WebSocketSession> sessions = this.httpSessionIdToWsSessions
+				.get(httpSessionId);
 		if (sessions == null) {
-			sessions =
-					new ConcurrentHashMap<String, WebSocketSession>();
+			sessions = new ConcurrentHashMap<String, WebSocketSession>();
 			this.httpSessionIdToWsSessions.putIfAbsent(httpSessionId, sessions);
 			sessions = this.httpSessionIdToWsSessions.get(httpSessionId);
 		}
@@ -119,19 +125,24 @@ public final class WebSocketRegistryListener implements ApplicationListener<Appl
 	}
 
 	private void closeWsSessions(String httpSessionId) {
-		Map<String, WebSocketSession> sessionsToClose = this.httpSessionIdToWsSessions.remove(httpSessionId);
+		Map<String, WebSocketSession> sessionsToClose = this.httpSessionIdToWsSessions
+				.remove(httpSessionId);
 		if (sessionsToClose == null) {
 			return;
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Closing WebSocket connections associated to expired HTTP Session " + httpSessionId);
+			logger.debug(
+					"Closing WebSocket connections associated to expired HTTP Session "
+							+ httpSessionId);
 		}
 		for (WebSocketSession toClose : sessionsToClose.values()) {
 			try {
 				toClose.close(SESSION_EXPIRED_STATUS);
 			}
 			catch (IOException e) {
-				logger.debug("Failed to close WebSocketSession (this is nothing to worry about but for debugging only)", e);
+				logger.debug(
+						"Failed to close WebSocketSession (this is nothing to worry about but for debugging only)",
+						e);
 			}
 		}
 	}

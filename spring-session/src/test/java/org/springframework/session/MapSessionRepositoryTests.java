@@ -37,7 +37,8 @@ public class MapSessionRepositoryTests {
 	@Test
 	public void getSessionExpired() {
 		this.session.setMaxInactiveIntervalInSeconds(1);
-		this.session.setLastAccessedTime(System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		this.session.setLastAccessedTime(
+				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
 		this.repository.save(this.session);
 
 		assertThat(this.repository.getSession(this.session.getId())).isNull();
@@ -48,16 +49,19 @@ public class MapSessionRepositoryTests {
 		ExpiringSession session = this.repository.createSession();
 
 		assertThat(session).isInstanceOf(MapSession.class);
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
+		assertThat(session.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
 	}
 
 	@Test
 	public void createSessionCustomDefaultExpiration() {
-		final int expectedMaxInterval = new MapSession().getMaxInactiveIntervalInSeconds() + 10;
+		final int expectedMaxInterval = new MapSession().getMaxInactiveIntervalInSeconds()
+				+ 10;
 		this.repository.setDefaultMaxInactiveInterval(expectedMaxInterval);
 
 		ExpiringSession session = this.repository.createSession();
 
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(expectedMaxInterval);
+		assertThat(session.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(expectedMaxInterval);
 	}
 }

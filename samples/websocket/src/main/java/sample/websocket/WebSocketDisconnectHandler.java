@@ -25,11 +25,13 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-public class WebSocketDisconnectHandler<S> implements ApplicationListener<SessionDisconnectEvent> {
+public class WebSocketDisconnectHandler<S>
+		implements ApplicationListener<SessionDisconnectEvent> {
 	private ActiveWebSocketUserRepository repository;
 	private SimpMessageSendingOperations messagingTemplate;
 
-	public WebSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
+	public WebSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate,
+			ActiveWebSocketUserRepository repository) {
 		super();
 		this.messagingTemplate = messagingTemplate;
 		this.repository = repository;
@@ -46,7 +48,8 @@ public class WebSocketDisconnectHandler<S> implements ApplicationListener<Sessio
 		}
 
 		this.repository.delete(id);
-		this.messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
+		this.messagingTemplate.convertAndSend("/topic/friends/signout",
+				Arrays.asList(user.getUsername()));
 
 	}
 }

@@ -31,14 +31,15 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.web.context.ServletContextAware;
 
 /**
- * Receives {@link SessionDestroyedEvent} and {@link SessionCreatedEvent} and
- * translates them into {@link HttpSessionEvent} and submits the
- * {@link HttpSessionEvent} to every registered {@link HttpSessionListener}.
+ * Receives {@link SessionDestroyedEvent} and {@link SessionCreatedEvent} and translates
+ * them into {@link HttpSessionEvent} and submits the {@link HttpSessionEvent} to every
+ * registered {@link HttpSessionListener}.
  *
  * @author Rob Winch
  * @since 1.1
  */
-public class SessionEventHttpSessionListenerAdapter implements ApplicationListener<AbstractSessionEvent>, ServletContextAware {
+public class SessionEventHttpSessionListenerAdapter
+		implements ApplicationListener<AbstractSessionEvent>, ServletContextAware {
 	private final List<HttpSessionListener> listeners;
 
 	private ServletContext context;
@@ -48,8 +49,11 @@ public class SessionEventHttpSessionListenerAdapter implements ApplicationListen
 		this.listeners = listeners;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.
+	 * springframework.context.ApplicationEvent)
 	 */
 	public void onApplicationEvent(AbstractSessionEvent event) {
 		if (this.listeners.isEmpty()) {
@@ -70,13 +74,18 @@ public class SessionEventHttpSessionListenerAdapter implements ApplicationListen
 
 	private HttpSessionEvent createHttpSessionEvent(AbstractSessionEvent event) {
 		ExpiringSession session = event.getSession();
-		HttpSession httpSession = new ExpiringSessionHttpSession<ExpiringSession>(session, this.context);
+		HttpSession httpSession = new ExpiringSessionHttpSession<ExpiringSession>(session,
+				this.context);
 		HttpSessionEvent httpSessionEvent = new HttpSessionEvent(httpSession);
 		return httpSessionEvent;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.web.context.ServletContextAware#setServletContext(javax.servlet.ServletContext)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.springframework.web.context.ServletContextAware#setServletContext(javax.servlet
+	 * .ServletContext)
 	 */
 	public void setServletContext(ServletContext servletContext) {
 		this.context = servletContext;

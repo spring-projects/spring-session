@@ -82,7 +82,7 @@
 						<a class="brand" th:href="@{/}"><img th:src="@{/resources/img/logo.png}" alt="Spring Security Sample"/></a>
 
 <div class="nav-collapse collapse"
-		 th:with="currentUser=${#httpServletRequest.userPrincipal?.principal}">
+		th:with="currentUser=${#httpServletRequest.userPrincipal?.principal}">
 	<div th:if="${currentUser != null}">
 			<form class="navbar-form pull-right" th:action="@{/logout}" method="post">
 					<input type="submit" value="Log out" />

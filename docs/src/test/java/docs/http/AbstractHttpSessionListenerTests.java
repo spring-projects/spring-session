@@ -51,7 +51,9 @@ public abstract class AbstractHttpSessionListenerTests {
 	public void springSessionDestroyedTranslatedToSpringSecurityDestroyed() {
 		Session session = new MapSession();
 
-		this.publisher.publishEvent(new org.springframework.session.events.SessionDestroyedEvent(this, session));
+		this.publisher.publishEvent(
+				new org.springframework.session.events.SessionDestroyedEvent(this,
+						session));
 
 		assertThat(this.listener.getEvent().getId()).isEqualTo(session.getId());
 	}
@@ -64,12 +66,16 @@ public abstract class AbstractHttpSessionListenerTests {
 		return factory;
 	}
 
-	static class SecuritySessionDestroyedListener implements ApplicationListener<SessionDestroyedEvent> {
+	static class SecuritySessionDestroyedListener
+			implements ApplicationListener<SessionDestroyedEvent> {
 
 		private SessionDestroyedEvent event;
 
-		/* (non-Javadoc)
-		 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.springframework.context.ApplicationEvent)
+		/*
+		 * (non-Javadoc)
+		 *
+		 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.
+		 * springframework.context.ApplicationEvent)
 		 */
 		public void onApplicationEvent(SessionDestroyedEvent event) {
 			this.event = event;

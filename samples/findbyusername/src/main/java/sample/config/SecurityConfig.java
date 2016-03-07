@@ -31,24 +31,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	// tag::config[]
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		http
-			.formLogin()
-				.loginPage("/login")
-				.permitAll()
-				.and()
-			.authorizeRequests()
-				.antMatchers("/resources/**").permitAll()
-				.anyRequest().authenticated()
-				.and()
-			.logout()
-				.permitAll();
+		http.formLogin().loginPage("/login").permitAll().and().authorizeRequests()
+				.antMatchers("/resources/**").permitAll().anyRequest().authenticated()
+				.and().logout().permitAll();
 	}
 	// end::config[]
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-		auth
-			.inMemoryAuthentication()
-				.withUser("user").password("password").roles("USER");
+		auth.inMemoryAuthentication().withUser("user").password("password").roles("USER");
 	}
 }

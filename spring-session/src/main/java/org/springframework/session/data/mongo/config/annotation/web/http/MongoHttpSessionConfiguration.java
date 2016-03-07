@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,19 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
-import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
+import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
 
 /**
- * Configuration class registering {@code MongoSessionRepository} bean
- * To import this configuration use {@link @EnableMongoHttpSession} annotation
+ * Configuration class registering {@code MongoSessionRepository} bean. To import this
+ * configuration use {@link EnableMongoHttpSession} annotation.
  *
  * @author Jakub Kubrynski
  * @since 1.2
  */
 @Configuration
-class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
+class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration
+		implements ImportAware {
 
 	private AbstractMongoSessionConverter mongoSessionConverter;
 
@@ -42,25 +43,29 @@ class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration imple
 	private String collectionName;
 
 	@Bean
-	MongoOperationsSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {
-		MongoOperationsSessionRepository repository = new MongoOperationsSessionRepository(mongoOperations);
-		repository.setCollectionName(collectionName);
-		repository.setMaxInactiveIntervalInSeconds(maxInactiveIntervalInSeconds);
-		if (mongoSessionConverter != null) {
-			repository.setMongoSessionConverter(mongoSessionConverter);
+	MongoOperationsSessionRepository mongoSessionRepository(
+			MongoOperations mongoOperations) {
+		MongoOperationsSessionRepository repository = new MongoOperationsSessionRepository(
+				mongoOperations);
+		repository.setCollectionName(this.collectionName);
+		repository.setMaxInactiveIntervalInSeconds(this.maxInactiveIntervalInSeconds);
+		if (this.mongoSessionConverter != null) {
+			repository.setMongoSessionConverter(this.mongoSessionConverter);
 		}
 		return repository;
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		AnnotationAttributes attributes = AnnotationAttributes.fromMap(
-				importMetadata.getAnnotationAttributes(EnableMongoHttpSession.class.getName()));
-		maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
-		collectionName = attributes.getString("collectionName");
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(importMetadata
+				.getAnnotationAttributes(EnableMongoHttpSession.class.getName()));
+		this.maxInactiveIntervalInSeconds = attributes
+				.getNumber("maxInactiveIntervalInSeconds");
+		this.collectionName = attributes.getString("collectionName");
 	}
 
 	@Autowired(required = false)
-	public void setMongoSessionConverter(AbstractMongoSessionConverter mongoSessionConverter) {
+	public void setMongoSessionConverter(
+			AbstractMongoSessionConverter mongoSessionConverter) {
 		this.mongoSessionConverter = mongoSessionConverter;
 	}
 }

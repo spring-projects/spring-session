@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,21 @@
  */
 package org.springframework.session.data.mongo.config.annotation.web.http;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
+
 /**
  * Add this annotation to a {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
- * backed by Mongo. Use {@code collectionName} to change default name of the
- * collection used to store sessions.
- * <pre>
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by
+ * Mongo. Use {@code collectionName} to change default name of the collection used to
+ * store sessions. <pre>
  * <code>
  * {@literal @EnableMongoHttpSession}
  * public class MongoHttpSessionConfig {
@@ -41,8 +40,7 @@ import java.lang.annotation.Target;
  *     }
  *
  * }
- * </code>
- * </pre>
+ * </code> </pre>
  *
  * @author Jakub Kubrynski
  * @since 1.2
@@ -55,11 +53,15 @@ import java.lang.annotation.Target;
 public @interface EnableMongoHttpSession {
 
 	/**
+	 * The maximum time a session will be kept if it is inactive.
+	 *
 	 * @return default max inactive interval in seconds
 	 */
 	int maxInactiveIntervalInSeconds() default MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL;
 
 	/**
+	 * The collection name to use.
+	 *
 	 * @return name of the collection to store session
 	 */
 	String collectionName() default MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME;

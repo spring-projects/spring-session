@@ -38,32 +38,31 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 /**
- * Registers the {@link DelegatingFilterProxy} to use the
- * springSessionRepositoryFilter before any other registered {@link Filter}. When
- * used with {@link #AbstractHttpSessionApplicationInitializer(Class...)}, it
- * will also register a {@link ContextLoaderListener}. When used with
- * {@link #AbstractHttpSessionApplicationInitializer()}, this class is typically
- * used in addition to a subclass of {@link AbstractContextLoaderInitializer}.
+ * Registers the {@link DelegatingFilterProxy} to use the springSessionRepositoryFilter
+ * before any other registered {@link Filter}. When used with
+ * {@link #AbstractHttpSessionApplicationInitializer(Class...)}, it will also register a
+ * {@link ContextLoaderListener}. When used with
+ * {@link #AbstractHttpSessionApplicationInitializer()}, this class is typically used in
+ * addition to a subclass of {@link AbstractContextLoaderInitializer}.
  *
  * <p>
  * By default the {@link DelegatingFilterProxy} is registered with support for
- * asynchronous requests, but can be enabled by overriding {@link #isAsyncSessionSupported()} and
- * {@link #getSessionDispatcherTypes()}.
+ * asynchronous requests, but can be enabled by overriding
+ * {@link #isAsyncSessionSupported()} and {@link #getSessionDispatcherTypes()}.
  * </p>
  *
  * <p>
- * Additional configuration before and after the springSecurityFilterChain can
- * be added by overriding
- * {@link #afterSessionRepositoryFilter(ServletContext)}.
+ * Additional configuration before and after the springSecurityFilterChain can be added by
+ * overriding {@link #afterSessionRepositoryFilter(ServletContext)}.
  * </p>
  *
  *
  * <h2>Caveats</h2>
  * <p>
- * Subclasses of {@code AbstractDispatcherServletInitializer} will register their
- * filters before any other {@link Filter}. This means that you will typically
- * want to ensure subclasses of {@code AbstractDispatcherServletInitializer} are invoked
- * first. This can be done by ensuring the {@link Order} or {@link Ordered} of
+ * Subclasses of {@code AbstractDispatcherServletInitializer} will register their filters
+ * before any other {@link Filter}. This means that you will typically want to ensure
+ * subclasses of {@code AbstractDispatcherServletInitializer} are invoked first. This can
+ * be done by ensuring the {@link Order} or {@link Ordered} of
  * {@code AbstractDispatcherServletInitializer} are sooner than subclasses of
  * {@code AbstractSecurityWebApplicationInitializer}.
  * </p>
@@ -72,7 +71,8 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  */
 @Order(100)
-public abstract class AbstractHttpSessionApplicationInitializer implements WebApplicationInitializer {
+public abstract class AbstractHttpSessionApplicationInitializer
+		implements WebApplicationInitializer {
 
 	private static final String SERVLET_CONTEXT_PREFIX = "org.springframework.web.servlet.FrameworkServlet.CONTEXT.";
 
@@ -83,11 +83,10 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 
 	private final Class<?>[] configurationClasses;
 
-
 	/**
-	 * Creates a new instance that assumes the Spring Session configuration is
-	 * loaded by some other means than this class. For example, a user might
-	 * create a {@link ContextLoaderListener} using a subclass of
+	 * Creates a new instance that assumes the Spring Session configuration is loaded by
+	 * some other means than this class. For example, a user might create a
+	 * {@link ContextLoaderListener} using a subclass of
 	 * {@link AbstractContextLoaderInitializer}.
 	 *
 	 * @see ContextLoaderListener
@@ -97,17 +96,18 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	}
 
 	/**
-	 * Creates a new instance that will instantiate the
-	 * {@link ContextLoaderListener} with the specified classes.
+	 * Creates a new instance that will instantiate the {@link ContextLoaderListener} with
+	 * the specified classes.
 	 *
-	 * @param configurationClasses {@code @Configuration} classes that will be used to configure the context
+	 * @param configurationClasses {@code @Configuration} classes that will be used to
+	 * configure the context
 	 */
-	protected AbstractHttpSessionApplicationInitializer(Class<?>... configurationClasses) {
+	protected AbstractHttpSessionApplicationInitializer(
+			Class<?>... configurationClasses) {
 		this.configurationClasses = configurationClasses;
 	}
 
-	public void onStartup(ServletContext servletContext)
-			throws ServletException {
+	public void onStartup(ServletContext servletContext) throws ServletException {
 		beforeSessionRepositoryFilter(servletContext);
 		if (this.configurationClasses != null) {
 			AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();
@@ -124,7 +124,8 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	 */
 	private void insertSessionRepositoryFilter(ServletContext servletContext) {
 		String filterName = DEFAULT_FILTER_NAME;
-		DelegatingFilterProxy springSessionRepositoryFilter = new DelegatingFilterProxy(filterName);
+		DelegatingFilterProxy springSessionRepositoryFilter = new DelegatingFilterProxy(
+				filterName);
 		String contextAttribute = getWebApplicationContextAttribute();
 		if (contextAttribute != null) {
 			springSessionRepositoryFilter.setContextAttribute(contextAttribute);
@@ -133,28 +134,24 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	}
 
 	/**
-	 * Inserts the provided {@link Filter}s before existing {@link Filter}s
-	 * using default generated names, {@link #getSessionDispatcherTypes()}, and
+	 * Inserts the provided {@link Filter}s before existing {@link Filter}s using default
+	 * generated names, {@link #getSessionDispatcherTypes()}, and
 	 * {@link #isAsyncSessionSupported()}.
 	 *
-	 * @param servletContext
-	 *            the {@link ServletContext} to use
-	 * @param filters
-	 *            the {@link Filter}s to register
+	 * @param servletContext the {@link ServletContext} to use
+	 * @param filters the {@link Filter}s to register
 	 */
 	protected final void insertFilters(ServletContext servletContext, Filter... filters) {
 		registerFilters(servletContext, true, filters);
 	}
 
 	/**
-	 * Inserts the provided {@link Filter}s after existing {@link Filter}s
-	 * using default generated names, {@link #getSessionDispatcherTypes()}, and
+	 * Inserts the provided {@link Filter}s after existing {@link Filter}s using default
+	 * generated names, {@link #getSessionDispatcherTypes()}, and
 	 * {@link #isAsyncSessionSupported()}.
 	 *
-	 * @param servletContext
-	 *            the {@link ServletContext} to use
-	 * @param filters
-	 *            the {@link Filter}s to register
+	 * @param servletContext the {@link ServletContext} to use
+	 * @param filters the {@link Filter}s to register
 	 */
 	protected final void appendFilters(ServletContext servletContext, Filter... filters) {
 		registerFilters(servletContext, false, filters);
@@ -162,24 +159,23 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 
 	/**
 	 * Registers the provided {@link Filter}s using default generated names,
-	 * {@link #getSessionDispatcherTypes()}, and
-	 * {@link #isAsyncSessionSupported()}.
+	 * {@link #getSessionDispatcherTypes()}, and {@link #isAsyncSessionSupported()}.
 	 *
-	 * @param servletContext
-	 *            the {@link ServletContext} to use
-	 * @param insertBeforeOtherFilters
-	 *            if true, will insert the provided {@link Filter}s before other
-	 *            {@link Filter}s. Otherwise, will insert the {@link Filter}s
-	 *            after other {@link Filter}s.
-	 * @param filters
-	 *            the {@link Filter}s to register
+	 * @param servletContext the {@link ServletContext} to use
+	 * @param insertBeforeOtherFilters if true, will insert the provided {@link Filter}s
+	 * before other {@link Filter}s. Otherwise, will insert the {@link Filter}s after
+	 * other {@link Filter}s.
+	 * @param filters the {@link Filter}s to register
 	 */
-	private void registerFilters(ServletContext servletContext, boolean insertBeforeOtherFilters, Filter... filters) {
+	private void registerFilters(ServletContext servletContext,
+			boolean insertBeforeOtherFilters, Filter... filters) {
 		Assert.notEmpty(filters, "filters cannot be null or empty");
 
 		for (Filter filter : filters) {
 			if (filter == null) {
-				throw new IllegalArgumentException("filters cannot contain null values. Got " + Arrays.asList(filters));
+				throw new IllegalArgumentException(
+						"filters cannot contain null values. Got "
+								+ Arrays.asList(filters));
 			}
 			String filterName = Conventions.getVariableName(filter);
 			registerFilter(servletContext, insertBeforeOtherFilters, filterName, filter);
@@ -187,37 +183,43 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	}
 
 	/**
-	 * Registers the provided filter using the {@link #isAsyncSessionSupported()} and {@link #getSessionDispatcherTypes()}.
+	 * Registers the provided filter using the {@link #isAsyncSessionSupported()} and
+	 * {@link #getSessionDispatcherTypes()}.
 	 *
 	 * @param servletContext the servlet context
-	 * @param insertBeforeOtherFilters should this Filter be inserted before or after other {@link Filter}
+	 * @param insertBeforeOtherFilters should this Filter be inserted before or after
+	 * other {@link Filter}
 	 * @param filterName the filter name
 	 * @param filter the filter
 	 */
-	private void registerFilter(ServletContext servletContext, boolean insertBeforeOtherFilters, String filterName, Filter filter) {
+	private void registerFilter(ServletContext servletContext,
+			boolean insertBeforeOtherFilters, String filterName, Filter filter) {
 		Dynamic registration = servletContext.addFilter(filterName, filter);
 		if (registration == null) {
-			throw new IllegalStateException("Duplicate Filter registration for '" + filterName + "'. Check to ensure the Filter is only configured once.");
+			throw new IllegalStateException(
+					"Duplicate Filter registration for '" + filterName
+							+ "'. Check to ensure the Filter is only configured once.");
 		}
 		registration.setAsyncSupported(isAsyncSessionSupported());
 		EnumSet<DispatcherType> dispatcherTypes = getSessionDispatcherTypes();
-		registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters, "/*");
+		registration.addMappingForUrlPatterns(dispatcherTypes, !insertBeforeOtherFilters,
+				"/*");
 	}
 
 	/**
-	 * Returns the {@link DelegatingFilterProxy#getContextAttribute()} or null
-	 * if the parent {@link ApplicationContext} should be used. The default
-	 * behavior is to use the parent {@link ApplicationContext}.
+	 * Returns the {@link DelegatingFilterProxy#getContextAttribute()} or null if the
+	 * parent {@link ApplicationContext} should be used. The default behavior is to use
+	 * the parent {@link ApplicationContext}.
 	 *
 	 * <p>
 	 * If {@link #getDispatcherWebApplicationContextSuffix()} is non-null the
-	 * {@link WebApplicationContext} for the Dispatcher will be used. This means
-	 * the child {@link ApplicationContext} is used to look up the
-	 * springSessionRepositoryFilter bean.
+	 * {@link WebApplicationContext} for the Dispatcher will be used. This means the child
+	 * {@link ApplicationContext} is used to look up the springSessionRepositoryFilter
+	 * bean.
 	 * </p>
 	 *
-	 * @return the {@link DelegatingFilterProxy#getContextAttribute()} or null
-	 * if the parent {@link ApplicationContext} should be used
+	 * @return the {@link DelegatingFilterProxy#getContextAttribute()} or null if the
+	 * parent {@link ApplicationContext} should be used
 	 */
 	private String getWebApplicationContextAttribute() {
 		String dispatcherServletName = getDispatcherWebApplicationContextSuffix();
@@ -227,23 +229,21 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 		return SERVLET_CONTEXT_PREFIX + dispatcherServletName;
 	}
 
-
-
 	/**
 	 * Return the {@code <servlet-name>} to use the DispatcherServlet's
-	 * {@link WebApplicationContext} to find the {@link DelegatingFilterProxy}
-	 * or null to use the parent {@link ApplicationContext}.
+	 * {@link WebApplicationContext} to find the {@link DelegatingFilterProxy} or null to
+	 * use the parent {@link ApplicationContext}.
 	 *
 	 * <p>
 	 * For example, if you are using AbstractDispatcherServletInitializer or
-	 * AbstractAnnotationConfigDispatcherServletInitializer and using the
-	 * provided Servlet name, you can return "dispatcher" from this method to
-	 * use the DispatcherServlet's {@link WebApplicationContext}.
+	 * AbstractAnnotationConfigDispatcherServletInitializer and using the provided Servlet
+	 * name, you can return "dispatcher" from this method to use the DispatcherServlet's
+	 * {@link WebApplicationContext}.
 	 * </p>
 	 *
 	 * @return the {@code <servlet-name>} of the DispatcherServlet to use its
-	 *         {@link WebApplicationContext} or null (default) to use the parent
-	 *         {@link ApplicationContext}.
+	 * {@link WebApplicationContext} or null (default) to use the parent
+	 * {@link ApplicationContext}.
 	 */
 	protected String getDispatcherWebApplicationContextSuffix() {
 		return null;
@@ -270,15 +270,15 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	 * @return the {@link DispatcherType} for the filter
 	 */
 	protected EnumSet<DispatcherType> getSessionDispatcherTypes() {
-		return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC);
+		return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR,
+				DispatcherType.ASYNC);
 	}
 
 	/**
 	 * Determine if the springSessionRepositoryFilter should be marked as supporting
 	 * asynch. Default is true.
 	 *
-	 * @return true if springSessionRepositoryFilter should be marked as supporting
-	 *         asynch
+	 * @return true if springSessionRepositoryFilter should be marked as supporting asynch
 	 */
 	protected boolean isAsyncSessionSupported() {
 		return true;

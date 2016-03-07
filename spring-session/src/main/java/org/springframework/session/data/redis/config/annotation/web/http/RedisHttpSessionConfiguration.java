@@ -59,7 +59,8 @@ import org.springframework.util.StringUtils;
  */
 @Configuration
 @EnableScheduling
-public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
+public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration
+		implements ImportAware {
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
@@ -77,7 +78,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
-			RedisConnectionFactory connectionFactory, RedisOperationsSessionRepository messageListener) {
+			RedisConnectionFactory connectionFactory,
+			RedisOperationsSessionRepository messageListener) {
 
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
@@ -88,13 +90,16 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			container.setSubscriptionExecutor(this.redisSubscriptionExecutor);
 		}
 		container.addMessageListener(messageListener,
-				Arrays.asList(new PatternTopic("__keyevent@*:del"), new PatternTopic("__keyevent@*:expired")));
-		container.addMessageListener(messageListener, Arrays.asList(new PatternTopic(messageListener.getSessionCreatedChannelPrefix() + "*")));
+				Arrays.asList(new PatternTopic("__keyevent@*:del"),
+						new PatternTopic("__keyevent@*:expired")));
+		container.addMessageListener(messageListener, Arrays.asList(new PatternTopic(
+				messageListener.getSessionCreatedChannelPrefix() + "*")));
 		return container;
 	}
 
 	@Bean
-	public RedisTemplate<Object, Object> sessionRedisTemplate(RedisConnectionFactory connectionFactory) {
+	public RedisTemplate<Object, Object> sessionRedisTemplate(
+			RedisConnectionFactory connectionFactory) {
 		RedisTemplate<Object, Object> template = new RedisTemplate<Object, Object>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
@@ -106,10 +111,14 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository(@Qualifier("sessionRedisTemplate") RedisOperations<Object, Object> sessionRedisTemplate, ApplicationEventPublisher applicationEventPublisher) {
-		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(sessionRedisTemplate);
+	public RedisOperationsSessionRepository sessionRepository(
+			@Qualifier("sessionRedisTemplate") RedisOperations<Object, Object> sessionRedisTemplate,
+			ApplicationEventPublisher applicationEventPublisher) {
+		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
+				sessionRedisTemplate);
 		sessionRepository.setApplicationEventPublisher(applicationEventPublisher);
-		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository
+				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		if (this.defaultRedisSerializer != null) {
 			sessionRepository.setDefaultSerializer(this.defaultRedisSerializer);
 		}
@@ -145,22 +154,27 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 
-		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
+		Map<String, Object> enableAttrMap = importMetadata
+				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveIntervalInSeconds = enableAttrs
+				.getNumber("maxInactiveIntervalInSeconds");
 		this.redisNamespace = enableAttrs.getString("redisNamespace");
 		this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
 	}
 
 	@Bean
-	public InitializingBean enableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory) {
-		return new EnableRedisKeyspaceNotificationsInitializer(connectionFactory, this.configureRedisAction);
+	public InitializingBean enableRedisKeyspaceNotificationsInitializer(
+			RedisConnectionFactory connectionFactory) {
+		return new EnableRedisKeyspaceNotificationsInitializer(connectionFactory,
+				this.configureRedisAction);
 	}
 
 	/**
 	 * Sets the action to perform for configuring Redis.
 	 *
-	 * @param configureRedisAction the configureRedis to set. The default is {@link ConfigureNotifyKeyspaceEventsAction}.
+	 * @param configureRedisAction the configureRedis to set. The default is
+	 * {@link ConfigureNotifyKeyspaceEventsAction}.
 	 */
 	@Autowired(required = false)
 	public void setConfigureRedisAction(ConfigureRedisAction configureRedisAction) {
@@ -169,7 +183,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	@Autowired(required = false)
 	@Qualifier("springSessionDefaultRedisSerializer")
-	public void setDefaultRedisSerializer(RedisSerializer<Object> defaultRedisSerializer) {
+	public void setDefaultRedisSerializer(
+			RedisSerializer<Object> defaultRedisSerializer) {
 		this.defaultRedisSerializer = defaultRedisSerializer;
 	}
 
@@ -186,16 +201,20 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	/**
-	 * Ensures that Redis is configured to send keyspace notifications. This is important to ensure that expiration and
-	 * deletion of sessions trigger SessionDestroyedEvents. Without the SessionDestroyedEvent resources may not get
-	 * cleaned up properly. For example, the mapping of the Session to WebSocket connections may not get cleaned up.
+	 * Ensures that Redis is configured to send keyspace notifications. This is important
+	 * to ensure that expiration and deletion of sessions trigger SessionDestroyedEvents.
+	 * Without the SessionDestroyedEvent resources may not get cleaned up properly. For
+	 * example, the mapping of the Session to WebSocket connections may not get cleaned
+	 * up.
 	 */
 	static class EnableRedisKeyspaceNotificationsInitializer implements InitializingBean {
 		private final RedisConnectionFactory connectionFactory;
 
 		private ConfigureRedisAction configure;
 
-		EnableRedisKeyspaceNotificationsInitializer(RedisConnectionFactory connectionFactory, ConfigureRedisAction configure) {
+		EnableRedisKeyspaceNotificationsInitializer(
+				RedisConnectionFactory connectionFactory,
+				ConfigureRedisAction configure) {
 			this.connectionFactory = connectionFactory;
 			this.configure = configure;
 		}

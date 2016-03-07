@@ -71,7 +71,8 @@ public class WebSocketConnectHandlerDecoratorFactoryTests {
 	@Test
 	public void decorateAfterConnectionEstablishedEventError() throws Exception {
 		WebSocketHandler decorated = this.factory.decorate(this.delegate);
-		willThrow(new IllegalStateException("Test throw on publishEvent")).given(this.eventPublisher).publishEvent(any(ApplicationEvent.class));
+		willThrow(new IllegalStateException("Test throw on publishEvent"))
+				.given(this.eventPublisher).publishEvent(any(ApplicationEvent.class));
 
 		decorated.afterConnectionEstablished(this.session);
 

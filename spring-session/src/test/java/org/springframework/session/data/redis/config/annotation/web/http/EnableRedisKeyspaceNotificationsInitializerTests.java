@@ -54,7 +54,8 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	public void setup() {
 		given(this.connectionFactory.getConnection()).willReturn(this.connection);
 
-		this.initializer = new RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(this.connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
+		this.initializer = new RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(
+				this.connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
 	}
 
 	@Test
@@ -157,7 +158,8 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	private void assertOptionsContains(String... expectedValues) {
-		verify(this.connection).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS), this.options.capture());
+		verify(this.connection).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS),
+				this.options.capture());
 		for (String expectedValue : expectedValues) {
 			assertThat(this.options.getValue()).contains(expectedValue);
 		}
@@ -165,6 +167,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	private void setConfigNotification(String value) {
-		given(this.connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS)).willReturn(Arrays.asList(CONFIG_NOTIFY_KEYSPACE_EVENTS, value));
+		given(this.connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS))
+				.willReturn(Arrays.asList(CONFIG_NOTIFY_KEYSPACE_EVENTS, value));
 	}
 }

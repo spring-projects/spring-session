@@ -31,20 +31,21 @@ import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
 
 /**
  * Ensures that a {@link SessionConnectEvent} is published in
- * {@link WebSocketHandler#afterConnectionEstablished(WebSocketSession)}. This
- * is necessary so that the {@link WebSocketSession} can be mapped to the
- * corresponding Spring {@link Session} to terminate any
- * {@link WebSocketSession} associated with a Spring {@link Session} that was
- * destroyed.
+ * {@link WebSocketHandler#afterConnectionEstablished(WebSocketSession)}. This is
+ * necessary so that the {@link WebSocketSession} can be mapped to the corresponding
+ * Spring {@link Session} to terminate any {@link WebSocketSession} associated with a
+ * Spring {@link Session} that was destroyed.
  *
  * @author Rob Winch
  * @since 1.0
  *
  * @see WebSocketRegistryListener
  */
-public final class WebSocketConnectHandlerDecoratorFactory implements WebSocketHandlerDecoratorFactory {
+public final class WebSocketConnectHandlerDecoratorFactory
+		implements WebSocketHandlerDecoratorFactory {
 
-	private static final Log logger = LogFactory.getLog(WebSocketConnectHandlerDecoratorFactory.class);
+	private static final Log logger = LogFactory
+			.getLog(WebSocketConnectHandlerDecoratorFactory.class);
 
 	private final ApplicationEventPublisher eventPublisher;
 
@@ -79,7 +80,8 @@ public final class WebSocketConnectHandlerDecoratorFactory implements WebSocketH
 
 		private void publishEvent(ApplicationEvent event) {
 			try {
-				WebSocketConnectHandlerDecoratorFactory.this.eventPublisher.publishEvent(event);
+				WebSocketConnectHandlerDecoratorFactory.this.eventPublisher
+						.publishEvent(event);
 			}
 			catch (Throwable ex) {
 				logger.error("Error publishing " + event + ".", ex);

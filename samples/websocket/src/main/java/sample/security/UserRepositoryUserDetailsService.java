@@ -42,8 +42,12 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 		this.userRepository = userRepository;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername
+	 * (java.lang.String)
 	 */
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException {

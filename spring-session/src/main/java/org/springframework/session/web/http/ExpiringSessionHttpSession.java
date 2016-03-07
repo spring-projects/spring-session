@@ -138,7 +138,8 @@ class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSessi
 
 	private void checkState() {
 		if (this.invalidated) {
-			throw new IllegalStateException("The HttpSession has already be invalidated.");
+			throw new IllegalStateException(
+					"The HttpSession has already be invalidated.");
 		}
 	}
 

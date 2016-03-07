@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,15 +15,6 @@
  */
 package org.springframework.session.data.mongo;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.session.Session;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,11 +26,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.Session;
 
 /**
- * {@code AbstractMongoSessionConverter} implementation transforming {@code MongoExpiringSession} to/from a BSON object
- * using standard Java serialization
+ * {@code AbstractMongoSessionConverter} implementation transforming.
+ * {@code MongoExpiringSession} to/from a BSON object using standard Java serialization
  *
  * @author Jakub Kubrynski
  * @since 1.2
@@ -57,25 +57,30 @@ class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 	private static final String PRINCIPAL_FIELD_NAME = "principal";
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
+	@Override
 	public Query getQueryForIndex(String indexName, Object indexValue) {
-		if (PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
+		if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME
+				.equals(indexName)) {
 			return Query.query(Criteria.where(PRINCIPAL_FIELD_NAME).is(indexValue));
 		}
 		return null;
 	}
 
 	public Set<ConvertiblePair> getConvertibleTypes() {
-		return Collections.singleton(new ConvertiblePair(DBObject.class, MongoExpiringSession.class));
+		return Collections.singleton(
+				new ConvertiblePair(DBObject.class, MongoExpiringSession.class));
 	}
 
-	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
+	public Object convert(Object source, TypeDescriptor sourceType,
+			TypeDescriptor targetType) {
 		if (source == null) {
 			return null;
 		}
 
 		if (DBObject.class.isAssignableFrom(sourceType.getType())) {
 			return convert((DBObject) source);
-		} else {
+		}
+		else {
 			return convert((MongoExpiringSession) source);
 		}
 	}
@@ -103,24 +108,29 @@ class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 			outputStream.writeObject(attributes);
 			outputStream.flush();
 			return out.toByteArray();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			LOG.error("Exception during session serialization", e);
 			throw new IllegalStateException("Cannot serialize session", e);
 		}
 	}
 
 	private String extractPrincipal(Session expiringSession) {
-		String resolvedPrincipal = AuthenticationParser.extractName(expiringSession.getAttribute(SPRING_SECURITY_CONTEXT));
+		String resolvedPrincipal = AuthenticationParser
+				.extractName(expiringSession.getAttribute(SPRING_SECURITY_CONTEXT));
 		if (resolvedPrincipal != null) {
 			return resolvedPrincipal;
-		} else {
-			return expiringSession.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+		}
+		else {
+			return expiringSession.getAttribute(
+					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		}
 	}
 
 	private MongoExpiringSession convert(DBObject sessionWrapper) {
-		MongoExpiringSession session =
-				new MongoExpiringSession((String) sessionWrapper.get(ID), (Integer) sessionWrapper.get(MAX_INTERVAL));
+		MongoExpiringSession session = new MongoExpiringSession(
+				(String) sessionWrapper.get(ID),
+				(Integer) sessionWrapper.get(MAX_INTERVAL));
 		session.setCreationTime((Long) sessionWrapper.get(CREATION_TIME));
 		session.setLastAccessedTime((Long) sessionWrapper.get(LAST_ACCESSED_TIME));
 		session.setExpireAt((Date) sessionWrapper.get(EXPIRE_AT_FIELD_NAME));
@@ -131,17 +141,21 @@ class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 	@SuppressWarnings("unchecked")
 	private void deserializeAttributes(DBObject sessionWrapper, Session session) {
 		try {
-			ByteArrayInputStream in = new ByteArrayInputStream((byte[]) sessionWrapper.get(ATTRIBUTES));
+			ByteArrayInputStream in = new ByteArrayInputStream(
+					(byte[]) sessionWrapper.get(ATTRIBUTES));
 			ObjectInputStream objectInputStream = new ObjectInputStream(in);
-			Map<String, Object> attributes = (Map<String, Object>) objectInputStream.readObject();
+			Map<String, Object> attributes = (Map<String, Object>) objectInputStream
+					.readObject();
 			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
 				session.setAttribute(entry.getKey(), entry.getValue());
 			}
 			objectInputStream.close();
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			LOG.error("Exception during session deserialization", e);
 			throw new IllegalStateException("Cannot deserialize session", e);
-		} catch (ClassNotFoundException e) {
+		}
+		catch (ClassNotFoundException e) {
 			LOG.error("Exception during session deserialization", e);
 			throw new IllegalStateException("Cannot deserialize session", e);
 		}

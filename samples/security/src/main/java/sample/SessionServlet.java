@@ -28,7 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 public class SessionServlet extends HttpServlet {
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
 		String attributeName = req.getParameter("attributeName");
 		String attributeValue = req.getParameter("attributeValue");
 		req.getSession().setAttribute(attributeName, attributeValue);

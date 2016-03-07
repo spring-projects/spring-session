@@ -30,7 +30,7 @@ public class HttpSessionConfig {
 
 	@Bean
 	public JedisConnectionFactory connectionFactory() {
-		return new JedisConnectionFactory();  // <2>
+		return new JedisConnectionFactory(); // <2>
 	}
 
 	@Bean

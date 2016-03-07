@@ -55,14 +55,16 @@ public class CookieHttpSessionStrategyTests {
 	@Test
 	public void getRequestedSessionIdNotNull() throws Exception {
 		setSessionCookie(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request)).isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionId(this.request))
+				.isEqualTo(this.session.getId());
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNullCustomCookieName() throws Exception {
 		setCookieName("CUSTOM");
 		setSessionCookie(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request)).isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionId(this.request))
+				.isEqualTo(this.session.getId());
 	}
 
 	@Test
@@ -105,15 +107,18 @@ public class CookieHttpSessionStrategyTests {
 	public void onNewSessionExistingSessionNewAlias() throws Exception {
 		Session existing = new MapSession();
 		setSessionCookie(existing.getId());
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		this.strategy.onNewSession(this.session, this.request, this.response);
-		assertThat(getSessionId()).isEqualTo("0 " + existing.getId() + " new " + this.session.getId());
+		assertThat(getSessionId())
+				.isEqualTo("0 " + existing.getId() + " new " + this.session.getId());
 	}
 
 	// gh-321
 	@Test
 	public void onNewSessionExplicitAlias() throws Exception {
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		this.strategy.onNewSession(this.session, this.request, this.response);
 		assertThat(getSessionId()).isEqualTo("new " + this.session.getId());
 	}
@@ -124,7 +129,8 @@ public class CookieHttpSessionStrategyTests {
 		this.strategy.onNewSession(this.session, this.request, this.response);
 
 		Cookie sessionCookie = this.response.getCookie(this.cookieName);
-		assertThat(sessionCookie.getPath()).isEqualTo(this.request.getContextPath() + "/");
+		assertThat(sessionCookie.getPath())
+				.isEqualTo(this.request.getContextPath() + "/");
 	}
 
 	@Test
@@ -146,7 +152,8 @@ public class CookieHttpSessionStrategyTests {
 		this.strategy.onInvalidateSession(this.request, this.response);
 
 		Cookie sessionCookie = this.response.getCookie(this.cookieName);
-		assertThat(sessionCookie.getPath()).isEqualTo(this.request.getContextPath() + "/");
+		assertThat(sessionCookie.getPath())
+				.isEqualTo(this.request.getContextPath() + "/");
 	}
 
 	@Test
@@ -160,7 +167,8 @@ public class CookieHttpSessionStrategyTests {
 	public void onDeleteSessionExistingSessionSameAlias() throws Exception {
 		Session existing = new MapSession();
 		setSessionCookie("0 " + existing.getId() + " new " + this.session.getId());
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		this.strategy.onInvalidateSession(this.request, this.response);
 		assertThat(getSessionId()).isEqualTo(existing.getId());
 	}
@@ -169,7 +177,8 @@ public class CookieHttpSessionStrategyTests {
 	public void onDeleteSessionExistingSessionNewAlias() throws Exception {
 		Session existing = new MapSession();
 		setSessionCookie("0 " + existing.getId() + " new " + this.session.getId());
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		this.strategy.onInvalidateSession(this.request, this.response);
 		assertThat(getSessionId()).isEqualTo(existing.getId());
 	}
@@ -197,34 +206,40 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void encodeURLExistingQueryExistingAliasStart() {
-		assertThat(this.strategy.encodeURL("/url?_s=1&y=z", "2")).isEqualTo("/url?_s=2&y=z");
+		assertThat(this.strategy.encodeURL("/url?_s=1&y=z", "2"))
+				.isEqualTo("/url?_s=2&y=z");
 	}
 
 	@Test
 	public void encodeURLExistingQueryExistingAliasMiddle() {
-		assertThat(this.strategy.encodeURL("/url?a=b&_s=1&y=z", "2")).isEqualTo("/url?a=b&_s=2&y=z");
+		assertThat(this.strategy.encodeURL("/url?a=b&_s=1&y=z", "2"))
+				.isEqualTo("/url?a=b&_s=2&y=z");
 	}
 
 	@Test
 	public void encodeURLExistingQueryExistingAliasEnd() {
-		assertThat(this.strategy.encodeURL("/url?a=b&_s=1", "2")).isEqualTo("/url?a=b&_s=2");
+		assertThat(this.strategy.encodeURL("/url?a=b&_s=1", "2"))
+				.isEqualTo("/url?a=b&_s=2");
 	}
 
 	//
 
 	@Test
 	public void encodeURLExistingQueryParamEndsWithActualParamStart() {
-		assertThat(this.strategy.encodeURL("/url?x_s=1&y=z", "2")).isEqualTo("/url?x_s=1&y=z&_s=2");
+		assertThat(this.strategy.encodeURL("/url?x_s=1&y=z", "2"))
+				.isEqualTo("/url?x_s=1&y=z&_s=2");
 	}
 
 	@Test
 	public void encodeURLExistingQueryParamEndsWithActualParamMiddle() {
-		assertThat(this.strategy.encodeURL("/url?a=b&x_s=1&y=z", "2")).isEqualTo("/url?a=b&x_s=1&y=z&_s=2");
+		assertThat(this.strategy.encodeURL("/url?a=b&x_s=1&y=z", "2"))
+				.isEqualTo("/url?a=b&x_s=1&y=z&_s=2");
 	}
 
 	@Test
 	public void encodeURLExistingQueryParamEndsWithActualParamEnd() {
-		assertThat(this.strategy.encodeURL("/url?a=b&x_s=1", "2")).isEqualTo("/url?a=b&x_s=1&_s=2");
+		assertThat(this.strategy.encodeURL("/url?a=b&x_s=1", "2"))
+				.isEqualTo("/url?a=b&x_s=1&_s=2");
 	}
 
 	//
@@ -246,13 +261,16 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void encodeURLExistingQueryExistingAliasStartDefaultAlias() {
-		// relaxed constraint as result /url?&y=z does not hurt anything (ideally should remove the &)
-		assertThat(this.strategy.encodeURL("/url?_s=1&y=z", "0")).doesNotContain("_s=0&_s=1");
+		// relaxed constraint as result /url?&y=z does not hurt anything (ideally should
+		// remove the &)
+		assertThat(this.strategy.encodeURL("/url?_s=1&y=z", "0"))
+				.doesNotContain("_s=0&_s=1");
 	}
 
 	@Test
 	public void encodeURLExistingQueryExistingAliasMiddleDefaultAlias() {
-		assertThat(this.strategy.encodeURL("/url?a=b&_s=1&y=z", "0")).isEqualTo("/url?a=b&y=z");
+		assertThat(this.strategy.encodeURL("/url?a=b&_s=1&y=z", "0"))
+				.isEqualTo("/url?a=b&y=z");
 	}
 
 	@Test
@@ -262,88 +280,114 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void encodeURLMaliciousAlias() {
-		assertThat(this.strategy.encodeURL("/url?a=b&_s=1", "\"> <script>alert('hi')</script>")).isEqualTo("/url?a=b&_s=%22%3E+%3Cscript%3Ealert%28%27hi%27%29%3C%2Fscript%3E");
+		assertThat(this.strategy.encodeURL("/url?a=b&_s=1",
+				"\"> <script>alert('hi')</script>")).isEqualTo(
+						"/url?a=b&_s=%22%3E+%3Cscript%3Ealert%28%27hi%27%29%3C%2Fscript%3E");
 	}
 
 	// --- getCurrentSessionAlias
 
 	@Test
 	public void getCurrentSessionAliasNull() {
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	@Test
 	public void getCurrentSessionAliasNullParamName() {
 		this.strategy.setSessionAliasParamName(null);
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "NOT USED");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "NOT USED");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	// protect against malicious users
 	@Test
 	public void getCurrentSessionAliasContainsQuote() {
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here\"this");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here\"this");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	@Test
 	public void getCurrentSessionAliasContainsSingleQuote() {
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here'this");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here'this");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	@Test
 	public void getCurrentSessionAliasContainsSpace() {
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here this");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here this");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	@Test
 	public void getCurrentSessionAliasContainsLt() {
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here<this");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here<this");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	@Test
 	public void getCurrentSessionAliasContainsGt() {
 		this.strategy.setSessionAliasParamName(null);
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here>this");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "here>this");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	@Test
 	public void getCurrentSessionAliasTooLong() {
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "012345678901234567890123456789012345678901234567890");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME,
+				"012345678901234567890123456789012345678901234567890");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
-	// We want some sort of length restrictions, but want to ensure some sort of length Technically no hard limit, but chose 50
+	// We want some sort of length restrictions, but want to ensure some sort of length
+	// Technically no hard limit, but chose 50
 	@Test
 	public void getCurrentSessionAliasAllows50() {
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "01234567890123456789012345678901234567890123456789");
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME,
+				"01234567890123456789012345678901234567890123456789");
 
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo("01234567890123456789012345678901234567890123456789");
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo("01234567890123456789012345678901234567890123456789");
 	}
 
 	@Test
 	public void getCurrentSession() {
 		String expectedAlias = "1";
-		this.request.setParameter(CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, expectedAlias);
-		assertThat(this.strategy.getCurrentSessionAlias(this.request)).isEqualTo(expectedAlias);
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME,
+				expectedAlias);
+		assertThat(this.strategy.getCurrentSessionAlias(this.request))
+				.isEqualTo(expectedAlias);
 	}
 
 	// --- getNewSessionAlias
 
 	@Test
 	public void getNewSessionAliasNoSessions() {
-		assertThat(this.strategy.getNewSessionAlias(this.request)).isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
+		assertThat(this.strategy.getNewSessionAlias(this.request))
+				.isEqualTo(CookieHttpSessionStrategy.DEFAULT_ALIAS);
 	}
 
 	@Test
@@ -364,28 +408,32 @@ public class CookieHttpSessionStrategyTests {
 	public void getNewSessionAlias9Sessions() {
 		setCookieWithNSessions(9);
 
-		assertThat(this.strategy.getNewSessionAlias(this.request)).isEqualToIgnoringCase("9");
+		assertThat(this.strategy.getNewSessionAlias(this.request))
+				.isEqualToIgnoringCase("9");
 	}
 
 	@Test
 	public void getNewSessionAlias10Sessions() {
 		setCookieWithNSessions(10);
 
-		assertThat(this.strategy.getNewSessionAlias(this.request)).isEqualToIgnoringCase("a");
+		assertThat(this.strategy.getNewSessionAlias(this.request))
+				.isEqualToIgnoringCase("a");
 	}
 
 	@Test
 	public void getNewSessionAlias16Sessions() {
 		setCookieWithNSessions(16);
 
-		assertThat(this.strategy.getNewSessionAlias(this.request)).isEqualToIgnoringCase("10");
+		assertThat(this.strategy.getNewSessionAlias(this.request))
+				.isEqualToIgnoringCase("10");
 	}
 
 	@Test
 	public void getNewSessionAliasInvalidAlias() {
 		setSessionCookie("0 1 $ b");
 
-		assertThat(this.strategy.getNewSessionAlias(this.request)).isEqualToIgnoringCase("1");
+		assertThat(this.strategy.getNewSessionAlias(this.request))
+				.isEqualToIgnoringCase("1");
 	}
 
 	// --- getSessionIds
@@ -429,7 +477,8 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void createSessionCookieValue() {
-		assertThat(createSessionCookieValue(17)).isEqualToIgnoringCase("0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
+		assertThat(createSessionCookieValue(17)).isEqualToIgnoringCase(
+				"0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
 	}
 
 	private void setCookieWithNSessions(long size) {

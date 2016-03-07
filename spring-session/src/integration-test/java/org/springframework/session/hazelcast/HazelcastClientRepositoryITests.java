@@ -33,8 +33,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 
 /**
- * Integration tests that check the underlying data source - in this case
- * Hazelcast Client.
+ * Integration tests that check the underlying data source - in this case Hazelcast
+ * Client.
  *
  * @author Vedran Pavic
  * @author Artem Bilan
@@ -49,7 +49,6 @@ public class HazelcastClientRepositoryITests<S extends ExpiringSession>
 	private static final int PORT = SocketUtils.findAvailableTcpPort();
 
 	private static HazelcastInstance hazelcastInstance;
-
 
 	@BeforeClass
 	public static void setup() {
@@ -70,8 +69,7 @@ public class HazelcastClientRepositoryITests<S extends ExpiringSession>
 		@Bean
 		public HazelcastInstance embeddedHazelcastClient() {
 			ClientConfig clientConfig = new ClientConfig();
-			clientConfig.getNetworkConfig()
-					.addAddress("127.0.0.1:" + PORT);
+			clientConfig.getNetworkConfig().addAddress("127.0.0.1:" + PORT);
 			return HazelcastClient.newHazelcastClient(clientConfig);
 		}
 

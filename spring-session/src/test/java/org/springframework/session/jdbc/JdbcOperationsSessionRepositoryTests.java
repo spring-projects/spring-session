@@ -42,6 +42,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.and;
 import static org.mockito.AdditionalMatchers.not;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
@@ -50,7 +51,6 @@ import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JdbcOperationsSessionRepository}.
@@ -81,10 +81,11 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void constructorDataSource() {
-		JdbcOperationsSessionRepository repository =
-				new JdbcOperationsSessionRepository(this.dataSource);
+		JdbcOperationsSessionRepository repository = new JdbcOperationsSessionRepository(
+				this.dataSource);
 
-		assertThat(ReflectionTestUtils.getField(repository, "jdbcOperations")).isNotNull();
+		assertThat(ReflectionTestUtils.getField(repository, "jdbcOperations"))
+				.isNotNull();
 	}
 
 	@Test
@@ -137,11 +138,12 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void createSessionDefaultMaxInactiveInterval() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
 
 		assertThat(session.isNew()).isTrue();
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(
-				new MapSession().getMaxInactiveIntervalInSeconds());
+		assertThat(session.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
 		verifyZeroInteractions(this.jdbcOperations);
 	}
 
@@ -150,7 +152,8 @@ public class JdbcOperationsSessionRepositoryTests {
 		int interval = 1;
 		this.repository.setDefaultMaxInactiveInterval(interval);
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
 
 		assertThat(session.isNew()).isTrue();
 		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(interval);
@@ -159,41 +162,48 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveNew() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
 
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT"), isA(PreparedStatementSetter.class));
+		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT"),
+				isA(PreparedStatementSetter.class));
 	}
 
 	@Test
 	public void saveUpdatedAttributes() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession());
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
+				new MapSession());
 		session.setAttribute("testName", "testValue");
 
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1))
-				.update(and(startsWith("UPDATE"), contains("SESSION_BYTES")), isA(PreparedStatementSetter.class));
+		verify(this.jdbcOperations, times(1)).update(
+				and(startsWith("UPDATE"), contains("SESSION_BYTES")),
+				isA(PreparedStatementSetter.class));
 	}
 
 	@Test
 	public void saveUpdatedLastAccessedTime() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession());
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
+				new MapSession());
 		session.setLastAccessedTime(System.currentTimeMillis());
 
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1))
-				.update(and(startsWith("UPDATE"), not(contains("SESSION_BYTES"))), isA(PreparedStatementSetter.class));
+		verify(this.jdbcOperations, times(1)).update(
+				and(startsWith("UPDATE"), not(contains("SESSION_BYTES"))),
+				isA(PreparedStatementSetter.class));
 	}
 
 	@Test
 	public void saveUnchanged() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession());
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
+				new MapSession());
 
 		this.repository.save(session);
 
@@ -206,11 +216,12 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void getSessionNotFound() {
 		String sessionId = "testSessionId";
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.getSession(sessionId);
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.getSession(sessionId);
 
 		assertThat(session).isNull();
-		verify(this.jdbcOperations, times(1)).queryForObject(
-				startsWith("SELECT"), eq(new Object[] { sessionId }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
+				eq(new Object[] { sessionId }), isA(RowMapper.class));
 	}
 
 	@Test
@@ -218,15 +229,18 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void getSessionExpired() {
 		MapSession expired = new MapSession();
 		expired.setMaxInactiveIntervalInSeconds(0);
-		when(this.jdbcOperations.queryForObject(startsWith("SELECT"), eq(new Object[] { expired.getId() }), isA(RowMapper.class)))
-				.thenReturn(expired);
+		given(this.jdbcOperations.queryForObject(startsWith("SELECT"),
+				eq(new Object[] { expired.getId() }), isA(RowMapper.class)))
+						.willReturn(expired);
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.getSession(expired.getId());
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.getSession(expired.getId());
 
 		assertThat(session).isNull();
-		verify(this.jdbcOperations, times(1)).queryForObject(
-				startsWith("SELECT"), eq(new Object[] { expired.getId() }), isA(RowMapper.class));
-		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), eq(expired.getId()));
+		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
+				eq(new Object[] { expired.getId() }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"),
+				eq(expired.getId()));
 	}
 
 	@Test
@@ -234,16 +248,18 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void getSessionFound() {
 		MapSession saved = new MapSession();
 		saved.setAttribute("savedName", "savedValue");
-		when(this.jdbcOperations.queryForObject(startsWith("SELECT"), eq(new Object[] { saved.getId() }), isA(RowMapper.class)))
-				.thenReturn(saved);
+		given(this.jdbcOperations.queryForObject(startsWith("SELECT"),
+				eq(new Object[] { saved.getId() }), isA(RowMapper.class)))
+						.willReturn(saved);
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.getSession(saved.getId());
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.getSession(saved.getId());
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.isNew()).isFalse();
 		assertThat(session.getAttribute("savedName")).isEqualTo("savedValue");
-		verify(this.jdbcOperations, times(1)).queryForObject(
-				startsWith("SELECT"), eq(new Object[] { saved.getId() }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
+				eq(new Object[] { saved.getId() }), isA(RowMapper.class));
 	}
 
 	@Test
@@ -259,8 +275,8 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void findByIndexNameAndIndexValueUnknownIndexName() {
 		String indexValue = "testIndexValue";
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions =
-				this.repository.findByIndexNameAndIndexValue("testIndexName", indexValue);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions = this.repository
+				.findByIndexNameAndIndexValue("testIndexName", indexValue);
 
 		assertThat(sessions).isEmpty();
 		verifyZeroInteractions(this.jdbcOperations);
@@ -272,19 +288,21 @@ public class JdbcOperationsSessionRepositoryTests {
 		String principal = "username";
 
 		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions = this.repository
-				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						principal);
 
 		assertThat(sessions).isEmpty();
-		verify(this.jdbcOperations, times(1)).query(
-				startsWith("SELECT"), eq(new Object[] { principal }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).query(startsWith("SELECT"),
+				eq(new Object[] { principal }), isA(RowMapper.class));
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValuePrincipalIndexNameFound() {
 		String principal = "username";
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-				principal, "notused", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication authentication = new UsernamePasswordAuthenticationToken(principal,
+				"notused", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		List<MapSession> saved = new ArrayList<MapSession>(2);
 		MapSession saved1 = new MapSession();
 		saved1.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
@@ -292,15 +310,17 @@ public class JdbcOperationsSessionRepositoryTests {
 		MapSession saved2 = new MapSession();
 		saved2.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved2);
-		when(this.jdbcOperations.query(startsWith("SELECT"), eq(new Object[] { principal }), isA(RowMapper.class)))
-				.thenReturn(saved);
+		given(this.jdbcOperations.query(startsWith("SELECT"),
+				eq(new Object[] { principal }), isA(RowMapper.class))).willReturn(saved);
 
 		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions = this.repository
-				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						principal);
 
 		assertThat(sessions).hasSize(2);
-		verify(this.jdbcOperations, times(1)).query(
-				startsWith("SELECT"), eq(new Object[] { principal }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).query(startsWith("SELECT"),
+				eq(new Object[] { principal }), isA(RowMapper.class));
 	}
 
 	@Test

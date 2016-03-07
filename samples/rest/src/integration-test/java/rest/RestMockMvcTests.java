@@ -43,9 +43,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {HttpSessionConfig.class, SecurityConfig.class, MvcConfig.class})
+@ContextConfiguration(classes = { HttpSessionConfig.class, SecurityConfig.class,
+		MvcConfig.class })
 @WebAppConfiguration
 public class RestMockMvcTests {
 
@@ -59,32 +59,27 @@ public class RestMockMvcTests {
 
 	@Before
 	public void setup() {
-		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
-				.alwaysDo(print())
-				.addFilters(this.sessionRepositoryFilter)
-				.apply(springSecurity())
-				.build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).alwaysDo(print())
+				.addFilters(this.sessionRepositoryFilter).apply(springSecurity()).build();
 	}
 
 	@Test
 	public void noSessionOnNoCredentials() throws Exception {
-		this.mvc.perform(get("/"))
-			.andExpect(header().doesNotExist("x-auth-token"))
-			.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/")).andExpect(header().doesNotExist("x-auth-token"))
+				.andExpect(status().isUnauthorized());
 	}
 
 	@WithMockUser
 	@Test
 	public void autheticatedAnnotation() throws Exception {
-		this.mvc.perform(get("/"))
-			.andExpect(content().string("{\"username\":\"user\"}"));
+		this.mvc.perform(get("/")).andExpect(content().string("{\"username\":\"user\"}"));
 
 	}
 
 	@Test
 	public void autheticatedRequestPostProcessor() throws Exception {
 		this.mvc.perform(get("/").with(user("user")))
-			.andExpect(content().string("{\"username\":\"user\"}"));
+				.andExpect(content().string("{\"username\":\"user\"}"));
 
 	}
 }

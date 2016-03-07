@@ -29,10 +29,9 @@ import org.springframework.session.data.redis.RedisFlushMode;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
- * backed by Redis. In order to leverage the annotation, a single {@link RedisConnectionFactory}
- * must be provided. For example:
- * <pre>
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by
+ * Redis. In order to leverage the annotation, a single {@link RedisConnectionFactory}
+ * must be provided. For example: <pre>
  * <code>
  * {@literal @Configuration}
  * {@literal @EnableRedisHttpSession}
@@ -44,8 +43,7 @@ import org.springframework.session.data.redis.RedisFlushMode;
  *     }
  *
  * }
- * </code>
- * </pre>
+ * </code> </pre>
  *
  * More advanced configurations can extend {@link RedisHttpSessionConfiguration} instead.
  *
@@ -54,7 +52,7 @@ import org.springframework.session.data.redis.RedisFlushMode;
  * @see EnableSpringHttpSession
  */
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target({java.lang.annotation.ElementType.TYPE})
+@Target({ java.lang.annotation.ElementType.TYPE })
 @Documented
 @Import(RedisHttpSessionConfiguration.class)
 @Configuration
@@ -63,17 +61,16 @@ public @interface EnableRedisHttpSession {
 
 	/**
 	 * <p>
-	 * Defines a unique namespace for keys. The value is used to isolate
-	 * sessions by changing the prefix from "spring:session:" to
+	 * Defines a unique namespace for keys. The value is used to isolate sessions by
+	 * changing the prefix from "spring:session:" to
 	 * "spring:session:&lt;redisNamespace&gt;:". The default is "" such that all Redis
 	 * keys begin with "spring:session".
 	 * </p>
 	 *
 	 * <p>
-	 * For example, if you had an application named "Application A" that needed
-	 * to keep the sessions isolated from "Application B" you could set two
-	 * different values for the applications and they could function within the
-	 * same Redis instance.
+	 * For example, if you had an application named "Application A" that needed to keep
+	 * the sessions isolated from "Application B" you could set two different values for
+	 * the applications and they could function within the same Redis instance.
 	 * </p>
 	 *
 	 * @return the unique namespace for keys
@@ -82,15 +79,14 @@ public @interface EnableRedisHttpSession {
 
 	/**
 	 * <p>
-	 * Sets the flush mode for the Redis sessions. The default is IMMEDIATE
-	 * which only updates the backing Redis when
-	 * {@link SessionRepository#save(org.springframework.session.Session)} is
-	 * invoked. In a web environment this happens just before the HTTP resposne
-	 * is committed.
+	 * Sets the flush mode for the Redis sessions. The default is IMMEDIATE which only
+	 * updates the backing Redis when
+	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
+	 * a web environment this happens just before the HTTP resposne is committed.
 	 * </p>
 	 * <p>
-	 * Setting the value to IMMEDIATE will ensure that the any updates to the
-	 * Session are immediately written to the Redis instance.
+	 * Setting the value to IMMEDIATE will ensure that the any updates to the Session are
+	 * immediately written to the Redis instance.
 	 * </p>
 	 *
 	 * @return the {@link RedisFlushMode} to use

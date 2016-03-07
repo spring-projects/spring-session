@@ -32,8 +32,7 @@ public class WebSocketConfig
 		extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> { // <1>
 
 	protected void configureStompEndpoints(StompEndpointRegistry registry) { // <2>
-		registry.addEndpoint("/messages")
-				.withSockJS();
+		registry.addEndpoint("/messages").withSockJS();
 	}
 
 	public void configureMessageBroker(MessageBrokerRegistry registry) {

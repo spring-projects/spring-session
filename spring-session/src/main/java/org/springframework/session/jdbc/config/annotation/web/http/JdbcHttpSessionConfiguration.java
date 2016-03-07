@@ -49,7 +49,8 @@ import org.springframework.util.StringUtils;
  */
 @Configuration
 @EnableScheduling
-public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
+public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
+		implements ImportAware {
 
 	private String tableName = "";
 
@@ -71,19 +72,21 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository(
 			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations) {
-		JdbcOperationsSessionRepository sessionRepository =
-				new JdbcOperationsSessionRepository(jdbcOperations);
+		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(
+				jdbcOperations);
 		String tableName = getTableName();
 		if (StringUtils.hasText(tableName)) {
 			sessionRepository.setTableName(tableName);
 		}
-		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository
+				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
 		}
 		if (this.springSessionConversionService != null) {
 			sessionRepository.setConversionService(this.springSessionConversionService);
-		} else if(conversionService != null) {
+		}
+		else if (this.conversionService != null) {
 			sessionRepository.setConversionService(this.conversionService);
 		}
 		return sessionRepository;
@@ -109,10 +112,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
+		Map<String, Object> enableAttrMap = importMetadata
+				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 		this.tableName = enableAttrs.getString("tableName");
-		this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveIntervalInSeconds = enableAttrs
+				.getNumber("maxInactiveIntervalInSeconds");
 	}
 
 }

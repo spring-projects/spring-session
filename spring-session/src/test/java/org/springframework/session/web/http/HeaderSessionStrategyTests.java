@@ -51,14 +51,16 @@ public class HeaderSessionStrategyTests {
 	@Test
 	public void getRequestedSessionIdNotNull() throws Exception {
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request)).isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionId(this.request))
+				.isEqualTo(this.session.getId());
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNullCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request)).isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionId(this.request))
+				.isEqualTo(this.session.getId());
 	}
 
 	@Test
@@ -74,7 +76,8 @@ public class HeaderSessionStrategyTests {
 		this.strategy.onNewSession(this.session, this.request, this.response);
 
 		assertThat(this.response.getHeaders(this.headerName).size()).isEqualTo(1);
-		assertThat(this.response.getHeaders(this.headerName)).containsOnly(this.session.getId());
+		assertThat(this.response.getHeaders(this.headerName))
+				.containsOnly(this.session.getId());
 	}
 
 	@Test
@@ -89,7 +92,6 @@ public class HeaderSessionStrategyTests {
 		this.strategy.onInvalidateSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
-
 
 	// the header is set as apposed to added
 	@Test

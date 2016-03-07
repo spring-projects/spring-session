@@ -49,32 +49,37 @@ public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcess
 	@Value("${spring.session.data.gemfire.port:${application.gemfire.client-server.port}}")
 	int port;
 
-// tag::class[]
+	// tag::class[]
 	static {
-		ClientMembership.registerClientMembershipListener(new ClientMembershipListenerAdapter() {
-			public void memberJoined(final ClientMembershipEvent event) {
-				if (!event.isClient()) {
-					latch.countDown();
-				}
-			}
-		});
+		ClientMembership
+				.registerClientMembershipListener(new ClientMembershipListenerAdapter() {
+					public void memberJoined(final ClientMembershipEvent event) {
+						if (!event.isClient()) {
+							latch.countDown();
+						}
+					}
+				});
 	}
 
 	@SuppressWarnings("all")
 	@Resource(name = "applicationProperties")
 	private Properties applicationProperties;
 
-	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+	public Object postProcessBeforeInitialization(Object bean, String beanName)
+			throws BeansException {
 		if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 			String host = getServerHost(DEFAULT_SERVER_HOST);
-			Assert.isTrue(waitForCacheServerToStart(host, this.port), String.format(
-				"GemFire Server failed to start [host: '%1$s', port: %2$d]%n", host, this.port));
+			Assert.isTrue(waitForCacheServerToStart(host, this.port),
+					String.format(
+							"GemFire Server failed to start [host: '%1$s', port: %2$d]%n",
+							host, this.port));
 		}
 
 		return bean;
 	}
 
-	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+	public Object postProcessAfterInitialization(Object bean, String beanName)
+			throws BeansException {
 		if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 			try {
 				latch.await(DEFAULT_WAIT_DURATION, TimeUnit.MILLISECONDS);
@@ -86,14 +91,15 @@ public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcess
 
 		return bean;
 	}
-// tag::end[]
+	// tag::end[]
 
 	interface Condition {
 		boolean evaluate();
 	}
 
 	String getServerHost(String defaultServerHost) {
-		return this.applicationProperties.getProperty("application.gemfire.client-server.host", defaultServerHost);
+		return this.applicationProperties
+				.getProperty("application.gemfire.client-server.host", defaultServerHost);
 	}
 
 	boolean waitForCacheServerToStart(String host, int port) {
@@ -109,8 +115,10 @@ public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcess
 				Socket socket = null;
 
 				try {
-					// NOTE: this code is not intended to be an atomic, compound action (a possible race condition);
-					// opening another connection (at the expense of using system resources) after connectivity
+					// NOTE: this code is not intended to be an atomic, compound action (a
+					// possible race condition);
+					// opening another connection (at the expense of using system
+					// resources) after connectivity
 					// has already been established is not detrimental in this use case
 					if (!connected.get()) {
 						socket = new Socket(host, port);

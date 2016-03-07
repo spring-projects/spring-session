@@ -62,7 +62,8 @@ public class SessionEventHttpSessionListenerAdapterTests {
 
 	@Before
 	public void setup() {
-		this.listener = new SessionEventHttpSessionListenerAdapter(Arrays.asList(this.listener1, this.listener2));
+		this.listener = new SessionEventHttpSessionListenerAdapter(
+				Arrays.asList(this.listener1, this.listener2));
 
 		Session session = new MapSession();
 		this.destroyed = new SessionDestroyedEvent(this, session);
@@ -70,18 +71,22 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	}
 
 	// We want relaxed constructor that will allow for an empty listeners to
-	// make configuration easier (i.e. autowire all HttpSessionListeners and might get none)
+	// make configuration easier (i.e. autowire all HttpSessionListeners and might get
+	// none)
 	@Test
 	public void constructorEmptyWorks() {
-		new SessionEventHttpSessionListenerAdapter(Collections.<HttpSessionListener>emptyList());
+		new SessionEventHttpSessionListenerAdapter(
+				Collections.<HttpSessionListener>emptyList());
 	}
 
 	/**
-	 * Make sure that we short circuit onApplicationEvent as early as possible if no listeners
+	 * Make sure that we short circuit onApplicationEvent as early as possible if no
+	 * listeners
 	 */
 	@Test
 	public void onApplicationEventEmptyListenersDoesNotUseEvent() {
-		this.listener = new SessionEventHttpSessionListenerAdapter(Collections.<HttpSessionListener>emptyList());
+		this.listener = new SessionEventHttpSessionListenerAdapter(
+				Collections.<HttpSessionListener>emptyList());
 		this.destroyed = mock(SessionDestroyedEvent.class);
 
 		this.listener.onApplicationEvent(this.destroyed);
@@ -96,7 +101,8 @@ public class SessionEventHttpSessionListenerAdapterTests {
 		verify(this.listener1).sessionDestroyed(this.sessionEvent.capture());
 		verify(this.listener2).sessionDestroyed(this.sessionEvent.capture());
 
-		assertThat(this.sessionEvent.getValue().getSession().getId()).isEqualTo(this.destroyed.getSessionId());
+		assertThat(this.sessionEvent.getValue().getSession().getId())
+				.isEqualTo(this.destroyed.getSessionId());
 	}
 
 	@Test
@@ -106,6 +112,7 @@ public class SessionEventHttpSessionListenerAdapterTests {
 		verify(this.listener1).sessionCreated(this.sessionEvent.capture());
 		verify(this.listener2).sessionCreated(this.sessionEvent.capture());
 
-		assertThat(this.sessionEvent.getValue().getSession().getId()).isEqualTo(this.created.getSessionId());
+		assertThat(this.sessionEvent.getValue().getSession().getId())
+				.isEqualTo(this.created.getSessionId());
 	}
 }

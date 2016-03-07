@@ -62,7 +62,8 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 	public void expireFiresSessionExpiredEvent() throws InterruptedException {
 		S toSave = this.repository.createSession();
 		toSave.setAttribute("a", "b");
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user",
+				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
@@ -86,7 +87,8 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 		assertThat(this.registry.receivedEvent()).isTrue();
 	}
 
-	static class SessionExpiredEventRegistry implements ApplicationListener<SessionExpiredEvent> {
+	static class SessionExpiredEventRegistry
+			implements ApplicationListener<SessionExpiredEvent> {
 		private boolean receivedEvent;
 		private Object lock;
 

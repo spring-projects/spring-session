@@ -31,13 +31,13 @@ import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
 
 /**
- * Listen for events on the Hazelcast-backed SessionRepository and
- * translate those events into the corresponding Spring Session events.
- * Publish the Spring Session events with the given {@link ApplicationEventPublisher}.
+ * Listen for events on the Hazelcast-backed SessionRepository and translate those events
+ * into the corresponding Spring Session events. Publish the Spring Session events with
+ * the given {@link ApplicationEventPublisher}.
  * <ul>
- * 		<li>entryAdded - {@link SessionCreatedEvent}</li>
- * 		<li>entryEvicted - {@link SessionExpiredEvent}</li>
- * 		<li>entryRemoved - {@link SessionDeletedEvent}</li>
+ * <li>entryAdded - {@link SessionCreatedEvent}</li>
+ * <li>entryEvicted - {@link SessionExpiredEvent}</li>
+ * <li>entryRemoved - {@link SessionDeletedEvent}</li>
  * </ul>
  *
  * @author Tommy Ludwig
@@ -45,7 +45,8 @@ import org.springframework.util.Assert;
  * @since 1.1
  */
 public class SessionEntryListener implements EntryAddedListener<String, ExpiringSession>,
-		EntryEvictedListener<String, ExpiringSession>, EntryRemovedListener<String, ExpiringSession> {
+		EntryEvictedListener<String, ExpiringSession>,
+		EntryRemovedListener<String, ExpiringSession> {
 	private static final Log logger = LogFactory.getLog(SessionEntryListener.class);
 
 	private ApplicationEventPublisher eventPublisher;
@@ -66,14 +67,16 @@ public class SessionEntryListener implements EntryAddedListener<String, Expiring
 		if (logger.isDebugEnabled()) {
 			logger.debug("Session expired with id: " + event.getOldValue().getId());
 		}
-		this.eventPublisher.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
+		this.eventPublisher
+				.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
 	}
 
 	public void entryRemoved(EntryEvent<String, ExpiringSession> event) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Session deleted with id: " + event.getOldValue().getId());
 		}
-		this.eventPublisher.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
+		this.eventPublisher
+				.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
 	}
 
 }

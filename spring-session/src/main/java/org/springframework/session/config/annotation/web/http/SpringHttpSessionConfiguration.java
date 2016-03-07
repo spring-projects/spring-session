@@ -37,8 +37,8 @@ import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapt
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
- * Configures the basics for setting up Spring Session in a web environment. In
- * order to use it, you must provide a {@link SessionRepository}. For example:
+ * Configures the basics for setting up Spring Session in a web environment. In order to
+ * use it, you must provide a {@link SessionRepository}. For example:
  *
  * <pre>
  * {@literal @Configuration}
@@ -54,11 +54,10 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * </pre>
  *
  * <p>
- * It is important to note that no infrastructure for session expirations is
- * configured for you out of the box. This is because things like session
- * expiration are highly implementation dependent. This means if you require
- * cleaning up expired sessions, you are responsible for cleaning up the expired
- * sessions.
+ * It is important to note that no infrastructure for session expirations is configured
+ * for you out of the box. This is because things like session expiration are highly
+ * implementation dependent. This means if you require cleaning up expired sessions, you
+ * are responsible for cleaning up the expired sessions.
  * </p>
  *
  * <p>
@@ -66,13 +65,12 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * </p>
  *
  * <ul>
- * <li>SessionRepositoryFilter - is responsible for wrapping the
- * HttpServletRequest with an implementation of HttpSession that is backed by a
- * SessionRepository</li>
- * <li>SessionEventHttpSessionListenerAdapter - is responsible for translating
- * Spring Session events into HttpSessionEvent. In order for it to work, the
- * implementation of SessionRepository you provide must support
- * {@link SessionCreatedEvent} and {@link SessionDestroyedEvent}.</li>
+ * <li>SessionRepositoryFilter - is responsible for wrapping the HttpServletRequest with
+ * an implementation of HttpSession that is backed by a SessionRepository</li>
+ * <li>SessionEventHttpSessionListenerAdapter - is responsible for translating Spring
+ * Session events into HttpSessionEvent. In order for it to work, the implementation of
+ * SessionRepository you provide must support {@link SessionCreatedEvent} and
+ * {@link SessionDestroyedEvent}.</li>
  * <li>
  * </ul>
  *
@@ -98,11 +96,14 @@ public class SpringHttpSessionConfiguration {
 	}
 
 	@Bean
-	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository) {
-		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
+	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(
+			SessionRepository<S> sessionRepository) {
+		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(
+				sessionRepository);
 		sessionRepositoryFilter.setServletContext(this.servletContext);
 		if (this.httpSessionStrategy instanceof MultiHttpSessionStrategy) {
-			sessionRepositoryFilter.setHttpSessionStrategy((MultiHttpSessionStrategy) this.httpSessionStrategy);
+			sessionRepositoryFilter.setHttpSessionStrategy(
+					(MultiHttpSessionStrategy) this.httpSessionStrategy);
 		}
 		else {
 			sessionRepositoryFilter.setHttpSessionStrategy(this.httpSessionStrategy);

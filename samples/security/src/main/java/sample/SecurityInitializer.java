@@ -19,8 +19,7 @@ package sample;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 
 // tag::class[]
-public class SecurityInitializer extends
-		AbstractSecurityWebApplicationInitializer {
+public class SecurityInitializer extends AbstractSecurityWebApplicationInitializer {
 
 	public SecurityInitializer() {
 		super(SecurityConfig.class, Config.class);

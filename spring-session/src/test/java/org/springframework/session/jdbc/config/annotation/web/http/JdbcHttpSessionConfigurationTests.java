@@ -74,16 +74,19 @@ public class JdbcHttpSessionConfigurationTests {
 	public void defaultConfiguration() {
 		registerAndRefresh(DefaultConfiguration.class);
 
-		assertThat(this.context.getBean(JdbcOperationsSessionRepository.class)).isNotNull();
+		assertThat(this.context.getBean(JdbcOperationsSessionRepository.class))
+				.isNotNull();
 	}
 
 	@Test
 	public void customTableName() {
 		registerAndRefresh(CustomTableNameConfiguration.class);
 
-		JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "tableName")).isEqualTo(TABLE_NAME);
+		assertThat(ReflectionTestUtils.getField(repository, "tableName"))
+				.isEqualTo(TABLE_NAME);
 	}
 
 	@Test
@@ -93,9 +96,11 @@ public class JdbcHttpSessionConfigurationTests {
 		try {
 			registerAndRefresh(DefaultConfiguration.class);
 
-			JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
+			JdbcOperationsSessionRepository repository = this.context
+					.getBean(JdbcOperationsSessionRepository.class);
 			assertThat(repository).isNotNull();
-			assertThat(ReflectionTestUtils.getField(repository, "tableName")).isEqualTo(TABLE_NAME);
+			assertThat(ReflectionTestUtils.getField(repository, "tableName"))
+					.isEqualTo(TABLE_NAME);
 		}
 		finally {
 			System.clearProperty(TABLE_NAME_SYSTEM_PROPERTY);
@@ -106,7 +111,8 @@ public class JdbcHttpSessionConfigurationTests {
 	public void customMaxInactiveIntervalInSeconds() {
 		registerAndRefresh(CustomMaxInactiveIntervalInSecondsConfiguration.class);
 
-		JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
@@ -116,22 +122,27 @@ public class JdbcHttpSessionConfigurationTests {
 	public void customLobHandlerConfiguration() {
 		registerAndRefresh(CustomLobHandlerConfiguration.class);
 
-		JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
 		LobHandler lobHandler = this.context.getBean(LobHandler.class);
 		assertThat(repository).isNotNull();
 		assertThat(lobHandler).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "lobHandler")).isEqualTo(lobHandler);
+		assertThat(ReflectionTestUtils.getField(repository, "lobHandler"))
+				.isEqualTo(lobHandler);
 	}
 
 	@Test
 	public void customConversionServiceConfiguration() {
 		registerAndRefresh(CustomDeserializingConverterConfiguration.class);
 
-		JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
-		ConversionService conversionService = this.context.getBean("springSessionConversionService", ConversionService.class);
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		ConversionService conversionService = this.context
+				.getBean("springSessionConversionService", ConversionService.class);
 		assertThat(repository).isNotNull();
 		assertThat(conversionService).isNotNull();
-		Object repositoryConversionService = ReflectionTestUtils.getField(repository, "conversionService");
+		Object repositoryConversionService = ReflectionTestUtils.getField(repository,
+				"conversionService");
 		assertThat(repositoryConversionService).isEqualTo(conversionService);
 	}
 
@@ -166,7 +177,8 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableJdbcHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
-	static class CustomMaxInactiveIntervalInSecondsConfiguration extends BaseConfiguration {
+	static class CustomMaxInactiveIntervalInSecondsConfiguration
+			extends BaseConfiguration {
 	}
 
 	@Configuration

@@ -28,9 +28,9 @@ import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
 
 /**
- * Listen for Redis {@link Message} notifications. If it is a "del"
- * translate into a {@link SessionDeletedEvent}. If it is an "expired"
- * translate into a {@link SessionExpiredEvent}.
+ * Listen for Redis {@link Message} notifications. If it is a "del" translate into a
+ * {@link SessionDeletedEvent}. If it is an "expired" translate into a
+ * {@link SessionExpiredEvent}.
  *
  * @author Rob Winch
  * @author Mark Anderson

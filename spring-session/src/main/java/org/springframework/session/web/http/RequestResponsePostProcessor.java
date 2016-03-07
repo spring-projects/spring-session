@@ -31,13 +31,9 @@ public interface RequestResponsePostProcessor {
 	/**
 	 * Allows customizing the {@link HttpServletRequest}.
 	 *
-	 * @param request
-	 *            the original {@link HttpServletRequest}. Cannot be null.
-	 * @param response
-	 *            the original {@link HttpServletResponse}. This is NOT the
-	 *            result of
-	 *            {@link #wrapResponse(HttpServletRequest, HttpServletResponse)}
-	 *            Cannot be null. .
+	 * @param request the original {@link HttpServletRequest}. Cannot be null.
+	 * @param response the original {@link HttpServletResponse}. This is NOT the result of
+	 * {@link #wrapResponse(HttpServletRequest, HttpServletResponse)} Cannot be null. .
 	 * @return a non-null {@link HttpServletRequest}
 	 */
 	HttpServletRequest wrapRequest(HttpServletRequest request,
@@ -46,13 +42,9 @@ public interface RequestResponsePostProcessor {
 	/**
 	 * Allows customizing the {@link HttpServletResponse}.
 	 *
-	 * @param request
-	 *            the original {@link HttpServletRequest}. This is NOT the
-	 *            result of
-	 *            {@link #wrapRequest(HttpServletRequest, HttpServletResponse)}.
-	 *            Cannot be null.
-	 * @param response
-	 *            the original {@link HttpServletResponse}. Cannot be null.
+	 * @param request the original {@link HttpServletRequest}. This is NOT the result of
+	 * {@link #wrapRequest(HttpServletRequest, HttpServletResponse)}. Cannot be null.
+	 * @param response the original {@link HttpServletResponse}. Cannot be null.
 	 * @return a non-null {@link HttpServletResponse}
 	 */
 	HttpServletResponse wrapResponse(HttpServletRequest request,

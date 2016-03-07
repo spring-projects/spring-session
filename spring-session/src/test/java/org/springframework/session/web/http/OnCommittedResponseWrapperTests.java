@@ -60,7 +60,6 @@ public class OnCommittedResponseWrapperTests {
 		given(this.delegate.getOutputStream()).willReturn(this.out);
 	}
 
-
 	// --- printwriter
 
 	@Test
@@ -338,7 +337,6 @@ public class OnCommittedResponseWrapperTests {
 		verify(this.writer).format(l, format, args);
 	}
 
-
 	@Test
 	public void printWriterAppendCharSequence() throws Exception {
 		String x = "a";
@@ -359,7 +357,6 @@ public class OnCommittedResponseWrapperTests {
 		verify(this.writer).append(x, start, end);
 	}
 
-
 	@Test
 	public void printWriterAppendChar() throws Exception {
 		char x = 1;
@@ -370,7 +367,6 @@ public class OnCommittedResponseWrapperTests {
 	}
 
 	// servletoutputstream
-
 
 	@Test
 	public void outputStreamHashCode() throws Exception {
@@ -565,7 +561,8 @@ public class OnCommittedResponseWrapperTests {
 	}
 
 	@Test
-	public void contentLengthPlus1PrintWriterWriteIntMultiDigitCommits() throws Exception {
+	public void contentLengthPlus1PrintWriterWriteIntMultiDigitCommits()
+			throws Exception {
 		int expected = 10000;
 		this.response.setContentLength(String.valueOf(expected).length() + 1);
 
@@ -577,7 +574,6 @@ public class OnCommittedResponseWrapperTests {
 
 		assertThat(this.committed).isTrue();
 	}
-
 
 	@Test
 	public void contentLengthPrintWriterWriteCharIntIntCommits() throws Exception {
@@ -612,7 +608,6 @@ public class OnCommittedResponseWrapperTests {
 
 		assertThat(this.committed).isTrue();
 	}
-
 
 	@Test
 	public void contentLengthPrintWriterWriteStringCommits() throws IOException {
@@ -843,7 +838,8 @@ public class OnCommittedResponseWrapperTests {
 	}
 
 	@Test
-	public void contentLengthPrintWriterAppendCharSequenceIntIntCommits() throws Exception {
+	public void contentLengthPrintWriterAppendCharSequenceIntIntCommits()
+			throws Exception {
 		String x = "abcdef";
 		int start = 1;
 		int end = 3;
@@ -885,7 +881,8 @@ public class OnCommittedResponseWrapperTests {
 	}
 
 	@Test
-	public void contentLengthPlus1OutputStreamWriteIntMultiDigitCommits() throws Exception {
+	public void contentLengthPlus1OutputStreamWriteIntMultiDigitCommits()
+			throws Exception {
 		int expected = 10000;
 		this.response.setContentLength(String.valueOf(expected).length() + 1);
 
@@ -900,12 +897,11 @@ public class OnCommittedResponseWrapperTests {
 
 	// gh-171
 	@Test
-	public void contentLengthPlus1OutputStreamWriteByteArrayMultiDigitCommits() throws Exception {
-		String expected = "{\n" +
-				"  \"parameterName\" : \"_csrf\",\n" +
-				"  \"token\" : \"06300b65-c4aa-4c8f-8cda-39ee17f545a0\",\n" +
-				"  \"headerName\" : \"X-CSRF-TOKEN\"\n" +
-				"}";
+	public void contentLengthPlus1OutputStreamWriteByteArrayMultiDigitCommits()
+			throws Exception {
+		String expected = "{\n" + "  \"parameterName\" : \"_csrf\",\n"
+				+ "  \"token\" : \"06300b65-c4aa-4c8f-8cda-39ee17f545a0\",\n"
+				+ "  \"headerName\" : \"X-CSRF-TOKEN\"\n" + "}";
 		this.response.setContentLength(expected.length() + 1);
 
 		this.response.getOutputStream().write(expected.getBytes());
@@ -1088,7 +1084,8 @@ public class OnCommittedResponseWrapperTests {
 	@Test
 	public void addHeaderContentLengthPrintWriterWriteStringCommits() throws Exception {
 		int expected = 1234;
-		this.response.addHeader("Content-Length", String.valueOf(String.valueOf(expected).length()));
+		this.response.addHeader("Content-Length",
+				String.valueOf(String.valueOf(expected).length()));
 
 		this.response.getWriter().write(expected);
 

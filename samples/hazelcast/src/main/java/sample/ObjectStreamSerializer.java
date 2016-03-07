@@ -27,11 +27,10 @@ import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.StreamSerializer;
 
 /**
- * A {@link StreamSerializer} that uses Java serialization to persist the
- * session. This is certainly not the most efficient way to persist sessions,
- * but the example is intended to demonstrate using minimal dependencies. For
- * better serialization methods try using <a
- * href="https://github.com/EsotericSoftware/kryo">Kryo</a>.
+ * A {@link StreamSerializer} that uses Java serialization to persist the session. This is
+ * certainly not the most efficient way to persist sessions, but the example is intended
+ * to demonstrate using minimal dependencies. For better serialization methods try using
+ * <a href="https://github.com/EsotericSoftware/kryo">Kryo</a>.
  *
  * @author Rob Winch
  *
@@ -48,8 +47,7 @@ public class ObjectStreamSerializer implements StreamSerializer<Object> {
 		out.flush();
 	}
 
-	public Object read(ObjectDataInput objectDataInput)
-			throws IOException {
+	public Object read(ObjectDataInput objectDataInput) throws IOException {
 		ObjectInputStream in = new ObjectInputStream((InputStream) objectDataInput);
 		try {
 			return in.readObject();

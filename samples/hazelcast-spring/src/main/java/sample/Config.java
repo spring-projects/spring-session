@@ -38,8 +38,8 @@ public class Config {
 		netConfig.setPort(SocketUtils.findAvailableTcpPort());
 		System.out.println("Hazelcast port #: " + netConfig.getPort());
 		cfg.setNetworkConfig(netConfig);
-		SerializerConfig serializer = new SerializerConfig().setTypeClass(
-				Object.class).setImplementation(new ObjectStreamSerializer());
+		SerializerConfig serializer = new SerializerConfig().setTypeClass(Object.class)
+				.setImplementation(new ObjectStreamSerializer());
 		cfg.getSerializationConfig().addSerializerConfig(serializer);
 
 		return Hazelcast.newHazelcastInstance(cfg);

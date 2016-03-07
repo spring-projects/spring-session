@@ -59,7 +59,8 @@ public class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 
 	@Test
 	public void overrideSessionTaskExecutors() {
-		verify(this.springSessionRedisSubscriptionExecutor, times(1)).execute(any(SchedulingAwareRunnable.class));
+		verify(this.springSessionRedisSubscriptionExecutor, times(1))
+				.execute(any(SchedulingAwareRunnable.class));
 		verify(this.springSessionRedisTaskExecutor, never()).execute(any(Runnable.class));
 	}
 

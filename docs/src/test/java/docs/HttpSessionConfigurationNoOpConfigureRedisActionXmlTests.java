@@ -45,7 +45,6 @@ public class HttpSessionConfigurationNoOpConfigureRedisActionXmlTests {
 		assertThat(this.filter).isNotNull();
 	}
 
-
 	static RedisConnectionFactory connectionFactory() {
 		return mock(RedisConnectionFactory.class);
 	}

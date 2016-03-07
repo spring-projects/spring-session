@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,15 @@
 package sample
 
 import geb.spock.*
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.test.IntegrationTest
-import org.springframework.boot.test.SpringApplicationConfiguration
-import org.springframework.boot.test.SpringApplicationContextLoader
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.web.WebAppConfiguration
+import pages.*
 import sample.pages.HomePage
 import sample.pages.LoginPage
 import spock.lang.Stepwise
-import pages.*
+
+import org.springframework.boot.test.IntegrationTest
+import org.springframework.boot.test.SpringApplicationContextLoader
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.web.WebAppConfiguration
 
 /**
  * Tests the demo that supports multiple sessions

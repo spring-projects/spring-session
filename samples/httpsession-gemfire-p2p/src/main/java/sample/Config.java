@@ -33,7 +33,7 @@ public class Config {
 		gemfireProperties.setProperty("name", "GemFireP2PHttpSessionSample");
 		gemfireProperties.setProperty("mcast-port", "0");
 		gemfireProperties.setProperty("log-level",
-			System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
+				System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
 		gemfireProperties.setProperty("jmx-manager", "true");
 		gemfireProperties.setProperty("jmx-manager-start", "true");
 

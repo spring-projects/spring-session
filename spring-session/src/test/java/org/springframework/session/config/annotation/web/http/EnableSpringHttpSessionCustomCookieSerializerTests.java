@@ -78,7 +78,8 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	@Test
 	public void usesReadSessionIds() throws Exception {
 		String sessionId = "sessionId";
-		given(this.cookieSerializer.readCookieValues(any(HttpServletRequest.class))).willReturn(Arrays.asList(sessionId));
+		given(this.cookieSerializer.readCookieValues(any(HttpServletRequest.class)))
+				.willReturn(Arrays.asList(sessionId));
 
 		this.sessionRepositoryFilter.doFilter(this.request, this.response, this.chain);
 
@@ -87,15 +88,16 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 
 	@Test
 	public void usesWrite() throws Exception {
-		this.sessionRepositoryFilter.doFilter(this.request, this.response, new MockFilterChain() {
+		this.sessionRepositoryFilter.doFilter(this.request, this.response,
+				new MockFilterChain() {
 
-			@Override
-			public void doFilter(ServletRequest request, ServletResponse response)
-					throws IOException, ServletException {
-				((HttpServletRequest) request).getSession();
-				super.doFilter(request, response);
-			}
-		});
+					@Override
+					public void doFilter(ServletRequest request, ServletResponse response)
+							throws IOException, ServletException {
+						((HttpServletRequest) request).getSession();
+						super.doFilter(request, response);
+					}
+				});
 
 		verify(this.cookieSerializer).writeCookieValue(any(CookieValue.class));
 	}

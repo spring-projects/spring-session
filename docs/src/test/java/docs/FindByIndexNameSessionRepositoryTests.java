@@ -41,7 +41,8 @@ public class FindByIndexNameSessionRepositoryTests {
 	public void setUsername() {
 		// tag::set-username[]
 		String username = "username";
-		this.session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
+		this.session.setAttribute(
+				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
 		// end::set-username[]
 	}
 
@@ -50,8 +51,10 @@ public class FindByIndexNameSessionRepositoryTests {
 	public void findByUsername() {
 		// tag::findby-username[]
 		String username = "username";
-		Map<String, Session> sessionIdToSession =
-				this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
+		Map<String, Session> sessionIdToSession = this.sessionRepository
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						username);
 		// end::findby-username[]
 	}
 }

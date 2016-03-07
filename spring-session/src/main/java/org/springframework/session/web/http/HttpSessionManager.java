@@ -21,8 +21,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Allows managing a mapping of alias to the session id for having multiple
- * active sessions at the same time.
+ * Allows managing a mapping of alias to the session id for having multiple active
+ * sessions at the same time.
  *
  * @author Rob Winch
  * @since 1.0
@@ -33,7 +33,8 @@ public interface HttpSessionManager {
 	/**
 	 * Gets the current session's alias from the {@link HttpServletRequest}.
 	 *
-	 * @param request the {@link HttpServletRequest} to obtain the current session's alias from.
+	 * @param request the {@link HttpServletRequest} to obtain the current session's alias
+	 * from.
 	 * @return the current sessions' alias. Cannot be null.
 	 */
 	String getCurrentSessionAlias(HttpServletRequest request);
@@ -42,9 +43,10 @@ public interface HttpSessionManager {
 	 * Gets a mapping of the session alias to the session id from the
 	 * {@link HttpServletRequest}.
 	 *
-	 * @param request the {@link HttpServletRequest} to obtain the mapping from. Cannot be null.
+	 * @param request the {@link HttpServletRequest} to obtain the mapping from. Cannot be
+	 * null.
 	 * @return a mapping of the session alias to the session id from the
-	 *         {@link HttpServletRequest}. Cannot be null.
+	 * {@link HttpServletRequest}. Cannot be null.
 	 */
 	Map<String, String> getSessionIds(HttpServletRequest request);
 

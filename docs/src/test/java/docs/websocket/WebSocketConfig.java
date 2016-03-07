@@ -24,18 +24,16 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
 /**
-* @author Rob Winch
-*/
+ * @author Rob Winch
+ */
 // tag::class[]
 @Configuration
 @EnableScheduling
 @EnableWebSocketMessageBroker
-public class WebSocketConfig
-		extends AbstractWebSocketMessageBrokerConfigurer {
+public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/messages")
-				.withSockJS();
+		registry.addEndpoint("/messages").withSockJS();
 	}
 
 	@Override

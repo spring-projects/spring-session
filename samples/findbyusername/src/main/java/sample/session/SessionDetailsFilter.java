@@ -35,10 +35,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Inserts the session details into the session for every request. Some users
- * may prefer to insert session details only after authentication. This is fine,
- * but it may be valuable to the most up to date information so that if someone
- * stole the user's session id it can be observed.
+ * Inserts the session details into the session for every request. Some users may prefer
+ * to insert session details only after authentication. This is fine, but it may be
+ * valuable to the most up to date information so that if someone stole the user's session
+ * id it can be observed.
  *
  * @author Rob Winch
  *
@@ -57,8 +57,8 @@ public class SessionDetailsFilter extends OncePerRequestFilter {
 	}
 
 	// tag::dofilterinternal[]
-	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
+	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+			FilterChain chain) throws IOException, ServletException {
 		chain.doFilter(request, response);
 
 		HttpSession session = request.getSession(false);
@@ -108,5 +108,4 @@ public class SessionDetailsFilter extends OncePerRequestFilter {
 		return remoteAddr;
 	}
 }
-//end::class[]
-
+// end::class[]

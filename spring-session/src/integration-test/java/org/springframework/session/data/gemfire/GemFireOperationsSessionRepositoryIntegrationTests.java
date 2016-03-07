@@ -55,8 +55,9 @@ import org.springframework.util.ObjectUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The GemFireOperationsSessionRepositoryIntegrationTests class is a test suite of test cases testing
- * the findByPrincipalName query method on the GemFireOpeationsSessionRepository class.
+ * The GemFireOperationsSessionRepositoryIntegrationTests class is a test suite of test
+ * cases testing the findByPrincipalName query method on the
+ * GemFireOpeationsSessionRepository class.
  *
  * @author John Blum
  * @since 1.1.0
@@ -75,7 +76,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration
 @DirtiesContext
 @WebAppConfiguration
-public class GemFireOperationsSessionRepositoryIntegrationTests extends AbstractGemFireIntegrationTests {
+public class GemFireOperationsSessionRepositoryIntegrationTests
+		extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 300;
 
@@ -90,48 +92,63 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 	@Before
 	public void setup() {
 		this.context = SecurityContextHolder.createEmptyContext();
-		this.context.setAuthentication(new UsernamePasswordAuthenticationToken("username-" + UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.context.setAuthentication(
+				new UsernamePasswordAuthenticationToken("username-" + UUID.randomUUID(),
+						"na", AuthorityUtils.createAuthorityList("ROLE_USER")));
 
 		this.changedContext = SecurityContextHolder.createEmptyContext();
-		this.changedContext.setAuthentication(new UsernamePasswordAuthenticationToken("changedContext-" + UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.changedContext.setAuthentication(new UsernamePasswordAuthenticationToken(
+				"changedContext-" + UUID.randomUUID(), "na",
+				AuthorityUtils.createAuthorityList("ROLE_USER")));
 
 		assertThat(this.gemfireCache).isNotNull();
 		assertThat(this.gemfireSessionRepository).isNotNull();
-		assertThat(this.gemfireSessionRepository.getMaxInactiveIntervalInSeconds()).isEqualTo(
-			MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(this.gemfireSessionRepository.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 
-		Region<Object, ExpiringSession> sessionRegion = this.gemfireCache.getRegion(SPRING_SESSION_GEMFIRE_REGION_NAME);
+		Region<Object, ExpiringSession> sessionRegion = this.gemfireCache
+				.getRegion(SPRING_SESSION_GEMFIRE_REGION_NAME);
 
-		assertRegion(sessionRegion, SPRING_SESSION_GEMFIRE_REGION_NAME, DataPolicy.PARTITION);
-		assertEntryIdleTimeout(sessionRegion, ExpirationAction.INVALIDATE, MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertRegion(sessionRegion, SPRING_SESSION_GEMFIRE_REGION_NAME,
+				DataPolicy.PARTITION);
+		assertEntryIdleTimeout(sessionRegion, ExpirationAction.INVALIDATE,
+				MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
 
-	protected Map<String, ExpiringSession> doFindByIndexNameAndIndexValue(String indexName, String indexValue) {
-		return this.gemfireSessionRepository.findByIndexNameAndIndexValue(indexName, indexValue);
+	protected Map<String, ExpiringSession> doFindByIndexNameAndIndexValue(
+			String indexName, String indexValue) {
+		return this.gemfireSessionRepository.findByIndexNameAndIndexValue(indexName,
+				indexValue);
 	}
 
 	protected Map<String, ExpiringSession> doFindByPrincipalName(String principalName) {
-		return doFindByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
+		return doFindByIndexNameAndIndexValue(
+				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				principalName);
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	protected Map<String, ExpiringSession> doFindByPrincipalName(String regionName, String principalName) {
+	protected Map<String, ExpiringSession> doFindByPrincipalName(String regionName,
+			String principalName) {
 		try {
-			Region<String, ExpiringSession> region = this.gemfireCache.getRegion(regionName);
+			Region<String, ExpiringSession> region = this.gemfireCache
+					.getRegion(regionName);
 
 			assertThat(region).isNotNull();
 
 			QueryService queryService = region.getRegionService().getQueryService();
 
-			String queryString = String.format(GemFireOperationsSessionRepository.FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
-				region.getFullPath());
+			String queryString = String.format(
+					GemFireOperationsSessionRepository.FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
+					region.getFullPath());
 
 			Query query = queryService.newQuery(queryString);
 
-			SelectResults<ExpiringSession> results = (SelectResults<ExpiringSession>) query.execute(
-				new Object[] { principalName });
+			SelectResults<ExpiringSession> results = (SelectResults<ExpiringSession>) query
+					.execute(new Object[] { principalName });
 
-			Map<String, ExpiringSession> sessions = new HashMap<String, ExpiringSession>(results.size());
+			Map<String, ExpiringSession> sessions = new HashMap<String, ExpiringSession>(
+					results.size());
 
 			for (ExpiringSession session : results.asList()) {
 				sessions.put(session.getId(), session);
@@ -149,17 +166,22 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		return true;
 	}
 
-	protected ExpiringSession setAttribute(ExpiringSession session, String attributeName, Object attributeValue) {
+	protected ExpiringSession setAttribute(ExpiringSession session, String attributeName,
+			Object attributeValue) {
 		session.setAttribute(attributeName, attributeValue);
 		return session;
 	}
 
 	@Test
 	public void findSessionsByIndexedSessionAttributeNameValues() {
-		ExpiringSession johnBlumSession = save(touch(setAttribute(createSession("johnBlum"), "vip", "yes")));
-		ExpiringSession robWinchSession = save(touch(setAttribute(createSession("robWinch"), "vip", "yes")));
-		ExpiringSession jonDoeSession = save(touch(setAttribute(createSession("jonDoe"), "vip", "no")));
-		ExpiringSession pieDoeSession = save(touch(setAttribute(createSession("pieDoe"), "viper", "true")));
+		ExpiringSession johnBlumSession = save(
+				touch(setAttribute(createSession("johnBlum"), "vip", "yes")));
+		ExpiringSession robWinchSession = save(
+				touch(setAttribute(createSession("robWinch"), "vip", "yes")));
+		ExpiringSession jonDoeSession = save(
+				touch(setAttribute(createSession("jonDoe"), "vip", "no")));
+		ExpiringSession pieDoeSession = save(
+				touch(setAttribute(createSession("pieDoe"), "viper", "true")));
 		ExpiringSession sourDoeSession = save(touch(createSession("sourDoe")));
 
 		assertThat(get(johnBlumSession.getId())).isEqualTo(johnBlumSession);
@@ -173,7 +195,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		assertThat(get(sourDoeSession.getId())).isEqualTo(sourDoeSession);
 		assertThat(sourDoeSession.getAttributeNames().contains("vip")).isFalse();
 
-		Map<String, ExpiringSession> vipSessions = doFindByIndexNameAndIndexValue("vip", "yes");
+		Map<String, ExpiringSession> vipSessions = doFindByIndexNameAndIndexValue("vip",
+				"yes");
 
 		assertThat(vipSessions).isNotNull();
 		assertThat(vipSessions.size()).isEqualTo(2);
@@ -183,7 +206,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		assertThat(vipSessions.containsKey(pieDoeSession.getId()));
 		assertThat(vipSessions.containsKey(sourDoeSession.getId()));
 
-		Map<String, ExpiringSession> nonVipSessions = doFindByIndexNameAndIndexValue("vip", "no");
+		Map<String, ExpiringSession> nonVipSessions = doFindByIndexNameAndIndexValue(
+				"vip", "no");
 
 		assertThat(nonVipSessions).isNotNull();
 		assertThat(nonVipSessions.size()).isEqualTo(1);
@@ -193,7 +217,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		assertThat(nonVipSessions.containsKey(pieDoeSession.getId()));
 		assertThat(nonVipSessions.containsKey(sourDoeSession.getId()));
 
-		Map<String, ExpiringSession> noSessions = doFindByIndexNameAndIndexValue("nonExistingAttribute", "test");
+		Map<String, ExpiringSession> noSessions = doFindByIndexNameAndIndexValue(
+				"nonExistingAttribute", "test");
 
 		assertThat(noSessions).isNotNull();
 		assertThat(noSessions.isEmpty()).isTrue();
@@ -241,7 +266,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 
 		save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = doFindByPrincipalName(getSecurityName());
+		Map<String, ExpiringSession> findByPrincipalName = doFindByPrincipalName(
+				getSecurityName());
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 	}
@@ -255,7 +281,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.changedContext);
 		save(toSave);
 
-		Map<String, ExpiringSession> findByPrincipalName = doFindByPrincipalName(getSecurityName());
+		Map<String, ExpiringSession> findByPrincipalName = doFindByPrincipalName(
+				getSecurityName());
 		assertThat(findByPrincipalName).isEmpty();
 
 		findByPrincipalName = doFindByPrincipalName(getChangedSecurityName());
@@ -264,7 +291,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 
 	@Test
 	public void findsNoSessionsByNonExistingPrincipal() {
-		Map<String, ExpiringSession> nonExistingPrincipalSessions = doFindByPrincipalName("nonExistingPrincipalName");
+		Map<String, ExpiringSession> nonExistingPrincipalSessions = doFindByPrincipalName(
+				"nonExistingPrincipalName");
 
 		assertThat(nonExistingPrincipalSessions).isNotNull();
 		assertThat(nonExistingPrincipalSessions.isEmpty()).isTrue();
@@ -274,10 +302,12 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 	public void findsNoSessionsAfterPrincipalIsRemoved() {
 		String username = "doesNotFindAfterPrincipalRemoved";
 		ExpiringSession session = save(touch(createSession(username)));
-		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, null);
+		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				null);
 		save(session);
 
-		Map<String, ExpiringSession> nonExistingPrincipalSessions = doFindByPrincipalName(username);
+		Map<String, ExpiringSession> nonExistingPrincipalSessions = doFindByPrincipalName(
+				username);
 
 		assertThat(nonExistingPrincipalSessions).isNotNull();
 		assertThat(nonExistingPrincipalSessions.isEmpty()).isTrue();
@@ -287,12 +317,14 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 	public void saveAndReadSessionWithAttributes() {
 		ExpiringSession expectedSession = this.gemfireSessionRepository.createSession();
 
-		assertThat(expectedSession).isInstanceOf(AbstractGemFireOperationsSessionRepository.GemFireSession.class);
+		assertThat(expectedSession).isInstanceOf(
+				AbstractGemFireOperationsSessionRepository.GemFireSession.class);
 
-		((AbstractGemFireOperationsSessionRepository.GemFireSession) expectedSession).setPrincipalName("jblum");
+		((AbstractGemFireOperationsSessionRepository.GemFireSession) expectedSession)
+				.setPrincipalName("jblum");
 
-		List<String> expectedAttributeNames = Arrays.asList(
-			"booleanAttribute", "numericAttribute", "stringAttribute", "personAttribute");
+		List<String> expectedAttributeNames = Arrays.asList("booleanAttribute",
+				"numericAttribute", "stringAttribute", "personAttribute");
 
 		Person jonDoe = new Person("Jon", "Doe");
 
@@ -303,21 +335,32 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 
 		this.gemfireSessionRepository.save(touch(expectedSession));
 
-		ExpiringSession savedSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
+		ExpiringSession savedSession = this.gemfireSessionRepository
+				.getSession(expectedSession.getId());
 
 		assertThat(savedSession).isEqualTo(expectedSession);
-		assertThat(savedSession).isInstanceOf(AbstractGemFireOperationsSessionRepository.GemFireSession.class);
-		assertThat(((AbstractGemFireOperationsSessionRepository.GemFireSession) savedSession).getPrincipalName()).isEqualTo("jblum");
+		assertThat(savedSession).isInstanceOf(
+				AbstractGemFireOperationsSessionRepository.GemFireSession.class);
+		assertThat(
+				((AbstractGemFireOperationsSessionRepository.GemFireSession) savedSession)
+						.getPrincipalName()).isEqualTo("jblum");
 
-		assertThat(savedSession.getAttributeNames().containsAll(expectedAttributeNames)).as(
-			String.format("Expected (%1$s); but was (%2$s)", expectedAttributeNames, savedSession.getAttributeNames()))
+		assertThat(savedSession.getAttributeNames().containsAll(expectedAttributeNames))
+				.as(String.format("Expected (%1$s); but was (%2$s)",
+						expectedAttributeNames, savedSession.getAttributeNames()))
 				.isTrue();
 
-		assertThat(Boolean.valueOf(String.valueOf(savedSession.getAttribute(expectedAttributeNames.get(0))))).isTrue();
-		assertThat(Double.valueOf(String.valueOf(savedSession.getAttribute(expectedAttributeNames.get(1)))))
-			.isEqualTo(Math.PI);
-		assertThat(String.valueOf(savedSession.getAttribute(expectedAttributeNames.get(2)))).isEqualTo("test");
-		assertThat(savedSession.getAttribute(expectedAttributeNames.get(3))).isEqualTo(jonDoe);
+		assertThat(Boolean.valueOf(
+				String.valueOf(savedSession.getAttribute(expectedAttributeNames.get(0)))))
+						.isTrue();
+		assertThat(Double.valueOf(
+				String.valueOf(savedSession.getAttribute(expectedAttributeNames.get(1)))))
+						.isEqualTo(Math.PI);
+		assertThat(
+				String.valueOf(savedSession.getAttribute(expectedAttributeNames.get(2))))
+						.isEqualTo("test");
+		assertThat(savedSession.getAttribute(expectedAttributeNames.get(3)))
+				.isEqualTo(jonDoe);
 	}
 
 	private String getSecurityName() {
@@ -328,15 +371,15 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		return this.changedContext.getAuthentication().getName();
 	}
 
-	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
-		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME, maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireConfiguration {
 
 		@Bean
 		Properties gemfireProperties() {
 			Properties gemfireProperties = new Properties();
 
-			gemfireProperties.setProperty("name", GemFireOperationsSessionRepositoryIntegrationTests.class.getName());
+			gemfireProperties.setProperty("name",
+					GemFireOperationsSessionRepositoryIntegrationTests.class.getName());
 			gemfireProperties.setProperty("mcast-port", "0");
 			gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
 
@@ -370,7 +413,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		}
 
 		private String validate(String value) {
-			Assert.hasText(value, String.format("The String value (%1$s) must be specified!", value));
+			Assert.hasText(value,
+					String.format("The String value (%1$s) must be specified!", value));
 			return value;
 		}
 
@@ -399,7 +443,8 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 		@SuppressWarnings("all")
 		public int compareTo(final Person person) {
 			int compareValue = getLastName().compareTo(person.getLastName());
-			return (compareValue != 0 ? compareValue : getFirstName().compareTo(person.getFirstName()));
+			return (compareValue != 0 ? compareValue
+					: getFirstName().compareTo(person.getFirstName()));
 		}
 
 		@Override
@@ -415,7 +460,7 @@ public class GemFireOperationsSessionRepositoryIntegrationTests extends Abstract
 			Person that = (Person) obj;
 
 			return ObjectUtils.nullSafeEquals(this.getFirstName(), that.getFirstName())
-				&& ObjectUtils.nullSafeEquals(this.getLastName(), that.getLastName());
+					&& ObjectUtils.nullSafeEquals(this.getLastName(), that.getLastName());
 		}
 
 		@Override

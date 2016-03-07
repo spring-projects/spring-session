@@ -34,7 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = GemFireHttpSessionConfig.class)
-public class HttpSessionGemFireIndexingCustomITests extends AbstractGemFireIntegrationTests {
+public class HttpSessionGemFireIndexingCustomITests
+		extends AbstractGemFireIntegrationTests {
 
 	@Test
 	public void findByIndexName() {
@@ -49,7 +50,8 @@ public class HttpSessionGemFireIndexingCustomITests extends AbstractGemFireInteg
 		sessionRepository.save(session);
 
 		// tag::findbyindexname-get[]
-		Map<String, ExpiringSession> idToSessions = sessionRepository.findByIndexNameAndIndexValue(indexName, attrValue);
+		Map<String, ExpiringSession> idToSessions = sessionRepository
+				.findByIndexNameAndIndexValue(indexName, attrValue);
 		// end::findbyindexname-get[]
 
 		assertThat(idToSessions.keySet()).containsOnly(session.getId());

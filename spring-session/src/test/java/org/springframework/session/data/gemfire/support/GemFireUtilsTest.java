@@ -33,8 +33,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * The GemFireUtilsTest class is a test suite of test cases testing the contract and functionality of the GemFireUtils
- * utility class.
+ * The GemFireUtilsTest class is a test suite of test cases testing the contract and
+ * functionality of the GemFireUtils utility class.
  *
  * @author John Blum
  * @since 1.1.0
@@ -52,7 +52,8 @@ public class GemFireUtilsTest {
 	}
 
 	@Test
-	public void closeNonNullCloseableObjectThrowingIOExceptionReturnsFalse() throws IOException {
+	public void closeNonNullCloseableObjectThrowingIOExceptionReturnsFalse()
+			throws IOException {
 		Closeable mockCloseable = mock(Closeable.class);
 		willThrow(new IOException("test")).given(mockCloseable).close();
 		assertThat(GemFireUtils.close(mockCloseable)).isFalse();
@@ -100,14 +101,17 @@ public class GemFireUtilsTest {
 		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.LOCAL_HEAP_LRU)).isTrue();
 		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.LOCAL_OVERFLOW)).isTrue();
 		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.LOCAL_PERSISTENT)).isTrue();
-		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.LOCAL_PERSISTENT_OVERFLOW)).isTrue();
+		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.LOCAL_PERSISTENT_OVERFLOW))
+				.isTrue();
 	}
 
 	@Test
 	public void clientRegionShortcutIsNotLocal() {
 		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.CACHING_PROXY)).isFalse();
-		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.CACHING_PROXY_HEAP_LRU)).isFalse();
-		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.CACHING_PROXY_OVERFLOW)).isFalse();
+		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.CACHING_PROXY_HEAP_LRU))
+				.isFalse();
+		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.CACHING_PROXY_OVERFLOW))
+				.isFalse();
 		assertThat(GemFireUtils.isLocal(ClientRegionShortcut.PROXY)).isFalse();
 	}
 
@@ -119,19 +123,23 @@ public class GemFireUtilsTest {
 	@Test
 	public void clientRegionShortcutIsNotProxy() {
 		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.CACHING_PROXY)).isFalse();
-		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.CACHING_PROXY_HEAP_LRU)).isFalse();
-		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.CACHING_PROXY_OVERFLOW)).isFalse();
+		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.CACHING_PROXY_HEAP_LRU))
+				.isFalse();
+		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.CACHING_PROXY_OVERFLOW))
+				.isFalse();
 		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.LOCAL)).isFalse();
 		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.LOCAL_HEAP_LRU)).isFalse();
 		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.LOCAL_OVERFLOW)).isFalse();
 		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.LOCAL_PERSISTENT)).isFalse();
-		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.LOCAL_PERSISTENT_OVERFLOW)).isFalse();
+		assertThat(GemFireUtils.isProxy(ClientRegionShortcut.LOCAL_PERSISTENT_OVERFLOW))
+				.isFalse();
 	}
 
 	@Test
 	public void regionShortcutIsProxy() {
 		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_PROXY)).isTrue();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_PROXY_REDUNDANT)).isTrue();
+		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_PROXY_REDUNDANT))
+				.isTrue();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.REPLICATE_PROXY)).isTrue();
 	}
 
@@ -141,22 +149,30 @@ public class GemFireUtilsTest {
 		assertThat(GemFireUtils.isProxy(RegionShortcut.LOCAL_HEAP_LRU)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.LOCAL_OVERFLOW)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.LOCAL_PERSISTENT)).isFalse();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.LOCAL_PERSISTENT_OVERFLOW)).isFalse();
+		assertThat(GemFireUtils.isProxy(RegionShortcut.LOCAL_PERSISTENT_OVERFLOW))
+				.isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.REPLICATE)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.REPLICATE_HEAP_LRU)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.REPLICATE_OVERFLOW)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.REPLICATE_PERSISTENT)).isFalse();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.REPLICATE_PERSISTENT_OVERFLOW)).isFalse();
+		assertThat(GemFireUtils.isProxy(RegionShortcut.REPLICATE_PERSISTENT_OVERFLOW))
+				.isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_HEAP_LRU)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_OVERFLOW)).isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_PERSISTENT)).isFalse();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_PERSISTENT_OVERFLOW)).isFalse();
+		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_PERSISTENT_OVERFLOW))
+				.isFalse();
 		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT)).isFalse();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT_HEAP_LRU)).isFalse();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT_OVERFLOW)).isFalse();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT_PERSISTENT)).isFalse();
-		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT_PERSISTENT_OVERFLOW)).isFalse();
+		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT_HEAP_LRU))
+				.isFalse();
+		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT_OVERFLOW))
+				.isFalse();
+		assertThat(GemFireUtils.isProxy(RegionShortcut.PARTITION_REDUNDANT_PERSISTENT))
+				.isFalse();
+		assertThat(GemFireUtils
+				.isProxy(RegionShortcut.PARTITION_REDUNDANT_PERSISTENT_OVERFLOW))
+						.isFalse();
 	}
 
 	@Test

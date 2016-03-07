@@ -42,7 +42,6 @@ public class OncePerRequestFilterTests {
 	private OncePerRequestFilter filter;
 	private HttpServlet servlet;
 
-
 	private List<OncePerRequestFilter> invocations;
 
 	@Before
@@ -56,7 +55,9 @@ public class OncePerRequestFilterTests {
 		this.invocations = new ArrayList<OncePerRequestFilter>();
 		this.filter = new OncePerRequestFilter() {
 			@Override
-			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+			protected void doFilterInternal(HttpServletRequest request,
+					HttpServletResponse response, FilterChain filterChain)
+							throws ServletException, IOException {
 				OncePerRequestFilterTests.this.invocations.add(this);
 				filterChain.doFilter(request, response);
 			}
@@ -72,7 +73,8 @@ public class OncePerRequestFilterTests {
 
 	@Test
 	public void doFilterMultiOnlyIvokesOnce() throws ServletException, IOException {
-		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, this.filter));
+		this.filter.doFilter(this.request, this.response,
+				new MockFilterChain(this.servlet, this.filter));
 
 		assertThat(this.invocations).containsOnly(this.filter);
 	}
@@ -81,12 +83,15 @@ public class OncePerRequestFilterTests {
 	public void doFilterOtherSubclassInvoked() throws ServletException, IOException {
 		OncePerRequestFilter filter2 = new OncePerRequestFilter() {
 			@Override
-			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+			protected void doFilterInternal(HttpServletRequest request,
+					HttpServletResponse response, FilterChain filterChain)
+							throws ServletException, IOException {
 				OncePerRequestFilterTests.this.invocations.add(this);
 				filterChain.doFilter(request, response);
 			}
 		};
-		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, filter2));
+		this.filter.doFilter(this.request, this.response,
+				new MockFilterChain(this.servlet, filter2));
 
 		assertThat(this.invocations).containsOnly(this.filter, filter2);
 	}

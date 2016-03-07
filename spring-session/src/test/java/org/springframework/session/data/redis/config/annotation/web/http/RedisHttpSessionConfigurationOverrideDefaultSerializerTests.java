@@ -51,7 +51,8 @@ public class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 
 	@Test
 	public void overrideDefaultRedisTemplate() {
-		assertThat(this.template.getDefaultSerializer()).isSameAs(this.defaultRedisSerializer);
+		assertThat(this.template.getDefaultSerializer())
+				.isSameAs(this.defaultRedisSerializer);
 	}
 
 	@EnableRedisHttpSession

@@ -31,7 +31,7 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
 // tag::class-start[]
 @EnableGemFireHttpSession(indexableSessionAttributes = { "name1", "name2", "name3" })
 public class GemFireHttpSessionConfig {
-// end::class-start[]
+	// end::class-start[]
 
 	@Bean
 	Properties gemfireProperties() {
@@ -39,7 +39,8 @@ public class GemFireHttpSessionConfig {
 
 		gemfireProperties.setProperty("name", GemFireHttpSessionConfig.class.getName());
 		gemfireProperties.setProperty("mcast-port", "0");
-		gemfireProperties.setProperty("log-level", AbstractGemFireIntegrationTests.GEMFIRE_LOG_LEVEL);
+		gemfireProperties.setProperty("log-level",
+				AbstractGemFireIntegrationTests.GEMFIRE_LOG_LEVEL);
 
 		return gemfireProperties;
 	}

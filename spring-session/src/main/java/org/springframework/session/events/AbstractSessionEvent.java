@@ -21,8 +21,8 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
 /**
- * For {@link SessionRepository} implementations that support it, this event is
- * fired when a {@link Session} is updated.
+ * For {@link SessionRepository} implementations that support it, this event is fired when
+ * a {@link Session} is updated.
  *
  * @author Rob Winch
  * @since 1.1
@@ -46,12 +46,13 @@ public abstract class AbstractSessionEvent extends ApplicationEvent {
 	}
 
 	/**
-	 * Gets the {@link Session} that was destroyed. For some
-	 * {@link SessionRepository} implementations it may not be possible to get
-	 * the original session in which case this may be null.
+	 * Gets the {@link Session} that was destroyed. For some {@link SessionRepository}
+	 * implementations it may not be possible to get the original session in which case
+	 * this may be null.
 	 *
 	 * @param <S> The type of Session
-	 * @return the expired {@link Session} or null if the data store does not support obtaining it
+	 * @return the expired {@link Session} or null if the data store does not support
+	 * obtaining it
 	 */
 	@SuppressWarnings("unchecked")
 	public <S extends Session> S getSession() {

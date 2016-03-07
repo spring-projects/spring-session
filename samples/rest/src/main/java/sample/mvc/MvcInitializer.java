@@ -28,7 +28,7 @@ public class MvcInitializer extends AbstractAnnotationConfigDispatcherServletIni
 	// tag::config[]
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
-		return new Class[] {SecurityConfig.class, HttpSessionConfig.class};
+		return new Class[] { SecurityConfig.class, HttpSessionConfig.class };
 	}
 	// end::config[]
 

@@ -23,12 +23,14 @@ import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 
 /**
- * A {@link SessionRepository} backed by a {@link java.util.Map} and that uses a {@link MapSession}. By default a
- * {@link java.util.concurrent.ConcurrentHashMap} is used, but a custom {@link java.util.Map} can be injected to use
- * distributed maps provided by NoSQL stores like Redis and Hazelcast.
+ * A {@link SessionRepository} backed by a {@link java.util.Map} and that uses a
+ * {@link MapSession}. By default a {@link java.util.concurrent.ConcurrentHashMap} is
+ * used, but a custom {@link java.util.Map} can be injected to use distributed maps
+ * provided by NoSQL stores like Redis and Hazelcast.
  *
  * <p>
- * The implementation does NOT support firing {@link SessionDeletedEvent} or {@link SessionExpiredEvent}.
+ * The implementation does NOT support firing {@link SessionDeletedEvent} or
+ * {@link SessionExpiredEvent}.
  * </p>
  *
  * @author Rob Winch
@@ -36,7 +38,8 @@ import org.springframework.session.events.SessionExpiredEvent;
  */
 public class MapSessionRepository implements SessionRepository<ExpiringSession> {
 	/**
-	 * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
+	 * If non-null, this value is used to override
+	 * {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
 
@@ -50,7 +53,8 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 	}
 
 	/**
-	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows injecting a distributed {@link java.util.Map}.
+	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
+	 * injecting a distributed {@link java.util.Map}.
 	 *
 	 * @param sessions the {@link java.util.Map} to use. Cannot be null.
 	 */
@@ -62,8 +66,10 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 	}
 
 	/**
-	 * If non-null, this value is used to override {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
-	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session} should be kept alive between client requests.
+	 * If non-null, this value is used to override
+	 * {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
+	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
+	 * should be kept alive between client requests.
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);

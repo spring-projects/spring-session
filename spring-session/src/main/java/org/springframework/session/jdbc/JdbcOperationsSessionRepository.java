@@ -31,6 +31,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -95,33 +96,27 @@ import org.springframework.util.StringUtils;
  * @author Vedran Pavic
  * @since 1.2.0
  */
-public class JdbcOperationsSessionRepository
-		implements FindByIndexNameSessionRepository<JdbcOperationsSessionRepository.JdbcSession> {
+public class JdbcOperationsSessionRepository implements
+		FindByIndexNameSessionRepository<JdbcOperationsSessionRepository.JdbcSession> {
 
 	private static final String DEFAULT_TABLE_NAME = "SPRING_SESSION";
 
-	private static final String CREATE_SESSION_QUERY =
-			"INSERT INTO %TABLE_NAME%(SESSION_ID, LAST_ACCESS_TIME, PRINCIPAL_NAME, SESSION_BYTES) VALUES (?, ?, ?, ?)";
+	private static final String CREATE_SESSION_QUERY = "INSERT INTO %TABLE_NAME%(SESSION_ID, LAST_ACCESS_TIME, PRINCIPAL_NAME, SESSION_BYTES) VALUES (?, ?, ?, ?)";
 
-	private static final String GET_SESSION_QUERY =
-			"SELECT SESSION_BYTES FROM %TABLE_NAME% WHERE SESSION_ID = ?";
+	private static final String GET_SESSION_QUERY = "SELECT SESSION_BYTES FROM %TABLE_NAME% WHERE SESSION_ID = ?";
 
-	private static final String UPDATE_SESSION_QUERY =
-			"UPDATE %TABLE_NAME% SET LAST_ACCESS_TIME = ?, PRINCIPAL_NAME = ?, SESSION_BYTES = ? WHERE SESSION_ID = ?";
+	private static final String UPDATE_SESSION_QUERY = "UPDATE %TABLE_NAME% SET LAST_ACCESS_TIME = ?, PRINCIPAL_NAME = ?, SESSION_BYTES = ? WHERE SESSION_ID = ?";
 
-	private static final String UPDATE_SESSION_LAST_ACCESS_TIME_QUERY =
-			"UPDATE %TABLE_NAME% SET LAST_ACCESS_TIME = ? WHERE SESSION_ID = ?";
+	private static final String UPDATE_SESSION_LAST_ACCESS_TIME_QUERY = "UPDATE %TABLE_NAME% SET LAST_ACCESS_TIME = ? WHERE SESSION_ID = ?";
 
-	private static final String DELETE_SESSION_QUERY =
-			"DELETE FROM %TABLE_NAME% WHERE SESSION_ID = ?";
+	private static final String DELETE_SESSION_QUERY = "DELETE FROM %TABLE_NAME% WHERE SESSION_ID = ?";
 
-	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY =
-			"SELECT SESSION_BYTES FROM %TABLE_NAME% WHERE PRINCIPAL_NAME = ?";
+	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "SELECT SESSION_BYTES FROM %TABLE_NAME% WHERE PRINCIPAL_NAME = ?";
 
-	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
-			"DELETE FROM %TABLE_NAME% WHERE LAST_ACCESS_TIME < ?";
+	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY = "DELETE FROM %TABLE_NAME% WHERE LAST_ACCESS_TIME < ?";
 
-	private static final Log logger = LogFactory.getLog(JdbcOperationsSessionRepository.class);
+	private static final Log logger = LogFactory
+			.getLog(JdbcOperationsSessionRepository.class);
 
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
@@ -190,6 +185,8 @@ public class JdbcOperationsSessionRepository
 	}
 
 	/**
+	 * Sets the {@link ConversionService} to use.
+	 *
 	 * @param conversionService the converter to set
 	 */
 	public void setConversionService(ConversionService conversionService) {
@@ -207,41 +204,49 @@ public class JdbcOperationsSessionRepository
 
 	public void save(final JdbcSession session) {
 		if (session.isNew()) {
-			this.jdbcOperations.update(getQuery(CREATE_SESSION_QUERY), new PreparedStatementSetter() {
+			this.jdbcOperations.update(getQuery(CREATE_SESSION_QUERY),
+					new PreparedStatementSetter() {
 
-				public void setValues(PreparedStatement ps) throws SQLException {
-					ps.setString(1, session.getId());
-					ps.setLong(2, session.getLastAccessedTime());
-					ps.setString(3, session.getPrincipalName());
-					JdbcOperationsSessionRepository.this.lobHandler.getLobCreator()
-							.setBlobAsBytes(ps, 4, serialize(session.delegate));
-				}
+						public void setValues(PreparedStatement ps) throws SQLException {
+							ps.setString(1, session.getId());
+							ps.setLong(2, session.getLastAccessedTime());
+							ps.setString(3, session.getPrincipalName());
+							JdbcOperationsSessionRepository.this.lobHandler
+									.getLobCreator()
+									.setBlobAsBytes(ps, 4, serialize(session.delegate));
+						}
 
-			});
+					});
 		}
 		else {
 			if (session.isAttributesChanged()) {
-				this.jdbcOperations.update(getQuery(UPDATE_SESSION_QUERY), new PreparedStatementSetter() {
+				this.jdbcOperations.update(getQuery(UPDATE_SESSION_QUERY),
+						new PreparedStatementSetter() {
 
-					public void setValues(PreparedStatement ps) throws SQLException {
-						ps.setLong(1, session.getLastAccessedTime());
-						ps.setString(2, session.getPrincipalName());
-						JdbcOperationsSessionRepository.this.lobHandler.getLobCreator()
-								.setBlobAsBytes(ps, 3, serialize(session.delegate));
-						ps.setString(4, session.getId());
-					}
+							public void setValues(PreparedStatement ps)
+									throws SQLException {
+								ps.setLong(1, session.getLastAccessedTime());
+								ps.setString(2, session.getPrincipalName());
+								JdbcOperationsSessionRepository.this.lobHandler
+										.getLobCreator().setBlobAsBytes(ps, 3,
+												serialize(session.delegate));
+								ps.setString(4, session.getId());
+							}
 
-				});
+						});
 			}
 			else if (session.isLastAccessTimeChanged()) {
-				this.jdbcOperations.update(getQuery(UPDATE_SESSION_LAST_ACCESS_TIME_QUERY), new PreparedStatementSetter() {
+				this.jdbcOperations.update(
+						getQuery(UPDATE_SESSION_LAST_ACCESS_TIME_QUERY),
+						new PreparedStatementSetter() {
 
-					public void setValues(PreparedStatement ps) throws SQLException {
-						ps.setLong(1, session.getLastAccessedTime());
-						ps.setString(2, session.getId());
-					}
+							public void setValues(PreparedStatement ps)
+									throws SQLException {
+								ps.setLong(1, session.getLastAccessedTime());
+								ps.setString(2, session.getId());
+							}
 
-				});
+						});
 			}
 			else {
 				return;
@@ -274,15 +279,18 @@ public class JdbcOperationsSessionRepository
 		this.jdbcOperations.update(getQuery(DELETE_SESSION_QUERY), id);
 	}
 
-	public Map<String, JdbcSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+	public Map<String, JdbcSession> findByIndexNameAndIndexValue(String indexName,
+			String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
 		}
 
 		List<ExpiringSession> sessions = this.jdbcOperations.query(
-				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY), new Object[] { indexValue }, this.mapper);
+				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY),
+				new Object[] { indexValue }, this.mapper);
 
-		Map<String, JdbcSession> sessionMap = new HashMap<String, JdbcSession>(sessions.size());
+		Map<String, JdbcSession> sessionMap = new HashMap<String, JdbcSession>(
+				sessions.size());
 
 		for (ExpiringSession session : sessions) {
 			sessionMap.put(session.getId(), new JdbcSession(session));
@@ -300,8 +308,8 @@ public class JdbcOperationsSessionRepository
 			logger.debug("Cleaning up sessions expiring at " + new Date(roundedNow));
 		}
 
-		int deletedCount = this.jdbcOperations.update(
-				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY), roundedNow);
+		int deletedCount = this.jdbcOperations
+				.update(getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY), roundedNow);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cleaned up " + deletedCount + " expired sessions");
@@ -319,7 +327,9 @@ public class JdbcOperationsSessionRepository
 	}
 
 	private byte[] serialize(ExpiringSession session) {
-		return (byte[]) this.conversionService.convert(session, TypeDescriptor.valueOf(ExpiringSession.class), TypeDescriptor.valueOf(byte[].class));
+		return (byte[]) this.conversionService.convert(session,
+				TypeDescriptor.valueOf(ExpiringSession.class),
+				TypeDescriptor.valueOf(byte[].class));
 	}
 
 	private static long roundDownMinute(long timeInMs) {
@@ -332,12 +342,18 @@ public class JdbcOperationsSessionRepository
 
 	private static GenericConversionService createDefaultConversionService() {
 		GenericConversionService converter = new GenericConversionService();
-		converter.addConverter(ExpiringSession.class, byte[].class, new SerializingConverter());
-		converter.addConverter(byte[].class, ExpiringSession.class, new DeserializingConverter());
+		converter.addConverter(ExpiringSession.class, byte[].class,
+				new SerializingConverter());
+		converter.addConverter(byte[].class, ExpiringSession.class,
+				new DeserializingConverter());
 		return converter;
 	}
 
-
+	/**
+	 * The {@link ExpiringSession} to use for {@link JdbcOperationsSessionRepository}.
+	 *
+	 * @author Vedran Pavic
+	 */
 	final class JdbcSession implements ExpiringSession {
 
 		private final ExpiringSession delegate;
@@ -348,12 +364,12 @@ public class JdbcOperationsSessionRepository
 
 		private boolean attributesChanged;
 
-		public JdbcSession() {
+		JdbcSession() {
 			this.delegate = new MapSession();
 			this.isNew = true;
 		}
 
-		public JdbcSession(ExpiringSession delegate) {
+		JdbcSession(ExpiringSession delegate) {
 			Assert.notNull("ExpiringSession cannot be null");
 			this.delegate = delegate;
 		}
@@ -430,6 +446,11 @@ public class JdbcOperationsSessionRepository
 
 	}
 
+	/**
+	 * Resolves the Spring Security principal name.
+	 *
+	 * @author Vedran Pavic
+	 */
 	static class PrincipalNameResolver {
 
 		private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
@@ -443,7 +464,8 @@ public class JdbcOperationsSessionRepository
 			}
 			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
 			if (authentication != null) {
-				Expression expression = this.parser.parseExpression("authentication?.name");
+				Expression expression = this.parser
+						.parseExpression("authentication?.name");
 				return expression.getValue(authentication, String.class);
 			}
 			return null;
@@ -454,8 +476,12 @@ public class JdbcOperationsSessionRepository
 	private class ExpiringSessionMapper implements RowMapper<ExpiringSession> {
 
 		public ExpiringSession mapRow(ResultSet rs, int rowNum) throws SQLException {
-			return (ExpiringSession) JdbcOperationsSessionRepository.this.conversionService.convert(
-					JdbcOperationsSessionRepository.this.lobHandler.getBlobAsBytes(rs, "SESSION_BYTES"), TypeDescriptor.valueOf(byte[].class), TypeDescriptor.valueOf(ExpiringSession.class));
+			return (ExpiringSession) JdbcOperationsSessionRepository.this.conversionService
+					.convert(
+							JdbcOperationsSessionRepository.this.lobHandler
+									.getBlobAsBytes(rs, "SESSION_BYTES"),
+							TypeDescriptor.valueOf(byte[].class),
+							TypeDescriptor.valueOf(ExpiringSession.class));
 		}
 
 	}

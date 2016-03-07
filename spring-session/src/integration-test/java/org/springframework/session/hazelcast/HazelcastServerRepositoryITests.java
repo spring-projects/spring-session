@@ -28,8 +28,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests that check the underlying data source - in this case
- * Hazelcast Server.
+ * Integration tests that check the underlying data source - in this case Hazelcast
+ * Server.
  *
  * @author Tommy Ludwig
  * @author Vedran Pavic

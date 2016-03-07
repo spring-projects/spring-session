@@ -28,10 +28,9 @@ import org.springframework.session.events.SessionDestroyedEvent;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
- * backed by a user provided implementation of {@link SessionRepository}. In
- * order to leverage the annotation, a single {@link SessionRepository} bean
- * must be provided. For example:
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by a
+ * user provided implementation of {@link SessionRepository}. In order to leverage the
+ * annotation, a single {@link SessionRepository} bean must be provided. For example:
  *
  * <pre>
  * <code>
@@ -45,15 +44,13 @@ import org.springframework.session.events.SessionDestroyedEvent;
  *     }
  *
  * }
- * </code>
- * </pre>
+ * </code> </pre>
  *
  * <p>
- * It is important to note that no infrastructure for session expirations is
- * configured for you out of the box. This is because things like session
- * expiration are highly implementation dependent. This means if you require
- * cleaning up expired sessions, you are responsible for cleaning up the expired
- * sessions.
+ * It is important to note that no infrastructure for session expirations is configured
+ * for you out of the box. This is because things like session expiration are highly
+ * implementation dependent. This means if you require cleaning up expired sessions, you
+ * are responsible for cleaning up the expired sessions.
  * </p>
  *
  * <p>
@@ -61,13 +58,12 @@ import org.springframework.session.events.SessionDestroyedEvent;
  * </p>
  *
  * <ul>
- * <li>SessionRepositoryFilter - is responsible for wrapping the
- * HttpServletRequest with an implementation of HttpSession that is backed by a
- * SessionRepository</li>
- * <li>SessionEventHttpSessionListenerAdapter - is responsible for translating
- * Spring Session events into HttpSessionEvent. In order for it to work, the
- * implementation of SessionRepository you provide must support
- * {@link SessionCreatedEvent} and {@link SessionDestroyedEvent}.</li>
+ * <li>SessionRepositoryFilter - is responsible for wrapping the HttpServletRequest with
+ * an implementation of HttpSession that is backed by a SessionRepository</li>
+ * <li>SessionEventHttpSessionListenerAdapter - is responsible for translating Spring
+ * Session events into HttpSessionEvent. In order for it to work, the implementation of
+ * SessionRepository you provide must support {@link SessionCreatedEvent} and
+ * {@link SessionDestroyedEvent}.</li>
  * <li>
  * </ul>
  *

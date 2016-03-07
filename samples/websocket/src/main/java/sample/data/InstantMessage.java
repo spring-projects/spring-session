@@ -59,6 +59,4 @@ public class InstantMessage {
 		this.created = created;
 	}
 
-
-
 }

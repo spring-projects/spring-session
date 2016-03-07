@@ -70,13 +70,17 @@ public class EnableSpringHttpSessionCustomMultiHttpSessionStrategyTests {
 
 	@Test
 	public void wrapRequestAndResponseUsed() throws Exception {
-		given(this.strategy.wrapRequest(any(HttpServletRequest.class), any(HttpServletResponse.class))).willReturn(this.request);
-		given(this.strategy.wrapResponse(any(HttpServletRequest.class), any(HttpServletResponse.class))).willReturn(this.response);
+		given(this.strategy.wrapRequest(any(HttpServletRequest.class),
+				any(HttpServletResponse.class))).willReturn(this.request);
+		given(this.strategy.wrapResponse(any(HttpServletRequest.class),
+				any(HttpServletResponse.class))).willReturn(this.response);
 
 		this.sessionRepositoryFilter.doFilter(this.request, this.response, this.chain);
 
-		verify(this.strategy).wrapRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
-		verify(this.strategy).wrapResponse(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(this.strategy).wrapRequest(any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
+		verify(this.strategy).wrapResponse(any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
 	}
 
 	@EnableSpringHttpSession

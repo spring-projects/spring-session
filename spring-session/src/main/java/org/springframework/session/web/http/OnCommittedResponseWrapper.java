@@ -28,8 +28,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Base class for response wrappers which encapsulate the logic for handling an event when the
- * {@link javax.servlet.http.HttpServletResponse} is committed.
+ * Base class for response wrappers which encapsulate the logic for handling an event when
+ * the {@link javax.servlet.http.HttpServletResponse} is committed.
  *
  * @author Rob Winch
  * @since 1.0
@@ -40,8 +40,9 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	private boolean disableOnCommitted;
 
 	/**
-	 * The Content-Length response header. If this is greater than 0, then once {@link #contentWritten} is larger than
-	 * or equal the response is considered committed.
+	 * The Content-Length response header. If this is greater than 0, then once
+	 * {@link #contentWritten} is larger than or equal the response is considered
+	 * committed.
 	 */
 	private long contentLength;
 
@@ -78,22 +79,24 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Invoke this method to disable invoking {@link OnCommittedResponseWrapper#onResponseCommitted()} when the {@link javax.servlet.http.HttpServletResponse} is
-	 * committed. This can be useful in the event that Async Web Requests are
-	 * made.
+	 * Invoke this method to disable invoking
+	 * {@link OnCommittedResponseWrapper#onResponseCommitted()} when the
+	 * {@link javax.servlet.http.HttpServletResponse} is committed. This can be useful in
+	 * the event that Async Web Requests are made.
 	 */
 	public void disableOnResponseCommitted() {
 		this.disableOnCommitted = true;
 	}
 
 	/**
-	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse} being committed.
+	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse}
+	 * being committed.
 	 */
 	protected abstract void onResponseCommitted();
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendError()</code>.
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>sendError()</code>.
 	 * @param sc the error status code
 	 */
 	@Override
@@ -103,8 +106,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendError()</code>.
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>sendError()</code>.
 	 * @param sc the error status code
 	 */
 	@Override
@@ -114,8 +117,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>sendRedirect()</code>.
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>sendRedirect()</code>.
 	 * @param location the redirect URL location
 	 */
 	@Override
@@ -125,8 +128,9 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the calling
-	 * <code>getOutputStream().close()</code> or <code>getOutputStream().flush()</code>.
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the calling <code>getOutputStream().close()</code> or
+	 * <code>getOutputStream().flush()</code>.
 	 * @throws IOException if an input or output exception occurred
 	 */
 	@Override
@@ -135,8 +139,9 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * <code>getWriter().close()</code> or <code>getWriter().flush()</code>.
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the <code>getWriter().close()</code> or
+	 * <code>getWriter().flush()</code>.
 	 * @throws IOException if an input or output exception occurred
 	 */
 	@Override
@@ -145,8 +150,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the
-	 * superclass <code>flushBuffer()</code>.
+	 * Makes sure {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked
+	 * before calling the superclass <code>flushBuffer()</code>.
 	 * @throws IOException if an input or output exception occurred
 	 */
 	@Override
@@ -196,14 +201,15 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Adds the contentLengthToWrite to the total contentWritten size and checks to see if the response should be
-	 * written.
+	 * Adds the contentLengthToWrite to the total contentWritten size and checks to see if
+	 * the response should be written.
 	 *
 	 * @param contentLengthToWrite the size of the content that is about to be written.
 	 */
 	private void checkContentLength(long contentLengthToWrite) {
 		this.contentWritten += contentLengthToWrite;
-		boolean isBodyFullyWritten = this.contentLength > 0  && this.contentWritten >= this.contentLength;
+		boolean isBodyFullyWritten = this.contentLength > 0
+				&& this.contentWritten >= this.contentLength;
 		int bufferSize = getBufferSize();
 		boolean requiresFlush = bufferSize > 0 && this.contentWritten >= bufferSize;
 		if (isBodyFullyWritten || requiresFlush) {
@@ -226,9 +232,10 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Ensures {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling the prior to methods that commit the response. We delegate all methods
-	 * to the original {@link java.io.PrintWriter} to ensure that the behavior is as close to the original {@link java.io.PrintWriter}
-	 * as possible. See SEC-2039
+	 * Ensures {@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before
+	 * calling the prior to methods that commit the response. We delegate all methods to
+	 * the original {@link java.io.PrintWriter} to ensure that the behavior is as close to
+	 * the original {@link java.io.PrintWriter} as possible. See SEC-2039
 	 * @author Rob Winch
 	 */
 	private class SaveContextPrintWriter extends PrintWriter {
@@ -427,9 +434,10 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	/**
-	 * Ensures{@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before calling methods that commit the response. We delegate all methods
-	 * to the original {@link javax.servlet.ServletOutputStream} to ensure that the behavior is as close to the original {@link javax.servlet.ServletOutputStream}
-	 * as possible. See SEC-2039
+	 * Ensures{@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before
+	 * calling methods that commit the response. We delegate all methods to the original
+	 * {@link javax.servlet.ServletOutputStream} to ensure that the behavior is as close
+	 * to the original {@link javax.servlet.ServletOutputStream} as possible. See SEC-2039
 	 *
 	 * @author Rob Winch
 	 */

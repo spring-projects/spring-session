@@ -42,13 +42,14 @@ import org.springframework.web.util.UrlPathHelper;
  * The configuration:
  * </p>
  * <ul>
- * <li>Ensures the the {@link Session} is kept alive on incoming web socket
- * messages.</li>
- * <li>Ensures that Web Socket Sessions are destroyed when a {@link Session} is
- * terminated</li>
+ * <li>Ensures the the {@link Session} is kept alive on incoming web socket messages.</li>
+ * <li>Ensures that Web Socket Sessions are destroyed when a {@link Session} is terminated
+ * </li>
  * </ul>
  *
- * <p>Example usage</p>
+ * <p>
+ * Example usage
+ * </p>
  *
  * <code>
  * {@literal @Configuration}
@@ -70,12 +71,12 @@ import org.springframework.web.util.UrlPathHelper;
  * }
  * </code>
  *
- * @param <S>
- *            the type of ExpiringSession
+ * @param <S> the type of ExpiringSession
  * @author Rob Winch
  * @since 1.0
  */
-public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends ExpiringSession> extends AbstractWebSocketMessageBrokerConfigurer {
+public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends ExpiringSession>
+		extends AbstractWebSocketMessageBrokerConfigurer {
 
 	@Autowired
 	@SuppressWarnings("rawtypes")
@@ -92,26 +93,23 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	public final void registerStompEndpoints(StompEndpointRegistry registry) {
 		if (registry instanceof WebMvcStompEndpointRegistry) {
 			WebMvcStompEndpointRegistry mvcRegistry = (WebMvcStompEndpointRegistry) registry;
-			configureStompEndpoints(new SessionStompEndpointRegistry(mvcRegistry, sessionRepositoryInterceptor()));
+			configureStompEndpoints(new SessionStompEndpointRegistry(mvcRegistry,
+					sessionRepositoryInterceptor()));
 		}
 	}
 
-
 	/**
-	 * Register STOMP endpoints mapping each to a specific URL and (optionally)
-	 * enabling and configuring SockJS fallback options with a
-	 * {@link SessionRepositoryMessageInterceptor} automatically added as an
-	 * interceptor.
+	 * Register STOMP endpoints mapping each to a specific URL and (optionally) enabling
+	 * and configuring SockJS fallback options with a
+	 * {@link SessionRepositoryMessageInterceptor} automatically added as an interceptor.
 	 *
-	 * @param registry
-	 *            the {@link StompEndpointRegistry} which automatically has a
-	 *            {@link SessionRepositoryMessageInterceptor} added to it.
+	 * @param registry the {@link StompEndpointRegistry} which automatically has a
+	 * {@link SessionRepositoryMessageInterceptor} added to it.
 	 */
 	protected abstract void configureStompEndpoints(StompEndpointRegistry registry);
 
 	@Override
-	public void configureWebSocketTransport(
-			WebSocketTransportRegistration registration) {
+	public void configureWebSocketTransport(WebSocketTransportRegistration registration) {
 		registration.addDecoratorFactory(wsConnectHandlerDecoratorFactory());
 	}
 
@@ -145,7 +143,8 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 		}
 
 		public StompWebSocketEndpointRegistration addEndpoint(String... paths) {
-			StompWebSocketEndpointRegistration endpoints = this.registry.addEndpoint(paths);
+			StompWebSocketEndpointRegistration endpoints = this.registry
+					.addEndpoint(paths);
 			endpoints.addInterceptors(this.interceptor);
 			return endpoints;
 		}
@@ -158,7 +157,8 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 			this.registry.setUrlPathHelper(urlPathHelper);
 		}
 
-		public WebMvcStompEndpointRegistry setErrorHandler(StompSubProtocolErrorHandler errorHandler) {
+		public WebMvcStompEndpointRegistry setErrorHandler(
+				StompSubProtocolErrorHandler errorHandler) {
 			return this.registry.setErrorHandler(errorHandler);
 		}
 	}

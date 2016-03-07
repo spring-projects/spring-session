@@ -151,14 +151,16 @@ public class SessionMessageListenerTests {
 	@Test
 	public void onMessageEventPublisherErrorCaught() throws Exception {
 		mockMessage("__keyevent@0__:del", "spring:session:sessions:123");
-		willThrow(new IllegalStateException("Test Exceptions are caught")).given(this.eventPublisher).publishEvent(any(ApplicationEvent.class));
+		willThrow(new IllegalStateException("Test Exceptions are caught"))
+				.given(this.eventPublisher).publishEvent(any(ApplicationEvent.class));
 
 		this.listener.onMessage(this.message, this.pattern);
 
 		verify(this.eventPublisher).publishEvent(any(ApplicationEvent.class));
 	}
 
-	private void mockMessage(String channel, String body) throws UnsupportedEncodingException {
+	private void mockMessage(String channel, String body)
+			throws UnsupportedEncodingException {
 		given(this.message.getBody()).willReturn(bytes(body));
 		given(this.message.getChannel()).willReturn(bytes(channel));
 	}

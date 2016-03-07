@@ -22,9 +22,8 @@ import org.springframework.session.web.socket.handler.WebSocketRegistryListener;
 import org.springframework.web.socket.WebSocketSession;
 
 /**
- * Similar to Spring
- * {@link org.springframework.web.socket.messaging.SessionConnectEvent} except
- * that it provides access to the {@link WebSocketSession} to allow mapping the
+ * Similar to Spring {@link org.springframework.web.socket.messaging.SessionConnectEvent}
+ * except that it provides access to the {@link WebSocketSession} to allow mapping the
  * Spring Session to the {@link WebSocketSession}.
  *
  * @author Rob Winch

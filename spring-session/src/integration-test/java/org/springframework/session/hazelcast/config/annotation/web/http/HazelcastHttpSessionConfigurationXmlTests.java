@@ -37,8 +37,8 @@ import org.springframework.util.SocketUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Test the different configuration options for the
- * {@link EnableHazelcastHttpSession} annotation.
+ * Test the different configuration options for the {@link EnableHazelcastHttpSession}
+ * annotation.
  *
  * @author Tommy Ludwig
  */

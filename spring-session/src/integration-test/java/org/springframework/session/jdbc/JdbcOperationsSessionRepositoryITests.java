@@ -73,24 +73,27 @@ public class JdbcOperationsSessionRepositoryITests {
 	@Before
 	public void setup() throws Exception {
 		this.context = SecurityContextHolder.createEmptyContext();
-		this.context.setAuthentication(new UsernamePasswordAuthenticationToken(
-				"username-" + UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.context.setAuthentication(
+				new UsernamePasswordAuthenticationToken("username-" + UUID.randomUUID(),
+						"na", AuthorityUtils.createAuthorityList("ROLE_USER")));
 
 		this.changedContext = SecurityContextHolder.createEmptyContext();
 		this.changedContext.setAuthentication(new UsernamePasswordAuthenticationToken(
-				"changedContext-" + UUID.randomUUID(), "na", AuthorityUtils.createAuthorityList("ROLE_USER")));
+				"changedContext-" + UUID.randomUUID(), "na",
+				AuthorityUtils.createAuthorityList("ROLE_USER")));
 	}
 
 	@Test
 	public void saves() throws InterruptedException {
 		String username = "saves-" + System.currentTimeMillis();
 
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username, "password",
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,
+				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, toSaveContext);
@@ -102,7 +105,8 @@ public class JdbcOperationsSessionRepositoryITests {
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
-		assertThat(session.getAttribute(expectedAttributeName)).isEqualTo(toSave.getAttribute(expectedAttributeName));
+		assertThat(session.getAttribute(expectedAttributeName))
+				.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		this.repository.delete(toSave.getId());
 
@@ -111,7 +115,8 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void putAllOnSingleAttrDoesNotRemoveOld() {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute("a", "b");
 
 		this.repository.save(toSave);
@@ -133,20 +138,22 @@ public class JdbcOperationsSessionRepositoryITests {
 	@Test
 	public void findByPrincipalName() throws Exception {
 		String principalName = "findByPrincipalName" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		this.repository.delete(toSave.getId());
 
-		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				principalName);
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
@@ -154,17 +161,19 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findByPrincipalNameExpireRemovesIndex() throws Exception {
-		String principalName = "findByPrincipalNameExpireRemovesIndex" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		String principalName = "findByPrincipalNameExpireRemovesIndex"
+				+ UUID.randomUUID();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
-		toSave.setLastAccessedTime(System.currentTimeMillis() -
-				(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+		toSave.setLastAccessedTime(System.currentTimeMillis()
+				- (MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
 
 		this.repository.save(toSave);
 		this.repository.cleanUpExpiredSessions();
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
@@ -172,8 +181,10 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findByPrincipalNameNoPrincipalNameChange() throws Exception {
-		String principalName = "findByPrincipalNameNoPrincipalNameChange" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		String principalName = "findByPrincipalNameNoPrincipalNameChange"
+				+ UUID.randomUUID();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		this.repository.save(toSave);
@@ -181,8 +192,8 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -190,8 +201,10 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findByPrincipalNameNoPrincipalNameChangeReload() throws Exception {
-		String principalName = "findByPrincipalNameNoPrincipalNameChangeReload" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		String principalName = "findByPrincipalNameNoPrincipalNameChangeReload"
+				+ UUID.randomUUID();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		this.repository.save(toSave);
@@ -201,8 +214,8 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -211,7 +224,8 @@ public class JdbcOperationsSessionRepositoryITests {
 	@Test
 	public void findByDeletedPrincipalName() throws Exception {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		this.repository.save(toSave);
@@ -219,8 +233,8 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute(INDEX_NAME, null);
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).isEmpty();
 	}
@@ -229,7 +243,8 @@ public class JdbcOperationsSessionRepositoryITests {
 	public void findByChangedPrincipalName() throws Exception {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		this.repository.save(toSave);
@@ -237,11 +252,12 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute(INDEX_NAME, principalNameChanged);
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 		assertThat(findByPrincipalName).isEmpty();
 
-		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalNameChanged);
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				principalNameChanged);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -250,17 +266,19 @@ public class JdbcOperationsSessionRepositoryITests {
 	@Test
 	public void findByDeletedPrincipalNameReload() throws Exception {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		this.repository.save(toSave);
 
-		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository.getSession(toSave.getId());
+		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
+				.getSession(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		this.repository.save(getSession);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
 		assertThat(findByPrincipalName).isEmpty();
 	}
@@ -269,21 +287,24 @@ public class JdbcOperationsSessionRepositoryITests {
 	public void findByChangedPrincipalNameReload() throws Exception {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 
 		this.repository.save(toSave);
 
-		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository.getSession(toSave.getId());
+		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
+				.getSession(toSave.getId());
 
 		getSession.setAttribute(INDEX_NAME, principalNameChanged);
 		this.repository.save(getSession);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 		assertThat(findByPrincipalName).isEmpty();
 
-		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalNameChanged);
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				principalNameChanged);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -291,20 +312,22 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findBySecurityPrincipalName() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		this.repository.delete(toSave.getId());
 
-		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
@@ -312,16 +335,17 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findBySecurityPrincipalNameExpireRemovesIndex() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
-		toSave.setLastAccessedTime(System.currentTimeMillis() -
-				(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+		toSave.setLastAccessedTime(System.currentTimeMillis()
+				- (MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
 
 		this.repository.save(toSave);
 		this.repository.cleanUpExpiredSessions();
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(0);
 		assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
@@ -329,7 +353,8 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findByPrincipalNameNoSecurityPrincipalNameChange() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
 		this.repository.save(toSave);
@@ -337,16 +362,18 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 	}
 
 	@Test
-	public void findByPrincipalNameNoSecurityPrincipalNameChangeReload() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+	public void findByPrincipalNameNoSecurityPrincipalNameChangeReload()
+			throws Exception {
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
 		this.repository.save(toSave);
@@ -356,8 +383,8 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -365,7 +392,8 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findByDeletedSecurityPrincipalName() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
 		this.repository.save(toSave);
@@ -373,15 +401,16 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, null);
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 
 		assertThat(findByPrincipalName).isEmpty();
 	}
 
 	@Test
 	public void findByChangedSecurityPrincipalName() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
 		this.repository.save(toSave);
@@ -389,11 +418,12 @@ public class JdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.changedContext);
 		this.repository.save(toSave);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 		assertThat(findByPrincipalName).isEmpty();
 
-		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getChangedSecurityName());
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				getChangedSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -401,38 +431,43 @@ public class JdbcOperationsSessionRepositoryITests {
 
 	@Test
 	public void findByDeletedSecurityPrincipalNameReload() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
 		this.repository.save(toSave);
 
-		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository.getSession(toSave.getId());
+		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
+				.getSession(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		this.repository.save(getSession);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getChangedSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getChangedSecurityName());
 
 		assertThat(findByPrincipalName).isEmpty();
 	}
 
 	@Test
 	public void findByChangedSecurityPrincipalNameReload() throws Exception {
-		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository.createSession();
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
 		this.repository.save(toSave);
 
-		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository.getSession(toSave.getId());
+		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
+				.getSession(toSave.getId());
 
 		getSession.setAttribute(SPRING_SECURITY_CONTEXT, this.changedContext);
-		repository.save(getSession);
+		this.repository.save(getSession);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName =
-				this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
+		Map<String, JdbcOperationsSessionRepository.JdbcSession> findByPrincipalName = this.repository
+				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 		assertThat(findByPrincipalName).isEmpty();
 
-		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getChangedSecurityName());
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				getChangedSecurityName());
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
@@ -452,10 +487,8 @@ public class JdbcOperationsSessionRepositoryITests {
 
 		@Bean
 		public EmbeddedDatabase dataSource() {
-			return new EmbeddedDatabaseBuilder()
-					.setType(EmbeddedDatabaseType.H2)
-					.addScript("org/springframework/session/jdbc/schema-h2.sql")
-					.build();
+			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+					.addScript("org/springframework/session/jdbc/schema-h2.sql").build();
 		}
 
 		@Bean

@@ -37,8 +37,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The GemFireHttpSessionXmlConfigurationTests class is a test suite of test cases testing the configuration of
- * Spring Session backed by GemFire using XML configuration meta-data.
+ * The GemFireHttpSessionXmlConfigurationTests class is a test suite of test cases testing
+ * the configuration of Spring Session backed by GemFire using XML configuration
+ * meta-data.
  *
  * @author John Blum
  * @since 1.1.0
@@ -56,12 +57,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration
 @DirtiesContext
 @WebAppConfiguration
-public class GemFireHttpSessionXmlConfigurationTests extends AbstractGemFireIntegrationTests {
+public class GemFireHttpSessionXmlConfigurationTests
+		extends AbstractGemFireIntegrationTests {
 
 	@Autowired
 	private Cache gemfireCache;
 
-	protected <K, V> Region<K, V> assertCacheAndRegion(Cache gemfireCache, String regionName, DataPolicy dataPolicy) {
+	protected <K, V> Region<K, V> assertCacheAndRegion(Cache gemfireCache,
+			String regionName, DataPolicy dataPolicy) {
 		assertThat(GemFireUtils.isPeer(gemfireCache)).isTrue();
 
 		Region<K, V> region = gemfireCache.getRegion(regionName);
@@ -73,14 +76,16 @@ public class GemFireHttpSessionXmlConfigurationTests extends AbstractGemFireInte
 
 	@Test
 	public void gemfireCacheConfigurationIsValid() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache, "XmlExample", DataPolicy.NORMAL);
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache,
+				"XmlExample", DataPolicy.NORMAL);
 
 		assertEntryIdleTimeout(example, ExpirationAction.INVALIDATE, 3600);
 	}
 
 	@Test
 	public void verifyGemFireExampleCacheRegionPrincipalNameIndexWasCreatedSuccessfully() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache, "XmlExample", DataPolicy.NORMAL);
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache,
+				"XmlExample", DataPolicy.NORMAL);
 
 		QueryService queryService = example.getRegionService().getQueryService();
 
@@ -93,16 +98,18 @@ public class GemFireHttpSessionXmlConfigurationTests extends AbstractGemFireInte
 
 	@Test
 	public void verifyGemFireExampleCacheRegionSessionAttributesIndexWasCreatedSuccessfully() {
-		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache, "XmlExample", DataPolicy.NORMAL);
+		Region<Object, ExpiringSession> example = assertCacheAndRegion(this.gemfireCache,
+				"XmlExample", DataPolicy.NORMAL);
 
 		QueryService queryService = example.getRegionService().getQueryService();
 
 		assertThat(queryService).isNotNull();
 
-		Index sessionAttributesIndex = queryService.getIndex(example, "sessionAttributesIndex");
+		Index sessionAttributesIndex = queryService.getIndex(example,
+				"sessionAttributesIndex");
 
 		assertIndex(sessionAttributesIndex, "s.attributes['one', 'two', 'three']",
-			String.format("%1$s s", example.getFullPath()));
+				String.format("%1$s s", example.getFullPath()));
 	}
 
 }

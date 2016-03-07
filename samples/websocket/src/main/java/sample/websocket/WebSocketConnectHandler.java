@@ -29,11 +29,13 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 
-public class WebSocketConnectHandler<S> implements ApplicationListener<SessionConnectEvent> {
+public class WebSocketConnectHandler<S>
+		implements ApplicationListener<SessionConnectEvent> {
 	private ActiveWebSocketUserRepository repository;
 	private SimpMessageSendingOperations messagingTemplate;
 
-	public WebSocketConnectHandler(SimpMessageSendingOperations messagingTemplate, ActiveWebSocketUserRepository repository) {
+	public WebSocketConnectHandler(SimpMessageSendingOperations messagingTemplate,
+			ActiveWebSocketUserRepository repository) {
 		super();
 		this.messagingTemplate = messagingTemplate;
 		this.repository = repository;
@@ -46,7 +48,9 @@ public class WebSocketConnectHandler<S> implements ApplicationListener<SessionCo
 			return;
 		}
 		String id = SimpMessageHeaderAccessor.getSessionId(headers);
-		this.repository.save(new ActiveWebSocketUser(id, user.getName(), Calendar.getInstance()));
-		this.messagingTemplate.convertAndSend("/topic/friends/signin", Arrays.asList(user.getName()));
+		this.repository.save(
+				new ActiveWebSocketUser(id, user.getName(), Calendar.getInstance()));
+		this.messagingTemplate.convertAndSend("/topic/friends/signin",
+				Arrays.asList(user.getName()));
 	}
 }

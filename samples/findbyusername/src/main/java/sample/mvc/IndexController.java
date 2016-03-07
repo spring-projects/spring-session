@@ -43,17 +43,21 @@ public class IndexController {
 
 	@RequestMapping("/")
 	public String index(Principal principal, Model model) {
-		Collection<? extends ExpiringSession> usersSessions =
-				this.sessions.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
-						principal.getName()).values();
+		Collection<? extends ExpiringSession> usersSessions = this.sessions
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						principal.getName())
+				.values();
 		model.addAttribute("sessions", usersSessions);
 		return "index";
 	}
 	// end::findbyusername[]
 
 	@RequestMapping(value = "/sessions/{sessionIdToDelete}", method = RequestMethod.DELETE)
-	public String removeSession(Principal principal, @PathVariable String sessionIdToDelete) {
-		Set<String> usersSessionIds = this.sessions.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+	public String removeSession(Principal principal,
+			@PathVariable String sessionIdToDelete) {
+		Set<String> usersSessionIds = this.sessions.findByIndexNameAndIndexValue(
+				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
 				principal.getName()).keySet();
 		if (usersSessionIds.contains(sessionIdToDelete)) {
 			this.sessions.delete(sessionIdToDelete);

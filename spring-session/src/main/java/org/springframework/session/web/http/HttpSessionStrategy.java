@@ -30,35 +30,50 @@ import org.springframework.session.Session;
 public interface HttpSessionStrategy {
 
 	/**
-	 * Obtains the requested session id from the provided {@link javax.servlet.http.HttpServletRequest}. For example,
-	 * the session id might come from a cookie or a request header.
+	 * Obtains the requested session id from the provided
+	 * {@link javax.servlet.http.HttpServletRequest}. For example, the session id might
+	 * come from a cookie or a request header.
 	 *
-	 * @param request the {@link javax.servlet.http.HttpServletRequest} to obtain the session id from. Cannot be null.
-	 * @return the {@link javax.servlet.http.HttpServletRequest} to obtain the session id from.
+	 * @param request the {@link javax.servlet.http.HttpServletRequest} to obtain the
+	 * session id from. Cannot be null.
+	 * @return the {@link javax.servlet.http.HttpServletRequest} to obtain the session id
+	 * from.
 	 */
 	String getRequestedSessionId(HttpServletRequest request);
 
 	/**
-	 * This method is invoked when a new session is created and should inform a client what the new session id is. For
-	 * example, it might create a new cookie with the session id in it or set an HTTP response header with the value of
-	 * the new session id.
+	 * This method is invoked when a new session is created and should inform a client
+	 * what the new session id is. For example, it might create a new cookie with the
+	 * session id in it or set an HTTP response header with the value of the new session
+	 * id.
 	 *
-	 * Some implementations may wish to associate additional information to the {@link Session} at this time. For example, they
-	 * may wish to add the IP Address, browser headers, the username, etc to the {@link org.springframework.session.Session}.
+	 * Some implementations may wish to associate additional information to the
+	 * {@link Session} at this time. For example, they may wish to add the IP Address,
+	 * browser headers, the username, etc to the
+	 * {@link org.springframework.session.Session}.
 	 *
-	 * @param session the {@link org.springframework.session.Session} that is being sent to the client. Cannot be null.
-	 * @param request the {@link javax.servlet.http.HttpServletRequest} that create the new {@link org.springframework.session.Session} Cannot be null.
-	 * @param response the {@link javax.servlet.http.HttpServletResponse}  that is associated with the {@link javax.servlet.http.HttpServletRequest} that created the new {@link org.springframework.session.Session} Cannot be null.
+	 * @param session the {@link org.springframework.session.Session} that is being sent
+	 * to the client. Cannot be null.
+	 * @param request the {@link javax.servlet.http.HttpServletRequest} that create the
+	 * new {@link org.springframework.session.Session} Cannot be null.
+	 * @param response the {@link javax.servlet.http.HttpServletResponse} that is
+	 * associated with the {@link javax.servlet.http.HttpServletRequest} that created the
+	 * new {@link org.springframework.session.Session} Cannot be null.
 	 */
-	void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response);
+	void onNewSession(Session session, HttpServletRequest request,
+			HttpServletResponse response);
 
 	/**
-	 * This method is invoked when a session is invalidated and should inform a client that the session id is no longer valid. For
-	 * example, it might remove a cookie with the session id in it or set an HTTP response header with an empty value indicating
+	 * This method is invoked when a session is invalidated and should inform a client
+	 * that the session id is no longer valid. For example, it might remove a cookie with
+	 * the session id in it or set an HTTP response header with an empty value indicating
 	 * to the client to no longer submit that session id.
 	 *
-	 * @param request the {@link javax.servlet.http.HttpServletRequest} that invalidated the {@link org.springframework.session.Session} Cannot be null.
-	 * @param response the {@link javax.servlet.http.HttpServletResponse}  that is associated with the {@link javax.servlet.http.HttpServletRequest} that invalidated the {@link org.springframework.session.Session} Cannot be null.
+	 * @param request the {@link javax.servlet.http.HttpServletRequest} that invalidated
+	 * the {@link org.springframework.session.Session} Cannot be null.
+	 * @param response the {@link javax.servlet.http.HttpServletResponse} that is
+	 * associated with the {@link javax.servlet.http.HttpServletRequest} that invalidated
+	 * the {@link org.springframework.session.Session} Cannot be null.
 	 */
 	void onInvalidateSession(HttpServletRequest request, HttpServletResponse response);
 }

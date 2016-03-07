@@ -56,12 +56,13 @@ public class Gh109Tests {
 		int sessionTimeout = 100;
 
 		/**
-		 * override sessionRepository construction to set the custom
-		 * session-timeout
+		 * override sessionRepository construction to set the custom session-timeout
 		 */
 		@Bean
 		@Override
-		public RedisOperationsSessionRepository sessionRepository(RedisOperations<Object, Object> sessionRedisTemplate, ApplicationEventPublisher applicationEventPublisher) {
+		public RedisOperationsSessionRepository sessionRepository(
+				RedisOperations<Object, Object> sessionRedisTemplate,
+				ApplicationEventPublisher applicationEventPublisher) {
 			RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
 					sessionRedisTemplate);
 			sessionRepository.setDefaultMaxInactiveInterval(this.sessionTimeout);

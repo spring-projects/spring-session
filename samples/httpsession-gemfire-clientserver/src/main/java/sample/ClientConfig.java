@@ -53,16 +53,16 @@ public class ClientConfig {
 
 	static {
 		System.setProperty("gemfire.log-level",
-			System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
+				System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
 
-		ClientMembership.registerClientMembershipListener(
-			new ClientMembershipListenerAdapter() {
-				public void memberJoined(ClientMembershipEvent event) {
-					if (!event.isClient()) {
-						latch.countDown();
+		ClientMembership
+				.registerClientMembershipListener(new ClientMembershipListenerAdapter() {
+					public void memberJoined(ClientMembershipEvent event) {
+						if (!event.isClient()) {
+							latch.countDown();
+						}
 					}
-				}
-		});
+				});
 	}
 
 	@Bean
@@ -77,7 +77,8 @@ public class ClientConfig {
 
 	@Bean(name = GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME)
 	PoolFactoryBean gemfirePool(// <3>
-			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") int port) {
+			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT
+					+ "}") int port) {
 
 		PoolFactoryBean poolFactory = new PoolFactoryBean();
 
@@ -91,8 +92,8 @@ public class ClientConfig {
 		poolFactory.setSubscriptionEnabled(true);
 		poolFactory.setThreadLocalConnections(false);
 
-		poolFactory.setServerEndpoints(Collections.singletonList(new ConnectionEndpoint(
-			ServerConfig.SERVER_HOSTNAME, port)));
+		poolFactory.setServerEndpoints(Collections.singletonList(
+				new ConnectionEndpoint(ServerConfig.SERVER_HOSTNAME, port)));
 
 		return poolFactory;
 	}
@@ -111,27 +112,29 @@ public class ClientConfig {
 
 	@Bean
 	BeanPostProcessor gemfireCacheServerReadyBeanPostProcessor(// <5>
-			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") final int port) {
+			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT
+					+ "}") final int port) {
 
 		return new BeanPostProcessor() {
 
-			public Object postProcessBeforeInitialization(
-					Object bean, String beanName) throws BeansException {
+			public Object postProcessBeforeInitialization(Object bean, String beanName)
+					throws BeansException {
 				if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
-					Assert.isTrue(waitForCacheServerToStart(ServerConfig.SERVER_HOSTNAME, port),
-						String.format("GemFire Server failed to start [hostname: %1$s, port: %2$d]",
-							ServerConfig.SERVER_HOSTNAME, port));
+					Assert.isTrue(
+							waitForCacheServerToStart(ServerConfig.SERVER_HOSTNAME, port),
+							String.format(
+									"GemFire Server failed to start [hostname: %1$s, port: %2$d]",
+									ServerConfig.SERVER_HOSTNAME, port));
 				}
 
 				return bean;
 			}
 
-			public Object postProcessAfterInitialization(
-					Object bean, String beanName) throws BeansException {
+			public Object postProcessAfterInitialization(Object bean, String beanName)
+					throws BeansException {
 				if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 					try {
-						latch.await(DEFAULT_WAIT_DURATION,
-							TimeUnit.MILLISECONDS);
+						latch.await(DEFAULT_WAIT_DURATION, TimeUnit.MILLISECONDS);
 					}
 					catch (InterruptedException e) {
 						Thread.currentThread().interrupt();
@@ -142,7 +145,7 @@ public class ClientConfig {
 			}
 		};
 	}
-// end::class[]
+	// end::class[]
 
 	interface Condition {
 		boolean evaluate();
@@ -161,8 +164,10 @@ public class ClientConfig {
 				Socket socket = null;
 
 				try {
-					// NOTE: this code is not intended to be an atomic, compound action (a possible race condition);
-					// opening another connection (at the expense of using system resources) after connectivity
+					// NOTE: this code is not intended to be an atomic, compound action (a
+					// possible race condition);
+					// opening another connection (at the expense of using system
+					// resources) after connectivity
 					// has already been established is not detrimental in this use case
 					if (!connected.get()) {
 						socket = new Socket(host, port);

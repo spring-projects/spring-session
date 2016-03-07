@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,33 +15,43 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import com.mongodb.DBObject;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 
-import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Session repository implementation which stores sessions in Mongo.
- * Uses {@link AbstractMongoSessionConverter} to transform session objects from/to
- * native Mongo representation ({@code DBObject}).
+ * Session repository implementation which stores sessions in Mongo. Uses
+ * {@link AbstractMongoSessionConverter} to transform session objects from/to native Mongo
+ * representation ({@code DBObject}).
  *
- * Repository is also responsible for removing expired sessions from database.
- * Cleanup is done every minute.
+ * Repository is also responsible for removing expired sessions from database. Cleanup is
+ * done every minute.
  *
  * @author Jakub Kubrynski
  * @since 1.2
  */
-public class MongoOperationsSessionRepository implements FindByIndexNameSessionRepository<MongoExpiringSession> {
+public class MongoOperationsSessionRepository
+		implements FindByIndexNameSessionRepository<MongoExpiringSession> {
 
+	/**
+	 * The default time period in seconds in which a session will expire.
+	 */
 	public static final int DEFAULT_INACTIVE_INTERVAL = 1800;
+
+	/**
+	 * the default collection name for storing session.
+	 */
 	public static final String DEFAULT_COLLECTION_NAME = "sessions";
 
 	private final MongoOperations mongoOperations;
@@ -55,12 +65,12 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	}
 
 	public MongoExpiringSession createSession() {
-		return new MongoExpiringSession(maxInactiveIntervalInSeconds);
+		return new MongoExpiringSession(this.maxInactiveIntervalInSeconds);
 	}
 
 	public void save(MongoExpiringSession session) {
 		DBObject sessionDbObject = convertToDBObject(session);
-		mongoOperations.getCollection(collectionName).save(sessionDbObject);
+		this.mongoOperations.getCollection(this.collectionName).save(sessionDbObject);
 	}
 
 	public MongoExpiringSession getSession(String id) {
@@ -77,19 +87,23 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	}
 
 	/**
-	 * Currently this repository allows only querying against {@code PRINCIPAL_NAME_INDEX_NAME}
+	 * Currently this repository allows only querying against
+	 * {@code PRINCIPAL_NAME_INDEX_NAME}.
 	 *
-	 * @param indexName  the name if the index (i.e. {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME})
+	 * @param indexName the name if the index (i.e.
+	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME})
 	 * @param indexValue the value of the index to search for.
 	 * @return sessions map
 	 */
-	public Map<String, MongoExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+	public Map<String, MongoExpiringSession> findByIndexNameAndIndexValue(
+			String indexName, String indexValue) {
 		HashMap<String, MongoExpiringSession> result = new HashMap<String, MongoExpiringSession>();
-		Query query = mongoSessionConverter.getQueryForIndex(indexName, indexValue);
+		Query query = this.mongoSessionConverter.getQueryForIndex(indexName, indexValue);
 		if (query == null) {
 			return Collections.emptyMap();
 		}
-		List<DBObject> mapSessions = mongoOperations.find(query, DBObject.class, collectionName);
+		List<DBObject> mapSessions = this.mongoOperations.find(query, DBObject.class,
+				this.collectionName);
 		for (DBObject dbSession : mapSessions) {
 			MongoExpiringSession mapSession = convertToSession(dbSession);
 			result.put(mapSession.getId(), mapSession);
@@ -98,30 +112,34 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 	}
 
 	public void delete(String id) {
-		mongoOperations.remove(findSession(id), collectionName);
+		this.mongoOperations.remove(findSession(id), this.collectionName);
 	}
 
 	@PostConstruct
 	public void ensureIndexesAreCreated() {
-		IndexOperations indexOperations = mongoOperations.indexOps(collectionName);
-		mongoSessionConverter.ensureIndexes(indexOperations);
+		IndexOperations indexOperations = this.mongoOperations
+				.indexOps(this.collectionName);
+		this.mongoSessionConverter.ensureIndexes(indexOperations);
 	}
 
 	DBObject findSession(String id) {
-		return mongoOperations.findById(id, DBObject.class, collectionName);
+		return this.mongoOperations.findById(id, DBObject.class, this.collectionName);
 	}
 
 	MongoExpiringSession convertToSession(DBObject session) {
-		return (MongoExpiringSession) mongoSessionConverter.convert(session,
-				TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class));
+		return (MongoExpiringSession) this.mongoSessionConverter.convert(session,
+				TypeDescriptor.valueOf(DBObject.class),
+				TypeDescriptor.valueOf(MongoExpiringSession.class));
 	}
 
 	DBObject convertToDBObject(MongoExpiringSession session) {
-		return (DBObject) mongoSessionConverter.convert(session,
-				TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class));
+		return (DBObject) this.mongoSessionConverter.convert(session,
+				TypeDescriptor.valueOf(MongoExpiringSession.class),
+				TypeDescriptor.valueOf(DBObject.class));
 	}
 
-	public void setMongoSessionConverter(AbstractMongoSessionConverter mongoSessionConverter) {
+	public void setMongoSessionConverter(
+			AbstractMongoSessionConverter mongoSessionConverter) {
 		this.mongoSessionConverter = mongoSessionConverter;
 	}
 

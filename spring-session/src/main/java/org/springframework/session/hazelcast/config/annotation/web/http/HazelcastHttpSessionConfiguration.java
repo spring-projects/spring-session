@@ -49,7 +49,8 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * @see EnableHazelcastHttpSession
  */
 @Configuration
-public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
+public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration
+		implements ImportAware {
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
@@ -60,12 +61,16 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	private IMap<String, ExpiringSession> sessionsMap;
 
 	@Bean
-	public SessionRepository<ExpiringSession> sessionRepository(HazelcastInstance hazelcastInstance, SessionEntryListener sessionListener) {
+	public SessionRepository<ExpiringSession> sessionRepository(
+			HazelcastInstance hazelcastInstance, SessionEntryListener sessionListener) {
 		this.sessionsMap = hazelcastInstance.getMap(this.sessionMapName);
-		this.sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener, true);
+		this.sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener,
+				true);
 
-		MapSessionRepository sessionRepository = new MapSessionRepository(new ExpiringSessionMap(this.sessionsMap));
-		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		MapSessionRepository sessionRepository = new MapSessionRepository(
+				new ExpiringSessionMap(this.sessionsMap));
+		sessionRepository
+				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 
 		return sessionRepository;
 	}
@@ -76,19 +81,22 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	}
 
 	@Bean
-	public SessionEntryListener sessionListener(ApplicationEventPublisher eventPublisher) {
+	public SessionEntryListener sessionListener(
+			ApplicationEventPublisher eventPublisher) {
 		return new SessionEntryListener(eventPublisher);
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> enableAttrMap = importMetadata.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
+		Map<String, Object> enableAttrMap = importMetadata
+				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 
 		transferAnnotationAttributes(enableAttrs);
 	}
 
 	private void transferAnnotationAttributes(AnnotationAttributes enableAttrs) {
-		setMaxInactiveIntervalInSeconds((Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
+		setMaxInactiveIntervalInSeconds(
+				(Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
 	}
 
@@ -109,11 +117,13 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		ExpiringSessionMap(IMap<String, ExpiringSession> delegate) {
 			this.delegate = delegate;
 		}
+
 		public ExpiringSession put(String key, ExpiringSession value) {
 			if (value == null) {
 				return this.delegate.put(key, value);
 			}
-			return this.delegate.put(key, value, value.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
+			return this.delegate.put(key, value, value.getMaxInactiveIntervalInSeconds(),
+					TimeUnit.SECONDS);
 		}
 
 		public int size() {

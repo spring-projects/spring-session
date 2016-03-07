@@ -39,8 +39,7 @@ public final class HazelcastITestUtils {
 	 */
 	public static HazelcastInstance embeddedHazelcastServer(int port) {
 		Config config = new Config();
-		config.getNetworkConfig()
-				.setPort(port);
+		config.getNetworkConfig().setPort(port);
 		return Hazelcast.newHazelcastInstance(config);
 	}
 

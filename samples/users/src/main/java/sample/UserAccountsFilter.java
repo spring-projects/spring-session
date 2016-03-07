@@ -44,11 +44,11 @@ public class UserAccountsFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 
 		// tag::HttpSessionManager[]
-		HttpSessionManager sessionManager =
-				(HttpSessionManager) httpRequest.getAttribute(HttpSessionManager.class.getName());
+		HttpSessionManager sessionManager = (HttpSessionManager) httpRequest
+				.getAttribute(HttpSessionManager.class.getName());
 		// end::HttpSessionManager[]
-		SessionRepository<Session> repo =
-				(SessionRepository<Session>) httpRequest.getAttribute(SessionRepository.class.getName());
+		SessionRepository<Session> repo = (SessionRepository<Session>) httpRequest
+				.getAttribute(SessionRepository.class.getName());
 
 		String currentSessionAlias = sessionManager.getCurrentSessionAlias(httpRequest);
 		Map<String, String> sessionIds = sessionManager.getSessionIds(httpRequest);
@@ -85,7 +85,8 @@ public class UserAccountsFilter implements Filter {
 
 		// tag::addAccountUrl[]
 		String addAlias = unauthenticatedAlias == null ? // <1>
-				sessionManager.getNewSessionAlias(httpRequest) : // <2>
+				sessionManager.getNewSessionAlias(httpRequest)
+				: // <2>
 				unauthenticatedAlias; // <3>
 		String addAccountUrl = sessionManager.encodeURL(contextPath, addAlias); // <4>
 		// end::addAccountUrl[]

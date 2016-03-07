@@ -30,7 +30,7 @@ import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 
 // tag::class[]
-@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 30)// <1>
+@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 30) // <1>
 public class ServerConfig {
 
 	static final int MAX_CONNECTIONS = 50;
@@ -50,7 +50,7 @@ public class ServerConfig {
 		gemfireProperties.setProperty("name", "GemFireClientServerHttpSessionSample");
 		gemfireProperties.setProperty("mcast-port", "0");
 		gemfireProperties.setProperty("log-level",
-			System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
+				System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
 		gemfireProperties.setProperty("jmx-manager", "true");
 		gemfireProperties.setProperty("jmx-manager-start", "true");
 
@@ -84,8 +84,7 @@ public class ServerConfig {
 
 	@SuppressWarnings("resource")
 	public static void main(final String[] args) throws IOException { // <5>
-		new AnnotationConfigApplicationContext(ServerConfig.class)
-			.registerShutdownHook();
+		new AnnotationConfigApplicationContext(ServerConfig.class).registerShutdownHook();
 	}
 }
 // end::class[]

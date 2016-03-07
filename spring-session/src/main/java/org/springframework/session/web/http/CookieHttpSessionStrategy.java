@@ -37,23 +37,21 @@ import org.springframework.util.Assert;
 /**
  * A {@link HttpSessionStrategy} that uses a cookie to obtain the session from.
  * Specifically, this implementation will allow specifying a cookie name using
- * {@link CookieHttpSessionStrategy#setCookieName(String)}. The default is
- * "SESSION".
+ * {@link CookieHttpSessionStrategy#setCookieName(String)}. The default is "SESSION".
  *
- * When a session is created, the HTTP response will have a cookie with the
- * specified cookie name and the value of the session id. The cookie will be
- * marked as a session cookie, use the context path for the path of the cookie,
- * marked as HTTPOnly, and if
- * {@link javax.servlet.http.HttpServletRequest#isSecure()} returns true, the
- * cookie will be marked as secure. For example:
+ * When a session is created, the HTTP response will have a cookie with the specified
+ * cookie name and the value of the session id. The cookie will be marked as a session
+ * cookie, use the context path for the path of the cookie, marked as HTTPOnly, and if
+ * {@link javax.servlet.http.HttpServletRequest#isSecure()} returns true, the cookie will
+ * be marked as secure. For example:
  *
  * <pre>
  * HTTP/1.1 200 OK
  * Set-Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6; Path=/context-root; Secure; HttpOnly
  * </pre>
  *
- * The client should now include the session in each request by specifying the
- * same cookie in their request. For example:
+ * The client should now include the session in each request by specifying the same cookie
+ * in their request. For example:
  *
  * <pre>
  * GET /messages/ HTTP/1.1
@@ -61,8 +59,8 @@ import org.springframework.util.Assert;
  * Cookie: SESSION=f81d4fae-7dec-11d0-a765-00a0c91e6bf6
  * </pre>
  *
- * When the session is invalidated, the server will send an HTTP response that
- * expires the cookie. For example:
+ * When the session is invalidated, the server will send an HTTP response that expires the
+ * cookie. For example:
  *
  * <pre>
  * HTTP/1.1 200 OK
@@ -72,10 +70,9 @@ import org.springframework.util.Assert;
  * <h2>Supporting Multiple Simultaneous Sessions</h2>
  *
  * <p>
- * By default multiple sessions are also supported. Once a session is
- * established with the browser, another session can be initiated by specifying
- * a unique value for the {@link #setSessionAliasParamName(String)}. For
- * example, a request to:
+ * By default multiple sessions are also supported. Once a session is established with the
+ * browser, another session can be initiated by specifying a unique value for the
+ * {@link #setSessionAliasParamName(String)}. For example, a request to:
  * </p>
  *
  * <pre>
@@ -92,70 +89,58 @@ import org.springframework.util.Assert;
  * </pre>
  *
  * <p>
- * To use the original session a request without the HTTP parameter u can be
- * made. To use the new session, a request with the HTTP parameter
- * _s=1416195761178 can be used. By default URLs will be rewritten to include the
- * currently selected session.
+ * To use the original session a request without the HTTP parameter u can be made. To use
+ * the new session, a request with the HTTP parameter _s=1416195761178 can be used. By
+ * default URLs will be rewritten to include the currently selected session.
  * </p>
  *
  * <h2>Selecting Sessions</h2>
  *
  * <p>
- * Sessions can be managed by using the HttpSessionManager and
- * SessionRepository. If you are not using Spring in the rest of your
- * application you can obtain a reference from the HttpServletRequest
- * attributes. An example is provided below:
+ * Sessions can be managed by using the HttpSessionManager and SessionRepository. If you
+ * are not using Spring in the rest of your application you can obtain a reference from
+ * the HttpServletRequest attributes. An example is provided below:
  * </p>
  *
- * {@code
+ * <code>
  *      HttpSessionManager sessionManager =
  *              (HttpSessionManager) req.getAttribute(HttpSessionManager.class.getName());
- *      SessionRepository<Session> repo =
- *              (SessionRepository<Session>) req.getAttribute(SessionRepository.class.getName());
+ *      SessionRepository&lt;Session&gt; repo =
+ *              (SessionRepository&lt;Session&gt;) req.getAttribute(SessionRepository.class.getName());
  *
  *      String currentSessionAlias = sessionManager.getCurrentSessionAlias(req);
- *      Map<String, String> sessionIds = sessionManager.getSessionIds(req);
+ *      Map&lt;String, String&gt; sessionIds = sessionManager.getSessionIds(req);
  *      String newSessionAlias = String.valueOf(System.currentTimeMillis());
  *
  *      String contextPath = req.getContextPath();
- *      List<Account> accounts = new ArrayList<>();
- *      Account currentAccount = null;
- *      for(Map.Entry<String, String> entry : sessionIds.entrySet()) {
- *          String alias = entry.getKey();
- *          String sessionId = entry.getValue();
+ *      List&lt;Account&gt; accounts = new ArrayList&lt;&gt;();
+ *      Account currentAccount = null; for(Map.Entry&lt;String, String&gt; entry :
+ * sessionIds.entrySet()) { String alias = entry.getKey(); String sessionId =
+ * entry.getValue();
+ * </code>
  *
- *          Session session = repo.getSession(sessionId);
- *          if(session == null) {
- *              continue;
- *          }
+ * Session session = repo.getSession(sessionId); if(session == null) { continue; }
  *
- *          String username = session.getAttribute("username");
- *          if(username == null) {
- *              newSessionAlias = alias;
- *              continue;
- *          }
+ * String username = session.getAttribute("username"); if(username == null) {
+ * newSessionAlias = alias; continue; }
  *
- *          String logoutUrl = sessionManager.encodeURL("./logout", alias);
- *          String switchAccountUrl = sessionManager.encodeURL("./", alias);
- *          Account account = new Account(username, logoutUrl, switchAccountUrl);
- *          if(currentSessionAlias.equals(alias)) {
- *              currentAccount = account;
- *          } else {
- *              accounts.add(account);
- *          }
- *      }
+ * String logoutUrl = sessionManager.encodeURL("./logout", alias); String switchAccountUrl
+ * = sessionManager.encodeURL("./", alias); Account account = new Account(username,
+ * logoutUrl, switchAccountUrl); if(currentSessionAlias.equals(alias)) { currentAccount =
+ * account; } else { accounts.add(account); } }
  *
- *      req.setAttribute("currentAccount", currentAccount);
- *      req.setAttribute("addAccountUrl", sessionManager.encodeURL(contextPath, newSessionAlias));
- *      req.setAttribute("accounts", accounts);
- * }
+ * req.setAttribute("currentAccount", currentAccount); req.setAttribute("addAccountUrl",
+ * sessionManager.encodeURL(contextPath, newSessionAlias)); req.setAttribute("accounts",
+ * accounts); }
  *
  *
  * @author Rob Winch
  * @since 1.0
  */
-public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy, HttpSessionManager {
-	private static final String SESSION_IDS_WRITTEN_ATTR = CookieHttpSessionStrategy.class.getName().concat(".SESSIONS_WRITTEN_ATTR");
+public final class CookieHttpSessionStrategy
+		implements MultiHttpSessionStrategy, HttpSessionManager {
+	private static final String SESSION_IDS_WRITTEN_ATTR = CookieHttpSessionStrategy.class
+			.getName().concat(".SESSIONS_WRITTEN_ATTR");
 
 	static final String DEFAULT_ALIAS = "0";
 
@@ -211,7 +196,8 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		}
 	}
 
-	public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
+	public void onNewSession(Session session, HttpServletRequest request,
+			HttpServletResponse response) {
 		Set<String> sessionIdsWritten = getSessionIdsWritten(request);
 		if (sessionIdsWritten.contains(session.getId())) {
 			return;
@@ -223,12 +209,14 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		sessionIds.put(sessionAlias, session.getId());
 
 		String cookieValue = createSessionCookieValue(sessionIds);
-		this.cookieSerializer.writeCookieValue(new CookieValue(request, response, cookieValue));
+		this.cookieSerializer
+				.writeCookieValue(new CookieValue(request, response, cookieValue));
 	}
 
 	@SuppressWarnings("unchecked")
 	private Set<String> getSessionIdsWritten(HttpServletRequest request) {
-		Set<String> sessionsWritten = (Set<String>) request.getAttribute(SESSION_IDS_WRITTEN_ATTR);
+		Set<String> sessionsWritten = (Set<String>) request
+				.getAttribute(SESSION_IDS_WRITTEN_ATTR);
 		if (sessionsWritten == null) {
 			sessionsWritten = new HashSet<String>();
 			request.setAttribute(SESSION_IDS_WRITTEN_ATTR, sessionsWritten);
@@ -258,24 +246,23 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		return buffer.toString();
 	}
 
-	public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
+	public void onInvalidateSession(HttpServletRequest request,
+			HttpServletResponse response) {
 		Map<String, String> sessionIds = getSessionIds(request);
 		String requestedAlias = getCurrentSessionAlias(request);
 		sessionIds.remove(requestedAlias);
 
 		String cookieValue = createSessionCookieValue(sessionIds);
-		this.cookieSerializer.writeCookieValue(new CookieValue(request, response, cookieValue));
+		this.cookieSerializer
+				.writeCookieValue(new CookieValue(request, response, cookieValue));
 	}
 
 	/**
-	 * Sets the name of the HTTP parameter that is used to specify the session
-	 * alias. If the value is null, then only a single session is supported per
-	 * browser.
+	 * Sets the name of the HTTP parameter that is used to specify the session alias. If
+	 * the value is null, then only a single session is supported per browser.
 	 *
-	 * @param sessionAliasParamName
-	 *            the name of the HTTP parameter used to specify the session
-	 *            alias. If null, then ony a single session is supported per
-	 *            browser.
+	 * @param sessionAliasParamName the name of the HTTP parameter used to specify the
+	 * session alias. If null, then ony a single session is supported per browser.
 	 */
 	public void setSessionAliasParamName(String sessionAliasParamName) {
 		this.sessionParam = sessionAliasParamName;
@@ -305,7 +292,8 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 
 	public Map<String, String> getSessionIds(HttpServletRequest request) {
 		List<String> cookieValues = this.cookieSerializer.readCookieValues(request);
-		String sessionCookieValue = cookieValues.isEmpty() ? "" : cookieValues.iterator().next();
+		String sessionCookieValue = cookieValues.isEmpty() ? ""
+				: cookieValues.iterator().next();
 		Map<String, String> result = new LinkedHashMap<String, String>();
 		StringTokenizer tokens = new StringTokenizer(sessionCookieValue, " ");
 		if (tokens.countTokens() == 1) {
@@ -323,12 +311,14 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		return result;
 	}
 
-	public HttpServletRequest wrapRequest(HttpServletRequest request, HttpServletResponse response) {
+	public HttpServletRequest wrapRequest(HttpServletRequest request,
+			HttpServletResponse response) {
 		request.setAttribute(HttpSessionManager.class.getName(), this);
 		return request;
 	}
 
-	public HttpServletResponse wrapResponse(HttpServletRequest request, HttpServletResponse response) {
+	public HttpServletResponse wrapResponse(HttpServletRequest request,
+			HttpServletResponse response) {
 		return new MultiSessionHttpServletResponse(response, request);
 	}
 
@@ -337,12 +327,14 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		int queryStart = url.indexOf("?");
 		boolean isDefaultAlias = DEFAULT_ALIAS.equals(encodedSessionAlias);
 		if (queryStart < 0) {
-			return isDefaultAlias ? url : url + "?" + this.sessionParam + "=" + encodedSessionAlias;
+			return isDefaultAlias ? url
+					: url + "?" + this.sessionParam + "=" + encodedSessionAlias;
 		}
 		String path = url.substring(0, queryStart);
 		String query = url.substring(queryStart + 1, url.length());
 		String replacement = isDefaultAlias ? "" : "$1" + encodedSessionAlias;
-		query = query.replaceFirst("((^|&)" + this.sessionParam + "=)([^&]+)?", replacement);
+		query = query.replaceFirst("((^|&)" + this.sessionParam + "=)([^&]+)?",
+				replacement);
 		if (!isDefaultAlias && url.endsWith(query)) {
 			// no existing alias
 			if (!(query.endsWith("&") || query.length() == 0)) {
@@ -369,7 +361,8 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 	class MultiSessionHttpServletResponse extends HttpServletResponseWrapper {
 		private final HttpServletRequest request;
 
-		MultiSessionHttpServletResponse(HttpServletResponse response, HttpServletRequest request) {
+		MultiSessionHttpServletResponse(HttpServletResponse response,
+				HttpServletRequest request) {
 			super(response);
 			this.request = request;
 		}
@@ -377,7 +370,8 @@ public final class CookieHttpSessionStrategy implements MultiHttpSessionStrategy
 		@Override
 		public String encodeRedirectURL(String url) {
 			url = super.encodeRedirectURL(url);
-			return CookieHttpSessionStrategy.this.encodeURL(url, getCurrentSessionAlias(this.request));
+			return CookieHttpSessionStrategy.this.encodeURL(url,
+					getCurrentSessionAlias(this.request));
 		}
 
 		@Override

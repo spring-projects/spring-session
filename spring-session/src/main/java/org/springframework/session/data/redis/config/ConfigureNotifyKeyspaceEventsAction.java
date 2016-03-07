@@ -44,8 +44,12 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 
 	static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
 
-	/* (non-Javadoc)
-	 * @see org.springframework.session.data.redis.config.ConfigureRedisAction#configure(org.springframework.data.redis.connection.RedisConnection)
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * org.springframework.session.data.redis.config.ConfigureRedisAction#configure(org.
+	 * springframework.data.redis.connection.RedisConnection)
 	 */
 	public void configure(RedisConnection connection) {
 		String notifyOptions = getNotifyOptions(connection);
@@ -74,7 +78,9 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 			return config.get(1);
 		}
 		catch (InvalidDataAccessApiUsageException e) {
-			throw new IllegalStateException("Unable to configure Redis to keyspace notifications. See http://docs.spring.io/spring-session/docs/current/reference/html5/#api-redisoperationssessionrepository-sessiondestroyedevent", e);
+			throw new IllegalStateException(
+					"Unable to configure Redis to keyspace notifications. See http://docs.spring.io/spring-session/docs/current/reference/html5/#api-redisoperationssessionrepository-sessiondestroyedevent",
+					e);
 		}
 	}
 

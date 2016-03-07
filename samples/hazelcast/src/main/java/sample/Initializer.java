@@ -53,9 +53,8 @@ public class Initializer implements ServletContextListener {
 		NetworkConfig netConfig = new NetworkConfig();
 		netConfig.setPort(getAvailablePort());
 		cfg.setNetworkConfig(netConfig);
-		SerializerConfig serializer = new SerializerConfig()
-			.setTypeClass(Object.class)
-			.setImplementation(new ObjectStreamSerializer());
+		SerializerConfig serializer = new SerializerConfig().setTypeClass(Object.class)
+				.setImplementation(new ObjectStreamSerializer());
 		cfg.getSerializationConfig().addSerializerConfig(serializer);
 		MapConfig mc = new MapConfig();
 		mc.setName(sessionMapName);
@@ -65,10 +64,10 @@ public class Initializer implements ServletContextListener {
 		this.instance = Hazelcast.newHazelcastInstance(cfg);
 		Map<String, ExpiringSession> sessions = this.instance.getMap(sessionMapName);
 
-		SessionRepository<ExpiringSession> sessionRepository =
-				new MapSessionRepository(sessions);
-		SessionRepositoryFilter<ExpiringSession> filter =
-				new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(
+				sessions);
+		SessionRepositoryFilter<ExpiringSession> filter = new SessionRepositoryFilter<ExpiringSession>(
+				sessionRepository);
 		Dynamic fr = sc.addFilter("springSessionFilter", filter);
 		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
 	}

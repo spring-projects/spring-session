@@ -28,8 +28,8 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and
- * backed by a relational database. In order to leverage the annotation, a single
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by a
+ * relational database. In order to leverage the annotation, a single
  * {@link javax.sql.DataSource} must be provided. For example:
  *
  * <pre class="code">
@@ -59,8 +59,8 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
  * @since 1.2.0
  * @see EnableSpringHttpSession
  */
-@Retention(value = RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 @Documented
 @Import(JdbcHttpSessionConfiguration.class)
 @Configuration

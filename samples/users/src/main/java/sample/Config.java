@@ -32,7 +32,7 @@ public class Config {
 
 	@Bean
 	public JedisConnectionFactory connectionFactory() {
-		return  new JedisConnectionFactory();
+		return new JedisConnectionFactory();
 	}
 }
 // end::class[]

@@ -19,19 +19,18 @@ package org.springframework.session.web.http;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /**
  * <p>
  * Some {@link HttpSessionStrategy} may also want to further customize
- * {@link HttpServletRequest} and {@link HttpServletResponse} objects. For
- * example, {@link CookieHttpSessionStrategy} customizes how URL rewriting is
- * done to select which session should be used in the event multiple sessions
- * are active.
+ * {@link HttpServletRequest} and {@link HttpServletResponse} objects. For example,
+ * {@link CookieHttpSessionStrategy} customizes how URL rewriting is done to select which
+ * session should be used in the event multiple sessions are active.
  * </p>
  *
  * @author Rob Winch
  * @since 1.0
  * @see CookieHttpSessionStrategy
  */
-public interface MultiHttpSessionStrategy extends HttpSessionStrategy, RequestResponsePostProcessor {
+public interface MultiHttpSessionStrategy
+		extends HttpSessionStrategy, RequestResponsePostProcessor {
 }

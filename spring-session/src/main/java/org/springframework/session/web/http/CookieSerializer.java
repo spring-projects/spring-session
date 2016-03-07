@@ -23,8 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Strategy for reading and writing a cookie value to the
- * {@link HttpServletResponse}.
+ * Strategy for reading and writing a cookie value to the {@link HttpServletResponse}.
  *
  * @author Rob Winch
  * @since 1.1
@@ -32,25 +31,21 @@ import javax.servlet.http.HttpServletResponse;
 public interface CookieSerializer {
 
 	/**
-	 * Writes a given {@link CookieValue} to the provided
-	 * {@link HttpServletResponse}.
+	 * Writes a given {@link CookieValue} to the provided {@link HttpServletResponse}.
 	 *
-	 * @param cookieValue
-	 *            the {@link CookieValue} to write to
-	 *            {@link CookieValue#getResponse()}. Cannot be null.
+	 * @param cookieValue the {@link CookieValue} to write to
+	 * {@link CookieValue#getResponse()}. Cannot be null.
 	 */
 	void writeCookieValue(CookieValue cookieValue);
 
 	/**
-	 * Reads all the matching cookies from the {@link HttpServletRequest}. The
-	 * result is a List since there can be multiple {@link Cookie} in a single
-	 * request with a matching name. For example, one Cookie may have a path of
-	 * / and another of /context, but the path is not transmitted in the
-	 * request.
+	 * Reads all the matching cookies from the {@link HttpServletRequest}. The result is a
+	 * List since there can be multiple {@link Cookie} in a single request with a matching
+	 * name. For example, one Cookie may have a path of / and another of /context, but the
+	 * path is not transmitted in the request.
 	 *
-	 * @param request
-	 *            the {@link HttpServletRequest} to read the cookie from. Cannot
-	 *            be null.
+	 * @param request the {@link HttpServletRequest} to read the cookie from. Cannot be
+	 * null.
 	 * @return the values of all the matching cookies
 	 */
 	List<String> readCookieValues(HttpServletRequest request);
@@ -70,19 +65,15 @@ public interface CookieSerializer {
 		/**
 		 * Creates a new instance.
 		 *
-		 * @param request
-		 *            the {@link HttpServletRequest} to use. Useful for
-		 *            determining the context in which the cookie is set. Cannot
-		 *            be null.
-		 * @param response
-		 *            the {@link HttpServletResponse} to use.
-		 * @param cookieValue
-		 *            the value of the cookie to be written. This value may be
-		 *            modified by the {@link CookieSerializer} when writing to
-		 *            the actual cookie so long as the original value is
-		 *            returned when the cookie is read.
+		 * @param request the {@link HttpServletRequest} to use. Useful for determining
+		 * the context in which the cookie is set. Cannot be null.
+		 * @param response the {@link HttpServletResponse} to use.
+		 * @param cookieValue the value of the cookie to be written. This value may be
+		 * modified by the {@link CookieSerializer} when writing to the actual cookie so
+		 * long as the original value is returned when the cookie is read.
 		 */
-		public CookieValue(HttpServletRequest request, HttpServletResponse response, String cookieValue) {
+		public CookieValue(HttpServletRequest request, HttpServletResponse response,
+				String cookieValue) {
 			this.request = request;
 			this.response = response;
 			this.cookieValue = cookieValue;
@@ -105,7 +96,9 @@ public interface CookieSerializer {
 		}
 
 		/**
-		 * The value to be written. This value may be modified by the {@link CookieSerializer} before written to the cookie. However, the value must be the same as the original when it is read back in.
+		 * The value to be written. This value may be modified by the
+		 * {@link CookieSerializer} before written to the cookie. However, the value must
+		 * be the same as the original when it is read back in.
 		 *
 		 * @return the value to be written
 		 */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,10 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
@@ -24,23 +28,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Jakub Kubrynski
@@ -57,113 +58,131 @@ public class MongoOperationsSessionRepositoryTests {
 
 	@Before
 	public void setUp() throws Exception {
-		sut = new MongoOperationsSessionRepository(mongoOperations);
-		sut.setMongoSessionConverter(converter);
+		this.sut = new MongoOperationsSessionRepository(this.mongoOperations);
+		this.sut.setMongoSessionConverter(this.converter);
 	}
 
 	@Test
 	public void shouldCreateSession() throws Exception {
-		//when
-		ExpiringSession session = sut.createSession();
+		// when
+		ExpiringSession session = this.sut.createSession();
 
-		//then
+		// then
 		assertThat(session.getId()).isNotEmpty();
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL);
+		assertThat(session.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL);
 	}
 
 	@Test
 	public void shouldSaveSession() throws Exception {
-		//given
+		// given
 		MongoExpiringSession session = new MongoExpiringSession();
 		BasicDBObject dbSession = new BasicDBObject();
 		DBCollection collection = mock(DBCollection.class);
 
-		when(converter.convert(session, TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class))).thenReturn(dbSession);
-		when(mongoOperations.getCollection(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).thenReturn(collection);
-		//when
-		sut.save(session);
+		given(this.converter.convert(session,
+				TypeDescriptor.valueOf(MongoExpiringSession.class),
+				TypeDescriptor.valueOf(DBObject.class))).willReturn(dbSession);
+		given(this.mongoOperations
+				.getCollection(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
+						.willReturn(collection);
+		// when
+		this.sut.save(session);
 
-		//then
+		// then
 		verify(collection).save(dbSession);
 	}
 
 	@Test
 	public void shouldGetSession() throws Exception {
-		//given
+		// given
 		String sessionId = UUID.randomUUID().toString();
 		BasicDBObject dbSession = new BasicDBObject();
-		when(mongoOperations.findById(sessionId, DBObject.class, MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).thenReturn(dbSession);
+		given(this.mongoOperations.findById(sessionId, DBObject.class,
+				MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
+						.willReturn(dbSession);
 		MongoExpiringSession session = new MongoExpiringSession();
-		when(converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class))).thenReturn(session);
+		given(this.converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class),
+				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
-		//when
-		ExpiringSession retrievedSession = sut.getSession(sessionId);
+		// when
+		ExpiringSession retrievedSession = this.sut.getSession(sessionId);
 
-		//then
+		// then
 		assertThat(retrievedSession).isEqualTo(session);
 	}
 
 	@Test
 	public void shouldHandleExpiredSession() throws Exception {
-		//given
+		// given
 		String sessionId = UUID.randomUUID().toString();
 		BasicDBObject dbSession = new BasicDBObject();
-		when(mongoOperations.findById(sessionId, DBObject.class, MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).thenReturn(dbSession);
+		given(this.mongoOperations.findById(sessionId, DBObject.class,
+				MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
+						.willReturn(dbSession);
 		MongoExpiringSession session = mock(MongoExpiringSession.class);
-		when(session.isExpired()).thenReturn(true);
-		when(session.getId()).thenReturn(sessionId);
-		when(converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class))).thenReturn(session);
+		given(session.isExpired()).willReturn(true);
+		given(session.getId()).willReturn(sessionId);
+		given(this.converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class),
+				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
-		//when
-		sut.getSession(sessionId);
+		// when
+		this.sut.getSession(sessionId);
 
-		//then
-		verify(mongoOperations).remove(any(DBObject.class), eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
+		// then
+		verify(this.mongoOperations).remove(any(DBObject.class),
+				eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
 	}
 
 	@Test
 	public void shouldDeleteSession() throws Exception {
-		//given
+		// given
 		String sessionId = UUID.randomUUID().toString();
 
-		//when
-		sut.delete(sessionId);
+		// when
+		this.sut.delete(sessionId);
 
-		//then
-		verify(mongoOperations).remove(any(DBObject.class), eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
+		// then
+		verify(this.mongoOperations).remove(any(DBObject.class),
+				eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
 	}
 
 	@Test
 	public void shouldGetSessionsMapByPrincipal() throws Exception {
-		//given
+		// given
 		String principalNameIndexName = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 		DBObject dbSession = new BasicDBObject();
-		when(converter.getQueryForIndex(anyString(), Matchers.anyObject())).thenReturn(mock(Query.class));
-		when(mongoOperations.find(any(Query.class), eq(DBObject.class), eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)))
-				.thenReturn(Collections.singletonList(dbSession));
+		given(this.converter.getQueryForIndex(anyString(), Matchers.anyObject()))
+				.willReturn(mock(Query.class));
+		given(this.mongoOperations.find(any(Query.class), eq(DBObject.class),
+				eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)))
+						.willReturn(Collections.singletonList(dbSession));
 
 		String sessionId = UUID.randomUUID().toString();
 
 		MongoExpiringSession session = new MongoExpiringSession(sessionId, 1800);
-		when(converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class), TypeDescriptor.valueOf(MongoExpiringSession.class))).thenReturn(session);
-		//when
-		Map<String, MongoExpiringSession> sessionsMap = sut.findByIndexNameAndIndexValue(principalNameIndexName, "john");
+		given(this.converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class),
+				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
+		// when
+		Map<String, MongoExpiringSession> sessionsMap = this.sut
+				.findByIndexNameAndIndexValue(principalNameIndexName, "john");
 
-		//then
+		// then
 		assertThat(sessionsMap).containsOnlyKeys(sessionId);
 		assertThat(sessionsMap).containsValues(session);
 	}
 
 	@Test
 	public void shouldReturnEmptyMapForNotSupportedIndex() throws Exception {
-		//given
+		// given
 		String index = "some_not_supported_index_name";
 
-		//when
-		Map<String, MongoExpiringSession> sessionsMap = sut.findByIndexNameAndIndexValue(index, "some_value");
+		// when
+		Map<String, MongoExpiringSession> sessionsMap = this.sut
+				.findByIndexNameAndIndexValue(index, "some_value");
 
-		//then
+		// then
 		assertThat(sessionsMap).isEmpty();
 	}
 

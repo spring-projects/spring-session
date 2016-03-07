@@ -45,9 +45,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Ensure that the appropriate SessionEvents are fired at the expected times.
- * Additionally ensure that the interactions with the {@link SessionRepository}
- * abstraction behave as expected after each SessionEvent.
+ * Ensure that the appropriate SessionEvents are fired at the expected times. Additionally
+ * ensure that the interactions with the {@link SessionRepository} abstraction behave as
+ * expected after each SessionEvent.
  *
  * @author Tommy Ludwig
  */
@@ -78,22 +78,27 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		sessionToSave.setAttribute(expectedAttributeName, expectedAttributeValue);
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username, "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,
+				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		sessionToSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
-		sessionToSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
+		sessionToSave.setAttribute(
+				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
 
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(this.registry.getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionCreatedEvent.class);
 
 		Session session = this.repository.getSession(sessionToSave.getId());
 
 		assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-		assertThat(session.getAttributeNames()).isEqualTo(sessionToSave.getAttributeNames());
-		assertThat(session.getAttribute(expectedAttributeName)).isEqualTo(sessionToSave.getAttribute(expectedAttributeName));
+		assertThat(session.getAttributeNames())
+				.isEqualTo(sessionToSave.getAttributeNames());
+		assertThat(session.getAttribute(expectedAttributeName))
+				.isEqualTo(sessionToSave.getAttribute(expectedAttributeName));
 	}
 
 	@Test
@@ -103,13 +108,16 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(this.registry.getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionCreatedEvent.class);
 		this.registry.clear();
 
-		assertThat(sessionToSave.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(sessionToSave.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionExpiredEvent.class);
+		assertThat(this.registry.getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionExpiredEvent.class);
 
 		assertThat(this.repository.getSession(sessionToSave.getId())).isNull();
 	}
@@ -121,13 +129,15 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(this.registry.getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionCreatedEvent.class);
 		this.registry.clear();
 
 		this.repository.delete(sessionToSave.getId());
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId())).isInstanceOf(SessionDeletedEvent.class);
+		assertThat(this.registry.getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionDeletedEvent.class);
 
 		assertThat(this.repository.getSession(sessionToSave.getId())).isNull();
 	}

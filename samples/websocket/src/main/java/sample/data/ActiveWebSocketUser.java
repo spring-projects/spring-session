@@ -56,5 +56,4 @@ public class ActiveWebSocketUser {
 		this.connectionTime = connectionTime;
 	}
 
-
 }

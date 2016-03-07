@@ -15,15 +15,19 @@
  */
 package sample;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
 import java.io.IOException;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 // tag::class[]
 public class SessionServlet extends HttpServlet {
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
 		String attributeName = req.getParameter("attributeName");
 		String attributeValue = req.getParameter("attributeValue");
 		req.getSession().setAttribute(attributeName, attributeValue);
