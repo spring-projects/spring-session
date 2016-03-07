@@ -38,7 +38,7 @@ public class IndexDocTests {
 
 	@Test
 	public void repositoryDemo() {
-		ExpiringRepositoryDemo<ExpiringSession> demo = new ExpiringRepositoryDemo<ExpiringSession>();
+		RepositoryDemo<ExpiringSession> demo = new RepositoryDemo<ExpiringSession>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
@@ -76,7 +76,6 @@ public class IndexDocTests {
 		demo.demo();
 	}
 
-	@SuppressWarnings("unused")
 	// tag::expire-repository-demo[]
 	public class ExpiringRepositoryDemo<S extends ExpiringSession> {
 		private SessionRepository<S> repository; // <1>
