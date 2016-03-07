@@ -38,13 +38,13 @@ import java.util.Set;
 import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 /**
- * {@code MongoSessionConverter} implementation transforming {@code MongoExpiringSession} to/from a BSON object
+ * {@code AbstractMongoSessionConverter} implementation transforming {@code MongoExpiringSession} to/from a BSON object
  * using standard Java serialization
  *
  * @author Jakub Kubrynski
  * @since 1.2
  */
-class JdkMongoSessionConverter extends MongoSessionConverter {
+class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 
 	private static final Log LOG = LogFactory.getLog(JdkMongoSessionConverter.class);
 

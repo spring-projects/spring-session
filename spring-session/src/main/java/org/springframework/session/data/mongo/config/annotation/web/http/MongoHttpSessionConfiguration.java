@@ -24,7 +24,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
-import org.springframework.session.data.mongo.MongoSessionConverter;
+import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 
 /**
  * Configuration class registering {@code MongoSessionRepository} bean
@@ -36,7 +36,7 @@ import org.springframework.session.data.mongo.MongoSessionConverter;
 @Configuration
 class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
-	private MongoSessionConverter mongoSessionConverter;
+	private AbstractMongoSessionConverter mongoSessionConverter;
 
 	private Integer maxInactiveIntervalInSeconds;
 	private String collectionName;
@@ -60,7 +60,7 @@ class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration imple
 	}
 
 	@Autowired(required = false)
-	public void setMongoSessionConverter(MongoSessionConverter mongoSessionConverter) {
+	public void setMongoSessionConverter(AbstractMongoSessionConverter mongoSessionConverter) {
 		this.mongoSessionConverter = mongoSessionConverter;
 	}
 }

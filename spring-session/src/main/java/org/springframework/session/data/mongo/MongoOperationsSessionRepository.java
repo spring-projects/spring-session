@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * Session repository implementation which stores sessions in Mongo.
- * Uses {@link MongoSessionConverter} to transform session objects from/to
+ * Uses {@link AbstractMongoSessionConverter} to transform session objects from/to
  * native Mongo representation ({@code DBObject}).
  *
  * Repository is also responsible for removing expired sessions from database.
@@ -46,7 +46,7 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 
 	private final MongoOperations mongoOperations;
 
-	private MongoSessionConverter mongoSessionConverter = new JdkMongoSessionConverter();
+	private AbstractMongoSessionConverter mongoSessionConverter = new JdkMongoSessionConverter();
 	private Integer maxInactiveIntervalInSeconds = DEFAULT_INACTIVE_INTERVAL;
 	private String collectionName = DEFAULT_COLLECTION_NAME;
 
@@ -121,7 +121,7 @@ public class MongoOperationsSessionRepository implements FindByIndexNameSessionR
 				TypeDescriptor.valueOf(MongoExpiringSession.class), TypeDescriptor.valueOf(DBObject.class));
 	}
 
-	public void setMongoSessionConverter(MongoSessionConverter mongoSessionConverter) {
+	public void setMongoSessionConverter(AbstractMongoSessionConverter mongoSessionConverter) {
 		this.mongoSessionConverter = mongoSessionConverter;
 	}
 

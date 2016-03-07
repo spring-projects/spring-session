@@ -51,7 +51,7 @@ public class MongoOperationsSessionRepositoryTests {
 	@Mock
 	MongoOperations mongoOperations;
 	@Mock
-	MongoSessionConverter converter;
+	AbstractMongoSessionConverter converter;
 
 	MongoOperationsSessionRepository sut;
 

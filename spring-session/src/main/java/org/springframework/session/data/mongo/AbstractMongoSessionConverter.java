@@ -19,9 +19,9 @@ import java.util.List;
  * @author Jakub Kubrynski
  * @since 1.2
  */
-public abstract class MongoSessionConverter implements GenericConverter {
+public abstract class AbstractMongoSessionConverter implements GenericConverter {
 
-	private static final Log LOG = LogFactory.getLog(MongoSessionConverter.class);
+	private static final Log LOG = LogFactory.getLog(AbstractMongoSessionConverter.class);
 
 	protected static final String EXPIRE_AT_FIELD_NAME = "expireAt";
 
