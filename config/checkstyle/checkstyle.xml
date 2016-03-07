@@ -14,6 +14,7 @@
 	</module>
 	<module name="NewlineAtEndOfFile">
 		<property name="lineSeparator" value="lf"/>
+		<property name="fileExtensions" value="java,xml"/>
 	</module>
 
 	<!-- TreeWalker Checks -->
@@ -74,7 +75,7 @@
 		<module name="AvoidStarImport"/>
 		<module name="AvoidStaticImport">
 			<property name="excludes"
-					value="org.assertj.core.api.Assertions.*, org.mockito.Mockito.*, org.mockito.BDDMockito.*, org.mockito.Matchers.*, org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*, org.springframework.test.web.servlet.result.MockMvcResultHandlers.*, org.springframework.test.web.servlet.result.MockMvcResultMatchers.*, org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*, org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*, org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo"/>
+					value="org.assertj.core.api.Assertions.*, org.mockito.Mockito.*, org.mockito.BDDMockito.*, org.mockito.AdditionalMatchers.*, org.mockito.Matchers.*, org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*, org.springframework.test.web.servlet.result.MockMvcResultHandlers.*, org.springframework.test.web.servlet.result.MockMvcResultMatchers.*, org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*, org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*, org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo"/>
 		</module>
 		<module name="IllegalImport"/>
 		<module name="RedundantImport"/>
@@ -109,11 +110,11 @@
 		</module>
 		<module name="AtclauseOrder">
 			<property name="target" value="CLASS_DEF, INTERFACE_DEF, ENUM_DEF"/>
-    		<property name="tagOrder" value="@param, @author, @since, @see, @version, @serial, @deprecated"/>
+			<property name="tagOrder" value="@param, @author, @since, @see, @version, @serial, @deprecated"/>
 		</module>
- 		<module name="AtclauseOrder">
+		<module name="AtclauseOrder">
 			<property name="target" value="METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
-    		<property name="tagOrder" value="@param, @return, @throws, @since, @deprecated, @see"/>
+			<property name="tagOrder" value="@param, @return, @throws, @since, @deprecated, @see"/>
 		</module>
 
 		<!-- Miscellaneous -->
@@ -126,20 +127,20 @@
 		<module name="RedundantModifier"/>
 
 		<!-- Regexp -->
- 		<module name="RegexpSinglelineJava">
+		<module name="RegexpSinglelineJava">
 			<property name="format" value="^\t* +\t*\S"/>
 			<property name="message" value="Line has leading space characters; indentation should be performed with tabs only."/>
 			<property name="ignoreComments" value="true"/>
 		</module>
- 		<module name="RegexpSinglelineJava">
- 			<property name="maximum" value="0"/>
+		<module name="RegexpSinglelineJava">
+			<property name="maximum" value="0"/>
 			<property name="format" value="org\.mockito\.Mockito\.(when|doThrow|doAnswer)"/>
 			<property name="message"
 				value="Please use BDDMockto imports."/>
 			<property name="ignoreComments" value="true"/>
 		</module>
- 		<module name="RegexpSinglelineJava">
- 			<property name="maximum" value="0"/>
+		<module name="RegexpSinglelineJava">
+			<property name="maximum" value="0"/>
 			<property name="format" value="org\.junit\.Assert\.assert"/>
 			<property name="message" value="Please use AssertJ imports."/>
 			<property name="ignoreComments" value="true"/>
@@ -161,5 +162,5 @@
 		<module name="TypecastParenPad"/>
 		<module name="WhitespaceAfter"/>
 		<module name="WhitespaceAround"/>
- 	</module>
+	</module>
 </module>
