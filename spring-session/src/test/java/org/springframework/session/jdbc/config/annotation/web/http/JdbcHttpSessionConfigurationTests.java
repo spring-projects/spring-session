@@ -27,6 +27,7 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
@@ -123,33 +124,15 @@ public class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
-	public void customSerializingConverterConfiguration() {
-		registerAndRefresh(CustomSerializingConverterConfiguration.class);
-
-		JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
-		Converter<Object, byte[]> serializingConverter =
-				(Converter<Object, byte[]>) this.context.getBean("springSessionSerializingConverter");
-		assertThat(repository).isNotNull();
-		assertThat(serializingConverter).isNotNull();
-		Converter<Object, byte[]> sc =
-				(Converter<Object, byte[]>) ReflectionTestUtils.getField(repository, "serializingConverter");
-		assertThat(sc).isEqualTo(serializingConverter);
-	}
-
-	@Test
-	@SuppressWarnings("unchecked")
-	public void customDeserializingConverterConfiguration() {
+	public void customConversionServiceConfiguration() {
 		registerAndRefresh(CustomDeserializingConverterConfiguration.class);
 
 		JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
-		Converter<byte[], Object> deserializingConverter =
-				(Converter<byte[], Object>) this.context.getBean("springSessionDeserializingConverter");
+		ConversionService conversionService = this.context.getBean("springSessionConversionService", ConversionService.class);
 		assertThat(repository).isNotNull();
-		assertThat(deserializingConverter).isNotNull();
-		Converter<byte[], Object> dc =
-				(Converter<byte[], Object>) ReflectionTestUtils.getField(repository, "deserializingConverter");
-		assertThat(dc).isEqualTo(deserializingConverter);
+		assertThat(conversionService).isNotNull();
+		Object repositoryConversionService = ReflectionTestUtils.getField(repository, "conversionService");
+		assertThat(repositoryConversionService).isEqualTo(conversionService);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -214,9 +197,8 @@ public class JdbcHttpSessionConfigurationTests {
 	static class CustomDeserializingConverterConfiguration extends BaseConfiguration {
 
 		@Bean
-		@SuppressWarnings("unchecked")
-		public Converter<byte[], Object> springSessionDeserializingConverter() {
-			return mock(Converter.class);
+		public ConversionService springSessionConversionService() {
+			return mock(ConversionService.class);
 		}
 
 	}

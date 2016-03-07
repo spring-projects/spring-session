@@ -129,19 +129,11 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void setSerializingConverterNull() {
+	public void setConversionServiceNull() {
 		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("SerializingConverter must not be null");
+		this.thrown.expectMessage("conversionService must not be null");
 
-		this.repository.setSerializingConverter(null);
-	}
-
-	@Test
-	public void setDeserializingConverterNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("DeserializingConverter must not be null");
-
-		this.repository.setDeserializingConverter(null);
+		this.repository.setConversionService(null);
 	}
 
 	@Test

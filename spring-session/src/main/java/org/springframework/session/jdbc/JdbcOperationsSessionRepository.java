@@ -31,8 +31,9 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -139,9 +140,7 @@ public class JdbcOperationsSessionRepository
 	 */
 	private Integer defaultMaxInactiveInterval;
 
-	private Converter<Object, byte[]> serializingConverter = new SerializingConverter();
-
-	private Converter<byte[], Object> deserializingConverter = new DeserializingConverter();
+	private ConversionService conversionService;
 
 	private LobHandler lobHandler = new DefaultLobHandler();
 
@@ -162,6 +161,8 @@ public class JdbcOperationsSessionRepository
 	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations) {
 		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
 		this.jdbcOperations = jdbcOperations;
+
+		this.conversionService = createDefaultConversionService();
 	}
 
 	/**
@@ -188,14 +189,12 @@ public class JdbcOperationsSessionRepository
 		this.lobHandler = lobHandler;
 	}
 
-	public void setSerializingConverter(Converter<Object, byte[]> serializingConverter) {
-		Assert.notNull(serializingConverter, "SerializingConverter must not be null");
-		this.serializingConverter = serializingConverter;
-	}
-
-	public void setDeserializingConverter(Converter<byte[], Object> deserializingConverter) {
-		Assert.notNull(deserializingConverter, "DeserializingConverter must not be null");
-		this.deserializingConverter = deserializingConverter;
+	/**
+	 * @param conversionService the converter to set
+	 */
+	public void setConversionService(ConversionService conversionService) {
+		Assert.notNull(conversionService, "conversionService must not be null");
+		this.conversionService = conversionService;
 	}
 
 	@Override
@@ -328,7 +327,7 @@ public class JdbcOperationsSessionRepository
 	}
 
 	private byte[] serialize(ExpiringSession session) {
-		return this.serializingConverter.convert(session);
+		return (byte[]) this.conversionService.convert(session, TypeDescriptor.valueOf(ExpiringSession.class), TypeDescriptor.valueOf(byte[].class));
 	}
 
 	private static long roundDownMinute(long timeInMs) {
@@ -338,6 +337,14 @@ public class JdbcOperationsSessionRepository
 		date.clear(Calendar.MILLISECOND);
 		return date.getTimeInMillis();
 	}
+
+	private static GenericConversionService createDefaultConversionService() {
+		GenericConversionService converter = new GenericConversionService();
+		converter.addConverter(ExpiringSession.class, byte[].class, new SerializingConverter());
+		converter.addConverter(byte[].class, ExpiringSession.class, new DeserializingConverter());
+		return converter;
+	}
+
 
 	final class JdbcSession implements ExpiringSession {
 
@@ -467,8 +474,8 @@ public class JdbcOperationsSessionRepository
 
 		@Override
 		public ExpiringSession mapRow(ResultSet rs, int rowNum) throws SQLException {
-			return (ExpiringSession) JdbcOperationsSessionRepository.this.deserializingConverter.convert(
-					JdbcOperationsSessionRepository.this.lobHandler.getBlobAsBytes(rs, "SESSION_BYTES"));
+			return (ExpiringSession) JdbcOperationsSessionRepository.this.conversionService.convert(
+					JdbcOperationsSessionRepository.this.lobHandler.getBlobAsBytes(rs, "SESSION_BYTES"), TypeDescriptor.valueOf(byte[].class), TypeDescriptor.valueOf(ExpiringSession.class));
 		}
 
 	}

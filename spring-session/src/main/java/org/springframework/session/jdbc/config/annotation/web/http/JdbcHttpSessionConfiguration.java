@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.session.jdbc.config.annotation.web.http;
 
 import java.util.Map;
@@ -26,7 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
-import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -58,9 +57,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private LobHandler lobHandler;
 
-	private Converter<Object, byte[]> serializingConverter;
+	@Autowired(required = false)
+	@Qualifier("conversionService")
+	private ConversionService conversionService;
 
-	private Converter<byte[], Object> deserializingConverter;
+	private ConversionService springSessionConversionService;
 
 	@Bean
 	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
@@ -80,11 +81,10 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
 		}
-		if (this.serializingConverter != null) {
-			sessionRepository.setSerializingConverter(this.serializingConverter);
-		}
-		if (this.deserializingConverter != null) {
-			sessionRepository.setDeserializingConverter(this.deserializingConverter);
+		if (this.springSessionConversionService != null) {
+			sessionRepository.setConversionService(this.springSessionConversionService);
+		} else if(conversionService != null) {
+			sessionRepository.setConversionService(this.conversionService);
 		}
 		return sessionRepository;
 	}
@@ -96,15 +96,9 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	}
 
 	@Autowired(required = false)
-	@Qualifier("springSessionSerializingConverter")
-	public void setSerializingConverter(Converter<Object, byte[]> serializingConverter) {
-		this.serializingConverter = serializingConverter;
-	}
-
-	@Autowired(required = false)
-	@Qualifier("springSessionDeserializingConverter")
-	public void setDeserializingConverter(Converter<byte[], Object> deserializingConverter) {
-		this.deserializingConverter = deserializingConverter;
+	@Qualifier("springSessionConversionService")
+	public void setSpringSessionConversionService(ConversionService conversionService) {
+		this.springSessionConversionService = conversionService;
 	}
 
 	private String getTableName() {
