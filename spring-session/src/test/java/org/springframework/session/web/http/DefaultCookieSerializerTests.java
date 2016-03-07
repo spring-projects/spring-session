@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.web.http;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.session.web.http;
 
 import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -43,107 +45,107 @@ public class DefaultCookieSerializerTests {
 
 	@Before
 	public void setup() {
-		cookieName = "SESSION";
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		sessionId = "sessionId";
-		serializer = new DefaultCookieSerializer();
+		this.cookieName = "SESSION";
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.sessionId = "sessionId";
+		this.serializer = new DefaultCookieSerializer();
 	}
 
 	// --- readCookieValues ---
 
 	@Test
 	public void readCookieValuesNull() {
-		assertThat(serializer.readCookieValues(request)).isEmpty();
+		assertThat(this.serializer.readCookieValues(this.request)).isEmpty();
 	}
 
 	@Test
 	public void readCookieValuesSingle() {
-		request.setCookies(new Cookie(cookieName, sessionId));
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId));
 
-		assertThat(serializer.readCookieValues(request)).containsOnly(sessionId);
+		assertThat(this.serializer.readCookieValues(this.request)).containsOnly(this.sessionId);
 	}
 
 	@Test
 	public void readCookieValuesSingleAndInvalidName() {
-		request.setCookies(new Cookie(cookieName, sessionId), new Cookie(cookieName+"INVALID", sessionId + "INVALID"));
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId), new Cookie(this.cookieName + "INVALID", this.sessionId + "INVALID"));
 
-		assertThat(serializer.readCookieValues(request)).containsOnly(sessionId);
+		assertThat(this.serializer.readCookieValues(this.request)).containsOnly(this.sessionId);
 	}
 
 	@Test
 	public void readCookieValuesMulti() {
 		String secondSession = "secondSessionId";
-		request.setCookies(new Cookie(cookieName, sessionId), new Cookie(cookieName, secondSession));
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId), new Cookie(this.cookieName, secondSession));
 
-		assertThat(serializer.readCookieValues(request)).containsExactly(sessionId, secondSession);
+		assertThat(this.serializer.readCookieValues(this.request)).containsExactly(this.sessionId, secondSession);
 	}
 
 	@Test
 	public void readCookieValuesMultiCustomSessionCookieName() {
 		setCookieName("JSESSIONID");
 		String secondSession = "secondSessionId";
-		request.setCookies(new Cookie(cookieName, sessionId), new Cookie(cookieName, secondSession));
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId), new Cookie(this.cookieName, secondSession));
 
-		assertThat(serializer.readCookieValues(request)).containsExactly(sessionId, secondSession);
+		assertThat(this.serializer.readCookieValues(this.request)).containsExactly(this.sessionId, secondSession);
 	}
 
 	// gh-392
 	@Test
 	public void readCookieValuesNullCookieValue() {
-		request.setCookies(new Cookie(cookieName, null));
+		this.request.setCookies(new Cookie(this.cookieName, null));
 
-		assertThat(serializer.readCookieValues(request)).isEmpty();
+		assertThat(this.serializer.readCookieValues(this.request)).isEmpty();
 	}
 
 	@Test
 	public void readCookieValuesNullCookieValueAndJvmRoute() {
-		serializer.setJvmRoute("123");
-		request.setCookies(new Cookie(cookieName, null));
+		this.serializer.setJvmRoute("123");
+		this.request.setCookies(new Cookie(this.cookieName, null));
 
-		assertThat(serializer.readCookieValues(request)).isEmpty();
+		assertThat(this.serializer.readCookieValues(this.request)).isEmpty();
 	}
 
 	@Test
 	public void readCookieValuesNullCookieValueAndNotNullCookie() {
-		serializer.setJvmRoute("123");
-		request.setCookies(new Cookie(cookieName, null), new Cookie(cookieName, sessionId));
+		this.serializer.setJvmRoute("123");
+		this.request.setCookies(new Cookie(this.cookieName, null), new Cookie(this.cookieName, this.sessionId));
 
-		assertThat(serializer.readCookieValues(request)).containsOnly(sessionId);
+		assertThat(this.serializer.readCookieValues(this.request)).containsOnly(this.sessionId);
 	}
 
 	// --- writeCookie ---
 
 	@Test
 	public void writeCookie() {
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().getValue()).isEqualTo(sessionId);
+		assertThat(getCookie().getValue()).isEqualTo(this.sessionId);
 	}
 
 	// --- httpOnly ---
 
 	@Test
 	public void writeCookieHttpOnlyDefault() {
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().isHttpOnly()).isTrue();
 	}
 
 	@Test
 	public void writeCookieHttpOnlySetTrue() {
-		serializer.setUseHttpOnlyCookie(true);
+		this.serializer.setUseHttpOnlyCookie(true);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().isHttpOnly()).isTrue();
 	}
 
 	@Test
 	public void writeCookieHttpOnlySetFalse() {
-		serializer.setUseHttpOnlyCookie(false);
+		this.serializer.setUseHttpOnlyCookie(false);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().isHttpOnly()).isFalse();
 	}
@@ -152,7 +154,7 @@ public class DefaultCookieSerializerTests {
 
 	@Test
 	public void writeCookieDomainNameDefault() {
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getDomain()).isNull();
 	}
@@ -160,17 +162,17 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void writeCookieDomainNameCustom() {
 		String domainName = "example.com";
-		serializer.setDomainName(domainName);
+		this.serializer.setDomainName(domainName);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getDomain()).isEqualTo(domainName);
 	}
 
-	@Test(expected=IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void setDomainNameAndDomainNamePatternThrows() {
-		serializer.setDomainName("example.com");
-		serializer.setDomainNamePattern(".*");
+		this.serializer.setDomainName("example.com");
+		this.serializer.setDomainNamePattern(".*");
 	}
 
 	// --- domainNamePattern ---
@@ -178,38 +180,38 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void writeCookieDomainNamePattern() {
 		String domainNamePattern = "^.+?\\.(\\w+\\.[a-z]+)$";
-		serializer.setDomainNamePattern(domainNamePattern);
+		this.serializer.setDomainNamePattern(domainNamePattern);
 
-		String[] matchingDomains = {"child.sub.example.com","www.example.com"};
-		for(String domain : matchingDomains) {
-			request.setServerName(domain);
-			serializer.writeCookieValue(cookieValue(sessionId));
+		String[] matchingDomains = {"child.sub.example.com", "www.example.com"};
+		for (String domain : matchingDomains) {
+			this.request.setServerName(domain);
+			this.serializer.writeCookieValue(cookieValue(this.sessionId));
 			assertThat(getCookie().getDomain()).isEqualTo("example.com");
 
-			response = new MockHttpServletResponse();
+			this.response = new MockHttpServletResponse();
 		}
 
-		String[] notMatchingDomains = {"example.com", "localhost","127.0.0.1"};
-		for(String domain : notMatchingDomains) {
-			request.setServerName(domain);
-			serializer.writeCookieValue(cookieValue(sessionId));
+		String[] notMatchingDomains = {"example.com", "localhost", "127.0.0.1"};
+		for (String domain : notMatchingDomains) {
+			this.request.setServerName(domain);
+			this.serializer.writeCookieValue(cookieValue(this.sessionId));
 			assertThat(getCookie().getDomain()).isNull();
 
-			response = new MockHttpServletResponse();
+			this.response = new MockHttpServletResponse();
 		}
 	}
 
-	@Test(expected=IllegalStateException.class)
+	@Test(expected = IllegalStateException.class)
 	public void setDomainNamePatternAndDomainNameThrows() {
-		serializer.setDomainNamePattern(".*");
-		serializer.setDomainName("example.com");
+		this.serializer.setDomainNamePattern(".*");
+		this.serializer.setDomainName("example.com");
 	}
 
 	// --- cookieName ---
 
 	@Test
 	public void writeCookieCookieNameDefault() {
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getName()).isEqualTo("SESSION");
 	}
@@ -219,52 +221,52 @@ public class DefaultCookieSerializerTests {
 		String cookieName = "JSESSIONID";
 		setCookieName(cookieName);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getName()).isEqualTo(cookieName);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void setCookieNameNullThrows() {
-		serializer.setCookieName(null);
+		this.serializer.setCookieName(null);
 	}
 
 	// --- cookiePath ---
 
 	@Test
 	public void writeCookieCookiePathDefaultEmptyContextPathUsed() {
-		request.setContextPath("");
+		this.request.setContextPath("");
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getPath()).isEqualTo("/");
 	}
 
 	@Test
 	public void writeCookieCookiePathDefaultContextPathUsed() {
-		request.setContextPath("/context");
+		this.request.setContextPath("/context");
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getPath()).isEqualTo("/context/");
 	}
 
 	@Test
 	public void writeCookieCookiePathExplicitNullCookiePathContextPathUsed() {
-		request.setContextPath("/context");
-		serializer.setCookiePath(null);
+		this.request.setContextPath("/context");
+		this.serializer.setCookiePath(null);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getPath()).isEqualTo("/context/");
 	}
 
 	@Test
 	public void writeCookieCookiePathExplicitCookiePath() {
-		request.setContextPath("/context");
-		serializer.setCookiePath("/");
+		this.request.setContextPath("/context");
+		this.serializer.setCookiePath("/");
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getPath()).isEqualTo("/");
 	}
@@ -273,25 +275,25 @@ public class DefaultCookieSerializerTests {
 
 	@Test
 	public void writeCookieCookieMaxAgeDefault() {
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(-1);
 	}
 
 	@Test
 	public void writeCookieCookieMaxAgeExplicit() {
-		serializer.setCookieMaxAge(100);
+		this.serializer.setCookieMaxAge(100);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(100);
 	}
 
 	@Test
 	public void writeCookieCookieMaxAgeExplicitEmptyCookie() {
-		serializer.setCookieMaxAge(100);
+		this.serializer.setCookieMaxAge(100);
 
-		serializer.writeCookieValue(cookieValue(""));
+		this.serializer.writeCookieValue(cookieValue(""));
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(0);
 	}
@@ -300,45 +302,45 @@ public class DefaultCookieSerializerTests {
 
 	@Test
 	public void writeCookieDefaultInsecureRequest() {
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getSecure()).isFalse();
 	}
 
 	@Test
 	public void writeCookieSecureSecureRequest() {
-		request.setSecure(true);
-		serializer.setUseSecureCookie(true);
+		this.request.setSecure(true);
+		this.serializer.setUseSecureCookie(true);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getSecure()).isTrue();
 	}
 
 	@Test
 	public void writeCookieSecureInsecureRequest() {
-		serializer.setUseSecureCookie(true);
+		this.serializer.setUseSecureCookie(true);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getSecure()).isTrue();
 	}
 
 	@Test
 	public void writeCookieInsecureSecureRequest() {
-		request.setSecure(true);
-		serializer.setUseSecureCookie(false);
+		this.request.setSecure(true);
+		this.serializer.setUseSecureCookie(false);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getSecure()).isFalse();
 	}
 
 	@Test
 	public void writeCookieInecureInsecureRequest() {
-		serializer.setUseSecureCookie(false);
+		this.serializer.setUseSecureCookie(false);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getSecure()).isFalse();
 	}
@@ -348,38 +350,38 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void writeCookieJvmRoute() {
 		String jvmRoute = "route";
-		serializer.setJvmRoute(jvmRoute);
+		this.serializer.setJvmRoute(jvmRoute);
 
-		serializer.writeCookieValue(cookieValue(sessionId));
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().getValue()).isEqualTo(sessionId + "." + jvmRoute);
+		assertThat(getCookie().getValue()).isEqualTo(this.sessionId + "." + jvmRoute);
 	}
 
 	@Test
 	public void readCookieJvmRoute() {
 		String jvmRoute = "route";
-		serializer.setJvmRoute(jvmRoute);
-		request.setCookies(new Cookie(cookieName, sessionId + "." + jvmRoute));
+		this.serializer.setJvmRoute(jvmRoute);
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId + "." + jvmRoute));
 
-		assertThat(serializer.readCookieValues(request)).containsOnly(sessionId);
+		assertThat(this.serializer.readCookieValues(this.request)).containsOnly(this.sessionId);
 	}
 
 	@Test
 	public void readCookieJvmRouteRouteMissing() {
 		String jvmRoute = "route";
-		serializer.setJvmRoute(jvmRoute);
-		request.setCookies(new Cookie(cookieName, sessionId));
+		this.serializer.setJvmRoute(jvmRoute);
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId));
 
-		assertThat(serializer.readCookieValues(request)).containsOnly(sessionId);
+		assertThat(this.serializer.readCookieValues(this.request)).containsOnly(this.sessionId);
 	}
 
 	@Test
 	public void readCookieJvmRouteOnlyRoute() {
 		String jvmRoute = "route";
-		serializer.setJvmRoute(jvmRoute);
-		request.setCookies(new Cookie(cookieName, "." + jvmRoute));
+		this.serializer.setJvmRoute(jvmRoute);
+		this.request.setCookies(new Cookie(this.cookieName, "." + jvmRoute));
 
-		assertThat(serializer.readCookieValues(request)).containsOnly("");
+		assertThat(this.serializer.readCookieValues(this.request)).containsOnly("");
 	}
 
 	public void setCookieName(String cookieName) {
@@ -388,10 +390,10 @@ public class DefaultCookieSerializerTests {
 	}
 
 	private Cookie getCookie() {
-		return response.getCookie(cookieName);
+		return this.response.getCookie(this.cookieName);
 	}
 
 	private CookieValue cookieValue(String cookieValue) {
-		return new CookieValue(request, response, cookieValue);
+		return new CookieValue(this.request, this.response, cookieValue);
 	}
 }

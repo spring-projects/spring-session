@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.socket.server;
 
 import java.util.EnumSet;
@@ -62,6 +63,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * .
  * </p>
  *
+ * @param <S> the {@link ExpiringSession} type
  * @author Rob Winch
  * @since 1.0
  */
@@ -75,7 +77,7 @@ public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession
 	private Set<SimpMessageType> matchingMessageTypes;
 
 	/**
-	 * Creates a new instance
+	 * Creates a new instance.
 	 *
 	 * @param sessionRepository the {@link SessionRepository} to use. Cannot be null.
 	 */
@@ -105,27 +107,27 @@ public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession
 	 *            {@link Session}
 	 */
 	public void setMatchingMessageTypes(Set<SimpMessageType> matchingMessageTypes) {
-		Assert.notEmpty(matchingMessageTypes,"matchingMessageTypes cannot be null or empty");
+		Assert.notEmpty(matchingMessageTypes, "matchingMessageTypes cannot be null or empty");
 		this.matchingMessageTypes = matchingMessageTypes;
 	}
 
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
-		if(message == null) {
+		if (message == null) {
 			return message;
 		}
 		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(message.getHeaders());
-		if(!this.matchingMessageTypes.contains(messageType)) {
+		if (!this.matchingMessageTypes.contains(messageType)) {
 			return super.preSend(message, channel);
 		}
 		Map<String, Object> sessionHeaders = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
 		String sessionId = sessionHeaders == null ? null : (String) sessionHeaders.get(SPRING_SESSION_ID_ATTR_NAME);
 		if (sessionId != null) {
-			S session = sessionRepository.getSession(sessionId);
+			S session = this.sessionRepository.getSession(sessionId);
 			if (session != null) {
 				// update the last accessed time
 				session.setLastAccessedTime(System.currentTimeMillis());
-				sessionRepository.save(session);
+				this.sessionRepository.save(session);
 			}
 		}
 		return super.preSend(message, channel);

@@ -6,6 +6,7 @@ apply plugin: 'propdeps'
 apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
 apply plugin: 'com.github.ben-manes.versions'
+apply plugin: 'checkstyle'
 
 group = 'org.springframework.session'
 
@@ -74,6 +75,12 @@ task integrationTest(type: Test, dependsOn: jar) {
 	}
 }
 check.dependsOn integrationTest
+
+checkstyle {
+	configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+	configProperties.configDir = configFile.parentFile
+	toolVersion = '6.16.1'
+}
 
 eclipse {
 	classpath {

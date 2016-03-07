@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,13 @@
  */
 
 package org.springframework.session.data.gemfire.config.annotation.web.http.support;
+
+import com.gemstone.gemfire.cache.GemFireCache;
+import com.gemstone.gemfire.cache.InterestResultPolicy;
+import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.RegionAttributes;
+import com.gemstone.gemfire.cache.RegionShortcut;
+import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -26,18 +33,14 @@ import org.springframework.session.data.gemfire.support.GemFireUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.InterestResultPolicy;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionAttributes;
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
-
 /**
  * The GemFireCacheTypeAwareRegionFactoryBean class is a Spring {@link FactoryBean} used to construct, configure
  * and initialize the GemFire cache {@link Region} used to store and manage Session state.
  *
+ * @param <K> the type of keys
+ * @param <V> the type of values
  * @author John Blum
+ * @since 1.1.0
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.beans.factory.InitializingBean
  * @see org.springframework.data.gemfire.GenericRegionFactoryBean
@@ -49,7 +52,6 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
  * @see com.gemstone.gemfire.cache.RegionAttributes
  * @see com.gemstone.gemfire.cache.RegionShortcut
  * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
- * @since 1.1.0
  */
 public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean<Region<K, V>>, InitializingBean {
 
@@ -88,7 +90,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	public void afterPropertiesSet() throws Exception {
 		GemFireCache gemfireCache = getGemfireCache();
 
-		region = (GemFireUtils.isClient(gemfireCache) ? newClientRegion(gemfireCache)
+		this.region = (GemFireUtils.isClient(gemfireCache) ? newClientRegion(gemfireCache)
 			: newServerRegion(gemfireCache));
 	}
 
@@ -179,7 +181,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	 * @see com.gemstone.gemfire.cache.Region
 	 */
 	public Region<K, V> getObject() throws Exception {
-		return region;
+		return this.region;
 	}
 
 	/**
@@ -191,7 +193,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	 * @see java.lang.Class
 	 */
 	public Class<?> getObjectType() {
-		return (region != null ? region.getClass() : Region.class);
+		return (this.region != null ? this.region.getClass() : Region.class);
 	}
 
 	/**
@@ -223,7 +225,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
 	 */
 	protected ClientRegionShortcut getClientRegionShortcut() {
-		return (clientRegionShortcut != null ? clientRegionShortcut : DEFAULT_CLIENT_REGION_SHORTCUT);
+		return (this.clientRegionShortcut != null ? this.clientRegionShortcut : DEFAULT_CLIENT_REGION_SHORTCUT);
 	}
 
 	/**
@@ -244,8 +246,8 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	 * @throws IllegalStateException if the {@link GemFireCache} reference is null.
 	 */
 	protected GemFireCache getGemfireCache() {
-		Assert.state(gemfireCache != null, "A reference to a GemFireCache was not properly configured");
-		return gemfireCache;
+		Assert.state(this.gemfireCache != null, "A reference to a GemFireCache was not properly configured");
+		return this.gemfireCache;
 	}
 
 	/**
@@ -267,7 +269,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	 * @see com.gemstone.gemfire.cache.RegionAttributes
 	 */
 	protected RegionAttributes<K, V> getRegionAttributes() {
-		return regionAttributes;
+		return this.regionAttributes;
 	}
 
 	/**
@@ -287,7 +289,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	 * @see com.gemstone.gemfire.cache.Region#getName()
 	 */
 	protected String getRegionName() {
-		return (StringUtils.hasText(regionName) ? regionName : DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
+		return (StringUtils.hasText(this.regionName) ? this.regionName : DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
 	}
 
 	/**
@@ -308,7 +310,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V> implements FactoryBean
 	 * @see com.gemstone.gemfire.cache.RegionShortcut
 	 */
 	protected RegionShortcut getServerRegionShortcut() {
-		return (serverRegionShortcut != null ? serverRegionShortcut : DEFAULT_SERVER_REGION_SHORTCUT);
+		return (this.serverRegionShortcut != null ? this.serverRegionShortcut : DEFAULT_SERVER_REGION_SHORTCUT);
 	}
 
 }

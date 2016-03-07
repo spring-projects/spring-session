@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.config.annotation.web.http;
 
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class SpringHttpSessionConfiguration {
 
 	private CookieHttpSessionStrategy defaultHttpSessionStrategy = new CookieHttpSessionStrategy();
 
-	private HttpSessionStrategy httpSessionStrategy = defaultHttpSessionStrategy;
+	private HttpSessionStrategy httpSessionStrategy = this.defaultHttpSessionStrategy;
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<HttpSessionListener>();
 
@@ -93,22 +94,23 @@ public class SpringHttpSessionConfiguration {
 
 	@Bean
 	public SessionEventHttpSessionListenerAdapter sessionEventHttpSessionListenerAdapter() {
-		return new SessionEventHttpSessionListenerAdapter(httpSessionListeners);
+		return new SessionEventHttpSessionListenerAdapter(this.httpSessionListeners);
 	}
 
 	@Bean
 	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(SessionRepository<S> sessionRepository) {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(sessionRepository);
-		sessionRepositoryFilter.setServletContext(servletContext);
-		if(httpSessionStrategy instanceof MultiHttpSessionStrategy) {
-			sessionRepositoryFilter.setHttpSessionStrategy((MultiHttpSessionStrategy) httpSessionStrategy);
-		} else {
-			sessionRepositoryFilter.setHttpSessionStrategy(httpSessionStrategy);
+		sessionRepositoryFilter.setServletContext(this.servletContext);
+		if (this.httpSessionStrategy instanceof MultiHttpSessionStrategy) {
+			sessionRepositoryFilter.setHttpSessionStrategy((MultiHttpSessionStrategy) this.httpSessionStrategy);
+		}
+		else {
+			sessionRepositoryFilter.setHttpSessionStrategy(this.httpSessionStrategy);
 		}
 		return sessionRepositoryFilter;
 	}
 
-	@Autowired(required=false)
+	@Autowired(required = false)
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
 	}

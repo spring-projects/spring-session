@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session;
 
 /**
  * A {@link Session} that contains additional attributes that are useful for determining if a session is expired.
  *
- * @since 1.0
  * @author Rob Winch
+ * @since 1.0
  */
 public interface ExpiringSession extends Session {
 
@@ -31,14 +32,14 @@ public interface ExpiringSession extends Session {
 	long getCreationTime();
 
 	/**
-	 * Sets the last accessed time in milliseconds since midnight of 1/1/1970 GMT
+	 * Sets the last accessed time in milliseconds since midnight of 1/1/1970 GMT.
 	 *
 	 * @param lastAccessedTime the last accessed time in milliseconds since midnight of 1/1/1970 GMT
 	 */
 	void setLastAccessedTime(long lastAccessedTime);
 
 	/**
-	 * Gets the last time this {@link Session} was accessed expressed in milliseconds since midnight of 1/1/1970 GMT
+	 * Gets the last time this {@link Session} was accessed expressed in milliseconds since midnight of 1/1/1970 GMT.
 	 *
 	 * @return the last time the client sent a request associated with the session expressed in milliseconds since midnight of 1/1/1970 GMT
 	 */

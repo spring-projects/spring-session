@@ -1,11 +1,11 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,6 @@
 
 package docs;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
@@ -26,14 +24,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.junit.Before;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationListener;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.data.gemfire.GemFireOperationsSessionRepository;
-import org.springframework.session.data.gemfire.support.GemFireUtils;
-import org.springframework.session.events.AbstractSessionEvent;
 
 import com.gemstone.gemfire.cache.Cache;
 import com.gemstone.gemfire.cache.CacheClosedException;
@@ -46,12 +36,23 @@ import com.gemstone.gemfire.cache.client.ClientCache;
 import com.gemstone.gemfire.cache.client.ClientCacheFactory;
 import com.gemstone.gemfire.cache.query.Index;
 import com.gemstone.gemfire.cache.server.CacheServer;
+import org.junit.Before;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.session.ExpiringSession;
+import org.springframework.session.data.gemfire.GemFireOperationsSessionRepository;
+import org.springframework.session.data.gemfire.support.GemFireUtils;
+import org.springframework.session.events.AbstractSessionEvent;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * AbstractGemFireIntegrationTests is an abstract base class encapsulating common operations for writing
  * Spring Session GemFire integration tests.
  *
  * @author John Blum
+ * @since 1.1.0
  * @see org.springframework.session.ExpiringSession
  * @see org.springframework.session.events.AbstractSessionEvent
  * @see com.gemstone.gemfire.cache.Cache
@@ -61,7 +62,6 @@ import com.gemstone.gemfire.cache.server.CacheServer;
  * @see com.gemstone.gemfire.cache.Region
  * @see com.gemstone.gemfire.cache.client.ClientCache
  * @see com.gemstone.gemfire.cache.server.CacheServer
- * @since 1.1.0
  */
 public class AbstractGemFireIntegrationTests {
 	public static final String GEMFIRE_LOG_LEVEL = System.getProperty(
@@ -73,7 +73,7 @@ public class AbstractGemFireIntegrationTests {
 	protected static final int DEFAULT_GEMFIRE_SERVER_PORT = CacheServer.DEFAULT_PORT;
 
 	protected static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
-	protected static final long DEFAULT_WAIT_INTERVAL = 500l;
+	protected static final long DEFAULT_WAIT_INTERVAL = 500L;
 
 	protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
 
@@ -356,7 +356,7 @@ public class AbstractGemFireIntegrationTests {
 
 		List<String> regionList = new ArrayList<String>(regions.size());
 
-		for (Region<?,?> region : regions) {
+		for (Region<?, ?> region : regions) {
 			regionList.add(region.getFullPath());
 		}
 
@@ -366,7 +366,7 @@ public class AbstractGemFireIntegrationTests {
 	/* (non-Javadoc) */
 	@SuppressWarnings("unchecked")
 	protected <T extends ExpiringSession> T createSession() {
-		T expiringSession = (T) sessionRepository.createSession();
+		T expiringSession = (T) this.sessionRepository.createSession();
 		assertThat(expiringSession).isNotNull();
 		return expiringSession;
 	}
@@ -381,19 +381,19 @@ public class AbstractGemFireIntegrationTests {
 
 	/* (non-Javadoc) */
 	protected <T extends ExpiringSession> T expire(T session) {
-		session.setLastAccessedTime(0l);
+		session.setLastAccessedTime(0L);
 		return session;
 	}
 
 	/* (non-Javadoc) */
 	@SuppressWarnings("unchecked")
 	protected <T extends ExpiringSession> T get(String sessionId) {
-		return (T) sessionRepository.getSession(sessionId);
+		return (T) this.sessionRepository.getSession(sessionId);
 	}
 
 	/* (non-Javadoc) */
 	protected <T extends ExpiringSession> T save(T session) {
-		sessionRepository.save(session);
+		this.sessionRepository.save(session);
 		return session;
 	}
 
@@ -424,14 +424,14 @@ public class AbstractGemFireIntegrationTests {
 
 		/* (non-Javadoc) */
 		public void onApplicationEvent(AbstractSessionEvent event) {
-			sessionEvent = event;
+			this.sessionEvent = event;
 		}
 
 		/* (non-Javadoc) */
 		public <T extends AbstractSessionEvent> T waitForSessionEvent(long duration) {
 			waitOnCondition(new Condition() {
 				public boolean evaluate() {
-					return (sessionEvent != null);
+					return (SessionEventListener.this.sessionEvent != null);
 				}
 			}, duration);
 

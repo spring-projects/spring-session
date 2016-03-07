@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample.session;
 
-import static org.assertj.core.api.Assertions.*;
-
+import com.maxmind.geoip2.DatabaseReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import sample.config.GeoConfig;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.maxmind.geoip2.DatabaseReader;
-
-import sample.config.GeoConfig;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
@@ -42,21 +43,21 @@ public class SessionDetailsFilterTests {
 
 	@Before
 	public void setup() {
-		filter = new SessionDetailsFilter(reader);
+		this.filter = new SessionDetailsFilter(this.reader);
 	}
 
 	@Test
 	public void getGeoLocationHanldesInvalidIp() {
-		assertThat(filter.getGeoLocation("a")).isEqualTo(SessionDetailsFilter.UNKNOWN);
+		assertThat(this.filter.getGeoLocation("a")).isEqualTo(SessionDetailsFilter.UNKNOWN);
 	}
 
 	@Test
 	public void getGeoLocationNullCity() {
-		assertThat(filter.getGeoLocation("22.231.113.64")).isEqualTo("United States");
+		assertThat(this.filter.getGeoLocation("22.231.113.64")).isEqualTo("United States");
 	}
 
 	@Test
 	public void getGeoLocationBoth() {
-		assertThat(filter.getGeoLocation("184.154.83.119")).isEqualTo("Chicago, United States");
+		assertThat(this.filter.getGeoLocation("184.154.83.119")).isEqualTo("Chicago, United States");
 	}
 }

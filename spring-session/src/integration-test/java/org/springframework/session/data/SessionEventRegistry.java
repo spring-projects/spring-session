@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data;
 
 import java.util.HashMap;
@@ -22,8 +23,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.session.events.AbstractSessionEvent;
 
 public class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
-	private Map<String,AbstractSessionEvent> events = new HashMap<String,AbstractSessionEvent>();
-	private Map<String,Object> locks = new HashMap<String,Object>();
+	private Map<String, AbstractSessionEvent> events = new HashMap<String, AbstractSessionEvent>();
+	private Map<String, Object> locks = new HashMap<String, Object>();
 
 	public void onApplicationEvent(AbstractSessionEvent event) {
 		String sessionId = event.getSessionId();
@@ -51,20 +52,20 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 	@SuppressWarnings("unchecked")
 	private <E extends AbstractSessionEvent> E waitForEvent(String sessionId) throws InterruptedException {
 		Object lock = getLock(sessionId);
-		synchronized(lock) {
-			if(!events.containsKey(sessionId)) {
+		synchronized (lock) {
+			if (!this.events.containsKey(sessionId)) {
 				lock.wait(10000);
 			}
 		}
-		return (E) events.get(sessionId);
+		return (E) this.events.get(sessionId);
 	}
 
 	private Object getLock(String sessionId) {
-		synchronized(locks) {
-			Object lock = locks.get(sessionId);
-			if(lock == null) {
+		synchronized (this.locks) {
+			Object lock = this.locks.get(sessionId);
+			if (lock == null) {
 				lock = new Object();
-				locks.put(sessionId, lock);
+				this.locks.put(sessionId, lock);
 			}
 			return lock;
 		}

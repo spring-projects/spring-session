@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.web.http;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public interface CookieSerializer {
 
 	/**
 	 * Writes a given {@link CookieValue} to the provided
-	 * {@link HttpServletResponse}
+	 * {@link HttpServletResponse}.
 	 *
 	 * @param cookieValue
 	 *            the {@link CookieValue} to write to
@@ -61,13 +62,13 @@ public interface CookieSerializer {
 	 * @author Rob Winch
 	 * @since 1.1
 	 */
-	public class CookieValue {
+	class CookieValue {
 		private final HttpServletRequest request;
 		private final HttpServletResponse response;
 		private final String cookieValue;
 
 		/**
-		 * Creates a new instance
+		 * Creates a new instance.
 		 *
 		 * @param request
 		 *            the {@link HttpServletRequest} to use. Useful for
@@ -92,7 +93,7 @@ public interface CookieSerializer {
 		 * @return the request to use. Cannot be null.
 		 */
 		public HttpServletRequest getRequest() {
-			return request;
+			return this.request;
 		}
 
 		/**
@@ -100,7 +101,7 @@ public interface CookieSerializer {
 		 * @return the response to write to. Cannot be null.
 		 */
 		public HttpServletResponse getResponse() {
-			return response;
+			return this.response;
 		}
 
 		/**
@@ -109,7 +110,7 @@ public interface CookieSerializer {
 		 * @return the value to be written
 		 */
 		public String getCookieValue() {
-			return cookieValue;
+			return this.cookieValue;
 		}
 	}
 }
