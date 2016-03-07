@@ -82,6 +82,10 @@ checkstyle {
 	toolVersion = '6.16.1'
 }
 
+task checkstyle {
+	dependsOn project.tasks.findAll { task -> task.name.matches('checkstyle\\w+') }
+}
+
 eclipse {
 	classpath {
 		plusConfigurations += [ configurations.integrationTestCompile ]
