@@ -55,26 +55,7 @@ import org.springframework.util.StringUtils;
  *
  * @author John Blum
  * @since 1.1.0
- * @see org.springframework.beans.factory.BeanClassLoaderAware
- * @see org.springframework.context.annotation.Bean
- * @see org.springframework.context.annotation.Configuration
- * @see org.springframework.context.annotation.ImportAware
- * @see org.springframework.data.gemfire.GemfireOperations
- * @see org.springframework.data.gemfire.GemfireTemplate
- * @see org.springframework.data.gemfire.IndexFactoryBean
- * @see org.springframework.data.gemfire.RegionAttributesFactoryBean
- * @see org.springframework.session.ExpiringSession
- * @see org.springframework.session.config.annotation.web.http.
- * SpringHttpSessionConfiguration
- * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.support.
- * GemFireCacheTypeAwareRegionFactoryBean
- * @see com.gemstone.gemfire.cache.ExpirationAttributes
- * @see com.gemstone.gemfire.cache.GemFireCache
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.RegionAttributes
- * @see com.gemstone.gemfire.cache.RegionShortcut
- * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+ * @see EnableGemFireHttpSession
  */
 @Configuration
 public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfiguration
@@ -298,9 +279,6 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 *
 	 * @param importMetadata the AnnotationMetadata of the class importing
 	 * this @Configuration class.
-	 * @see org.springframework.session.data.gemfire.config.annotation.web.http.
-	 * EnableGemFireHttpSession
-	 * @see org.springframework.core.type.AnnotationMetadata
 	 */
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		AnnotationAttributes enableGemFireHttpSessionAnnotationAttributes = AnnotationAttributes
@@ -333,8 +311,6 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 * Spring Sessions in GemFire.
 	 * @return a GemFireOperationsSessionRepository for managing (clustering/replicating)
 	 * Sessions using GemFire.
-	 * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository
-	 * @see org.springframework.data.gemfire.GemfireOperations
 	 */
 	@Bean
 	public GemFireOperationsSessionRepository sessionRepository(
@@ -378,10 +354,6 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 * configure the {@link Region}.
 	 * @return a {@link GemFireCacheTypeAwareRegionFactoryBean} used to configure and
 	 * initialize a GemFire Cache {@link Region} for storing and managing Sessions.
-	 * @see org.springframework.session.data.gemfire.config.annotation.web.http.support.
-	 * GemFireCacheTypeAwareRegionFactoryBean
-	 * @see com.gemstone.gemfire.cache.GemFireCache
-	 * @see com.gemstone.gemfire.cache.RegionAttributes
 	 * @see #getClientRegionShortcut()
 	 * @see #getSpringSessionGemFireRegionName()
 	 * @see #getServerRegionShortcut()

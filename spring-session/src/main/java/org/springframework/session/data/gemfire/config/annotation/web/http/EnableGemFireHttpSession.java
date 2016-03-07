@@ -27,6 +27,7 @@ import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
@@ -97,11 +98,8 @@ import org.springframework.context.annotation.Import;
  * instead.
  *
  * @author John Blum
- * @see org.springframework.context.annotation.Configuration
- * @see org.springframework.context.annotation.Import
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.
- * GemFireHttpSessionConfiguration
- * @see org.springframework.session.config.annotation.web.http.EnableSpringHttpSession
+ * @see GemFireHttpSessionConfiguration
+ * @see EnableSpringHttpSession
  * @since 1.1.0
  */
 @Documented

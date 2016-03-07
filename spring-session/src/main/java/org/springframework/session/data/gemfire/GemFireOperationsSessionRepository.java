@@ -30,11 +30,7 @@ import org.springframework.session.ExpiringSession;
  *
  * @author John Blum
  * @since 1.1.0
- * @see org.springframework.data.gemfire.GemfireOperations
- * @see org.springframework.session.ExpiringSession
- * @see org.springframework.session.Session
- * @see org.springframework.session.data.gemfire.
- * AbstractGemFireOperationsSessionRepository
+ * @see AbstractGemFireOperationsSessionRepository
  */
 public class GemFireOperationsSessionRepository
 		extends AbstractGemFireOperationsSessionRepository {
@@ -107,7 +103,7 @@ public class GemFireOperationsSessionRepository
 	 * Constructs a new {@link ExpiringSession} instance backed by GemFire.
 	 *
 	 * @return an instance of {@link ExpiringSession} backed by GemFire.
-	 * @see GemFireSession#create(int)
+	 * @see AbstractGemFireOperationsSessionRepository.GemFireSession#create(int)
 	 * @see org.springframework.session.ExpiringSession
 	 * @see #getMaxInactiveIntervalInSeconds()
 	 */
@@ -121,7 +117,7 @@ public class GemFireOperationsSessionRepository
 	 *
 	 * @param sessionId a String indicating the ID of the Session to get.
 	 * @return an existing {@link ExpiringSession} by ID or null if not Session exists.
-	 * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository.GemFireSession#from(ExpiringSession)
+	 * @see AbstractGemFireOperationsSessionRepository.GemFireSession#from(ExpiringSession)
 	 * @see org.springframework.session.ExpiringSession
 	 * @see #delete(String)
 	 */

@@ -42,18 +42,7 @@ import org.springframework.util.StringUtils;
  * @param <V> the type of values
  * @author John Blum
  * @since 1.1.0
- * @see org.springframework.beans.factory.FactoryBean
- * @see org.springframework.beans.factory.InitializingBean
  * @see org.springframework.data.gemfire.GenericRegionFactoryBean
- * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.
- * GemFireHttpSessionConfiguration
- * @see com.gemstone.gemfire.cache.GemFireCache
- * @see com.gemstone.gemfire.cache.InterestResultPolicy
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.RegionAttributes
- * @see com.gemstone.gemfire.cache.RegionShortcut
- * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
  */
 public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 		implements FactoryBean<Region<K, V>>, InitializingBean {

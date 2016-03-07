@@ -55,6 +55,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -70,18 +71,7 @@ import org.springframework.util.StringUtils;
  *
  * @author John Blum
  * @since 1.1.0
- * @see org.springframework.beans.factory.InitializingBean
- * @see org.springframework.context.ApplicationEventPublisher
- * @see org.springframework.context.ApplicationEventPublisherAware
- * @see org.springframework.data.gemfire.GemfireAccessor
- * @see org.springframework.data.gemfire.GemfireOperations
- * @see org.springframework.session.ExpiringSession
- * @see org.springframework.session.FindByIndexNameSessionRepository
- * @see org.springframework.session.Session
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.
- * GemFireHttpSessionConfiguration
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.util.CacheListenerAdapter
+ * @see EnableGemFireHttpSession
  */
 public abstract class AbstractGemFireOperationsSessionRepository
 		extends CacheListenerAdapter<Object, ExpiringSession>
@@ -350,14 +340,6 @@ public abstract class AbstractGemFireOperationsSessionRepository
 	 * GemFire. This class implements GemFire's {@link DataSerializable} interface to
 	 * better handle replication of Session information across the GemFire cluster.
 	 *
-	 * @see java.lang.Comparable
-	 * @see org.springframework.session.ExpiringSession
-	 * @see org.springframework.session.data.gemfire.
-	 * AbstractGemFireOperationsSessionRepository.GemFireSessionAttributes
-	 * @see com.gemstone.gemfire.DataSerializable
-	 * @see com.gemstone.gemfire.DataSerializer
-	 * @see com.gemstone.gemfire.Delta
-	 * @see com.gemstone.gemfire.Instantiator
 	 */
 	@SuppressWarnings("serial")
 	public static class GemFireSession implements Comparable<ExpiringSession>,
