@@ -14,7 +14,7 @@
 	<bean class="org.springframework.session.jdbc.config.annotation.web.http.JdbcHttpSessionConfiguration"/>
 
 	<!--2-->
-	<jdbc:embedded-database id="dataSource" type="H2">
+	<jdbc:embedded-database id="dataSource" database-name="testdb" type="H2">
 		<jdbc:script location="classpath:org/springframework/session/jdbc/schema-h2.sql"/>
 	</jdbc:embedded-database>
 

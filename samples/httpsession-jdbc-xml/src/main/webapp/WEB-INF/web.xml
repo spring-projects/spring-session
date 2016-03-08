@@ -49,6 +49,16 @@
 		<url-pattern>/session</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>h2console</servlet-name>
+		<servlet-class>org.h2.server.web.WebServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>h2console</servlet-name>
+		<url-pattern>/console/*</url-pattern>
+	</servlet-mapping>
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

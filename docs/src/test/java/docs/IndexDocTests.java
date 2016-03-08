@@ -19,12 +19,14 @@ package docs;
 import org.junit.Test;
 
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
@@ -32,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
+ * @author Vedran Pavic
  */
 public class IndexDocTests {
 	static final String ATTR_USER = "user";
@@ -111,6 +114,19 @@ public class IndexDocTests {
 		// tag::new-mapsessionrepository[]
 		SessionRepository<? extends ExpiringSession> repository = new MapSessionRepository();
 		// end::new-mapsessionrepository[]
+	}
+
+	@Test
+	@SuppressWarnings("unused")
+	public void newJdbcOperationsSessionRepository() {
+		// tag::new-jdbcoperationssessionrepository[]
+		JdbcTemplate jdbcTemplate = new JdbcTemplate();
+
+		// ... configure JdbcTemplate ...
+
+		SessionRepository<? extends ExpiringSession> repository =
+				new JdbcOperationsSessionRepository(jdbcTemplate);
+		// end::new-jdbcoperationssessionrepository[]
 	}
 
 	@Test
