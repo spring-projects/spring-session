@@ -33,6 +33,7 @@ dependencies {
 				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
 				"org.springframework:spring-websocket:${springVersion}",
 				"org.springframework:spring-messaging:${springVersion}",
+				"org.springframework:spring-jdbc:${springVersion}",
 				"org.springframework.security:spring-security-web:${springSecurityVersion}",
 				"org.springframework.security:spring-security-test:${springSecurityVersion}",
 				'junit:junit:4.11',
@@ -60,6 +61,7 @@ asciidoctor {
 			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
 			'docs-test-resources-dir' : rootProject.projectDir.path + '/docs/src/test/resources/',
 			'samples-dir' : rootProject.projectDir.path + '/samples/',
+			'session-main-resources-dir' : rootProject.projectDir.path + '/spring-session/src/main/resources/',
 
 			'source-highlighter' : 'coderay',
 			'imagesdir':'./images',

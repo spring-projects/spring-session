@@ -1,5 +1,5 @@
 = Spring Session
-Rob Winch
+Rob Winch, Vedran Pavić
 :doctype: book
 :indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
@@ -112,6 +112,14 @@ If you are looking to get started with Spring Session, the best place to start i
 | {gh-samples-url}hazelcast-spring[Hazelcast Spring]
 | Demonstrates how to use Spring Session and Hazelcast with an existing Spring Security application.
 | link:guides/hazelcast-spring.html[Hazelcast Spring Guide]
+
+| {gh-samples-url}httpsession-jdbc[HttpSession JDBC]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
+| link:guides/httpsession-jdbc.html[HttpSession JDBC Guide]
+
+| {gh-samples-url}httpsession-jdbc-xml[HttpSession JDBC XML]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store using XML based configuration.
+| link:guides/httpsession-jdbc-xml.html[HttpSession JDBC XML Guide]
 
 |===
 
@@ -262,6 +270,35 @@ integration below, but you are encouraged to follow along with the detailed Http
 Guide when integrating with your own application.
 
 include::guides/httpsession-gemfire-p2p-xml.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-jdbc]]
+=== HttpSession with JDBC
+
+Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+You can choose from enabling this using either:
+
+* <<httpsession-jdbc-jc,Java Based Configuration>>
+* <<httpsession-jdbc-xml,XML Based Configuration>>
+
+[[httpsession-jdbc-jc]]
+==== JDBC Java Based Configuration
+
+This section describes how to use a relational database to back `HttpSession` using Java based configuration.
+
+NOTE: The <<samples, HttpSession JDBC Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC Guide when integrating with your own application.
+
+include::guides/httpsession-jdbc.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-jdbc-xml]]
+==== JDBC XML Based Configuration
+
+This section describes how to use a relational database to back `HttpSession` using XML based configuration.
+
+NOTE: The <<samples, HttpSession JDBC XML Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using XML configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC XML Guide when integrating with your own application.
+
+include::guides/httpsession-jdbc-xml.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-mongo]]
 === HttpSession with Mongo
@@ -905,6 +942,67 @@ It includes example Hazelcast `MapListener` implementations that support firing 
 To run it use the following:
 
 	./gradlew :samples:hazelcast-spring:tomcatRun
+
+[[api-jdbcoperationssessionrepository]]
+=== JdbcOperationsSessionRepository
+
+`JdbcOperationsSessionRepository` is a `SessionRepository` implementation that uses Spring's `JdbcOperations` to store sessions in a relational database.
+In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
+Please note that this implementation does not support publishing of session events.
+
+[[api-jdbcoperationssessionrepository-new]]
+==== Instantiating a JdbcOperationsSessionRepository
+
+A typical example of how to create a new instance can be seen below:
+
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=new-jdbcoperationssessionrepository]
+----
+
+For additional information on how to create and configure a `JdbcTemplate`, refer to the Spring Framework Reference Documentation.
+
+[[api-jdbcoperationssessionrepository-config]]
+==== EnableJdbcHttpSession
+
+In a web environment, the simplest way to create a new `JdbcOperationsSessionRepository` is to use `@EnableJdbcHttpSession`.
+Complete example usage can be found in the <<samples>>
+You can use the following attributes to customize the configuration:
+
+* **tableName** - the name of database table used by Spring Session to store sessions
+* **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds
+
+===== Custom LobHandler
+
+You can customize the BLOB handling by creating a Bean named `springSessionLobHandler` that implements `LobHandler`.
+
+===== Custom ConversionService
+
+You can customize the default serialization and deserialization of the session by providing a `ConversionService` instance.
+When working in a typical Spring environment, the default `ConversionService` Bean (named `conversionService`) will be automatically picked up and used for serialization and deserialization.
+However, you can override the default `ConversionService` by providing a Bean named `springSessionConversionService`.
+
+[[api-jdbcoperationssessionrepository-storage]]
+==== Storage Details
+
+By default, this implementation uses `SPRING_SESSION` table to store sessions. Note that the table name can be easily customized as already described.
+
+Due to the differences between the various database vendors, especially when it comes to storing binary data, make sure to use SQL script specific to your database.
+Scripts for most major database vendors are packaged as `org/springframework/session/jdbc/schema-\*.sql`, where `*` is the target database type.
+
+For example, with PostgreSQL database you would use the following schema script:
+
+[source,sql,indent=0]
+----
+include::{session-main-resources-dir}org/springframework/session/jdbc/schema-postgresql.sql[]
+----
+
+And with MySQL database:
+
+[source,sql,indent=0]
+----
+include::{session-main-resources-dir}org/springframework/session/jdbc/schema-mysql.sql[]
+----
 
 [[community]]
 == Spring Session Community
