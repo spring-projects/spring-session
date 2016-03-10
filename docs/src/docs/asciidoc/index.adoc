@@ -24,7 +24,9 @@ Additional features include:
 
 == What's New in 1.1
 
-Below are the highlights of what is new in Spring Session 1.1. You can find a complete list of what's new in https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.1.0+M1%22[1.1.0 M1] and https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.1.0+RC1%22[1.1.0 RC1] by referring to the changelog.
+Below are the highlights of what is new in Spring Session 1.1. You can find a complete list of what's new in https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.1.0+M1%22[1.1.0 M1], https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.1.0+RC1%22[1.1.0 RC1], and
+https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.1.0%22[1.1.0]
+ by referring to the changelog.
 
 * https://github.com/spring-projects/spring-session/issues/148[#148] - Added <<httpsession-gemfire,GemFire Support>>
 * https://github.com/spring-projects/spring-session/issues/7[#7] - link:guides/findbyusername.html[Query by Username]
@@ -37,6 +39,7 @@ Below are the highlights of what is new in Spring Session 1.1. You can find a co
 * https://github.com/spring-projects/spring-session/issues/273[#273] - Allow writing to Redis immediately (instead of lazily) using <<api-redisoperationssessionrepository-config,redisFlushMode>>
 * https://github.com/spring-projects/spring-session/issues/272[#272] - Add `ExpiringSession.setLastAccessedTime(long)`
 * https://github.com/spring-projects/spring-session/pull/349[#349] - Added https://gitter.im/spring-projects/spring-session[Gitter Room] for discussing Spring Session
+* https://github.com/spring-projects/spring-session/issues/388[#388] - Support Spring Framework WebSockets
 
 [[samples]]
 == Samples and Guides (Start Here)
