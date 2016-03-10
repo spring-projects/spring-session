@@ -473,6 +473,48 @@ public class JdbcOperationsSessionRepositoryITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 	}
 
+	@Test
+	public void cleanupCleansUpInactiveSessions() {
+		this.repository.setDefaultMaxInactiveInterval(1800); // 30 minutes
+
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
+
+		this.repository.save(session);
+
+		assertThat(this.repository.getSession(session.getId())).isNotNull();
+
+		this.repository.cleanUpExpiredSessions();
+
+		// verify its not cleaned up immediately after creation
+		assertThat(this.repository.getSession(session.getId())).isNotNull();
+
+		long now = System.currentTimeMillis();
+		long tenMinutesInMilliseconds = 1000 * 60 * 10;
+		long thirtyMinutesInMilliseconds = 1000 * 60 * 30;
+
+		// set the last accessed time to 10 minutes in the past, session should not get
+		// cleaned up because it has not been inactive for 30 minutes yet
+		long tenMinutesInThePast = now - tenMinutesInMilliseconds;
+		session.setLastAccessedTime(tenMinutesInThePast);
+		this.repository.save(session);
+
+		this.repository.cleanUpExpiredSessions();
+
+		// session should still exist
+		assertThat(this.repository.getSession(session.getId())).isNotNull();
+
+		// set the last accessed time to 30 minutes in the past, session should get
+		// cleaned up as it has been inactive for 30 minutes
+		long thirtyMinutesInThePast = now - thirtyMinutesInMilliseconds;
+		session.setLastAccessedTime(thirtyMinutesInThePast);
+		this.repository.save(session);
+
+		this.repository.cleanUpExpiredSessions();
+		// session should have been cleaned up
+		assertThat(this.repository.getSession(session.getId())).isNull();
+	}
+
 	private String getSecurityName() {
 		return this.context.getAuthentication().getName();
 	}
