@@ -19,7 +19,6 @@ package org.springframework.session.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -302,14 +301,20 @@ public class JdbcOperationsSessionRepository implements
 	@Scheduled(cron = "0 * * * * *")
 	public void cleanUpExpiredSessions() {
 		long now = System.currentTimeMillis();
-		long roundedNow = roundDownMinute(now);
+		int maxInactiveIntervalSeconds = (this.defaultMaxInactiveInterval != null)
+				? this.defaultMaxInactiveInterval
+				: MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+
+		long sessionsValidFromTime = now - (maxInactiveIntervalSeconds * 1000);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Cleaning up sessions expiring at " + new Date(roundedNow));
+			logger.debug(
+					"Cleaning up sessions older than " + new Date(sessionsValidFromTime));
 		}
 
-		int deletedCount = this.jdbcOperations
-				.update(getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY), roundedNow);
+		int deletedCount = this.jdbcOperations.update(
+				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY),
+				sessionsValidFromTime);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cleaned up " + deletedCount + " expired sessions");
@@ -330,14 +335,6 @@ public class JdbcOperationsSessionRepository implements
 		return (byte[]) this.conversionService.convert(session,
 				TypeDescriptor.valueOf(ExpiringSession.class),
 				TypeDescriptor.valueOf(byte[].class));
-	}
-
-	private static long roundDownMinute(long timeInMs) {
-		Calendar date = Calendar.getInstance();
-		date.setTimeInMillis(timeInMs);
-		date.clear(Calendar.SECOND);
-		date.clear(Calendar.MILLISECOND);
-		return date.getTimeInMillis();
 	}
 
 	private static GenericConversionService createDefaultConversionService() {
