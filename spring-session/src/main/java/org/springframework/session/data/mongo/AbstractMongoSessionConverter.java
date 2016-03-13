@@ -15,17 +15,23 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
+import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexInfo;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.Session;
 
 /**
  * Base class for serializing and deserializing session objects. To create custom
@@ -40,6 +46,7 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 	private static final Log LOG = LogFactory.getLog(AbstractMongoSessionConverter.class);
 
 	protected static final String EXPIRE_AT_FIELD_NAME = "expireAt";
+	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	/**
 	 * Returns query to be executed to return sessions based on a particular index.
@@ -72,4 +79,39 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 				.ensureIndex(new Index(EXPIRE_AT_FIELD_NAME, Sort.Direction.ASC)
 						.named(EXPIRE_AT_FIELD_NAME).expire(0));
 	}
+
+	protected String extractPrincipal(Session expiringSession) {
+		String resolvedPrincipal = AuthenticationParser
+				.extractName(expiringSession.getAttribute(SPRING_SECURITY_CONTEXT));
+		if (resolvedPrincipal != null) {
+			return resolvedPrincipal;
+		}
+		else {
+			return expiringSession.getAttribute(
+					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+		}
+	}
+
+	public Set<ConvertiblePair> getConvertibleTypes() {
+		return Collections.singleton(
+				new ConvertiblePair(DBObject.class, MongoExpiringSession.class));
+	}
+
+	public Object convert(Object source, TypeDescriptor sourceType,
+			TypeDescriptor targetType) {
+		if (source == null) {
+			return null;
+		}
+
+		if (DBObject.class.isAssignableFrom(sourceType.getType())) {
+			return convert((DBObject) source);
+		}
+		else {
+			return convert((MongoExpiringSession) source);
+		}
+	}
+
+	protected abstract DBObject convert(MongoExpiringSession session);
+
+	protected abstract MongoExpiringSession convert(DBObject sessionWrapper);
 }
