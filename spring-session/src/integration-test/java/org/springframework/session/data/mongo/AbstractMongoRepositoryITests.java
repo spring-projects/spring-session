@@ -15,19 +15,13 @@
  */
 package org.springframework.session.data.mongo;
 
-import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.mongodb.MongoClient;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -36,20 +30,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.AbstractITests;
-import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
-import org.springframework.test.context.ContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jakub Kubrynski
  */
-@ContextConfiguration
-public class MongoRepositoryITests extends AbstractITests {
+abstract public class AbstractMongoRepositoryITests extends AbstractITests {
 
-	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+	protected static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
+	protected static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 	@Autowired
 	protected MongoOperationsSessionRepository repository;
@@ -291,26 +282,6 @@ public class MongoRepositoryITests extends AbstractITests {
 	}
 
 	@Test
-	public void findByPrincipalNameNoSecurityPrincipalNameChangeReload()
-			throws Exception {
-		MongoExpiringSession toSave = this.repository.createSession();
-		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
-
-		this.repository.save(toSave);
-
-		toSave = this.repository.getSession(toSave.getId());
-
-		toSave.setAttribute("other", "value");
-		this.repository.save(toSave);
-
-		Map<String, MongoExpiringSession> findByPrincipalName = this.repository
-				.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
-
-		assertThat(findByPrincipalName).hasSize(1);
-		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-	}
-
-	@Test
 	public void findByDeletedSecurityPrincipalName() throws Exception {
 		MongoExpiringSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -345,23 +316,6 @@ public class MongoRepositoryITests extends AbstractITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-	}
-
-	@Test
-	public void findByDeletedSecurityPrincipalNameReload() throws Exception {
-		MongoExpiringSession toSave = this.repository.createSession();
-		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
-
-		this.repository.save(toSave);
-
-		MongoExpiringSession getSession = this.repository.getSession(toSave.getId());
-		getSession.setAttribute(INDEX_NAME, null);
-		this.repository.save(getSession);
-
-		Map<String, MongoExpiringSession> findByPrincipalName = this.repository
-				.findByIndexNameAndIndexValue(INDEX_NAME, getChangedSecurityName());
-
-		assertThat(findByPrincipalName).isEmpty();
 	}
 
 	@Test
@@ -402,22 +356,12 @@ public class MongoRepositoryITests extends AbstractITests {
 		assertThat(expiredSessionFromDb).isNull();
 	}
 
-	private String getSecurityName() {
+	protected String getSecurityName() {
 		return this.context.getAuthentication().getName();
 	}
 
-	private String getChangedSecurityName() {
+	protected String getChangedSecurityName() {
 		return this.changedContext.getAuthentication().getName();
 	}
 
-	@Configuration
-	@EnableMongoHttpSession
-	static class Config {
-
-		@Bean
-		public MongoOperations mongoOperations() throws UnknownHostException {
-			return new MongoTemplate(new MongoClient(), "test");
-		}
-
-	}
 }
