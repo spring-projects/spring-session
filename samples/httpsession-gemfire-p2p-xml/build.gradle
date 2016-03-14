@@ -3,7 +3,7 @@ apply from: TOMCAT_7_GRADLE
 
 tasks.findByPath("artifactoryPublish")?.enabled = false
 
-sonarRunner {
+sonarqube {
 	skipProject = true
 }
 

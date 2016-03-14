@@ -4,7 +4,7 @@ apply plugin: "application"
 
 tasks.findByPath("artifactoryPublish")?.enabled = false
 
-sonarRunner {
+sonarqube {
 	skipProject = true
 }
 
