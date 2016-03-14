@@ -64,6 +64,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("deprecation")
@@ -1339,6 +1340,35 @@ public class SessionRepositoryFilterTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setMultiHttpSessionStrategyNull() {
 		this.filter.setHttpSessionStrategy((MultiHttpSessionStrategy) null);
+	}
+
+	@Test
+	public void getSessionFalseWithInvalidSessionIdShouldOnlyAskRepositoryOnce() throws ServletException, IOException {
+		this.sessionRepository = spy(this.sessionRepository);
+		this.filter = new SessionRepositoryFilter<ExpiringSession>(this.sessionRepository);
+
+		final String nonExistantSessionId = "nonExistantSessionId";
+		setSessionCookie(nonExistantSessionId);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				// Before first invocation
+				assertThat(SessionRepositoryFilterTests.this.request.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR)).isNull();
+
+				// First call should go all the way through to the sessioRepository (it will not find the session)
+				HttpSession session = wrappedRequest.getSession(false);
+				verify(sessionRepository, times(1)).getSession(nonExistantSessionId);
+				assertThat(session).isNull();
+				assertThat(SessionRepositoryFilterTests.this.request.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR)).isNotNull();
+
+				// Second call should not reach the sessionRepository
+				session = wrappedRequest.getSession(false);
+				verify(sessionRepository, times(1)).getSession(nonExistantSessionId); // still only called once
+				assertThat(session).isNull();
+				assertThat(SessionRepositoryFilterTests.this.request.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR)).isNotNull();
+			}
+		});
 	}
 
 	// --- helper methods
