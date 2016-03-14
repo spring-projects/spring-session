@@ -17,6 +17,7 @@ package org.springframework.session.data.mongo;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -31,6 +32,11 @@ import org.springframework.session.ExpiringSession;
  * @since 1.2
  */
 public class MongoExpiringSession implements ExpiringSession {
+
+	/**
+	 * Mongo doesn't support {@literal dot} in field names. We replace it with very rarely used character
+	 */
+	private static final char DOT_COVER_CHAR = '\uF607';
 
 	private final String id;
 	private long created = System.currentTimeMillis();
@@ -59,24 +65,28 @@ public class MongoExpiringSession implements ExpiringSession {
 
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String attributeName) {
-		return (T) this.attrs.get(attributeName);
+		return (T) this.attrs.get(coverDot(attributeName));
 	}
 
 	public Set<String> getAttributeNames() {
-		return this.attrs.keySet();
+		HashSet<String> result = new HashSet<String>();
+		for (String key : this.attrs.keySet()) {
+			result.add(uncoverDot(key));
+		}
+		return result;
 	}
 
 	public void setAttribute(String attributeName, Object attributeValue) {
 		if (attributeValue == null) {
-			removeAttribute(attributeName);
+			removeAttribute(coverDot(attributeName));
 		}
 		else {
-			this.attrs.put(attributeName, attributeValue);
+			this.attrs.put(coverDot(attributeName), attributeValue);
 		}
 	}
 
 	public void removeAttribute(String attributeName) {
-		this.attrs.remove(attributeName);
+		this.attrs.remove(coverDot(attributeName));
 	}
 
 	public long getCreationTime() {
@@ -117,6 +127,14 @@ public class MongoExpiringSession implements ExpiringSession {
 		this.expireAt = expireAt;
 	}
 
+	static String coverDot(String attributeName) {
+		return attributeName.replace('.', DOT_COVER_CHAR);
+	}
+
+	static String uncoverDot(String attributeName) {
+		return attributeName.replace(DOT_COVER_CHAR, '.');
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {
@@ -129,7 +147,6 @@ public class MongoExpiringSession implements ExpiringSession {
 		MongoExpiringSession that = (MongoExpiringSession) o;
 
 		return this.id.equals(that.id);
-
 	}
 
 	@Override
