@@ -82,6 +82,8 @@ include::{samples-dir}mongo/src/main/java/sample/config/HttpSessionConfig.java[t
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by Mongo.
 
+<2> We explicitly configure `JdkMongoSessionConverter` since Spring Security's objects cannot be automatically persisted using Jackson (the default if Jackson is on the classpath).
+
 // end::config[]
 
 [[boot-mongo-configuration]]

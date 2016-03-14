@@ -40,7 +40,7 @@ import org.springframework.session.Session;
  * @author Jakub Kubrynski
  * @since 1.2
  */
-class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
+public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 
 	private static final Log LOG = LogFactory.getLog(JdkMongoSessionConverter.class);
 

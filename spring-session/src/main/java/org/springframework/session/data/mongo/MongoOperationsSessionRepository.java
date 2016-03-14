@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import com.mongodb.DBObject;
@@ -55,7 +56,8 @@ public class MongoOperationsSessionRepository
 
 	private final MongoOperations mongoOperations;
 
-	private AbstractMongoSessionConverter mongoSessionConverter = SessionConverterProvider.get();
+	private AbstractMongoSessionConverter mongoSessionConverter = SessionConverterProvider
+			.getDefaultMongoConverter();
 	private Integer maxInactiveIntervalInSeconds = DEFAULT_INACTIVE_INTERVAL;
 	private String collectionName = DEFAULT_COLLECTION_NAME;
 

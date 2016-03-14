@@ -29,7 +29,7 @@ final class SessionConverterProvider {
 	private SessionConverterProvider() {
 	}
 
-	static AbstractMongoSessionConverter get() {
+	static AbstractMongoSessionConverter getDefaultMongoConverter() {
 		if (ClassUtils.isPresent(JACKSON_CLASS_NAME, null)) {
 			return new JacksonMongoSessionConverter();
 		}

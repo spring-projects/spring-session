@@ -15,10 +15,17 @@
  */
 package sample.config;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.session.data.mongo.JdkMongoSessionConverter;
 import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 
 // tag::class[]
 @EnableMongoHttpSession // <1>
 public class HttpSessionConfig {
+
+	@Bean
+	public JdkMongoSessionConverter jdkMongoSessionConverter() {
+		return new JdkMongoSessionConverter(); // <2>
+	}
 }
 // end::class[]
