@@ -88,6 +88,11 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 			.getName();
 
 	/**
+	 * Invalid session id (not backed by the session repository) request attribute name.
+	 */
+	public static final String INVALID_SESSION_ID_ATTR = SESSION_REPOSITORY_ATTR + ".invalidSessionId";
+
+	/**
 	 * The default filter order.
 	 */
 	public static final int DEFAULT_ORDER = Integer.MIN_VALUE + 50;
@@ -330,7 +335,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 				return currentSession;
 			}
 			String requestedSessionId = getRequestedSessionId();
-			if (requestedSessionId != null) {
+			if (requestedSessionId != null && getAttribute(INVALID_SESSION_ID_ATTR) == null) {
 				S session = getSession(requestedSessionId);
 				if (session != null) {
 					this.requestedSessionIdValid = true;
@@ -338,6 +343,12 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 					currentSession.setNew(false);
 					setCurrentSession(currentSession);
 					return currentSession;
+				} else {
+					// This is an invalid session id. No need to ask again if request.getSession is invoked for the duration of this request
+					if (SESSION_LOGGER.isDebugEnabled()) {
+						SESSION_LOGGER.debug("No session found by id: Caching result for getSession(false) for this HttpServletRequest.");
+					}
+					setAttribute(INVALID_SESSION_ID_ATTR, "true");
 				}
 			}
 			if (!create) {
