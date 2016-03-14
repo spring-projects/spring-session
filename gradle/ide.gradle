@@ -11,9 +11,11 @@ eclipse.project.natures "net.sf.eclipsecs.core.CheckstyleNature"
 // Include project specific settings
 task eclipseCheckstyle(type: Copy) {
 	from rootProject.files(
-		"eclipse/.eclipse")
-	expand(configdir: rootProject.file('config/checkstyle'))
+		"eclipse/.checkstyle")
+	into project.projectDir
+	expand(configDir: rootProject.file('config/checkstyle').absolutePath)
 }
+
 task eclipseSettings(type: Copy) {
 	from rootProject.files(
 		"eclipse/org.eclipse.jdt.ui.prefs",

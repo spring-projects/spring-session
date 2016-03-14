@@ -5,7 +5,7 @@
 		<property name="configDir" value="${configDir}"/>
 		<additional-data name="protect-config-file" value="false"/>
 	</local-check-config>
-	<fileset name="all" enabled="true" check-config-name="Spring Session Checkstyle" local="false">
+	<fileset name="all" enabled="true" check-config-name="Spring Session Checkstyle" local="true">
 		<file-match-pattern match-pattern="." include-pattern="true"/>
 	</fileset>
 </fileset-config>
