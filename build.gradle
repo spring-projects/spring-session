@@ -12,6 +12,10 @@ buildscript {
 	}
 }
 
+plugins {
+	id "org.sonarqube" version "1.2"
+}
+
 group = 'org.springframework.session'
 
 ext.springBootVersion = '1.3.2.RELEASE'
@@ -27,12 +31,11 @@ ext.releaseBuild = version.endsWith('RELEASE')
 ext.snapshotBuild = version.endsWith('SNAPSHOT')
 ext.milestoneBuild = !(releaseBuild || snapshotBuild)
 
-apply plugin: 'sonar-runner'
 apply plugin: 'base'
 
 
-sonarRunner {
-	sonarProperties {
+sonarqube {
+	properties {
 		property "sonar.java.coveragePlugin", "jacoco"
 		property "sonar.projectName", "Spring Session"
 		property "sonar.jacoco.reportPath", "${buildDir.name}/jacoco.exec"
