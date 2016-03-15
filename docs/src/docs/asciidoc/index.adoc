@@ -1,5 +1,5 @@
 = Spring Session
-Rob Winch, Vedran Pavić
+Rob Winch, Vedran Pavić, Jakub Kubrynski
 :doctype: book
 :indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
@@ -304,6 +304,56 @@ NOTE: The <<samples, HttpSession Mongo Sample>> provides a working sample on how
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
 include::guides/mongo.adoc[tags=config,leveloffset=+3]
+
+==== Session serialization mechanisms
+
+To be able to persist session objects in MongoDB we need to provide the serialization/deserialization mechanism. Depending on your classpath Spring Session will choose one of two build-in converters:
+
+* `JacksonMongoSessionConverter` when `ObjectMapper` class is available, or
+* `JdkMongoSessionConverter` otherwise.
+
+===== JacksonMongoSessionConverter
+
+This mechanism uses Jackson to serialize session objects to/from JSON. Converter is registered automatically by Spring Session always when the `ObjectMapper` class is available (usually provided by the `com.fasterxml.jackson.core:jackson-databind` dependency) and user hasn't registered own converter.
+
+If you have to include custom Jackson's modules you can do it by registering converter by hand:
+
+[source, java]
+----
+@Configuration
+@EnableMongoHttpSession
+public class MySessionConfiguration {
+
+	@Bean
+	public AbstractMongoSessionConverter mongoSessionConverter() {
+		return new JacksonMongoSessionConverter(getJacksonModules());
+	}
+
+	public Iterable<Module> getJacksonModules() {
+		return Collections.<Module>singletonList(new MyJacksonModule());
+	}
+
+}
+----
+
+==== JdkMongoSessionConverter
+
+This converter uses standard Java serialization to persist session attributes map to MongoDB in a binary form. However standard session elements like id, access time, etc are still written as a plain Mongo objects and can be read and queried without additional effort.
+You can enforce use of this converter by registering it manually:
+
+[source, java]
+----
+@Bean
+public AbstractMongoSessionConverter mongoSessionConverter() {
+	return new JdkMongoSessionConverter();
+}
+----
+
+==== Using custom converters
+
+You can create your own session converter by extending `AbstractMongoSessionConverter` class. At least you have to implement `getQueryForIndex` and two `convert` methods.
+First is used to return query operating on a particular session attribute value, which usually depends on internal session collection schema provided by your mechanism.
+Two other methods are used to convert `MongoExpiringSession` from/to Mongo's `DBObject`.
 
 [[httpsession-how]]
 === How HttpSession Integration Works
