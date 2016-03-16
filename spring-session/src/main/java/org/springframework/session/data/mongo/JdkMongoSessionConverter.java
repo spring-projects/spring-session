@@ -108,7 +108,7 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 			for (String attrName : session.getAttributeNames()) {
 				attributes.put(attrName, session.getAttribute(attrName));
 			}
-			serializer.serialize(attributes, out);
+			this.serializer.serialize(attributes, out);
 			return out.toByteArray();
 		}
 		catch (IOException e) {
@@ -123,7 +123,7 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 			ByteArrayInputStream in = new ByteArrayInputStream(
 					(byte[]) sessionWrapper.get(ATTRIBUTES));
 			Map<String, Object> attributes =
-					(Map<String, Object>) deserializer.deserialize(in);
+					(Map<String, Object>) this.deserializer.deserialize(in);
 			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
 				session.setAttribute(entry.getKey(), entry.getValue());
 			}
