@@ -337,6 +337,8 @@ You can explicitly register `JdkMongoSessionConverter` by defining it as a Bean.
 include::{docs-test-dir}docs/http/MongoJdkSessionConfiguration.java[tags=config]
 ----
 
+There is also a constructor taking `Serializer` and `Deserializer` objects, allowing you to pass custom implementations, which is especially important when you want to use non-default classloader.
+
 ==== Using custom converters
 
 You can create your own session converter by extending `AbstractMongoSessionConverter` class.
