@@ -307,53 +307,40 @@ include::guides/mongo.adoc[tags=config,leveloffset=+3]
 
 ==== Session serialization mechanisms
 
-To be able to persist session objects in MongoDB we need to provide the serialization/deserialization mechanism. Depending on your classpath Spring Session will choose one of two build-in converters:
+To be able to persist session objects in MongoDB we need to provide the serialization/deserialization mechanism.
+Depending on your classpath Spring Session will choose one of two build-in converters:
 
 * `JacksonMongoSessionConverter` when `ObjectMapper` class is available, or
 * `JdkMongoSessionConverter` otherwise.
 
 ===== JacksonMongoSessionConverter
 
-This mechanism uses Jackson to serialize session objects to/from JSON. Converter is registered automatically by Spring Session always when the `ObjectMapper` class is available (usually provided by the `com.fasterxml.jackson.core:jackson-databind` dependency) and user hasn't registered own converter.
+This mechanism uses Jackson to serialize session objects to/from JSON.
+`JacksonMongoSessionConverter` will be the default when Jackson is detected on the classpath and the user has not explicitly registered a `AbstractMongoSessionConverter` Bean.
 
-If you have to include custom Jackson's modules you can do it by registering converter by hand:
+If you would like to provide custom Jackson modules you can do it by explicitly registering `JacksonMongoSessionConverter`:
 
-[source, java]
+[source,java,indent=0]
 ----
-@Configuration
-@EnableMongoHttpSession
-public class MySessionConfiguration {
-
-	@Bean
-	public AbstractMongoSessionConverter mongoSessionConverter() {
-		return new JacksonMongoSessionConverter(getJacksonModules());
-	}
-
-	public Iterable<Module> getJacksonModules() {
-		return Collections.<Module>singletonList(new MyJacksonModule());
-	}
-
-}
+include::{docs-test-dir}docs/http/MongoJacksonSessionConfiguration.java[tags=config]
 ----
 
 ==== JdkMongoSessionConverter
 
-This converter uses standard Java serialization to persist session attributes map to MongoDB in a binary form. However standard session elements like id, access time, etc are still written as a plain Mongo objects and can be read and queried without additional effort.
-You can enforce use of this converter by registering it manually:
+`JdkMongoSessionConverter` uses standard Java serialization to persist session attributes map to MongoDB in a binary form.
+However, standard session elements like id, access time, etc are still written as a plain Mongo objects and can be read and queried without additional effort.
+`JdkMongoSessionConverter` is used if Jackson is not on the classpath and no explicit `AbstractMongoSessionConverter` Bean has been defined.
+You can explicitly register `JdkMongoSessionConverter` by defining it as a Bean.
 
-[source, java]
+[source,java,indent=0]
 ----
-@Bean
-public AbstractMongoSessionConverter mongoSessionConverter() {
-	return new JdkMongoSessionConverter();
-}
+include::{docs-test-dir}docs/http/MongoJdkSessionConfiguration.java[tags=config]
 ----
 
 ==== Using custom converters
 
-You can create your own session converter by extending `AbstractMongoSessionConverter` class. At least you have to implement `getQueryForIndex` and two `convert` methods.
-First is used to return query operating on a particular session attribute value, which usually depends on internal session collection schema provided by your mechanism.
-Two other methods are used to convert `MongoExpiringSession` from/to Mongo's `DBObject`.
+You can create your own session converter by extending `AbstractMongoSessionConverter` class.
+The implementation will be used for serializing, deserializing your objects and for providing queries to access the session.
 
 [[httpsession-how]]
 === How HttpSession Integration Works
