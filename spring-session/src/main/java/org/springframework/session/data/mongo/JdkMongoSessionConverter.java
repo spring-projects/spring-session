@@ -18,8 +18,6 @@ package org.springframework.session.data.mongo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +27,10 @@ import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.serializer.DefaultDeserializer;
+import org.springframework.core.serializer.DefaultSerializer;
+import org.springframework.core.serializer.Deserializer;
+import org.springframework.core.serializer.Serializer;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -48,9 +50,21 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 	private static final String CREATION_TIME = "created";
 	private static final String LAST_ACCESSED_TIME = "accessed";
 	private static final String MAX_INTERVAL = "interval";
-	private static final String ATTRIBUTES = "attr";
+	static final String ATTRIBUTES = "attr";
 
 	private static final String PRINCIPAL_FIELD_NAME = "principal";
+
+	private final Serializer serializer;
+	private final Deserializer deserializer;
+
+	public JdkMongoSessionConverter() {
+		this(new DefaultSerializer(), new DefaultDeserializer());
+	}
+
+	public JdkMongoSessionConverter(Serializer serializer, Deserializer deserializer) {
+		this.serializer = serializer;
+		this.deserializer = deserializer;
+	}
 
 	@Override
 	public Query getQueryForIndex(String indexName, Object indexValue) {
@@ -86,16 +100,15 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 		return session;
 	}
 
+	@SuppressWarnings("unchecked")
 	private byte[] serializeAttributes(Session session) {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			ObjectOutputStream outputStream = new ObjectOutputStream(out);
 			Map<String, Object> attributes = new HashMap<String, Object>();
 			for (String attrName : session.getAttributeNames()) {
 				attributes.put(attrName, session.getAttribute(attrName));
 			}
-			outputStream.writeObject(attributes);
-			outputStream.flush();
+			serializer.serialize(attributes, out);
 			return out.toByteArray();
 		}
 		catch (IOException e) {
@@ -109,19 +122,13 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 		try {
 			ByteArrayInputStream in = new ByteArrayInputStream(
 					(byte[]) sessionWrapper.get(ATTRIBUTES));
-			ObjectInputStream objectInputStream = new ObjectInputStream(in);
-			Map<String, Object> attributes = (Map<String, Object>) objectInputStream
-					.readObject();
+			Map<String, Object> attributes =
+					(Map<String, Object>) deserializer.deserialize(in);
 			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
 				session.setAttribute(entry.getKey(), entry.getValue());
 			}
-			objectInputStream.close();
 		}
 		catch (IOException e) {
-			LOG.error("Exception during session deserialization", e);
-			throw new IllegalStateException("Cannot deserialize session", e);
-		}
-		catch (ClassNotFoundException e) {
 			LOG.error("Exception during session deserialization", e);
 			throw new IllegalStateException("Cannot deserialize session", e);
 		}
