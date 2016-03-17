@@ -19,6 +19,8 @@ import com.mongodb.DBObject;
 import org.junit.Test;
 
 import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.serializer.support.DeserializingConverter;
+import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.ExpiringSession;
@@ -28,10 +30,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Jakub Kubrynski
+ * @author Rob Winch
  */
 public class JdkMongoSessionConverterTests {
 
 	JdkMongoSessionConverter sut = new JdkMongoSessionConverter();
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullSerializer() {
+		new JdkMongoSessionConverter(null, new DeserializingConverter());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructorNullDeserializer() {
+		new JdkMongoSessionConverter(new SerializingConverter(), null);
+	}
 
 	@Test
 	public void verifyRoundTripSerialization() throws Exception {

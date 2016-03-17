@@ -15,36 +15,30 @@
  */
 package org.springframework.session.data.mongo;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import org.springframework.core.serializer.DefaultDeserializer;
-import org.springframework.core.serializer.DefaultSerializer;
-import org.springframework.core.serializer.Deserializer;
-import org.springframework.core.serializer.Serializer;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.serializer.support.DeserializingConverter;
+import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.util.Assert;
 
 /**
  * {@code AbstractMongoSessionConverter} implementation using standard Java serialization.
  *
  * @author Jakub Kubrynski
+ * @author Rob Winch
  * @since 1.2
  */
 public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
-
-	private static final Log LOG = LogFactory.getLog(JdkMongoSessionConverter.class);
 
 	private static final String ID = "_id";
 	private static final String CREATION_TIME = "created";
@@ -54,14 +48,17 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 
 	private static final String PRINCIPAL_FIELD_NAME = "principal";
 
-	private final Serializer serializer;
-	private final Deserializer deserializer;
+	private final Converter<Object, byte[]> serializer;
+	private final Converter<byte[], Object> deserializer;
 
 	public JdkMongoSessionConverter() {
-		this(new DefaultSerializer(), new DefaultDeserializer());
+		this(new SerializingConverter(), new DeserializingConverter());
 	}
 
-	public JdkMongoSessionConverter(Serializer serializer, Deserializer deserializer) {
+	public JdkMongoSessionConverter(Converter<Object, byte[]> serializer,
+			Converter<byte[], Object> deserializer) {
+		Assert.notNull(serializer, "serializer cannot be null");
+		Assert.notNull(deserializer, "deserializer cannot be null");
 		this.serializer = serializer;
 		this.deserializer = deserializer;
 	}
@@ -100,37 +97,21 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 		return session;
 	}
 
-	@SuppressWarnings("unchecked")
 	private byte[] serializeAttributes(Session session) {
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			Map<String, Object> attributes = new HashMap<String, Object>();
-			for (String attrName : session.getAttributeNames()) {
-				attributes.put(attrName, session.getAttribute(attrName));
-			}
-			this.serializer.serialize(attributes, out);
-			return out.toByteArray();
+		Map<String, Object> attributes = new HashMap<String, Object>();
+		for (String attrName : session.getAttributeNames()) {
+			attributes.put(attrName, session.getAttribute(attrName));
 		}
-		catch (IOException e) {
-			LOG.error("Exception during session serialization", e);
-			throw new IllegalStateException("Cannot serialize session", e);
-		}
+		return this.serializer.convert(attributes);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void deserializeAttributes(DBObject sessionWrapper, Session session) {
-		try {
-			ByteArrayInputStream in = new ByteArrayInputStream(
-					(byte[]) sessionWrapper.get(ATTRIBUTES));
-			Map<String, Object> attributes =
-					(Map<String, Object>) this.deserializer.deserialize(in);
-			for (Map.Entry<String, Object> entry : attributes.entrySet()) {
-				session.setAttribute(entry.getKey(), entry.getValue());
-			}
-		}
-		catch (IOException e) {
-			LOG.error("Exception during session deserialization", e);
-			throw new IllegalStateException("Cannot deserialize session", e);
+		byte[] attributesBytes = (byte[]) sessionWrapper.get(ATTRIBUTES);
+		Map<String, Object> attributes = (Map<String, Object>) this.deserializer
+				.convert(attributesBytes);
+		for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+			session.setAttribute(entry.getKey(), entry.getValue());
 		}
 	}
 
