@@ -3,7 +3,7 @@ package samples.pages
 import geb.Page
 
 /**
- * Created by jitendra on 15/3/16.
+ * @author jitendra on 15/3/16.
  */
 class HomePage extends Page {
     static url = "/"

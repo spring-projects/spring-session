@@ -12,7 +12,7 @@ import samples.pages.SetAttributePage
 import spock.lang.Stepwise
 
 /**
- * Created by jitendra on 15/3/16.
+ * @author jitendra on 15/3/16.
  */
 @Stepwise
 @ContextConfiguration(classes = Application, loader = SpringApplicationContextLoader)

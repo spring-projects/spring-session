@@ -18,13 +18,6 @@ import java.util.Set;
  */
 public class UserDeserializer extends JsonDeserializer<User> {
 
-//    @JsonCreator
-//    public UserDeserializer(@JsonProperty("username") String username, @JsonProperty("password") String password,
-//                            @JsonProperty("enabled") boolean enabled, @JsonProperty("accountNonExpired") boolean accountNonExpired,
-//                            @JsonProperty("credentialsNonExpired") boolean credentialsNonExpired, @JsonProperty("accountNonLocked") boolean accountNonLocked,
-//                            @JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
-//    }
-
     @Override
     public User deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
         ObjectMapper mapper = (ObjectMapper) p.getCodec();

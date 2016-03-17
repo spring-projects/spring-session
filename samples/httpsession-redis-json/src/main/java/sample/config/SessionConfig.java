@@ -51,7 +51,8 @@ public class SessionConfig {
                         .withFieldVisibility(ANY)
                         .withGetterVisibility(NONE)
                         .withSetterVisibility(NONE)
-                        .withCreatorVisibility(NONE));
+                        .withCreatorVisibility(NONE)
+        );
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         mapper.addMixIn(SavedCookie.class, SavedCookieMixin.class);
         mapper.addMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
@@ -65,7 +66,6 @@ public class SessionConfig {
         module.addDeserializer(User.class, new UserDeserializer());
         module.addDeserializer(WebAuthenticationDetails.class, new WebAuthenticationDetailsDeserializer());
 
-//        module.addSerializer(BadCredentialsException.class, new ExceptionSerializer());
         mapper.registerModule(module);
         return mapper;
     }

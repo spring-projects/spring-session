@@ -15,10 +15,9 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 /**
- * Created by jitendra on 14/3/16.
+ * @author jitendra on 14/3/16.
  */
 public class WebAuthenticationDetailsDeserializer extends JsonDeserializer<WebAuthenticationDetails> {
-
 
     @Override
     public WebAuthenticationDetails deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
