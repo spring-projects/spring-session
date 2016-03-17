@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Login</title>
+</head>
+<body>
+    <div layout:fragment="content">
+        <form name="f" th:action="@{/login}" method="post">
+            <fieldset>
+                <legend>Please Login - </legend>
+                <div th:if="${param.error}" class="alert alert-error">Invalid
+                    username and password.</div>
+                <div th:if="${param.logout}" class="alert alert-success">You
+                    have been logged out.</div>
+                <label for="username">Username</label> <input type="text"
+                                                              id="username" name="username" /> <label for="password">Password</label>
+                <input type="password" id="password" name="password" />
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="form-actions">
+                    <button type="submit" class="btn">Log in</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+    <div class="container" layout:fragment="table-content">
+        <p>
+            This demo use GenericJackson2JsonRedisSerializer as DefaultRedis Serializer.
+            <br/>
+            To login use <b>user</b> as username and <b>password</b> as Password.
+        </p>
+    </div>
+</body>
+</html>
