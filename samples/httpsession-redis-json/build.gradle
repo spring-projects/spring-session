@@ -1,0 +1,56 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+    }
+}
+
+apply plugin: 'spring-boot'
+
+apply from: JAVA_GRADLE
+
+//tasks.findByPath("artifactoryPublish")?.enabled = false
+
+group = 'samples'
+
+dependencies {
+    compile project(':spring-session'),
+            "org.springframework.boot:spring-boot-starter-redis",
+            "org.springframework.boot:spring-boot-starter-web",
+            "org.springframework.boot:spring-boot-starter-thymeleaf",
+            "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
+            "org.springframework.security:spring-security-web:$springSecurityVersion",
+            "org.springframework.security:spring-security-config:$springSecurityVersion",
+            "org.apache.httpcomponents:httpclient"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test",
+            "org.assertj:assertj-core:$assertjVersion"
+
+    integrationTestCompile gebDependencies,
+            "org.spockframework:spock-spring:$spockVersion"
+
+}
+//
+integrationTest {
+    doFirst {
+        def port = reservePort()
+
+        def host = 'localhost:' + port
+        systemProperties['geb.build.baseUrl'] = 'http://'+host+'/'
+        systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
+        systemProperties['server.port'] = port
+        systemProperties['management.port'] = 0
+
+        systemProperties['spring.session.redis.namespace'] = project.name
+    }
+    jvmArgs "-XX:-UseSplitVerifier"
+}
+
+def reservePort() {
+    def socket = new ServerSocket(0)
+    def result = socket.localPort
+    socket.close()
+    result
+}
