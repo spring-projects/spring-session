@@ -15,27 +15,27 @@
  */
 package org.springframework.session.data.mongo;
 
-import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
 import com.fasterxml.jackson.databind.Module;
-import com.mongodb.MongoClient;
 import org.junit.Test;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.geo.GeoModule;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Integration tests for {@link MongoOperationsSessionRepository} that use
+ * {@link JacksonMongoSessionConverter} based session serialization.
+ *
  * @author Jakub Kubrynski
+ * @author Vedran Pavic
  */
 @ContextConfiguration
 public class MongoRepositoryJacksonITests extends AbstractMongoRepositoryITests {
@@ -57,12 +57,7 @@ public class MongoRepositoryJacksonITests extends AbstractMongoRepositoryITests 
 
 	@Configuration
 	@EnableMongoHttpSession
-	static class Config {
-
-		@Bean
-		public MongoOperations mongoOperations() throws UnknownHostException {
-			return new MongoTemplate(new MongoClient(), "test");
-		}
+	static class Config extends BaseConfig {
 
 		@Bean
 		public AbstractMongoSessionConverter mongoSessionConverter() {
