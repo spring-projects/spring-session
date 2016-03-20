@@ -28,7 +28,7 @@ dependencies {
 	integrationTestCompile "redis.clients:jedis:2.4.1",
 			"org.apache.commons:commons-pool2:2.2",
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
-			"com.h2database:h2:1.4.191"
+			"com.h2database:h2:$h2Version"
 
 	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 
