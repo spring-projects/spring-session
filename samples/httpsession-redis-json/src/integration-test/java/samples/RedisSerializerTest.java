@@ -27,7 +27,5 @@ public class RedisSerializerTest {
         notNull(sessionRedisTemplate);
         notNull(sessionRedisTemplate.getDefaultSerializer());
         assertTrue(sessionRedisTemplate.getDefaultSerializer() instanceof GenericJackson2JsonRedisSerializer);
-
-        System.out.println(sessionRedisTemplate.getDefaultSerializer());
     }
 }
