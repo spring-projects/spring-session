@@ -45,15 +45,15 @@ public class DefaultSavedRequestDeserializer extends StdDeserializer<DefaultSave
         request.setServerName(jsonNode.get("serverName").asText());
         request.setServletPath(jsonNode.get("servletPath").asText());
         request.setServerPort(jsonNode.get("serverPort").asInt());
-        List<SavedCookie> savedCookies = mapper.readValue(jsonNode.get("cookies").toString(), new TypeReference<List<SavedCookie>>() {
+        List<Cookie> cookies = mapper.readValue(jsonNode.get("cookies").toString(), new TypeReference<List<Cookie>>() {
         });
-        Map<String, String[]> params = mapper.readValue(jsonNode.get("parameters").toString(), new TypeReference<Map<String, String[]>>() {
+        Map<String, String[]> params = mapper.readValue(jsonNode.get("parameterMap").toString(), new TypeReference<Map<String, String[]>>() {
         });
         ArrayList<Locale> locales = mapper.readValue(jsonNode.get("locales").toString(), new TypeReference<List<Locale>>() {
         });
         Map<String, List<String>> headers = mapper.readValue(jsonNode.get("headers").toString(), new TypeReference<Map<String, List<String>>>() {
         });
-        request.setSavedCookies(savedCookies);
+        request.setCookies(cookies.toArray(new Cookie[]{}));
         request.setParameters(params);
         request.setLocales(locales);
         request.setHeaders(headers);
@@ -129,25 +129,6 @@ public class DefaultSavedRequestDeserializer extends StdDeserializer<DefaultSave
 
         public void setCookies(Cookie[] cookies) {
             this.cookies = cookies;
-        }
-
-        public void setSavedCookies(List<SavedCookie> cookies) {
-            if (!ObjectUtils.isEmpty(cookies)) {
-                Cookie[] cookieArray = new Cookie[cookies.size()];
-                int index = 0;
-                for (SavedCookie cookie : cookies) {
-                    Cookie httpCookie = new Cookie(cookie.getName(), cookie.getValue());
-                    httpCookie.setComment(cookie.getComment());
-                    if (!ObjectUtils.isEmpty(cookie.getDomain()))
-                        httpCookie.setDomain(cookie.getDomain());
-                    httpCookie.setMaxAge(cookie.getMaxAge());
-                    httpCookie.setSecure(cookie.isSecure());
-                    httpCookie.setVersion(cookie.getVersion());
-                    httpCookie.setPath(cookie.getPath());
-                    cookieArray[index++] = httpCookie;
-                }
-                setCookies(cookieArray);
-            }
         }
 
         @Override
