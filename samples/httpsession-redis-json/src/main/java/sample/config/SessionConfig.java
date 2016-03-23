@@ -1,6 +1,7 @@
 package sample.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.context.annotation.Bean;
@@ -14,14 +15,14 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.security.web.savedrequest.SavedCookie;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import sample.mixins.*;
 
+import javax.servlet.http.Cookie;
 import java.util.Collections;
 
 import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.ANY;
-import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.NONE;
+import static com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility.PUBLIC_ONLY;
 
 /**
  * @author jitendra on 3/3/16.
@@ -46,17 +47,16 @@ public class SessionConfig {
      */
     ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.setVisibility(
                 mapper.getVisibilityChecker()
                         .withFieldVisibility(ANY)
-                        .withGetterVisibility(NONE)
-                        .withSetterVisibility(NONE)
-                        .withCreatorVisibility(NONE)
+                        .withSetterVisibility(PUBLIC_ONLY)
+                        .withGetterVisibility(PUBLIC_ONLY)
+                        .withIsGetterVisibility(PUBLIC_ONLY)
         );
         mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        mapper.addMixIn(SavedCookie.class, SavedCookieMixin.class);
         mapper.addMixIn(DefaultCsrfToken.class, DefaultCsrfTokenMixin.class);
-        mapper.addMixIn(UsernamePasswordAuthenticationToken.class, UsernamePasswordAuthenticationTokenMixin.class);
         mapper.addMixIn(SimpleGrantedAuthority.class, SimpleGrantedAuthorityMixin.class);
         mapper.addMixIn(BadCredentialsException.class, BadCredentialsExceptionMixin.class);
         mapper.addMixIn(Collections.unmodifiableSet(Collections.EMPTY_SET).getClass(), UnmodifiableSetMixin.class);
@@ -65,6 +65,8 @@ public class SessionConfig {
         module.addDeserializer(DefaultSavedRequest.class, new DefaultSavedRequestDeserializer(DefaultSavedRequest.class));
         module.addDeserializer(User.class, new UserDeserializer());
         module.addDeserializer(WebAuthenticationDetails.class, new WebAuthenticationDetailsDeserializer());
+        module.addDeserializer(Cookie.class, new HttpCookieDeserializer());
+        module.addDeserializer(UsernamePasswordAuthenticationToken.class, new UsernamePasswordAuthenticationTokenDeserializer());
 
         mapper.registerModule(module);
         return mapper;
