@@ -228,7 +228,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 		}
 
 		/**
-		 * Uses the HttpSessionStrategy to write the session id tot he response and
+		 * Uses the HttpSessionStrategy to write the session id to the response and
 		 * persist the Session.
 		 */
 		private void commitSession() {
