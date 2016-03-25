@@ -63,6 +63,8 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-redis"
     compile 'org.springframework.session:spring-session:1.1.1.RELEASE'
+
+    compile 'org.grails.plugins:spring-security-core:3.0.4'
 }
 
 task wrapper(type: Wrapper) {
