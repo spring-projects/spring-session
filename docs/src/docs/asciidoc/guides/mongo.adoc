@@ -122,12 +122,6 @@ The Mongo Sample Application demonstrates how to use Spring Session to transpare
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-[NOTE]
-====
-For the sample to work, you must have MongoDB on localhost and run it with the default port (27017).
-Alternatively you can use docker to run local instance `docker run -p 27017:27017 mongo`
-====
-
 ----
 $ ./gradlew :samples:mongo:bootRun
 ----
@@ -156,9 +150,15 @@ When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityCon
 When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
 Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
-If you like, you can easily remove the session using mongo client. For example, on a Linux based system you can type:
+If you like, you can easily inspect the session using mongo client. For example, on a Linux based system you can type:
 
-	$ mongo
+[NOTE]
+====
+The sample application uses an embedded MongoDB instance that listens on a randomly allocated port.
+The port used by embedded MongoDB together with exact command to connect to it is logged during application startup.
+====
+
+	$ mongo --port ...
 	> use test
 	> db.sessions.find().pretty()
 

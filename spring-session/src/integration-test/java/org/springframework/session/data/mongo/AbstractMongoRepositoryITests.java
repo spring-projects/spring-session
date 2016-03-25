@@ -15,13 +15,21 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import com.mongodb.MongoClient;
+import de.flapdoodle.embed.mongo.MongodExecutable;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -30,11 +38,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.AbstractITests;
+import org.springframework.util.SocketUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Abstract base class for {@link MongoOperationsSessionRepository} tests.
+ *
  * @author Jakub Kubrynski
+ * @author Vedran Pavic
  */
 abstract public class AbstractMongoRepositoryITests extends AbstractITests {
 
@@ -362,6 +374,24 @@ abstract public class AbstractMongoRepositoryITests extends AbstractITests {
 
 	protected String getChangedSecurityName() {
 		return this.changedContext.getAuthentication().getName();
+	}
+
+	protected static class BaseConfig {
+
+		private int embeddedMongoPort = SocketUtils.findAvailableTcpPort();
+
+		@Bean(initMethod = "start", destroyMethod = "stop")
+		public MongodExecutable embeddedMongoServer() throws IOException {
+			return MongoITestUtils.embeddedMongoServer(this.embeddedMongoPort);
+		}
+
+		@Bean
+		@DependsOn("embeddedMongoServer")
+		public MongoOperations mongoOperations() throws UnknownHostException {
+			MongoClient mongo = new MongoClient("localhost", this.embeddedMongoPort);
+			return new MongoTemplate(mongo, "test");
+		}
+
 	}
 
 }

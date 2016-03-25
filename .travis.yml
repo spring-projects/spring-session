@@ -2,7 +2,6 @@ language: java
 
 services:
   - redis-server
-  - mongodb
 
 jdk:
   - oraclejdk8
