@@ -60,6 +60,9 @@ dependencies {
     testCompile "org.grails.plugins:geb"
     testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
+
+    compile "org.springframework.boot:spring-boot-starter-redis"
+    compile 'org.springframework.session:spring-session:1.1.1.RELEASE'
 }
 
 task wrapper(type: Wrapper) {
