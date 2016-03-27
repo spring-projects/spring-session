@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
@@ -28,6 +29,7 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -124,8 +126,12 @@ public class IndexDocTests {
 
 		// ... configure JdbcTemplate ...
 
+		PlatformTransactionManager transactionManager = new DataSourceTransactionManager();
+
+		// ... configure transactionManager ...
+
 		SessionRepository<? extends ExpiringSession> repository =
-				new JdbcOperationsSessionRepository(jdbcTemplate);
+				new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
 		// end::new-jdbcoperationssessionrepository[]
 	}
 

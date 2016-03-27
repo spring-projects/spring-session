@@ -85,6 +85,7 @@ The filter is what is in charge of replacing the `HttpSession` implementation to
 In this instance Spring Session is backed by a relational database.
 <2> We create a `dataSource` that connects Spring Session to an embedded instance of H2 database.
 We configure the H2 database to create database tables using the SQL script which is included in Spring Session.
+<3> We create a `transactionManager` that manages transactions for previously configured `dataSource`.
 
 == XML Servlet Container Initialization
 

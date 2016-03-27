@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -38,6 +39,8 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.and;
@@ -48,6 +51,7 @@ import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.startsWith;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -72,17 +76,21 @@ public class JdbcOperationsSessionRepositoryTests {
 	@Mock
 	private JdbcOperations jdbcOperations;
 
+	@Mock
+	private PlatformTransactionManager transactionManager;
+
 	private JdbcOperationsSessionRepository repository;
 
 	@Before
 	public void setUp() {
-		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations);
+		this.repository = new JdbcOperationsSessionRepository(
+				this.jdbcOperations, this.transactionManager);
 	}
 
 	@Test
 	public void constructorDataSource() {
 		JdbcOperationsSessionRepository repository = new JdbcOperationsSessionRepository(
-				this.dataSource);
+				this.dataSource, this.transactionManager);
 
 		assertThat(ReflectionTestUtils.getField(repository, "jdbcOperations"))
 				.isNotNull();
@@ -93,7 +101,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("Property 'dataSource' is required");
 
-		new JdbcOperationsSessionRepository((DataSource) null);
+		new JdbcOperationsSessionRepository((DataSource) null, this.transactionManager);
 	}
 
 	@Test
@@ -101,7 +109,15 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("JdbcOperations must not be null");
 
-		new JdbcOperationsSessionRepository((JdbcOperations) null);
+		new JdbcOperationsSessionRepository((JdbcOperations) null, this.transactionManager);
+	}
+
+	@Test
+	public void constructorNullTransactionManager() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Property 'transactionManager' is required");
+
+		new JdbcOperationsSessionRepository(this.jdbcOperations, null);
 	}
 
 	@Test
@@ -168,6 +184,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT"),
 				isA(PreparedStatementSetter.class));
 	}
@@ -181,6 +198,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(
 				and(startsWith("UPDATE"), contains("SESSION_BYTES")),
 				isA(PreparedStatementSetter.class));
@@ -195,6 +213,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(
 				and(startsWith("UPDATE"), not(contains("SESSION_BYTES"))),
 				isA(PreparedStatementSetter.class));
@@ -219,6 +238,7 @@ public class JdbcOperationsSessionRepositoryTests {
 				.getSession(sessionId);
 
 		assertThat(session).isNull();
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
 				eq(new Object[] { sessionId }), isA(RowMapper.class));
 	}
@@ -236,6 +256,7 @@ public class JdbcOperationsSessionRepositoryTests {
 				.getSession(expired.getId());
 
 		assertThat(session).isNull();
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
 				eq(new Object[] { expired.getId() }), isA(RowMapper.class));
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"),
@@ -256,6 +277,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.isNew()).isFalse();
 		assertThat(session.getAttribute("savedName")).isEqualTo("savedValue");
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
 				eq(new Object[] { saved.getId() }), isA(RowMapper.class));
 	}
@@ -266,6 +288,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		this.repository.delete(sessionId);
 
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), eq(sessionId));
 	}
 
@@ -290,6 +313,7 @@ public class JdbcOperationsSessionRepositoryTests {
 						principal);
 
 		assertThat(sessions).isEmpty();
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).query(startsWith("SELECT"),
 				eq(new Object[] { principal }), isA(RowMapper.class));
 	}
@@ -315,6 +339,7 @@ public class JdbcOperationsSessionRepositoryTests {
 						principal);
 
 		assertThat(sessions).hasSize(2);
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).query(startsWith("SELECT"),
 				eq(new Object[] { principal }), isA(RowMapper.class));
 	}
@@ -323,7 +348,16 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void cleanupExpiredSessions() {
 		this.repository.cleanUpExpiredSessions();
 
+		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), anyLong());
+	}
+
+	private void assertPropagationRequiresNew() {
+		ArgumentCaptor<TransactionDefinition> argument =
+				ArgumentCaptor.forClass(TransactionDefinition.class);
+		verify(this.transactionManager, atLeastOnce()).getTransaction(argument.capture());
+		assertThat(argument.getValue().getPropagationBehavior())
+				.isEqualTo(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 	}
 
 }
