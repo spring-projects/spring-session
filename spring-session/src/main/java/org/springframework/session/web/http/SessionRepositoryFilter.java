@@ -332,10 +332,6 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 			return session;
 		}
 
-		/**
-		 * @param sessionId
-		 * @return
-		 */
 		private String removeJVMRoute(String sessionId) {
 			if (sessionId == null) {
 				return null;
