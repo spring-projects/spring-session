@@ -102,7 +102,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private static final String CREATE_SESSION_QUERY = "INSERT INTO %TABLE_NAME%(SESSION_ID, LAST_ACCESS_TIME, PRINCIPAL_NAME, SESSION_BYTES) VALUES (?, ?, ?, ?)";
 
-	private static final String GET_SESSION_QUERY = "SELECT SESSION_BYTES FROM %TABLE_NAME% WHERE SESSION_ID = ?";
+	private static final String GET_SESSION_QUERY = "SELECT LAST_ACCESS_TIME, SESSION_BYTES FROM %TABLE_NAME% WHERE SESSION_ID = ?";
 
 	private static final String UPDATE_SESSION_QUERY = "UPDATE %TABLE_NAME% SET LAST_ACCESS_TIME = ?, PRINCIPAL_NAME = ?, SESSION_BYTES = ? WHERE SESSION_ID = ?";
 
@@ -110,7 +110,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private static final String DELETE_SESSION_QUERY = "DELETE FROM %TABLE_NAME% WHERE SESSION_ID = ?";
 
-	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "SELECT SESSION_BYTES FROM %TABLE_NAME% WHERE PRINCIPAL_NAME = ?";
+	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "SELECT LAST_ACCESS_TIME, SESSION_BYTES FROM %TABLE_NAME% WHERE PRINCIPAL_NAME = ?";
 
 	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY = "DELETE FROM %TABLE_NAME% WHERE LAST_ACCESS_TIME < ?";
 
@@ -473,12 +473,14 @@ public class JdbcOperationsSessionRepository implements
 	private class ExpiringSessionMapper implements RowMapper<ExpiringSession> {
 
 		public ExpiringSession mapRow(ResultSet rs, int rowNum) throws SQLException {
-			return (ExpiringSession) JdbcOperationsSessionRepository.this.conversionService
-					.convert(
+			ExpiringSession session = (ExpiringSession) JdbcOperationsSessionRepository
+					.this.conversionService.convert(
 							JdbcOperationsSessionRepository.this.lobHandler
 									.getBlobAsBytes(rs, "SESSION_BYTES"),
 							TypeDescriptor.valueOf(byte[].class),
 							TypeDescriptor.valueOf(ExpiringSession.class));
+			session.setLastAccessedTime(rs.getLong("LAST_ACCESS_TIME"));
+			return session;
 		}
 
 	}

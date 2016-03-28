@@ -37,6 +37,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -133,6 +134,26 @@ public class JdbcOperationsSessionRepositoryITests {
 		assertThat(session.getAttribute("1")).isEqualTo("2");
 
 		this.repository.delete(toSave.getId());
+	}
+
+	@Test
+	public void updateLastAccessedTime() {
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
+		toSave.setLastAccessedTime(System.currentTimeMillis()
+				- (MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+
+		this.repository.save(toSave);
+
+		long lastAccessedTime = System.currentTimeMillis();
+		toSave.setLastAccessedTime(lastAccessedTime);
+		this.repository.save(toSave);
+
+		ExpiringSession session = this.repository.getSession(toSave.getId());
+
+		assertThat(session).isNotNull();
+		assertThat(session.isExpired()).isFalse();
+		assertThat(session.getLastAccessedTime()).isEqualTo(lastAccessedTime);
 	}
 
 	@Test

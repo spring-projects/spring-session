@@ -212,7 +212,6 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getSessionNotFound() {
 		String sessionId = "testSessionId";
 
@@ -225,10 +224,10 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getSessionExpired() {
 		MapSession expired = new MapSession();
-		expired.setMaxInactiveIntervalInSeconds(0);
+		expired.setLastAccessedTime(System.currentTimeMillis() -
+				(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
 		given(this.jdbcOperations.queryForObject(startsWith("SELECT"),
 				eq(new Object[] { expired.getId() }), isA(RowMapper.class)))
 						.willReturn(expired);
@@ -244,7 +243,6 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void getSessionFound() {
 		MapSession saved = new MapSession();
 		saved.setAttribute("savedName", "savedValue");
@@ -283,7 +281,6 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValuePrincipalIndexNameNotFound() {
 		String principal = "username";
 
@@ -298,7 +295,6 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValuePrincipalIndexNameFound() {
 		String principal = "username";
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal,
