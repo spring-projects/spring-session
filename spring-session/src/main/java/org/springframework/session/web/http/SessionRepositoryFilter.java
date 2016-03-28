@@ -322,13 +322,29 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 		}
 
 		private S getSession(String sessionId) {
+			String cleanSessionId = removeJVMRoute(sessionId);
 			S session = SessionRepositoryFilter.this.sessionRepository
-					.getSession(sessionId);
+					.getSession(cleanSessionId);
 			if (session == null) {
 				return null;
 			}
 			session.setLastAccessedTime(System.currentTimeMillis());
 			return session;
+		}
+
+		/**
+		 * @param sessionId
+		 * @return
+		 */
+		private String removeJVMRoute(String sessionId) {
+			if (sessionId == null) {
+				return null;
+			}
+			int indexOfJvmRoute = sessionId.indexOf(".");
+			if (indexOfJvmRoute > 0) {
+				return sessionId.substring(0, indexOfJvmRoute);
+			}
+			return sessionId;
 		}
 
 		@Override
