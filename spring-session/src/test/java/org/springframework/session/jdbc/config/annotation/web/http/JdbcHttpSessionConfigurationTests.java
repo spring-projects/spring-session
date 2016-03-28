@@ -28,7 +28,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -133,7 +132,7 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Test
 	public void customConversionServiceConfiguration() {
-		registerAndRefresh(CustomDeserializingConverterConfiguration.class);
+		registerAndRefresh(CustomConversionServiceConfiguration.class);
 
 		JdbcOperationsSessionRepository repository = this.context
 				.getBean(JdbcOperationsSessionRepository.class);
@@ -194,19 +193,7 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableJdbcHttpSession
-	static class CustomSerializingConverterConfiguration extends BaseConfiguration {
-
-		@Bean
-		@SuppressWarnings("unchecked")
-		public Converter<Object, byte[]> springSessionSerializingConverter() {
-			return mock(Converter.class);
-		}
-
-	}
-
-	@Configuration
-	@EnableJdbcHttpSession
-	static class CustomDeserializingConverterConfiguration extends BaseConfiguration {
+	static class CustomConversionServiceConfiguration extends BaseConfiguration {
 
 		@Bean
 		public ConversionService springSessionConversionService() {
