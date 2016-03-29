@@ -18,6 +18,7 @@ package sample
 
 import grails.test.mixin.integration.Integration
 import grails.transaction.Transactional
+import org.springframework.boot.test.IntegrationTest
 
 import spock.lang.*
 import geb.spock.*
@@ -35,6 +36,7 @@ import pages.*
  */
 
 @Stepwise
+@IntegrationTest("server.port:0")
 @Integration(applicationClass=grails3.redis.session.Application)
 class HomeSpec extends GebSpec {
 
