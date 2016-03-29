@@ -25,12 +25,14 @@ public class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeseria
         ObjectMapper mapper = (ObjectMapper) p.getCodec();
         JsonNode jsonNode = mapper.readTree(p);
         Boolean authenticated = jsonNode.get("authenticated").asBoolean();
-        String principalJson = jsonNode.get("principal").toString();
-        Object principal = principalJson;
-        if(principalJson.contains("@class")) {
-            principal = mapper.readValue(principalJson, new TypeReference<User>() {});
+        JsonNode principalNode = jsonNode.get("principal");
+        Object principal = null;
+        if(principalNode.isObject()) {
+            principal = mapper.readValue(principalNode.toString(), new TypeReference<User>() {});
+        } else {
+            principal = principalNode.asText();
         }
-        Object credentials = jsonNode.get("credentials");
+        Object credentials = jsonNode.get("credentials").asText();
         List<GrantedAuthority> authorities = mapper.readValue(jsonNode.get("authorities").toString(), new TypeReference<List<GrantedAuthority>>() {
         });
         if (authenticated) {
