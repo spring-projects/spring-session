@@ -119,6 +119,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store using XML based configuration.
 | link:guides/httpsession-jdbc-xml.html[HttpSession JDBC XML Guide]
 
+| {gh-samples-url}httpsession-jdbc-boot[HttpSession JDBC Spring Boot]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store when using Spring Boot.
+| link:guides/httpsession-jdbc-boot.html[HttpSession JDBC Spring Boot Guide]
+
 |===
 
 [[httpsession]]
@@ -277,6 +281,7 @@ You can choose from enabling this using either:
 
 * <<httpsession-jdbc-jc,Java Based Configuration>>
 * <<httpsession-jdbc-xml,XML Based Configuration>>
+* <<httpsession-jdbc-boot,Spring Boot Based Configuration>>
 
 [[httpsession-jdbc-jc]]
 ==== JDBC Java Based Configuration
@@ -297,6 +302,16 @@ NOTE: The <<samples, HttpSession JDBC XML Sample>> provides a working sample on 
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC XML Guide when integrating with your own application.
 
 include::guides/httpsession-jdbc-xml.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-jdbc-boot]]
+==== JDBC Spring Boot Based Configuration
+
+This section describes how to use a relational database to back `HttpSession` when using Spring Boot.
+
+NOTE: The <<samples, HttpSession JDBC Spring Boot Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Spring Boot.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC Spring Boot Guide when integrating with your own application.
+
+include::guides/httpsession-jdbc-boot.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-mongo]]
 === HttpSession with Mongo
