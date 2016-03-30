@@ -1,10 +1,6 @@
 apply from: JAVA_GRADLE
 apply from: TOMCAT_7_GRADLE
-
-tasks.findByPath("artifactoryPublish")?.enabled = false
-sonarqube {
-	skipProject = true
-}
+apply from: SAMPLE_GRADLE
 
 dependencies {
 	compile project(':spring-session-jdbc'),

@@ -13,9 +13,6 @@ buildscript {
     }
 }
 
-version "0.1"
-group "grails3.redis.session"
-
 apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"war"

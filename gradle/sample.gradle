@@ -1,0 +1,4 @@
+tasks.findByPath("artifactoryPublish")?.enabled = false
+sonarqube {
+	skipProject = true
+}
