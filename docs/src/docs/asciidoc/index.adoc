@@ -29,6 +29,7 @@ Below are the highlights of what is new in Spring Session 1.2. You can find a co
 * Added <<httpsession-jdbc,JdbcOperationsSessionRepository>> (See https://github.com/spring-projects/spring-session/issues/364[#364]).
 * Added <<httpsession-mongo,MongoOperationsSessionRepository>> (See https://github.com/spring-projects/spring-session/pull/371[#371]).
 * SessionRepositoryFilter caches null session lookup (See https://github.com/spring-projects/spring-session/issues/423[#423])
+* link:guides/grails3.html[Grails 3 Sample & Guide]
 * Improved Workspace Setup (See https://github.com/spring-projects/spring-session/pull/417[#417])
 
 [[samples]]
