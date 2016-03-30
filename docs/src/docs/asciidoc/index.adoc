@@ -72,6 +72,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session with Spring Boot.
 | link:guides/boot.html[Spring Boot Guide]
 
+| {gh-samples-url}grails3[Grails 3]
+| Demonstrates how to use Spring Session with Grails 3.
+| link:guides/grails3.html[Grails 3 Guide]
+
 | {gh-samples-url}security[Spring Security]
 | Demonstrates how to use Spring Session with an existing Spring Security application.
 | link:guides/security.html[Spring Security Guide]

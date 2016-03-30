@@ -63,7 +63,6 @@ For example, you can include the following in your *application.yml*
 .grails-app/conf/application.yml
 [source,yml]
 ----
----
 spring:
   redis:
     host: localhost
