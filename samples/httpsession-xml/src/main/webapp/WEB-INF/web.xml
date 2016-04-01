@@ -25,7 +25,6 @@
 		<url-pattern>/*</url-pattern>
                 <dispatcher>REQUEST</dispatcher>
                 <dispatcher>ERROR</dispatcher>
-                <dispatcher>ASYNC</dispatcher>
 	</filter-mapping>
 	<!-- end::springSessionRepositoryFilter[] -->
 
