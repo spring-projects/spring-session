@@ -23,7 +23,7 @@ dependencies {
 			"org.springframework.boot:spring-boot-starter-thymeleaf",
 			"org.springframework.boot:spring-boot-starter-websocket",
 			"org.springframework:spring-websocket:${springVersion}",
-			"org.springframework.data:spring-data-jpa:1.7.0.RELEASE",
+			"org.springframework.data:spring-data-jpa",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
 			"com.h2database:h2",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
