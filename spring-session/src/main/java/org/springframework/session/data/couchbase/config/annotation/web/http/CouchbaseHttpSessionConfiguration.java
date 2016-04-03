@@ -8,7 +8,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.data.couchbase.CouchbaseDao;
 import org.springframework.session.data.couchbase.CouchbaseSessionRepository;
 import org.springframework.session.data.couchbase.DelegatingSessionStrategy;
@@ -21,11 +21,12 @@ import java.util.Map;
 import static org.springframework.core.annotation.AnnotationAttributes.fromMap;
 
 @Configuration
-public class CouchbaseHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
+@EnableSpringHttpSession
+public class CouchbaseHttpSessionConfiguration implements ImportAware {
 
-    private String namespace;
-    private int timeoutInSeconds;
-    private boolean principalSessionsEnabled;
+    protected String namespace;
+    protected int timeoutInSeconds;
+    protected boolean principalSessionsEnabled;
 
     @Bean
     public CouchbaseDao couchbaseDao(CouchbaseTemplate couchbase) {
