@@ -76,15 +76,15 @@ public class SessionController {
 
 	@RequestMapping(value = "bean", method = RequestMethod.POST)
 	public void setBean(@RequestBody Message dto) {
-		sessionBean.setText(dto.getText());
-		sessionBean.setNumber(dto.getNumber());
+		this.sessionBean.setText(dto.getText());
+		this.sessionBean.setNumber(dto.getNumber());
 	}
 
 	@RequestMapping("bean")
 	public Message getBean() {
 		Message message = new Message();
-		message.setText(sessionBean.getText());
-		message.setNumber(sessionBean.getNumber());
+		message.setText(this.sessionBean.getText());
+		message.setNumber(this.sessionBean.getNumber());
 		return message;
 	}
 
@@ -106,7 +106,7 @@ public class SessionController {
 
 	@RequestMapping("principal")
 	public Set<String> getPrincipalSessions() {
-		Map<String, CouchbaseSession> sessionsById = sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, PRINCIPAL_NAME);
+		Map<String, CouchbaseSession> sessionsById = this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, PRINCIPAL_NAME);
 		return sessionsById.keySet();
 	}
 
