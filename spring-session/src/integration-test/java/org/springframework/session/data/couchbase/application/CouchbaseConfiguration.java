@@ -4,9 +4,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
 
+import java.util.Collections;
 import java.util.List;
-
-import static java.util.Collections.singletonList;
 
 @Configuration
 @EnableCouchbaseRepositories
@@ -16,7 +15,7 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 
     @Override
     protected List<String> getBootstrapHosts() {
-        return singletonList("localhost");
+        return Collections.singletonList("localhost");
     }
 
     @Override

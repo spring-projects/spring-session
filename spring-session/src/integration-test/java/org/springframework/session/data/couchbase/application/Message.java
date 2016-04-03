@@ -10,7 +10,7 @@ public class Message implements Serializable {
     private Integer number;
 
     public String getText() {
-        return text;
+        return this.text;
     }
 
     public void setText(String text) {
@@ -18,7 +18,7 @@ public class Message implements Serializable {
     }
 
     public Integer getNumber() {
-        return number;
+        return this.number;
     }
 
     public void setNumber(Integer number) {
@@ -32,8 +32,8 @@ public class Message implements Serializable {
 
         Message message = (Message) o;
 
-        if (text != null ? !text.equals(message.text) : message.text != null) return false;
-        return number != null ? number.equals(message.number) : message.number == null;
+        return text != null ? text.equals(message.text) : message.text == null
+                && (number != null ? number.equals(message.number) : message.number == null);
     }
 
     @Override

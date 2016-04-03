@@ -1,6 +1,8 @@
 package org.springframework.session.data.couchbase;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -8,16 +10,13 @@ import javax.servlet.http.HttpSession;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.session.data.couchbase.CouchbaseSession.globalAttributeName;
-import static org.springframework.session.data.couchbase.CouchbaseSessionRepository.GLOBAL_NAMESPACE;
-import static org.springframework.util.Assert.notNull;
 
 public class RequestWrapper extends HttpServletRequestWrapper {
 
     public final String CURRENT_SESSION_ATTR = HttpServletRequestWrapper.class.getName();
 
-    private static final Logger log = getLogger(RequestWrapper.class);
+    private static final Logger log = LoggerFactory.getLogger(RequestWrapper.class);
 
     protected final CouchbaseDao dao;
     protected final String namespace;
@@ -32,7 +31,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
     public String changeSessionId() {
         SessionDocument oldDocument = dao.findById(getRequestedSessionId());
-        notNull(oldDocument, "Cannot change HTTP session ID, because session with ID '" + getRequestedSessionId() + "' does not exist");
+        Assert.notNull(oldDocument, "Cannot change HTTP session ID, because session with ID '" + getRequestedSessionId() + "' does not exist");
 
         removeAttribute(CURRENT_SESSION_ATTR);
         dao.delete(oldDocument.getId());
@@ -50,7 +49,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
     }
 
     protected void copyGlobalAttributes(SessionDocument oldDocument, HttpSession newSession) {
-        Map<String, Object> attributes = oldDocument.getData().get(GLOBAL_NAMESPACE);
+        Map<String, Object> attributes = oldDocument.getData().get(CouchbaseSessionRepository.GLOBAL_NAMESPACE);
         if (attributes != null) {
             Map<String, Object> deserializedAttributes = serializer.deserializeSessionAttributes(attributes);
             for (Entry<String, Object> attribute : deserializedAttributes.entrySet()) {

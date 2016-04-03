@@ -1,25 +1,20 @@
 package org.springframework.session.data.couchbase;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.util.Assert;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static java.lang.Math.round;
-import static java.lang.System.currentTimeMillis;
-import static java.util.Collections.unmodifiableSet;
-import static java.util.UUID.randomUUID;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.removeStart;
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
-import static org.springframework.util.Assert.hasText;
-import static org.springframework.util.Assert.isTrue;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 public class CouchbaseSession implements ExpiringSession, Serializable {
 
@@ -30,16 +25,16 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
     public static final String MAX_INACTIVE_INTERVAL_ATTRIBUTE = "$maxInactiveInterval";
     protected static final String GLOBAL_ATTRIBUTE_NAME_PREFIX = CouchbaseSession.class.getName() + ".global.";
 
-    private static final Logger log = getLogger(CouchbaseSession.class);
+    private static final Logger log = LoggerFactory.getLogger(CouchbaseSession.class);
 
-    protected String id = randomUUID().toString();
+    protected String id = UUID.randomUUID().toString();
     protected Map<String, Object> globalAttributes = new HashMap<String, Object>();
     protected Map<String, Object> namespaceAttributes = new HashMap<String, Object>();
     protected boolean namespacePersistenceRequired = false;
     protected boolean principalSession = false;
 
     public CouchbaseSession(int timeoutInSeconds) {
-        long now = currentTimeMillis();
+        long now = System.currentTimeMillis();
         setCreationTime(now);
         setLastAccessedTime(now);
         setMaxInactiveIntervalInSeconds(timeoutInSeconds);
@@ -59,11 +54,11 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
     }
 
     public long getCreationTime() {
-        return round((Double) globalAttributes.get(CREATION_TIME_ATTRIBUTE));
+        return Math.round((Double) globalAttributes.get(CREATION_TIME_ATTRIBUTE));
     }
 
     public long getLastAccessedTime() {
-        return round((Double) globalAttributes.get(LAST_ACCESSED_TIME_ATTRIBUTE));
+        return Math.round((Double) globalAttributes.get(LAST_ACCESSED_TIME_ATTRIBUTE));
     }
 
     public void setLastAccessedTime(long lastAccessedTime) {
@@ -79,7 +74,7 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
     }
 
     public boolean isExpired() {
-        return getMaxInactiveIntervalInSeconds() >= 0 && currentTimeMillis() - SECONDS.toMillis(getMaxInactiveIntervalInSeconds()) >= getLastAccessedTime();
+        return getMaxInactiveIntervalInSeconds() >= 0 && System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(getMaxInactiveIntervalInSeconds()) >= getLastAccessedTime();
     }
 
     public String getId() {
@@ -87,7 +82,6 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
     }
 
     @SuppressWarnings("unchecked")
-
     public <T> T getAttribute(String attributeName) {
         checkAttributeName(attributeName);
         T attribute;
@@ -108,20 +102,20 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
             attributesNames.add(globalAttributeName(attributeName));
         }
         attributesNames.addAll(namespaceAttributes.keySet());
-        return unmodifiableSet(attributesNames);
+        return Collections.unmodifiableSet(attributesNames);
     }
 
     public void setAttribute(String attributeName, Object attributeValue) {
         checkAttributeName(attributeName);
         if (isGlobal(attributeName)) {
             String name = getNameFromGlobalName(attributeName);
-            if (PRINCIPAL_NAME_INDEX_NAME.equals(name)) {
+            if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME.equals(name)) {
                 principalSession = true;
             }
             globalAttributes.put(name, attributeValue);
             log.trace("Set global HTTP session attribute: [name='{}', value={}]", name, attributeValue);
         } else {
-            if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName)) {
+            if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME.equals(attributeName)) {
                 principalSession = true;
             }
             namespacePersistenceRequired = true;
@@ -156,13 +150,13 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
     }
 
     public boolean isPrincipalSession() {
-        return isNotBlank(getPrincipalAttribute());
+        return StringUtils.isNotBlank(getPrincipalAttribute());
     }
 
     public String getPrincipalAttribute() {
-        Object principal = globalAttributes.get(PRINCIPAL_NAME_INDEX_NAME);
+        Object principal = globalAttributes.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
         if (principal == null) {
-            principal = namespaceAttributes.get(PRINCIPAL_NAME_INDEX_NAME);
+            principal = namespaceAttributes.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
         }
         return (String) principal;
     }
@@ -172,8 +166,8 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
     }
 
     protected void checkAttributeName(String attributeName) {
-        hasText(attributeName, "Empty HTTP session attribute name");
-        isTrue(!attributeName.trim().equals(GLOBAL_ATTRIBUTE_NAME_PREFIX), "Empty HTTP session global attribute name");
+        Assert.hasText(attributeName, "Empty HTTP session attribute name");
+        Assert.isTrue(!attributeName.trim().equals(GLOBAL_ATTRIBUTE_NAME_PREFIX), "Empty HTTP session global attribute name");
     }
 
     protected boolean isGlobal(String attributeName) {
@@ -181,10 +175,10 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
     }
 
     protected String getNameFromGlobalName(String globalAttributeName) {
-        return removeStart(globalAttributeName, GLOBAL_ATTRIBUTE_NAME_PREFIX);
+        return StringUtils.removeStart(globalAttributeName, GLOBAL_ATTRIBUTE_NAME_PREFIX);
     }
 
     protected boolean containsPrincipalAttribute() {
-        return globalAttributes.containsKey(PRINCIPAL_NAME_INDEX_NAME) || namespaceAttributes.containsKey(PRINCIPAL_NAME_INDEX_NAME);
+        return globalAttributes.containsKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME) || namespaceAttributes.containsKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
     }
 }

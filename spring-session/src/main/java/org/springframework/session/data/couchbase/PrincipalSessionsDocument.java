@@ -21,7 +21,7 @@ public class PrincipalSessionsDocument {
     }
 
     public String getPrincipal() {
-        return principal;
+        return this.principal;
     }
 
     public List<String> getSessionIds() {

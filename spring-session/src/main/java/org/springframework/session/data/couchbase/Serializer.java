@@ -1,16 +1,13 @@
 package org.springframework.session.data.couchbase;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Base64Utils;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.SerializationUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import static org.apache.commons.lang3.StringUtils.removeStart;
-import static org.apache.commons.lang3.StringUtils.startsWith;
-import static org.springframework.util.Base64Utils.decodeFromString;
-import static org.springframework.util.Base64Utils.encodeToString;
-import static org.springframework.util.ClassUtils.isPrimitiveOrWrapper;
-import static org.springframework.util.SerializationUtils.deserialize;
-import static org.springframework.util.SerializationUtils.serialize;
 
 public class Serializer {
 
@@ -23,7 +20,7 @@ public class Serializer {
         Map<String, Object> serialized = new HashMap<String, Object>(attributes.size());
         for (Entry<String, Object> attribute : attributes.entrySet()) {
             if (isDeserializedObject(attribute.getValue())) {
-                Object attributeValue = encodeToString(serialize(attribute.getValue()));
+                Object attributeValue = Base64Utils.encodeToString(SerializationUtils.serialize(attribute.getValue()));
                 serialized.put(attribute.getKey(), SERIALIZED_OBJECT_PREFIX + attributeValue);
             } else {
                 serialized.put(attribute.getKey(), attribute.getValue());
@@ -40,8 +37,8 @@ public class Serializer {
         for (Entry<String, Object> attribute : attributes.entrySet()) {
             Object attributeValue = attribute.getValue();
             if (isSerializedObject(attribute.getValue())) {
-                String content = removeStart(attribute.getValue().toString(), SERIALIZED_OBJECT_PREFIX);
-                attributeValue = deserialize(decodeFromString(content));
+                String content = StringUtils.removeStart(attribute.getValue().toString(), SERIALIZED_OBJECT_PREFIX);
+                attributeValue = SerializationUtils.deserialize(Base64Utils.decodeFromString(content));
             }
             deserialized.put(attribute.getKey(), attributeValue);
         }
@@ -49,10 +46,10 @@ public class Serializer {
     }
 
     protected boolean isDeserializedObject(Object attributeValue) {
-        return attributeValue != null && !isPrimitiveOrWrapper(attributeValue.getClass()) && !(attributeValue instanceof String);
+        return attributeValue != null && !ClassUtils.isPrimitiveOrWrapper(attributeValue.getClass()) && !(attributeValue instanceof String);
     }
 
     protected boolean isSerializedObject(Object attributeValue) {
-        return attributeValue != null && attributeValue instanceof String && startsWith(attributeValue.toString(), SERIALIZED_OBJECT_PREFIX);
+        return attributeValue != null && attributeValue instanceof String && StringUtils.startsWith(attributeValue.toString(), SERIALIZED_OBJECT_PREFIX);
     }
 }

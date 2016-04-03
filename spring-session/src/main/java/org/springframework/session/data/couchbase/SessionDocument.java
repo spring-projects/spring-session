@@ -20,10 +20,10 @@ public class SessionDocument {
     }
 
     public String getId() {
-        return id;
+        return this.id;
     }
 
     public Map<String, Map<String, Object>> getData() {
-        return data;
+        return this.data;
     }
 }

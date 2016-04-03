@@ -1,18 +1,17 @@
 package org.springframework.session.data.couchbase;
 
+import com.couchbase.client.java.document.json.JsonArray;
 import com.couchbase.client.java.document.json.JsonObject;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
+import com.couchbase.client.java.query.N1qlQuery;
 import com.couchbase.client.java.query.N1qlQueryResult;
 import com.couchbase.client.java.query.N1qlQueryRow;
 import org.springframework.data.couchbase.core.CouchbaseQueryExecutionException;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Map;
-
-import static com.couchbase.client.java.document.json.JsonArray.from;
-import static com.couchbase.client.java.query.N1qlQuery.parameterized;
-import static org.springframework.util.Assert.isTrue;
 
 public class CouchbaseDao {
 
@@ -42,7 +41,7 @@ public class CouchbaseDao {
         String statement = "SELECT * FROM default.data.`" + namespace + "` USE KEYS $1";
         N1qlQueryResult result = executeQuery(statement, id);
         List<N1qlQueryRow> attributes = result.allRows();
-        isTrue(attributes.size() < 2, "Invalid HTTP session state. Multiple namespaces '" + namespace + "' for session ID '" + id + "'");
+        Assert.isTrue(attributes.size() < 2, "Invalid HTTP session state. Multiple namespaces '" + namespace + "' for session ID '" + id + "'");
         if (attributes.isEmpty()) {
             return null;
         }
@@ -82,7 +81,7 @@ public class CouchbaseDao {
     }
 
     private N1qlQueryResult executeQuery(String statement, Object... parameters) {
-        N1qlQueryResult result = couchbase.queryN1QL(parameterized(statement, from(parameters)));
+        N1qlQueryResult result = couchbase.queryN1QL(N1qlQuery.parameterized(statement, JsonArray.from(parameters)));
         if (!result.finalSuccess()) {
             throw new CouchbaseQueryExecutionException("Error executing N1QL statement '" + statement + "'. " + result.errors());
         }

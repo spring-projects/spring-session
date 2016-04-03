@@ -1,22 +1,21 @@
 package org.springframework.session.data.couchbase.application;
 
 import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestAttributes;
 
 import java.io.Serializable;
 
-import static org.springframework.context.annotation.ScopedProxyMode.TARGET_CLASS;
-import static org.springframework.web.context.request.RequestAttributes.REFERENCE_SESSION;
-
 @Component
-@Scope(value = REFERENCE_SESSION, proxyMode = TARGET_CLASS)
+@Scope(value = RequestAttributes.REFERENCE_SESSION, proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class SessionScopedBean implements Serializable {
 
     private String text;
     private Integer number;
 
     public String getText() {
-        return text;
+        return this.text;
     }
 
     public void setText(String text) {
@@ -24,7 +23,7 @@ public class SessionScopedBean implements Serializable {
     }
 
     public Integer getNumber() {
-        return number;
+        return this.number;
     }
 
     public void setNumber(Integer number) {

@@ -18,8 +18,6 @@ import org.springframework.session.web.http.MultiHttpSessionStrategy;
 
 import java.util.Map;
 
-import static org.springframework.core.annotation.AnnotationAttributes.fromMap;
-
 @Configuration
 @EnableSpringHttpSession
 public class CouchbaseHttpSessionConfiguration implements ImportAware {
@@ -55,7 +53,7 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 
     public void setImportMetadata(AnnotationMetadata importMetadata) {
         Map<String, Object> attributesByNames = importMetadata.getAnnotationAttributes(EnableCouchbaseHttpSession.class.getName());
-        AnnotationAttributes attributes = fromMap(attributesByNames);
+        AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributesByNames);
         namespace = attributes.getString("namespace");
         timeoutInSeconds = attributes.getNumber("timeoutInSeconds");
         principalSessionsEnabled = attributes.getBoolean("principalSessionsEnabled");

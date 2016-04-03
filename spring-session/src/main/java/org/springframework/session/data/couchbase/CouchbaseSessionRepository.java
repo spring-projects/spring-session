@@ -1,27 +1,22 @@
 package org.springframework.session.data.couchbase;
 
+import com.couchbase.client.java.document.json.JsonObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.util.Assert;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.couchbase.client.java.document.json.JsonObject.from;
-import static java.lang.System.currentTimeMillis;
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.util.Assert.hasText;
-import static org.springframework.util.Assert.isTrue;
-import static org.springframework.util.Assert.notNull;
 
 public class CouchbaseSessionRepository implements FindByIndexNameSessionRepository<CouchbaseSession> {
 
     protected static final String GLOBAL_NAMESPACE = "global";
     protected static final int SESSION_DOCUMENT_EXPIRATION_DELAY_IN_SECONDS = 60;
 
-    private static final Logger log = getLogger(CouchbaseSessionRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(CouchbaseSessionRepository.class);
 
     protected final CouchbaseDao dao;
     protected final ObjectMapper mapper;
@@ -38,11 +33,11 @@ public class CouchbaseSessionRepository implements FindByIndexNameSessionReposit
             Serializer serializer,
             boolean principalSessionsEnabled
     ) {
-        notNull(dao, "Missing couchbase data access object");
-        notNull(mapper, "Missing JSON object mapper");
-        hasText(namespace, "Empty HTTP session namespace");
-        isTrue(!namespace.equals(GLOBAL_NAMESPACE), "Forbidden HTTP session namespace '" + namespace + "'");
-        notNull(serializer, "Missing object serializer");
+        Assert.notNull(dao, "Missing couchbase data access object");
+        Assert.notNull(mapper, "Missing JSON object mapper");
+        Assert.hasText(namespace, "Empty HTTP session namespace");
+        Assert.isTrue(!namespace.equals(GLOBAL_NAMESPACE), "Forbidden HTTP session namespace '" + namespace + "'");
+        Assert.notNull(serializer, "Missing object serializer");
         this.dao = dao;
         this.mapper = mapper;
         this.namespace = namespace.trim();
@@ -67,11 +62,11 @@ public class CouchbaseSessionRepository implements FindByIndexNameSessionReposit
 
     public void save(CouchbaseSession session) {
         Map<String, Object> serializedGlobal = serializer.serializeSessionAttributes(session.getGlobalAttributes());
-        dao.updateSession(from(serializedGlobal), GLOBAL_NAMESPACE, session.getId());
+        dao.updateSession(JsonObject.from(serializedGlobal), GLOBAL_NAMESPACE, session.getId());
 
         if (session.isNamespacePersistenceRequired()) {
             Map<String, Object> serializedNamespace = serializer.serializeSessionAttributes(session.getNamespaceAttributes());
-            dao.updateSession(from(serializedNamespace), namespace, session.getId());
+            dao.updateSession(JsonObject.from(serializedNamespace), namespace, session.getId());
         }
 
         if (isOperationOnPrincipalSessionsRequired(session)) {
@@ -90,7 +85,7 @@ public class CouchbaseSessionRepository implements FindByIndexNameSessionReposit
             return null;
         }
 
-        notNull(globalAttributes, "Invalid state of HTTP session persisted in couchbase. Missing global attributes.");
+        Assert.notNull(globalAttributes, "Invalid state of HTTP session persisted in couchbase. Missing global attributes.");
 
         Map<String, Object> deserializedGlobal = serializer.deserializeSessionAttributes(globalAttributes);
         Map<String, Object> deserializedNamespace = serializer.deserializeSessionAttributes(namespaceAttributes);
@@ -100,7 +95,7 @@ public class CouchbaseSessionRepository implements FindByIndexNameSessionReposit
             deleteSession(session);
             return null;
         }
-        session.setLastAccessedTime(currentTimeMillis());
+        session.setLastAccessedTime(System.currentTimeMillis());
 
         log.debug("Found HTTP session with ID {}", id);
 
@@ -120,12 +115,12 @@ public class CouchbaseSessionRepository implements FindByIndexNameSessionReposit
             throw new IllegalStateException("Cannot get principal HTTP sessions. Enable getting principal HTTP sessions using '@EnableCouchbaseHttpSession#namespace'.");
         }
         if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
-            return emptyMap();
+            return Collections.emptyMap();
         }
         PrincipalSessionsDocument sessionsDocument = dao.findByPrincipal(indexValue);
         if (sessionsDocument == null) {
             log.debug("Principals {} sessions not found", indexValue);
-            return emptyMap();
+            return Collections.emptyMap();
         }
         Map<String, CouchbaseSession> sessionsById = new HashMap<String, CouchbaseSession>(sessionsDocument.getSessionIds().size());
         for (String sessionId : sessionsDocument.getSessionIds()) {
@@ -147,7 +142,7 @@ public class CouchbaseSessionRepository implements FindByIndexNameSessionReposit
         if (dao.exists(principal)) {
             dao.updatePutPrincipalSession(principal, session.getId());
         } else {
-            PrincipalSessionsDocument sessionsDocument = new PrincipalSessionsDocument(principal, singletonList(session.getId()));
+            PrincipalSessionsDocument sessionsDocument = new PrincipalSessionsDocument(principal, Collections.singletonList(session.getId()));
             dao.save(sessionsDocument);
         }
         log.debug("Added principals {} session with ID {}", principal, session.getId());
