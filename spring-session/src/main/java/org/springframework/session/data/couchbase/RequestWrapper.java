@@ -80,7 +80,7 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 		Map<String, Object> attributes = oldDocument.getData()
 				.get(CouchbaseSessionRepository.GLOBAL_NAMESPACE);
 		if (attributes != null) {
-			Map<String, Object> deserializedAttributes = serializer
+			Map<String, Object> deserializedAttributes = this.serializer
 					.deserializeSessionAttributes(attributes);
 			for (Entry<String, Object> attribute : deserializedAttributes.entrySet()) {
 				newSession.setAttribute(
