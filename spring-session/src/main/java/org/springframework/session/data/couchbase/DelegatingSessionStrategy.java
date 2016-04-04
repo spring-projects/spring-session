@@ -22,6 +22,13 @@ import org.springframework.session.Session;
 import org.springframework.session.web.http.CookieHttpSessionStrategy;
 import org.springframework.session.web.http.MultiHttpSessionStrategy;
 
+/**
+ * A {@link MultiHttpSessionStrategy} that wraps the original HTTP request with
+ * {@link RequestWrapper}.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 public class DelegatingSessionStrategy implements MultiHttpSessionStrategy {
 
 	protected final CookieHttpSessionStrategy sessionStrategy;
@@ -29,7 +36,8 @@ public class DelegatingSessionStrategy implements MultiHttpSessionStrategy {
 	protected final String namespace;
 	protected final Serializer serializer;
 
-	public DelegatingSessionStrategy(CookieHttpSessionStrategy sessionStrategy, CouchbaseDao dao, String namespace, Serializer serializer) {
+	public DelegatingSessionStrategy(CookieHttpSessionStrategy sessionStrategy,
+			CouchbaseDao dao, String namespace, Serializer serializer) {
 		this.sessionStrategy = sessionStrategy;
 		this.dao = dao;
 		this.namespace = namespace;
@@ -40,20 +48,24 @@ public class DelegatingSessionStrategy implements MultiHttpSessionStrategy {
 		return sessionStrategy.getRequestedSessionId(request);
 	}
 
-	public void onNewSession(Session session, HttpServletRequest request, HttpServletResponse response) {
+	public void onNewSession(Session session, HttpServletRequest request,
+			HttpServletResponse response) {
 		sessionStrategy.onNewSession(session, request, response);
 	}
 
-	public void onInvalidateSession(HttpServletRequest request, HttpServletResponse response) {
+	public void onInvalidateSession(HttpServletRequest request,
+			HttpServletResponse response) {
 		sessionStrategy.onInvalidateSession(request, response);
 	}
 
-	public HttpServletRequest wrapRequest(HttpServletRequest request, HttpServletResponse response) {
+	public HttpServletRequest wrapRequest(HttpServletRequest request,
+			HttpServletResponse response) {
 		RequestWrapper wrapper = new RequestWrapper(request, dao, namespace, serializer);
 		return sessionStrategy.wrapRequest(wrapper, response);
 	}
 
-	public HttpServletResponse wrapResponse(HttpServletRequest request, HttpServletResponse response) {
+	public HttpServletResponse wrapResponse(HttpServletRequest request,
+			HttpServletResponse response) {
 		return sessionStrategy.wrapResponse(request, response);
 	}
 }

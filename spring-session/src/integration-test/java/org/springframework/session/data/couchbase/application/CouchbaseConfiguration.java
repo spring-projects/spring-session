@@ -22,10 +22,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
 
+/**
+ * Integration tests Couchbase configuration.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 @Configuration
 @EnableCouchbaseRepositories
 public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 
+	/**
+	 * Couchbase bucket name.
+	 */
 	public static final String COUCHBASE_BUCKET_NAME = "default";
 
 	@Override

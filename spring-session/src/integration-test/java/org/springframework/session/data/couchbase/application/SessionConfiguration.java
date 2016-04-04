@@ -25,14 +25,25 @@ import org.springframework.session.data.couchbase.CouchbaseSessionRepository;
 import org.springframework.session.data.couchbase.Serializer;
 import org.springframework.session.data.couchbase.config.annotation.web.http.CouchbaseHttpSessionConfiguration;
 
+/**
+ * Integration tests configuration.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 @Configuration
 public class SessionConfiguration extends CouchbaseHttpSessionConfiguration {
 
+	/**
+	 * Default HTTP session application namespace name.
+	 */
 	public static final String HTTP_SESSION_NAMESPACE = "test-application";
 
 	@Bean
-	public SessionRepository sessionRepository(CouchbaseDao dao, ObjectMapper mapper, Serializer serializer) {
-		return new CouchbaseSessionRepository(dao, namespace, mapper, timeoutInSeconds, serializer, principalSessionsEnabled) {
+	public SessionRepository sessionRepository(CouchbaseDao dao, ObjectMapper mapper,
+			Serializer serializer) {
+		return new CouchbaseSessionRepository(dao, namespace, mapper, timeoutInSeconds,
+				serializer, principalSessionsEnabled) {
 
 			@Override
 			protected int getSessionDocumentExpiration() {

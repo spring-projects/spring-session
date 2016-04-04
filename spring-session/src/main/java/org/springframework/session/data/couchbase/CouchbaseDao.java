@@ -29,6 +29,13 @@ import org.springframework.data.couchbase.core.CouchbaseQueryExecutionException;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.util.Assert;
 
+/**
+ * Data access object that communicates with Couchbase database in order to manage HTTP
+ * session data persistence.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 public class CouchbaseDao {
 
 	protected final CouchbaseTemplate couchbase;
@@ -57,7 +64,9 @@ public class CouchbaseDao {
 		String statement = "SELECT * FROM default.data.`" + namespace + "` USE KEYS $1";
 		N1qlQueryResult result = executeQuery(statement, id);
 		List<N1qlQueryRow> attributes = result.allRows();
-		Assert.isTrue(attributes.size() < 2, "Invalid HTTP session state. Multiple namespaces '" + namespace + "' for session ID '" + id + "'");
+		Assert.isTrue(attributes.size() < 2,
+				"Invalid HTTP session state. Multiple namespaces '" + namespace
+						+ "' for session ID '" + id + "'");
 		if (attributes.isEmpty()) {
 			return null;
 		}
@@ -91,15 +100,18 @@ public class CouchbaseDao {
 	public void delete(String id) {
 		try {
 			couchbase.remove(id);
-		} catch (DocumentDoesNotExistException ex) {
-			//Do nothing
+		}
+		catch (DocumentDoesNotExistException ex) {
+			// Do nothing
 		}
 	}
 
 	private N1qlQueryResult executeQuery(String statement, Object... parameters) {
-		N1qlQueryResult result = couchbase.queryN1QL(N1qlQuery.parameterized(statement, JsonArray.from(parameters)));
+		N1qlQueryResult result = couchbase.queryN1QL(
+				N1qlQuery.parameterized(statement, JsonArray.from(parameters)));
 		if (!result.finalSuccess()) {
-			throw new CouchbaseQueryExecutionException("Error executing N1QL statement '" + statement + "'. " + result.errors());
+			throw new CouchbaseQueryExecutionException("Error executing N1QL statement '"
+					+ statement + "'. " + result.errors());
 		}
 		return result;
 	}

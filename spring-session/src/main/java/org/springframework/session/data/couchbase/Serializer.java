@@ -25,27 +25,38 @@ import org.springframework.util.Base64Utils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.SerializationUtils;
 
+/**
+ * Manages serialization of HTTP session attributes.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 public class Serializer {
 
 	protected static final String SERIALIZED_OBJECT_PREFIX = "_$object=";
 
-	public Map<String, Object> serializeSessionAttributes(Map<String, Object> attributes) {
+	public Map<String, Object> serializeSessionAttributes(
+			Map<String, Object> attributes) {
 		if (attributes == null) {
 			return null;
 		}
 		Map<String, Object> serialized = new HashMap<String, Object>(attributes.size());
 		for (Entry<String, Object> attribute : attributes.entrySet()) {
 			if (isDeserializedObject(attribute.getValue())) {
-				Object attributeValue = Base64Utils.encodeToString(SerializationUtils.serialize(attribute.getValue()));
-				serialized.put(attribute.getKey(), SERIALIZED_OBJECT_PREFIX + attributeValue);
-			} else {
+				Object attributeValue = Base64Utils.encodeToString(
+						SerializationUtils.serialize(attribute.getValue()));
+				serialized.put(attribute.getKey(),
+						SERIALIZED_OBJECT_PREFIX + attributeValue);
+			}
+			else {
 				serialized.put(attribute.getKey(), attribute.getValue());
 			}
 		}
 		return serialized;
 	}
 
-	public Map<String, Object> deserializeSessionAttributes(Map<String, Object> attributes) {
+	public Map<String, Object> deserializeSessionAttributes(
+			Map<String, Object> attributes) {
 		if (attributes == null) {
 			return null;
 		}
@@ -53,8 +64,10 @@ public class Serializer {
 		for (Entry<String, Object> attribute : attributes.entrySet()) {
 			Object attributeValue = attribute.getValue();
 			if (isSerializedObject(attribute.getValue())) {
-				String content = StringUtils.removeStart(attribute.getValue().toString(), SERIALIZED_OBJECT_PREFIX);
-				attributeValue = SerializationUtils.deserialize(Base64Utils.decodeFromString(content));
+				String content = StringUtils.removeStart(attribute.getValue().toString(),
+						SERIALIZED_OBJECT_PREFIX);
+				attributeValue = SerializationUtils
+						.deserialize(Base64Utils.decodeFromString(content));
 			}
 			deserialized.put(attribute.getKey(), attributeValue);
 		}
@@ -62,10 +75,13 @@ public class Serializer {
 	}
 
 	protected boolean isDeserializedObject(Object attributeValue) {
-		return attributeValue != null && !ClassUtils.isPrimitiveOrWrapper(attributeValue.getClass()) && !(attributeValue instanceof String);
+		return attributeValue != null
+				&& !ClassUtils.isPrimitiveOrWrapper(attributeValue.getClass())
+				&& !(attributeValue instanceof String);
 	}
 
 	protected boolean isSerializedObject(Object attributeValue) {
-		return attributeValue != null && attributeValue instanceof String && StringUtils.startsWith(attributeValue.toString(), SERIALIZED_OBJECT_PREFIX);
+		return attributeValue != null && attributeValue instanceof String && StringUtils
+				.startsWith(attributeValue.toString(), SERIALIZED_OBJECT_PREFIX);
 	}
 }

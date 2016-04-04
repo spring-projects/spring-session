@@ -32,14 +32,45 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.util.Assert;
 
+/**
+ * An {@link ExpiringSession} that supports HTTP session namespaces. Namespaces are
+ * divided into two groups: <br />
+ * <br />
+ * <b>Global namespace:</b> session attributes are visible to all instances of all web
+ * applications within a distributed system. To set or get global attribute value convert
+ * its name using {@link CouchbaseSession#globalAttributeName(String)} <br />
+ * <br />
+ * <b>Application namespace:</b> attributes are visible only to instances of the same web
+ * application within a distributed system. To set or get global attribute value just use
+ * its name as it is.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 public class CouchbaseSession implements ExpiringSession, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * HTTP session creation time attribute name. To get the creation time convert it to
+	 * global attribute name using {@link CouchbaseSession#globalAttributeName(String)}.
+	 */
 	public static final String CREATION_TIME_ATTRIBUTE = "$creationTime";
+
+	/**
+	 * HTTP session last access time attribute name. To get the last access time convert
+	 * it to global attribute name using
+	 * {@link CouchbaseSession#globalAttributeName(String)}.
+	 */
 	public static final String LAST_ACCESSED_TIME_ATTRIBUTE = "$lastAccessedTime";
+
+	/**
+	 * HTTP session timeout attribute name. To get the timeout in seconds convert it to
+	 * global attribute name using {@link CouchbaseSession#globalAttributeName(String)}.
+	 */
 	public static final String MAX_INACTIVE_INTERVAL_ATTRIBUTE = "$maxInactiveInterval";
-	protected static final String GLOBAL_ATTRIBUTE_NAME_PREFIX = CouchbaseSession.class.getName() + ".global.";
+	protected static final String GLOBAL_ATTRIBUTE_NAME_PREFIX = CouchbaseSession.class
+			.getName() + ".global.";
 
 	private static final Logger log = LoggerFactory.getLogger(CouchbaseSession.class);
 
@@ -56,15 +87,26 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 		setMaxInactiveIntervalInSeconds(timeoutInSeconds);
 	}
 
-	public CouchbaseSession(String id, Map<String, Object> globalAttributes, Map<String, Object> namespaceAttributes) {
+	public CouchbaseSession(String id, Map<String, Object> globalAttributes,
+			Map<String, Object> namespaceAttributes) {
 		this.id = id;
-		this.globalAttributes = globalAttributes == null ? new HashMap<String, Object>() : globalAttributes;
-		this.namespaceAttributes = namespaceAttributes == null ? new HashMap<String, Object>() : namespaceAttributes;
+		this.globalAttributes = globalAttributes == null ? new HashMap<String, Object>()
+				: globalAttributes;
+		this.namespaceAttributes = namespaceAttributes == null
+				? new HashMap<String, Object>() : namespaceAttributes;
 		if (containsPrincipalAttribute()) {
 			principalSession = true;
 		}
 	}
 
+	/**
+	 * Converts HTTP session attribute name to global attribute name. The conversion is
+	 * necessary for setting and getting global HTTP session attributes values.
+	 *
+	 * @param attributeName attribute name to convert
+	 * @return global attribute name
+	 * @see CouchbaseSession
+	 */
 	public static String globalAttributeName(String attributeName) {
 		return GLOBAL_ATTRIBUTE_NAME_PREFIX + attributeName;
 	}
@@ -90,7 +132,9 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 	}
 
 	public boolean isExpired() {
-		return getMaxInactiveIntervalInSeconds() >= 0 && System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(getMaxInactiveIntervalInSeconds()) >= getLastAccessedTime();
+		return getMaxInactiveIntervalInSeconds() >= 0
+				&& System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(
+						getMaxInactiveIntervalInSeconds()) >= getLastAccessedTime();
 	}
 
 	public String getId() {
@@ -104,10 +148,14 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 		if (isGlobal(attributeName)) {
 			String name = getNameFromGlobalName(attributeName);
 			attribute = (T) globalAttributes.get(name);
-			log.trace("Read global HTTP session attribute: [name='{}', value={}]", name, attribute);
-		} else {
+			log.trace("Read global HTTP session attribute: [name='{}', value={}]", name,
+					attribute);
+		}
+		else {
 			attribute = (T) namespaceAttributes.get(attributeName);
-			log.trace("Read application namespace HTTP session attribute: [name='{}', value={}]", attributeName, attribute);
+			log.trace(
+					"Read application namespace HTTP session attribute: [name='{}', value={}]",
+					attributeName, attribute);
 		}
 		return attribute;
 	}
@@ -129,14 +177,19 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 				principalSession = true;
 			}
 			globalAttributes.put(name, attributeValue);
-			log.trace("Set global HTTP session attribute: [name='{}', value={}]", name, attributeValue);
-		} else {
-			if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME.equals(attributeName)) {
+			log.trace("Set global HTTP session attribute: [name='{}', value={}]", name,
+					attributeValue);
+		}
+		else {
+			if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME
+					.equals(attributeName)) {
 				principalSession = true;
 			}
 			namespacePersistenceRequired = true;
 			namespaceAttributes.put(attributeName, attributeValue);
-			log.trace("Set application namespace HTTP session attribute: [name='{}', value={}]", attributeName, attributeValue);
+			log.trace(
+					"Set application namespace HTTP session attribute: [name='{}', value={}]",
+					attributeName, attributeValue);
 		}
 	}
 
@@ -146,10 +199,12 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 			String name = getNameFromGlobalName(attributeName);
 			globalAttributes.remove(name);
 			log.trace("Removed global HTTP session attribute: [name='{}']", name);
-		} else {
+		}
+		else {
 			namespacePersistenceRequired = true;
 			namespaceAttributes.remove(attributeName);
-			log.trace("Removed application namespace HTTP session attribute: [name='{}']", attributeName);
+			log.trace("Removed application namespace HTTP session attribute: [name='{}']",
+					attributeName);
 		}
 	}
 
@@ -170,9 +225,11 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 	}
 
 	public String getPrincipalAttribute() {
-		Object principal = globalAttributes.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+		Object principal = globalAttributes
+				.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		if (principal == null) {
-			principal = namespaceAttributes.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			principal = namespaceAttributes
+					.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		}
 		return (String) principal;
 	}
@@ -183,7 +240,8 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 
 	protected void checkAttributeName(String attributeName) {
 		Assert.hasText(attributeName, "Empty HTTP session attribute name");
-		Assert.isTrue(!attributeName.trim().equals(GLOBAL_ATTRIBUTE_NAME_PREFIX), "Empty HTTP session global attribute name");
+		Assert.isTrue(!attributeName.trim().equals(GLOBAL_ATTRIBUTE_NAME_PREFIX),
+				"Empty HTTP session global attribute name");
 	}
 
 	protected boolean isGlobal(String attributeName) {
@@ -195,6 +253,9 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 	}
 
 	protected boolean containsPrincipalAttribute() {
-		return globalAttributes.containsKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME) || namespaceAttributes.containsKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+		return globalAttributes
+				.containsKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)
+				|| namespaceAttributes.containsKey(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 	}
 }

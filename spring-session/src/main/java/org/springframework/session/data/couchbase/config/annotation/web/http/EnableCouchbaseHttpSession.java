@@ -24,6 +24,12 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+/**
+ * Enables Couchbase backed HTTP sessions.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
@@ -31,9 +37,28 @@ import org.springframework.context.annotation.Import;
 @Import(CouchbaseHttpSessionConfiguration.class)
 public @interface EnableCouchbaseHttpSession {
 
+	/**
+	 * Application HTTP session namespace name.
+	 *
+	 * @return namespace name
+	 * @see org.springframework.session.data.couchbase.CouchbaseSession
+	 */
 	String namespace();
 
+	/**
+	 * Max inactive HTTP session interval in seconds after which the session will be
+	 * destroyed.
+	 *
+	 * @return session timeout
+	 */
 	int timeoutInSeconds() default 1800;
 
+	/**
+	 * Enables or disables finding HTTP sessions by principal. Can significantly decrease
+	 * application performance when enabled.
+	 *
+	 * @return are principal sessions enabled
+	 * @see org.springframework.session.FindByIndexNameSessionRepository
+	 */
 	boolean principalSessionsEnabled() default false;
 }

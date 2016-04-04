@@ -32,6 +32,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Sample controller for integration tests.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 @RestController
 @RequestMapping("session")
 public class SessionController {
@@ -51,7 +57,8 @@ public class SessionController {
 
 	@RequestMapping(value = "attribute/global", method = RequestMethod.POST)
 	public void setGlobalAttribute(@RequestBody Message dto, HttpSession session) {
-		session.setAttribute(CouchbaseSession.globalAttributeName(SESSION_ATTRIBUTE_NAME), dto);
+		session.setAttribute(CouchbaseSession.globalAttributeName(SESSION_ATTRIBUTE_NAME),
+				dto);
 	}
 
 	@RequestMapping("attribute")
@@ -61,7 +68,8 @@ public class SessionController {
 
 	@RequestMapping("attribute/global")
 	public Object getGlobalAttribute(HttpSession session) {
-		return session.getAttribute(CouchbaseSession.globalAttributeName(SESSION_ATTRIBUTE_NAME));
+		return session.getAttribute(
+				CouchbaseSession.globalAttributeName(SESSION_ATTRIBUTE_NAME));
 	}
 
 	@RequestMapping(value = "attribute", method = RequestMethod.DELETE)
@@ -71,7 +79,8 @@ public class SessionController {
 
 	@RequestMapping(value = "attribute/global", method = RequestMethod.DELETE)
 	public void deleteGlobalAttribute(HttpSession session) {
-		session.removeAttribute(CouchbaseSession.globalAttributeName(SESSION_ATTRIBUTE_NAME));
+		session.removeAttribute(
+				CouchbaseSession.globalAttributeName(SESSION_ATTRIBUTE_NAME));
 	}
 
 	@RequestMapping(value = "bean", method = RequestMethod.POST)
@@ -100,13 +109,17 @@ public class SessionController {
 
 	@RequestMapping(value = "principal", method = RequestMethod.POST)
 	public String setPrincipalAttribute(HttpSession session) {
-		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, PRINCIPAL_NAME);
+		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				PRINCIPAL_NAME);
 		return session.getId();
 	}
 
 	@RequestMapping("principal")
 	public Set<String> getPrincipalSessions() {
-		Map<String, CouchbaseSession> sessionsById = this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, PRINCIPAL_NAME);
+		Map<String, CouchbaseSession> sessionsById = this.sessionRepository
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						PRINCIPAL_NAME);
 		return sessionsById.keySet();
 	}
 

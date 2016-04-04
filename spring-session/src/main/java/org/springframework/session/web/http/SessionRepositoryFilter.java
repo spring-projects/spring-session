@@ -94,6 +94,12 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 			+ ".invalidSessionId";
 
 	/**
+	 * Current session request attribute name.
+	 */
+	public static final String CURRENT_SESSION_ATTR = HttpServletRequestWrapper.class
+			.getName();
+
+	/**
 	 * The default filter order.
 	 */
 	public static final int DEFAULT_ORDER = Integer.MIN_VALUE + 50;
@@ -213,8 +219,6 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 	 */
 	private final class SessionRepositoryRequestWrapper
 			extends HttpServletRequestWrapper {
-		private final String CURRENT_SESSION_ATTR = HttpServletRequestWrapper.class
-				.getName();
 		private Boolean requestedSessionIdValid;
 		private boolean requestedSessionInvalidated;
 		private final HttpServletResponse response;
@@ -252,15 +256,15 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 
 		@SuppressWarnings("unchecked")
 		private HttpSessionWrapper getCurrentSession() {
-			return (HttpSessionWrapper) getAttribute(this.CURRENT_SESSION_ATTR);
+			return (HttpSessionWrapper) getAttribute(CURRENT_SESSION_ATTR);
 		}
 
 		private void setCurrentSession(HttpSessionWrapper currentSession) {
 			if (currentSession == null) {
-				removeAttribute(this.CURRENT_SESSION_ATTR);
+				removeAttribute(CURRENT_SESSION_ATTR);
 			}
 			else {
-				setAttribute(this.CURRENT_SESSION_ATTR, currentSession);
+				setAttribute(CURRENT_SESSION_ATTR, currentSession);
 			}
 		}
 

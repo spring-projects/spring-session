@@ -34,6 +34,12 @@ import org.springframework.session.data.couchbase.Serializer;
 import org.springframework.session.web.http.CookieHttpSessionStrategy;
 import org.springframework.session.web.http.MultiHttpSessionStrategy;
 
+/**
+ * Couchbase backed HTTP session configuration.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 @Configuration
 @EnableSpringHttpSession
 public class CouchbaseHttpSessionConfiguration implements ImportAware {
@@ -48,8 +54,10 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public MultiHttpSessionStrategy multiHttpSessionStrategy(CouchbaseDao dao, Serializer serializer) {
-		return new DelegatingSessionStrategy(new CookieHttpSessionStrategy(), dao, namespace, serializer);
+	public MultiHttpSessionStrategy multiHttpSessionStrategy(CouchbaseDao dao,
+			Serializer serializer) {
+		return new DelegatingSessionStrategy(new CookieHttpSessionStrategy(), dao,
+				namespace, serializer);
 	}
 
 	@Bean
@@ -58,8 +66,10 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 	}
 
 	@Bean
-	public SessionRepository sessionRepository(CouchbaseDao dao, ObjectMapper mapper, Serializer serializer) {
-		return new CouchbaseSessionRepository(dao, namespace, mapper, timeoutInSeconds, serializer, principalSessionsEnabled);
+	public SessionRepository sessionRepository(CouchbaseDao dao, ObjectMapper mapper,
+			Serializer serializer) {
+		return new CouchbaseSessionRepository(dao, namespace, mapper, timeoutInSeconds,
+				serializer, principalSessionsEnabled);
 	}
 
 	@Bean
@@ -68,7 +78,8 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> attributesByNames = importMetadata.getAnnotationAttributes(EnableCouchbaseHttpSession.class.getName());
+		Map<String, Object> attributesByNames = importMetadata
+				.getAnnotationAttributes(EnableCouchbaseHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributesByNames);
 		namespace = attributes.getString("namespace");
 		timeoutInSeconds = attributes.getNumber("timeoutInSeconds");

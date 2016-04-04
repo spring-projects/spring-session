@@ -17,6 +17,12 @@ package org.springframework.session.data.couchbase.application;
 
 import java.io.Serializable;
 
+/**
+ * Sample HTTP session attribute value for integration tests.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ */
 public class Message implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -51,8 +57,9 @@ public class Message implements Serializable {
 
 		Message message = (Message) o;
 
-		return this.text != null ? this.text.equals(message.text) : message.text == null
-				&& (this.number != null ? this.number.equals(message.number) : message.number == null);
+		return this.text != null ? this.text.equals(message.text)
+				: message.text == null && (this.number != null
+						? this.number.equals(message.number) : message.number == null);
 	}
 
 	@Override

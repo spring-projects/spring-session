@@ -23,6 +23,13 @@ import com.couchbase.client.java.repository.annotation.Field;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.couchbase.core.mapping.Document;
 
+/**
+ * A Couchbase document used for persisting principal HTTP sessions data.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ * @see org.springframework.session.FindByIndexNameSessionRepository
+ */
 @Document
 public class PrincipalSessionsDocument {
 

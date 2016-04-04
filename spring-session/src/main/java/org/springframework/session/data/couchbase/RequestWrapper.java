@@ -25,11 +25,18 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 
+/**
+ * A {@link HttpServletRequestWrapper} that adds support for changing HTTP session ID when
+ * session contains namespaces.
+ *
+ * @author Mariusz Kopylec
+ * @since 1.2.0
+ * @see CouchbaseSession
+ */
 public class RequestWrapper extends HttpServletRequestWrapper {
-
-	public final String CURRENT_SESSION_ATTR = HttpServletRequestWrapper.class.getName();
 
 	private static final Logger log = LoggerFactory.getLogger(RequestWrapper.class);
 
@@ -37,7 +44,8 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 	protected final String namespace;
 	protected final Serializer serializer;
 
-	public RequestWrapper(HttpServletRequest request, CouchbaseDao dao, String namespace, Serializer serializer) {
+	public RequestWrapper(HttpServletRequest request, CouchbaseDao dao, String namespace,
+			Serializer serializer) {
 		super(request);
 		this.dao = dao;
 		this.namespace = namespace;
@@ -46,37 +54,48 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
 	public String changeSessionId() {
 		SessionDocument oldDocument = dao.findById(getRequestedSessionId());
-		Assert.notNull(oldDocument, "Cannot change HTTP session ID, because session with ID '" + getRequestedSessionId() + "' does not exist");
+		Assert.notNull(oldDocument,
+				"Cannot change HTTP session ID, because session with ID '"
+						+ getRequestedSessionId() + "' does not exist");
 
-		removeAttribute(CURRENT_SESSION_ATTR);
+		removeAttribute(SessionRepositoryFilter.CURRENT_SESSION_ATTR);
 		dao.delete(oldDocument.getId());
 
 		HttpSession newSession = getSession();
-		SessionDocument newDocument = new SessionDocument(newSession.getId(), oldDocument.getData());
+		SessionDocument newDocument = new SessionDocument(newSession.getId(),
+				oldDocument.getData());
 		dao.save(newDocument);
 
 		copyGlobalAttributes(oldDocument, newSession);
 		copyNamespaceAttributes(oldDocument, newSession);
 
-		log.debug("HTTP session ID changed from {} to {}", oldDocument.getId(), newDocument.getId());
+		log.debug("HTTP session ID changed from {} to {}", oldDocument.getId(),
+				newDocument.getId());
 
 		return newDocument.getId();
 	}
 
-	protected void copyGlobalAttributes(SessionDocument oldDocument, HttpSession newSession) {
-		Map<String, Object> attributes = oldDocument.getData().get(CouchbaseSessionRepository.GLOBAL_NAMESPACE);
+	protected void copyGlobalAttributes(SessionDocument oldDocument,
+			HttpSession newSession) {
+		Map<String, Object> attributes = oldDocument.getData()
+				.get(CouchbaseSessionRepository.GLOBAL_NAMESPACE);
 		if (attributes != null) {
-			Map<String, Object> deserializedAttributes = serializer.deserializeSessionAttributes(attributes);
+			Map<String, Object> deserializedAttributes = serializer
+					.deserializeSessionAttributes(attributes);
 			for (Entry<String, Object> attribute : deserializedAttributes.entrySet()) {
-				newSession.setAttribute(CouchbaseSession.globalAttributeName(attribute.getKey()), attribute.getValue());
+				newSession.setAttribute(
+						CouchbaseSession.globalAttributeName(attribute.getKey()),
+						attribute.getValue());
 			}
 		}
 	}
 
-	protected void copyNamespaceAttributes(SessionDocument oldDocument, HttpSession newSession) {
+	protected void copyNamespaceAttributes(SessionDocument oldDocument,
+			HttpSession newSession) {
 		Map<String, Object> attributes = oldDocument.getData().get(namespace);
 		if (attributes != null) {
-			Map<String, Object> deserializedAttributes = serializer.deserializeSessionAttributes(attributes);
+			Map<String, Object> deserializedAttributes = serializer
+					.deserializeSessionAttributes(attributes);
 			for (Entry<String, Object> attribute : deserializedAttributes.entrySet()) {
 				newSession.setAttribute(attribute.getKey(), attribute.getValue());
 			}
