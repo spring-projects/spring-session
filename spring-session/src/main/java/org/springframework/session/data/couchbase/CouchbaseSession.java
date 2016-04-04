@@ -34,12 +34,12 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link ExpiringSession} that supports HTTP session namespaces. Namespaces are
- * divided into two groups: <br />
- * <br />
+ * divided into two groups: <br>
+ * <br>
  * <b>Global namespace:</b> session attributes are visible to all instances of all web
  * applications within a distributed system. To set or get global attribute value convert
- * its name using {@link CouchbaseSession#globalAttributeName(String)} <br />
- * <br />
+ * its name using {@link CouchbaseSession#globalAttributeName(String)} <br>
+ * <br>
  * <b>Application namespace:</b> attributes are visible only to instances of the same web
  * application within a distributed system. To set or get global attribute value just use
  * its name as it is.
