@@ -1,0 +1,152 @@
+= Spring Session - Spring Boot
+Rob Winch, Vedran Pavić
+:toc:
+
+This guide describes how to use Spring Session to transparently leverage a relational database to back a web application's `HttpSession` when using Spring Boot.
+
+NOTE: The completed guide can be found in the <<httpsession-jdbc-boot-sample, httpsession-jdbc-boot sample application>>.
+
+== Updating Dependencies
+Before you use Spring Session, you must ensure to update your dependencies.
+We assume you are working with a working Spring Boot web application.
+If you are using Maven, ensure to add the following dependencies:
+
+.pom.xml
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependencies>
+	<!-- ... -->
+
+	<dependency>
+		<groupId>org.springframework.session</groupId>
+		<artifactId>spring-session-jdbc</artifactId>
+		<version>{spring-session-version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-jdbc</artifactId>
+	</dependency>
+</dependencies>
+----
+
+ifeval::["{version-snapshot}" == "true"]
+Since we are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
+Ensure you have the following in your pom.xml:
+
+.pom.xml
+[source,xml]
+----
+<repositories>
+
+	<!-- ... -->
+
+	<repository>
+		<id>spring-snapshot</id>
+		<url>https://repo.spring.io/libs-snapshot</url>
+	</repository>
+</repositories>
+----
+endif::[]
+
+ifeval::["{version-milestone}" == "true"]
+Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
+Ensure you have the following in your pom.xml:
+
+.pom.xml
+[source,xml]
+----
+<repository>
+	<id>spring-milestone</id>
+	<url>https://repo.spring.io/libs-milestone</url>
+</repository>
+----
+endif::[]
+
+// tag::config[]
+
+[[httpsession-jdbc-boot-spring-configuration]]
+== Spring Configuration
+
+After adding the required dependencies, we can create our Spring configuration.
+The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
+Add the following Spring Configuration:
+
+[source,java]
+----
+include::{samples-dir}httpsession-jdbc-boot/src/main/java/sample/config/HttpSessionConfig.java[tags=class]
+----
+
+<1> The `@EnableJdbcHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
+In this instance Spring Session is backed by a relational database.
+
+[[httpsession-jdbc-boot-configuration]]
+== Configuring the DataSource
+
+Spring Boot automatically creates a `DataSource` that connects Spring Session to an embedded instance of H2 database.
+In a production environment you need to ensure to update your configuration to point to your relational database.
+For example, you can include the following in your *application.properties*
+
+.src/main/resources/application.properties
+----
+spring.datasource.url=jdbc:postgresql://localhost:5432/myapp
+spring.datasource.username=myapp
+spring.datasource.password=secret
+----
+
+For more information, refer to http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
+
+[[httpsession-jdbc-boot-servlet-configuration]]
+== Servlet Container Initialization
+
+Our <<httpsession-jdbc-boot-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
+The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
+
+In order for our `Filter` to do its magic, Spring needs to load our `Config` class.
+Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
+Fortunately, Spring Boot takes care of both of these steps for us.
+
+// end::config[]
+
+[[httpsession-jdbc-boot-sample]]
+== httpsession-jdbc-boot Sample Application
+
+The httpsession-jdbc-boot Sample Application demonstrates how to use Spring Session to transparently leverage H2 database to back a web application's `HttpSession` when using Spring Boot.
+
+[[httpsession-jdbc-boot-running]]
+=== Running the httpsession-jdbc-boot Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+----
+$ ./gradlew :samples:httpsession-jdbc-boot:bootRun
+----
+
+You should now be able to access the application at http://localhost:8080/
+
+[[httpsession-jdbc-boot-explore]]
+=== Exploring the security Sample Application
+
+Try using the application. Enter the following to log in:
+
+* **Username** _user_
+* **Password** _password_
+
+Now click the **Login** button.
+You should now see a message indicating your are logged in with the user entered previously.
+The user's information is stored in H2 database rather than Tomcat's `HttpSession` implementation.
+
+[[httpsession-jdbc-boot-how]]
+=== How does it work?
+
+Instead of using Tomcat's `HttpSession`, we are actually persisting the values in H2 database.
+Spring Session replaces the `HttpSession` with an implementation that is backed by a relational database.
+When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into H2 database.
+
+When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
+Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+
+If you like, you can easily remove the session using H2 web console available at: http://localhost:8080/h2-console/ (use `jdbc:h2:mem:testdb` for JDBC URL)
+
+Now visit the application at http://localhost:8080/ and observe that we are no longer authenticated.
