@@ -53,13 +53,13 @@
 	</servlet-mapping>
 
 	<servlet>
-		<servlet-name>h2console</servlet-name>
+		<servlet-name>h2Console</servlet-name>
 		<servlet-class>org.h2.server.web.WebServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>h2console</servlet-name>
-		<url-pattern>/console/*</url-pattern>
+		<servlet-name>h2Console</servlet-name>
+		<url-pattern>/h2-console/*</url-pattern>
 	</servlet-mapping>
 
 	<welcome-file-list>

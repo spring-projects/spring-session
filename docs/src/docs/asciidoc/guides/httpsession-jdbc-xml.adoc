@@ -154,6 +154,6 @@ Instead of using Tomcat's `HttpSession`, we are actually persisting the values i
 Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
 Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
-If you like, you can easily remove the session using H2 web console available at: http://localhost:8080/console (use `jdbc:h2:mem:testdb` for JDBC URL)
+If you like, you can easily remove the session using H2 web console available at: http://localhost:8080/h2-console/ (use `jdbc:h2:mem:testdb` for JDBC URL)
 
 Now visit the application at http://localhost:8080/ and observe that the attribute we added is no longer displayed.

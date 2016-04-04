@@ -25,7 +25,7 @@ import org.springframework.web.WebApplicationInitializer;
 public class H2ConsoleInitializer implements WebApplicationInitializer {
 
 	public void onStartup(ServletContext servletContext) throws ServletException {
-		servletContext.addServlet("h2console", new WebServlet()).addMapping("/console/*");
+		servletContext.addServlet("h2Console", new WebServlet()).addMapping("/h2-console/*");
 	}
 
 }
