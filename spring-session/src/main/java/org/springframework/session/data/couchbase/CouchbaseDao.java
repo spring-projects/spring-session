@@ -74,32 +74,32 @@ public class CouchbaseDao {
 	}
 
 	public SessionDocument findById(String id) {
-		return couchbase.findById(id, SessionDocument.class);
+		return this.couchbase.findById(id, SessionDocument.class);
 	}
 
 	public PrincipalSessionsDocument findByPrincipal(String principal) {
-		return couchbase.findById(principal, PrincipalSessionsDocument.class);
+		return this.couchbase.findById(principal, PrincipalSessionsDocument.class);
 	}
 
 	public void updateExpirationTime(String id, int expiry) {
-		couchbase.getCouchbaseBucket().touch(id, expiry);
+		this.couchbase.getCouchbaseBucket().touch(id, expiry);
 	}
 
 	public void save(SessionDocument document) {
-		couchbase.save(document);
+		this.couchbase.save(document);
 	}
 
 	public void save(PrincipalSessionsDocument document) {
-		couchbase.save(document);
+		this.couchbase.save(document);
 	}
 
 	public boolean exists(String documentId) {
-		return couchbase.exists(documentId);
+		return this.couchbase.exists(documentId);
 	}
 
 	public void delete(String id) {
 		try {
-			couchbase.remove(id);
+			this.couchbase.remove(id);
 		}
 		catch (DocumentDoesNotExistException ex) {
 			// Do nothing
@@ -107,7 +107,7 @@ public class CouchbaseDao {
 	}
 
 	private N1qlQueryResult executeQuery(String statement, Object... parameters) {
-		N1qlQueryResult result = couchbase.queryN1QL(
+		N1qlQueryResult result = this.couchbase.queryN1QL(
 				N1qlQuery.parameterized(statement, JsonArray.from(parameters)));
 		if (!result.finalSuccess()) {
 			throw new CouchbaseQueryExecutionException("Error executing N1QL statement '"

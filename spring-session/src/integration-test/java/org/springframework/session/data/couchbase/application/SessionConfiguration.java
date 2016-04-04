@@ -42,8 +42,8 @@ public class SessionConfiguration extends CouchbaseHttpSessionConfiguration {
 	@Bean
 	public SessionRepository sessionRepository(CouchbaseDao dao, ObjectMapper mapper,
 			Serializer serializer) {
-		return new CouchbaseSessionRepository(dao, namespace, mapper, timeoutInSeconds,
-				serializer, principalSessionsEnabled) {
+		return new CouchbaseSessionRepository(dao, this.namespace, mapper,
+				this.timeoutInSeconds, serializer, this.principalSessionsEnabled) {
 
 			@Override
 			protected int getSessionDocumentExpiration() {

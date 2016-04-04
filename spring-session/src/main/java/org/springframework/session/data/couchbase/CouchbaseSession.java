@@ -95,7 +95,7 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 		this.namespaceAttributes = namespaceAttributes == null
 				? new HashMap<String, Object>() : namespaceAttributes;
 		if (containsPrincipalAttribute()) {
-			principalSession = true;
+			this.principalSession = true;
 		}
 	}
 
@@ -112,23 +112,24 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 	}
 
 	public long getCreationTime() {
-		return Math.round((Double) globalAttributes.get(CREATION_TIME_ATTRIBUTE));
+		return Math.round((Double) this.globalAttributes.get(CREATION_TIME_ATTRIBUTE));
 	}
 
 	public long getLastAccessedTime() {
-		return Math.round((Double) globalAttributes.get(LAST_ACCESSED_TIME_ATTRIBUTE));
+		return Math
+				.round((Double) this.globalAttributes.get(LAST_ACCESSED_TIME_ATTRIBUTE));
 	}
 
 	public void setLastAccessedTime(long lastAccessedTime) {
-		globalAttributes.put(LAST_ACCESSED_TIME_ATTRIBUTE, lastAccessedTime);
+		this.globalAttributes.put(LAST_ACCESSED_TIME_ATTRIBUTE, lastAccessedTime);
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int interval) {
-		globalAttributes.put(MAX_INACTIVE_INTERVAL_ATTRIBUTE, interval);
+		this.globalAttributes.put(MAX_INACTIVE_INTERVAL_ATTRIBUTE, interval);
 	}
 
 	public int getMaxInactiveIntervalInSeconds() {
-		return (Integer) globalAttributes.get(MAX_INACTIVE_INTERVAL_ATTRIBUTE);
+		return (Integer) this.globalAttributes.get(MAX_INACTIVE_INTERVAL_ATTRIBUTE);
 	}
 
 	public boolean isExpired() {
@@ -138,7 +139,7 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 	}
 
 	public String getId() {
-		return id;
+		return this.id;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -147,12 +148,12 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 		T attribute;
 		if (isGlobal(attributeName)) {
 			String name = getNameFromGlobalName(attributeName);
-			attribute = (T) globalAttributes.get(name);
+			attribute = (T) this.globalAttributes.get(name);
 			log.trace("Read global HTTP session attribute: [name='{}', value={}]", name,
 					attribute);
 		}
 		else {
-			attribute = (T) namespaceAttributes.get(attributeName);
+			attribute = (T) this.namespaceAttributes.get(attributeName);
 			log.trace(
 					"Read application namespace HTTP session attribute: [name='{}', value={}]",
 					attributeName, attribute);
@@ -162,10 +163,10 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 
 	public Set<String> getAttributeNames() {
 		Set<String> attributesNames = new HashSet<String>();
-		for (String attributeName : globalAttributes.keySet()) {
+		for (String attributeName : this.globalAttributes.keySet()) {
 			attributesNames.add(globalAttributeName(attributeName));
 		}
-		attributesNames.addAll(namespaceAttributes.keySet());
+		attributesNames.addAll(this.namespaceAttributes.keySet());
 		return Collections.unmodifiableSet(attributesNames);
 	}
 
@@ -174,19 +175,19 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 		if (isGlobal(attributeName)) {
 			String name = getNameFromGlobalName(attributeName);
 			if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME.equals(name)) {
-				principalSession = true;
+				this.principalSession = true;
 			}
-			globalAttributes.put(name, attributeValue);
+			this.globalAttributes.put(name, attributeValue);
 			log.trace("Set global HTTP session attribute: [name='{}', value={}]", name,
 					attributeValue);
 		}
 		else {
 			if (FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME
 					.equals(attributeName)) {
-				principalSession = true;
+				this.principalSession = true;
 			}
-			namespacePersistenceRequired = true;
-			namespaceAttributes.put(attributeName, attributeValue);
+			this.namespacePersistenceRequired = true;
+			this.namespaceAttributes.put(attributeName, attributeValue);
 			log.trace(
 					"Set application namespace HTTP session attribute: [name='{}', value={}]",
 					attributeName, attributeValue);
@@ -197,27 +198,27 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 		checkAttributeName(attributeName);
 		if (isGlobal(attributeName)) {
 			String name = getNameFromGlobalName(attributeName);
-			globalAttributes.remove(name);
+			this.globalAttributes.remove(name);
 			log.trace("Removed global HTTP session attribute: [name='{}']", name);
 		}
 		else {
-			namespacePersistenceRequired = true;
-			namespaceAttributes.remove(attributeName);
+			this.namespacePersistenceRequired = true;
+			this.namespaceAttributes.remove(attributeName);
 			log.trace("Removed application namespace HTTP session attribute: [name='{}']",
 					attributeName);
 		}
 	}
 
 	public Map<String, Object> getGlobalAttributes() {
-		return globalAttributes;
+		return this.globalAttributes;
 	}
 
 	public Map<String, Object> getNamespaceAttributes() {
-		return namespaceAttributes;
+		return this.namespaceAttributes;
 	}
 
 	public boolean isNamespacePersistenceRequired() {
-		return namespacePersistenceRequired;
+		return this.namespacePersistenceRequired;
 	}
 
 	public boolean isPrincipalSession() {
@@ -225,17 +226,17 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 	}
 
 	public String getPrincipalAttribute() {
-		Object principal = globalAttributes
+		Object principal = this.globalAttributes
 				.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		if (principal == null) {
-			principal = namespaceAttributes
+			principal = this.namespaceAttributes
 					.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		}
 		return (String) principal;
 	}
 
 	protected void setCreationTime(long creationTime) {
-		globalAttributes.put(CREATION_TIME_ATTRIBUTE, creationTime);
+		this.globalAttributes.put(CREATION_TIME_ATTRIBUTE, creationTime);
 	}
 
 	protected void checkAttributeName(String attributeName) {
@@ -253,9 +254,9 @@ public class CouchbaseSession implements ExpiringSession, Serializable {
 	}
 
 	protected boolean containsPrincipalAttribute() {
-		return globalAttributes
+		return this.globalAttributes
 				.containsKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)
-				|| namespaceAttributes.containsKey(
+				|| this.namespaceAttributes.containsKey(
 						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 	}
 }

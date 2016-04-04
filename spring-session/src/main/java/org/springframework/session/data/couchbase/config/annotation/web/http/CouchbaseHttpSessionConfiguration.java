@@ -57,7 +57,7 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 	public MultiHttpSessionStrategy multiHttpSessionStrategy(CouchbaseDao dao,
 			Serializer serializer) {
 		return new DelegatingSessionStrategy(new CookieHttpSessionStrategy(), dao,
-				namespace, serializer);
+				this.namespace, serializer);
 	}
 
 	@Bean
@@ -68,8 +68,8 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 	@Bean
 	public SessionRepository sessionRepository(CouchbaseDao dao, ObjectMapper mapper,
 			Serializer serializer) {
-		return new CouchbaseSessionRepository(dao, namespace, mapper, timeoutInSeconds,
-				serializer, principalSessionsEnabled);
+		return new CouchbaseSessionRepository(dao, this.namespace, mapper,
+				this.timeoutInSeconds, serializer, this.principalSessionsEnabled);
 	}
 
 	@Bean
@@ -81,8 +81,8 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 		Map<String, Object> attributesByNames = importMetadata
 				.getAnnotationAttributes(EnableCouchbaseHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributesByNames);
-		namespace = attributes.getString("namespace");
-		timeoutInSeconds = attributes.getNumber("timeoutInSeconds");
-		principalSessionsEnabled = attributes.getBoolean("principalSessionsEnabled");
+		this.namespace = attributes.getString("namespace");
+		this.timeoutInSeconds = attributes.getNumber("timeoutInSeconds");
+		this.principalSessionsEnabled = attributes.getBoolean("principalSessionsEnabled");
 	}
 }

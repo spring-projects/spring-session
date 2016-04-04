@@ -45,27 +45,28 @@ public class DelegatingSessionStrategy implements MultiHttpSessionStrategy {
 	}
 
 	public String getRequestedSessionId(HttpServletRequest request) {
-		return sessionStrategy.getRequestedSessionId(request);
+		return this.sessionStrategy.getRequestedSessionId(request);
 	}
 
 	public void onNewSession(Session session, HttpServletRequest request,
 			HttpServletResponse response) {
-		sessionStrategy.onNewSession(session, request, response);
+		this.sessionStrategy.onNewSession(session, request, response);
 	}
 
 	public void onInvalidateSession(HttpServletRequest request,
 			HttpServletResponse response) {
-		sessionStrategy.onInvalidateSession(request, response);
+		this.sessionStrategy.onInvalidateSession(request, response);
 	}
 
 	public HttpServletRequest wrapRequest(HttpServletRequest request,
 			HttpServletResponse response) {
-		RequestWrapper wrapper = new RequestWrapper(request, dao, namespace, serializer);
-		return sessionStrategy.wrapRequest(wrapper, response);
+		RequestWrapper wrapper = new RequestWrapper(request, this.dao, this.namespace,
+				this.serializer);
+		return this.sessionStrategy.wrapRequest(wrapper, response);
 	}
 
 	public HttpServletResponse wrapResponse(HttpServletRequest request,
 			HttpServletResponse response) {
-		return sessionStrategy.wrapResponse(request, response);
+		return this.sessionStrategy.wrapResponse(request, response);
 	}
 }

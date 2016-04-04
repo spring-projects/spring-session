@@ -48,6 +48,7 @@ public class PrincipalSessionsDocument {
 	}
 
 	public List<String> getSessionIds() {
-		return sessionIds == null ? Collections.<String>emptyList() : sessionIds;
+		return this.sessionIds == null ? Collections.<String>emptyList()
+				: this.sessionIds;
 	}
 }

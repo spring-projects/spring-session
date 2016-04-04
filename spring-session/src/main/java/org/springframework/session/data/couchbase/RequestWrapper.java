@@ -53,18 +53,18 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 	}
 
 	public String changeSessionId() {
-		SessionDocument oldDocument = dao.findById(getRequestedSessionId());
+		SessionDocument oldDocument = this.dao.findById(getRequestedSessionId());
 		Assert.notNull(oldDocument,
 				"Cannot change HTTP session ID, because session with ID '"
 						+ getRequestedSessionId() + "' does not exist");
 
 		removeAttribute(SessionRepositoryFilter.CURRENT_SESSION_ATTR);
-		dao.delete(oldDocument.getId());
+		this.dao.delete(oldDocument.getId());
 
 		HttpSession newSession = getSession();
 		SessionDocument newDocument = new SessionDocument(newSession.getId(),
 				oldDocument.getData());
-		dao.save(newDocument);
+		this.dao.save(newDocument);
 
 		copyGlobalAttributes(oldDocument, newSession);
 		copyNamespaceAttributes(oldDocument, newSession);
@@ -92,9 +92,9 @@ public class RequestWrapper extends HttpServletRequestWrapper {
 
 	protected void copyNamespaceAttributes(SessionDocument oldDocument,
 			HttpSession newSession) {
-		Map<String, Object> attributes = oldDocument.getData().get(namespace);
+		Map<String, Object> attributes = oldDocument.getData().get(this.namespace);
 		if (attributes != null) {
-			Map<String, Object> deserializedAttributes = serializer
+			Map<String, Object> deserializedAttributes = this.serializer
 					.deserializeSessionAttributes(attributes);
 			for (Entry<String, Object> attribute : deserializedAttributes.entrySet()) {
 				newSession.setAttribute(attribute.getKey(), attribute.getValue());
