@@ -3,7 +3,7 @@ package org.springframework.session.data.couchbase.specification
 import org.springframework.boot.test.SpringApplicationContextLoader
 import org.springframework.session.data.couchbase.BasicSpec
 import org.springframework.session.data.couchbase.application.ExpirationTestApplication
-import org.springframework.session.data.couchbase.application.Message
+import org.springframework.session.data.couchbase.application.content.Message
 import org.springframework.test.context.ContextConfiguration
 
 import static org.springframework.session.data.couchbase.assertions.Assertions.assertThat
@@ -15,7 +15,7 @@ class SessionExpirationSpec extends BasicSpec {
         given:
         def message = new Message(text: 'power rangers', number: 123)
         setSessionAttribute message
-        sleep(1100)
+        sleep(1500)
 
         when:
         def response = getSessionAttribute()
@@ -31,7 +31,7 @@ class SessionExpirationSpec extends BasicSpec {
         setSessionAttribute message
 
         when:
-        sleep(2000)
+        sleep(1500)
 
         then:
         !currentSessionExists()

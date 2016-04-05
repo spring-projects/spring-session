@@ -9,7 +9,8 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.session.data.couchbase.application.Message
+import org.springframework.session.data.couchbase.application.DefaultTestApplication
+import org.springframework.session.data.couchbase.application.content.Message
 import org.springframework.session.data.couchbase.utils.ApplicationInstance
 import org.springframework.session.data.couchbase.utils.ApplicationInstanceRunner
 import org.springframework.web.client.RestTemplate
@@ -18,8 +19,7 @@ import spock.lang.Specification
 
 import static com.couchbase.client.java.query.N1qlQuery.simple
 import static java.net.HttpCookie.parse
-import static org.springframework.session.data.couchbase.application.CouchbaseConfiguration.COUCHBASE_BUCKET_NAME
-import static org.springframework.session.data.couchbase.application.SessionConfiguration.HTTP_SESSION_NAMESPACE
+import static org.springframework.session.data.couchbase.application.content.CouchbaseConfiguration.COUCHBASE_BUCKET_NAME
 
 @WebIntegrationTest(randomPort = true)
 abstract class BasicSpec extends Specification {
@@ -44,22 +44,21 @@ abstract class BasicSpec extends Specification {
 
     void cleanup() {
         clearSessionCookie()
-        stopExtraApplicationInstance()
+        stopApplication()
     }
 
-    protected void startExtraApplicationInstance(String namespace = HTTP_SESSION_NAMESPACE) {
+    protected void startApplication(Class<?> applicationClass = DefaultTestApplication) {
         URL[] urls = [new File('/build/classes/test').toURI().toURL()]
         def classLoader = new URLClassLoader(urls, getClass().classLoader)
         def runnerClass = classLoader.loadClass(ApplicationInstanceRunner.class.name)
         def runnerInstance = runnerClass.newInstance()
         instance = new ApplicationInstance(runnerClass, runnerInstance)
-        runnerClass.getMethod('setNamespace', String).invoke(runnerInstance, namespace)
-        runnerClass.getMethod('setPrincipalSessionsEnabled', boolean).invoke(runnerInstance, false)
+        runnerClass.getMethod('setTestApplicationClass', Class).invoke(runnerInstance, applicationClass)
         runnerClass.getMethod('run').invoke(runnerInstance)
         extraInstancePort = runnerClass.getMethod('getPort').invoke(runnerInstance) as int
     }
 
-    protected void stopExtraApplicationInstance() {
+    protected void stopApplication() {
         if (instance) {
             instance.runnerClass.getMethod('stop').invoke(instance.runnerInstance)
             instance = null

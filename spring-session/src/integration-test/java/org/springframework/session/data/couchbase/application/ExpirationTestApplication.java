@@ -15,8 +15,16 @@
  */
 package org.springframework.session.data.couchbase.application;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.data.couchbase.CouchbaseDao;
+import org.springframework.session.data.couchbase.Serializer;
+import org.springframework.session.data.couchbase.application.content.ImmediateSessionExpirationRepository;
+import org.springframework.session.data.couchbase.application.content.IntegrationTestApplication;
 import org.springframework.session.data.couchbase.config.annotation.web.http.EnableCouchbaseHttpSession;
 
 /**
@@ -25,9 +33,30 @@ import org.springframework.session.data.couchbase.config.annotation.web.http.Ena
  * @author Mariusz Kopylec
  * @since 1.2.0
  */
-@SpringBootApplication
-@EnableCouchbaseHttpSession(namespace = SessionConfiguration.HTTP_SESSION_NAMESPACE, timeoutInSeconds = 1)
+@IntegrationTestApplication
+@EnableCouchbaseHttpSession(namespace = ExpirationTestApplication.HTTP_SESSION_NAMESPACE, timeoutInSeconds = ExpirationTestApplication.SESSION_TIMEOUT, principalSessionsEnabled = ExpirationTestApplication.PRINCIPAL_SESSIONS_ENABLED)
 public class ExpirationTestApplication {
+
+	/**
+	 * HTTP session application namespace name.
+	 */
+	public static final String HTTP_SESSION_NAMESPACE = "test-application";
+	/**
+	 * HTTP session maximum inactive interval in seconds.
+	 */
+	public static final int SESSION_TIMEOUT = 1;
+	/**
+	 * Principal HTTP sessions enabling flag.
+	 */
+	public static final boolean PRINCIPAL_SESSIONS_ENABLED = false;
+
+	@Bean
+	@Primary
+	public SessionRepository sessionRepository(CouchbaseDao dao, ObjectMapper mapper,
+			Serializer serializer) {
+		return new ImmediateSessionExpirationRepository(dao, HTTP_SESSION_NAMESPACE,
+				mapper, SESSION_TIMEOUT, serializer, PRINCIPAL_SESSIONS_ENABLED);
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(ExpirationTestApplication.class, args);

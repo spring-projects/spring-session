@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session.data.couchbase.application;
+package org.springframework.session.data.couchbase.application.content;
 
 import java.util.Collections;
 import java.util.List;

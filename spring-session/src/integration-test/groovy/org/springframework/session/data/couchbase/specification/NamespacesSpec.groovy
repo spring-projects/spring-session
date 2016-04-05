@@ -3,7 +3,8 @@ package org.springframework.session.data.couchbase.specification
 import org.springframework.boot.test.SpringApplicationContextLoader
 import org.springframework.session.data.couchbase.BasicSpec
 import org.springframework.session.data.couchbase.application.DefaultTestApplication
-import org.springframework.session.data.couchbase.application.Message
+import org.springframework.session.data.couchbase.application.DifferentNamespaceTestApplication
+import org.springframework.session.data.couchbase.application.content.Message
 import org.springframework.test.context.ContextConfiguration
 
 import static org.springframework.session.data.couchbase.assertions.Assertions.assertThat
@@ -15,7 +16,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 1', number: 1)
         setGlobalSessionAttribute message
-        startExtraApplicationInstance()
+        startApplication()
 
         when:
         def response = getGlobalSessionAttributeFromExtraInstance()
@@ -29,7 +30,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 2', number: 2)
         setSessionAttribute message
-        startExtraApplicationInstance()
+        startApplication()
 
         when:
         def response = getSessionAttributeFromExtraInstance()
@@ -43,7 +44,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 3', number: 3)
         setGlobalSessionAttribute message
-        startExtraApplicationInstance('other_namespace')
+        startApplication(DifferentNamespaceTestApplication)
 
         when:
         def response = getGlobalSessionAttributeFromExtraInstance()
@@ -57,7 +58,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 4', number: 4)
         setSessionAttribute message
-        startExtraApplicationInstance('other_namespace')
+        startApplication(DifferentNamespaceTestApplication)
 
         when:
         def response = getSessionAttributeFromExtraInstance()
@@ -71,7 +72,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'delete me', number: 71830)
         setGlobalSessionAttribute message
-        startExtraApplicationInstance('other_namespace')
+        startApplication(DifferentNamespaceTestApplication)
 
         when:
         deleteGlobalSessionAttribute()

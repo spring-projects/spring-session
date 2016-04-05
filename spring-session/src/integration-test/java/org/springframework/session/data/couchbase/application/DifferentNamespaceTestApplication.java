@@ -20,18 +20,18 @@ import org.springframework.session.data.couchbase.application.content.Integratio
 import org.springframework.session.data.couchbase.config.annotation.web.http.EnableCouchbaseHttpSession;
 
 /**
- * Application for testing principal HTTP sessions.
+ * Application for testing HTTP session.
  *
  * @author Mariusz Kopylec
  * @since 1.2.0
  */
 @IntegrationTestApplication
-@EnableCouchbaseHttpSession(namespace = PrincipalSessionsTestApplication.HTTP_SESSION_NAMESPACE, timeoutInSeconds = PrincipalSessionsTestApplication.SESSION_TIMEOUT, principalSessionsEnabled = PrincipalSessionsTestApplication.PRINCIPAL_SESSIONS_ENABLED)
-public class PrincipalSessionsTestApplication {
+@EnableCouchbaseHttpSession(namespace = DifferentNamespaceTestApplication.HTTP_SESSION_NAMESPACE, timeoutInSeconds = DifferentNamespaceTestApplication.SESSION_TIMEOUT, principalSessionsEnabled = DifferentNamespaceTestApplication.PRINCIPAL_SESSIONS_ENABLED)
+public class DifferentNamespaceTestApplication {
 	/**
 	 * HTTP session application namespace name.
 	 */
-	public static final String HTTP_SESSION_NAMESPACE = "test-application";
+	public static final String HTTP_SESSION_NAMESPACE = "other-application";
 	/**
 	 * HTTP session maximum inactive interval in seconds.
 	 */
@@ -39,9 +39,9 @@ public class PrincipalSessionsTestApplication {
 	/**
 	 * Principal HTTP sessions enabling flag.
 	 */
-	public static final boolean PRINCIPAL_SESSIONS_ENABLED = true;
+	public static final boolean PRINCIPAL_SESSIONS_ENABLED = false;
 
 	public static void main(String[] args) {
-		SpringApplication.run(PrincipalSessionsTestApplication.class, args);
+		SpringApplication.run(DifferentNamespaceTestApplication.class, args);
 	}
 }

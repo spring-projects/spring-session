@@ -14,7 +14,7 @@ class PrincipalSessionsSpec extends BasicSpec {
         given:
         def firstSessionId = setPrincipalSessionAttribute()
         clearSessionCookie()
-        startExtraApplicationInstance()
+        startApplication(PrincipalSessionsTestApplication)
         def secondSessionId = setPrincipalSessionAttributeToExtraInstance()
 
         when:

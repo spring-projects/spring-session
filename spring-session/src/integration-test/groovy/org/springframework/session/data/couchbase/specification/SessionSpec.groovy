@@ -3,7 +3,8 @@ package org.springframework.session.data.couchbase.specification
 import org.springframework.boot.test.SpringApplicationContextLoader
 import org.springframework.session.data.couchbase.BasicSpec
 import org.springframework.session.data.couchbase.application.DefaultTestApplication
-import org.springframework.session.data.couchbase.application.Message
+import org.springframework.session.data.couchbase.application.DifferentNamespaceTestApplication
+import org.springframework.session.data.couchbase.application.content.Message
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.web.client.HttpServerErrorException
 
@@ -84,7 +85,7 @@ class SessionSpec extends BasicSpec {
         setSessionAttribute message
         def globalMessage = new Message(text: 'i cannot disappear too!', number: 12222)
         setGlobalSessionAttribute globalMessage
-        startExtraApplicationInstance('wicked_application')
+        startApplication(DifferentNamespaceTestApplication)
         def extraMessage = new Message(text: 'and me too!', number: 14100)
         setSessionAttributeToExtraInstance extraMessage
 

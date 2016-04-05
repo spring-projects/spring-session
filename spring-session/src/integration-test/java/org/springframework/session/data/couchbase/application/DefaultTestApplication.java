@@ -16,7 +16,7 @@
 package org.springframework.session.data.couchbase.application;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.session.data.couchbase.application.content.IntegrationTestApplication;
 import org.springframework.session.data.couchbase.config.annotation.web.http.EnableCouchbaseHttpSession;
 
 /**
@@ -25,9 +25,21 @@ import org.springframework.session.data.couchbase.config.annotation.web.http.Ena
  * @author Mariusz Kopylec
  * @since 1.2.0
  */
-@SpringBootApplication
-@EnableCouchbaseHttpSession(namespace = SessionConfiguration.HTTP_SESSION_NAMESPACE)
+@IntegrationTestApplication
+@EnableCouchbaseHttpSession(namespace = DefaultTestApplication.HTTP_SESSION_NAMESPACE, timeoutInSeconds = DefaultTestApplication.SESSION_TIMEOUT, principalSessionsEnabled = DefaultTestApplication.PRINCIPAL_SESSIONS_ENABLED)
 public class DefaultTestApplication {
+	/**
+	 * HTTP session application namespace name.
+	 */
+	public static final String HTTP_SESSION_NAMESPACE = "test-application";
+	/**
+	 * HTTP session maximum inactive interval in seconds.
+	 */
+	public static final int SESSION_TIMEOUT = 1800;
+	/**
+	 * Principal HTTP sessions enabling flag.
+	 */
+	public static final boolean PRINCIPAL_SESSIONS_ENABLED = false;
 
 	public static void main(String[] args) {
 		SpringApplication.run(DefaultTestApplication.class, args);

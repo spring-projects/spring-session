@@ -2,15 +2,13 @@ package org.springframework.session.data.couchbase.utils
 
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.context.embedded.EmbeddedWebApplicationContext
-import org.springframework.session.data.couchbase.application.DefaultTestApplication
 
 class ApplicationInstanceRunner {
 
     private final Object monitor = new Object()
     private EmbeddedWebApplicationContext context
     private boolean shouldWait
-    private String namespace
-    private boolean principalSessionsEnabled
+    private Class<?> testApplicationClass
     private int port
 
     void run() {
@@ -26,12 +24,8 @@ class ApplicationInstanceRunner {
         context = null
     }
 
-    void setNamespace(String namespace) {
-        this.namespace = namespace
-    }
-
-    void setPrincipalSessionsEnabled(boolean principalSessionsEnabled) {
-        this.principalSessionsEnabled = principalSessionsEnabled
+    void setTestApplicationClass(Class<?> testApplicationClass) {
+        this.testApplicationClass = testApplicationClass
     }
 
     int getPort() {
@@ -47,17 +41,23 @@ class ApplicationInstanceRunner {
     }
 
     private void runInstance() {
-        def runnerThread = new InstanceRunningThread()
+        def runnerThread = new InstanceRunningThread(testApplicationClass)
         shouldWait = true
-        runnerThread.contextClassLoader = DefaultTestApplication.classLoader
+        runnerThread.contextClassLoader = testApplicationClass.classLoader
         runnerThread.start()
     }
 
     private class InstanceRunningThread extends Thread {
 
+        private final Class<?> testApplicationClass
+
+        InstanceRunningThread(Class<?> testApplicationClass) {
+            this.testApplicationClass = testApplicationClass
+        }
+
         @Override
         public void run() {
-            context = SpringApplication.run(DefaultTestApplication, '--server.port=0', "--session-couchbase.persistent.namespace=$namespace", "--session-couchbase.persistent.principal-sessions.enabled=$principalSessionsEnabled") as EmbeddedWebApplicationContext
+            context = SpringApplication.run(testApplicationClass, '--server.port=0') as EmbeddedWebApplicationContext
             port = context.embeddedServletContainer.port
             synchronized (monitor) {
                 shouldWait = false
