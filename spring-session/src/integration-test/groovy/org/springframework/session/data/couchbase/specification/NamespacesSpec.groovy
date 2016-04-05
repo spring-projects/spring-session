@@ -16,7 +16,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 1', number: 1)
         setGlobalSessionAttribute message
-        startApplication()
+        startApplication DefaultTestApplication
 
         when:
         def response = getGlobalSessionAttributeFromExtraInstance()
@@ -30,7 +30,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 2', number: 2)
         setSessionAttribute message
-        startApplication()
+        startApplication DefaultTestApplication
 
         when:
         def response = getSessionAttributeFromExtraInstance()
@@ -44,7 +44,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 3', number: 3)
         setGlobalSessionAttribute message
-        startApplication(DifferentNamespaceTestApplication)
+        startApplication DifferentNamespaceTestApplication
 
         when:
         def response = getGlobalSessionAttributeFromExtraInstance()
@@ -58,7 +58,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'i robot 4', number: 4)
         setSessionAttribute message
-        startApplication(DifferentNamespaceTestApplication)
+        startApplication DifferentNamespaceTestApplication
 
         when:
         def response = getSessionAttributeFromExtraInstance()
@@ -72,7 +72,7 @@ class NamespacesSpec extends BasicSpec {
         given:
         def message = new Message(text: 'delete me', number: 71830)
         setGlobalSessionAttribute message
-        startApplication(DifferentNamespaceTestApplication)
+        startApplication DifferentNamespaceTestApplication
 
         when:
         deleteGlobalSessionAttribute()

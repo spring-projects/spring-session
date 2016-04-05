@@ -85,7 +85,7 @@ class SessionSpec extends BasicSpec {
         setSessionAttribute message
         def globalMessage = new Message(text: 'i cannot disappear too!', number: 12222)
         setGlobalSessionAttribute globalMessage
-        startApplication(DifferentNamespaceTestApplication)
+        startApplication DifferentNamespaceTestApplication
         def extraMessage = new Message(text: 'and me too!', number: 14100)
         setSessionAttributeToExtraInstance extraMessage
 

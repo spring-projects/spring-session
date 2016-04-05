@@ -9,7 +9,6 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import org.springframework.session.data.couchbase.application.DefaultTestApplication
 import org.springframework.session.data.couchbase.application.content.Message
 import org.springframework.session.data.couchbase.utils.ApplicationInstance
 import org.springframework.session.data.couchbase.utils.ApplicationInstanceRunner
@@ -47,7 +46,7 @@ abstract class BasicSpec extends Specification {
         stopApplication()
     }
 
-    protected void startApplication(Class<?> applicationClass = DefaultTestApplication) {
+    protected void startApplication(Class<?> applicationClass) {
         URL[] urls = [new File('/build/classes/test').toURI().toURL()]
         def classLoader = new URLClassLoader(urls, getClass().classLoader)
         def runnerClass = classLoader.loadClass(ApplicationInstanceRunner.class.name)
