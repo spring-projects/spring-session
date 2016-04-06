@@ -50,6 +50,13 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -63,7 +70,14 @@ import org.springframework.util.StringUtils;
  * <pre class="code">
  * JdbcTemplate jdbcTemplate = new JdbcTemplate();
  *
- * JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(jdbcTemplate);
+ * // ... configure jdbcTemplate ...
+ *
+ * PlatformTransactionManager transactionManager = new DataSourceTransactionManager();
+ *
+ * // ... configure transactionManager ...
+ *
+ * JdbcOperationsSessionRepository sessionRepository =
+ *         new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
  * </pre>
  *
  * For additional information on how to create and configure a JdbcTemplate, refer to the
@@ -121,6 +135,8 @@ public class JdbcOperationsSessionRepository implements
 
 	private final JdbcOperations jdbcOperations;
 
+	private final TransactionOperations transactionOperations;
+
 	private final RowMapper<ExpiringSession> mapper = new ExpiringSessionMapper();
 
 	/**
@@ -140,22 +156,26 @@ public class JdbcOperationsSessionRepository implements
 
 	/**
 	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
-	 * default ${JdbcOperations} to manage sessions.
+	 * default {@link JdbcOperations} to manage sessions.
 	 * @param dataSource the {@link DataSource} to use
+	 * @param transactionManager the {@link PlatformTransactionManager} to use
 	 */
-	public JdbcOperationsSessionRepository(DataSource dataSource) {
-		this(createDefaultTemplate(dataSource));
+	public JdbcOperationsSessionRepository(DataSource dataSource,
+			PlatformTransactionManager transactionManager) {
+		this(createDefaultJdbcTemplate(dataSource), transactionManager);
 	}
 
 	/**
 	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
-	 * provided ${JdbcOperations} to manage sessions.
+	 * provided {@link JdbcOperations} to manage sessions.
 	 * @param jdbcOperations the {@link JdbcOperations} to use
+	 * @param transactionManager the {@link PlatformTransactionManager} to use
 	 */
-	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations) {
+	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations,
+			PlatformTransactionManager transactionManager) {
 		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
 		this.jdbcOperations = jdbcOperations;
-
+		this.transactionOperations = createTransactionTemplate(transactionManager);
 		this.conversionService = createDefaultConversionService();
 	}
 
@@ -185,7 +205,6 @@ public class JdbcOperationsSessionRepository implements
 
 	/**
 	 * Sets the {@link ConversionService} to use.
-	 *
 	 * @param conversionService the converter to set
 	 */
 	public void setConversionService(ConversionService conversionService) {
@@ -203,49 +222,65 @@ public class JdbcOperationsSessionRepository implements
 
 	public void save(final JdbcSession session) {
 		if (session.isNew()) {
-			this.jdbcOperations.update(getQuery(CREATE_SESSION_QUERY),
-					new PreparedStatementSetter() {
+			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
-						public void setValues(PreparedStatement ps) throws SQLException {
-							ps.setString(1, session.getId());
-							ps.setLong(2, session.getLastAccessedTime());
-							ps.setString(3, session.getPrincipalName());
-							JdbcOperationsSessionRepository.this.lobHandler
-									.getLobCreator()
-									.setBlobAsBytes(ps, 4, serialize(session.delegate));
-						}
+				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					JdbcOperationsSessionRepository.this.jdbcOperations.update(
+							getQuery(CREATE_SESSION_QUERY),
+							new PreparedStatementSetter() {
 
-					});
+								public void setValues(PreparedStatement ps) throws SQLException {
+									ps.setString(1, session.getId());
+									ps.setLong(2, session.getLastAccessedTime());
+									ps.setString(3, session.getPrincipalName());
+									serialize(ps, 4, session.delegate);
+								}
+
+							});
+				}
+
+			});
 		}
 		else {
 			if (session.isAttributesChanged()) {
-				this.jdbcOperations.update(getQuery(UPDATE_SESSION_QUERY),
-						new PreparedStatementSetter() {
+				this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
-							public void setValues(PreparedStatement ps)
-									throws SQLException {
-								ps.setLong(1, session.getLastAccessedTime());
-								ps.setString(2, session.getPrincipalName());
-								JdbcOperationsSessionRepository.this.lobHandler
-										.getLobCreator().setBlobAsBytes(ps, 3,
-												serialize(session.delegate));
-								ps.setString(4, session.getId());
-							}
+					protected void doInTransactionWithoutResult(TransactionStatus status) {
+						JdbcOperationsSessionRepository.this.jdbcOperations.update(
+								getQuery(UPDATE_SESSION_QUERY),
+								new PreparedStatementSetter() {
 
-						});
+									public void setValues(PreparedStatement ps)
+											throws SQLException {
+										ps.setLong(1, session.getLastAccessedTime());
+										ps.setString(2, session.getPrincipalName());
+										serialize(ps, 3, session.delegate);
+										ps.setString(4, session.getId());
+									}
+
+								});
+					}
+
+				});
 			}
 			else if (session.isLastAccessTimeChanged()) {
-				this.jdbcOperations.update(
-						getQuery(UPDATE_SESSION_LAST_ACCESS_TIME_QUERY),
-						new PreparedStatementSetter() {
+				this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
-							public void setValues(PreparedStatement ps)
-									throws SQLException {
-								ps.setLong(1, session.getLastAccessedTime());
-								ps.setString(2, session.getId());
-							}
+					protected void doInTransactionWithoutResult(TransactionStatus status) {
+						JdbcOperationsSessionRepository.this.jdbcOperations.update(
+								getQuery(UPDATE_SESSION_LAST_ACCESS_TIME_QUERY),
+								new PreparedStatementSetter() {
 
-						});
+									public void setValues(PreparedStatement ps)
+											throws SQLException {
+										ps.setLong(1, session.getLastAccessedTime());
+										ps.setString(2, session.getId());
+									}
+
+								});
+					}
+
+				});
 			}
 			else {
 				return;
@@ -254,14 +289,22 @@ public class JdbcOperationsSessionRepository implements
 		session.clearChangeFlags();
 	}
 
-	public JdbcSession getSession(String id) {
-		ExpiringSession session = null;
-		try {
-			session = this.jdbcOperations.queryForObject(getQuery(GET_SESSION_QUERY),
-					new Object[] { id }, this.mapper);
-		}
-		catch (EmptyResultDataAccessException ignored) {
-		}
+	public JdbcSession getSession(final String id) {
+		ExpiringSession session = this.transactionOperations.execute(new TransactionCallback<ExpiringSession>() {
+
+			public ExpiringSession doInTransaction(TransactionStatus status) {
+				try {
+					return JdbcOperationsSessionRepository.this.jdbcOperations.queryForObject(
+							getQuery(GET_SESSION_QUERY),
+							new Object[] { id },
+							JdbcOperationsSessionRepository.this.mapper);
+				}
+				catch (EmptyResultDataAccessException ignored) {
+					return null;
+				}
+			}
+
+		});
 
 		if (session != null) {
 			if (session.isExpired()) {
@@ -274,19 +317,33 @@ public class JdbcOperationsSessionRepository implements
 		return null;
 	}
 
-	public void delete(String id) {
-		this.jdbcOperations.update(getQuery(DELETE_SESSION_QUERY), id);
+	public void delete(final String id) {
+		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
+
+			protected void doInTransactionWithoutResult(TransactionStatus status) {
+				JdbcOperationsSessionRepository.this.jdbcOperations.update(
+						getQuery(DELETE_SESSION_QUERY), id);
+			}
+
+		});
 	}
 
 	public Map<String, JdbcSession> findByIndexNameAndIndexValue(String indexName,
-			String indexValue) {
+			final String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
 		}
 
-		List<ExpiringSession> sessions = this.jdbcOperations.query(
-				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY),
-				new Object[] { indexValue }, this.mapper);
+		List<ExpiringSession> sessions = this.transactionOperations.execute(new TransactionCallback<List<ExpiringSession>>() {
+
+			public List<ExpiringSession> doInTransaction(TransactionStatus status) {
+				return JdbcOperationsSessionRepository.this.jdbcOperations.query(
+						getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY),
+						new Object[] { indexValue },
+						JdbcOperationsSessionRepository.this.mapper);
+			}
+
+		});
 
 		Map<String, JdbcSession> sessionMap = new HashMap<String, JdbcSession>(
 				sessions.size());
@@ -305,36 +362,42 @@ public class JdbcOperationsSessionRepository implements
 				? this.defaultMaxInactiveInterval
 				: MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-		long sessionsValidFromTime = now - (maxInactiveIntervalSeconds * 1000);
+		final long sessionsValidFromTime = now - (maxInactiveIntervalSeconds * 1000);
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(
 					"Cleaning up sessions older than " + new Date(sessionsValidFromTime));
 		}
 
-		int deletedCount = this.jdbcOperations.update(
-				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY),
-				sessionsValidFromTime);
+		int deletedCount = this.transactionOperations.execute(new TransactionCallback<Integer>() {
+
+			public Integer doInTransaction(TransactionStatus transactionStatus) {
+				return JdbcOperationsSessionRepository.this.jdbcOperations.update(
+						getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY),
+						sessionsValidFromTime);
+			}
+
+		});
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cleaned up " + deletedCount + " expired sessions");
 		}
 	}
 
-	private static JdbcTemplate createDefaultTemplate(DataSource dataSource) {
+	private static JdbcTemplate createDefaultJdbcTemplate(DataSource dataSource) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.afterPropertiesSet();
 		return jdbcTemplate;
 	}
 
-	protected String getQuery(String base) {
-		return StringUtils.replace(base, "%TABLE_NAME%", this.tableName);
-	}
-
-	private byte[] serialize(ExpiringSession session) {
-		return (byte[]) this.conversionService.convert(session,
-				TypeDescriptor.valueOf(ExpiringSession.class),
-				TypeDescriptor.valueOf(byte[].class));
+	private static TransactionTemplate createTransactionTemplate(
+			PlatformTransactionManager transactionManager) {
+		TransactionTemplate transactionTemplate = new TransactionTemplate(
+				transactionManager);
+		transactionTemplate.setPropagationBehavior(
+				TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		transactionTemplate.afterPropertiesSet();
+		return transactionTemplate;
 	}
 
 	private static GenericConversionService createDefaultConversionService() {
@@ -344,6 +407,26 @@ public class JdbcOperationsSessionRepository implements
 		converter.addConverter(byte[].class, ExpiringSession.class,
 				new DeserializingConverter());
 		return converter;
+	}
+
+	protected String getQuery(String base) {
+		return StringUtils.replace(base, "%TABLE_NAME%", this.tableName);
+	}
+
+	private void serialize(PreparedStatement ps, int paramIndex, ExpiringSession session)
+			throws SQLException {
+		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex,
+				(byte[]) this.conversionService.convert(session,
+						TypeDescriptor.valueOf(ExpiringSession.class),
+						TypeDescriptor.valueOf(byte[].class)));
+	}
+
+	private ExpiringSession deserialize(ResultSet rs, String columnName)
+			throws SQLException {
+		return (ExpiringSession) this.conversionService.convert(
+				this.lobHandler.getBlobAsBytes(rs, columnName),
+				TypeDescriptor.valueOf(byte[].class),
+				TypeDescriptor.valueOf(ExpiringSession.class));
 	}
 
 	/**
@@ -473,12 +556,7 @@ public class JdbcOperationsSessionRepository implements
 	private class ExpiringSessionMapper implements RowMapper<ExpiringSession> {
 
 		public ExpiringSession mapRow(ResultSet rs, int rowNum) throws SQLException {
-			ExpiringSession session = (ExpiringSession) JdbcOperationsSessionRepository
-					.this.conversionService.convert(
-							JdbcOperationsSessionRepository.this.lobHandler
-									.getBlobAsBytes(rs, "SESSION_BYTES"),
-							TypeDescriptor.valueOf(byte[].class),
-							TypeDescriptor.valueOf(ExpiringSession.class));
+			ExpiringSession session = deserialize(rs, "SESSION_BYTES");
 			session.setLastAccessedTime(rs.getLong("LAST_ACCESS_TIME"));
 			return session;
 		}

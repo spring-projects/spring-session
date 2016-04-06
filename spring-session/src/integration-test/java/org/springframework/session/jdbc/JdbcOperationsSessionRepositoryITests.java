@@ -46,6 +46,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -112,6 +113,15 @@ public class JdbcOperationsSessionRepositoryITests {
 		this.repository.delete(toSave.getId());
 
 		assertThat(this.repository.getSession(toSave.getId())).isNull();
+	}
+
+	@Test
+	@Transactional(readOnly = true)
+	public void savesInReadOnlyTransaction() {
+		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
+				.createSession();
+
+		this.repository.save(toSave);
 	}
 
 	@Test

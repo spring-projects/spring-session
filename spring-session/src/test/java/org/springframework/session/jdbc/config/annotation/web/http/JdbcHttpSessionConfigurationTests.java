@@ -31,6 +31,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -160,6 +161,11 @@ public class JdbcHttpSessionConfigurationTests {
 		@Bean
 		public DataSource dataSource() {
 			return mock(DataSource.class);
+		}
+
+		@Bean
+		public PlatformTransactionManager transactionManager() {
+			return mock(PlatformTransactionManager.class);
 		}
 
 	}

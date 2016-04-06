@@ -33,6 +33,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
 
 /**
@@ -71,9 +72,10 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository(
-			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations) {
-		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(
-				jdbcOperations);
+			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations,
+			PlatformTransactionManager transactionManager) {
+		JdbcOperationsSessionRepository sessionRepository =
+				new JdbcOperationsSessionRepository(jdbcOperations, transactionManager);
 		String tableName = getTableName();
 		if (StringUtils.hasText(tableName)) {
 			sessionRepository.setTableName(tableName);
