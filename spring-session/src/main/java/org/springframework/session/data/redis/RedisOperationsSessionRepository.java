@@ -771,6 +771,9 @@ public class RedisOperationsSessionRepository implements
 		 * session.
 		 */
 		private void saveDelta() {
+			if (this.delta.isEmpty()) {
+				return;
+			}
 			String sessionId = getId();
 			getSessionBoundHashOperations(sessionId).putAll(this.delta);
 			String principalSessionKey = getSessionAttrNameKey(
@@ -781,7 +784,7 @@ public class RedisOperationsSessionRepository implements
 					|| this.delta.containsKey(securityPrincipalSessionKey)) {
 				if (this.originalPrincipalName != null) {
 					String originalPrincipalRedisKey = getPrincipalKey(
-							(String) this.originalPrincipalName);
+							this.originalPrincipalName);
 					RedisOperationsSessionRepository.this.sessionRedisOperations
 							.boundSetOps(originalPrincipalRedisKey).remove(sessionId);
 				}

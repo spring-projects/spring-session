@@ -166,6 +166,16 @@ public class RedisOperationsSessionRepositoryTests {
 				.isEqualTo(session.getCreationTime());
 	}
 
+	// gh-467
+	@Test
+	public void saveSessionNothingChanged() {
+		RedisSession session = this.redisRepository.new RedisSession(this.cached);
+
+		this.redisRepository.save(session);
+
+		verifyZeroInteractions(this.redisOperations);
+	}
+
 	@Test
 	public void saveJavadocSummary() {
 		RedisSession session = this.redisRepository.createSession();
@@ -202,6 +212,7 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void saveJavadoc() {
 		RedisSession session = this.redisRepository.new RedisSession(this.cached);
+		session.setLastAccessedTime(session.getLastAccessedTime());
 
 		given(this.redisOperations.boundHashOps("spring:session:sessions:session-id"))
 				.willReturn(this.boundHashOperations);
