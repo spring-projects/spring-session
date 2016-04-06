@@ -5,6 +5,7 @@ import org.springframework.session.data.couchbase.BasicSpec
 import org.springframework.session.data.couchbase.application.PrincipalSessionsExpirationTestApplication
 import org.springframework.test.context.ContextConfiguration
 
+import static org.springframework.session.data.couchbase.application.PrincipalSessionsExpirationTestApplication.SESSION_TIMEOUT
 import static org.springframework.session.data.couchbase.assertions.Assertions.assertThat
 
 @ContextConfiguration(loader = SpringApplicationContextLoader, classes = PrincipalSessionsExpirationTestApplication)
@@ -15,7 +16,7 @@ class PrincipalSessionsExpirationSpec extends BasicSpec {
         setPrincipalSessionAttribute()
 
         when:
-        sleep(2000)
+        sleep(SESSION_TIMEOUT * 1000 + 100)
 
         then:
         assertThat(getPrincipalSessions())

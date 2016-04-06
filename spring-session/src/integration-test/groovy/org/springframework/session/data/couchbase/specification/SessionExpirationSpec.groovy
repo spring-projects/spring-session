@@ -6,6 +6,7 @@ import org.springframework.session.data.couchbase.application.ExpirationTestAppl
 import org.springframework.session.data.couchbase.application.content.Message
 import org.springframework.test.context.ContextConfiguration
 
+import static org.springframework.session.data.couchbase.application.ExpirationTestApplication.SESSION_TIMEOUT
 import static org.springframework.session.data.couchbase.assertions.Assertions.assertThat
 
 @ContextConfiguration(loader = SpringApplicationContextLoader, classes = ExpirationTestApplication)
@@ -15,7 +16,7 @@ class SessionExpirationSpec extends BasicSpec {
         given:
         def message = new Message(text: 'power rangers', number: 123)
         setSessionAttribute message
-        sleep(1500)
+        sleep(SESSION_TIMEOUT * 1000 + 100)
 
         when:
         def response = getSessionAttribute()
@@ -31,7 +32,7 @@ class SessionExpirationSpec extends BasicSpec {
         setSessionAttribute message
 
         when:
-        sleep(1500)
+        sleep(SESSION_TIMEOUT * 1000 + 1000)
 
         then:
         !currentSessionExists()
