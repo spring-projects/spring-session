@@ -1,0 +1,133 @@
+= Spring Session with Couchbase
+Mariusz Kopylec
+:toc:
+
+This guide describes how to use Spring Session backed by Couchbase.
+
+== Updating Dependencies
+Before you use Spring Session, you must ensure to update your dependencies.
+We assume you are working with a working Spring Boot web application.
+If you are using Gradle, ensure to add the following dependencies:
+
+.gradle.build
+[source,groovy]
+[subs="verbatim,attributes"]
+----
+dependencies {
+    compile group: 'org.springframework.data', name: 'spring-data-couchbase', version: '+'
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '+'
+}
+----
+
+ifeval::["{version-snapshot}" == "true"]
+Since We are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
+Ensure you have the following in your build.gradle:
+
+.gradle.build
+[source,groovy]
+----
+repositories {
+    maven { url 'https://repo.spring.io/libs-snapshot' }
+}
+----
+endif::[]
+
+ifeval::["{version-milestone}" == "true"]
+Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
+Ensure you have the following in your build.gradle:
+
+.gradle.build
+[source,groovy]
+----
+repositories {
+    maven { url 'https://repo.spring.io/libs-milestone' }
+}
+----
+endif::[]
+
+[[how-to-use]]
+== How to use
+
+**Basic usage:**
+
+Configure Couchbase connection using Spring Data Couchbase. You can find a minimal configuration example link:http://projects.spring.io/spring-data-couchbase/#quick-start[here].
+
+Enable Couchbase backed HTTP session using `@EnableCouchbaseHttpSession`:
+
+[source,java]
+----
+@EnableCouchbaseHttpSession(namespace = "my-application")
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+----
+
+Simply use `HttpSession` interface to control HTTP session. For example:
+
+[source,java]
+----
+@Controller
+public class SessionController {
+
+    @RequestMapping("uri")
+    public void doSomething(HttpSession session) {
+        ...
+    }
+}
+----
+
+**Namespaces support:**
+
+Using Couchbase backed HTTP session you can share session among multiple web applications.
+The session will not be destroyed when the web applications will be shut down.
+Each web application can have its own HTTP session scope or can access global HTTP session scope.
+This scope is called namespace, therefore you can access session attributes in two ways, using:
+
+* _application namespace_ - attributes are visible only to instances of the same web application within a distributed system
+* _global namespace_ - attributes are visible to all instances of all web applications within a distributed system
+
+To access application namespace just pass an attribute name:
+
+[source,java]
+----
+...
+@RequestMapping("uri")
+public void doSomething(HttpSession session) {
+    session.setAttribute("name", "value");
+    session.getAttribute("name");
+    ...
+}
+----
+
+To access global attributes create an attribute name using `CouchbaseSession.globalAttributeName()` method:
+
+[source,java]
+----
+...
+@RequestMapping("uri")
+public void doSomething(HttpSession session) {
+    String attributeName = CouchbaseSession.globalAttributeName("name");
+    session.setAttribute(attributeName, "value");
+    session.getAttribute(attributeName);
+    ...
+}
+----
+
+When changing HTTP session ID every attribute is copied to the new session, no matter what namespace it belongs.
+
+**Configuring session parameters:**
+
+To configure session parameters use `@EnableCouchbaseHttpSession` attributes:
+
+* `namespace`: Application HTTP session namespace name.
+* `timeoutInSeconds`: Max inactive HTTP session interval in seconds after which the session will be destroyed.
+* `principalSessionsEnabled`: Enables or disables finding HTTP sessions by principal (support for FindByIndexNameSessionRepository). Can significantly decrease application performance when enabled.
+
+[[examples]]
+== Examples
+
+Go to link:https://github.com/spring-projects/spring-session/tree/master/spring-session/src/integration-test/java/org/springframework/session/data/couchbase/application[sample test application] to see more examples.
