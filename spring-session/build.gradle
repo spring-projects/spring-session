@@ -25,7 +25,7 @@ dependencies {
 			"org.springframework:spring-messaging:$springVersion",
 			"org.springframework:spring-websocket:$springVersion"
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
-	integrationTestCompile "redis.clients:jedis:2.4.1",
+	integrationTestCompile "redis.clients:jedis:$jedisVersion",
 			"org.apache.commons:commons-pool2:2.2",
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			"com.h2database:h2:$h2Version",

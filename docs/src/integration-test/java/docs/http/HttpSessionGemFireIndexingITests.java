@@ -115,9 +115,7 @@ public class HttpSessionGemFireIndexingITests extends AbstractGemFireIntegration
 			CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
 			gemfireCache.setClose(true);
-			gemfireCache.setLazyInitialize(false);
 			gemfireCache.setProperties(gemfireProperties());
-			gemfireCache.setUseBeanFactoryLocator(false);
 
 			return gemfireCache;
 		}

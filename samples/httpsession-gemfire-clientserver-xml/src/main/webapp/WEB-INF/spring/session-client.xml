@@ -35,6 +35,8 @@
 		<prop key="log-level">${sample.httpsession.gemfire.log-level:warning}</prop>
 	</util:properties>
 
+	<gfe:client-cache properties-ref="gemfireProperties"/>
+
 	<!--7-->
 	<gfe:pool free-connection-timeout="5000"
               keep-alive="false"
@@ -47,9 +49,6 @@
 		<gfe:server host="${application.gemfire.client-server.host}"
                     port="${spring.session.data.gemfire.port:${application.gemfire.client-server.port}}"/>
 	</gfe:pool>
-
-	<gfe:client-cache properties-ref="gemfireProperties"
-                      use-bean-factory-locator="false"/>
 	<!-- end::beans[] -->
 
 </beans>

@@ -51,35 +51,32 @@ public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcess
 
 	// tag::class[]
 	static {
-		ClientMembership
-				.registerClientMembershipListener(new ClientMembershipListenerAdapter() {
-					public void memberJoined(final ClientMembershipEvent event) {
-						if (!event.isClient()) {
-							latch.countDown();
-						}
+		ClientMembership.registerClientMembershipListener(
+			new ClientMembershipListenerAdapter() {
+				public void memberJoined(final ClientMembershipEvent event) {
+					if (!event.isClient()) {
+						latch.countDown();
 					}
-				});
+				}
+			});
 	}
 
 	@SuppressWarnings("all")
 	@Resource(name = "applicationProperties")
 	private Properties applicationProperties;
 
-	public Object postProcessBeforeInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 			String host = getServerHost(DEFAULT_SERVER_HOST);
 			Assert.isTrue(waitForCacheServerToStart(host, this.port),
-					String.format(
-							"GemFire Server failed to start [host: '%1$s', port: %2$d]%n",
-							host, this.port));
+				String.format("GemFire Server failed to start [host: '%1$s', port: %2$d]%n",
+					host, this.port));
 		}
 
 		return bean;
 	}
 
-	public Object postProcessAfterInitialization(Object bean, String beanName)
-			throws BeansException {
+	public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 		if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 			try {
 				latch.await(DEFAULT_WAIT_DURATION, TimeUnit.MILLISECONDS);
@@ -157,4 +154,5 @@ public class GemFireCacheServerReadyBeanPostProcessor implements BeanPostProcess
 
 		return condition.evaluate();
 	}
+
 }

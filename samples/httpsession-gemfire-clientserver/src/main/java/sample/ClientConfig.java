@@ -36,7 +36,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
-import org.springframework.data.gemfire.config.GemfireConstants;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.session.data.gemfire.support.GemFireUtils;
@@ -52,17 +51,20 @@ public class ClientConfig {
 	static final CountDownLatch latch = new CountDownLatch(1);
 
 	static {
-		System.setProperty("gemfire.log-level",
-				System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
+		System.setProperty("gemfire.log-level", logLevel());
 
-		ClientMembership
-				.registerClientMembershipListener(new ClientMembershipListenerAdapter() {
-					public void memberJoined(ClientMembershipEvent event) {
-						if (!event.isClient()) {
-							latch.countDown();
-						}
+		ClientMembership.registerClientMembershipListener(
+			new ClientMembershipListenerAdapter() {
+				public void memberJoined(ClientMembershipEvent event) {
+					if (!event.isClient()) {
+						latch.countDown();
 					}
-				});
+				}
+			});
+	}
+
+	private static String logLevel() {
+		return System.getProperty("sample.httpsession.gemfire.log-level", "warning");
 	}
 
 	@Bean
@@ -75,14 +77,22 @@ public class ClientConfig {
 		return new Properties();
 	}
 
-	@Bean(name = GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME)
+	@Bean
+	ClientCacheFactoryBean gemfireCache() { // <4>
+		ClientCacheFactoryBean clientCacheFactory = new ClientCacheFactoryBean();
+
+		clientCacheFactory.setClose(true);
+		clientCacheFactory.setProperties(gemfireProperties());
+
+		return clientCacheFactory;
+	}
+
+	@Bean
 	PoolFactoryBean gemfirePool(// <3>
-			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT
-					+ "}") int port) {
+			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") int port) {
 
 		PoolFactoryBean poolFactory = new PoolFactoryBean();
 
-		poolFactory.setName(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
 		poolFactory.setFreeConnectionTimeout(5000); // 5 seconds
 		poolFactory.setKeepAlive(false);
 		poolFactory.setMaxConnections(ServerConfig.MAX_CONNECTIONS);
@@ -92,46 +102,29 @@ public class ClientConfig {
 		poolFactory.setSubscriptionEnabled(true);
 		poolFactory.setThreadLocalConnections(false);
 
-		poolFactory.setServerEndpoints(Collections.singletonList(
-				new ConnectionEndpoint(ServerConfig.SERVER_HOSTNAME, port)));
+		poolFactory.setServers(Collections.singletonList(
+			new ConnectionEndpoint(ServerConfig.SERVER_HOSTNAME, port)));
 
 		return poolFactory;
 	}
 
 	@Bean
-	ClientCacheFactoryBean gemfireCache(Pool gemfirePool) { // <4>
-		ClientCacheFactoryBean clientCacheFactory = new ClientCacheFactoryBean();
-
-		clientCacheFactory.setClose(true);
-		clientCacheFactory.setProperties(gemfireProperties());
-		clientCacheFactory.setPool(gemfirePool);
-		clientCacheFactory.setUseBeanFactoryLocator(false);
-
-		return clientCacheFactory;
-	}
-
-	@Bean
 	BeanPostProcessor gemfireCacheServerReadyBeanPostProcessor(// <5>
-			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT
-					+ "}") final int port) {
+			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") final int port) {
 
 		return new BeanPostProcessor() {
 
-			public Object postProcessBeforeInitialization(Object bean, String beanName)
-					throws BeansException {
+			public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
 				if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
-					Assert.isTrue(
-							waitForCacheServerToStart(ServerConfig.SERVER_HOSTNAME, port),
-							String.format(
-									"GemFire Server failed to start [hostname: %1$s, port: %2$d]",
-									ServerConfig.SERVER_HOSTNAME, port));
+					Assert.isTrue(waitForCacheServerToStart(ServerConfig.SERVER_HOSTNAME, port),
+						String.format("GemFire Server failed to start [hostname: %1$s, port: %2$d]",
+							ServerConfig.SERVER_HOSTNAME, port));
 				}
 
 				return bean;
 			}
 
-			public Object postProcessAfterInitialization(Object bean, String beanName)
-					throws BeansException {
+			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 				if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 					try {
 						latch.await(DEFAULT_WAIT_DURATION, TimeUnit.MILLISECONDS);
@@ -206,4 +199,5 @@ public class ClientConfig {
 
 		return condition.evaluate();
 	}
+
 }

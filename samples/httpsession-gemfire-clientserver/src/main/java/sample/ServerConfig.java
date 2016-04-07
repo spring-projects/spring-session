@@ -49,20 +49,23 @@ public class ServerConfig {
 
 		gemfireProperties.setProperty("name", "GemFireClientServerHttpSessionSample");
 		gemfireProperties.setProperty("mcast-port", "0");
-		gemfireProperties.setProperty("log-level",
-				System.getProperty("sample.httpsession.gemfire.log-level", "warning"));
+		gemfireProperties.setProperty("log-level", logLevel());
 		gemfireProperties.setProperty("jmx-manager", "true");
 		gemfireProperties.setProperty("jmx-manager-start", "true");
 
 		return gemfireProperties;
 	}
 
+	private String logLevel() {
+		return System.getProperty("sample.httpsession.gemfire.log-level", "warning");
+	}
+
 	@Bean
 	CacheFactoryBean gemfireCache() { // <3>
 		CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
+		gemfireCache.setClose(true);
 		gemfireCache.setProperties(gemfireProperties());
-		gemfireCache.setUseBeanFactoryLocator(false);
 
 		return gemfireCache;
 	}
@@ -76,6 +79,7 @@ public class ServerConfig {
 		cacheServerFactory.setAutoStartup(true);
 		cacheServerFactory.setBindAddress(SERVER_HOSTNAME);
 		cacheServerFactory.setCache(gemfireCache);
+		cacheServerFactory.setHostNameForClients(SERVER_HOSTNAME);
 		cacheServerFactory.setMaxConnections(MAX_CONNECTIONS);
 		cacheServerFactory.setPort(port);
 
@@ -86,5 +90,6 @@ public class ServerConfig {
 	public static void main(final String[] args) throws IOException { // <5>
 		new AnnotationConfigApplicationContext(ServerConfig.class).registerShutdownHook();
 	}
+
 }
 // end::class[]

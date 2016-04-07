@@ -44,8 +44,8 @@ public class Config {
 	CacheFactoryBean gemfireCache() { // <3>
 		CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
+		gemfireCache.setClose(true);
 		gemfireCache.setProperties(gemfireProperties());
-		gemfireCache.setUseBeanFactoryLocator(false);
 
 		return gemfireCache;
 	}

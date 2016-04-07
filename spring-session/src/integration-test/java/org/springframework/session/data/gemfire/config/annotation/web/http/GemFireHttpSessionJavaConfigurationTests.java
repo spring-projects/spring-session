@@ -135,7 +135,6 @@ public class GemFireHttpSessionJavaConfigurationTests
 
 			cacheFactory.setClose(true);
 			cacheFactory.setProperties(gemfireProperties());
-			cacheFactory.setUseBeanFactoryLocator(false);
 
 			return cacheFactory;
 		}
