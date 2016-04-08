@@ -1,0 +1,65 @@
+/*
+ * Copyright 2014-2016 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.springframework.session.ehcache.config.annotation.web.http;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+
+
+/**
+ * Add this annotation to an {@code @Configuration} class to expose the
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by an
+ * {@link net.sf.ehcache.Ehcache}.
+ *
+ * @author Ján Pichanič
+ * @since 1.2.0
+ * @see EnableSpringHttpSession
+ */
+@Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
+@Target({java.lang.annotation.ElementType.TYPE})
+@Documented
+@Import(EhcacheHttpSessionConfiguration.class)
+@Configuration
+public @interface EnableEhcacheHttpSession {
+
+	/**
+	 * The name that will be used for the cache.
+	 *
+	 * @return the cache name
+	 */
+	String cacheName() default "defaultHttpSessionCache";
+
+	/**
+	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
+	 * This should be a non-negative integer.
+	 *
+	 * @return the seconds a session can be inactive before expiring
+	 */
+	int maxInactiveIntervalInSeconds() default 1800;
+
+	/**
+	 * Maximum allowed entries in heap. By default, it is set to 100 000 entries.
+	 *
+	 * @return max heap entries
+	 */
+	int maxHeapEntries() default 100000;
+}
