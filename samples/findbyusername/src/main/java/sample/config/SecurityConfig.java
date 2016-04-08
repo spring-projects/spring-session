@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.formLogin().loginPage("/login").permitAll().and().authorizeRequests()
-				.antMatchers("/resources/**").permitAll().anyRequest().authenticated()
+				.antMatchers("/resources/**", "/webjars/**").permitAll().anyRequest().authenticated()
 				.and().logout().permitAll();
 	}
 	// end::config[]

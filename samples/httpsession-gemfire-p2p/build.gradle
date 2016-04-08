@@ -5,6 +5,7 @@ apply from: SAMPLE_GRADLE
 dependencies {
 	compile project(':spring-session-data-gemfire'),
 		"org.springframework:spring-web:$springVersion",
+		"org.webjars:bootstrap:$bootstrapVersion",
 		jstlDependencies
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
