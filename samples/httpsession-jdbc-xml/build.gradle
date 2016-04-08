@@ -5,6 +5,7 @@ apply from: SAMPLE_GRADLE
 dependencies {
 	compile project(':spring-session-jdbc'),
 			"org.springframework:spring-web:$springVersion",
+			"org.webjars:bootstrap:$bootstrapVersion",
 			"com.h2database:h2:$h2Version",
 			jstlDependencies
 

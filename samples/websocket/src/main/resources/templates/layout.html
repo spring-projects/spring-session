@@ -5,7 +5,7 @@
 <head>
 	<title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">SecureMail</title>
 	<link rel="icon" type="image/x-icon" th:href="@{/resources/img/favicon.ico}" href="../static/img/favicon.ico"/>
-	<link th:href="@{/resources/css/bootstrap.css}" href="../static/css/bootstrap.css" rel="stylesheet"></link>
+	<link th:href="@{/webjars/bootstrap/2.3.2/css/bootstrap.min.css}" href="/webjars/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet"></link>
 	<style type="text/css">
 	  /* Sticky footer styles
 	  -------------------------------------------------- */
@@ -65,11 +65,11 @@
 		margin-left: 1em;
 	  }
 	</style>
-	<link th:href="@{resources/css/bootstrap-responsive.css}" href="/static/css/bootstrap-responsive.css" rel="stylesheet"></link>
+	<link th:href="@{/webjars/bootstrap/2.3.2/css/bootstrap-responsive.min.css}" href="/webjars/bootstrap/2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet"></link>
 
 	<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
 	<!--[if lt IE 9]>
-	  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	  <script th:src="@{/webjars/html5shiv/3.7.3/html5shiv.min.js}" src="/webjars/html5shiv/3.7.3/html5shiv.min.js"></script>
 	<![endif]-->
 </head>
 

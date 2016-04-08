@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <title>Linked Page</title>
-    <link rel="stylesheet" href="assets/bootstrap.min.css">
+    <link rel="stylesheet" href="<c:url value="/webjars/bootstrap/3.3.6/css/bootstrap.min.css"/>">
     <style type="text/css">
         body {
             padding: 1em;
@@ -73,9 +73,9 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="./assets/js/jquery.min.js"></script>
-    <script src="./assets/js/bootstrap.min.js"></script>
+    <script src="<c:url value="/webjars/jquery/1.11.1/jquery.min.js"/>"></script>
+    <script src="<c:url value="/webjars/bootstrap/3.3.6/js/bootstrap.min.js"/>"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="./assets/js/ie10-viewport-bug-workaround.js"></script>
+    <script src="<c:url value="/assets/js/ie10-viewport-bug-workaround.js"/>"></script>
 </body>
 </html>
