@@ -35,6 +35,7 @@ dependencies {
 				"org.springframework:spring-websocket:${springVersion}",
 				"org.springframework:spring-messaging:${springVersion}",
 				"org.springframework:spring-jdbc:${springVersion}",
+				"org.springframework.security:spring-security-config:${springSecurityVersion}",
 				"org.springframework.security:spring-security-web:${springSecurityVersion}",
 				"org.springframework.security:spring-security-test:${springSecurityVersion}",
 				'junit:junit:4.11',

@@ -501,6 +501,53 @@ Before using WebSocket integration, you should be sure that you have <<httpsessi
 
 include::guides/websocket.adoc[tags=config,leveloffset=+2]
 
+[[spring-security-concurrent-sessions]]
+== Spring Security Integration
+
+Spring Session provides integration with Spring Security to support its concurrent session control.
+This allows limiting the number of active sessions that a single user can have concurrently, but unlike the default
+Spring Security support this will also work in a clustered environment. This is done by providing a custom
+implementation of Spring Security's `SessionRegistry` interface.
+
+[[spring-security-concurrent-sessions-how]]
+=== Configuring Spring Security's concurrent session management
+
+When using Spring Security's Java config DSL, you can configure the custom `SessionRegistry` through the
+`SessionManagementConfigurer` like this:
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/security/SecurityConfiguration.java[tags=class]
+----
+
+This assumes that you've also configured Spring Session to provide a `FindByIndexNameSessionRepository` that
+returns `ExpiringSession` instances.
+
+When using XML configuration, it would look something like this:
+[source,xml,indent=0]
+----
+include::{docs-test-resources-dir}docs/security/security-config.xml[tags=config]
+----
+
+This assumes that your Spring Session `SessionRegistry` bean is called `sessionRegistry`, which is the name used by all
+`SpringHttpSessionConfiguration` subclasses except for the one for MongoDB: there it's called `mongoSessionRepository`.
+
+[[spring-security-concurrent-sessions-limitations]]
+=== Limitations
+
+Out of the box, Spring Security will _expire_ a session when the configured maximum number of concurrent sessions
+has been exceeded. The effect of this expiry is that on the next request made in the context of this session, the user
+will be shown a message explaining that their session has been expired because they have logged in on some other
+device. After that, the session will be deleted.
+
+Spring Session doesn't support this concept of expiring a session programmatically, nor can it return expired sessions
+when querying for a user's sessions. Therefore this implementation simply deletes a session when it is marked as
+expired by Spring Security. That means that the user will immediately be logged out from that session without an
+explanation why that was.
+
+Spring Session's implementation of Spring Security's `SessionRegistry` interface does not support the `getAllPrincipals`
+method, as this information cannot be retrieved using Spring Session. This method is never called by Spring Security,
+so this only affects applications that access the `SessionRegistry` themselves.
+
 [[api]]
 == API Documentation
 
@@ -833,7 +880,7 @@ For example, Java Configuration can use the following:
 include::{docs-test-dir}docs/RedisHttpSessionConfigurationNoOpConfigureRedisActionTests.java[tags=configure-redis-action]
 ----
 
-XML Configuraiton can use the following:
+XML Configuration can use the following:
 
 [source,xml,indent=0]
 ----
