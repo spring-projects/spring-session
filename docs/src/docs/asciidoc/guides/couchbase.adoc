@@ -1,0 +1,111 @@
+= Spring Session with Couchbase
+Mariusz Kopylec
+:toc:
+
+This guide describes how to use Spring Session backed by Couchbase.
+
+== Updating Dependencies
+Before you use Spring Session, you must ensure to update your dependencies.
+We assume you are working with a working Spring Boot web application.
+If you are using Maven, ensure to add the following dependencies:
+
+.pom.xml
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependencies>
+
+	<!-- ... -->
+
+	<dependency>
+		<groupId>org.springframework.session</groupId>
+		<artifactId>spring-session-data-couchbase</artifactId>
+		<version>{spring-session-version}</version>
+		<type>pom</type>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+</dependencies>
+----
+
+ifeval::["{version-snapshot}" == "true"]
+Since We are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
+Ensure you have the following in your pom.xml:
+
+.pom.xml
+[source,xml]
+----
+<repositories>
+
+	<!-- ... -->
+
+	<repository>
+		<id>spring-snapshot</id>
+		<url>https://repo.spring.io/libs-snapshot</url>
+	</repository>
+</repositories>
+----
+endif::[]
+
+ifeval::["{version-milestone}" == "true"]
+Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
+Ensure you have the following in your pom.xml:
+
+.pom.xml
+[source,xml]
+----
+<repository>
+	<id>spring-milestone</id>
+	<url>https://repo.spring.io/libs-milestone</url>
+</repository>
+----
+endif::[]
+
+[[how-to-use]]
+== How to use
+
+**Basic usage:**
+
+Configure Couchbase connection using Spring Data Couchbase. You can find a minimal configuration example link:http://projects.spring.io/spring-data-couchbase/#quick-start[here].
+
+Enable Couchbase backed HTTP session using `@EnableCouchbaseHttpSession`:
+
+[source,java]
+----
+@EnableCouchbaseHttpSession
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+----
+
+Simply use `HttpSession` interface to control HTTP session. For example:
+
+[source,java]
+----
+@Controller
+public class SessionController {
+
+    @RequestMapping("uri")
+    public void doSomething(HttpSession session) {
+        ...
+    }
+}
+----
+
+**Configuring session parameters:**
+
+To configure session parameters use `@EnableCouchbaseHttpSession` attributes:
+
+* `timeoutInSeconds`: Max inactive HTTP session interval in seconds after which the session will be destroyed.
+* `principalSessionsEnabled`: Enables or disables finding HTTP sessions by principal (support for FindByIndexNameSessionRepository). Can significantly decrease application performance when enabled.
+
+[[examples]]
+== Examples
+
+Go to link:https://github.com/spring-projects/spring-session/tree/master/spring-session/src/integration-test/java/org/springframework/session/data/couchbase/application[sample test application] to see more examples.

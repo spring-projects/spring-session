@@ -1,0 +1,25 @@
+package org.springframework.session.data.couchbase.specification
+
+import org.springframework.boot.test.SpringApplicationContextLoader
+import org.springframework.session.data.couchbase.BasicSpec
+import org.springframework.session.data.couchbase.application.PrincipalSessionsExpirationTestApplication
+import org.springframework.test.context.ContextConfiguration
+
+import static org.springframework.session.data.couchbase.application.PrincipalSessionsExpirationTestApplication.SESSION_TIMEOUT
+import static org.springframework.session.data.couchbase.assertions.Assertions.assertThat
+
+@ContextConfiguration(loader = SpringApplicationContextLoader, classes = PrincipalSessionsExpirationTestApplication)
+class PrincipalSessionsExpirationSpec extends BasicSpec {
+
+    def "Should not get principal HTTP session when HTTP session have expired"() {
+        given:
+        setPrincipalSessionAttribute()
+
+        when:
+        sleep(SESSION_TIMEOUT * 1000 + 500)
+
+        then:
+        assertThat(getPrincipalSessions())
+                .hasNoSessionIds()
+    }
+}

@@ -3,6 +3,15 @@ language: java
 services:
   - redis-server
 
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libssl1.0.0
+  - sudo wget http://packages.couchbase.com/releases/4.0.0/couchbase-server-community_4.0.0-ubuntu12.04_amd64.deb
+  - sudo dpkg -i couchbase-server-community_4.0.0-ubuntu12.04_amd64.deb
+  - sleep 10
+  - sudo /opt/couchbase/bin/couchbase-cli cluster-init -c localhost:8091 -u Administrator -p password --cluster-ramsize=256 --service=data,index,query
+  - sudo /opt/couchbase/bin/couchbase-cli bucket-create -c localhost:8091 -u Administrator -p password --bucket=default --bucket-ramsize=256 --bucket-replica=1
+
 jdk:
   - oraclejdk8
 
