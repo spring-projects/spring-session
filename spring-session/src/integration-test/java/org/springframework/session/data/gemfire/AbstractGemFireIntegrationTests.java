@@ -65,24 +65,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 public abstract class AbstractGemFireIntegrationTests {
 
 	protected static final boolean DEFAULT_ENABLE_QUERY_DEBUGGING = false;
-	protected static final boolean GEMFIRE_QUERY_DEBUG = Boolean
-			.getBoolean("spring.session.data.gemfire.query.debug");
+
+	protected static final boolean GEMFIRE_QUERY_DEBUG =
+		Boolean.getBoolean("spring.session.data.gemfire.query.debug");
 
 	protected static final int DEFAULT_GEMFIRE_SERVER_PORT = CacheServer.DEFAULT_PORT;
 
 	protected static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
 	protected static final long DEFAULT_WAIT_INTERVAL = 500L;
 
-	protected static final File WORKING_DIRECTORY = new File(
-			System.getProperty("user.dir"));
+	protected static final File WORKING_DIRECTORY =
+		new File(System.getProperty("user.dir"));
 
 	protected static final String DEFAULT_PROCESS_CONTROL_FILENAME = "process.ctl";
 
-	protected static final String GEMFIRE_LOG_FILE_NAME = System
-			.getProperty("spring.session.data.gemfire.log-file", "server.log");
+	protected static final String GEMFIRE_LOG_FILE_NAME =
+		System.getProperty("spring.session.data.gemfire.log-file", "server.log");
 
-	protected static final String GEMFIRE_LOG_LEVEL = System
-			.getProperty("spring.session.data.gemfire.log-level", "warning");
+	protected static final String GEMFIRE_LOG_LEVEL =
+		System.getProperty("spring.session.data.gemfire.log-level", "warning");
 
 	@Autowired
 	protected Cache gemfireCache;
@@ -93,7 +94,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	@Before
 	public void setup() {
 		System.setProperty("gemfire.Query.VERBOSE",
-				String.valueOf(isQueryDebuggingEnabled()));
+			String.valueOf(isQueryDebuggingEnabled()));
 	}
 
 	/* (non-Javadoc) */

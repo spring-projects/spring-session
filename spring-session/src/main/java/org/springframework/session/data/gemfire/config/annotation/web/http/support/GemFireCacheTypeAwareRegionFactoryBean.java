@@ -23,6 +23,8 @@ import com.gemstone.gemfire.cache.RegionAttributes;
 import com.gemstone.gemfire.cache.RegionShortcut;
 import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.data.gemfire.GenericRegionFactoryBean;
@@ -43,15 +45,20 @@ import org.springframework.util.StringUtils;
  * @author John Blum
  * @since 1.1.0
  * @see org.springframework.data.gemfire.GenericRegionFactoryBean
+ * @see org.springframework.beans.factory.BeanFactoryAware
+ * @see org.springframework.beans.factory.FactoryBean
+ * @see org.springframework.beans.factory.InitializingBean
  */
 public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
-		implements FactoryBean<Region<K, V>>, InitializingBean {
+		implements BeanFactoryAware, FactoryBean<Region<K, V>>, InitializingBean {
 
 	protected static final ClientRegionShortcut DEFAULT_CLIENT_REGION_SHORTCUT = GemFireHttpSessionConfiguration.DEFAULT_CLIENT_REGION_SHORTCUT;
 
 	protected static final RegionShortcut DEFAULT_SERVER_REGION_SHORTCUT = GemFireHttpSessionConfiguration.DEFAULT_SERVER_REGION_SHORTCUT;
 
 	protected static final String DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME = GemFireHttpSessionConfiguration.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME;
+
+	private BeanFactory beanFactory;
 
 	private ClientRegionShortcut clientRegionShortcut;
 
@@ -138,6 +145,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 
 		ClientRegionShortcut shortcut = getClientRegionShortcut();
 
+		clientRegion.setBeanFactory(getBeanFactory());
 		clientRegion.setCache(gemfireCache);
 		clientRegion.setAttributes(getRegionAttributes());
 		clientRegion.setInterests(registerInterests(!GemFireUtils.isLocal(shortcut)));
@@ -207,6 +215,36 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	}
 
 	/**
+	 * Sets a reference to the Spring {@link BeanFactory} responsible for
+	 * creating GemFire components.
+	 *
+	 * @param beanFactory reference to the Spring {@link BeanFactory}
+	 * @see org.springframework.beans.factory.BeanFactory
+	 * @throws IllegalArgumentException if the {@link BeanFactory} reference
+	 * is null.
+	 */
+	@Override
+	public void setBeanFactory(BeanFactory beanFactory) {
+		Assert.notNull(beanFactory, "BeanFactory must not be null");
+		this.beanFactory = beanFactory;
+	}
+
+	/**
+	 * Gets a reference to the Spring {@link BeanFactory} responsible for
+	 * creating GemFire components.
+	 *
+	 * @return a reference to the Spring {@link BeanFactory}
+	 * @throws IllegalStateException if the {@link BeanFactory} reference
+	 * is null.
+	 * @see org.springframework.beans.factory.BeanFactory
+	 */
+	protected BeanFactory getBeanFactory() {
+		Assert.state(this.beanFactory != null,
+				"A reference to the BeanFactory was not properly configured");
+		return this.beanFactory;
+	}
+
+	/**
 	 * Sets the {@link Region} data policy used by the GemFire cache client to manage
 	 * Session state.
 	 *
@@ -240,7 +278,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * @throws IllegalArgumentException if the {@link GemFireCache} reference is null.
 	 */
 	public void setGemfireCache(GemFireCache gemfireCache) {
-		Assert.notNull(gemfireCache, "The GemFireCache reference must not be null");
+		Assert.notNull(gemfireCache, "GemFireCache must not be null");
 		this.gemfireCache = gemfireCache;
 	}
 
@@ -253,7 +291,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 */
 	protected GemFireCache getGemfireCache() {
 		Assert.state(this.gemfireCache != null,
-				"A reference to a GemFireCache was not properly configured");
+				"A reference to the GemFireCache was not properly configured");
 		return this.gemfireCache;
 	}
 

@@ -32,7 +32,6 @@ import com.gemstone.gemfire.cache.DataPolicy;
 import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.RegionAttributes;
 import com.gemstone.gemfire.cache.client.ClientCache;
-import com.gemstone.gemfire.cache.client.Pool;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -49,7 +48,6 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.CacheFactoryBean;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
 import org.springframework.data.gemfire.client.PoolFactoryBean;
-import org.springframework.data.gemfire.config.GemfireConstants;
 import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.session.ExpiringSession;
@@ -78,10 +76,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.
- * EnableGemFireHttpSession
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.
- * GemFireHttpSessionConfiguration
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
  * @see org.springframework.test.annotation.DirtiesContext
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
@@ -159,17 +155,17 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 	public void setup() {
 		assertThat(GemFireUtils.isClient(gemfireCache)).isTrue();
 
-		Region<Object, ExpiringSession> springSessionGemFireRegion = gemfireCache
-				.getRegion(SPRING_SESSION_GEMFIRE_REGION_NAME);
+		Region<Object, ExpiringSession> springSessionGemFireRegion =
+			gemfireCache.getRegion(SPRING_SESSION_GEMFIRE_REGION_NAME);
 
 		assertThat(springSessionGemFireRegion).isNotNull();
 
-		RegionAttributes<Object, ExpiringSession> springSessionGemFireRegionAttributes = springSessionGemFireRegion
-				.getAttributes();
+		RegionAttributes<Object, ExpiringSession> springSessionGemFireRegionAttributes =
+			springSessionGemFireRegion.getAttributes();
 
 		assertThat(springSessionGemFireRegionAttributes).isNotNull();
 		assertThat(springSessionGemFireRegionAttributes.getDataPolicy())
-				.isEqualTo(DataPolicy.EMPTY);
+			.isEqualTo(DataPolicy.EMPTY);
 	}
 
 	@After
@@ -270,52 +266,38 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		@Bean
 		Properties gemfireProperties() {
 			Properties gemfireProperties = new Properties();
-			gemfireProperties.setProperty("name",
-					ClientServerGemFireOperationsSessionRepositoryIntegrationTests.class
-							.getName());
 			gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
 			return gemfireProperties;
 		}
 
-		@Bean(name = GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME)
+		@Bean
+		ClientCacheFactoryBean gemfireCache() {
+			ClientCacheFactoryBean clientCacheFactory = new ClientCacheFactoryBean();
+
+			clientCacheFactory.setClose(true);
+			clientCacheFactory.setProperties(gemfireProperties());
+
+			return clientCacheFactory;
+		}
+
+		@Bean
 		PoolFactoryBean gemfirePool(@Value("${spring.session.data.gemfire.port:"
 				+ DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
-			PoolFactoryBean poolFactory = new PoolFactoryBean() {
-				@Override
-				protected Properties resolveGemfireProperties() {
-					return gemfireProperties();
-				}
-			};
+			PoolFactoryBean poolFactory = new PoolFactoryBean();
 
-			poolFactory.setName(GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME);
 			poolFactory.setFreeConnectionTimeout(5000); // 5 seconds
 			poolFactory.setKeepAlive(false);
-			poolFactory.setMaxConnections(
-					SpringSessionGemFireServerConfiguration.MAX_CONNECTIONS);
+			poolFactory.setMaxConnections(SpringSessionGemFireServerConfiguration.MAX_CONNECTIONS);
 			poolFactory.setPingInterval(TimeUnit.SECONDS.toMillis(5));
 			poolFactory.setReadTimeout(2000); // 2 seconds
 			poolFactory.setRetryAttempts(2);
 			poolFactory.setSubscriptionEnabled(true);
 			poolFactory.setThreadLocalConnections(false);
 
-			poolFactory
-					.setServerEndpoints(Collections.singletonList(new ConnectionEndpoint(
-							SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME,
-							port)));
+			poolFactory.setServers(Collections.singletonList(new ConnectionEndpoint(
+				SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME, port)));
 
 			return poolFactory;
-		}
-
-		@Bean
-		ClientCacheFactoryBean gemfireCache(Pool gemfirePool) {
-			ClientCacheFactoryBean clientCacheFactory = new ClientCacheFactoryBean();
-
-			clientCacheFactory.setClose(true);
-			clientCacheFactory.setPool(gemfirePool);
-			clientCacheFactory.setProperties(gemfireProperties());
-			clientCacheFactory.setUseBeanFactoryLocator(false);
-
-			return clientCacheFactory;
 		}
 
 		@Bean
@@ -335,7 +317,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 			for (InetSocketAddress server : clientCache.getCurrentServers()) {
 				System.err.printf("GemFire Server [host: %1$s, port: %2$d]%n",
-						server.getHostName(), server.getPort());
+					server.getHostName(), server.getPort());
 			}
 		}
 	}
@@ -366,12 +348,12 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		@Bean
 		CacheFactoryBean gemfireCache() {
-			CacheFactoryBean cacheFactory = new CacheFactoryBean();
+			CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
-			cacheFactory.setProperties(gemfireProperties());
-			cacheFactory.setUseBeanFactoryLocator(false);
+			gemfireCache.setClose(true);
+			gemfireCache.setProperties(gemfireProperties());
 
-			return cacheFactory;
+			return gemfireCache;
 		}
 
 		@Bean

@@ -9,9 +9,7 @@
 	<!-- tag::context-param[] -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>
-			/WEB-INF/spring/session-client.xml
-		</param-value>
+		<param-value>/WEB-INF/spring/session-client.xml</param-value>
 	</context-param>
 	<!-- end::context-param[] -->
 
@@ -23,9 +21,9 @@
 	<filter-mapping>
 		<filter-name>springSessionRepositoryFilter</filter-name>
 		<url-pattern>/*</url-pattern>
-                <dispatcher>REQUEST</dispatcher>
-                <dispatcher>ERROR</dispatcher>
-                <dispatcher>ASYNC</dispatcher>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>ERROR</dispatcher>
+		<dispatcher>ASYNC</dispatcher>
 	</filter-mapping>
 	<!-- end::springSessionRepositoryFilter[] -->
 
@@ -36,9 +34,7 @@
 	-->
 	<!-- tag::listeners[] -->
 	<listener>
-		<listener-class>
-			org.springframework.web.context.ContextLoaderListener
-		</listener-class>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
 	</listener>
 	<!-- end::listeners[] -->
 

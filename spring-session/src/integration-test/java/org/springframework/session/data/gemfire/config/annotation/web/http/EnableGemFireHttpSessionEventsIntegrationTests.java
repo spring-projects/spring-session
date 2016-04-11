@@ -253,9 +253,8 @@ public class EnableGemFireHttpSessionEventsIntegrationTests
 		CacheFactoryBean gemfireCache() {
 			CacheFactoryBean gemfireCache = new CacheFactoryBean();
 
-			gemfireCache.setLazyInitialize(false);
+			gemfireCache.setClose(true);
 			gemfireCache.setProperties(gemfireProperties());
-			gemfireCache.setUseBeanFactoryLocator(false);
 
 			return gemfireCache;
 		}

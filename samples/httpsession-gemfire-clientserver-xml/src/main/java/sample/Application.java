@@ -27,8 +27,8 @@ import org.springframework.context.annotation.ImportResource;
 public class Application {
 
 	public static void main(final String[] args) {
-		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				Application.class);
+		AnnotationConfigApplicationContext context =
+			new AnnotationConfigApplicationContext(Application.class);
 		context.registerShutdownHook();
 	}
 }
