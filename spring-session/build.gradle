@@ -15,6 +15,7 @@ configurations {
 }
 
 dependencies {
+	compile "commons-logging:commons-logging:$commonsLoggingVersion"
 	optional "org.springframework.data:spring-data-redis:$springDataRedisVersion",
 			"com.hazelcast:hazelcast:$hazelcastVersion",
 			"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
