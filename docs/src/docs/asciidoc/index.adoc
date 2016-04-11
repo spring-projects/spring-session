@@ -534,16 +534,6 @@ This assumes that your Spring Session `SessionRegistry` bean is called `sessionR
 [[spring-security-concurrent-sessions-limitations]]
 === Limitations
 
-Out of the box, Spring Security will _expire_ a session when the configured maximum number of concurrent sessions
-has been exceeded. The effect of this expiry is that on the next request made in the context of this session, the user
-will be shown a message explaining that their session has been expired because they have logged in on some other
-device. After that, the session will be deleted.
-
-Spring Session doesn't support this concept of expiring a session programmatically, nor can it return expired sessions
-when querying for a user's sessions. Therefore this implementation simply deletes a session when it is marked as
-expired by Spring Security. That means that the user will immediately be logged out from that session without an
-explanation why that was.
-
 Spring Session's implementation of Spring Security's `SessionRegistry` interface does not support the `getAllPrincipals`
 method, as this information cannot be retrieved using Spring Session. This method is never called by Spring Security,
 so this only affects applications that access the `SessionRegistry` themselves.

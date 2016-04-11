@@ -35,24 +35,19 @@ import org.springframework.util.Assert;
  * A {@link SessionRegistry} that retrieves session information from Spring Session, rather than maintaining it itself.
  * This allows concurrent session management with Spring Security in a clustered environment.
  * <p>
- * Note that expiring a returned {@link SessionInformation} when exceeding the configured maximum will simply delete
- * an existing session rather than marking it as expired, since Spring Session has no way to programmatically mark
- * a session as expired nor to retrieve expired sessions. <br>
- * This means that you cannot configure an expired URL; users will simply lose their session as if they logged out.
- * <p>
  * Relies on being able to derive the same String-based representation of the principal given to
  * {@link #getAllSessions(Object, boolean)} as used by Spring Session in order to look up the user's sessions.
  * <p>
  * Does not support {@link #getAllPrincipals()}, since that information is not available.
  *
  * @author Joris Kuipers
- * @since 1.2
+ * @since 1.3
  */
 public class SpringSessionBackedSessionRegistry implements SessionRegistry {
 
-	private final FindByIndexNameSessionRepository<? extends ExpiringSession> sessionRepository;
+	private final FindByIndexNameSessionRepository<ExpiringSession> sessionRepository;
 
-	public SpringSessionBackedSessionRegistry(FindByIndexNameSessionRepository<? extends ExpiringSession> sessionRepository) {
+	public SpringSessionBackedSessionRegistry(FindByIndexNameSessionRepository<ExpiringSession> sessionRepository) {
 		Assert.notNull(sessionRepository, "sessionRepository cannot be null");
 		this.sessionRepository = sessionRepository;
 	}
@@ -63,11 +58,11 @@ public class SpringSessionBackedSessionRegistry implements SessionRegistry {
 	}
 
 	public List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
-		Collection<? extends ExpiringSession> sessions =
+		Collection<ExpiringSession> sessions =
 			this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, name(principal)).values();
 		List<SessionInformation> infos = new ArrayList<SessionInformation>();
 		for (ExpiringSession session : sessions) {
-			if (includeExpiredSessions || !session.isExpired()) {
+			if (includeExpiredSessions || !Boolean.TRUE.equals(session.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
 				infos.add(new SpringSessionBackedSessionInformation(session, this.sessionRepository));
 			}
 		}
@@ -106,7 +101,7 @@ public class SpringSessionBackedSessionRegistry implements SessionRegistry {
 	 * @param principal as provided by Spring Security
 	 * @return name of the principal, or its {@code toString()} representation if no name could be derived
 	 */
-	private String name(Object principal) {
+	protected String name(Object principal) {
 		if (principal instanceof UserDetails) {
 			return ((UserDetails) principal).getUsername();
 		}

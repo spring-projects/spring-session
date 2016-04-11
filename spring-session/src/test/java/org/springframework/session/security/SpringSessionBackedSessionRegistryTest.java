@@ -25,6 +25,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -34,7 +35,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.userdetails.User;
-
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
@@ -48,7 +48,9 @@ import static org.mockito.BDDMockito.when;
 public class SpringSessionBackedSessionRegistryTest {
 
 	static final String SESSION_ID = "sessionId";
+	static final String SESSION_ID2 = "otherSessionId";
 	static final String USER_NAME = "userName";
+	static final User PRINCIPAL = new User(USER_NAME, "password", Collections.<GrantedAuthority>emptyList());
 	static final Date NOW = new Date();
 
 	@Mock
@@ -71,25 +73,40 @@ public class SpringSessionBackedSessionRegistryTest {
 	}
 
 	@Test
+	public void sessionInformationForExpiredSession() {
+		ExpiringSession session = createSession(SESSION_ID, USER_NAME, NOW.getTime());
+		session.setAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR, Boolean.TRUE);
+		when(this.sessionRepository.getSession(SESSION_ID)).thenReturn(session);
+
+		SessionInformation sessionInfo = this.sessionRegistry.getSessionInformation(SESSION_ID);
+
+		assertThat(sessionInfo.getSessionId()).isEqualTo(SESSION_ID);
+		assertThat(sessionInfo.getLastRequest()).isEqualTo(NOW);
+		assertThat(sessionInfo.getPrincipal()).isEqualTo(USER_NAME);
+		assertThat(sessionInfo.isExpired()).isTrue();
+	}
+
+	@Test
 	public void noSessionInformationForMissingSession() {
 		assertThat(this.sessionRegistry.getSessionInformation("nonExistingSessionId")).isNull();
 	}
 
 	@Test
 	public void getAllSessions() {
-		ExpiringSession session1 = createSession(SESSION_ID, USER_NAME, NOW.getTime());
-		ExpiringSession session2 = createSession("OtherSession", USER_NAME, NOW.getTime());
-		Map<String, ExpiringSession> sessions = new LinkedHashMap<String, ExpiringSession>();
-		sessions.put(session1.getId(), session1);
-		sessions.put(session2.getId(), session2);
-		when(this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, USER_NAME)).thenReturn(sessions);
+		setUpSessions();
 
-		User principal = new User(USER_NAME, "password", Collections.<GrantedAuthority>emptyList());
-		List<SessionInformation> sessionInfos = this.sessionRegistry.getAllSessions(principal, false);
+		List<SessionInformation> allSessionInfos = this.sessionRegistry.getAllSessions(PRINCIPAL, true);
 
-		assertThat(sessionInfos).hasSize(2);
-		assertThat(sessionInfos.get(0).getSessionId()).isEqualTo(SESSION_ID);
-		assertThat(sessionInfos.get(1).getSessionId()).isEqualTo("OtherSession");
+		assertThat(allSessionInfos).extracting("sessionId").containsExactly(SESSION_ID, SESSION_ID2);
+	}
+
+	@Test
+	public void getNonExpiredSessions() {
+		setUpSessions();
+
+		List<SessionInformation> nonExpiredSessionInfos = this.sessionRegistry.getAllSessions(PRINCIPAL, false);
+
+		assertThat(nonExpiredSessionInfos).extracting("sessionId").containsExactly(SESSION_ID2);
 	}
 
 	@Test
@@ -103,7 +120,9 @@ public class SpringSessionBackedSessionRegistryTest {
 		sessionInfo.expireNow();
 
 		assertThat(sessionInfo.isExpired()).isTrue();
-		verify(this.sessionRepository).delete(SESSION_ID);
+		ArgumentCaptor<ExpiringSession> captor = ArgumentCaptor.forClass(ExpiringSession.class);
+		verify(this.sessionRepository).save(captor.capture());
+		assertThat(captor.getValue().getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR)).isEqualTo(Boolean.TRUE);
 	}
 
 	private ExpiringSession createSession(String sessionId, String userName, Long lastAccessed) {
@@ -115,6 +134,16 @@ public class SpringSessionBackedSessionRegistryTest {
 		securityContext.setAuthentication(authentication);
 		session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
 		return session;
+	}
+
+	private void setUpSessions() {
+		ExpiringSession session1 = createSession(SESSION_ID, USER_NAME, NOW.getTime());
+		session1.setAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR, Boolean.TRUE);
+		ExpiringSession session2 = createSession(SESSION_ID2, USER_NAME, NOW.getTime());
+		Map<String, ExpiringSession> sessions = new LinkedHashMap<String, ExpiringSession>();
+		sessions.put(session1.getId(), session1);
+		sessions.put(session2.getId(), session2);
+		when(this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, USER_NAME)).thenReturn(sessions);
 	}
 
 }

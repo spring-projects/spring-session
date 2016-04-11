@@ -33,7 +33,7 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	FindByIndexNameSessionRepository<? extends ExpiringSession> sessionRepository;
+	FindByIndexNameSessionRepository<ExpiringSession> sessionRepository;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {

@@ -34,9 +34,11 @@ import org.springframework.session.SessionRepository;
  * since this session information contains only derived data and is not the authoritative source.
  *
  * @author Joris Kuipers
- * @since 1.2
+ * @since 1.3
  */
 class SpringSessionBackedSessionInformation extends SessionInformation {
+
+	static final String EXPIRED_ATTR = SpringSessionBackedSessionInformation.class.getName() + ".EXPIRED";
 
 	private static final Log logger = LogFactory.getLog(SpringSessionBackedSessionInformation.class);
 
@@ -60,12 +62,12 @@ class SpringSessionBackedSessionInformation extends SessionInformation {
 		return "";
 	}
 
-	private final SessionRepository<? extends ExpiringSession> sessionRepository;
+	private final SessionRepository<ExpiringSession> sessionRepository;
 
-	SpringSessionBackedSessionInformation(ExpiringSession session, SessionRepository<? extends ExpiringSession> sessionRepository) {
+	SpringSessionBackedSessionInformation(ExpiringSession session, SessionRepository<ExpiringSession> sessionRepository) {
 		super(resolvePrincipal(session), session.getId(), new Date(session.getLastAccessedTime()));
 		this.sessionRepository = sessionRepository;
-		if (session.isExpired()) {
+		if (Boolean.TRUE.equals(session.getAttribute(EXPIRED_ATTR))) {
 			super.expireNow();
 		}
 	}
@@ -73,11 +75,18 @@ class SpringSessionBackedSessionInformation extends SessionInformation {
 	@Override
 	public void expireNow() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Deleting session " + getSessionId() + " for user '" + getPrincipal() +
+			logger.debug("Expiring session " + getSessionId() + " for user '" + getPrincipal() +
 					"', presumably because maximum allowed concurrent sessions was exceeded");
 		}
 		super.expireNow();
-		this.sessionRepository.delete(getSessionId());
+		ExpiringSession session = this.sessionRepository.getSession(getSessionId());
+		if (session != null) {
+			session.setAttribute(EXPIRED_ATTR, Boolean.TRUE);
+			this.sessionRepository.save(session);
+		}
+		else {
+			logger.info("Could not find Session with id " + getSessionId() + " to mark as expired");
+		}
 	}
 
 }
