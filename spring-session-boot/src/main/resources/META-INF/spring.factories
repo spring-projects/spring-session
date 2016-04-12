@@ -1,0 +1,2 @@
+org.springframework.boot.actuate.autoconfigure.ManagementContextConfiguration=\
+org.springframework.session.endpoint.EndpointConfiguration
