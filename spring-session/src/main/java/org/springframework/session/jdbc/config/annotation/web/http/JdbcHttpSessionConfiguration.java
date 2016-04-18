@@ -45,6 +45,7 @@ import org.springframework.util.StringUtils;
  * {@link DataSource} must be exposed as a Bean.
  *
  * @author Vedran Pavic
+ * @author Eddú Meléndez
  * @since 1.2.0
  * @see EnableJdbcHttpSession
  */
@@ -104,6 +105,14 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Qualifier("springSessionConversionService")
 	public void setSpringSessionConversionService(ConversionService conversionService) {
 		this.springSessionConversionService = conversionService;
+	}
+
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
+	}
+
+	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
+		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
 	}
 
 	private String getTableName() {
