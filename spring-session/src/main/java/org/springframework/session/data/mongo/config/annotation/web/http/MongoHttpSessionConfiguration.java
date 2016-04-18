@@ -31,10 +31,11 @@ import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
  * configuration use {@link EnableMongoHttpSession} annotation.
  *
  * @author Jakub Kubrynski
+ * @author Eddú Meléndez
  * @since 1.2
  */
 @Configuration
-class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration
+public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements ImportAware {
 
 	private AbstractMongoSessionConverter mongoSessionConverter;
@@ -43,16 +44,23 @@ class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	private String collectionName;
 
 	@Bean
-	MongoOperationsSessionRepository mongoSessionRepository(
+	public MongoOperationsSessionRepository mongoSessionRepository(
 			MongoOperations mongoOperations) {
 		MongoOperationsSessionRepository repository = new MongoOperationsSessionRepository(
 				mongoOperations);
-		repository.setCollectionName(this.collectionName);
 		repository.setMaxInactiveIntervalInSeconds(this.maxInactiveIntervalInSeconds);
 		if (this.mongoSessionConverter != null) {
 			repository.setMongoSessionConverter(this.mongoSessionConverter);
 		}
 		return repository;
+	}
+
+	public void setCollectionName(String collectionName) {
+		this.collectionName = collectionName;
+	}
+
+	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
+		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
