@@ -160,7 +160,7 @@ Specifically, we notice the following things about our response:
 * We have a header with the name of *x-auth-token* which contains a new session id
 * The current username is displayed
 
-We can now use the *x-auth-token* to make another request without providing the username and password again. For example, the following outputs the the username just as before:
+We can now use the *x-auth-token* to make another request without providing the username and password again. For example, the following outputs the username just as before:
 
 	$ curl -v http://localhost:8080/ -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
 

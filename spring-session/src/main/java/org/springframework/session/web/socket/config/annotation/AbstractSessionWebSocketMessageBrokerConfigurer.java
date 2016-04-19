@@ -42,7 +42,7 @@ import org.springframework.web.util.UrlPathHelper;
  * The configuration:
  * </p>
  * <ul>
- * <li>Ensures the the {@link Session} is kept alive on incoming web socket messages.</li>
+ * <li>Ensures the {@link Session} is kept alive on incoming web socket messages.</li>
  * <li>Ensures that Web Socket Sessions are destroyed when a {@link Session} is terminated
  * </li>
  * </ul>
