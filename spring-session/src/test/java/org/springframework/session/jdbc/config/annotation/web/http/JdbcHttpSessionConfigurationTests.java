@@ -40,6 +40,7 @@ import static org.mockito.Mockito.mock;
  * Tests for {@link JdbcHttpSessionConfiguration}.
  *
  * @author Vedran Pavic
+ * @author Eddú Meléndez
  * @since 1.2.0
  */
 public class JdbcHttpSessionConfigurationTests {
@@ -105,6 +106,30 @@ public class JdbcHttpSessionConfigurationTests {
 		finally {
 			System.clearProperty(TABLE_NAME_SYSTEM_PROPERTY);
 		}
+	}
+
+	@Test
+	public void setCustomTableName() {
+		registerAndRefresh(BaseConfiguration.class,
+				CustomTableNameSetConfiguration.class);
+
+		JdbcHttpSessionConfiguration repository = this.context
+				.getBean(JdbcHttpSessionConfiguration.class);
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(repository, "tableName")).isEqualTo(
+				"custom_session");
+	}
+
+	@Test
+	public void setCustomMaxInactiveIntervalInSeconds() {
+		registerAndRefresh(BaseConfiguration.class,
+				CustomMaxInactiveIntervalInSecondsSetConfiguration.class);
+
+		JdbcHttpSessionConfiguration repository = this.context
+				.getBean(JdbcHttpSessionConfiguration.class);
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(repository, "maxInactiveIntervalInSeconds")).isEqualTo(
+				10);
 	}
 
 	@Test
@@ -178,6 +203,24 @@ public class JdbcHttpSessionConfigurationTests {
 	@Configuration
 	@EnableJdbcHttpSession(tableName = TABLE_NAME)
 	static class CustomTableNameConfiguration extends BaseConfiguration {
+	}
+
+	@Configuration
+	static class CustomTableNameSetConfiguration extends JdbcHttpSessionConfiguration {
+
+		CustomTableNameSetConfiguration() {
+			setTableName("custom_session");
+		}
+
+	}
+
+	@Configuration
+	static class CustomMaxInactiveIntervalInSecondsSetConfiguration extends JdbcHttpSessionConfiguration {
+
+		CustomMaxInactiveIntervalInSecondsSetConfiguration() {
+			setMaxInactiveIntervalInSeconds(10);
+		}
+
 	}
 
 	@Configuration
