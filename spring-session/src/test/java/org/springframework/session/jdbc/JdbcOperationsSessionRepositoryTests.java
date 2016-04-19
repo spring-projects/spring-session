@@ -16,6 +16,7 @@
 package org.springframework.session.jdbc;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,7 +46,6 @@ import org.springframework.transaction.TransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.and;
-import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.contains;
@@ -200,7 +201,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertThat(session.isNew()).isFalse();
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(
-				and(startsWith("UPDATE"), contains("SESSION_BYTES")),
+				and(startsWith("UPDATE"), contains("ATTRIBUTE_BYTES")),
 				isA(PreparedStatementSetter.class));
 	}
 
@@ -215,7 +216,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertThat(session.isNew()).isFalse();
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(
-				and(startsWith("UPDATE"), not(contains("SESSION_BYTES"))),
+				and(startsWith("UPDATE"), contains("LAST_ACCESS_TIME")),
 				isA(PreparedStatementSetter.class));
 	}
 
@@ -239,8 +240,8 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertThat(session).isNull();
 		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
-				eq(new Object[] { sessionId }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).query(
+				isA(PreparedStatementCreator.class), isA(RowMapper.class));
 	}
 
 	@Test
@@ -248,17 +249,16 @@ public class JdbcOperationsSessionRepositoryTests {
 		MapSession expired = new MapSession();
 		expired.setLastAccessedTime(System.currentTimeMillis() -
 				(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
-		given(this.jdbcOperations.queryForObject(startsWith("SELECT"),
-				eq(new Object[] { expired.getId() }), isA(RowMapper.class)))
-						.willReturn(expired);
+		given(this.jdbcOperations.query(isA(PreparedStatementCreator.class),
+				isA(RowMapper.class))).willReturn(Collections.singletonList(expired));
 
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
 				.getSession(expired.getId());
 
 		assertThat(session).isNull();
 		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
-				eq(new Object[] { expired.getId() }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).query(
+				isA(PreparedStatementCreator.class), isA(RowMapper.class));
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"),
 				eq(expired.getId()));
 	}
@@ -267,9 +267,8 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void getSessionFound() {
 		MapSession saved = new MapSession();
 		saved.setAttribute("savedName", "savedValue");
-		given(this.jdbcOperations.queryForObject(startsWith("SELECT"),
-				eq(new Object[] { saved.getId() }), isA(RowMapper.class)))
-						.willReturn(saved);
+		given(this.jdbcOperations.query(isA(PreparedStatementCreator.class),
+				isA(RowMapper.class))).willReturn(Collections.singletonList(saved));
 
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
 				.getSession(saved.getId());
@@ -278,8 +277,8 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertThat(session.isNew()).isFalse();
 		assertThat(session.getAttribute("savedName")).isEqualTo("savedValue");
 		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).queryForObject(startsWith("SELECT"),
-				eq(new Object[] { saved.getId() }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).query(
+				isA(PreparedStatementCreator.class), isA(RowMapper.class));
 	}
 
 	@Test
@@ -314,8 +313,8 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertThat(sessions).isEmpty();
 		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).query(startsWith("SELECT"),
-				eq(new Object[] { principal }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).query(
+				isA(PreparedStatementCreator.class), isA(RowMapper.class));
 	}
 
 	@Test
@@ -330,8 +329,8 @@ public class JdbcOperationsSessionRepositoryTests {
 		MapSession saved2 = new MapSession();
 		saved2.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved2);
-		given(this.jdbcOperations.query(startsWith("SELECT"),
-				eq(new Object[] { principal }), isA(RowMapper.class))).willReturn(saved);
+		given(this.jdbcOperations.query(isA(PreparedStatementCreator.class),
+				isA(RowMapper.class))).willReturn(saved);
 
 		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions = this.repository
 				.findByIndexNameAndIndexValue(
@@ -340,8 +339,8 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertThat(sessions).hasSize(2);
 		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).query(startsWith("SELECT"),
-				eq(new Object[] { principal }), isA(RowMapper.class));
+		verify(this.jdbcOperations, times(1)).query(
+				isA(PreparedStatementCreator.class), isA(RowMapper.class));
 	}
 
 	@Test
