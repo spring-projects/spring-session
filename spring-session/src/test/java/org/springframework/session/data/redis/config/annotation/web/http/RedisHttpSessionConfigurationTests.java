@@ -13,78 +13,97 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.session.data.redis.config.ConfigureRedisAction;
-import org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer;
+import org.springframework.mock.env.MockEnvironment;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
+/**
+ * @author Eddú Meléndez
+ */
 public class RedisHttpSessionConfigurationTests {
-	@Mock
-	RedisConnectionFactory factory;
-	@Mock
-	RedisConnection connection;
+
+	private AnnotationConfigApplicationContext context;
 
 	@Before
-	public void setup() {
-		given(this.factory.getConnection()).willReturn(this.connection);
+	public void before() {
+		this.context = new AnnotationConfigApplicationContext();
 	}
 
-	@Test
-	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoOpThenNoInteractionWithConnectionFactory()
-			throws Exception {
-		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(
-				this.factory, ConfigureRedisAction.NO_OP);
-
-		init.afterPropertiesSet();
-
-		verifyZeroInteractions(this.factory);
-	}
-
-	@Test
-	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenExceptionThenCloseConnection()
-			throws Exception {
-		ConfigureRedisAction action = mock(ConfigureRedisAction.class);
-		willThrow(new RuntimeException()).given(action).configure(this.connection);
-
-		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(
-				this.factory, action);
-
-		try {
-			init.afterPropertiesSet();
-			failBecauseExceptionWasNotThrown(Throwable.class);
+	@After
+	public void after() {
+		if (this.context != null) {
+			this.context.close();
 		}
-		catch (Throwable success) {
-		}
-
-		verify(this.connection).close();
 	}
 
 	@Test
-	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoExceptionThenCloseConnection()
-			throws Exception {
-		ConfigureRedisAction action = mock(ConfigureRedisAction.class);
-
-		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(
-				this.factory, action);
-
-		init.afterPropertiesSet();
-
-		verify(this.connection).close();
+	public void resolveValue() {
+		registerAndRefresh(RedisConfig.class, CustomRedisHttpSessionConfiguration.class);
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace")).isEqualTo("myRedisNamespace");
 	}
+
+	@Test
+	public void resolveValueByPlaceholder() {
+		this.context.setEnvironment(new MockEnvironment().withProperty("session.redis.namespace", "customRedisNamespace"));
+		registerAndRefresh(RedisConfig.class, PropertySourceConfiguration.class, CustomRedisHttpSessionConfiguration2.class);
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace")).isEqualTo("customRedisNamespace");
+	}
+
+	private void registerAndRefresh(Class<?>... annotatedClasses) {
+		this.context.register(annotatedClasses);
+		this.context.refresh();
+	}
+
+	@Configuration
+	static class PropertySourceConfiguration {
+
+		@Bean
+		public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+			return new PropertySourcesPlaceholderConfigurer();
+		}
+
+	}
+
+	@Configuration
+	static class RedisConfig {
+
+		@Bean
+		public RedisConnectionFactory redisConnectionFactory() {
+			RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
+			given(connectionFactory.getConnection()).willReturn(mock(RedisConnection.class));
+			return connectionFactory;
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession(redisNamespace = "myRedisNamespace")
+	static class CustomRedisHttpSessionConfiguration {
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession(redisNamespace = "${session.redis.namespace}")
+	static class CustomRedisHttpSessionConfiguration2 {
+
+	}
+
 }
