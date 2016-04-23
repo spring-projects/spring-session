@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
+import org.springframework.util.StringUtils;
 
 /**
  * Configuration class registering {@code MongoSessionRepository} bean. To import this
@@ -51,6 +52,9 @@ public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		repository.setMaxInactiveIntervalInSeconds(this.maxInactiveIntervalInSeconds);
 		if (this.mongoSessionConverter != null) {
 			repository.setMongoSessionConverter(this.mongoSessionConverter);
+		}
+		if (StringUtils.hasText(this.collectionName)) {
+			repository.setCollectionName(this.collectionName);
 		}
 		return repository;
 	}
