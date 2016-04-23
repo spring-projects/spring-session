@@ -24,6 +24,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -46,6 +47,7 @@ import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.util.StringValueResolver;
 
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
@@ -53,14 +55,14 @@ import org.springframework.util.StringUtils;
  * {@link RedisConnectionFactory} must be exposed as a Bean.
  *
  * @author Rob Winch
- * @since 1.0
- *
+ * @author Eddú Meléndez
  * @see EnableRedisHttpSession
+ * @since 1.0
  */
 @Configuration
 @EnableScheduling
 public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements ImportAware {
+		implements EmbeddedValueResolverAware, ImportAware {
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
@@ -75,6 +77,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	private Executor redisTaskExecutor;
 
 	private Executor redisSubscriptionExecutor;
+
+	private StringValueResolver embeddedValueResolver;
 
 	@Bean
 	public RedisMessageListenerContainer redisMessageListenerContainer(
@@ -159,7 +163,10 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 		this.maxInactiveIntervalInSeconds = enableAttrs
 				.getNumber("maxInactiveIntervalInSeconds");
-		this.redisNamespace = enableAttrs.getString("redisNamespace");
+		String redisNamespaceValue = enableAttrs.getString("redisNamespace");
+		if (StringUtils.hasText(redisNamespaceValue)) {
+			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
+		}
 		this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
 	}
 
@@ -174,7 +181,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	 * Sets the action to perform for configuring Redis.
 	 *
 	 * @param configureRedisAction the configureRedis to set. The default is
-	 * {@link ConfigureNotifyKeyspaceEventsAction}.
+	 *                             {@link ConfigureNotifyKeyspaceEventsAction}.
 	 */
 	@Autowired(required = false)
 	public void setConfigureRedisAction(ConfigureRedisAction configureRedisAction) {
@@ -198,6 +205,10 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	@Qualifier("springSessionRedisSubscriptionExecutor")
 	public void setRedisSubscriptionExecutor(Executor redisSubscriptionExecutor) {
 		this.redisSubscriptionExecutor = redisSubscriptionExecutor;
+	}
+
+	public void setEmbeddedValueResolver(StringValueResolver resolver) {
+		this.embeddedValueResolver = resolver;
 	}
 
 	/**
