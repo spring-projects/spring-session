@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,6 +61,9 @@ public class MongoHttpSessionConfigurationTest {
 		assertThat(session).isNotNull();
 		assertThat(ReflectionTestUtils.getField(session, "collectionName")).isEqualTo(
 				"sessions");
+		MongoOperationsSessionRepository repository = this.context.getBean(MongoOperationsSessionRepository.class);
+		assertThat(ReflectionTestUtils.getField(repository, "collectionName")).isEqualTo(
+				"sessions");
 	}
 
 	@Test
@@ -69,6 +73,10 @@ public class MongoHttpSessionConfigurationTest {
 				.getBean(MongoHttpSessionConfiguration.class);
 		assertThat(session).isNotNull();
 		assertThat(ReflectionTestUtils.getField(session, "collectionName")).isEqualTo(
+				"testSessions");
+
+		MongoOperationsSessionRepository repository = this.context.getBean(MongoOperationsSessionRepository.class);
+		assertThat(ReflectionTestUtils.getField(repository, "collectionName")).isEqualTo(
 				"testSessions");
 	}
 
@@ -80,6 +88,9 @@ public class MongoHttpSessionConfigurationTest {
 		assertThat(session).isNotNull();
 		assertThat(ReflectionTestUtils.getField(session, "collectionName")).isEqualTo(
 				"customSession");
+		MongoOperationsSessionRepository repository = this.context.getBean(MongoOperationsSessionRepository.class);
+		assertThat(ReflectionTestUtils.getField(repository, "collectionName")).isEqualTo(
+				"customSession");
 	}
 
 	@Test
@@ -89,6 +100,9 @@ public class MongoHttpSessionConfigurationTest {
 				.getBean(MongoHttpSessionConfiguration.class);
 		assertThat(session).isNotNull();
 		assertThat(ReflectionTestUtils.getField(session, "maxInactiveIntervalInSeconds")).isEqualTo(
+				10);
+		MongoOperationsSessionRepository repository = this.context.getBean(MongoOperationsSessionRepository.class);
+		assertThat(ReflectionTestUtils.getField(repository, "maxInactiveIntervalInSeconds")).isEqualTo(
 				10);
 	}
 
