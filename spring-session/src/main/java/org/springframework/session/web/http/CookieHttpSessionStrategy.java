@@ -135,6 +135,7 @@ import org.springframework.util.Assert;
  *
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 1.0
  */
 public final class CookieHttpSessionStrategy
@@ -292,21 +293,23 @@ public final class CookieHttpSessionStrategy
 
 	public Map<String, String> getSessionIds(HttpServletRequest request) {
 		List<String> cookieValues = this.cookieSerializer.readCookieValues(request);
-		String sessionCookieValue = cookieValues.isEmpty() ? ""
-				: cookieValues.iterator().next();
 		Map<String, String> result = new LinkedHashMap<String, String>();
-		StringTokenizer tokens = new StringTokenizer(sessionCookieValue, " ");
-		if (tokens.countTokens() == 1) {
-			result.put(DEFAULT_ALIAS, tokens.nextToken());
-			return result;
-		}
-		while (tokens.hasMoreTokens()) {
-			String alias = tokens.nextToken();
-			if (!tokens.hasMoreTokens()) {
-				break;
+		for (String cookieValue : cookieValues) {
+			String sessionCookieValue = cookieValues.isEmpty() ? ""
+					: cookieValue;
+			StringTokenizer tokens = new StringTokenizer(sessionCookieValue, " ");
+			if (tokens.countTokens() == 1) {
+				result.put(DEFAULT_ALIAS, tokens.nextToken());
+				return result;
 			}
-			String id = tokens.nextToken();
-			result.put(alias, id);
+			while (tokens.hasMoreTokens()) {
+				String alias = tokens.nextToken();
+				if (!tokens.hasMoreTokens()) {
+					break;
+				}
+				String id = tokens.nextToken();
+				result.put(alias, id);
+			}
 		}
 		return result;
 	}
