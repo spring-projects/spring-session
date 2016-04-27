@@ -473,6 +473,15 @@ public class CookieHttpSessionStrategyTests {
 		assertThat(sessionIds.get("1")).isEqualTo("b");
 	}
 
+	@Test
+	public void getSessionIdsMultiCookies() {
+		setSessionCookies(new Cookie(this.cookieName, "1 b"), new Cookie("OTHER_COOKIE", "0 a"));
+
+		Map<String, String> sessionIds = this.strategy.getSessionIds(this.request);
+		assertThat(sessionIds.size()).isEqualTo(1);
+		assertThat(sessionIds.get("1")).isEqualTo("b");
+	}
+
 	// --- helper
 
 	@Test
@@ -509,6 +518,10 @@ public class CookieHttpSessionStrategyTests {
 
 	public void setSessionCookie(String value) {
 		this.request.setCookies(new Cookie(this.cookieName, value));
+	}
+
+	public void setSessionCookies(Cookie... cookies) {
+		this.request.setCookies(cookies);
 	}
 
 	public String getSessionId() {
