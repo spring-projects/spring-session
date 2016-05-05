@@ -16,6 +16,7 @@
 package org.springframework.session.data.mongo.config.annotation.web.http;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -26,6 +27,7 @@ import org.springframework.session.config.annotation.web.http.SpringHttpSessionC
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
 import org.springframework.util.StringUtils;
+import org.springframework.util.StringValueResolver;
 
 /**
  * Configuration class registering {@code MongoSessionRepository} bean. To import this
@@ -37,12 +39,14 @@ import org.springframework.util.StringUtils;
  */
 @Configuration
 public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements ImportAware {
+		implements EmbeddedValueResolverAware, ImportAware {
 
 	private AbstractMongoSessionConverter mongoSessionConverter;
 
 	private Integer maxInactiveIntervalInSeconds;
 	private String collectionName;
+
+	private StringValueResolver embeddedValueResolver;
 
 	@Bean
 	public MongoOperationsSessionRepository mongoSessionRepository(
@@ -72,7 +76,10 @@ public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 				.getAnnotationAttributes(EnableMongoHttpSession.class.getName()));
 		this.maxInactiveIntervalInSeconds = attributes
 				.getNumber("maxInactiveIntervalInSeconds");
-		this.collectionName = attributes.getString("collectionName");
+		String collectionNameValue = attributes.getString("collectionName");
+		if (StringUtils.hasText(collectionNameValue)) {
+			this.collectionName = this.embeddedValueResolver.resolveStringValue(collectionNameValue);
+		}
 	}
 
 	@Autowired(required = false)
@@ -80,4 +87,9 @@ public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			AbstractMongoSessionConverter mongoSessionConverter) {
 		this.mongoSessionConverter = mongoSessionConverter;
 	}
+
+	public void setEmbeddedValueResolver(StringValueResolver resolver) {
+		this.embeddedValueResolver = resolver;
+	}
+
 }
