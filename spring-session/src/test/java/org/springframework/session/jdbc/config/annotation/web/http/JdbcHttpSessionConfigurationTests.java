@@ -27,8 +27,10 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -171,6 +173,14 @@ public class JdbcHttpSessionConfigurationTests {
 		assertThat(repositoryConversionService).isEqualTo(conversionService);
 	}
 
+	@Test
+	public void resolveTableNameByPropertyPlaceholder() {
+		this.context.setEnvironment(new MockEnvironment().withProperty("session.jdbc.tableName", "custom_session_table"));
+		registerAndRefresh(CustomJdbcHttpSessionConfiguration.class);
+		JdbcHttpSessionConfiguration configuration = this.context.getBean(JdbcHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "tableName")).isEqualTo("custom_session_table");
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -247,6 +257,17 @@ public class JdbcHttpSessionConfigurationTests {
 		@Bean
 		public ConversionService springSessionConversionService() {
 			return mock(ConversionService.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableJdbcHttpSession(tableName = "${session.jdbc.tableName}")
+	static class CustomJdbcHttpSessionConfiguration extends BaseConfiguration {
+
+		@Bean
+		public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+			return new PropertySourcesPlaceholderConfigurer();
 		}
 
 	}
