@@ -27,8 +27,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.mongodb.core.IndexOperations;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 import org.springframework.session.data.mongo.MongoOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -136,6 +138,14 @@ public class MongoHttpSessionConfigurationTests {
 				.isEqualTo(mongoSessionConverter);
 	}
 
+	@Test
+	public void resolveCollectionNameByPropertyPlaceholder() {
+		this.context.setEnvironment(new MockEnvironment().withProperty("session.mongo.collectionName", COLLECTION_NAME));
+		registerAndRefresh(CustomMongoJdbcSessionConfiguration.class);
+		MongoHttpSessionConfiguration configuration = this.context.getBean(MongoHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "collectionName")).isEqualTo(COLLECTION_NAME);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -209,6 +219,17 @@ public class MongoHttpSessionConfigurationTests {
 		@Bean
 		public AbstractMongoSessionConverter mongoSessionConverter() {
 			return mock(AbstractMongoSessionConverter.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableMongoHttpSession(collectionName = "${session.mongo.collectionName}")
+	static class CustomMongoJdbcSessionConfiguration extends BaseConfiguration {
+
+		@Bean
+		public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+			return new PropertySourcesPlaceholderConfigurer();
 		}
 
 	}
