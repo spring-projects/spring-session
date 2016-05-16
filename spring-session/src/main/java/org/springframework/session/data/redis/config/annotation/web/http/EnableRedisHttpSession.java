@@ -79,10 +79,10 @@ public @interface EnableRedisHttpSession {
 
 	/**
 	 * <p>
-	 * Sets the flush mode for the Redis sessions. The default is IMMEDIATE which only
+	 * Sets the flush mode for the Redis sessions. The default is ON_SAVE which only
 	 * updates the backing Redis when
 	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
-	 * a web environment this happens just before the HTTP resposne is committed.
+	 * a web environment this happens just before the HTTP response is committed.
 	 * </p>
 	 * <p>
 	 * Setting the value to IMMEDIATE will ensure that the any updates to the Session are
