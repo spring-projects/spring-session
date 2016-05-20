@@ -1012,7 +1012,7 @@ A typical example of how to create a new instance can be seen below:
 include::{indexdoc-tests}[tags=new-jdbcoperationssessionrepository]
 ----
 
-For additional information on how to create and configure `JdbcTemplate` and `PlatformTransactionManager`, refer to the Spring Framework Reference Documentation.
+For additional information on how to create and configure `JdbcTemplate` and `PlatformTransactionManager`, refer to the http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
 
 [[api-jdbcoperationssessionrepository-config]]
 ==== EnableJdbcHttpSession
