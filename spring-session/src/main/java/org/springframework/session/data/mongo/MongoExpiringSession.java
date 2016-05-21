@@ -29,6 +29,7 @@ import org.springframework.session.ExpiringSession;
  * Session object providing additional information about the datetime of expiration.
  *
  * @author Jakub Kubrynski
+ * @author Eddú Meléndez
  * @since 1.2
  */
 public class MongoExpiringSession implements ExpiringSession {
@@ -44,6 +45,7 @@ public class MongoExpiringSession implements ExpiringSession {
 	private int interval;
 	private Date expireAt;
 	private Map<String, Object> attrs = new HashMap<String, Object>();
+	private boolean changed;
 
 	public MongoExpiringSession() {
 		this(MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL);
@@ -56,7 +58,9 @@ public class MongoExpiringSession implements ExpiringSession {
 	public MongoExpiringSession(String id, int maxInactiveIntervalInSeconds) {
 		this.id = id;
 		this.interval = maxInactiveIntervalInSeconds;
-		setLastAccessedTime(this.created);
+		this.accessed = this.created;
+		this.expireAt = new Date(this.created + TimeUnit.SECONDS.toMillis(this.interval));
+		this.changed = true;
 	}
 
 	public String getId() {
@@ -82,11 +86,13 @@ public class MongoExpiringSession implements ExpiringSession {
 		}
 		else {
 			this.attrs.put(coverDot(attributeName), attributeValue);
+			this.changed = true;
 		}
 	}
 
 	public void removeAttribute(String attributeName) {
 		this.attrs.remove(coverDot(attributeName));
+		this.changed = true;
 	}
 
 	public long getCreationTime() {
@@ -101,6 +107,7 @@ public class MongoExpiringSession implements ExpiringSession {
 		this.accessed = lastAccessedTime;
 		this.expireAt = new Date(
 				lastAccessedTime + TimeUnit.SECONDS.toMillis(this.interval));
+		this.changed = true;
 	}
 
 	public long getLastAccessedTime() {
@@ -109,6 +116,7 @@ public class MongoExpiringSession implements ExpiringSession {
 
 	public void setMaxInactiveIntervalInSeconds(int interval) {
 		this.interval = interval;
+		this.changed = true;
 	}
 
 	public int getMaxInactiveIntervalInSeconds() {
@@ -123,8 +131,16 @@ public class MongoExpiringSession implements ExpiringSession {
 		return this.expireAt;
 	}
 
+	boolean isChanged() {
+		return this.changed;
+	}
+
 	public void setExpireAt(Date expireAt) {
 		this.expireAt = expireAt;
+	}
+
+	void markUnchanged() {
+		this.changed = false;
 	}
 
 	static String coverDot(String attributeName) {
