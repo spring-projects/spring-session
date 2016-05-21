@@ -64,4 +64,27 @@ public class MapSessionRepositoryTests {
 		assertThat(session.getMaxInactiveIntervalInSeconds())
 				.isEqualTo(expectedMaxInterval);
 	}
+
+	@Test
+	public void createAndSaveSession() {
+		MapSession session = (MapSession) this.repository.createSession();
+
+		assertThat(session.isChanged()).isTrue();
+		this.repository.save(session);
+		assertThat(session.isChanged()).isFalse();
+	}
+
+	@Test
+	public void modifyAndSaveSession() {
+		MapSession session = (MapSession) this.repository.createSession();
+
+		assertThat(session.isChanged()).isTrue();
+		this.repository.save(session);
+		assertThat(session.isChanged()).isFalse();
+
+		session.setAttribute("foo", "bar");
+		assertThat(session.isChanged()).isTrue();
+		this.repository.save(session);
+		assertThat(session.isChanged()).isFalse();
+	}
 }

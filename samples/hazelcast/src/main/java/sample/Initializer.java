@@ -64,9 +64,9 @@ public class Initializer implements ServletContextListener {
 		this.instance = Hazelcast.newHazelcastInstance(cfg);
 		Map<String, ExpiringSession> sessions = this.instance.getMap(sessionMapName);
 
-		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(
+		SessionRepository<MapSession> sessionRepository = new MapSessionRepository(
 				sessions);
-		SessionRepositoryFilter<ExpiringSession> filter = new SessionRepositoryFilter<ExpiringSession>(
+		SessionRepositoryFilter<MapSession> filter = new SessionRepositoryFilter<MapSession>(
 				sessionRepository);
 		Dynamic fr = sc.addFilter("springSessionFilter", filter);
 		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
