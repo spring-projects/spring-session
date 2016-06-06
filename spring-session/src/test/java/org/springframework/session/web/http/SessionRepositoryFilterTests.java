@@ -157,7 +157,7 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
-		Thread.sleep(1L);
+		Thread.sleep(50L);
 		nextRequest();
 
 		doFilter(new DoInFilter() {
