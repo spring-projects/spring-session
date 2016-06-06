@@ -252,7 +252,11 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			return this.domainName;
 		}
 		if (this.domainNamePattern != null) {
-			Matcher matcher = this.domainNamePattern.matcher(request.getServerName());
+			String host = request.getHeader("X-Forwarded-Host");
+			if (host == null) {
+				host = request.getServerName();
+			}
+			Matcher matcher = this.domainNamePattern.matcher(host);
 			if (matcher.matches()) {
 				return matcher.group(1);
 			}
