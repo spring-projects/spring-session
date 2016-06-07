@@ -71,4 +71,12 @@ public class CouchbaseHttpSessionConfiguration implements ImportAware {
 		this.timeoutInSeconds = attributes.getNumber("timeoutInSeconds");
 		this.principalSessionsEnabled = attributes.getBoolean("principalSessionsEnabled");
 	}
+
+	public void setTimeoutInSeconds(int timeoutInSeconds) {
+		this.timeoutInSeconds = timeoutInSeconds;
+	}
+
+	public void setPrincipalSessionsEnabled(boolean principalSessionsEnabled) {
+		this.principalSessionsEnabled = principalSessionsEnabled;
+	}
 }
