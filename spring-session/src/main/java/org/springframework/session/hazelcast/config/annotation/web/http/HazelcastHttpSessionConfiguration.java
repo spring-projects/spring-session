@@ -16,12 +16,7 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.PreDestroy;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -32,11 +27,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.MapSessionRepository;
-import org.springframework.session.SessionRepository;
+import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
-import org.springframework.session.hazelcast.SessionEntryListener;
+import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
@@ -45,6 +38,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * {@link HazelcastInstance} must be exposed as a Bean.
  *
  * @author Tommy Ludwig
+ * @author Vedran Pavic
  * @since 1.1
  * @see EnableHazelcastHttpSession
  */
@@ -52,49 +46,30 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements ImportAware {
 
-	private Integer maxInactiveIntervalInSeconds = 1800;
+	static final String DEFAULT_SESSION_MAP_NAME = "spring:session:sessions";
 
-	private String sessionMapName = "spring:session:sessions";
+	private Integer maxInactiveIntervalInSeconds;
 
-	private String sessionListenerUid;
-
-	private IMap<String, ExpiringSession> sessionsMap;
+	private String sessionMapName = DEFAULT_SESSION_MAP_NAME;
 
 	@Bean
-	public SessionRepository<ExpiringSession> sessionRepository(
-			HazelcastInstance hazelcastInstance, SessionEntryListener sessionListener) {
-		this.sessionsMap = hazelcastInstance.getMap(this.sessionMapName);
-		this.sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener,
-				true);
-
-		MapSessionRepository sessionRepository = new MapSessionRepository(
-				new ExpiringSessionMap(this.sessionsMap));
-		sessionRepository
-				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-
-		return sessionRepository;
-	}
-
-	@PreDestroy
-	private void removeSessionListener() {
-		this.sessionsMap.removeEntryListener(this.sessionListenerUid);
-	}
-
-	@Bean
-	public SessionEntryListener sessionListener(
+	public HazelcastSessionRepository sessionRepository(
+			HazelcastInstance hazelcastInstance,
 			ApplicationEventPublisher eventPublisher) {
-		return new SessionEntryListener(eventPublisher);
+		IMap<String, MapSession> sessions = hazelcastInstance.getMap(
+				this.sessionMapName);
+		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(
+				sessions);
+		sessionRepository.setApplicationEventPublisher(eventPublisher);
+		sessionRepository.setDefaultMaxInactiveInterval(
+				this.maxInactiveIntervalInSeconds);
+		return sessionRepository;
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
 				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-
-		transferAnnotationAttributes(enableAttrs);
-	}
-
-	private void transferAnnotationAttributes(AnnotationAttributes enableAttrs) {
 		setMaxInactiveIntervalInSeconds(
 				(Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
@@ -108,74 +83,4 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.sessionMapName = sessionMapName;
 	}
 
-	/**
-	 * A wrapper for Hazelcast's {@link IMap} which is used to store the sessions.
-	 */
-	static class ExpiringSessionMap implements Map<String, ExpiringSession> {
-		private IMap<String, ExpiringSession> delegate;
-
-		ExpiringSessionMap(IMap<String, ExpiringSession> delegate) {
-			this.delegate = delegate;
-		}
-
-		public ExpiringSession put(String key, ExpiringSession value) {
-			if (value == null) {
-				return this.delegate.put(key, value);
-			}
-			return this.delegate.put(key, value, value.getMaxInactiveIntervalInSeconds(),
-					TimeUnit.SECONDS);
-		}
-
-		public int size() {
-			return this.delegate.size();
-		}
-
-		public boolean isEmpty() {
-			return this.delegate.isEmpty();
-		}
-
-		public boolean containsKey(Object key) {
-			return this.delegate.containsKey(key);
-		}
-
-		public boolean containsValue(Object value) {
-			return this.delegate.containsValue(value);
-		}
-
-		public ExpiringSession get(Object key) {
-			return this.delegate.get(key);
-		}
-
-		public ExpiringSession remove(Object key) {
-			return this.delegate.remove(key);
-		}
-
-		public void putAll(Map<? extends String, ? extends ExpiringSession> m) {
-			this.delegate.putAll(m);
-		}
-
-		public void clear() {
-			this.delegate.clear();
-		}
-
-		public Set<String> keySet() {
-			return this.delegate.keySet();
-		}
-
-		public Collection<ExpiringSession> values() {
-			return this.delegate.values();
-		}
-
-		public Set<java.util.Map.Entry<String, ExpiringSession>> entrySet() {
-			return this.delegate.entrySet();
-		}
-
-		public boolean equals(Object o) {
-			return this.delegate.equals(o);
-		}
-
-		public int hashCode() {
-			return this.delegate.hashCode();
-		}
-	}
 }

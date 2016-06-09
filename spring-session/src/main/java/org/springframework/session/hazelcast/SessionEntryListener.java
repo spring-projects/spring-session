@@ -43,7 +43,9 @@ import org.springframework.util.Assert;
  * @author Tommy Ludwig
  * @author Mark Anderson
  * @since 1.1
+ * @deprecated Use {@link HazelcastSessionRepository} instead.
  */
+@Deprecated
 public class SessionEntryListener implements EntryAddedListener<String, ExpiringSession>,
 		EntryEvictedListener<String, ExpiringSession>,
 		EntryRemovedListener<String, ExpiringSession> {
