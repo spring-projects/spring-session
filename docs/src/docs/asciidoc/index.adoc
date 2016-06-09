@@ -368,6 +368,18 @@ There is also a constructor taking `Serializer` and `Deserializer` objects, allo
 You can create your own session converter by extending `AbstractMongoSessionConverter` class.
 The implementation will be used for serializing, deserializing your objects and for providing queries to access the session.
 
+[[httpsession-hazelcast]]
+=== HttpSession with Hazelcast
+
+Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+
+This section describes how to use Hazelcast to back `HttpSession` using Java based configuration.
+
+NOTE: The <<samples, Hazelcast Spring Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed Hazelcast Spring Guide when integrating with your own application.
+
+include::guides/hazelcast-spring.adoc[tags=config,leveloffset=+2]
+
 [[httpsession-how]]
 === How HttpSession Integration Works
 
@@ -646,44 +658,6 @@ include::{docs-test-dir}docs/SpringHttpSessionConfig.java[tags=class]
 It is important to note that no infrastructure for session expirations is configured for you out of the box.
 This is because things like session expiration are highly implementation dependent.
 This means if you require cleaning up expired sessions, you are responsible for cleaning up the expired sessions.
-
-[[api-enablehazelcasthttpsession]]
-=== EnableHazelcastHttpSession
-
-If you wish to use http://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, then the `@EnableHazelcastHttpSession` annotation
-can be added to an `@Configuration` class. This extends the functionality provided by the `@EnableSpringHttpSession` annotation but makes the `SessionRepository` for you in Hazelcast.
-You must provide a single `HazelcastInstance` bean for the configuration to work.
-For example:
-
-[source,java,indent=0]
-----
-include::{docs-test-dir}docs/http/HazelcastHttpSessionConfig.java[tags=config]
-----
-
-This will configure Hazelcast in embedded mode with default configuration.
-See the http://docs.hazelcast.org/docs/latest/manual/html-single/index.html#hazelcast-configuration[Hazelcast documentation] for
-detailed information on configuration options for Hazelcast.
-
-[[api-enablehazelcasthttpsession-storage]]
-==== Storage Details
-
-Sessions will be stored in a distributed `Map` in Hazelcast using a <<api-mapsessionrepository,MapSessionRepository>>.
-The `Map` interface methods will be used to `get()` and `put()` Sessions.
-The expiration of a session in the `Map` is handled by Hazelcast's support for setting the time to live on an entry when it is `put()` into the `Map`. Entries (sessions) that have been idle longer than the time to live will be automatically removed from the `Map`.
-
-You shouldn't need to configure any settings such as `max-idle-seconds` or `time-to-live-seconds` for the `Map` within the Hazelcast configuration.
-
-[[api-enablehazelcasthttpsession-customize]]
-==== Basic Customization
-You can use the following attributes on `@EnableHazelcastHttpSession` to customize the configuration:
-
-* **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds. Default is 1800 seconds (30 minutes)
-* **sessionMapName** - the name of the distributed `Map` that will be used in Hazelcast to store the session data.
-
-[[api-enablehazelcasthttpsession-events]]
-==== Session Events
-Using a `MapListener` to respond to entries being added, evicted, and removed from the distributed `Map`, these events will trigger
-publishing SessionCreatedEvent, SessionExpiredEvent, and SessionDeletedEvent events respectively using the `ApplicationEventPublisher`.
 
 [[api-redisoperationssessionrepository]]
 === RedisOperationsSessionRepository
@@ -1103,6 +1077,54 @@ include::{session-main-resources-dir}org/springframework/session/jdbc/schema-mys
 
 All JDBC operations in `JdbcOperationsSessionRepository` are executed in a transactional manner.
 Transactions are executed with propagation set to `REQUIRES_NEW` in order to avoid unexpected behavior due to interference with existing transactions (for example, executing `save` operation in a thread that already participates in a read-only transaction).
+
+[[api-hazelcastsessionrepository]]
+=== HazelcastSessionRepository
+
+`HazelcastSessionRepository` is a `SessionRepository` implementation that stores sessions in Hazelcast's distributed `IMap`.
+In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
+
+[[api-hazelcastsessionrepository-new]]
+==== Instantiating a HazelcastSessionRepository
+
+A typical example of how to create a new instance can be seen below:
+
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=new-hazelcastsessionrepository]
+----
+
+For additional information on how to create and configure Hazelcast instance, refer to the http://docs.hazelcast.org/docs/latest/manual/html-single/index.html#hazelcast-configuration[Hazelcast documentation].
+
+[[api-enablehazelcasthttpsession]]
+==== EnableHazelcastHttpSession
+
+If you wish to use http://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, then the `@EnableHazelcastHttpSession` annotation
+can be added to an `@Configuration` class. This extends the functionality provided by the `@EnableSpringHttpSession` annotation but makes the `SessionRepository` for you in Hazelcast.
+You must provide a single `HazelcastInstance` bean for the configuration to work.
+Complete configuration example can be found in the <<samples>>
+
+[[api-enablehazelcasthttpsession-storage]]
+==== Storage Details
+
+Sessions will be stored in a distributed `IMap` in Hazelcast using a <<api-mapsessionrepository,MapSessionRepository>>.
+The `IMap` interface methods will be used to `get()` and `put()` Sessions.
+Additionally, `values()` method is used to support `FindByIndexNameSessionRepository#findByIndexNameAndIndexValue` operation, together with appropriate `ValueExtractor` that needs to be registered with Hazelcast. Refer to <<samples, Hazelcast Spring Sample>> for more details on this configuration.
+The expiration of a session in the `IMap` is handled by Hazelcast's support for setting the time to live on an entry when it is `put()` into the `IMap`. Entries (sessions) that have been idle longer than the time to live will be automatically removed from the `IMap`.
+
+You shouldn't need to configure any settings such as `max-idle-seconds` or `time-to-live-seconds` for the `IMap` within the Hazelcast configuration.
+
+[[api-enablehazelcasthttpsession-customize]]
+==== Basic Customization
+You can use the following attributes on `@EnableHazelcastHttpSession` to customize the configuration:
+
+* **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds. Default is 1800 seconds (30 minutes)
+* **sessionMapName** - the name of the distributed `Map` that will be used in Hazelcast to store the session data.
+
+[[api-enablehazelcasthttpsession-events]]
+==== Session Events
+Using a `MapListener` to respond to entries being added, evicted, and removed from the distributed `Map`, these events will trigger
+publishing SessionCreatedEvent, SessionExpiredEvent, and SessionDeletedEvent events respectively using the `ApplicationEventPublisher`.
 
 [[community]]
 == Spring Session Community

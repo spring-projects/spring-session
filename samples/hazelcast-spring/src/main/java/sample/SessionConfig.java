@@ -16,33 +16,53 @@
 
 package sample;
 
-import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.MapAttributeConfig;
+import com.hazelcast.config.MapIndexConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.hazelcast.HazelcastSessionRepository;
+import org.springframework.session.hazelcast.PrincipalNameExtractor;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.util.SocketUtils;
 
 // tag::class[]
 @EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 300)
 @Configuration
-public class Config {
+public class SessionConfig {
 
 	@Bean(destroyMethod = "shutdown")
 	public HazelcastInstance hazelcastInstance() {
-		com.hazelcast.config.Config cfg = new com.hazelcast.config.Config();
-		NetworkConfig netConfig = new NetworkConfig();
-		netConfig.setPort(SocketUtils.findAvailableTcpPort());
-		System.out.println("Hazelcast port #: " + netConfig.getPort());
-		cfg.setNetworkConfig(netConfig);
-		SerializerConfig serializer = new SerializerConfig().setTypeClass(Object.class)
-				.setImplementation(new ObjectStreamSerializer());
-		cfg.getSerializationConfig().addSerializerConfig(serializer);
+		Config config = new Config();
 
-		return Hazelcast.newHazelcastInstance(cfg);
+		int port = SocketUtils.findAvailableTcpPort();
+
+		config.getNetworkConfig()
+				.setPort(port);
+
+		System.out.println("Hazelcast port #: " + port);
+
+		SerializerConfig serializer = new SerializerConfig()
+				.setImplementation(new ObjectStreamSerializer())
+				.setTypeClass(Object.class);
+
+		config.getSerializationConfig()
+				.addSerializerConfig(serializer);
+
+		MapAttributeConfig attributeConfig = new MapAttributeConfig()
+				.setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+				.setExtractor(PrincipalNameExtractor.class.getName());
+
+		config.getMapConfig("spring:session:sessions")
+				.addMapAttributeConfig(attributeConfig)
+				.addMapIndexConfig(new MapIndexConfig(
+						HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+
+		return Hazelcast.newHazelcastInstance(config);
 	}
 
 }

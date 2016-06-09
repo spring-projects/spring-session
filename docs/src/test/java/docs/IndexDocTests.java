@@ -16,6 +16,10 @@
 
 package docs;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import org.junit.Test;
 
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -23,10 +27,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -133,6 +139,25 @@ public class IndexDocTests {
 		SessionRepository<? extends ExpiringSession> repository =
 				new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
 		// end::new-jdbcoperationssessionrepository[]
+	}
+
+	@Test
+	@SuppressWarnings("unused")
+	public void newHazelcastSessionRepository() {
+		// tag::new-hazelcastsessionrepository[]
+
+		Config config = new Config();
+
+		// ... configure Hazelcast ...
+
+		HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+
+		IMap<String, MapSession> sessions = hazelcastInstance
+				.getMap("spring:session:sessions");
+
+		HazelcastSessionRepository repository =
+				new HazelcastSessionRepository(sessions);
+		// end::new-hazelcastsessionrepository[]
 	}
 
 	@Test

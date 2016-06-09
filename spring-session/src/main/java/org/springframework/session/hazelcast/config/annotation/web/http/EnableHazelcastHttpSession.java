@@ -22,6 +22,7 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 
 /**
@@ -56,19 +57,20 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
 @Import(HazelcastHttpSessionConfiguration.class)
 @Configuration
 public @interface EnableHazelcastHttpSession {
+
 	/**
 	 * This is the session timeout in seconds. By default, it is set to 1800 seconds (30
 	 * minutes). This should be a non-negative integer.
 	 *
 	 * @return the seconds a session can be inactive before expiring
 	 */
-	int maxInactiveIntervalInSeconds() default 1800;
+	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	/**
 	 * This is the name of the Map that will be used in Hazelcast to store the session
-	 * data. Default is "spring:session:sessions".
+	 * data. Default is {@link HazelcastHttpSessionConfiguration#DEFAULT_SESSION_MAP_NAME}.
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
-	String sessionMapName() default "spring:session:sessions";
+	String sessionMapName() default HazelcastHttpSessionConfiguration.DEFAULT_SESSION_MAP_NAME;
 
 }
