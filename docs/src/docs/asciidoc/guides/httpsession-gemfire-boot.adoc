@@ -1,0 +1,263 @@
+= Spring Session - HttpSession with GemFire Client/Server using Spring Boot
+John Blum
+:toc:
+
+This guide describes how to build a _Spring Boot_ application configured with _Spring Session_ to transparently leverage
+Pivotal GemFire to back a web application's `HttpSession`.
+
+In this sample, GemFire's client/server topology is employed using a pair of _Spring Boot_ applications, one to
+configure and run a GemFire Server and another to configure and run the client, Spring MVC-based web application
+making use of the `HttpSession`.
+
+NOTE: The completed guide can be found in the <<httpsession-gemfire-boot-sample,HttpSession with GemFire using Spring Boot Sample Application>>.
+
+== Updating Dependencies
+Before using _Spring Session_, you must ensure that the required dependencies are included.
+If you are using Maven, include the following `dependencies` in your _pom.xml_:
+
+.pom.xml
+[source,xml]
+[subs="verbatim,attributes"]
+----
+<dependencies>
+	<!-- ... -->
+
+	<dependency>
+		<groupId>org.springframework.session</groupId>
+		<artifactId>spring-session-data-gemfire</artifactId>
+		<version>{spring-session-version}</version>
+		<type>pom</type>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-web</artifactId>
+	</dependency>
+</dependencies>
+----
+
+ifeval::["{version-snapshot}" == "true"]
+Since we are using a SNAPSHOT version, we need to add the Spring Snapshot Maven Repository.
+If you are using Maven, include the following `repository` declaration in your _pom.xml_:
+
+.pom.xml
+[source,xml]
+----
+<repositories>
+	<!-- ... -->
+
+	<repository>
+		<id>spring-snapshot</id>
+		<url>https://repo.spring.io/libs-snapshot</url>
+	</repository>
+</repositories>
+----
+endif::[]
+
+ifeval::["{version-milestone}" == "true"]
+Since we are using a Milestone version, we need to add the Spring Milestone Maven Repository.
+If you are using Maven, include the following `repository` declaration in your _pom.xml_:
+
+.pom.xml
+[source,xml]
+----
+<repositories>
+	<!-- ... -->
+
+	<repository>
+		<id>spring-milestone</id>
+		<url>https://repo.spring.io/libs-milestone</url>
+	</repository>
+</repositories>
+----
+endif::[]
+
+// tag::config[]
+[[httpsession-spring-java-configuration]]
+== Spring Boot Configuration
+
+After adding the required dependencies and repository declarations, we can create our Spring configuration
+for both the GemFire client and server using _Spring Boot_.  The Spring configuration is responsible for
+creating a Servlet Filter that replaces the `HttpSession` with an implementation backed by _Spring Session_
+and GemFire.
+
+=== Spring Boot-based GemFire Server
+
+We start with the _Spring Boot_ application for configuring and bootstrapping a GemFire Server process...
+
+[source,java]
+----
+include::{samples-dir}httpsession-gemfire-boot/src/main/java/sample/server/GemFireServer.java[tags=class]
+----
+
+<1> The `@EnableGemFireHttpSession` annotation is used on the GemFire Server mainly to define the corresponding
+Region (e.g. `ClusteredSpringSessions`, the default) in which Session state information will be stored
+and managed by GemFire.  As well, we have specified an arbitrary expiration attribute (i.e. `maxInactiveIntervalInSeconds`)
+for when the Session will timeout, which is triggered by a GemFire Region entry expiration event that also invalidates
+the Session object in the Region.
+<2> Next, we define a few `Properties` allowing us to configure certain aspects of the GemFire Server using
+http://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
+<3> Then, we create an instance of the GemFire Cache using our defined `Properties`.
+<4> Finally, we setup a Cache Server instance running in the GemFire Server to listen for connections from cache clients.
+The Cache Server `Socket` will be used to connect our GemFire client cache, _Spring Boot_ web application to the server.
+
+The sample also makes use of a `PropertySourcesPlaceholderConfigurer` bean in order to externalize the sample application
+configuration to affect GemFire and application configuration/behavior from the command-line (e.g. such as GemFire's
+`log-level` using the `gemfire.log.level` System property; more details below).
+
+=== Spring Boot-based GemFire cache client Web application
+
+Now, we create the _Spring Boot_ web application (a GemFire cache client), exposing our Web service
+using Spring MVC along with _Spring Session_ backed by GemFire, connected to our _Spring Boot_-based GemFire Server,
+in order to manage Session state in a cluster/replicated-enabled fashion.
+
+[source,java]
+----
+include::{samples-dir}httpsession-gemfire-boot/src/main/java/sample/client/Application.java[tags=class]
+----
+
+<1> Here, again, we use the `@EnableGemFireHttpSession` annotation to not only configure the GemFire cache client,
+but also to override the (HTTP) Web application container's `HttpSession` and replace it with a Session implementation
+backed by _Spring Session_ in conjunction with GemFire.  Also notice, we did not define any Session expiration timeout
+with the `maxInactiveIntervalInSeconds` attribute this time.  That is because the Session expiration is managed
+by GemFire, which will appropriately notify the cache client when the Session times out.  Again, we have just resorted
+to using the default Region, `ClusteredSpringSessions`.  Of course, we can change the Region name, but we must do so
+on both the client and the server.  That is a GemFire requirement, not a _Spring Session Data GemFire_ requirement.
+<2> Similary to the server configuration, we set a few basic GemFire System `Properties` on the client.
+<3> Although, this time, an instance of `ClientCache` is created with the `ClientCacheFactoryBean` from _Spring Data GemFire_.
+<4> However, in order to connect to the GemFire Server we must define a GemFire `Pool` bean containing pre-populated
+connections to the server.  Whenever a client Region entry operation corresponding to a Session update occurs,
+the client-side Region will use an existing, pooled connection to route the operation to the server.
+<5> The following _Spring_ `BeanPostProcessor` (along with some utility methods) are only needed for testing purposes
+and is not required by any production code.  Specifically, the `BeanPostProcessor` along with the code referenced in *6*
+is useful in integration test cases where the client and server processes are forked by the test framework.  It is pretty
+easy to figure out that a race condition is imminent without proper coordination between the client and the server,
+therefore, the BPP and `ClientMembershipListener` help sync the interaction between the client and the server
+on startup during automated testing.
+<6> See <5> above.
+<7> Navigates the Web application to the home page (`index.html`), which uses **Thymeleaf** templates for server-side
+pages.
+<8> Heartbeat web service endpoint (useful for manual testing purposes).
+<9> Web service endpoint for adding a Session attributes defined by the user using the Web application UI.  In addition,
+the webapp stores an additional Session attribute (`requestCount`) to keep track of how many HTTP requests the user
+has sent during the current "session".
+
+There are many other utility methods, so please refer to the actual source code for full details.
+
+TIP: In typical GemFire deployments, where the cluster includes potentially hundreds or thousands of GemFire data nodes
+(servers), it is more common for clients to connect to one or more GemFire Locators running in the cluster.  A Locator
+passes meta-data to clients about the servers available, their load and which servers have the client's data of interest,
+which is particularly important in direct, single-hop data access and latency-sensitive operations.  See more details
+about the http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
+
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+
+The `@EnableGemFireHttpSession` annotation enables a developer to configure certain aspects of both _Spring Session_
+and GemFire out-of-the-box using the following attributes:
+
+* `maxInactiveIntervalInSeconds` - controls _HttpSession_ idle-timeout expiration (defaults to **30 minutes**).
+* `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "*ClusteredSpringSessions*").
+* `clientRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
+with a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
+(default is `PROXY`).  This attribute is only used when configuring client Region.
+* `serverRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
+using a GemFire http://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
+(default is `PARTITION`).  This attribute is only used when configuring server Regions, or when a p2p topology is employed.
+
+NOTE: It is important to note that the GemFire client Region name must match a server Region by the same name if
+the client Region is a `PROXY` or `CACHING_PROXY`.  Client and server Region names are not required to match if
+the client Region used to store Spring Sessions is `LOCAL`.  However, keep in mind that your session state will not
+be propagated to the server and you lose all the benefits of using GemFire to store and manage distributed, replicated
+session state information in a cluster.
+
+[[httpsession-gemfire-boot-sample]]
+== HttpSession with GemFire using Spring Boot Sample Application
+
+=== Running the httpsession-gemfire-boot Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following commands.
+
+First, you must run the server:
+
+----
+$ ./gradlew :samples:httpsession-gemfire-boot:run [-Dgemfire.log-level=config]
+----
+
+Then, in a separate terminal, run the client:
+
+----
+$ ./gradlew :samples:httpsession-gemfire-boot:bootRun [-Dgemfire.log-level=config]
+----
+
+You should now be able to access the application at http://localhost:8080/.  In this sample, the web application
+is the client cache and the server is standalone.
+
+=== Exploring the httpsession-gemfire-boot Sample Application
+
+Try using the application. Fill out the form with the following information:
+
+* **Attribute Name:** _username_
+* **Attribute Value:** _test_
+
+Now click the **Set Attribute** button. You should now see the attribute name and value displayed in the table
+along with an additional attribute (`requestCount`) indicating the number of Session interactions (via HTTP requests).
+
+=== How does it work?
+
+We interact with the standard `HttpSession` in the the Spring MVC web service endpoint, shown here for convenience:
+
+.src/main/java/sample/SessionServlet.java
+[source,java]
+----
+@RequestMapping(method = RequestMethod.POST, path = "/session")
+public String session(HttpSession session, ModelMap modelMap,
+		@RequestParam(name = "attributeName", required = false) String name,
+		@RequestParam(name = "attributeValue", required = false) String value) {
+
+	modelMap.addAttribute("sessionAttributes",
+		attributes(setAttribute(updateRequestCount(session), name, value)));
+
+	return INDEX_TEMPLATE_VIEW_NAME;
+}
+----
+
+Instead of using the embedded HTTP server's `HttpSession`, we are actually persisting the Session state in GemFire.
+_Spring Session_ creates a cookie named SESSION in your browser that contains the id of your session.
+Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome]
+or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+
+NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
+see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+
+If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
+at the command-line:
+
+	$ gfsh
+
+Then, enter the following commands in _Gfsh_ ensuring to replace `70002719-3c54-4c20-82c3-e7faa6b718f3` with the value
+of your SESSION cookie, or the session ID returned by the GemFire OQL query (which should match):
+
+....
+gfsh>connect --jmx-manager=localhost[1099]
+
+gfsh>query --query='SELECT * FROM /ClusteredSpringSessions.keySet'
+
+Result     : true
+startCount : 0
+endCount   : 20
+Rows       : 1
+
+Result
+------------------------------------
+70002719-3c54-4c20-82c3-e7faa6b718f3
+
+NEXT_STEP_NAME : END
+
+gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
+....
+
+NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+
+Now visit the application at http://localhost:8080/ again and observe that the attribute we added is no longer displayed.
+
+Alternatively, you can wait **20 seconds** for the session to expire and timeout, and then refresh the page.  The attribute
+we added should no longer be displayed in the table.

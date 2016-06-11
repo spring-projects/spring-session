@@ -49,6 +49,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using XML based configuration.
 | link:guides/httpsession-xml.html[HttpSession XML Guide]
 
+| {gh-samples-url}httpsession-gemfire-boot[HttpSession with GemFire using Spring Boot]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology in a Spring Boot application.
+| link:guides/httpsession-gemfire-boot.html[HttpSession GemFire Boot Guide]
+
 | {gh-samples-url}httpsession-gemfire-clientserver[HttpSession with GemFire (Client/Server)]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
 | link:guides/httpsession-gemfire-clientserver.html[HttpSession GemFire Client/Server Guide]
