@@ -57,6 +57,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private String sessionMapName = "spring:session:sessions";
 
+	private boolean persistOnSessionChange = false;
+
 	private String sessionListenerUid;
 
 	private IMap<String, ExpiringSession> sessionsMap;
@@ -72,7 +74,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 				new ExpiringSessionMap(this.sessionsMap));
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-
+		sessionRepository.setPersistOnSessionChange(this.persistOnSessionChange);
 		return sessionRepository;
 	}
 
@@ -99,6 +101,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		setMaxInactiveIntervalInSeconds(
 				(Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
+		setPersistOnSessionChange(enableAttrs.getBoolean("persistOnSessionChange"));
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -107,6 +110,10 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	public void setSessionMapName(String sessionMapName) {
 		this.sessionMapName = sessionMapName;
+	}
+
+	public void setPersistOnSessionChange(boolean persistOnSessionChange) {
+		this.persistOnSessionChange = persistOnSessionChange;
 	}
 
 	/**

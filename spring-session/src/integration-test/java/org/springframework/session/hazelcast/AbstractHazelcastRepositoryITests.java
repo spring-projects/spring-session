@@ -21,8 +21,8 @@ import com.hazelcast.core.IMap;
 import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.session.ExpiringSession;
-import org.springframework.session.SessionRepository;
+import org.springframework.session.MapSession;
+import org.springframework.session.MapSessionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,20 +32,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Tommy Ludwig
  * @author Vedran Pavic
  */
-public abstract class AbstractHazelcastRepositoryITests<S extends ExpiringSession> {
+public abstract class AbstractHazelcastRepositoryITests {
 
 	@Autowired
 	private HazelcastInstance hazelcast;
 
 	@Autowired
-	private SessionRepository<S> repository;
+	private MapSessionRepository repository;
 
 	@Test
 	public void createAndDestroySession() {
-		S sessionToSave = this.repository.createSession();
+		MapSession sessionToSave = this.repository.createSession();
 		String sessionId = sessionToSave.getId();
 
-		IMap<String, S> hazelcastMap = this.hazelcast.getMap("spring:session:sessions");
+		IMap<String, MapSession> hazelcastMap = this.hazelcast.getMap("spring:session:sessions");
 
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 

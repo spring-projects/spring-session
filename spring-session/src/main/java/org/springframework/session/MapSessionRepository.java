@@ -46,6 +46,8 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	private final Map<String, ExpiringSession> sessions;
 
+	private boolean persistOnSessionChange;
+
 	/**
 	 * Creates an instance backed by a {@link java.util.concurrent.ConcurrentHashMap}.
 	 */
@@ -76,10 +78,19 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
+	public void setPersistOnSessionChange(boolean persistOnSessionChange) {
+		this.persistOnSessionChange = persistOnSessionChange;
+	}
+
 	public void save(MapSession session) {
-		if (session.isChanged()) {
+		if (this.persistOnSessionChange) {
+			if (session.isChanged()) {
+				this.sessions.put(session.getId(), session);
+				session.markUnchanged();
+			}
+		}
+		else {
 			this.sessions.put(session.getId(), session);
-			session.markUnchanged();
 		}
 	}
 
