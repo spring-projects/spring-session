@@ -19,6 +19,7 @@ package org.springframework.session.web.http;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -291,6 +292,34 @@ public class CookieHttpSessionStrategyTests {
 	}
 
 	@Test
+	public void encodeURLWithSameAlias() {
+		String url = String.format("/url?%s=1",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		assertThat(this.strategy.encodeURL(url, "1")).isEqualTo(url);
+	}
+
+	@Test
+	public void encodeURLWithSameAliasOtherQueryParamsBefore() {
+		String url = String.format("/url?a=b&%s=1",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		assertThat(this.strategy.encodeURL(url, "1")).isEqualTo(url);
+	}
+
+	@Test
+	public void encodeURLWithSameAliasOtherQueryParamsAfter() {
+		String url = String.format("/url?%s=1&a=b",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		assertThat(this.strategy.encodeURL(url, "1")).isEqualTo(url);
+	}
+
+	@Test
+	public void encodeURLWithSameAliasOtherQueryParamsBeforeAndAfter() {
+		String url = String.format("/url?a=b&%s=1&c=d",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		assertThat(this.strategy.encodeURL(url, "1")).isEqualTo(url);
+	}
+
+	@Test
 	public void encodeURLMaliciousAlias() {
 		assertThat(this.strategy.encodeURL("/url?a=b&_s=1",
 				"\"> <script>alert('hi')</script>")).isEqualTo(
@@ -538,6 +567,142 @@ public class CookieHttpSessionStrategyTests {
 	public void createSessionCookieValue() {
 		assertThat(createSessionCookieValue(17)).isEqualToIgnoringCase(
 				"0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
+	}
+
+	@Test
+	public void responseEncodeRedirectUrlWhereRedirectUrlDoesntContainAliasCurrentReqNoAlias() {
+		String url = "http://www.somehost.com/some/path";
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedRedirectUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedRedirectUrl).isEqualTo(url);
+	}
+
+	@Test
+	public void responseEncodeRedirectUrlWhereRedirectUrlDoesntContainAliasCurrentReqHasAlias() {
+		String url = "http://www.somehost.com/some/path";
+		String alias = "1";
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias);
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedRedirectUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedRedirectUrl).isEqualTo(String.format("%s?%s=%s", url,
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias));
+	}
+
+	@Test
+	public void responseEncodeRedirectUrlWhereRedirectUrlContainsAliasCurrentReqHasNoAlias() {
+		String url = String.format("http://www.somehost.com/some/path?%s=5",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "4");
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedRedirectUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedRedirectUrl).isEqualTo(url);
+	}
+
+	@Test
+	public void responseEncodeRedirectUrlWhereRedirectUrlDoesntContainAliasCurrentReqNoAliasWithOtherParams() {
+		String url = "http://www.somehost.com/some/path?a=b";
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedRedirectUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedRedirectUrl).isEqualTo(url);
+	}
+
+	@Test
+	public void responseEncodeRedirectUrlWhereRedirectUrlDoesntContainAliasCurrentReqHasAliasWithOtherParams() {
+		String url = "http://www.somehost.com/some/path?a=b";
+		String alias = "1";
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias);
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedRedirectUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedRedirectUrl).isEqualTo(String.format("%s&%s=%s", url,
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias));
+	}
+
+	@Test
+	public void responseEncodeRedirectUrlWhereRedirectUrlContainsAliasCurrentReqHasNoAliasWithOtherParams() {
+		String url = String.format("http://www.somehost.com/some/path?a=b&%s=5&c=d",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "4");
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedRedirectUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedRedirectUrl).isEqualTo(url);
+	}
+
+	@Test
+	public void responseEncodeUrlWhereRedirectUrlDoesntContainAliasCurrentReqNoAlias() {
+		String url = "http://www.somehost.com/some/path";
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedUrl).isEqualTo(url);
+	}
+
+	@Test
+	public void responseEncodeUrlWhereRedirectUrlDoesntContainAliasCurrentReqHasAlias() {
+		String url = "http://www.somehost.com/some/path";
+		String alias = "1";
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias);
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedUrl).isEqualTo(String.format("%s?%s=%s", url,
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias));
+	}
+
+	@Test
+	public void responseEncodeUrlWhereRedirectUrlContainsAliasCurrentReqHasNoAlias() {
+		String url = String.format("http://www.somehost.com/some/path?%s=5",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "4");
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedUrl).isEqualTo(url);
+	}
+
+	@Test
+	public void responseEncodeUrlWhereRedirectUrlDoesntContainAliasCurrentReqNoAliasWithOtherParams() {
+		String url = "http://www.somehost.com/some/path?a=b";
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedUrl).isEqualTo(url);
+	}
+
+	@Test
+	public void responseEncodeUrlWhereRedirectUrlDoesntContainAliasCurrentReqHasAliasWithOtherParams() {
+		String url = "http://www.somehost.com/some/path?a=b";
+		String alias = "1";
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias);
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedUrl).isEqualTo(String.format("%s&%s=%s", url,
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, alias));
+	}
+
+	@Test
+	public void responseEncodeUrlWhereRedirectUrlContainsAliasCurrentReqHasNoAliasWithOtherParams() {
+		String url = String.format("http://www.somehost.com/some/path?a=b&%s=5&c=d",
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME);
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "4");
+		HttpServletResponse wrappedResponse = this.strategy.wrapResponse(this.request,
+				this.response);
+		String encodedUrl = wrappedResponse.encodeRedirectURL(url);
+		assertThat(encodedUrl).isEqualTo(url);
 	}
 
 	private void setCookieWithNSessions(long size) {
