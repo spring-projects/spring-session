@@ -20,7 +20,8 @@ sonarqube {
 dependencies {
 	compile project(':spring-session-data-gemfire'),
 		"org.springframework.boot:spring-boot-starter-thymeleaf",
-		"org.springframework.boot:spring-boot-starter-web"
+		"org.springframework.boot:spring-boot-starter-web",
+		"org.webjars:bootstrap:$bootstrapVersion"
 
 	runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 
