@@ -33,6 +33,8 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import org.springframework.session.Session;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
 import org.springframework.util.Assert;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * A {@link HttpSessionStrategy} that uses a cookie to obtain the session from.
@@ -367,19 +369,37 @@ public final class CookieHttpSessionStrategy
 			this.request = request;
 		}
 
+		private String getCurrentSessionAliasFromUrl(String url) {
+			String currentSessionAliasFromUrl = null;
+			UriComponents uriComponents = UriComponentsBuilder.fromUriString(url).build();
+			List<String> sessionAliasQueryParams = uriComponents.getQueryParams().get(CookieHttpSessionStrategy.this.sessionParam);
+
+			if ((sessionAliasQueryParams != null) && !sessionAliasQueryParams.isEmpty()) {
+				// The query param was there, so lets read it
+				Assert.isTrue(sessionAliasQueryParams.size() == 1,
+						String.format("Url %s has multple values for query param %s: %s", url, CookieHttpSessionStrategy.this.sessionParam, sessionAliasQueryParams));
+				currentSessionAliasFromUrl = sessionAliasQueryParams.get(0);
+			}
+
+			return currentSessionAliasFromUrl;
+		}
+
 		@Override
 		public String encodeRedirectURL(String url) {
-			url = super.encodeRedirectURL(url);
-			return CookieHttpSessionStrategy.this.encodeURL(url,
-					getCurrentSessionAlias(this.request));
+			String encodedUrl = super.encodeRedirectURL(url);
+			String currentSessionAliasFromUrl = getCurrentSessionAliasFromUrl(encodedUrl);
+			String alias = (currentSessionAliasFromUrl != null) ? currentSessionAliasFromUrl : getCurrentSessionAlias(this.request);
+
+			return CookieHttpSessionStrategy.this.encodeURL(encodedUrl, alias);
 		}
 
 		@Override
 		public String encodeURL(String url) {
-			url = super.encodeURL(url);
+			String encodedUrl = super.encodeURL(url);
+			String currentSessionAliasFromUrl = getCurrentSessionAliasFromUrl(encodedUrl);
+			String alias = (currentSessionAliasFromUrl != null) ? currentSessionAliasFromUrl : getCurrentSessionAlias(this.request);
 
-			String alias = getCurrentSessionAlias(this.request);
-			return CookieHttpSessionStrategy.this.encodeURL(url, alias);
+			return CookieHttpSessionStrategy.this.encodeURL(encodedUrl, alias);
 		}
 	}
 
