@@ -1,0 +1,86 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+	}
+}
+
+apply from: JAVA_GRADLE
+apply plugin: "application"
+apply plugin: 'spring-boot'
+
+tasks.findByPath("artifactoryPublish")?.enabled = false
+
+sonarqube {
+	skipProject = true
+}
+
+dependencies {
+	compile project(':spring-session-data-gemfire'),
+		"org.springframework.boot:spring-boot-starter-thymeleaf",
+		"org.springframework.boot:spring-boot-starter-web",
+		"org.webjars:bootstrap:$bootstrapVersion"
+
+	runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+
+	integrationTestCompile gebDependencies,
+		"org.spockframework:spock-spring:$spockVersion"
+
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+}
+
+run {
+	doFirst {
+		mainClassName = 'sample.server.GemFireServer'
+	}
+}
+
+springBoot {
+	mainClass = 'sample.client.Application'
+}
+
+def port
+def process
+
+task availablePort() << {
+	def serverSocket = new ServerSocket(0)
+	port = serverSocket.localPort
+	serverSocket.close()
+}
+
+task runGemFireServer(dependsOn: availablePort) << {
+	println 'STARTING GEMFIRE SERVER...'
+
+	String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
+
+	String[] commandLine = ['java', '-server', '-ea', '-classpath', classpath,
+							"-Dgemfire.cache.server.port=$port",
+							"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'warning'),
+							'sample.server.GemFireServer']
+
+	//println commandLine
+
+	process = commandLine.execute()
+	process.in.close()
+	process.out.close()
+	process.err.close()
+}
+
+
+integrationTest {
+	dependsOn runGemFireServer
+	doFirst {
+		def hostPort = 'localhost:8080'
+		systemProperties['geb.build.baseUrl'] = 'http://' + hostPort + '/'
+		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
+		systemProperties['gemfire.cache.server.port'] = port
+	}
+	doLast {
+		println 'STOPPING GEMFIRE SERVER...'
+		process?.destroyForcibly()
+	}
+}
