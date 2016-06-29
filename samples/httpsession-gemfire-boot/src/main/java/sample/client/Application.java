@@ -59,14 +59,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * A Spring Boot-based GemFire cache client web application that reveals the current state of the HTTP Session.
+ * A Spring Boot-based GemFire cache client web application that reveals the current state
+ * of the HTTP Session.
  *
  * @author John Blum
  * @see javax.servlet.http.HttpSession
  * @see org.springframework.boot.SpringApplication
  * @see org.springframework.boot.autoconfigure.SpringBootApplication
  * @see org.springframework.context.annotation.Bean
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.
+ * EnableGemFireHttpSession
  * @see org.springframework.stereotype.Controller
  * @see com.gemstone.gemfire.cache.client.ClientCache
  * @since 1.2.1
@@ -222,7 +224,7 @@ public class Application {
 
 		return INDEX_TEMPLATE_VIEW_NAME;
 	}
-// end::class[]
+	// end::class[]
 
 	/* (non-Javadoc) */
 	@SuppressWarnings("all")
@@ -290,6 +292,11 @@ public class Application {
 					public T next() {
 						return enumeration.nextElement();
 					}
+
+					public void remove() {
+						throw new UnsupportedOperationException(
+								"Auto-generated method stub");
+					}
 				});
 			}
 		};
@@ -309,8 +316,10 @@ public class Application {
 				Socket socket = null;
 
 				try {
-					// NOTE: this code is not intended to be an atomic, compound action (a possible race condition);
-					// opening another connection (at the expense of using system resources) after connectivity
+					// NOTE: this code is not intended to be an atomic, compound action (a
+					// possible race condition);
+					// opening another connection (at the expense of using system
+					// resources) after connectivity
 					// has already been established is not detrimental in this use case
 					if (!this.connected.get()) {
 						socket = new Socket(host, port);
