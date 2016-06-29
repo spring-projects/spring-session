@@ -219,11 +219,9 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * creating GemFire components.
 	 *
 	 * @param beanFactory reference to the Spring {@link BeanFactory}
+	 * @throws IllegalArgumentException if the {@link BeanFactory} reference is null.
 	 * @see org.springframework.beans.factory.BeanFactory
-	 * @throws IllegalArgumentException if the {@link BeanFactory} reference
-	 * is null.
 	 */
-	@Override
 	public void setBeanFactory(BeanFactory beanFactory) {
 		Assert.notNull(beanFactory, "BeanFactory must not be null");
 		this.beanFactory = beanFactory;
