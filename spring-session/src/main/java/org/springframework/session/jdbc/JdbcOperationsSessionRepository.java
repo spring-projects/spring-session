@@ -464,7 +464,7 @@ public class JdbcOperationsSessionRepository implements
 	@Scheduled(cron = "0 * * * * *")
 	public void cleanUpExpiredSessions() {
 		long now = System.currentTimeMillis();
-		int maxInactiveIntervalSeconds = (this.defaultMaxInactiveInterval != null)
+		long maxInactiveIntervalSeconds = (this.defaultMaxInactiveInterval != null)
 				? this.defaultMaxInactiveInterval
 				: MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
