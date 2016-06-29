@@ -37,14 +37,14 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
  * @see org.springframework.boot.SpringApplication
  * @see org.springframework.boot.autoconfigure.SpringBootApplication
  * @see org.springframework.context.annotation.Bean
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.
+ * EnableGemFireHttpSession
  * @see com.gemstone.gemfire.cache.Cache
  * @since 1.2.1
  */
 // tag::class[]
 @SpringBootApplication
 @EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 20) // <1>
-@SuppressWarnings("unused")
 public class GemFireServer {
 
 	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
@@ -61,7 +61,8 @@ public class GemFireServer {
 	}
 
 	String applicationName() {
-		return "samples:httpsession-gemfire-boot-".concat(GemFireServer.class.getSimpleName());
+		return "samples:httpsession-gemfire-boot-"
+				.concat(GemFireServer.class.getSimpleName());
 	}
 
 	String gemfireLogLevel() {
@@ -100,7 +101,8 @@ public class GemFireServer {
 		gemfireCacheServer.setCache(gemfireCache);
 		gemfireCacheServer.setBindAddress(bindAddress);
 		gemfireCacheServer.setHostNameForClients(hostnameForClients);
-		gemfireCacheServer.setMaxTimeBetweenPings(Long.valueOf(TimeUnit.MINUTES.toMillis(1)).intValue());
+		gemfireCacheServer.setMaxTimeBetweenPings(
+				Long.valueOf(TimeUnit.MINUTES.toMillis(1)).intValue());
 		gemfireCacheServer.setNotifyBySubscription(true);
 		gemfireCacheServer.setPort(port);
 

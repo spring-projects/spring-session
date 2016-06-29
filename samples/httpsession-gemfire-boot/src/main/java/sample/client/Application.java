@@ -34,7 +34,6 @@ import com.gemstone.gemfire.cache.client.Pool;
 import com.gemstone.gemfire.management.membership.ClientMembership;
 import com.gemstone.gemfire.management.membership.ClientMembershipEvent;
 import com.gemstone.gemfire.management.membership.ClientMembershipListenerAdapter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +75,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @SpringBootApplication
 @EnableGemFireHttpSession // <1>
 @Controller
-@SuppressWarnings("unused")
 public class Application {
 
 	static final int MAX_CONNECTIONS = 50;
@@ -92,14 +90,15 @@ public class Application {
 	static final String REQUEST_COUNT_ATTRIBUTE_NAME = "requestCount";
 
 	static { // <6>
-		ClientMembership.registerClientMembershipListener(
-			new ClientMembershipListenerAdapter() {
-				public void memberJoined(ClientMembershipEvent event) {
-					if (!event.isClient()) {
-						latch.countDown();
+		ClientMembership
+				.registerClientMembershipListener(new ClientMembershipListenerAdapter() {
+					@Override
+					public void memberJoined(ClientMembershipEvent event) {
+						if (!event.isClient()) {
+							latch.countDown();
+						}
 					}
-				}
-			});
+				});
 	}
 
 	public static void main(String[] args) {
@@ -114,7 +113,8 @@ public class Application {
 	}
 
 	String applicationName() {
-		return "samples:httpsession-gemfire-boot-".concat(Application.class.getSimpleName());
+		return "samples:httpsession-gemfire-boot-"
+				.concat(Application.class.getSimpleName());
 	}
 
 	String gemfireLogLevel() {
@@ -145,7 +145,8 @@ public class Application {
 	}
 
 	@Bean
-	PoolFactoryBean gemfirePool(@Value("${gemfire.cache.server.host:localhost}") String host,
+	PoolFactoryBean gemfirePool(
+			@Value("${gemfire.cache.server.host:localhost}") String host,
 			@Value("${gemfire.cache.server.port:12480}") int port) { // <4>
 
 		PoolFactoryBean gemfirePool = new PoolFactoryBean();
@@ -154,7 +155,8 @@ public class Application {
 		gemfirePool.setPingInterval(TimeUnit.SECONDS.toMillis(15));
 		gemfirePool.setRetryAttempts(1);
 		gemfirePool.setSubscriptionEnabled(true);
-		gemfirePool.setServerEndpoints(Collections.singleton(newConnectionEndpoint(host, port)));
+		gemfirePool.setServerEndpoints(
+				Collections.singleton(newConnectionEndpoint(host, port)));
 
 		return gemfirePool;
 	}
@@ -166,23 +168,28 @@ public class Application {
 
 		return new BeanPostProcessor() {
 
-			public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+			public Object postProcessBeforeInitialization(Object bean, String beanName)
+					throws BeansException {
 				if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 					if (!waitForCacheServerToStart(host, port)) {
-						Application.this.logger.warn("No GemFire Cache Server found on [host: {}, port: {}]",
-							host, port);
+						Application.this.logger.warn(
+								"No GemFire Cache Server found on [host: {}, port: {}]",
+								host, port);
 					}
 				}
 
 				return bean;
 			}
 
-			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+			public Object postProcessAfterInitialization(Object bean, String beanName)
+					throws BeansException {
 				if (bean instanceof PoolFactoryBean || bean instanceof Pool) {
 					try {
-						Assert.state(latch.await(DEFAULT_WAIT_DURATION, TimeUnit.MILLISECONDS),
-							String.format("GemFire Cache Server failed to start on [host: %1$s, port: %2$d]",
-								host, port));
+						Assert.state(
+								latch.await(DEFAULT_WAIT_DURATION, TimeUnit.MILLISECONDS),
+								String.format(
+										"GemFire Cache Server failed to start on [host: %1$s, port: %2$d]",
+										host, port));
 					}
 					catch (InterruptedException e) {
 						Thread.currentThread().interrupt();
@@ -210,7 +217,8 @@ public class Application {
 			@RequestParam(name = "attributeName", required = false) String name,
 			@RequestParam(name = "attributeValue", required = false) String value) { // <9>
 
-		modelMap.addAttribute("sessionAttributes", attributes(setAttribute(updateRequestCount(session), name, value)));
+		modelMap.addAttribute("sessionAttributes",
+				attributes(setAttribute(updateRequestCount(session), name, value)));
 
 		return INDEX_TEMPLATE_VIEW_NAME;
 	}
@@ -220,8 +228,10 @@ public class Application {
 	@SuppressWarnings("all")
 	HttpSession updateRequestCount(HttpSession session) {
 		synchronized (session) {
-			Integer currentRequestCount = (Integer) session.getAttribute(REQUEST_COUNT_ATTRIBUTE_NAME);
-			session.setAttribute(REQUEST_COUNT_ATTRIBUTE_NAME, nullSafeIncrement(currentRequestCount));
+			Integer currentRequestCount = (Integer) session
+					.getAttribute(REQUEST_COUNT_ATTRIBUTE_NAME);
+			session.setAttribute(REQUEST_COUNT_ATTRIBUTE_NAME,
+					nullSafeIncrement(currentRequestCount));
 			return session;
 		}
 	}
@@ -237,7 +247,8 @@ public class Application {
 	}
 
 	/* (non-Javadoc) */
-	HttpSession setAttribute(HttpSession session, String attributeName, String attributeValue) {
+	HttpSession setAttribute(HttpSession session, String attributeName,
+			String attributeValue) {
 		if (isSet(attributeName, attributeValue)) {
 			session.setAttribute(attributeName, attributeValue);
 		}
@@ -260,7 +271,8 @@ public class Application {
 		Map<String, String> sessionAttributes = new HashMap<String, String>();
 
 		for (String attributeName : toIterable(session.getAttributeNames())) {
-			sessionAttributes.put(attributeName, String.valueOf(session.getAttribute(attributeName)));
+			sessionAttributes.put(attributeName,
+					String.valueOf(session.getAttribute(attributeName)));
 		}
 
 		return sessionAttributes;
@@ -268,15 +280,13 @@ public class Application {
 
 	<T> Iterable<T> toIterable(final Enumeration<T> enumeration) {
 		return new Iterable<T>() {
-			@Override
 			public Iterator<T> iterator() {
-				return (enumeration == null ? Collections.<T>emptyIterator() : new Iterator<T>() {
-					@Override
+				return (enumeration == null ? Collections.<T>emptyIterator()
+						: new Iterator<T>() {
 					public boolean hasNext() {
 						return enumeration.hasMoreElements();
 					}
 
-					@Override
 					public T next() {
 						return enumeration.nextElement();
 					}
@@ -302,9 +312,9 @@ public class Application {
 					// NOTE: this code is not intended to be an atomic, compound action (a possible race condition);
 					// opening another connection (at the expense of using system resources) after connectivity
 					// has already been established is not detrimental in this use case
-					if (!connected.get()) {
+					if (!this.connected.get()) {
 						socket = new Socket(host, port);
-						connected.set(true);
+						this.connected.set(true);
 					}
 				}
 				catch (IOException ignore) {
@@ -313,7 +323,7 @@ public class Application {
 					GemFireUtils.close(socket);
 				}
 
-				return connected.get();
+				return this.connected.get();
 			}
 		}, duration);
 	}
