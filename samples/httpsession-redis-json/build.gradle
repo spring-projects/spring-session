@@ -26,6 +26,7 @@ dependencies {
             "org.springframework.boot:spring-boot-starter-thymeleaf",
             "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
             "org.springframework.security:spring-security-web:$springSecurityVersion",
+            "org.springframework.security:spring-security-core:$springSecurityVersion",
             "org.springframework.security:spring-security-config:$springSecurityVersion",
             "org.apache.httpcomponents:httpclient"
 
