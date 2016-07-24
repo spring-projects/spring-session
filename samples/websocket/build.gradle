@@ -30,6 +30,7 @@ dependencies {
 			"org.webjars:knockout:2.3.0",
 			"org.webjars:sockjs-client:0.3.4",
 			"org.webjars:stomp-websocket:2.3.0",
+			"org.webjars:webjars-locator",
 			"com.h2database:h2",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
 			"org.springframework.security:spring-security-config:$springSecurityVersion",

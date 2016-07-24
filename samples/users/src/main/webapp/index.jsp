@@ -1,9 +1,10 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="wj" uri="http://www.webjars.org/tags" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Demonstrates Multi User Log In</title>
-    <link rel="stylesheet" href="<c:url value="/webjars/bootstrap/3.3.6/css/bootstrap.min.css"/>">
+    <link rel="stylesheet" href="<wj:locate path="bootstrap.min.css" relativeTo="META-INF/resources"/>">
     <style type="text/css">
         body {
             padding: 1em;
@@ -100,8 +101,8 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="<c:url value="/webjars/jquery/1.11.1/jquery.min.js"/>"></script>
-    <script src="<c:url value="/webjars/bootstrap/3.3.6/js/bootstrap.min.js"/>"></script>
+    <script src="<wj:locate path="jquery.min.js" relativeTo="META-INF/resources"/>"></script>
+    <script src="<wj:locate path="bootstrap.min.js" relativeTo="META-INF/resources"/>"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="<c:url value="/assets/js/ie10-viewport-bug-workaround.js"/>"></script>
 </body>

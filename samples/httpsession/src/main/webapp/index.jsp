@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
 	<title>Session Attributes</title>
-	<link rel="stylesheet" href="<c:url value="/webjars/bootstrap/2.3.2/css/bootstrap.min.css"/>">
+	<link rel="stylesheet" href="<wj:locate path="bootstrap.min.css" relativeTo="META-INF/resources"/>">
 	<style type="text/css">
 		body {
 			padding: 1em;
