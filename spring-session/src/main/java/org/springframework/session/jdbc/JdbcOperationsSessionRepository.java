@@ -196,6 +196,24 @@ public class JdbcOperationsSessionRepository implements
 	 */
 	private String tableName = DEFAULT_TABLE_NAME;
 
+	private String createSessionQuery;
+
+	private String createSessionAttributeQuery;
+
+	private String getSessionQuery;
+
+	private String updateSessionQuery;
+
+	private String updateSessionAttributeQuery;
+
+	private String deleteSessionAttributeQuery;
+
+	private String deleteSessionQuery;
+
+	private String listSessionsByPrincipalNameQuery;
+
+	private String deleteSessionsByLastAccessTimeQuery;
+
 	/**
 	 * If non-null, this value is used to override the default value for
 	 * {@link JdbcSession#setMaxInactiveIntervalInSeconds(int)}.
@@ -229,6 +247,7 @@ public class JdbcOperationsSessionRepository implements
 		this.jdbcOperations = jdbcOperations;
 		this.transactionOperations = createTransactionTemplate(transactionManager);
 		this.conversionService = createDefaultConversionService();
+		prepareQueries();
 	}
 
 	/**
@@ -238,6 +257,88 @@ public class JdbcOperationsSessionRepository implements
 	public void setTableName(String tableName) {
 		Assert.hasText(tableName, "Table name must not be empty");
 		this.tableName = tableName.trim();
+		prepareQueries();
+	}
+
+	/**
+	 * Set the custom SQL query used to create the session.
+	 * @param createSessionQuery the SQL query string
+	 */
+	public void setCreateSessionQuery(String createSessionQuery) {
+		Assert.hasText(createSessionQuery, "Query must not be empty");
+		this.createSessionQuery = createSessionQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to create the session attribute.
+	 * @param createSessionAttributeQuery the SQL query string
+	 */
+	public void setCreateSessionAttributeQuery(String createSessionAttributeQuery) {
+		Assert.hasText(createSessionAttributeQuery, "Query must not be empty");
+		this.createSessionAttributeQuery = createSessionAttributeQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to retrieve the session.
+	 * @param getSessionQuery the SQL query string
+	 */
+	public void setGetSessionQuery(String getSessionQuery) {
+		Assert.hasText(getSessionQuery, "Query must not be empty");
+		this.getSessionQuery = getSessionQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to update the session.
+	 * @param updateSessionQuery the SQL query string
+	 */
+	public void setUpdateSessionQuery(String updateSessionQuery) {
+		Assert.hasText(updateSessionQuery, "Query must not be empty");
+		this.updateSessionQuery = updateSessionQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to update the session attribute.
+	 * @param updateSessionAttributeQuery the SQL query string
+	 */
+	public void setUpdateSessionAttributeQuery(String updateSessionAttributeQuery) {
+		Assert.hasText(updateSessionAttributeQuery, "Query must not be empty");
+		this.updateSessionAttributeQuery = updateSessionAttributeQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to delete the session attribute.
+	 * @param deleteSessionAttributeQuery the SQL query string
+	 */
+	public void setDeleteSessionAttributeQuery(String deleteSessionAttributeQuery) {
+		Assert.hasText(deleteSessionAttributeQuery, "Query must not be empty");
+		this.deleteSessionAttributeQuery = deleteSessionAttributeQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to delete the session.
+	 * @param deleteSessionQuery the SQL query string
+	 */
+	public void setDeleteSessionQuery(String deleteSessionQuery) {
+		Assert.hasText(deleteSessionQuery, "Query must not be empty");
+		this.deleteSessionQuery = deleteSessionQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to retrieve the sessions by principal name.
+	 * @param listSessionsByPrincipalNameQuery the SQL query string
+	 */
+	public void setListSessionsByPrincipalNameQuery(String listSessionsByPrincipalNameQuery) {
+		Assert.hasText(listSessionsByPrincipalNameQuery, "Query must not be empty");
+		this.listSessionsByPrincipalNameQuery = listSessionsByPrincipalNameQuery;
+	}
+
+	/**
+	 * Set the custom SQL query used to delete the sessions by last access time.
+	 * @param deleteSessionsByLastAccessTimeQuery the SQL query string
+	 */
+	public void setDeleteSessionsByLastAccessTimeQuery(String deleteSessionsByLastAccessTimeQuery) {
+		Assert.hasText(deleteSessionsByLastAccessTimeQuery, "Query must not be empty");
+		this.deleteSessionsByLastAccessTimeQuery = deleteSessionsByLastAccessTimeQuery;
 	}
 
 	/**
@@ -278,7 +379,7 @@ public class JdbcOperationsSessionRepository implements
 
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					JdbcOperationsSessionRepository.this.jdbcOperations.update(
-							getQuery(CREATE_SESSION_QUERY),
+							JdbcOperationsSessionRepository.this.createSessionQuery,
 							new PreparedStatementSetter() {
 
 								public void setValues(PreparedStatement ps) throws SQLException {
@@ -293,7 +394,7 @@ public class JdbcOperationsSessionRepository implements
 					if (!session.getAttributeNames().isEmpty()) {
 						final List<String> attributeNames = new ArrayList<String>(session.getAttributeNames());
 						JdbcOperationsSessionRepository.this.jdbcOperations.batchUpdate(
-								getQuery(CREATE_SESSION_ATTRIBUTE_QUERY),
+								JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
 								new BatchPreparedStatementSetter() {
 
 									public void setValues(PreparedStatement ps, int i) throws SQLException {
@@ -319,7 +420,7 @@ public class JdbcOperationsSessionRepository implements
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					if (session.isChanged()) {
 						JdbcOperationsSessionRepository.this.jdbcOperations.update(
-								getQuery(UPDATE_SESSION_QUERY),
+								JdbcOperationsSessionRepository.this.updateSessionQuery,
 								new PreparedStatementSetter() {
 
 									public void setValues(PreparedStatement ps)
@@ -337,7 +438,7 @@ public class JdbcOperationsSessionRepository implements
 						for (final Map.Entry<String, Object> entry : delta.entrySet()) {
 							if (entry.getValue() == null) {
 								JdbcOperationsSessionRepository.this.jdbcOperations.update(
-										getQuery(DELETE_SESSION_ATTRIBUTE_QUERY),
+										JdbcOperationsSessionRepository.this.deleteSessionAttributeQuery,
 										new PreparedStatementSetter() {
 
 											public void setValues(PreparedStatement ps) throws SQLException {
@@ -349,7 +450,7 @@ public class JdbcOperationsSessionRepository implements
 							}
 							else {
 								int updatedCount = JdbcOperationsSessionRepository.this.jdbcOperations.update(
-										getQuery(UPDATE_SESSION_ATTRIBUTE_QUERY),
+										JdbcOperationsSessionRepository.this.updateSessionAttributeQuery,
 										new PreparedStatementSetter() {
 
 											public void setValues(PreparedStatement ps) throws SQLException {
@@ -361,7 +462,7 @@ public class JdbcOperationsSessionRepository implements
 										});
 								if (updatedCount == 0) {
 									JdbcOperationsSessionRepository.this.jdbcOperations.update(
-											getQuery(CREATE_SESSION_ATTRIBUTE_QUERY),
+											JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
 											new PreparedStatementSetter() {
 
 												public void setValues(PreparedStatement ps) throws SQLException {
@@ -387,7 +488,7 @@ public class JdbcOperationsSessionRepository implements
 
 			public ExpiringSession doInTransaction(TransactionStatus status) {
 				List<ExpiringSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
-						getQuery(GET_SESSION_QUERY),
+						JdbcOperationsSessionRepository.this.getSessionQuery,
 						new PreparedStatementSetter() {
 
 							public void setValues(PreparedStatement ps) throws SQLException {
@@ -421,7 +522,7 @@ public class JdbcOperationsSessionRepository implements
 
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
 				JdbcOperationsSessionRepository.this.jdbcOperations.update(
-						getQuery(DELETE_SESSION_QUERY), id);
+						JdbcOperationsSessionRepository.this.deleteSessionQuery, id);
 			}
 
 		});
@@ -437,7 +538,7 @@ public class JdbcOperationsSessionRepository implements
 
 			public List<ExpiringSession> doInTransaction(TransactionStatus status) {
 				return JdbcOperationsSessionRepository.this.jdbcOperations.query(
-						getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY),
+						JdbcOperationsSessionRepository.this.listSessionsByPrincipalNameQuery,
 						new PreparedStatementSetter() {
 
 							public void setValues(PreparedStatement ps) throws SQLException {
@@ -479,7 +580,7 @@ public class JdbcOperationsSessionRepository implements
 
 			public Integer doInTransaction(TransactionStatus transactionStatus) {
 				return JdbcOperationsSessionRepository.this.jdbcOperations.update(
-						getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY),
+						JdbcOperationsSessionRepository.this.deleteSessionsByLastAccessTimeQuery,
 						sessionsValidFromTime);
 			}
 
@@ -515,8 +616,22 @@ public class JdbcOperationsSessionRepository implements
 		return converter;
 	}
 
-	protected String getQuery(String base) {
+	private String getQuery(String base) {
 		return StringUtils.replace(base, "%TABLE_NAME%", this.tableName);
+	}
+
+	private void prepareQueries() {
+		this.createSessionQuery = getQuery(CREATE_SESSION_QUERY);
+		this.createSessionAttributeQuery = getQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+		this.getSessionQuery = getQuery(GET_SESSION_QUERY);
+		this.updateSessionQuery = getQuery(UPDATE_SESSION_QUERY);
+		this.updateSessionAttributeQuery = getQuery(UPDATE_SESSION_ATTRIBUTE_QUERY);
+		this.deleteSessionAttributeQuery = getQuery(DELETE_SESSION_ATTRIBUTE_QUERY);
+		this.deleteSessionQuery = getQuery(DELETE_SESSION_QUERY);
+		this.listSessionsByPrincipalNameQuery =
+				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY);
+		this.deleteSessionsByLastAccessTimeQuery =
+				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY);
 	}
 
 	private void serialize(PreparedStatement ps, int paramIndex, Object attributeValue)
