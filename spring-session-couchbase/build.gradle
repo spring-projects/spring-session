@@ -1,0 +1,19 @@
+apply from: JAVA_GRADLE
+apply from: MAVEN_GRADLE
+
+apply plugin: 'spring-io'
+
+description = "Aggregator for Spring Session and Spring Data Couchbase"
+
+dependencies {
+	compile project(':spring-session'),
+			"org.springframework.data:spring-data-couchbase:$springDataCouchbaseVersion"
+}
+
+dependencyManagement {
+	springIoTestRuntime {
+		imports {
+			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+		}
+	}
+}
