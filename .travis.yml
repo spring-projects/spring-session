@@ -2,6 +2,7 @@ language: java
 
 services:
   - redis-server
+  - cassandra
 
 jdk:
   - oraclejdk8
