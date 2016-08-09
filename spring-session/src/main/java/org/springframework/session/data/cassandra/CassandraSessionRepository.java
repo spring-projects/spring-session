@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.data.cassandra.core.CassandraTemplate;
+import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.ExpiringSession;
@@ -61,7 +61,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 
-	private final CassandraTemplate template;
+	private final CassandraOperations template;
 	private final SessionAttributeDeserializer sessionAttributeDeserializer = new SessionAttributeDeserializer();
 	private final SessionAttributeSerializer sessionAttributeSerializer = new SessionAttributeSerializer();
 	private final TtlCalculator ttlCalculator = new TtlCalculator();
@@ -69,7 +69,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 
 	@Autowired
-	public CassandraSessionRepository(CassandraTemplate template) {
+	public CassandraSessionRepository(CassandraOperations template) {
 		this.template = template;
 	}
 
