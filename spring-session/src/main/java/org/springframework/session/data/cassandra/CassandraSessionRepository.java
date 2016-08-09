@@ -27,10 +27,10 @@ import java.util.concurrent.TimeUnit;
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.TypeCodec;
 import com.datastax.driver.core.querybuilder.Insert;
 import com.datastax.driver.core.querybuilder.QueryBuilder;
 import com.datastax.driver.core.querybuilder.Select;
-import com.google.common.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,8 +147,8 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		long creationTime = row.get(1, Long.class);
 		long lastAccessed = row.get(2, Long.class);
 		int maxInactiveIntervalInSeconds = row.get(3, Integer.class);
-		Map<String, String> attributes = row.get(4, new TypeToken<Map<String, String>>() {
-		});
+
+		Map<String, String> attributes = row.get(4, TypeCodec.map(TypeCodec.varchar(), TypeCodec.varchar()));
 		CassandraHttpSession result = new CassandraHttpSession(id);
 		result.setCreationTime(creationTime);
 		result.setLastAccessedTime(lastAccessed);
