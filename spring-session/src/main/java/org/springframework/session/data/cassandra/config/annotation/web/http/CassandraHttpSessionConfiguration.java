@@ -22,9 +22,6 @@ import com.datastax.driver.core.Session;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
-import org.springframework.core.convert.support.GenericConversionService;
-import org.springframework.core.serializer.support.DeserializingConverter;
-import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.session.SessionRepository;
@@ -45,14 +42,6 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
 public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
 
-	private static GenericConversionService createDefaultConversionService() {
-		GenericConversionService converter = new GenericConversionService();
-		converter.addConverter(Object.class, byte[].class,
-				new SerializingConverter());
-		converter.addConverter(byte[].class, Object.class,
-				new DeserializingConverter());
-		return converter;
-	}
 
 	@Bean
 	Cluster cluster() {

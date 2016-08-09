@@ -87,6 +87,17 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	}
 
 	public void save(CassandraHttpSession session) {
+
+		int ttl;
+		TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - session.getLastAccessedTime());
+		try {
+			ttl = this.ttlCalculator.calculateTtlInSeconds(System.currentTimeMillis(), session);
+		}
+		catch (IllegalArgumentException e) {
+			log.info("Session has already expired, skipping save");
+			return;
+		}
+
 		Map<String, String> serializedAttributes = this.sessionAttributeSerializer.convert(session);
 
 		Insert insert = QueryBuilder.insertInto("session")
@@ -95,16 +106,8 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 				.value("last_accessed", session.getLastAccessedTime())
 				.value("max_inactive_interval_in_seconds", session.getMaxInactiveIntervalInSeconds())
 				.value("attributes", serializedAttributes);
+		insert.using(QueryBuilder.ttl(ttl));
 
-		TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - session.getLastAccessedTime());
-		try {
-			int ttl = this.ttlCalculator.calculateTtlInSeconds(System.currentTimeMillis(), session);
-			insert.using(QueryBuilder.ttl(ttl));
-		}
-		catch (IllegalArgumentException e) {
-			log.info("Session has already expired, skipping save");
-			return;
-		}
 
 		BatchStatement batch = new BatchStatement();
 		batch.add(insert);
