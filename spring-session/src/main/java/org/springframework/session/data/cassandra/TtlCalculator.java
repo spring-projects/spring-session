@@ -16,7 +16,6 @@
 
 package org.springframework.session.data.cassandra;
 
-import com.google.common.primitives.Ints;
 
 import org.springframework.session.ExpiringSession;
 
@@ -33,7 +32,8 @@ public class TtlCalculator {
 		if (secondsToLive <= 0) {
 			throw new IllegalArgumentException("Session has already expired");
 		}
-		return Ints.checkedCast(secondsToLive);
+		//cast is safe since seconds to live is always less than maxInactiveIntervalInSeconds, which is an int.
+		return (int) secondsToLive;
 	}
 
 }
