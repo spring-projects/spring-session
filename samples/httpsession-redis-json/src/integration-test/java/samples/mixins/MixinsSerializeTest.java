@@ -45,7 +45,7 @@ public class MixinsSerializeTest {
     @Test
     public void testDefaultTypingIdJson() {
         User user = new User("user", "password", Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
-        String expectedJsonString = "{'@class': 'org.springframework.security.core.userdetails.User', 'username': 'user', 'password': 'password', 'enabled': true, 'accountNonExpired': true, 'credentialsNonExpired': true, 'accountNonLocked': true, 'authorities': ['java.util.Collections$UnmodifiableSet', [{'@class': 'org.springframework.security.core.authority.SimpleGrantedAuthority', 'authority': 'ROLE_USER', 'role': 'ROLE_USER'}]]}";
+        String expectedJsonString = "{'@class': 'org.springframework.security.core.userdetails.User', 'username': 'user', 'password': 'password', 'enabled': true, 'accountNonExpired': true, 'credentialsNonExpired': true, 'accountNonLocked': true, 'authorities': ['java.util.Collections$UnmodifiableSet', [{'@class': 'org.springframework.security.core.authority.SimpleGrantedAuthority', 'role': 'ROLE_USER'}]]}";
         String serializedJson = new String(springSessionDefaultRedisSerializer.serialize(user));
         JSONAssert.assertEquals(expectedJsonString, serializedJson, true);
     }
@@ -53,7 +53,7 @@ public class MixinsSerializeTest {
     @Test
     public void persistFinalClass() {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("USER");
-        String expectedJson = "{'authority': 'USER', 'role': 'USER'}";
+        String expectedJson = "{'@class': 'org.springframework.security.core.authority.SimpleGrantedAuthority', 'role': 'USER'}";
         String actualJson = new String(springSessionDefaultRedisSerializer.serialize(authority));
         JSONAssert.assertEquals(expectedJson, actualJson, true);
     }
@@ -69,7 +69,7 @@ public class MixinsSerializeTest {
     @Test
     public void unauthenticatedUsernamePasswordAuthenticationTokenTest() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
-        String expectedJson = "{'@class': 'org.springframework.security.authentication.UsernamePasswordAuthenticationToken', 'principal': 'user', 'credentials': 'password', 'authenticated': false, 'authorities': ['java.util.ArrayList', []], 'details': null, 'name': 'user'}";
+        String expectedJson = "{'@class': 'org.springframework.security.authentication.UsernamePasswordAuthenticationToken', 'principal': 'user', 'credentials': 'password', 'authenticated': false, 'authorities': ['java.util.ArrayList', []], 'details': null}";
         String actualJson = new String(springSessionDefaultRedisSerializer.serialize(token));
         JSONAssert.assertEquals(expectedJson, actualJson, true);
     }
@@ -77,7 +77,7 @@ public class MixinsSerializeTest {
     @Test
     public void authenticatedUsernamePasswordAuthenticationTokenTest() {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password", Arrays.asList(new SimpleGrantedAuthority("USER")));
-        String expectedJson = "{'@class': 'org.springframework.security.authentication.UsernamePasswordAuthenticationToken', 'principal': 'user', 'credentials': 'password', 'authenticated': true, 'authorities': ['java.util.ArrayList', [{'@class': 'org.springframework.security.core.authority.SimpleGrantedAuthority', 'authority': 'USER', 'role': 'USER'}]], 'details': null, 'name': 'user'}";
+        String expectedJson = "{'@class': 'org.springframework.security.authentication.UsernamePasswordAuthenticationToken', 'principal': 'user', 'credentials': 'password', 'authenticated': true, 'authorities': ['java.util.ArrayList', [{'@class': 'org.springframework.security.core.authority.SimpleGrantedAuthority', 'role': 'USER'}]], 'details': null}";
         String actualJson = new String(springSessionDefaultRedisSerializer.serialize(token));
         JSONAssert.assertEquals(expectedJson, actualJson, true);
     }
@@ -86,10 +86,9 @@ public class MixinsSerializeTest {
     public void defaultSavedRequestTest() {
         String savedRequestJson = "{ '@class': 'org.springframework.security.web.savedrequest.DefaultSavedRequest', 'serverPort': 80, 'servletPath': ''," +
                 "'serverName': 'localhost', 'scheme': 'http', 'requestURL': 'http://localhost/login', 'requestURI': '/login', 'queryString': null," +
-                "'pathInfo': null, 'method': 'get', 'contextPath': '', 'parameters': {'@class': 'java.util.TreeMap'}, redirectUrl: 'http://localhost/login', " +
+                "'pathInfo': null, 'method': 'get', 'contextPath': '', 'parameters': {'@class': 'java.util.TreeMap'}," +
                 "'headers': {'@class': 'java.util.TreeMap'}, 'locales': ['java.util.ArrayList', ['en']], 'cookies': ['java.util.ArrayList', " +
-                "[{'@class': 'javax.servlet.http.Cookie', 'name': 'SESSION', 'value': '123456789', 'comment': null, domain: null, maxAge: -1, path: null, secure: false, version: 0, 'httpOnly': false}]]," +
-                "'headerNames': ['java.util.TreeMap$KeySet', []], 'parameterMap': {'@class': 'java.util.TreeMap'}, 'parameterNames': ['java.util.TreeMap$KeySet', []]}";
+                "[{'@class': 'org.springframework.security.web.savedrequest.SavedCookie', 'name': 'SESSION', 'value': '123456789', 'comment': null, domain: null, maxAge: -1, path: null, secure: false, version: 0}]]}";
         DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new PortResolverImpl());
         String actualJson = new String(springSessionDefaultRedisSerializer.serialize(savedRequest));
         JSONAssert.assertEquals(savedRequestJson, actualJson, true);

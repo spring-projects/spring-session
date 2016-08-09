@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -44,22 +45,29 @@ public class MixinsDeserilizeTest {
         assertThat(cookie).hasFieldOrPropertyWithValue("name", "SESSION")
                 .hasFieldOrPropertyWithValue("value", "123456789")
                 .hasFieldOrPropertyWithValue("secure", true)
-                .hasFieldOrPropertyWithValue("comment", null)
+                .hasFieldOrPropertyWithValue("comment", "")
                 .hasFieldOrPropertyWithValue("path", "/")
                 .hasFieldOrPropertyWithValue("maxAge", 1000)
                 .hasFieldOrPropertyWithValue("httpOnly", true);
     }
 
-    @Test
-    public void simpleGrantedAuthorityTest() {
+    @Test(expected = SerializationException.class)
+    public void simpleGrantedAuthorityWithoutTypeIdTest() {
         String authorityJson = "{\"authority\": \"ROLE_USER\"}";
         SimpleGrantedAuthority authority = redisSerializer.deserialize(authorityJson.getBytes(), SimpleGrantedAuthority.class);
         assertThat(authority.getAuthority()).isEqualTo("ROLE_USER");
     }
 
     @Test
+    public void simpleGrantedAuthorityWithTypeIdTest() {
+        String authorityJson = "{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}";
+        SimpleGrantedAuthority authority = redisSerializer.deserialize(authorityJson.getBytes(), SimpleGrantedAuthority.class);
+        assertThat(authority.getAuthority()).isEqualTo("ROLE_USER");
+    }
+
+    @Test
     public void userTest() {
-        String userJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": \"password\", \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]], \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true}";
+        String userJson = "{\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": \"password\", \"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]], \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true}";
         User user = redisSerializer.deserialize(userJson.getBytes(), User.class);
         assertThat(user.getUsername()).isEqualTo("user");
         assertThat(user.getPassword()).isEqualTo("password");
@@ -87,11 +95,11 @@ public class MixinsDeserilizeTest {
         String unauthenticatedTokenJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
                 "\"principal\": {\"@class\": \"org.springframework.security.core.userdetails.User\", \"username\": \"user\", \"password\": \"password\", " +
                 "\"authorities\": [\"java.util.Collections$UnmodifiableSet\", [{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\"," +
-                " \"authority\": \"ROLE_USER\"}]], \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true}, " +
+                " \"role\": \"ROLE_USER\"}]], \"accountNonExpired\": true, \"accountNonLocked\": true, \"credentialsNonExpired\": true, \"enabled\": true}, " +
                 "\"credentials\": \"password\", \"details\": null, \"authorities\": [\"java.util.ArrayList\", []], \"authenticated\": false}";
         UsernamePasswordAuthenticationToken token = redisSerializer.deserialize(unauthenticatedTokenJson.getBytes(), UsernamePasswordAuthenticationToken.class);
         assertThat(token.getPrincipal()).isInstanceOf(User.class);
-        User user = (User)token.getPrincipal();
+        User user = (User) token.getPrincipal();
         assertThat(user.getUsername()).isEqualTo("user");
         assertThat(user.getPassword()).isEqualTo("password");
         assertThat(user.getAuthorities()).contains(new SimpleGrantedAuthority("ROLE_USER"));
@@ -105,7 +113,7 @@ public class MixinsDeserilizeTest {
     public void authenticatedUsernamePasswordAuthenticationTokenTest() {
         String unauthenticatedTokenJson = "{\"@class\": \"org.springframework.security.authentication.UsernamePasswordAuthenticationToken\"," +
                 "\"principal\": \"user\", \"credentials\": \"password\", \"details\": null, \"authorities\": [\"java.util.ArrayList\", " +
-                "[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"authority\": \"ROLE_USER\"}]]," +
+                "[{\"@class\": \"org.springframework.security.core.authority.SimpleGrantedAuthority\", \"role\": \"ROLE_USER\"}]]," +
                 "\"authenticated\": true}";
         UsernamePasswordAuthenticationToken authenticationToken = redisSerializer.deserialize(unauthenticatedTokenJson.getBytes(), UsernamePasswordAuthenticationToken.class);
         assertThat(authenticationToken.getPrincipal()).isEqualTo("user");
