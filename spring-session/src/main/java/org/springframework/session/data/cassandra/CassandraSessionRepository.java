@@ -37,9 +37,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.cassandra.core.CassandraTemplate;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.session.data.cassandra.conversion.SessionAttributeDeserializer;
 import org.springframework.session.data.cassandra.conversion.SessionAttributeSerializer;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
@@ -52,7 +55,12 @@ import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 public class CassandraSessionRepository implements FindByIndexNameSessionRepository<CassandraSessionRepository.CassandraHttpSession> {
 
 	private static final Logger log = LoggerFactory.getLogger(CassandraSessionRepository.class);
-	private static final JdbcOperationsSessionRepository.PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new JdbcOperationsSessionRepository.PrincipalNameResolver();
+	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
+
+	//Temporary until #557 is resolved, see commends on PrincipalNameResolver
+	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+
+
 	private final CassandraTemplate template;
 	private final SessionAttributeDeserializer sessionAttributeDeserializer = new SessionAttributeDeserializer();
 	private final SessionAttributeSerializer sessionAttributeSerializer = new SessionAttributeSerializer();
@@ -272,4 +280,34 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 			return this.delegate.isExpired();
 		}
 	}
+
+
+
+	/**
+	 * Resolves the Spring Security principal name.
+	 * Copy pasted from ${@link JdbcOperationsSessionRepository} until it is extracted to a common class.
+	 * https://github.com/spring-projects/spring-session/pull/557
+	 *
+	 * @author Vedran Pavic
+	 */
+	public static class PrincipalNameResolver {
+
+		private SpelExpressionParser parser = new SpelExpressionParser();
+
+		public String resolvePrincipal(Session session) {
+			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+			if (principalName != null) {
+				return principalName;
+			}
+			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication != null) {
+				Expression expression = this.parser
+						.parseExpression("authentication?.name");
+				return expression.getValue(authentication, String.class);
+			}
+			return null;
+		}
+
+	}
+
 }
