@@ -8,10 +8,15 @@ sonarqube {
 	skipProject = true
 }
 
+configurations {
+	compile.exclude group: 'org.slf4j', module: 'slf4j-api'
+}
+
 dependencies {
 	compile project(':spring-session-data-gemfire'),
 		"org.springframework:spring-web:$springVersion",
 		"org.webjars:bootstrap:$bootstrapVersion",
+		"org.webjars:webjars-taglib:$webjarsTaglibVersion",
 		jstlDependencies
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"

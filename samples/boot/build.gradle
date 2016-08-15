@@ -23,6 +23,7 @@ dependencies {
 			"org.thymeleaf.extras:thymeleaf-extras-conditionalcomments",
 			"org.webjars:bootstrap:$bootstrapVersion",
 			"org.webjars:html5shiv:$html5ShivVersion",
+			"org.webjars:webjars-locator",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
 			"org.springframework.security:spring-security-config:$springSecurityVersion"
 
