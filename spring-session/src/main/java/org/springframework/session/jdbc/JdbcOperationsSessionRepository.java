@@ -16,7 +16,6 @@
 
 package org.springframework.session.jdbc;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,14 +37,14 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
+import org.springframework.dao.DataAccessException;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -186,7 +185,8 @@ public class JdbcOperationsSessionRepository implements
 
 	private final TransactionOperations transactionOperations;
 
-	private final RowMapper<ExpiringSession> mapper = new ExpiringSessionMapper();
+	private final ResultSetExtractor<List<ExpiringSession>> extractor =
+			new ExpiringSessionResultSetExtractor();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -382,17 +382,15 @@ public class JdbcOperationsSessionRepository implements
 
 			public ExpiringSession doInTransaction(TransactionStatus status) {
 				List<ExpiringSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
-						new PreparedStatementCreator() {
+						getQuery(GET_SESSION_QUERY),
+						new PreparedStatementSetter() {
 
-							public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-								PreparedStatement ps = con.prepareStatement(getQuery(GET_SESSION_QUERY),
-										ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+							public void setValues(PreparedStatement ps) throws SQLException {
 								ps.setString(1, id);
-								return ps;
 							}
 
 						},
-						JdbcOperationsSessionRepository.this.mapper
+						JdbcOperationsSessionRepository.this.extractor
 				);
 				if (sessions.isEmpty()) {
 					return null;
@@ -434,18 +432,15 @@ public class JdbcOperationsSessionRepository implements
 
 			public List<ExpiringSession> doInTransaction(TransactionStatus status) {
 				return JdbcOperationsSessionRepository.this.jdbcOperations.query(
-						new PreparedStatementCreator() {
+						getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY),
+						new PreparedStatementSetter() {
 
-							public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-								PreparedStatement ps = con.prepareStatement(
-										getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY),
-										ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+							public void setValues(PreparedStatement ps) throws SQLException {
 								ps.setString(1, indexValue);
-								return ps;
 							}
 
 						},
-						JdbcOperationsSessionRepository.this.mapper
+						JdbcOperationsSessionRepository.this.extractor
 				);
 			}
 
@@ -661,23 +656,34 @@ public class JdbcOperationsSessionRepository implements
 
 	}
 
-	private class ExpiringSessionMapper implements RowMapper<ExpiringSession> {
+	private class ExpiringSessionResultSetExtractor
+			implements ResultSetExtractor<List<ExpiringSession>> {
 
-		public ExpiringSession mapRow(ResultSet rs, int rowNum) throws SQLException {
-			MapSession session = new MapSession(rs.getString("SESSION_ID"));
-			session.setCreationTime(rs.getLong("CREATION_TIME"));
-			session.setLastAccessedTime(rs.getLong("LAST_ACCESS_TIME"));
-			session.setMaxInactiveIntervalInSeconds(rs.getInt("MAX_INACTIVE_INTERVAL"));
-			String attributeName = rs.getString("ATTRIBUTE_NAME");
-			if (attributeName != null) {
-				session.setAttribute(attributeName, deserialize(rs, "ATTRIBUTE_BYTES"));
-				while (rs.next() && session.getId().equals(rs.getString("SESSION_ID"))) {
-					session.setAttribute(rs.getString("ATTRIBUTE_NAME"),
-							deserialize(rs, "ATTRIBUTE_BYTES"));
+		public List<ExpiringSession> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			List<ExpiringSession> sessions = new ArrayList<ExpiringSession>();
+			while (rs.next()) {
+				String id = rs.getString("SESSION_ID");
+				MapSession session;
+				if (sessions.size() > 0 && getLast(sessions).getId().equals(id)) {
+					session = (MapSession) getLast(sessions);
 				}
-				rs.previous();
+				else {
+					session = new MapSession(id);
+					session.setCreationTime(rs.getLong("CREATION_TIME"));
+					session.setLastAccessedTime(rs.getLong("LAST_ACCESS_TIME"));
+					session.setMaxInactiveIntervalInSeconds(rs.getInt("MAX_INACTIVE_INTERVAL"));
+				}
+				String attributeName = rs.getString("ATTRIBUTE_NAME");
+				if (attributeName != null) {
+					session.setAttribute(attributeName, deserialize(rs, "ATTRIBUTE_BYTES"));
+				}
+				sessions.add(session);
 			}
-			return session;
+			return sessions;
+		}
+
+		private ExpiringSession getLast(List<ExpiringSession> sessions) {
+			return sessions.get(sessions.size() - 1);
 		}
 
 	}
