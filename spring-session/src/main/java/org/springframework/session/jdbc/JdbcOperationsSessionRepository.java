@@ -287,23 +287,25 @@ public class JdbcOperationsSessionRepository implements
 								}
 
 							});
-					final List<String> attributeNames = new ArrayList<String>(session.getAttributeNames());
-					JdbcOperationsSessionRepository.this.jdbcOperations.batchUpdate(
-							getQuery(CREATE_SESSION_ATTRIBUTE_QUERY),
-							new BatchPreparedStatementSetter() {
+					if (!session.getAttributeNames().isEmpty()) {
+						final List<String> attributeNames = new ArrayList<String>(session.getAttributeNames());
+						JdbcOperationsSessionRepository.this.jdbcOperations.batchUpdate(
+								getQuery(CREATE_SESSION_ATTRIBUTE_QUERY),
+								new BatchPreparedStatementSetter() {
 
-								public void setValues(PreparedStatement ps, int i) throws SQLException {
-									String attributeName = attributeNames.get(i);
-									ps.setString(1, session.getId());
-									ps.setString(2, attributeName);
-									serialize(ps, 3, session.getAttribute(attributeName));
-								}
+									public void setValues(PreparedStatement ps, int i) throws SQLException {
+										String attributeName = attributeNames.get(i);
+										ps.setString(1, session.getId());
+										ps.setString(2, attributeName);
+										serialize(ps, 3, session.getAttribute(attributeName));
+									}
 
-								public int getBatchSize() {
-									return attributeNames.size();
-								}
+									public int getBatchSize() {
+										return attributeNames.size();
+									}
 
-							});
+								});
+					}
 				}
 
 			});
