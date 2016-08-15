@@ -26,6 +26,7 @@ include 'samples:grails3'
 
 include 'spring-session'
 include 'spring-session-data-gemfire'
+include 'spring-session-data-geode'
 include 'spring-session-data-redis'
 include 'spring-session-jdbc'
 include 'spring-session-data-mongo'

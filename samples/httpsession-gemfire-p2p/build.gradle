@@ -7,7 +7,7 @@ configurations {
 }
 
 dependencies {
-	compile project(':spring-session-data-gemfire'),
+	compile project(':spring-session-data-geode'),
 		"org.springframework:spring-web:$springVersion",
 		"org.webjars:bootstrap:$bootstrapVersion",
 		"org.webjars:webjars-taglib:$webjarsTaglibVersion",

@@ -20,14 +20,14 @@ dependencies {
 
 	integrationTestCompile gebDependencies
 
-	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE",
+		"xml-apis:xml-apis:1.4.01"
 }
 
+mainClassName = "sample.ServerConfig"
 
 def port
 def process
-
-mainClassName = "sample.ServerConfig"
 
 task availablePort() << {
 	def serverSocket = new ServerSocket(0)
