@@ -32,8 +32,7 @@ import org.springframework.session.ExpiringSession;
  * @since 1.1.0
  * @see AbstractGemFireOperationsSessionRepository
  */
-public class GemFireOperationsSessionRepository
-		extends AbstractGemFireOperationsSessionRepository {
+public class GemFireOperationsSessionRepository extends AbstractGemFireOperationsSessionRepository {
 
 	// GemFire OQL query used to lookup Sessions by arbitrary attributes.
 	protected static final String FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY = "SELECT s FROM %1$s s WHERE s.attributes['%2$s'] = $1";
@@ -68,13 +67,10 @@ public class GemFireOperationsSessionRepository
 	 * @see java.util.Map
 	 * @see #prepareQuery(String)
 	 */
-	public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName,
-			String indexValue) {
-		SelectResults<ExpiringSession> results = getTemplate()
-				.find(prepareQuery(indexName), indexValue);
+	public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+		SelectResults<ExpiringSession> results = getTemplate().find(prepareQuery(indexName), indexValue);
 
-		Map<String, ExpiringSession> sessions = new HashMap<String, ExpiringSession>(
-				results.size());
+		Map<String, ExpiringSession> sessions = new HashMap<String, ExpiringSession>(results.size());
 
 		for (ExpiringSession session : results.asList()) {
 			sessions.put(session.getId(), session);
@@ -93,10 +89,8 @@ public class GemFireOperationsSessionRepository
 	 */
 	protected String prepareQuery(String indexName) {
 		return (PRINCIPAL_NAME_INDEX_NAME.equals(indexName)
-				? String.format(FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY,
-						getFullyQualifiedRegionName())
-				: String.format(FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY,
-						getFullyQualifiedRegionName(), indexName));
+			? String.format(FIND_SESSIONS_BY_PRINCIPAL_NAME_QUERY, getFullyQualifiedRegionName())
+			: String.format(FIND_SESSIONS_BY_INDEX_NAME_VALUE_QUERY, getFullyQualifiedRegionName(), indexName));
 	}
 
 	/**
@@ -156,8 +150,7 @@ public class GemFireOperationsSessionRepository
 	 * @see #handleDeleted(String, ExpiringSession)
 	 */
 	public void delete(String sessionId) {
-		handleDeleted(sessionId,
-				getTemplate().<Object, ExpiringSession>remove(sessionId));
+		handleDeleted(sessionId, getTemplate().<Object, ExpiringSession>remove(sessionId));
 	}
 
 }

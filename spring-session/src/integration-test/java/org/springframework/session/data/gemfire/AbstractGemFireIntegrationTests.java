@@ -93,17 +93,15 @@ public abstract class AbstractGemFireIntegrationTests {
 
 	@Before
 	public void setup() {
-		System.setProperty("gemfire.Query.VERBOSE",
-			String.valueOf(isQueryDebuggingEnabled()));
+		System.setProperty("gemfire.Query.VERBOSE", String.valueOf(isQueryDebuggingEnabled()));
 	}
 
 	/* (non-Javadoc) */
 	protected static File createDirectory(String pathname) {
 		File directory = new File(WORKING_DIRECTORY, pathname);
 
-		assertThat(directory.isDirectory() || directory.mkdirs())
-				.as(String.format("Failed to create directory (%1$s)", directory))
-				.isTrue();
+		assertThat(directory.isDirectory() || directory.mkdirs()).as(
+			String.format("Failed to create directory (%1$s)", directory)).isTrue();
 
 		directory.deleteOnExit();
 
@@ -111,8 +109,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static List<String> createJavaProcessCommandLine(Class<?> type,
-			String... args) {
+	protected static List<String> createJavaProcessCommandLine(Class<?> type, String... args) {
 		List<String> commandLine = new ArrayList<String>();
 
 		String javaHome = System.getProperty("java.home");
@@ -123,8 +120,7 @@ public abstract class AbstractGemFireIntegrationTests {
 		commandLine.add("-ea");
 		commandLine.add(String.format("-Dgemfire.log-file=%1$s", GEMFIRE_LOG_FILE_NAME));
 		commandLine.add(String.format("-Dgemfire.log-level=%1$s", GEMFIRE_LOG_LEVEL));
-		commandLine
-				.add(String.format("-Dgemfire.Query.VERBOSE=%1$s", GEMFIRE_QUERY_DEBUG));
+		commandLine.add(String.format("-Dgemfire.Query.VERBOSE=%1$s", GEMFIRE_QUERY_DEBUG));
 		commandLine.addAll(extractJvmArguments(args));
 		commandLine.add("-classpath");
 		commandLine.add(System.getProperty("java.class.path"));
@@ -163,10 +159,8 @@ public abstract class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static Process run(Class<?> type, File directory, String... args)
-			throws IOException {
-		return new ProcessBuilder().command(createJavaProcessCommandLine(type, args))
-				.directory(directory).start();
+	protected static Process run(Class<?> type, File directory, String... args) throws IOException {
+		return new ProcessBuilder().command(createJavaProcessCommandLine(type, args)).directory(directory).start();
 	}
 
 	/* (non-Javadoc) */
@@ -175,10 +169,8 @@ public abstract class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static boolean waitForCacheServerToStart(CacheServer cacheServer,
-			long duration) {
-		return waitForCacheServerToStart(cacheServer.getBindAddress(),
-				cacheServer.getPort(), duration);
+	protected static boolean waitForCacheServerToStart(CacheServer cacheServer, long duration) {
+		return waitForCacheServerToStart(cacheServer.getBindAddress(), cacheServer.getPort(), duration);
 	}
 
 	/* (non-Javadoc) */
@@ -187,8 +179,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static boolean waitForCacheServerToStart(final String host, final int port,
-			long duration) {
+	protected static boolean waitForCacheServerToStart(final String host, final int port, long duration) {
 		return waitOnCondition(new Condition() {
 			AtomicBoolean connected = new AtomicBoolean(false);
 
@@ -248,8 +239,7 @@ public abstract class AbstractGemFireIntegrationTests {
 
 	/* (non-Javadoc) */
 	@SuppressWarnings("all")
-	protected static boolean waitForProcessToStart(Process process, File directory,
-			long duration) {
+	protected static boolean waitForProcessToStart(Process process, File directory, long duration) {
 		final File processControl = new File(directory, DEFAULT_PROCESS_CONTROL_FILENAME);
 
 		waitOnCondition(new Condition() {
@@ -267,8 +257,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static int waitForProcessToStop(Process process, File directory,
-			long duration) {
+	protected static int waitForProcessToStop(Process process, File directory, long duration) {
 		final long timeout = (System.currentTimeMillis() + duration);
 
 		try {
@@ -323,30 +312,24 @@ public abstract class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected void assertRegion(Region<?, ?> actualRegion, String expectedName,
-			DataPolicy expectedDataPolicy) {
+	protected void assertRegion(Region<?, ?> actualRegion, String expectedName, DataPolicy expectedDataPolicy) {
 		assertThat(actualRegion).isNotNull();
 		assertThat(actualRegion.getName()).isEqualTo(expectedName);
-		assertThat(actualRegion.getFullPath())
-				.isEqualTo(GemFireUtils.toRegionPath(expectedName));
+		assertThat(actualRegion.getFullPath()).isEqualTo(GemFireUtils.toRegionPath(expectedName));
 		assertThat(actualRegion.getAttributes()).isNotNull();
-		assertThat(actualRegion.getAttributes().getDataPolicy())
-				.isEqualTo(expectedDataPolicy);
+		assertThat(actualRegion.getAttributes().getDataPolicy()).isEqualTo(expectedDataPolicy);
 	}
 
 	/* (non-Javadoc) */
-	protected void assertIndex(Index index, String expectedExpression,
-			String expectedFromClause) {
+	protected void assertIndex(Index index, String expectedExpression, String expectedFromClause) {
 		assertThat(index).isNotNull();
 		assertThat(index.getIndexedExpression()).isEqualTo(expectedExpression);
 		assertThat(index.getFromClause()).isEqualTo(expectedFromClause);
 	}
 
 	/* (non-Javadoc) */
-	protected void assertEntryIdleTimeout(Region<?, ?> region,
-			ExpirationAction expectedAction, int expectedTimeout) {
-		assertEntryIdleTimeout(region.getAttributes().getEntryIdleTimeout(),
-				expectedAction, expectedTimeout);
+	protected void assertEntryIdleTimeout(Region<?, ?> region, ExpirationAction expectedAction, int expectedTimeout) {
+		assertEntryIdleTimeout(region.getAttributes().getEntryIdleTimeout(), expectedAction, expectedTimeout);
 	}
 
 	/* (non-Javadoc) */
@@ -427,8 +410,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	 * @see org.springframework.context.ApplicationListener
 	 * @see org.springframework.session.events.AbstractSessionEvent
 	 */
-	public static class SessionEventListener
-			implements ApplicationListener<AbstractSessionEvent> {
+	public static class SessionEventListener implements ApplicationListener<AbstractSessionEvent> {
 
 		private volatile AbstractSessionEvent sessionEvent;
 

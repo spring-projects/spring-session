@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -31,7 +30,7 @@ import com.gemstone.gemfire.cache.DataPolicy;
 import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.RegionAttributes;
 import com.gemstone.gemfire.cache.client.ClientCache;
-import org.junit.After;
+
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -54,7 +53,6 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
 import org.springframework.session.data.gemfire.support.GemFireUtils;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
-import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
@@ -66,12 +64,12 @@ import org.springframework.util.SocketUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The ClientServerGemFireOperationsSessionRepositoryIntegrationTests class is a test
- * suite of test cases testing the functionality of GemFire-backed Spring Sessions using a
- * GemFire client-server topology.
+ * The MultiPoolClientServerGemFireOperationsSessionRepositoryIntegrationTests class is a test suite of test cases
+ * testing the functionality of a GemFire cache client in a Spring Session application using a specifically named
+ * GemFire {@link com.gemstone.gemfire.cache.client.Pool} as configured with the 'poolName' attribute on the
+ * Spring Session Data GemFire {@link EnableGemFireHttpSession} annotation.
  *
  * @author John Blum
- * @since 1.1.0
  * @see org.junit.Test
  * @see org.junit.runner.RunWith
  * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
@@ -85,12 +83,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see com.gemstone.gemfire.cache.client.ClientCache
  * @see com.gemstone.gemfire.cache.client.Pool
  * @see com.gemstone.gemfire.cache.server.CacheServer
+ * @since 1.3.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = ClientServerGemFireOperationsSessionRepositoryIntegrationTests.SpringSessionGemFireClientConfiguration.class)
+@ContextConfiguration(classes = MultiPoolClientServerGemFireOperationsSessionRepositoryIntegrationTests
+	.SpringSessionGemFireClientConfiguration.class)
 @DirtiesContext
 @WebAppConfiguration
-public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
+public class MultiPoolClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
@@ -101,7 +101,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 	private static Process gemfireServer;
 
-	private static final String SPRING_SESSION_GEMFIRE_REGION_NAME = "TestClientServerSessions";
+	private static final String SPRING_SESSION_GEMFIRE_REGION_NAME = "TestMultiPoolClientServerSessions";
 
 	@Autowired
 	private SessionEventListener sessionEventListener;
@@ -117,7 +117,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		System.setProperty("spring.session.data.gemfire.port", String.valueOf(port));
 
-		String processWorkingDirectoryPathname = String.format("gemfire-client-server-tests-%1$s",
+		String processWorkingDirectoryPathname = String.format("gemfire-multipool-client-server-tests-%1$s",
 			TIMESTAMP.format(new Date()));
 
 		processWorkingDirectory = createDirectory(processWorkingDirectoryPathname);
@@ -161,30 +161,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		assertThat(springSessionGemFireRegionAttributes.getDataPolicy()).isEqualTo(DataPolicy.EMPTY);
 	}
 
-	@After
-	public void tearDown() {
-		this.sessionEventListener.getSessionEvent();
-	}
-
-	@Test
-	public void createSessionFiresSessionCreatedEvent() {
-		final long beforeOrAtCreationTime = System.currentTimeMillis();
-
-		ExpiringSession expectedSession = save(createSession());
-
-		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
-
-		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
-
-		ExpiringSession createdSession = sessionEvent.getSession();
-
-		assertThat(createdSession).isEqualTo(expectedSession);
-		assertThat(createdSession.getId()).isNotNull();
-		assertThat(createdSession.getCreationTime()).isGreaterThanOrEqualTo(beforeOrAtCreationTime);
-		assertThat(createdSession.getLastAccessedTime()).isEqualTo(createdSession.getCreationTime());
-		assertThat(createdSession.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
-
-		this.gemfireSessionRepository.delete(expectedSession.getId());
+	protected static ConnectionEndpoint newConnectionEndpoint(String host, int port) {
+		return new ConnectionEndpoint(host, port);
 	}
 
 	@Test
@@ -201,10 +179,6 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		assertThat(savedSession).isEqualTo(expectedSession);
 
-		// NOTE for some reason or another, performing a GemFire (Client)Cache
-		// Region.get(key)
-		// causes a Region CREATE event... o.O
-		// calling sessionEventListener.getSessionEvent() here to clear the event
 		this.sessionEventListener.getSessionEvent();
 
 		sessionEvent = this.sessionEventListener.waitForSessionEvent(
@@ -218,28 +192,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		assertThat(expiredSession).isNull();
 	}
 
-	@Test
-	public void deleteExistingNonExpiredSessionFiresSessionDeletedEventAndReturnsNullOnGet() {
-		ExpiringSession expectedSession = save(touch(createSession()));
-
-		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
-
-		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
-		assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(expectedSession);
-
-		this.gemfireSessionRepository.delete(expectedSession.getId());
-
-		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
-
-		assertThat(sessionEvent).isInstanceOf(SessionDeletedEvent.class);
-		assertThat(sessionEvent.getSessionId()).isEqualTo(expectedSession.getId());
-
-		ExpiringSession deletedSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
-
-		assertThat(deletedSession).isNull();
-	}
-
-	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
+	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME, poolName = "serverPool",
 		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireClientConfiguration {
 
@@ -251,23 +204,44 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		@Bean
 		Properties gemfireProperties() {
 			Properties gemfireProperties = new Properties();
+			gemfireProperties.setProperty("name", name());
 			gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
 			return gemfireProperties;
 		}
 
-		@Bean
-		ClientCacheFactoryBean gemfireCache() {
-			ClientCacheFactoryBean clientCacheFactory = new ClientCacheFactoryBean();
-
-			clientCacheFactory.setClose(true);
-			clientCacheFactory.setProperties(gemfireProperties());
-
-			return clientCacheFactory;
+		String name() {
+			return SpringSessionGemFireClientConfiguration.class.getName();
 		}
 
 		@Bean
-		PoolFactoryBean gemfirePool(@Value("${spring.session.data.gemfire.port:"
-				+ DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
+		ClientCacheFactoryBean gemfireCache() {
+			ClientCacheFactoryBean gemfireCache = new ClientCacheFactoryBean();
+
+			gemfireCache.setClose(true);
+			gemfireCache.setPoolName("gemfirePool");
+			gemfireCache.setProperties(gemfireProperties());
+
+			return gemfireCache;
+		}
+
+		@Bean
+		PoolFactoryBean gemfirePool() {
+			PoolFactoryBean poolFactory = new PoolFactoryBean();
+
+			poolFactory.setFreeConnectionTimeout(5000); // 5 seconds
+			poolFactory.setKeepAlive(false);
+			poolFactory.setMinConnections(0);
+			poolFactory.setReadTimeout(500);
+
+			// deliberately set to a non-existing GemFire (Cache) Server
+			poolFactory.addServers(newConnectionEndpoint("localhost", 53135));
+
+			return poolFactory;
+		}
+
+		@Bean
+		PoolFactoryBean serverPool(@Value("${spring.session.data.gemfire.port:"
+			+ DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
 
 			PoolFactoryBean poolFactory = new PoolFactoryBean();
 
@@ -280,22 +254,22 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 			poolFactory.setSubscriptionEnabled(true);
 			poolFactory.setThreadLocalConnections(false);
 
-			poolFactory.setServers(Collections.singletonList(new ConnectionEndpoint(
-				SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME, port)));
+			poolFactory.addServers(newConnectionEndpoint(
+				SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME, port));
 
 			return poolFactory;
 		}
 
 		@Bean
-		public SessionEventListener sessionEventListener() {
-			return new SessionEventListener();
+		public AbstractGemFireIntegrationTests.SessionEventListener sessionEventListener() {
+			return new AbstractGemFireIntegrationTests.SessionEventListener();
 		}
 
 		// used for debugging purposes
 		@SuppressWarnings("resource")
 		public static void main(final String[] args) {
 			ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(
-					SpringSessionGemFireClientConfiguration.class);
+				SpringSessionGemFireClientConfiguration.class);
 
 			applicationContext.registerShutdownHook();
 
@@ -347,7 +321,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		@Bean
 		CacheServerFactoryBean gemfireCacheServer(Cache gemfireCache,
-				@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
+			@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
 
 			CacheServerFactoryBean cacheServerFactory = new CacheServerFactoryBean();
 
