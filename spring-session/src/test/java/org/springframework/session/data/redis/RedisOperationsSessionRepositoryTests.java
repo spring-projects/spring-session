@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.DefaultMessage;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -706,8 +706,32 @@ public class RedisOperationsSessionRepositoryTests {
 		this.redisRepository.setRedisFlushMode(null);
 	}
 
+	@Test
+	public void testDefaultKeyPrefix() {
+		String prefix = "foo";
+		this.redisRepository.setRedisDefaultKeyPrefix(prefix);
+		RedisSession session = this.redisRepository.new RedisSession(new MapSession());
+		session.setMaxInactiveIntervalInSeconds(0);
+		given(this.redisOperations.boundHashOps(anyString()))
+				.willReturn(this.boundHashOperations);
+		given(this.redisOperations.boundSetOps(anyString()))
+				.willReturn(this.boundSetOperations);
+		given(this.redisOperations.boundValueOps(anyString()))
+				.willReturn(this.boundValueOperations);
+
+		this.redisRepository.save(session);
+
+		String id = session.getId();
+		verify(this.redisOperations, atLeastOnce())
+				.delete(getKeyWithPrefix(prefix, "expires:" + id));
+		verify(this.redisOperations, never()).boundValueOps(getKeyWithPrefix(prefix, "expires:" + id));	}
+
 	private String getKey(String id) {
-		return "spring:session:sessions:" + id;
+		return getKeyWithPrefix("spring:session", id);
+	}
+
+	private String getKeyWithPrefix(String prefix, String id) {
+		return MessageFormat.format("{0}:sessions:{1}", prefix, id);
 	}
 
 	private Map map(Object... objects) {
