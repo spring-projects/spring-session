@@ -49,6 +49,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -250,6 +251,8 @@ public class RedisOperationsSessionRepository implements
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
+	private static final Object _lock = new Object();
+
 	static PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
 	/**
@@ -285,13 +288,21 @@ public class RedisOperationsSessionRepository implements
 	static final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
 	/**
+	 * Default Attribute separator used
+	 */
+	static final String DEFAULT_ATTR_SEPARATOR = ":";
+
+	/**
 	 * The prefix for every key used by Spring Session in Redis.
 	 */
 	private String keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX;
+	private String namespace = "";
 
 	private final RedisOperations<Object, Object> sessionRedisOperations;
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
+
+	private String computedKeyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX;
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 		public void publishEvent(ApplicationEvent event) {
@@ -548,7 +559,7 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	public void handleCreated(Map<Object, Object> loaded, String channel) {
-		String id = channel.substring(channel.lastIndexOf(":") + 1);
+		String id = channel.substring(channel.lastIndexOf(DEFAULT_ATTR_SEPARATOR) + 1);
 		ExpiringSession session = loadSession(id, loaded);
 		publishEvent(new SessionCreatedEvent(this, session));
 	}
@@ -581,7 +592,35 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	public void setRedisKeyNamespace(String namespace) {
-		this.keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX + namespace + ":";
+		if (StringUtils.isEmpty(namespace)) {
+			namespace = DEFAULT_ATTR_SEPARATOR;
+		}
+
+		if (!namespace.endsWith(DEFAULT_ATTR_SEPARATOR)) {
+			namespace = namespace.concat(DEFAULT_ATTR_SEPARATOR);
+		}
+
+		this.namespace = namespace;
+		computeKeyPrefix();
+	}
+
+	public void setRedisDefaultKeyPrefix(String prefix) {
+		if(StringUtils.isEmpty(prefix)) {
+			prefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX;
+		}
+
+		if(!prefix.endsWith(DEFAULT_ATTR_SEPARATOR)) {
+			prefix = prefix.concat(DEFAULT_ATTR_SEPARATOR);
+		}
+
+		this.keyPrefix = prefix;
+		computeKeyPrefix();
+	}
+
+	private void computeKeyPrefix() {
+		synchronized (_lock) {
+			this.computedKeyPrefix = this.keyPrefix + this.namespace;
+		}
 	}
 
 	/**
@@ -591,17 +630,17 @@ public class RedisOperationsSessionRepository implements
 	 * @return the Hash key for this session by prefixing it appropriately.
 	 */
 	String getSessionKey(String sessionId) {
-		return this.keyPrefix + "sessions:" + sessionId;
+		return this.computedKeyPrefix + "sessions:" + sessionId;
 	}
 
 	String getPrincipalKey(String principalName) {
-		return this.keyPrefix + "index:"
-				+ FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME + ":"
+		return this.computedKeyPrefix + "index:"
+				+ FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME + DEFAULT_ATTR_SEPARATOR
 				+ principalName;
 	}
 
 	String getExpirationsKey(long expiration) {
-		return this.keyPrefix + "expirations:" + expiration;
+		return this.computedKeyPrefix + "expirations:" + expiration;
 	}
 
 	private String getExpiredKey(String sessionId) {
@@ -613,7 +652,7 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	private String getExpiredKeyPrefix() {
-		return this.keyPrefix + "sessions:" + "expires:";
+		return this.computedKeyPrefix + "sessions:" + "expires:";
 	}
 
 	/**
@@ -623,7 +662,7 @@ public class RedisOperationsSessionRepository implements
 	 * @return the prefix for the channel that SessionCreatedEvent are published to
 	 */
 	public String getSessionCreatedChannelPrefix() {
-		return this.keyPrefix + "event:created:";
+		return this.computedKeyPrefix + "event:created:";
 	}
 
 	/**
