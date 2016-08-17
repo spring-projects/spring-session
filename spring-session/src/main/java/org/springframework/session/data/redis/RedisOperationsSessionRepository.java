@@ -288,7 +288,7 @@ public class RedisOperationsSessionRepository implements
 	static final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
 	/**
-	 * Default Attribute separator used
+	 * Default Attribute separator used.
 	 */
 	static final String DEFAULT_ATTR_SEPARATOR = ":";
 
@@ -605,11 +605,11 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	public void setRedisDefaultKeyPrefix(String prefix) {
-		if(StringUtils.isEmpty(prefix)) {
+		if (StringUtils.isEmpty(prefix)) {
 			prefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX;
 		}
 
-		if(!prefix.endsWith(DEFAULT_ATTR_SEPARATOR)) {
+		if (!prefix.endsWith(DEFAULT_ATTR_SEPARATOR)) {
 			prefix = prefix.concat(DEFAULT_ATTR_SEPARATOR);
 		}
 

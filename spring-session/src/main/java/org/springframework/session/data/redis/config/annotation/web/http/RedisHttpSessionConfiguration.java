@@ -154,7 +154,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	public String getRedisDefaultPrefix() {
-		return redisDefaultPrefix;
+		return this.redisDefaultPrefix;
 	}
 
 	private String getRedisNamespace() {
