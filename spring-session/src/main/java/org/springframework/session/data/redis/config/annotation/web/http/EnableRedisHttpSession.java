@@ -59,6 +59,8 @@ import org.springframework.session.data.redis.RedisFlushMode;
 public @interface EnableRedisHttpSession {
 	int maxInactiveIntervalInSeconds() default 1800;
 
+	String redisDefaultPrefix() default "spring:session";
+
 	/**
 	 * <p>
 	 * Defines a unique namespace for keys. The value is used to isolate sessions by
