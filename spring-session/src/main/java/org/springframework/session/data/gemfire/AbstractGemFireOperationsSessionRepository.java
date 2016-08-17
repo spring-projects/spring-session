@@ -55,7 +55,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
+import org.springframework.session.SessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -65,13 +65,17 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * AbstractGemFireOperationsSessionRepository is an abstract base class encapsulating
- * functionality common to all implementations that support SessionRepository operations
- * backed by GemFire.
+ * AbstractGemFireOperationsSessionRepository is an abstract base class encapsulating functionality
+ * common to all implementations that support {@link SessionRepository} operations backed by GemFire.
  *
  * @author John Blum
  * @since 1.1.0
- * @see EnableGemFireHttpSession
+ * @see org.springframework.beans.factory.InitializingBean
+ * @see org.springframework.context.ApplicationEventPublisherAware
+ * @see org.springframework.session.ExpiringSession
+ * @see org.springframework.session.FindByIndexNameSessionRepository
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
+ * @see com.gemstone.gemfire.cache.util.CacheListenerAdapter
  */
 public abstract class AbstractGemFireOperationsSessionRepository extends CacheListenerAdapter<Object, ExpiringSession>
 		implements InitializingBean, FindByIndexNameSessionRepository<ExpiringSession>, ApplicationEventPublisherAware {
@@ -186,10 +190,13 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/**
-	 * Callback method during Spring bean initialization that will capture the
-	 * fully-qualified name of the GemFire cache {@link Region} used to manage Session
-	 * state and register this SessionRepository as a GemFire
-	 * {@link com.gemstone.gemfire.cache.CacheListener}.
+	 * Callback method during Spring bean initialization that will capture the fully-qualified name
+	 * of the GemFire cache {@link Region} used to manage Session state and register this SessionRepository
+	 * as a GemFire {@link com.gemstone.gemfire.cache.CacheListener}.
+	 *
+	 * Additionally, this method registers GemFire {@link Instantiator}s for the {@link GemFireSession}
+	 * and {@link GemFireSessionAttributes} types to optimize GemFire's instantiation logic on deserialization
+	 * using the data serialization framework when accessing the {@link Session}'s state stored in GemFire.
 	 *
 	 * @throws Exception if an error occurs during the initialization process.
 	 */
@@ -202,6 +209,20 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		this.fullyQualifiedRegionName = region.getFullPath();
 		region.getAttributesMutator().addCacheListener(this);
+
+		Instantiator.register(new Instantiator(GemFireSession.class, 800813552) {
+			@Override
+			public DataSerializable newInstance() {
+				return new GemFireSession();
+			}
+		});
+
+		Instantiator.register(new Instantiator(GemFireSessionAttributes.class, 800828008) {
+			@Override
+			public DataSerializable newInstance() {
+				return new GemFireSessionAttributes();
+			}
+		});
 	}
 
 	/* (non-Javadoc) */
@@ -328,11 +349,10 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/**
-	 * GemFireSession is a GemFire representation model of a Spring
-	 * {@link ExpiringSession} for storing and accessing Session state information in
-	 * GemFire. This class implements GemFire's {@link DataSerializable} interface to
-	 * better handle replication of Session information across the GemFire cluster.
-	 *
+	 * GemFireSession is a GemFire representation model of a Spring {@link ExpiringSession}
+	 * that stores and manages Session state information in GemFire. This class implements
+	 * GemFire's {@link DataSerializable} interface to better handle replication of Session
+	 * state information across the GemFire cluster.
 	 */
 	@SuppressWarnings("serial")
 	public static class GemFireSession implements Comparable<ExpiringSession>,
@@ -344,15 +364,6 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 				"YYYY-MM-dd-HH-mm-ss");
 
 		protected static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
-		static {
-			Instantiator.register(new Instantiator(GemFireSession.class, 800813552) {
-				@Override
-				public DataSerializable newInstance() {
-					return new GemFireSession();
-				}
-			});
-		}
 
 		private transient boolean delta = false;
 
@@ -625,33 +636,22 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/**
-	 * The GemFireSessionAttributes class is a container for Session attributes that
-	 * implements both the {@link DataSerializable} and {@link Delta} GemFire interfaces
-	 * for efficient storage and distribution (replication) in GemFire. Additionally,
-	 * GemFireSessionAttributes extends {@link AbstractMap} providing {@link Map}-like
-	 * behavior since attributes of a Session are effectively a name to value mapping.
+	 * The GemFireSessionAttributes class is a container for Session attributes implementing
+	 * both the {@link DataSerializable} and {@link Delta} GemFire interfaces for efficient
+	 * storage and distribution (replication) in GemFire. Additionally, GemFireSessionAttributes
+	 * extends {@link AbstractMap} providing {@link Map}-like behavior since attributes of a Session
+	 * are effectively a name to value mapping.
 	 *
 	 * @see java.util.AbstractMap
 	 * @see com.gemstone.gemfire.DataSerializable
 	 * @see com.gemstone.gemfire.DataSerializer
 	 * @see com.gemstone.gemfire.Delta
-	 * @see com.gemstone.gemfire.Instantiator
 	 */
 	@SuppressWarnings("serial")
 	public static class GemFireSessionAttributes extends AbstractMap<String, Object>
 			implements DataSerializable, Delta {
 
 		protected static final boolean DEFAULT_ALLOW_JAVA_SERIALIZATION = true;
-
-		static {
-			Instantiator.register(
-				new Instantiator(GemFireSessionAttributes.class, 800828008) {
-					@Override
-					public DataSerializable newInstance() {
-						return new GemFireSessionAttributes();
-					}
-				});
-		}
 
 		private transient final Map<String, Object> sessionAttributes = new HashMap<String, Object>();
 		private transient final Map<String, Object> sessionAttributeDeltas = new HashMap<String, Object>();
@@ -831,5 +831,4 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 			return this.sessionAttributes.toString();
 		}
 	}
-
 }
