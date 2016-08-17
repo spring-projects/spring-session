@@ -32,6 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -55,6 +56,7 @@ import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -178,7 +180,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void saveNew() {
+	public void saveNewWithoutAttributes() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
 				.createSession();
 
@@ -188,6 +190,24 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT"),
 				isA(PreparedStatementSetter.class));
+		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveNewWithAttributes() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
+		session.setAttribute("testName", "testValue");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT"),
+				isA(PreparedStatementSetter.class));
+		verify(this.jdbcOperations, times(1)).batchUpdate(
+				and(startsWith("INSERT"), contains("ATTRIBUTE_BYTES")),
+				isA(BatchPreparedStatementSetter.class));
 	}
 
 	@Test
