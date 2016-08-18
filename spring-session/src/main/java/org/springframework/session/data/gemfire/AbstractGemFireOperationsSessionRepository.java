@@ -208,21 +208,11 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		Region<Object, ExpiringSession> region = ((GemfireAccessor) template).getRegion();
 
 		this.fullyQualifiedRegionName = region.getFullPath();
+
 		region.getAttributesMutator().addCacheListener(this);
 
-		Instantiator.register(new Instantiator(GemFireSession.class, 800813552) {
-			@Override
-			public DataSerializable newInstance() {
-				return new GemFireSession();
-			}
-		});
-
-		Instantiator.register(new Instantiator(GemFireSessionAttributes.class, 800828008) {
-			@Override
-			public DataSerializable newInstance() {
-				return new GemFireSessionAttributes();
-			}
-		});
+		Instantiator.register(GemFireSessionInstantiator.create());
+		Instantiator.register(GemFireSessionAttributesInstantiator.create());
 	}
 
 	/* (non-Javadoc) */
@@ -636,6 +626,27 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/**
+	 * GemFireSessionInstantiator is a GemFire {@link Instantiator} use to instantiate instances
+	 * of the {@link GemFireSession} object used in GemFire's data serialization framework when
+	 * persisting Session state in GemFire.
+	 */
+	public static class GemFireSessionInstantiator extends Instantiator {
+
+		public static GemFireSessionInstantiator create() {
+			return new GemFireSessionInstantiator(GemFireSession.class, 800813552);
+		}
+
+		public GemFireSessionInstantiator(Class<? extends DataSerializable> type, int id) {
+			super(type, id);
+		}
+
+		@Override
+		public DataSerializable newInstance() {
+			return new GemFireSession();
+		}
+	}
+
+	/**
 	 * The GemFireSessionAttributes class is a container for Session attributes implementing
 	 * both the {@link DataSerializable} and {@link Delta} GemFire interfaces for efficient
 	 * storage and distribution (replication) in GemFire. Additionally, GemFireSessionAttributes
@@ -829,6 +840,27 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		@Override
 		public String toString() {
 			return this.sessionAttributes.toString();
+		}
+	}
+
+	/**
+	 * GemFireSessionAttributesInstantiator is a GemFire {@link Instantiator} use to instantiate instances
+	 * of the {@link GemFireSessionAttributes} object used in GemFire's data serialization framework when
+	 * persisting Session attributes state in GemFire.
+	 */
+	public static class GemFireSessionAttributesInstantiator extends Instantiator {
+
+		public static GemFireSessionAttributesInstantiator create() {
+			return new GemFireSessionAttributesInstantiator(GemFireSessionAttributes.class, 800828008);
+		}
+
+		public GemFireSessionAttributesInstantiator(Class<? extends DataSerializable> type, int id) {
+			super(type, id);
+		}
+
+		@Override
+		public DataSerializable newInstance() {
+			return new GemFireSessionAttributes();
 		}
 	}
 }
