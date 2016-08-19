@@ -23,7 +23,9 @@ import java.util.UUID;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.exceptions.AlreadyExistsException;
+import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,6 +71,11 @@ public class CassandraSessionRepositoryITest {
 
 	private SecurityContext changedContext;
 
+	@BeforeClass
+	public static void setUp() throws Exception {
+		EmbeddedCassandraServerHelper.startEmbeddedCassandra();
+
+	}
 
 	@Before
 	public void setup() throws Exception {
@@ -543,6 +550,7 @@ public class CassandraSessionRepositoryITest {
 		public com.datastax.driver.core.Session session() {
 			com.datastax.driver.core.Session session = Cluster.builder()
 					.addContactPoint("localhost")
+					.withPort(9142)
 					.build().connect();
 			try {
 				session.execute(CREATE_KEYSPACE);

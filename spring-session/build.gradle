@@ -32,7 +32,10 @@ dependencies {
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			"com.h2database:h2:$h2Version",
 			"com.datastax.cassandra:cassandra-driver-dse:$cassandraDriverDseVersion",
-			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.2"
+			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.2",
+	integrationTestCompile("org.cassandraunit:cassandra-unit-shaded:$cassandraUnitVersion"){
+		exclude(group: "com.datastax.cassandra", module: "cassandra-driver-core")
+	}
 
 	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 
