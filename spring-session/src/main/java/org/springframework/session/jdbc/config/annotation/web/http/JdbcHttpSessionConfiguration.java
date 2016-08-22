@@ -21,6 +21,7 @@ import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -35,6 +36,7 @@ import org.springframework.session.config.annotation.web.http.SpringHttpSessionC
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
+import org.springframework.util.StringValueResolver;
 
 /**
  * Spring @Configuration class used to configure and initialize a JDBC based HttpSession
@@ -52,7 +54,7 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableScheduling
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements ImportAware {
+		implements EmbeddedValueResolverAware, ImportAware {
 
 	private String tableName = "";
 
@@ -65,6 +67,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	private ConversionService conversionService;
 
 	private ConversionService springSessionConversionService;
+
+	private StringValueResolver embeddedValueResolver;
 
 	@Bean
 	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
@@ -126,9 +130,15 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		Map<String, Object> enableAttrMap = importMetadata
 				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		this.tableName = enableAttrs.getString("tableName");
+		String tableNameValue = enableAttrs.getString("tableName");
+		if (StringUtils.hasText(tableNameValue)) {
+			this.tableName = this.embeddedValueResolver.resolveStringValue(tableNameValue);
+		}
 		this.maxInactiveIntervalInSeconds = enableAttrs
 				.getNumber("maxInactiveIntervalInSeconds");
 	}
 
+	public void setEmbeddedValueResolver(StringValueResolver resolver) {
+		this.embeddedValueResolver = resolver;
+	}
 }
