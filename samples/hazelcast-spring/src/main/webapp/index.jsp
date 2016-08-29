@@ -4,7 +4,8 @@
 <html lang="en">
 <head>
 	<title>Secured Content</title>
-	<link rel="stylesheet" href="<wj:locate path="bootstrap.min.css" relativeTo="META-INF/resources"/>">
+	<wj:locate path="bootstrap.min.css" relativeTo="META-INF/resources" var="bootstrapCssLocation"/>
+	<link rel="stylesheet" href="<c:url value="${bootstrapCssLocation}"/>">
 	<style type="text/css">
 		body {
 			padding: 1em;

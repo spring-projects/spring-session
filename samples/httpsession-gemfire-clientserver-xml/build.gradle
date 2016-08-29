@@ -8,10 +8,6 @@ sonarqube {
 	skipProject = true
 }
 
-configurations {
-	compile.exclude group: 'org.slf4j', module: 'slf4j-api'
-}
-
 dependencies {
 	compile project(':spring-session-data-geode'),
 		"org.springframework:spring-web:$springVersion",

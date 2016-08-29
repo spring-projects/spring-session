@@ -23,9 +23,8 @@
 	<filter-mapping>
 		<filter-name>springSessionRepositoryFilter</filter-name>
 		<url-pattern>/*</url-pattern>
-                <dispatcher>REQUEST</dispatcher>
-                <dispatcher>ERROR</dispatcher>
-                <dispatcher>ASYNC</dispatcher>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>ERROR</dispatcher>
 	</filter-mapping>
 	<!-- end::springSessionRepositoryFilter[] -->
 

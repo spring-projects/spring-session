@@ -4,7 +4,8 @@
 <html lang="en">
 <head>
     <title>Linked Page</title>
-    <link rel="stylesheet" href="<wj:locate path="bootstrap.min.css" relativeTo="META-INF/resources"/>">
+    <wj:locate path="bootstrap.min.css" relativeTo="META-INF/resources" var="bootstrapCssLocation"/>
+    <link rel="stylesheet" href="<c:url value="${bootstrapCssLocation}"/>">
     <style type="text/css">
         body {
             padding: 1em;
@@ -74,8 +75,10 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="<wj:locate path="jquery.min.js" relativeTo="META-INF/resources"/>"></script>
-    <script src="<wj:locate path="bootstrap.min.js" relativeTo="META-INF/resources"/>"></script>
+    <wj:locate path="jquery.min.js" relativeTo="META-INF/resources" var="jqueryLocation"/>
+    <script src="<c:url value="${jqueryLocation}"/>"></script>
+    <wj:locate path="bootstrap.min.js" relativeTo="META-INF/resources" var="bootstrapJsLocation"/>
+    <script src="<c:url value="${bootstrapJsLocation}"/>"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="<c:url value="/assets/js/ie10-viewport-bug-workaround.js"/>"></script>
 </body>

@@ -3,19 +3,18 @@ buildscript {
 		maven { url "https://repo.spring.io/plugins-release" }
 	}
 	dependencies {
-		classpath("org.gradle.api.plugins:gradle-tomcat-plugin:1.2.3")
+		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.5")
 	}
 }
 
 apply plugin: 'war'
-apply plugin: 'tomcat'
+apply plugin: 'com.bmuschko.tomcat'
 
 [tomcatRun,tomcatRunWar]*.contextPath = '/'
 
 
-task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
+task integrationTomcatRun(type: com.bmuschko.gradle.tomcat.tasks.TomcatRun) {
 	onlyIf { !sourceSets.integrationTest.allSource.empty }
-	buildscriptClasspath = tomcatRun.buildscriptClasspath
 	contextPath = tomcatRun.contextPath
 	daemon = true
 	tomcatClasspath = tomcatRun.tomcatClasspath
@@ -36,7 +35,7 @@ task integrationTomcatRun(type: org.gradle.api.plugins.tomcat.tasks.TomcatRun) {
 	}
 }
 
-task integrationTomcatStop(type: org.gradle.api.plugins.tomcat.tasks.TomcatStop) {
+task integrationTomcatStop(type: com.bmuschko.gradle.tomcat.tasks.TomcatStop) {
 	onlyIf { !sourceSets.integrationTest.allSource.empty }
 	doFirst {
 		stopPort = integrationTomcatRun.stopPort

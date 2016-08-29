@@ -3,8 +3,6 @@ apply from: TOMCAT_GRADLE
 dependencies {
 	def tomcatVersion = '7.0.59'
 	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
-			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
-	tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
-		exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
-	}
+			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
+			"org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
 }
