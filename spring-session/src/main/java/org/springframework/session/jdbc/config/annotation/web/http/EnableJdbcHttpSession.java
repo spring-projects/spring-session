@@ -24,7 +24,9 @@ import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
@@ -75,7 +77,7 @@ public @interface EnableJdbcHttpSession {
 	 * The name of database table used by Spring Session to store sessions.
 	 * @return the database table name
 	 */
-	String tableName() default "";
+	String tableName() default JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
 
 	/**
 	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
@@ -83,6 +85,6 @@ public @interface EnableJdbcHttpSession {
 	 *
 	 * @return the seconds a session can be inactive before expiring
 	 */
-	int maxInactiveIntervalInSeconds() default 1800;
+	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 }

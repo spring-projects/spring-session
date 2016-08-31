@@ -54,9 +54,9 @@ import org.springframework.util.StringUtils;
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements ImportAware {
 
-	private String tableName = "";
+	private String tableName;
 
-	private Integer maxInactiveIntervalInSeconds = 1800;
+	private Integer maxInactiveIntervalInSeconds;
 
 	private LobHandler lobHandler;
 
@@ -116,10 +116,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	}
 
 	private String getTableName() {
-		if (StringUtils.hasText(this.tableName)) {
-			return this.tableName;
+		String systemProperty = System.getProperty("spring.session.jdbc.tableName", "");
+		if (StringUtils.hasText(systemProperty)) {
+			return systemProperty;
 		}
-		return System.getProperty("spring.session.jdbc.tableName", "");
+		return this.tableName;
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
