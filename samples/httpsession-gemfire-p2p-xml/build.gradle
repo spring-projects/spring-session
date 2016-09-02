@@ -2,10 +2,6 @@ apply from: JAVA_GRADLE
 apply from: TOMCAT_7_GRADLE
 apply from: SAMPLE_GRADLE
 
-configurations {
-	compile.exclude group: 'org.slf4j', module: 'slf4j-api'
-}
-
 dependencies {
 	compile project(':spring-session-data-gemfire'),
 		"org.springframework:spring-web:$springVersion",
