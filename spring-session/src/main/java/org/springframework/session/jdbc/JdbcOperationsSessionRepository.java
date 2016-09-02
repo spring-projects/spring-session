@@ -130,7 +130,10 @@ import org.springframework.util.StringUtils;
 public class JdbcOperationsSessionRepository implements
 		FindByIndexNameSessionRepository<JdbcOperationsSessionRepository.JdbcSession> {
 
-	private static final String DEFAULT_TABLE_NAME = "SPRING_SESSION";
+	/**
+	 * The default name of database table used by Spring Session to store sessions.
+	 */
+	public static final String DEFAULT_TABLE_NAME = "SPRING_SESSION";
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
