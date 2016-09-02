@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.core.serializer.support.DeserializingConverter;
+import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -52,7 +56,7 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableScheduling
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements ImportAware {
+		implements BeanClassLoaderAware, ImportAware {
 
 	private String tableName;
 
@@ -65,6 +69,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	private ConversionService conversionService;
 
 	private ConversionService springSessionConversionService;
+
+	private ClassLoader classLoader;
 
 	@Bean
 	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
@@ -91,6 +97,14 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		}
 		else if (this.conversionService != null) {
 			sessionRepository.setConversionService(this.conversionService);
+		}
+		else if (this.classLoader != null) {
+			GenericConversionService conversionService = new GenericConversionService();
+			conversionService.addConverter(Object.class, byte[].class,
+					new SerializingConverter());
+			conversionService.addConverter(byte[].class, Object.class,
+					new DeserializingConverter(this.classLoader));
+			sessionRepository.setConversionService(conversionService);
 		}
 		return sessionRepository;
 	}
@@ -121,6 +135,16 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 			return systemProperty;
 		}
 		return this.tableName;
+	}
+
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		try {
+			DeserializingConverter.class.getConstructor(ClassLoader.class);
+		}
+		catch (NoSuchMethodException e) {
+			return;
+		}
+		this.classLoader = classLoader;
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
