@@ -30,9 +30,11 @@ import javax.servlet.http.HttpServletResponse;
  * The default implementation of {@link CookieSerializer}.
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.1
  */
 public class DefaultCookieSerializer implements CookieSerializer {
+
 	private String cookieName = "SESSION";
 
 	private Boolean useSecureCookie;
@@ -49,6 +51,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private String jvmRoute;
 
+	private boolean useBase64Encoding = false;
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -61,7 +65,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (this.cookieName.equals(cookie.getName())) {
-					String sessionId = cookie.getValue();
+					String sessionId = this.useBase64Encoding
+							? decodeCookieValue(cookie.getValue()) : cookie.getValue();
 					if (sessionId == null) {
 						continue;
 					}
@@ -90,7 +95,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		String actualCookieValue = this.jvmRoute == null ? requestedCookieValue
 				: requestedCookieValue + this.jvmRoute;
 
-		Cookie sessionCookie = new Cookie(this.cookieName, actualCookieValue);
+		Cookie sessionCookie = new Cookie(this.cookieName, this.useBase64Encoding
+				? encodeCookieValue(actualCookieValue) : actualCookieValue);
 		sessionCookie.setSecure(isSecureCookie(request));
 		sessionCookie.setPath(getCookiePath(request));
 		String domainName = getDomainName(request);
@@ -110,6 +116,33 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		}
 
 		response.addCookie(sessionCookie);
+	}
+
+	/**
+	 * Decode cookie value using Base64.
+	 * @param encodedCookieValue the encoded cookie value
+	 * @return the cookie value
+	 * @since 1.2.2
+	 */
+	private String decodeCookieValue(String encodedCookieValue) {
+		try {
+			byte[] decodedCookieBytes = Base64.decode(encodedCookieValue.getBytes());
+			return new String(decodedCookieBytes);
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Encode cookie value using Base64.
+	 * @param cookieValue the cookie value
+	 * @return the encoded cookie value
+	 * @since 1.2.2
+	 */
+	private String encodeCookieValue(String cookieValue) {
+		byte[] encodedCookieBytes = Base64.encode(cookieValue.getBytes());
+		return new String(encodedCookieBytes);
 	}
 
 	/**
@@ -247,6 +280,15 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		this.jvmRoute = "." + jvmRoute;
 	}
 
+	/**
+	 * Set if the Base64 encoding of cookie value should be used.
+	 *
+	 * @param useBase64Encoding the flag to indicate whether to use Base64 encoding
+	 */
+	public void setUseBase64Encoding(boolean useBase64Encoding) {
+		this.useBase64Encoding = useBase64Encoding;
+	}
+
 	private String getDomainName(HttpServletRequest request) {
 		if (this.domainName != null) {
 			return this.domainName;
@@ -281,4 +323,5 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		}
 		return false;
 	}
+
 }
