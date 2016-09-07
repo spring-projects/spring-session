@@ -569,6 +569,7 @@ final class Base64 {
 	 * @return decoded data
 	 * @throws IllegalArgumentException If bogus characters exist in source data
 	 */
+	@SuppressWarnings("cast")
 	private static byte[] decode(final byte[] source, final int off, final int len,
 			final int options) {
 

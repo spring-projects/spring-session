@@ -51,7 +51,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private String jvmRoute;
 
-	private boolean useBase64Encoding = false;
+	private boolean useBase64Encoding;
 
 	/*
 	 * (non-Javadoc)
@@ -66,7 +66,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			for (Cookie cookie : cookies) {
 				if (this.cookieName.equals(cookie.getName())) {
 					String sessionId = this.useBase64Encoding
-							? decodeCookieValue(cookie.getValue()) : cookie.getValue();
+							? base64Decode(cookie.getValue()) : cookie.getValue();
 					if (sessionId == null) {
 						continue;
 					}
@@ -96,7 +96,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 				: requestedCookieValue + this.jvmRoute;
 
 		Cookie sessionCookie = new Cookie(this.cookieName, this.useBase64Encoding
-				? encodeCookieValue(actualCookieValue) : actualCookieValue);
+				? base64Encode(actualCookieValue) : actualCookieValue);
 		sessionCookie.setSecure(isSecureCookie(request));
 		sessionCookie.setPath(getCookiePath(request));
 		String domainName = getDomainName(request);
@@ -119,14 +119,14 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/**
-	 * Decode cookie value using Base64.
-	 * @param encodedCookieValue the encoded cookie value
-	 * @return the cookie value
+	 * Decode the value using Base64.
+	 * @param base64Value the Base64 String to decode
+	 * @return the Base64 decoded value
 	 * @since 1.2.2
 	 */
-	private String decodeCookieValue(String encodedCookieValue) {
+	private String base64Decode(String base64Value) {
 		try {
-			byte[] decodedCookieBytes = Base64.decode(encodedCookieValue.getBytes());
+			byte[] decodedCookieBytes = Base64.decode(base64Value.getBytes());
 			return new String(decodedCookieBytes);
 		}
 		catch (Exception e) {
@@ -135,13 +135,13 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/**
-	 * Encode cookie value using Base64.
-	 * @param cookieValue the cookie value
-	 * @return the encoded cookie value
+	 * Encode the value using Base64.
+	 * @param value the String to Base64 encode
+	 * @return the Base64 encoded value
 	 * @since 1.2.2
 	 */
-	private String encodeCookieValue(String cookieValue) {
-		byte[] encodedCookieBytes = Base64.encode(cookieValue.getBytes());
+	private String base64Encode(String value) {
+		byte[] encodedCookieBytes = Base64.encode(value.getBytes());
 		return new String(encodedCookieBytes);
 	}
 
@@ -281,7 +281,9 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/**
-	 * Set if the Base64 encoding of cookie value should be used.
+	 * Set if the Base64 encoding of cookie value should be used. This is valuable in
+	 * order to support <a href="https://tools.ietf.org/html/rfc6265">RFC 6265</a> which
+	 * recommends using Base 64 encoding to the cookie value.
 	 *
 	 * @param useBase64Encoding the flag to indicate whether to use Base64 encoding
 	 */
