@@ -38,6 +38,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -98,15 +99,35 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		else if (this.conversionService != null) {
 			sessionRepository.setConversionService(this.conversionService);
 		}
-		else if (this.classLoader != null) {
-			GenericConversionService conversionService = new GenericConversionService();
-			conversionService.addConverter(Object.class, byte[].class,
-					new SerializingConverter());
-			conversionService.addConverter(byte[].class, Object.class,
-					new DeserializingConverter(this.classLoader));
+		else if (deserializingConverterSupportsCustomClassLoader()) {
+			GenericConversionService conversionService = createConversionServiceWithBeanClassLoader();
 			sessionRepository.setConversionService(conversionService);
 		}
 		return sessionRepository;
+	}
+
+	/**
+	 * This must be a separate method because some ClassLoaders load the entire method
+	 * definition even if an if statement guards against it loading. This means that older
+	 * versions of Spring would cause a NoSuchMethodError if this were defined in
+	 * {@link #sessionRepository(JdbcOperations, PlatformTransactionManager)}.
+	 *
+	 * @return the default {@link ConversionService}
+	 */
+	private GenericConversionService createConversionServiceWithBeanClassLoader() {
+		GenericConversionService conversionService = new GenericConversionService();
+		conversionService.addConverter(Object.class, byte[].class,
+				new SerializingConverter());
+		conversionService.addConverter(byte[].class, Object.class,
+				new DeserializingConverter(this.classLoader));
+		return conversionService;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)
+	 */
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 	@Autowired(required = false)
@@ -136,14 +157,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return System.getProperty("spring.session.jdbc.tableName", "");
 	}
 
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		try {
-			DeserializingConverter.class.getConstructor(ClassLoader.class);
-		}
-		catch (NoSuchMethodException e) {
-			return;
-		}
-		this.classLoader = classLoader;
+	private boolean deserializingConverterSupportsCustomClassLoader() {
+		return ClassUtils.hasConstructor(DeserializingConverter.class, ClassLoader.class);
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
