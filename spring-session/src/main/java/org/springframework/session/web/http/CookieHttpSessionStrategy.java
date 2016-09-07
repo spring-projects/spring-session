@@ -139,6 +139,11 @@ import org.springframework.util.Assert;
  */
 public final class CookieHttpSessionStrategy
 		implements MultiHttpSessionStrategy, HttpSessionManager {
+	/**
+	 * The default delimiter for both serialization and deserialization.
+	 */
+	private static final String DEFAULT_DELIMITER = " ";
+
 	private static final String SESSION_IDS_WRITTEN_ATTR = CookieHttpSessionStrategy.class
 			.getName().concat(".SESSIONS_WRITTEN_ATTR");
 
@@ -151,6 +156,17 @@ public final class CookieHttpSessionStrategy
 	private String sessionParam = DEFAULT_SESSION_ALIAS_PARAM_NAME;
 
 	private CookieSerializer cookieSerializer = new DefaultCookieSerializer();
+
+	/**
+	 * The delimiter between a session alias and a session id when reading a cookie value. The default value is " ".
+	 */
+	private String deserializationDelimiter = DEFAULT_DELIMITER;
+
+	/**
+	 * The delimiter between a session alias and a session id when writing a cookie value.
+	 * The default is " ".
+	 */
+	private String serializationDelimiter = DEFAULT_DELIMITER;
 
 	public String getRequestedSessionId(HttpServletRequest request) {
 		Map<String, String> sessionIds = getSessionIds(request);
@@ -238,9 +254,9 @@ public final class CookieHttpSessionStrategy
 			String id = entry.getValue();
 
 			buffer.append(alias);
-			buffer.append(" ");
+			buffer.append(this.serializationDelimiter);
 			buffer.append(id);
-			buffer.append(" ");
+			buffer.append(this.serializationDelimiter);
 		}
 		buffer.deleteCharAt(buffer.length() - 1);
 		return buffer.toString();
@@ -290,12 +306,36 @@ public final class CookieHttpSessionStrategy
 		this.cookieSerializer = serializer;
 	}
 
+	/**
+	 * Sets the delimiter between a session alias and a session id when deserializing a cookie. The default is " "
+	 * This is useful when using <a href="https://tools.ietf.org/html/rfc6265">RFC
+	 * 6265</a> for writing the cookies which doesn't allow for spaces in the cookie
+	 * values.
+	 *
+	 * @param delimiter the delimiter to set (i.e. "_ " will try a delimeter of either "_" or " ")
+	 */
+	public void setDeserializationDelimiter(String delimiter) {
+		this.deserializationDelimiter = delimiter;
+	}
+
+	/**
+	 * Sets the delimiter between a session alias and a session id when deserializing a cookie. The default is " ".
+	 * This is useful when using <a href="https://tools.ietf.org/html/rfc6265">RFC
+	 * 6265</a> for writing the cookies which doesn't allow for spaces in the cookie
+	 * values.
+	 *
+	 * @param delimiter the delimiter to set (i.e. "_")
+	 */
+	public void setSerializationDelimiter(String delimiter) {
+		this.serializationDelimiter = delimiter;
+	}
+
 	public Map<String, String> getSessionIds(HttpServletRequest request) {
 		List<String> cookieValues = this.cookieSerializer.readCookieValues(request);
 		String sessionCookieValue = cookieValues.isEmpty() ? ""
 				: cookieValues.iterator().next();
 		Map<String, String> result = new LinkedHashMap<String, String>();
-		StringTokenizer tokens = new StringTokenizer(sessionCookieValue, " ");
+		StringTokenizer tokens = new StringTokenizer(sessionCookieValue, this.deserializationDelimiter);
 		if (tokens.countTokens() == 1) {
 			result.put(DEFAULT_ALIAS, tokens.nextToken());
 			return result;
