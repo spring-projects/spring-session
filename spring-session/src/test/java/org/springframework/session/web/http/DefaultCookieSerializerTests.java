@@ -20,7 +20,6 @@ import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -28,6 +27,7 @@ import org.junit.runners.Parameterized.Parameters;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
+import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(Parameterized.class)
 public class DefaultCookieSerializerTests {
 
-	@Parameters
+	@Parameters(name = "useBase64Encoding={0}")
 	public static Object[] parameters() {
 		return new Object[] { false, true };
 	}
@@ -84,6 +84,15 @@ public class DefaultCookieSerializerTests {
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsOnly(this.sessionId);
+	}
+
+	@Test
+	public void readCookieSerializerUseBase64EncodingTrueValuesNotBase64() {
+		this.sessionId = "&^%$*";
+		this.serializer.setUseBase64Encoding(true);
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId));
+
+		assertThat(this.serializer.readCookieValues(this.request)).isEmpty();
 	}
 
 	@Test
@@ -389,7 +398,8 @@ public class DefaultCookieSerializerTests {
 	public void readCookieJvmRoute() {
 		String jvmRoute = "route";
 		this.serializer.setJvmRoute(jvmRoute);
-		this.request.setCookies(createCookie(this.cookieName, this.sessionId + "." + jvmRoute));
+		this.request.setCookies(
+				createCookie(this.cookieName, this.sessionId + "." + jvmRoute));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsOnly(this.sessionId);
@@ -420,14 +430,10 @@ public class DefaultCookieSerializerTests {
 	}
 
 	private Cookie createCookie(String name, String value) {
-		if (!this.useBase64Encoding) {
-			return new Cookie(name, value);
+		if (this.useBase64Encoding && StringUtils.hasLength(value)) {
+			value = new String(Base64.encode(value.getBytes()));
 		}
-		String encodedValue = null;
-		if (value != null) {
-			encodedValue = new String(Base64.encode(value.getBytes()));
-		}
-		return new Cookie(name, encodedValue);
+		return new Cookie(name, value);
 	}
 
 	private Cookie getCookie() {
