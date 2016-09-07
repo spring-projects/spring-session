@@ -18,6 +18,7 @@ package org.springframework.session.jdbc;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -501,9 +502,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 	}
 
 	@Test
-	public void cleanupCleansUpInactiveSessions() {
-		this.repository.setDefaultMaxInactiveInterval(1800); // 30 minutes
-
+	public void cleanupInactiveSessionsUsingRepositoryDefinedInterval() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
 				.createSession();
 
@@ -513,32 +512,50 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		this.repository.cleanUpExpiredSessions();
 
-		// verify its not cleaned up immediately after creation
 		assertThat(this.repository.getSession(session.getId())).isNotNull();
 
 		long now = System.currentTimeMillis();
-		long tenMinutesInMilliseconds = 1000 * 60 * 10;
-		long thirtyMinutesInMilliseconds = 1000 * 60 * 30;
 
-		// set the last accessed time to 10 minutes in the past, session should not get
-		// cleaned up because it has not been inactive for 30 minutes yet
-		long tenMinutesInThePast = now - tenMinutesInMilliseconds;
-		session.setLastAccessedTime(tenMinutesInThePast);
+		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(10));
 		this.repository.save(session);
-
 		this.repository.cleanUpExpiredSessions();
 
-		// session should still exist
 		assertThat(this.repository.getSession(session.getId())).isNotNull();
 
-		// set the last accessed time to 30 minutes in the past, session should get
-		// cleaned up as it has been inactive for 30 minutes
-		long thirtyMinutesInThePast = now - thirtyMinutesInMilliseconds;
-		session.setLastAccessedTime(thirtyMinutesInThePast);
+		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(30));
+		this.repository.save(session);
+		this.repository.cleanUpExpiredSessions();
+
+		assertThat(this.repository.getSession(session.getId())).isNull();
+	}
+
+	// gh-580
+	@Test
+	public void cleanupInactiveSessionsUsingSessionDefinedInterval() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
+		session.setMaxInactiveIntervalInSeconds((int) TimeUnit.MINUTES.toSeconds(45));
+
 		this.repository.save(session);
 
+		assertThat(this.repository.getSession(session.getId())).isNotNull();
+
 		this.repository.cleanUpExpiredSessions();
-		// session should have been cleaned up
+
+		assertThat(this.repository.getSession(session.getId())).isNotNull();
+
+		long now = System.currentTimeMillis();
+
+		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(40));
+		this.repository.save(session);
+		this.repository.cleanUpExpiredSessions();
+
+		assertThat(this.repository.getSession(session.getId())).isNotNull();
+
+		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(50));
+		this.repository.save(session);
+		this.repository.cleanUpExpiredSessions();
+
 		assertThat(this.repository.getSession(session.getId())).isNull();
 	}
 

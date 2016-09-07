@@ -22,7 +22,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -522,22 +521,6 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), anyLong());
-	}
-
-	// gh-564
-	@Test
-	public void cleanupExpiredSessionsNoOverflow() {
-		long now = System.currentTimeMillis();
-		long toDelete = now - (new Long(Integer.MAX_VALUE) * 1000L);
-		this.repository.setDefaultMaxInactiveInterval(Integer.MAX_VALUE);
-
-		this.repository.cleanUpExpiredSessions();
-
-		ArgumentCaptor<Long> time = ArgumentCaptor.forClass(Long.class);
-		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"),
-				time.capture());
-		assertThat(time.getValue()).isCloseTo(toDelete, Offset.offset(5L));
 	}
 
 	private void assertPropagationRequiresNew() {
