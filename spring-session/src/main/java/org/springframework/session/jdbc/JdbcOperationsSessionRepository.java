@@ -21,7 +21,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,7 +176,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
 			"DELETE FROM %TABLE_NAME% " +
-					"WHERE LAST_ACCESS_TIME < ?";
+					"WHERE LAST_ACCESS_TIME < ? - MAX_INACTIVE_INTERVAL * 1000";
 
 	private static final Log logger = LogFactory
 			.getLog(JdbcOperationsSessionRepository.class);
@@ -564,24 +563,12 @@ public class JdbcOperationsSessionRepository implements
 
 	@Scheduled(cron = "0 * * * * *")
 	public void cleanUpExpiredSessions() {
-		long now = System.currentTimeMillis();
-		long maxInactiveIntervalSeconds = (this.defaultMaxInactiveInterval != null)
-				? this.defaultMaxInactiveInterval
-				: MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
-
-		final long sessionsValidFromTime = now - (maxInactiveIntervalSeconds * 1000);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug(
-					"Cleaning up sessions older than " + new Date(sessionsValidFromTime));
-		}
-
 		int deletedCount = this.transactionOperations.execute(new TransactionCallback<Integer>() {
 
 			public Integer doInTransaction(TransactionStatus transactionStatus) {
 				return JdbcOperationsSessionRepository.this.jdbcOperations.update(
 						JdbcOperationsSessionRepository.this.deleteSessionsByLastAccessTimeQuery,
-						sessionsValidFromTime);
+						System.currentTimeMillis());
 			}
 
 		});
