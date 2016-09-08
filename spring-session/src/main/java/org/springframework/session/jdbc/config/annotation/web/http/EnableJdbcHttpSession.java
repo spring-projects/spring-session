@@ -87,4 +87,12 @@ public @interface EnableJdbcHttpSession {
 	 */
 	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
+	/**
+	 * The cron expression used to trigger running of the
+	 * {@link JdbcOperationsSessionRepository#cleanUpExpiredSessions()} method
+	 *
+	 * @return the cron expression used to trigger cleaning up of sessions
+	 */
+	String cleanUpCron() default JdbcOperationsSessionRepository.CLEAN_UP_EXPIRED_SESSIONS_DEFAULT_CRON;
+
 }
