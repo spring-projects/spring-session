@@ -87,7 +87,7 @@ import org.springframework.util.Assert;
  * <pre class="code">
  * CREATE TABLE session (
  *   id uuid PRIMARY KEY,
- *   attributes map<text, text>,
+ *   attributes map&lt;text, text&gt;,
  *   creation_time bigint,
  *   last_accessed bigint,
  *   max_inactive_interval_in_seconds int);
@@ -174,7 +174,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 		Map<String, String> serializedAttributes = this.sessionAttributeSerializer.convert(session);
 
-		Insert insert = QueryBuilder.insertInto(tableName)
+		Insert insert = QueryBuilder.insertInto(this.tableName)
 				.value("id", UUID.fromString(session.getId()))
 				.value("creation_time", session.getCreationTime())
 				.value("last_accessed", session.getLastAccessedTime())
@@ -194,12 +194,12 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 
 		if (shouldDeleteIdx) {
-			Statement idxDelete = QueryBuilder.delete().from(getIndexTableName())
+			Statement idxDelete = QueryBuilder.delete().from(this.getIndexTableName())
 					.where(QueryBuilder.eq("principal_name", savedPrincipalName));
 			batch.add(idxDelete);
 		}
 		if (shouldInsertIdx) {
-			Insert idxInsert = QueryBuilder.insertInto(getIndexTableName())
+			Insert idxInsert = QueryBuilder.insertInto(this.getIndexTableName())
 					.value("id", UUID.fromString(session.getId()))
 					.value("principal_name", currentPrincipalName);
 			idxInsert.using(QueryBuilder.ttl(session.getMaxInactiveIntervalInSeconds()));
@@ -236,14 +236,14 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 	public void delete(String id) {
 		CassandraHttpSession session = getSession(id);
-		Statement delete = QueryBuilder.delete().from(tableName)
+		Statement delete = QueryBuilder.delete().from(this.tableName)
 				.where(QueryBuilder.eq("id", UUID.fromString(id)));
 		String principalName = session.getSavedPrincipalName();
 		if (principalName == null) {
 			this.cassandraOperations.execute(delete);
 		}
 		else {
-			Statement deleteIdx = QueryBuilder.delete().from(getIndexTableName())
+			Statement deleteIdx = QueryBuilder.delete().from(this.getIndexTableName())
 					.where(QueryBuilder.eq("principal_name", principalName));
 
 			BatchStatement batchStatement = new BatchStatement();
@@ -257,7 +257,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 	public Map<String, CassandraHttpSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		Select select = QueryBuilder.select("id")
-				.from(getIndexTableName());
+				.from(this.getIndexTableName());
 		select.where(QueryBuilder.eq("principal_name", indexValue));
 		List<UUID> uuids = this.cassandraOperations.queryForList(select, UUID.class);
 		Map<String, CassandraHttpSession> result = new HashMap<String, CassandraHttpSession>();
