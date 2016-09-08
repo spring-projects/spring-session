@@ -60,7 +60,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 
-	private final CassandraOperations template;
+	private final CassandraOperations cassandraOperations;
 	private final SessionAttributeDeserializer sessionAttributeDeserializer = new SessionAttributeDeserializer();
 	private final SessionAttributeSerializer sessionAttributeSerializer = new SessionAttributeSerializer();
 	private final TtlCalculator ttlCalculator = new TtlCalculator();
@@ -68,8 +68,8 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 
 	@Autowired
-	public CassandraSessionRepository(CassandraOperations template) {
-		this.template = template;
+	public CassandraSessionRepository(CassandraOperations cassandraOperations) {
+		this.cassandraOperations = cassandraOperations;
 	}
 
 	public CassandraHttpSession createSession() {
@@ -133,7 +133,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		}
 
 
-		this.template.execute(batch);
+		this.cassandraOperations.execute(batch);
 		session.onSave();
 	}
 
@@ -142,7 +142,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		Select select = QueryBuilder.select("id", "creation_time", "last_accessed", "max_inactive_interval_in_seconds", "attributes")
 				.from("session");
 		select.where(QueryBuilder.eq("id", UUID.fromString(id)));
-		Row row = this.template.getSession().execute(select).one();
+		Row row = this.cassandraOperations.getSession().execute(select).one();
 		if (row == null) {
 			return null;
 		}
@@ -166,7 +166,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 				.where(QueryBuilder.eq("id", UUID.fromString(id)));
 		String principalName = session.getSavedPrincipalName();
 		if (principalName == null) {
-			this.template.execute(delete);
+			this.cassandraOperations.execute(delete);
 		}
 		else {
 			Statement deleteIdx = QueryBuilder.delete().from("session_by_name")
@@ -175,7 +175,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 			BatchStatement batchStatement = new BatchStatement();
 			batchStatement.add(delete);
 			batchStatement.add(deleteIdx);
-			this.template.execute(batchStatement);
+			this.cassandraOperations.execute(batchStatement);
 		}
 
 	}
@@ -185,7 +185,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		Select select = QueryBuilder.select("id")
 				.from("session_by_name");
 		select.where(QueryBuilder.eq("principal_name", indexValue));
-		List<UUID> uuids = this.template.queryForList(select, UUID.class);
+		List<UUID> uuids = this.cassandraOperations.queryForList(select, UUID.class);
 		Map<String, CassandraHttpSession> result = new HashMap<String, CassandraHttpSession>();
 		for (UUID id : uuids) {
 			CassandraHttpSession session = getSession(id.toString());
