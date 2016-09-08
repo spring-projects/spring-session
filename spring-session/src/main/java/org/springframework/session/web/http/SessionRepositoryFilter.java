@@ -19,6 +19,7 @@ package org.springframework.session.web.http;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
@@ -53,8 +54,8 @@ import org.springframework.session.SessionRepository;
  * {@link org.springframework.session.Session} abstraction. Specifically:
  *
  * <ul>
- * <li>The session id is looked up using
- * {@link HttpSessionStrategy#getRequestedSessionId(javax.servlet.http.HttpServletRequest)}
+ * <li>The session ids is looked up using
+ * {@link HttpSessionStrategy#getRequestedSessionIds(javax.servlet.http.HttpServletRequest)}
  * . The default is to look in a cookie named SESSION.</li>
  * <li>The session id of newly created {@link org.springframework.session.ExpiringSession}
  * is sent to the client using
@@ -72,6 +73,7 @@ import org.springframework.session.SessionRepository;
  * @param <S> the {@link ExpiringSession} type.
  * @since 1.0
  * @author Rob Winch
+ * @author Eddú Meléndez
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends ExpiringSession>
@@ -391,8 +393,12 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 
 		@Override
 		public String getRequestedSessionId() {
-			return SessionRepositoryFilter.this.httpSessionStrategy
-					.getRequestedSessionId(this);
+			List<String> sessionIds = SessionRepositoryFilter.this
+					.httpSessionStrategy.getRequestedSessionIds(this);
+			if (sessionIds.size() > 0) {
+				return sessionIds.get(0);
+			}
+			return null;
 		}
 
 		/**
@@ -431,8 +437,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 			this.delegate = delegate;
 		}
 
-		public String getRequestedSessionId(HttpServletRequest request) {
-			return this.delegate.getRequestedSessionId(request);
+		public List<String> getRequestedSessionIds(HttpServletRequest request) {
+			return this.delegate.getRequestedSessionIds(request);
 		}
 
 		public void onNewSession(Session session, HttpServletRequest request,
