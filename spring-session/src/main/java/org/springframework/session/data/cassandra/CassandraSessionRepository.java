@@ -45,16 +45,69 @@ import org.springframework.session.Session;
 import org.springframework.session.data.cassandra.conversion.SessionAttributeDeserializer;
 import org.springframework.session.data.cassandra.conversion.SessionAttributeSerializer;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.util.Assert;
 
 
 /**
- * TODO doc this.
+ * A {@link org.springframework.session.SessionRepository} implementation that uses
+ * Spring's {@link CassandraOperations} to store sessions in cassandra. This
+ * implementation does not support publishing of session events.
+ * It does make use of Cassandra's
+ * <a href="https://docs.datastax.com/en/cql/3.1/cql/cql_using/use_expire_c.html">TTL feature</a>,
+ * automatically removing expired sessions.
+ * Cassandra's
+ * <a href="https://docs.datastax.com/en/cql/3.1/cql/cql_reference/batch_r.html">batch feature</a>
+ * is also used to ensure that sessions and their lookup entries are added atomically.
+ * <p>
+ * An example of how to create a new instance can be seen below:
+ *
+ * <pre class="code">
+ * CassandraOperations cassandraOperations = new CassandraTemplate(sesion);
+ *
+ * // ... configure cassandraOperations ...
+ *
+ *
+ * CassandraSessionRepository sessionRepository =
+ *         new CassandraSessionRepository(cassandraOperations);
+ * </pre>
+ *
+ * For additional information on how to create and configure
+ * {@link org.springframework.data.cassandra.core.CassandraTemplate}, refer to the
+ * <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
+ * Spring Framework Reference Documentation</a>.
+ * <p>
+ * By default, this implementation uses <code>spring_session</code> and
+ * <code>spring_session_by_name</code> tables to store sessions. Note that the table
+ * name can be customized using the {@link #setTableName(String)} method. In that case the
+ * table used to store attributes will be named using the provided table name, suffixed
+ * with <code>_by_name</code>.
+ *
+ * The table definition can be described as below:
+ *
+ * <pre class="code">
+ * CREATE TABLE session (
+ *   id uuid PRIMARY KEY,
+ *   attributes map<text, text>,
+ *   creation_time bigint,
+ *   last_accessed bigint,
+ *   max_inactive_interval_in_seconds int);
+ *
+ * CREATE TABLE session_by_name (
+ *   principal_name text,
+ *   id uuid,
+ *   PRIMARY KEY (principal_name, id));
+ *
+ * </pre>
+ *
  * @author Andrew Fitzgerald
  */
 public class CassandraSessionRepository implements FindByIndexNameSessionRepository<CassandraSessionRepository.CassandraHttpSession> {
 
 	private static final Logger log = LoggerFactory.getLogger(CassandraSessionRepository.class);
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
+
+
+	private static final String DEFAULT_TABLE_NAME = "spring_session";
 
 	//Temporary until #557 is resolved, see commends on PrincipalNameResolver
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
@@ -64,8 +117,16 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	private final SessionAttributeDeserializer sessionAttributeDeserializer = new SessionAttributeDeserializer();
 	private final SessionAttributeSerializer sessionAttributeSerializer = new SessionAttributeSerializer();
 	private final TtlCalculator ttlCalculator = new TtlCalculator();
+
+	/**
+	 * The default number of seconds a {@link CassandraHttpSession} session will be valid.
+	 */
 	private int defaultMaxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
+	/**
+	 * The name of cassandra table used by Spring Session to store sessions.
+	 */
+	private String tableName = DEFAULT_TABLE_NAME;
 
 	@Autowired
 	public CassandraSessionRepository(CassandraOperations cassandraOperations) {
@@ -86,6 +147,19 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
+	/**
+	 * Set the name of cassandra table used to store sessions.
+	 * @param tableName the cassandra table name
+	 */
+	public void setTableName(String tableName) {
+		Assert.hasText(tableName, "Table name must not be empty");
+		this.tableName = tableName.trim();
+	}
+
+	public String getIndexTableName() {
+		return this.tableName + "_by_name";
+	}
+
 	public void save(CassandraHttpSession session) {
 
 		int ttl;
@@ -100,7 +174,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 		Map<String, String> serializedAttributes = this.sessionAttributeSerializer.convert(session);
 
-		Insert insert = QueryBuilder.insertInto("session")
+		Insert insert = QueryBuilder.insertInto(tableName)
 				.value("id", UUID.fromString(session.getId()))
 				.value("creation_time", session.getCreationTime())
 				.value("last_accessed", session.getLastAccessedTime())
@@ -120,12 +194,12 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 
 		if (shouldDeleteIdx) {
-			Statement idxDelete = QueryBuilder.delete().from("session_by_name")
+			Statement idxDelete = QueryBuilder.delete().from(getIndexTableName())
 					.where(QueryBuilder.eq("principal_name", savedPrincipalName));
 			batch.add(idxDelete);
 		}
 		if (shouldInsertIdx) {
-			Insert idxInsert = QueryBuilder.insertInto("session_by_name")
+			Insert idxInsert = QueryBuilder.insertInto(getIndexTableName())
 					.value("id", UUID.fromString(session.getId()))
 					.value("principal_name", currentPrincipalName);
 			idxInsert.using(QueryBuilder.ttl(session.getMaxInactiveIntervalInSeconds()));
@@ -162,14 +236,14 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 	public void delete(String id) {
 		CassandraHttpSession session = getSession(id);
-		Statement delete = QueryBuilder.delete().from("session")
+		Statement delete = QueryBuilder.delete().from(tableName)
 				.where(QueryBuilder.eq("id", UUID.fromString(id)));
 		String principalName = session.getSavedPrincipalName();
 		if (principalName == null) {
 			this.cassandraOperations.execute(delete);
 		}
 		else {
-			Statement deleteIdx = QueryBuilder.delete().from("session_by_name")
+			Statement deleteIdx = QueryBuilder.delete().from(getIndexTableName())
 					.where(QueryBuilder.eq("principal_name", principalName));
 
 			BatchStatement batchStatement = new BatchStatement();
@@ -183,7 +257,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 	public Map<String, CassandraHttpSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		Select select = QueryBuilder.select("id")
-				.from("session_by_name");
+				.from(getIndexTableName());
 		select.where(QueryBuilder.eq("principal_name", indexValue));
 		List<UUID> uuids = this.cassandraOperations.queryForList(select, UUID.class);
 		Map<String, CassandraHttpSession> result = new HashMap<String, CassandraHttpSession>();
@@ -197,7 +271,11 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	}
 
 	/**
-	 * TODO doc this.
+	 * Implementation of ExpiringSession which primarily delegates to a {@link MapSession}.
+	 * Keeps track of the saved and current principal by calling {@link #onMaybeChangedPrincipalName()}
+	 * when attributes are updated or deleted.
+	 * This is done so that we know if we need to insert/delete index entries when the session is saved.
+	 *
 	 * @author Andrew Fitzgerald
 	 */
 	static class CassandraHttpSession implements ExpiringSession {
