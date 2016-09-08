@@ -16,23 +16,37 @@
 
 package org.springframework.session.data.cassandra.config.annotation.web.http;
 
+import java.util.Map;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
+import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.cassandra.CassandraSessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
+import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
+import org.springframework.util.StringUtils;
+
+
 
 /**
  * The CassandraHttpSessionConfiguration class is a Spring @Configuration class used to
  * configure and initialize Cassandra as a
  * HttpSession provider implementation in Spring Session.
+ * <p>
+ * Exposes the {@link org.springframework.session.web.http.SessionRepositoryFilter} as a
+ * bean named "springSessionRepositoryFilter". In order to use this a single
+ * {@link Session} must be exposed as a Bean.
  *
  * @author John Blum
  * @since 1.1.0
@@ -41,30 +55,66 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
 @Configuration
 public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
+	private String keyspace = "";
 
+	private String[] contactPoints = new String[]{"localhost"};
+
+	private int port = 9042;
+
+	private String tableName = CassandraSessionRepository.DEFAULT_TABLE_NAME;
+
+
+	private Integer maxInactiveIntervalInSeconds = 1800;
 
 	@Bean
-	Cluster cluster() {
+	public Cluster springSessionCassandraCluster() {
 		return Cluster.builder()
-				.addContactPoint("localhost").build();
+				.addContactPoints(this.contactPoints)
+				.withPort(this.port)
+				.build();
 	}
 
 	@Bean
-	Session session(Cluster cluster) {
-		return cluster.connect("spring_session");
+	public Session springSessionCassandraDatastaxDriverSession(
+			@Qualifier("springSessionCassandraCluster") Cluster cluster) {
+		if (!StringUtils.isEmpty(this.keyspace)) {
+			return cluster.connect(this.keyspace);
+		}
+		else {
+			return cluster.connect();
+		}
 	}
 
+
 	@Bean
-	CassandraTemplate cassandraTemplate(Session session) {
+	public CassandraOperations springSessionCassandraOperations(
+			@Qualifier("springSessionCassandraDatastaxDriverSession") Session session) {
 		return new CassandraTemplate(session);
 	}
 
 	@Bean
-	SessionRepository repository(CassandraTemplate cassandraTemplate) {
-		return new CassandraSessionRepository(cassandraTemplate);
+	public SessionRepository repository(
+			@Qualifier("springSessionCassandraOperations") CassandraOperations cassandraOperations) {
+		CassandraSessionRepository cassandraSessionRepository = new CassandraSessionRepository(cassandraOperations);
+		if (StringUtils.hasText(this.tableName)) {
+			cassandraSessionRepository.setTableName(this.tableName);
+		}
+		cassandraSessionRepository
+				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		return cassandraSessionRepository;
 	}
 
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
 
+
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		Map<String, Object> enableAttrMap = importMetadata
+				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
+		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
+		this.tableName = enableAttrs.getString("tableName");
+		this.maxInactiveIntervalInSeconds = enableAttrs
+				.getNumber("maxInactiveIntervalInSeconds");
+		this.keyspace = enableAttrs.getString("keyspace");
+		this.contactPoints = enableAttrs.getStringArray("contactPoints");
+		this.port = enableAttrs.getNumber("port");
 	}
 }

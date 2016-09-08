@@ -107,7 +107,10 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
 
-	private static final String DEFAULT_TABLE_NAME = "spring_session";
+	/**
+	 * Default name of the cassandra table used to store sessions.
+	 */
+	public static final String DEFAULT_TABLE_NAME = "spring_session";
 
 	//Temporary until #557 is resolved, see commends on PrincipalNameResolver
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
