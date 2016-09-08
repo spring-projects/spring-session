@@ -641,7 +641,7 @@ public class JdbcOperationsSessionRepository implements
 	 *
 	 * @author Vedran Pavic
 	 */
-	static class PrincipalNameResolver {
+	public static class PrincipalNameResolver {
 
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
