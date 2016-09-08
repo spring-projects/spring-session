@@ -29,12 +29,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link JdbcHttpSessionConfiguration}.
@@ -144,6 +149,35 @@ public class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
+	public void setCustomCleanUpCron() {
+		registerAndRefresh(BaseConfiguration.class,
+				CustomCleanUpCronSetConfiguration.class);
+
+		JdbcHttpSessionConfiguration repository = this.context
+				.getBean(JdbcHttpSessionConfiguration.class);
+		assertThat(repository).isNotNull();
+		assertThat(
+				ReflectionTestUtils.getField(repository, "cleanUpCron"))
+						.isEqualTo("30 * * * * *");
+	}
+
+	@Test
+	public void customCleanUpCron() {
+		registerAndRefresh(CustomCleanUpCronConfiguration.class);
+
+		JdbcHttpSessionConfiguration configuration = this.context
+				.getBean(JdbcHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+
+		ScheduledTaskRegistrar mockRegistrar = mock(ScheduledTaskRegistrar.class);
+
+		configuration.configureTasks(mockRegistrar);
+
+		verify(mockRegistrar, times(1)).addCronTask(any(Runnable.class),
+				eq("45 * * * * *"));
+	}
+
+	@Test
 	public void customLobHandlerConfiguration() {
 		registerAndRefresh(CustomLobHandlerConfiguration.class);
 
@@ -227,6 +261,20 @@ public class JdbcHttpSessionConfigurationTests {
 	@EnableJdbcHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalInSecondsConfiguration
 			extends BaseConfiguration {
+	}
+
+	@Configuration
+	static class CustomCleanUpCronSetConfiguration extends JdbcHttpSessionConfiguration {
+
+		CustomCleanUpCronSetConfiguration() {
+			setCleanUpCron("30 * * * * *");
+		}
+
+	}
+
+	@Configuration
+	@EnableJdbcHttpSession(cleanUpCron = "45 * * * * *")
+	static class CustomCleanUpCronConfiguration extends BaseConfiguration {
 	}
 
 	@Configuration

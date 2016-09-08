@@ -16,6 +16,8 @@
 package org.springframework.session.jdbc.config.annotation.web.http;
 
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.sql.DataSource;
 
@@ -35,6 +37,8 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -57,13 +61,17 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableScheduling
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements BeanClassLoaderAware, ImportAware {
+		implements BeanClassLoaderAware, ImportAware, SchedulingConfigurer {
 
 	private String tableName;
 
 	private Integer maxInactiveIntervalInSeconds;
 
+	private String cleanUpCron = JdbcOperationsSessionRepository.CLEAN_UP_EXPIRED_SESSIONS_DEFAULT_CRON;
+
 	private LobHandler lobHandler;
+
+	private JdbcOperationsSessionRepository sessionRepositoryBean;
 
 	@Autowired(required = false)
 	@Qualifier("conversionService")
@@ -76,6 +84,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Bean
 	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
 		return new JdbcTemplate(dataSource);
+	}
+
+	@Bean
+	public Executor executor() {
+		return Executors.newScheduledThreadPool(10);
 	}
 
 	@Bean
@@ -103,6 +116,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 			GenericConversionService conversionService = createConversionServiceWithBeanClassLoader();
 			sessionRepository.setConversionService(conversionService);
 		}
+		this.sessionRepositoryBean = sessionRepository;
+
 		return sessionRepository;
 	}
 
@@ -150,6 +165,10 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
 	}
 
+	public void setCleanUpCron(String cleanUpCron) {
+		this.cleanUpCron = cleanUpCron;
+	}
+
 	private String getTableName() {
 		String systemProperty = System.getProperty("spring.session.jdbc.tableName", "");
 		if (StringUtils.hasText(systemProperty)) {
@@ -158,8 +177,26 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return this.tableName;
 	}
 
+	private String getCleanUpCron() {
+		String systemProperty = System.getProperty("spring.session.jdbc.cleanUpCron", "");
+		if (StringUtils.hasText(systemProperty)) {
+			return systemProperty;
+		}
+		return this.cleanUpCron;
+	}
+
 	private boolean deserializingConverterSupportsCustomClassLoader() {
 		return ClassUtils.hasConstructor(DeserializingConverter.class, ClassLoader.class);
+	}
+
+	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+		taskRegistrar.setScheduler(executor());
+		taskRegistrar.addCronTask(new Runnable() {
+			public void run() {
+				JdbcHttpSessionConfiguration.this.sessionRepositoryBean
+						.cleanUpExpiredSessions();
+			}
+		}, getCleanUpCron());
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -169,6 +206,6 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		this.tableName = enableAttrs.getString("tableName");
 		this.maxInactiveIntervalInSeconds = enableAttrs
 				.getNumber("maxInactiveIntervalInSeconds");
+		this.cleanUpCron = enableAttrs.getString("cleanUpCron");
 	}
-
 }
