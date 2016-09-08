@@ -1080,6 +1080,7 @@ However, you can override the default `ConversionService` by providing a Bean na
 
 By default, this implementation uses `SPRING_SESSION` and `SPRING_SESSION_ATTRIBUTES` tables to store sessions.
 Note that the table name can be easily customized as already described. In that case the table used to store attributes will be named using the provided table name, suffixed with `_ATTRIBUTES`.
+If further customizations are needed, SQL queries used by the repository can be customized using `set*Query` setter methods. In this case you need to manually configure the `sessionRepository` bean.
 
 Due to the differences between the various database vendors, especially when it comes to storing binary data, make sure to use SQL script specific to your database.
 Scripts for most major database vendors are packaged as `org/springframework/session/jdbc/schema-\*.sql`, where `*` is the target database type.

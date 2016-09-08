@@ -15,6 +15,7 @@
  */
 package org.springframework.session.jdbc.config.annotation.web.http;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import javax.sql.DataSource;
@@ -33,6 +34,8 @@ import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
@@ -80,13 +83,18 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository(
-			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations,
+			@Qualifier("springSessionJdbcOperations") JdbcTemplate jdbcTemplate,
 			PlatformTransactionManager transactionManager) {
 		JdbcOperationsSessionRepository sessionRepository =
-				new JdbcOperationsSessionRepository(jdbcOperations, transactionManager);
+				new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
 		String tableName = getTableName();
 		if (StringUtils.hasText(tableName)) {
 			sessionRepository.setTableName(tableName);
+		}
+		String databaseName = getDatabaseName(jdbcTemplate.getDataSource());
+		if (Arrays.asList("Apache Derby", "H2").contains(databaseName)) {
+			sessionRepository.setDeleteSessionsByLastAccessTimeQuery("DELETE FROM " + tableName +
+					" WHERE LAST_ACCESS_TIME < ? - CAST(MAX_INACTIVE_INTERVAL AS BIGINT) * 1000");
 		}
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
@@ -148,6 +156,17 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	}
+
+	private String getDatabaseName(DataSource dataSource) {
+		try {
+			String databaseProductName = JdbcUtils.extractDatabaseMetaData(dataSource,
+					"getDatabaseProductName").toString();
+			return JdbcUtils.commonDatabaseName(databaseProductName);
+		}
+		catch (MetaDataAccessException e) {
+			return null;
+		}
 	}
 
 	private String getTableName() {

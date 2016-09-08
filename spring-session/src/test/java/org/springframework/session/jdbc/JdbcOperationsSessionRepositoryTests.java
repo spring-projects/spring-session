@@ -22,7 +22,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -137,6 +136,150 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.thrown.expectMessage("Table name must not be empty");
 
 		this.repository.setTableName(" ");
+	}
+
+	@Test
+	public void setCreateSessionQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setCreateSessionQuery(null);
+	}
+
+	@Test
+	public void setCreateSessionQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setCreateSessionQuery(" ");
+	}
+
+	@Test
+	public void setCreateSessionAttributeQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setCreateSessionAttributeQuery(null);
+	}
+
+	@Test
+	public void setCreateSessionAttributeQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setCreateSessionAttributeQuery(" ");
+	}
+
+	@Test
+	public void setGetSessionQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setGetSessionQuery(null);
+	}
+
+	@Test
+	public void setGetSessionQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setGetSessionQuery(" ");
+	}
+
+	@Test
+	public void setUpdateSessionQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setUpdateSessionQuery(null);
+	}
+
+	@Test
+	public void setUpdateSessionQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setUpdateSessionQuery(" ");
+	}
+
+	@Test
+	public void setUpdateSessionAttributeQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setUpdateSessionAttributeQuery(null);
+	}
+
+	@Test
+	public void setUpdateSessionAttributeQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setUpdateSessionAttributeQuery(" ");
+	}
+
+	@Test
+	public void setDeleteSessionAttributeQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setDeleteSessionAttributeQuery(null);
+	}
+
+	@Test
+	public void setDeleteSessionAttributeQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setDeleteSessionAttributeQuery(" ");
+	}
+
+	@Test
+	public void setDeleteSessionQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setDeleteSessionQuery(null);
+	}
+
+	@Test
+	public void setDeleteSessionQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setDeleteSessionQuery(" ");
+	}
+
+	@Test
+	public void setListSessionsByPrincipalNameQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setListSessionsByPrincipalNameQuery(null);
+	}
+
+	@Test
+	public void setListSessionsByPrincipalNameQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setListSessionsByPrincipalNameQuery(" ");
+	}
+
+	@Test
+	public void setDeleteSessionsByLastAccessTimeQueryNull() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setDeleteSessionsByLastAccessTimeQuery(null);
+	}
+
+	@Test
+	public void setDeleteSessionsByLastAccessTimeQueryEmpty() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("Query must not be empty");
+
+		this.repository.setDeleteSessionsByLastAccessTimeQuery(" ");
 	}
 
 	@Test
@@ -378,22 +521,6 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), anyLong());
-	}
-
-	// gh-564
-	@Test
-	public void cleanupExpiredSessionsNoOverflow() {
-		long now = System.currentTimeMillis();
-		long toDelete = now - (new Long(Integer.MAX_VALUE) * 1000L);
-		this.repository.setDefaultMaxInactiveInterval(Integer.MAX_VALUE);
-
-		this.repository.cleanUpExpiredSessions();
-
-		ArgumentCaptor<Long> time = ArgumentCaptor.forClass(Long.class);
-		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"),
-				time.capture());
-		assertThat(time.getValue()).isCloseTo(toDelete, Offset.offset(5L));
 	}
 
 	private void assertPropagationRequiresNew() {
