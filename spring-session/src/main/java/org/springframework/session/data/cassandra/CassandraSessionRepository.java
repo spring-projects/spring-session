@@ -156,6 +156,10 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		this.tableName = tableName.trim();
 	}
 
+	public String getTableName() {
+		return this.tableName;
+	}
+
 	public String getIndexTableName() {
 		return this.tableName + "_by_name";
 	}
@@ -214,7 +218,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 	public CassandraHttpSession getSession(String id) {
 		Select select = QueryBuilder.select("id", "creation_time", "last_accessed", "max_inactive_interval_in_seconds", "attributes")
-				.from("session");
+				.from(this.tableName);
 		select.where(QueryBuilder.eq("id", UUID.fromString(id)));
 		Row row = this.cassandraOperations.getSession().execute(select).one();
 		if (row == null) {

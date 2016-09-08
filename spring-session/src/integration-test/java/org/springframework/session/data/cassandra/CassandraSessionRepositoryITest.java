@@ -89,8 +89,8 @@ public class CassandraSessionRepositoryITest {
 				"changedContext-" + UUID.randomUUID(), "na",
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-		this.cassandraOperations.truncate("session");
-		this.cassandraOperations.truncate("session_by_name");
+		this.cassandraOperations.truncate(this.repository.getTableName());
+		this.cassandraOperations.truncate(this.repository.getIndexTableName());
 	}
 
 	@Test
@@ -534,14 +534,14 @@ public class CassandraSessionRepositoryITest {
 
 		static final String CREATE_KEYSPACE = "CREATE KEYSPACE spring_session WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};";
 
-		static final String CREATE_SESSION_TABLE = "CREATE TABLE IF NOT EXISTS session (\n" +
+		static final String CREATE_SESSION_TABLE = "CREATE TABLE IF NOT EXISTS spring_session (\n" +
 				"    id uuid PRIMARY KEY,\n" +
 				"    attributes map<text, text>,\n" +
 				"    creation_time bigint,\n" +
 				"    last_accessed bigint,\n" +
 				"    max_inactive_interval_in_seconds int\n" +
 				");";
-		static final String STRING_CREATE_IDX_TABLE = "CREATE TABLE IF NOT EXISTS session_by_name (\n" +
+		static final String STRING_CREATE_IDX_TABLE = "CREATE TABLE IF NOT EXISTS spring_session_by_name (\n" +
 				"    principal_name text,\n" +
 				"    id uuid,\n" +
 				"    PRIMARY KEY (principal_name, id)\n" +
