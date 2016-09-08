@@ -20,28 +20,46 @@ import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
+import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author Rob Winch
+ * Tests for {@link DefaultCookieSerializer}.
  *
+ * @author Rob Winch
+ * @author Vedran Pavic
  */
+@RunWith(Parameterized.class)
 public class DefaultCookieSerializerTests {
 
-	String cookieName;
+	@Parameters(name = "useBase64Encoding={0}")
+	public static Object[] parameters() {
+		return new Object[] { false, true };
+	}
 
-	MockHttpServletRequest request;
+	private boolean useBase64Encoding;
 
-	MockHttpServletResponse response;
+	private String cookieName;
 
-	DefaultCookieSerializer serializer;
+	private MockHttpServletRequest request;
 
-	String sessionId;
+	private MockHttpServletResponse response;
+
+	private DefaultCookieSerializer serializer;
+
+	private String sessionId;
+
+	public DefaultCookieSerializerTests(boolean useBase64Encoding) {
+		this.useBase64Encoding = useBase64Encoding;
+	}
 
 	@Before
 	public void setup() {
@@ -50,6 +68,7 @@ public class DefaultCookieSerializerTests {
 		this.response = new MockHttpServletResponse();
 		this.sessionId = "sessionId";
 		this.serializer = new DefaultCookieSerializer();
+		this.serializer.setUseBase64Encoding(this.useBase64Encoding);
 	}
 
 	// --- readCookieValues ---
@@ -61,16 +80,25 @@ public class DefaultCookieSerializerTests {
 
 	@Test
 	public void readCookieValuesSingle() {
-		this.request.setCookies(new Cookie(this.cookieName, this.sessionId));
+		this.request.setCookies(createCookie(this.cookieName, this.sessionId));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsOnly(this.sessionId);
 	}
 
 	@Test
+	public void readCookieSerializerUseBase64EncodingTrueValuesNotBase64() {
+		this.sessionId = "&^%$*";
+		this.serializer.setUseBase64Encoding(true);
+		this.request.setCookies(new Cookie(this.cookieName, this.sessionId));
+
+		assertThat(this.serializer.readCookieValues(this.request)).isEmpty();
+	}
+
+	@Test
 	public void readCookieValuesSingleAndInvalidName() {
-		this.request.setCookies(new Cookie(this.cookieName, this.sessionId),
-				new Cookie(this.cookieName + "INVALID", this.sessionId + "INVALID"));
+		this.request.setCookies(createCookie(this.cookieName, this.sessionId),
+				createCookie(this.cookieName + "INVALID", this.sessionId + "INVALID"));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsOnly(this.sessionId);
@@ -79,8 +107,8 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void readCookieValuesMulti() {
 		String secondSession = "secondSessionId";
-		this.request.setCookies(new Cookie(this.cookieName, this.sessionId),
-				new Cookie(this.cookieName, secondSession));
+		this.request.setCookies(createCookie(this.cookieName, this.sessionId),
+				createCookie(this.cookieName, secondSession));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsExactly(this.sessionId, secondSession);
@@ -90,8 +118,8 @@ public class DefaultCookieSerializerTests {
 	public void readCookieValuesMultiCustomSessionCookieName() {
 		setCookieName("JSESSIONID");
 		String secondSession = "secondSessionId";
-		this.request.setCookies(new Cookie(this.cookieName, this.sessionId),
-				new Cookie(this.cookieName, secondSession));
+		this.request.setCookies(createCookie(this.cookieName, this.sessionId),
+				createCookie(this.cookieName, secondSession));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsExactly(this.sessionId, secondSession);
@@ -100,7 +128,7 @@ public class DefaultCookieSerializerTests {
 	// gh-392
 	@Test
 	public void readCookieValuesNullCookieValue() {
-		this.request.setCookies(new Cookie(this.cookieName, null));
+		this.request.setCookies(createCookie(this.cookieName, null));
 
 		assertThat(this.serializer.readCookieValues(this.request)).isEmpty();
 	}
@@ -108,7 +136,7 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void readCookieValuesNullCookieValueAndJvmRoute() {
 		this.serializer.setJvmRoute("123");
-		this.request.setCookies(new Cookie(this.cookieName, null));
+		this.request.setCookies(createCookie(this.cookieName, null));
 
 		assertThat(this.serializer.readCookieValues(this.request)).isEmpty();
 	}
@@ -116,8 +144,8 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void readCookieValuesNullCookieValueAndNotNullCookie() {
 		this.serializer.setJvmRoute("123");
-		this.request.setCookies(new Cookie(this.cookieName, null),
-				new Cookie(this.cookieName, this.sessionId));
+		this.request.setCookies(createCookie(this.cookieName, null),
+				createCookie(this.cookieName, this.sessionId));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsOnly(this.sessionId);
@@ -129,7 +157,7 @@ public class DefaultCookieSerializerTests {
 	public void writeCookie() {
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().getValue()).isEqualTo(this.sessionId);
+		assertThat(getCookieValue()).isEqualTo(this.sessionId);
 	}
 
 	// --- httpOnly ---
@@ -363,15 +391,15 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().getValue()).isEqualTo(this.sessionId + "." + jvmRoute);
+		assertThat(getCookieValue()).isEqualTo(this.sessionId + "." + jvmRoute);
 	}
 
 	@Test
 	public void readCookieJvmRoute() {
 		String jvmRoute = "route";
 		this.serializer.setJvmRoute(jvmRoute);
-		this.request
-				.setCookies(new Cookie(this.cookieName, this.sessionId + "." + jvmRoute));
+		this.request.setCookies(
+				createCookie(this.cookieName, this.sessionId + "." + jvmRoute));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsOnly(this.sessionId);
@@ -381,7 +409,7 @@ public class DefaultCookieSerializerTests {
 	public void readCookieJvmRouteRouteMissing() {
 		String jvmRoute = "route";
 		this.serializer.setJvmRoute(jvmRoute);
-		this.request.setCookies(new Cookie(this.cookieName, this.sessionId));
+		this.request.setCookies(createCookie(this.cookieName, this.sessionId));
 
 		assertThat(this.serializer.readCookieValues(this.request))
 				.containsOnly(this.sessionId);
@@ -391,7 +419,7 @@ public class DefaultCookieSerializerTests {
 	public void readCookieJvmRouteOnlyRoute() {
 		String jvmRoute = "route";
 		this.serializer.setJvmRoute(jvmRoute);
-		this.request.setCookies(new Cookie(this.cookieName, "." + jvmRoute));
+		this.request.setCookies(createCookie(this.cookieName, "." + jvmRoute));
 
 		assertThat(this.serializer.readCookieValues(this.request)).containsOnly("");
 	}
@@ -401,11 +429,30 @@ public class DefaultCookieSerializerTests {
 		this.serializer.setCookieName(cookieName);
 	}
 
+	private Cookie createCookie(String name, String value) {
+		if (this.useBase64Encoding && StringUtils.hasLength(value)) {
+			value = new String(Base64.encode(value.getBytes()));
+		}
+		return new Cookie(name, value);
+	}
+
 	private Cookie getCookie() {
 		return this.response.getCookie(this.cookieName);
+	}
+
+	private String getCookieValue() {
+		String value = getCookie().getValue();
+		if (!this.useBase64Encoding) {
+			return value;
+		}
+		if (value == null) {
+			return null;
+		}
+		return new String(Base64.decode(value.getBytes()));
 	}
 
 	private CookieValue cookieValue(String cookieValue) {
 		return new CookieValue(this.request, this.response, cookieValue);
 	}
+
 }

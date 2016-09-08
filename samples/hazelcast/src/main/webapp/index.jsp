@@ -1,9 +1,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="wj" uri="http://www.webjars.org/tags" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <title>Session Attributes</title>
-    <link rel="stylesheet" href="assets/bootstrap.min.css">
+    <wj:locate path="bootstrap.min.css" relativeTo="META-INF/resources" var="bootstrapCssLocation"/>
+    <link rel="stylesheet" href="<c:url value="${bootstrapCssLocation}"/>">
     <style type="text/css">
         body {
             padding: 1em;

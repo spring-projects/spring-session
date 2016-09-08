@@ -16,10 +16,6 @@ liveReload {
 	docRoot asciidoctor.sourceDir.canonicalPath
 }
 
-repositories {
-	maven { url 'http://dist.gemstone.com/maven/release' }
-}
-
 asciidoctorj {
 
 }
@@ -31,10 +27,10 @@ dependencies {
 				project(':spring-session-data-mongo'),
 				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
 				"org.springframework.data:spring-data-redis:$springDataRedisVersion",
-				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
 				"org.springframework:spring-websocket:${springVersion}",
 				"org.springframework:spring-messaging:${springVersion}",
 				"org.springframework:spring-jdbc:${springVersion}",
+				"org.springframework.security:spring-security-config:${springSecurityVersion}",
 				"org.springframework.security:spring-security-web:${springSecurityVersion}",
 				"org.springframework.security:spring-security-test:${springSecurityVersion}",
 				'junit:junit:4.11',

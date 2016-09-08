@@ -1,0 +1,49 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-3.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Session Attributes</title>
+	<link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+	<style type="text/css">
+		body {
+			padding: 1em;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Description</h1>
+		<p>
+			This application demonstrates how to use a GemFire instance to back your session. Notice that there
+			is no JSESSIONID cookie. We are also able to customize the way of identifying what the requested
+			session id is.
+		</p>
+
+		<h1>Try it</h1>
+
+		<form class="form-inline" role="form" action="./session" method="post">
+			<label for="attributeName">Attribute Name</label>
+			<input id="attributeName" type="text" name="attributeName"/>
+			<label for="attributeValue">Attribute Value</label>
+			<input id="attributeValue" type="text" name="attributeValue"/>
+			<input type="submit" value="Set Attribute"/>
+		</form>
+
+		<hr/>
+
+		<table class="table table-striped">
+			<thead>
+			<tr>
+				<th>Attribute Name</th>
+				<th>Attribute Value</th>
+			</tr>
+			</thead>
+			<tbody>
+				<tr th:each="attribute: ${sessionAttributes}">
+					<td th:text="${attribute.key}">name</td>
+					<td th:text="${attribute.value}">value</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>

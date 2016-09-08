@@ -1,0 +1,21 @@
+apply from: JAVA_GRADLE
+apply from: MAVEN_GRADLE
+apply plugin: 'spring-io'
+
+description = "Aggregator for Spring Session and Spring Data GemFire with Apache Geode support"
+
+dependencies {
+	compile project(':spring-session')
+	compile("org.springframework.data:spring-data-geode:$springDataGeodeVersion") {
+		exclude group: "org.slf4j", module: 'slf4j-api'
+		exclude group: "org.slf4j", module: 'jcl-over-slf4j'
+	}
+}
+
+dependencyManagement {
+	springIoTestRuntime {
+		imports {
+			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+		}
+	}
+}

@@ -5,6 +5,8 @@ apply from: SAMPLE_GRADLE
 dependencies {
 	compile project(':spring-session-data-redis'),
 			"org.springframework:spring-web:$springVersion",
+			"org.webjars:bootstrap:$bootstrapVersion",
+			"org.webjars:webjars-taglib:$webjarsTaglibVersion",
 			jstlDependencies
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"

@@ -22,6 +22,7 @@ import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.cache.RegionAttributes;
 import com.gemstone.gemfire.cache.RegionShortcut;
 import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
+import com.gemstone.gemfire.cache.client.Pool;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -52,11 +53,17 @@ import org.springframework.util.StringUtils;
 public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 		implements BeanFactoryAware, FactoryBean<Region<K, V>>, InitializingBean {
 
-	protected static final ClientRegionShortcut DEFAULT_CLIENT_REGION_SHORTCUT = GemFireHttpSessionConfiguration.DEFAULT_CLIENT_REGION_SHORTCUT;
+	protected static final ClientRegionShortcut DEFAULT_CLIENT_REGION_SHORTCUT =
+		GemFireHttpSessionConfiguration.DEFAULT_CLIENT_REGION_SHORTCUT;
 
-	protected static final RegionShortcut DEFAULT_SERVER_REGION_SHORTCUT = GemFireHttpSessionConfiguration.DEFAULT_SERVER_REGION_SHORTCUT;
+	protected static final RegionShortcut DEFAULT_SERVER_REGION_SHORTCUT =
+		GemFireHttpSessionConfiguration.DEFAULT_SERVER_REGION_SHORTCUT;
 
-	protected static final String DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME = GemFireHttpSessionConfiguration.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME;
+	protected static final String DEFAULT_GEMFIRE_POOL_NAME =
+		GemFireHttpSessionConfiguration.DEFAULT_GEMFIRE_POOL_NAME;
+
+	protected static final String DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME =
+		GemFireHttpSessionConfiguration.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME;
 
 	private BeanFactory beanFactory;
 
@@ -70,6 +77,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 
 	private RegionShortcut serverRegionShortcut;
 
+	private String poolName;
 	private String regionName;
 
 	/**
@@ -112,8 +120,8 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	protected Region<K, V> newServerRegion(GemFireCache gemfireCache) throws Exception {
 		GenericRegionFactoryBean<K, V> serverRegion = new GenericRegionFactoryBean<K, V>();
 
-		serverRegion.setCache(gemfireCache);
 		serverRegion.setAttributes(getRegionAttributes());
+		serverRegion.setCache(gemfireCache);
 		serverRegion.setRegionName(getRegionName());
 		serverRegion.setShortcut(getServerRegionShortcut());
 		serverRegion.afterPropertiesSet();
@@ -145,10 +153,11 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 
 		ClientRegionShortcut shortcut = getClientRegionShortcut();
 
+		clientRegion.setAttributes(getRegionAttributes());
 		clientRegion.setBeanFactory(getBeanFactory());
 		clientRegion.setCache(gemfireCache);
-		clientRegion.setAttributes(getRegionAttributes());
 		clientRegion.setInterests(registerInterests(!GemFireUtils.isLocal(shortcut)));
+		clientRegion.setPoolName(getPoolName());
 		clientRegion.setRegionName(getRegionName());
 		clientRegion.setShortcut(shortcut);
 		clientRegion.afterPropertiesSet();
@@ -157,16 +166,8 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	}
 
 	/**
-	 * Registers interests in all keys when the client {@link Region} is non-local.
-	 *
-	 * @return an array of Interests specifying the server notifications of interests to
-	 * the client.
-	 * @see org.springframework.data.gemfire.client.Interest
-	 */
-	/**
-	 * Decides whether interests will be registered for all keys. Interests is only
-	 * registered on a client and typically only when the client is a (CACHING) PROXY to
-	 * the server (i.e. non-LOCAL only).
+	 * Decides whether interests will be registered for all keys. Interests is only registered on
+	 * a client and typically only when the client is a (CACHING) PROXY to the server (i.e. non-LOCAL only).
 	 *
 	 * @param register a boolean value indicating whether interests should be registered.
 	 * @return an array of Interests KEY/VALUE registrations.
@@ -174,9 +175,9 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 */
 	@SuppressWarnings("unchecked")
 	protected Interest<K>[] registerInterests(boolean register) {
-		return (!register ? new Interest[0]
-				: new Interest[] {
-						new Interest<String>("ALL_KEYS", InterestResultPolicy.KEYS) });
+		return (!register ? new Interest[0] : new Interest[] {
+			new Interest<String>("ALL_KEYS", InterestResultPolicy.KEYS)
+		});
 	}
 
 	/**
@@ -219,11 +220,9 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * creating GemFire components.
 	 *
 	 * @param beanFactory reference to the Spring {@link BeanFactory}
+	 * @throws IllegalArgumentException if the {@link BeanFactory} reference is null.
 	 * @see org.springframework.beans.factory.BeanFactory
-	 * @throws IllegalArgumentException if the {@link BeanFactory} reference
-	 * is null.
 	 */
-	@Override
 	public void setBeanFactory(BeanFactory beanFactory) {
 		Assert.notNull(beanFactory, "BeanFactory must not be null");
 		this.beanFactory = beanFactory;
@@ -239,8 +238,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * @see org.springframework.beans.factory.BeanFactory
 	 */
 	protected BeanFactory getBeanFactory() {
-		Assert.state(this.beanFactory != null,
-				"A reference to the BeanFactory was not properly configured");
+		Assert.state(this.beanFactory != null, "A reference to the BeanFactory was not properly configured");
 		return this.beanFactory;
 	}
 
@@ -266,8 +264,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
 	 */
 	protected ClientRegionShortcut getClientRegionShortcut() {
-		return (this.clientRegionShortcut != null ? this.clientRegionShortcut
-				: DEFAULT_CLIENT_REGION_SHORTCUT);
+		return (this.clientRegionShortcut != null ? this.clientRegionShortcut : DEFAULT_CLIENT_REGION_SHORTCUT);
 	}
 
 	/**
@@ -290,9 +287,30 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * @throws IllegalStateException if the {@link GemFireCache} reference is null.
 	 */
 	protected GemFireCache getGemfireCache() {
-		Assert.state(this.gemfireCache != null,
-				"A reference to the GemFireCache was not properly configured");
+		Assert.state(this.gemfireCache != null, "A reference to the GemFireCache was not properly configured");
 		return this.gemfireCache;
+	}
+
+	/**
+	 * Sets the name of the GemFire {@link Pool} used by the client Region for managing Sessions
+	 * during cache operations involving the server.
+	 *
+	 * @param poolName the name of a GemFire {@link Pool}.
+	 * @see Pool#getName()
+	 */
+	public void setPoolName(final String poolName) {
+		this.poolName = poolName;
+	}
+
+	/**
+	 * Returns the name of the GemFire {@link Pool} used by the client Region for managing Sessions
+	 * during cache operations involving the server.
+	 *
+	 * @return the name of a GemFire {@link Pool}.
+	 * @see Pool#getName()
+	 */
+	protected String getPoolName() {
+		return (StringUtils.hasText(this.poolName) ? this.poolName : DEFAULT_GEMFIRE_POOL_NAME);
 	}
 
 	/**
@@ -337,8 +355,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * @see com.gemstone.gemfire.cache.Region#getName()
 	 */
 	protected String getRegionName() {
-		return (StringUtils.hasText(this.regionName) ? this.regionName
-				: DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
+		return (StringUtils.hasText(this.regionName) ? this.regionName : DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
 	}
 
 	/**
@@ -362,8 +379,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * @see com.gemstone.gemfire.cache.RegionShortcut
 	 */
 	protected RegionShortcut getServerRegionShortcut() {
-		return (this.serverRegionShortcut != null ? this.serverRegionShortcut
-				: DEFAULT_SERVER_REGION_SHORTCUT);
+		return (this.serverRegionShortcut != null ? this.serverRegionShortcut : DEFAULT_SERVER_REGION_SHORTCUT);
 	}
 
 }

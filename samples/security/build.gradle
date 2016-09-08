@@ -7,6 +7,8 @@ dependencies {
 			"org.springframework:spring-web:$springVersion",
 			"org.springframework.security:spring-security-config:$springSecurityVersion",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
+			"org.webjars:bootstrap:$bootstrapVersion",
+			"org.webjars:webjars-taglib:$webjarsTaglibVersion",
 			jstlDependencies
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion",

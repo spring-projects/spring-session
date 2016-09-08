@@ -114,6 +114,18 @@ public class CookieHttpSessionStrategyTests {
 				.isEqualTo("0 " + existing.getId() + " new " + this.session.getId());
 	}
 
+	@Test
+	public void onNewSessionExistingSessionNewAliasCustomDelimiter() throws Exception {
+		this.strategy.setSerializationDelimiter("_");
+		Session existing = new MapSession();
+		setSessionCookie(existing.getId());
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
+		this.strategy.onNewSession(this.session, this.request, this.response);
+		assertThat(getSessionId())
+				.isEqualTo("0_" + existing.getId() + "_new_" + this.session.getId());
+	}
+
 	// gh-321
 	@Test
 	public void onNewSessionExplicitAlias() throws Exception {
@@ -461,6 +473,53 @@ public class CookieHttpSessionStrategyTests {
 		assertThat(sessionIds.size()).isEqualTo(2);
 		assertThat(sessionIds.get("0")).isEqualTo("a");
 		assertThat(sessionIds.get("1")).isEqualTo("b");
+	}
+
+	@Test
+	public void getSessionIdsMultiCustomDelimeter() {
+		this.strategy.setDeserializationDelimiter("_");
+		setSessionCookie("0_a_1_b");
+
+		Map<String, String> sessionIds = this.strategy.getSessionIds(this.request);
+		assertThat(sessionIds.size()).isEqualTo(2);
+		assertThat(sessionIds.get("0")).isEqualTo("a");
+		assertThat(sessionIds.get("1")).isEqualTo("b");
+	}
+
+	@Test
+	public void getSessionIdsMultiCustomDelimeterMigration() {
+		this.strategy.setDeserializationDelimiter("_ ");
+		this.strategy.setSerializationDelimiter("_");
+
+		// can parse the old way
+		setSessionCookie("0 a 1 b");
+
+		Map<String, String> sessionIds = this.strategy.getSessionIds(this.request);
+		assertThat(sessionIds.size()).isEqualTo(2);
+		assertThat(sessionIds.get("0")).isEqualTo("a");
+		assertThat(sessionIds.get("1")).isEqualTo("b");
+
+		// can parse the new way
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		setSessionCookie("0_a_1_b");
+
+		sessionIds = this.strategy.getSessionIds(this.request);
+		assertThat(sessionIds.size()).isEqualTo(2);
+		assertThat(sessionIds.get("0")).isEqualTo("a");
+		assertThat(sessionIds.get("1")).isEqualTo("b");
+
+		// writes the new way
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		Session existing = new MapSession();
+		setSessionCookie(existing.getId());
+		this.request.setParameter(
+				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
+		this.strategy.onNewSession(this.session, this.request, this.response);
+		assertThat(getSessionId())
+				.isEqualTo("0_" + existing.getId() + "_new_" + this.session.getId());
+
 	}
 
 	@Test

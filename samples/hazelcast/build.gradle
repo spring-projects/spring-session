@@ -4,6 +4,8 @@ apply from: SAMPLE_GRADLE
 
 dependencies {
 	compile project(':spring-session'),
+			"org.webjars:bootstrap:$bootstrapVersion",
+			"org.webjars:webjars-taglib:$webjarsTaglibVersion",
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			jstlDependencies
 

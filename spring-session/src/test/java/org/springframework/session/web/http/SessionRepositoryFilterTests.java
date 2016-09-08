@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
+import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -150,8 +151,8 @@ public class SessionRepositoryFilterTests {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				long lastAccessed = wrappedRequest.getSession().getLastAccessedTime();
-				assertThat(lastAccessed)
-						.isEqualTo(wrappedRequest.getSession().getCreationTime());
+				assertThat(lastAccessed).isCloseTo(
+						wrappedRequest.getSession().getCreationTime(), Offset.offset(5L));
 				SessionRepositoryFilterTests.this.request.setAttribute(ACCESS_ATTR,
 						lastAccessed);
 			}

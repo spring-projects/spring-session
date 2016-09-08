@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.core.serializer.support.DeserializingConverter;
+import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,6 +38,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -52,11 +57,11 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableScheduling
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements ImportAware {
+		implements BeanClassLoaderAware, ImportAware {
 
-	private String tableName = "";
+	private String tableName;
 
-	private Integer maxInactiveIntervalInSeconds = 1800;
+	private Integer maxInactiveIntervalInSeconds;
 
 	private LobHandler lobHandler;
 
@@ -65,6 +70,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	private ConversionService conversionService;
 
 	private ConversionService springSessionConversionService;
+
+	private ClassLoader classLoader;
 
 	@Bean
 	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
@@ -92,7 +99,35 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		else if (this.conversionService != null) {
 			sessionRepository.setConversionService(this.conversionService);
 		}
+		else if (deserializingConverterSupportsCustomClassLoader()) {
+			GenericConversionService conversionService = createConversionServiceWithBeanClassLoader();
+			sessionRepository.setConversionService(conversionService);
+		}
 		return sessionRepository;
+	}
+
+	/**
+	 * This must be a separate method because some ClassLoaders load the entire method
+	 * definition even if an if statement guards against it loading. This means that older
+	 * versions of Spring would cause a NoSuchMethodError if this were defined in
+	 * {@link #sessionRepository(JdbcOperations, PlatformTransactionManager)}.
+	 *
+	 * @return the default {@link ConversionService}
+	 */
+	private GenericConversionService createConversionServiceWithBeanClassLoader() {
+		GenericConversionService conversionService = new GenericConversionService();
+		conversionService.addConverter(Object.class, byte[].class,
+				new SerializingConverter());
+		conversionService.addConverter(byte[].class, Object.class,
+				new DeserializingConverter(this.classLoader));
+		return conversionService;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)
+	 */
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 	@Autowired(required = false)
@@ -116,10 +151,15 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	}
 
 	private String getTableName() {
-		if (StringUtils.hasText(this.tableName)) {
-			return this.tableName;
+		String systemProperty = System.getProperty("spring.session.jdbc.tableName", "");
+		if (StringUtils.hasText(systemProperty)) {
+			return systemProperty;
 		}
-		return System.getProperty("spring.session.jdbc.tableName", "");
+		return this.tableName;
+	}
+
+	private boolean deserializingConverterSupportsCustomClassLoader() {
+		return ClassUtils.hasConstructor(DeserializingConverter.class, ClassLoader.class);
 	}
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {

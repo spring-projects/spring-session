@@ -18,7 +18,6 @@ package org.springframework.session.data.gemfire;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -96,8 +95,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 
-	private static final DateFormat TIMESTAMP = new SimpleDateFormat(
-			"yyyy-MM-dd-HH-mm-ss");
+	private static final DateFormat TIMESTAMP = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
 	private static File processWorkingDirectory;
 
@@ -114,25 +112,22 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		final int port = SocketUtils.findAvailableTcpPort();
 
-		System.err.printf(
-				"Starting GemFire Server running on [%1$s] listening on port [%2$d]%n",
-				InetAddress.getLocalHost().getHostName(), port);
+		System.err.printf("Starting a GemFire Server on [%1$s] listening on port [%2$d]%n",
+			SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME, port);
 
 		System.setProperty("spring.session.data.gemfire.port", String.valueOf(port));
 
-		String processWorkingDirectoryPathname = String
-				.format("gemfire-client-server-tests-%1$s", TIMESTAMP.format(new Date()));
+		String processWorkingDirectoryPathname = String.format("gemfire-client-server-tests-%1$s",
+			TIMESTAMP.format(new Date()));
 
 		processWorkingDirectory = createDirectory(processWorkingDirectoryPathname);
-		gemfireServer = run(SpringSessionGemFireServerConfiguration.class,
-				processWorkingDirectory,
-				String.format("-Dspring.session.data.gemfire.port=%1$d", port));
 
-		assertThat(waitForCacheServerToStart(
-				SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME, port)).isTrue();
+		gemfireServer = run(SpringSessionGemFireServerConfiguration.class, processWorkingDirectory,
+			String.format("-Dspring.session.data.gemfire.port=%1$d", port));
 
-		System.err.printf("GemFire Server [startup time = %1$d ms]%n",
-				System.currentTimeMillis() - t0);
+		assertThat(waitForCacheServerToStart(SpringSessionGemFireServerConfiguration.SERVER_HOSTNAME, port)).isTrue();
+
+		System.err.printf("GemFire Server [startup time = %1$d ms]%n", System.currentTimeMillis() - t0);
 	}
 
 	@AfterClass
@@ -140,11 +135,10 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		if (gemfireServer != null) {
 			gemfireServer.destroyForcibly();
 			System.err.printf("GemFire Server [exit code = %1$d]%n",
-					waitForProcessToStop(gemfireServer, processWorkingDirectory));
+				waitForProcessToStop(gemfireServer, processWorkingDirectory));
 		}
 
-		if (Boolean.valueOf(System.getProperty("spring.session.data.gemfire.fork.clean",
-				Boolean.TRUE.toString()))) {
+		if (Boolean.valueOf(System.getProperty("spring.session.data.gemfire.fork.clean", Boolean.TRUE.toString()))) {
 			FileSystemUtils.deleteRecursively(processWorkingDirectory);
 		}
 
@@ -164,8 +158,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 			springSessionGemFireRegion.getAttributes();
 
 		assertThat(springSessionGemFireRegionAttributes).isNotNull();
-		assertThat(springSessionGemFireRegionAttributes.getDataPolicy())
-			.isEqualTo(DataPolicy.EMPTY);
+		assertThat(springSessionGemFireRegionAttributes.getDataPolicy()).isEqualTo(DataPolicy.EMPTY);
 	}
 
 	@After
@@ -179,8 +172,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		ExpiringSession expectedSession = save(createSession());
 
-		AbstractSessionEvent sessionEvent = this.sessionEventListener
-				.waitForSessionEvent(500);
+		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
 
@@ -188,12 +180,9 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		assertThat(createdSession).isEqualTo(expectedSession);
 		assertThat(createdSession.getId()).isNotNull();
-		assertThat(createdSession.getCreationTime())
-				.isGreaterThanOrEqualTo(beforeOrAtCreationTime);
-		assertThat(createdSession.getLastAccessedTime())
-				.isEqualTo(createdSession.getCreationTime());
-		assertThat(createdSession.getMaxInactiveIntervalInSeconds())
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(createdSession.getCreationTime()).isGreaterThanOrEqualTo(beforeOrAtCreationTime);
+		assertThat(createdSession.getLastAccessedTime()).isEqualTo(createdSession.getCreationTime());
+		assertThat(createdSession.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 
 		this.gemfireSessionRepository.delete(expectedSession.getId());
 	}
@@ -202,15 +191,13 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 	public void getExistingNonExpiredSessionBeforeAndAfterExpiration() {
 		ExpiringSession expectedSession = save(touch(createSession()));
 
-		AbstractSessionEvent sessionEvent = this.sessionEventListener
-				.waitForSessionEvent(500);
+		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
 		assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(expectedSession);
 		assertThat(this.sessionEventListener.getSessionEvent()).isNull();
 
-		ExpiringSession savedSession = this.gemfireSessionRepository
-				.getSession(expectedSession.getId());
+		ExpiringSession savedSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
 
 		assertThat(savedSession).isEqualTo(expectedSession);
 
@@ -221,13 +208,12 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		this.sessionEventListener.getSessionEvent();
 
 		sessionEvent = this.sessionEventListener.waitForSessionEvent(
-				TimeUnit.SECONDS.toMillis(MAX_INACTIVE_INTERVAL_IN_SECONDS + 1));
+			TimeUnit.SECONDS.toMillis(MAX_INACTIVE_INTERVAL_IN_SECONDS + 1));
 
 		assertThat(sessionEvent).isInstanceOf(SessionExpiredEvent.class);
 		assertThat(sessionEvent.getSessionId()).isEqualTo(expectedSession.getId());
 
-		ExpiringSession expiredSession = this.gemfireSessionRepository
-				.getSession(expectedSession.getId());
+		ExpiringSession expiredSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
 
 		assertThat(expiredSession).isNull();
 	}
@@ -236,8 +222,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 	public void deleteExistingNonExpiredSessionFiresSessionDeletedEventAndReturnsNullOnGet() {
 		ExpiringSession expectedSession = save(touch(createSession()));
 
-		AbstractSessionEvent sessionEvent = this.sessionEventListener
-				.waitForSessionEvent(500);
+		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
 		assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(expectedSession);
@@ -249,13 +234,13 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		assertThat(sessionEvent).isInstanceOf(SessionDeletedEvent.class);
 		assertThat(sessionEvent.getSessionId()).isEqualTo(expectedSession.getId());
 
-		ExpiringSession deletedSession = this.gemfireSessionRepository
-				.getSession(expectedSession.getId());
+		ExpiringSession deletedSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
 
 		assertThat(deletedSession).isNull();
 	}
 
-	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME, maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
+		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireClientConfiguration {
 
 		@Bean
@@ -283,6 +268,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		@Bean
 		PoolFactoryBean gemfirePool(@Value("${spring.session.data.gemfire.port:"
 				+ DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
+
 			PoolFactoryBean poolFactory = new PoolFactoryBean();
 
 			poolFactory.setFreeConnectionTimeout(5000); // 5 seconds
@@ -290,7 +276,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 			poolFactory.setMaxConnections(SpringSessionGemFireServerConfiguration.MAX_CONNECTIONS);
 			poolFactory.setPingInterval(TimeUnit.SECONDS.toMillis(5));
 			poolFactory.setReadTimeout(2000); // 2 seconds
-			poolFactory.setRetryAttempts(2);
+			poolFactory.setRetryAttempts(1);
 			poolFactory.setSubscriptionEnabled(true);
 			poolFactory.setThreadLocalConnections(false);
 
@@ -337,13 +323,16 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		Properties gemfireProperties() {
 			Properties gemfireProperties = new Properties();
 
-			gemfireProperties.setProperty("name",
-					SpringSessionGemFireServerConfiguration.class.getName());
+			gemfireProperties.setProperty("name", name());
 			gemfireProperties.setProperty("mcast-port", "0");
 			gemfireProperties.setProperty("log-file", "server.log");
 			gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
 
 			return gemfireProperties;
+		}
+
+		String name() {
+			return SpringSessionGemFireServerConfiguration.class.getName();
 		}
 
 		@Bean
@@ -358,8 +347,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		@Bean
 		CacheServerFactoryBean gemfireCacheServer(Cache gemfireCache,
-				@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT
-						+ "}") int port) {
+				@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
 
 			CacheServerFactoryBean cacheServerFactory = new CacheServerFactoryBean();
 
@@ -375,7 +363,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		@SuppressWarnings("resource")
 		public static void main(final String[] args) throws IOException {
 			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-					SpringSessionGemFireServerConfiguration.class);
+				SpringSessionGemFireServerConfiguration.class);
 			context.registerShutdownHook();
 			writeProcessControlFile(WORKING_DIRECTORY);
 		}

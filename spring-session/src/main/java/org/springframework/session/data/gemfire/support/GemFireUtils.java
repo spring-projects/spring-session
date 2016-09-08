@@ -67,8 +67,7 @@ public abstract class GemFireUtils {
 	 */
 	public static boolean isClient(GemFireCache gemFireCache) {
 		boolean client = (gemFireCache instanceof ClientCache);
-		client &= (!(gemFireCache instanceof GemFireCacheImpl)
-				|| ((GemFireCacheImpl) gemFireCache).isClient());
+		client &= (!(gemFireCache instanceof GemFireCacheImpl) || ((GemFireCacheImpl) gemFireCache).isClient());
 		return client;
 	}
 

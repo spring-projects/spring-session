@@ -6,6 +6,8 @@ apply from: SAMPLE_GRADLE
 dependencies {
 	compile project(':spring-session-data-gemfire'),
 		"org.springframework:spring-web:$springVersion",
+		"org.webjars:bootstrap:$bootstrapVersion",
+		"org.webjars:webjars-taglib:$webjarsTaglibVersion",
 		jstlDependencies
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
@@ -14,14 +16,14 @@ dependencies {
 
 	integrationTestCompile gebDependencies
 
-	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE",
+		"xml-apis:xml-apis:1.4.01"
 }
 
+mainClassName = "sample.ServerConfig"
 
 def port
 def process
-
-mainClassName = "sample.ServerConfig"
 
 task availablePort() << {
 	def serverSocket = new ServerSocket(0)

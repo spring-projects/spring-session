@@ -49,11 +49,11 @@
 
 
 	<!-- 3rd party -->
-	<script src="resources/js/jquery/jquery.js"></script>
-	<script src="resources/js/bootstrap/js/bootstrap.js"></script>
-	<script src="resources/js/knockout/knockout.js"></script>
-	<script src="resources/js/sockjs/sockjs.js"></script>
-	<script src="resources/js/stomp/lib/stomp.js"></script>
+	<script th:src="@{/webjars/jquery/jquery.min.js}" src="/webjars/jquery/jquery.min.js"></script>
+	<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+	<script th:src="@{/webjars/knockout/knockout.js}" src="/webjars/knockout/knockout.js"></script>
+	<script th:src="@{/webjars/sockjs-client/sockjs.min.js}" src="/webjars/sockjs-client/sockjs.min.js"></script>
+	<script th:src="@{/webjars/stomp-websocket/stomp.min.js}" src="/webjars/stomp-websocket/stomp.min.js"></script>
 
 	<!-- application -->
 	<script src="resources/js/message.js"></script>
