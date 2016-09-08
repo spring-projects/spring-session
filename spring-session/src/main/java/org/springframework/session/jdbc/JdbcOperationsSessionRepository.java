@@ -134,6 +134,9 @@ public class JdbcOperationsSessionRepository implements
 	 */
 	public static final String DEFAULT_TABLE_NAME = "SPRING_SESSION";
 
+	/**
+	 * The default CRON expression used by Spring Session to clean up expired sessions.
+	 */
 	public static final String CLEAN_UP_EXPIRED_SESSIONS_DEFAULT_CRON = "0 * * * * *";
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
