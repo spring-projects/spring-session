@@ -89,7 +89,7 @@ public @interface EnableJdbcHttpSession {
 
 	/**
 	 * The cron expression used to trigger running of the
-	 * {@link JdbcOperationsSessionRepository#cleanUpExpiredSessions()} method
+	 * {@link JdbcOperationsSessionRepository#cleanUpExpiredSessions()} method.
 	 *
 	 * @return the cron expression used to trigger cleaning up of sessions
 	 */
