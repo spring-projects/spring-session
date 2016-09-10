@@ -27,11 +27,7 @@ import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -51,7 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository}.
+ * Abstract base class for {@link JdbcOperationsSessionRepository} integration tests.
  *
  * @author Vedran Pavic
  * @since 1.2.0
@@ -59,7 +55,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-public class JdbcOperationsSessionRepositoryITests {
+public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -554,15 +550,8 @@ public class JdbcOperationsSessionRepositoryITests {
 		return this.changedContext.getAuthentication().getName();
 	}
 
-	@Configuration
 	@EnableJdbcHttpSession
-	static class Config {
-
-		@Bean
-		public EmbeddedDatabase dataSource() {
-			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-					.addScript("org/springframework/session/jdbc/schema-h2.sql").build();
-		}
+	protected static class BaseConfig {
 
 		@Bean
 		public PlatformTransactionManager transactionManager(DataSource dataSource) {
