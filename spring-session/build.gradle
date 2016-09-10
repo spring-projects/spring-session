@@ -31,6 +31,8 @@ dependencies {
 			"org.apache.commons:commons-pool2:2.2",
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			"com.h2database:h2:$h2Version",
+			"org.hsqldb:hsqldb:2.3.3",
+			"org.apache.derby:derby:10.12.1.1",
 			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.2"
 
 	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
