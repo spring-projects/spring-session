@@ -47,7 +47,6 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
@@ -134,6 +133,11 @@ public class JdbcOperationsSessionRepository implements
 	 * The default name of database table used by Spring Session to store sessions.
 	 */
 	public static final String DEFAULT_TABLE_NAME = "SPRING_SESSION";
+
+	/**
+	 * The default CRON expression used by Spring Session to clean up expired sessions.
+	 */
+	public static final String CLEAN_UP_EXPIRED_SESSIONS_DEFAULT_CRON = "0 * * * * *";
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -276,6 +280,7 @@ public class JdbcOperationsSessionRepository implements
 		if (session.isNew()) {
 			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
+				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					JdbcOperationsSessionRepository.this.jdbcOperations.update(
 							getQuery(CREATE_SESSION_QUERY),
@@ -316,6 +321,7 @@ public class JdbcOperationsSessionRepository implements
 		else {
 			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
+				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					if (session.isChanged()) {
 						JdbcOperationsSessionRepository.this.jdbcOperations.update(
@@ -419,6 +425,7 @@ public class JdbcOperationsSessionRepository implements
 	public void delete(final String id) {
 		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
+			@Override
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
 				JdbcOperationsSessionRepository.this.jdbcOperations.update(
 						getQuery(DELETE_SESSION_QUERY), id);
@@ -461,7 +468,6 @@ public class JdbcOperationsSessionRepository implements
 		return sessionMap;
 	}
 
-	@Scheduled(cron = "0 * * * * *")
 	public void cleanUpExpiredSessions() {
 		long now = System.currentTimeMillis();
 		long maxInactiveIntervalSeconds = (this.defaultMaxInactiveInterval != null)
