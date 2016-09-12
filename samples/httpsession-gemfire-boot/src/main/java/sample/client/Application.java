@@ -157,8 +157,7 @@ public class Application {
 		gemfirePool.setPingInterval(TimeUnit.SECONDS.toMillis(15));
 		gemfirePool.setRetryAttempts(1);
 		gemfirePool.setSubscriptionEnabled(true);
-		gemfirePool.setServerEndpoints(
-				Collections.singleton(newConnectionEndpoint(host, port)));
+		gemfirePool.setServers(Collections.singleton(newConnectionEndpoint(host, port)));
 
 		return gemfirePool;
 	}

@@ -33,12 +33,12 @@ dependencies {
 				"org.springframework.security:spring-security-config:${springSecurityVersion}",
 				"org.springframework.security:spring-security-web:${springSecurityVersion}",
 				"org.springframework.security:spring-security-test:${springSecurityVersion}",
-				'junit:junit:4.11',
-				'org.mockito:mockito-core:1.9.5',
+				"junit:junit:$junitVersion",
+				"org.mockito:mockito-core:$mockitoVersion",
 				"org.springframework:spring-test:$springVersion",
 				"org.assertj:assertj-core:$assertjVersion",
 				"com.hazelcast:hazelcast:$hazelcastVersion",
-				"redis.clients:jedis:2.4.1",
+				"redis.clients:jedis:$jedisVersion",
 				"javax.servlet:javax.servlet-api:$servletApiVersion"
 }
 
