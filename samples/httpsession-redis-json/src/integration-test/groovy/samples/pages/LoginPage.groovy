@@ -6,14 +6,16 @@ import geb.Page
  * @author jitendra on 15/3/16.
  */
 class LoginPage extends Page {
-    static url = "/login"
+	static url="/login"
 
-    static at = {
+	static at=
+	{
         assert title == "Spring Session Sample - Login"
         return true
     }
 
-    static content = {
+	static content=
+	{
         form { $('form') }
         submit { $('button[type=submit]') }
         login(required: false) { user = 'user', pass = 'password' ->

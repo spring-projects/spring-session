@@ -6,13 +6,15 @@ import geb.Page
  * @author jitendra on 15/3/16.
  */
 class SetAttributePage extends Page {
-    static url = "/setValue"
+	static url="/setValue"
 
-    static at = {
+	static at=
+	{
         title == "Spring Session Sample - Home"
     }
 
-    static content = {
+	static content=
+	{
         tdKey { $('td') }
     }
 }

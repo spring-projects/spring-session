@@ -6,13 +6,15 @@ import geb.Page
  * @author jitendra on 15/3/16.
  */
 class HomePage extends Page {
-    static url = "/"
+	static url="/"
 
-    static at = {
+	static at=
+	{
         driver.title == "Spring Session Sample - Home"
     }
 
-    static content = {
+	static content=
+	{
         form { $('form') }
         submit { $('button[type=submit]') }
         setAttribute(required: false) { key = 'project', value = 'SessionRedisJson' ->
