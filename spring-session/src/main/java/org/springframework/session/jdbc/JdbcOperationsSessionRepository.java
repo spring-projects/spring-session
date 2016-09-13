@@ -561,7 +561,7 @@ public class JdbcOperationsSessionRepository implements
 		return sessionMap;
 	}
 
-	@Scheduled(cron = "0 * * * * *")
+	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
 		int deletedCount = this.transactionOperations.execute(new TransactionCallback<Integer>() {
 

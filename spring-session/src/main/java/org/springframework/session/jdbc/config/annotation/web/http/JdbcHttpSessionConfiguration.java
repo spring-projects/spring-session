@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -190,4 +191,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 				.getNumber("maxInactiveIntervalInSeconds");
 	}
 
+	/**
+	 * Property placeholder to process the @Scheduled annotation.
+	 * @return the {@link PropertySourcesPlaceholderConfigurer} to use
+	 */
+	@Bean
+	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
+	}
 }

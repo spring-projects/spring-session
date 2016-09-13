@@ -393,7 +393,7 @@ public class RedisOperationsSessionRepository implements
 		}
 	}
 
-	@Scheduled(cron = "0 * * * * *")
+	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanupExpiredSessions() {
 		this.expirationPolicy.cleanExpiredSessions();
 	}
