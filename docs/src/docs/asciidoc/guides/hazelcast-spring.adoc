@@ -64,6 +64,8 @@ Ensure you have the following in your pom.xml:
 ----
 endif::[]
 
+// tag::config[]
+
 [[security-spring-configuration]]
 == Spring Configuration
 
@@ -79,7 +81,9 @@ include::{docs-test-dir}docs/http/HazelcastHttpSessionConfig.java[tags=config]
 <1> The `@EnableHazelcastHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by Hazelcast.
-<2> We create a `HazelcastInstance` that connects Spring Session to Hazelcast.
+<2> In order to support retrieval of sessions by principal name index, appropriate `ValueExtractor` needs to be registered.
+Spring Session provides `PrincipalNameExtractor` for this purpose.
+<3> We create a `HazelcastInstance` that connects Spring Session to Hazelcast.
 By default, an embedded instance of Hazelcast is started and connected to by the application.
 For more information on configuring Hazelcast, refer to the http://docs.hazelcast.org/docs/latest/manual/html-single/index.html#hazelcast-configuration[reference documentation].
 
@@ -88,8 +92,8 @@ For more information on configuring Hazelcast, refer to the http://docs.hazelcas
 Our <<security-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
 
-In order for our `Filter` to do its magic, Spring needs to load our `Config` class.
-Since our application is already loading Spring configuration using our `SecurityInitializer` class, we can simply add our Config class to it.
+In order for our `Filter` to do its magic, Spring needs to load our `SessionConfig` class.
+Since our application is already loading Spring configuration using our `SecurityInitializer` class, we can simply add our `SessionConfig` class to it.
 
 .src/main/java/sample/SecurityInitializer.java
 [source,java]
@@ -113,7 +117,7 @@ NOTE: The name of our class (Initializer) does not matter. What is important is 
 
 By extending `AbstractHttpSessionApplicationInitializer` we ensure that the Spring Bean by the name `springSessionRepositoryFilter` is registered with our Servlet Container for every request before Spring Security's `springSecurityFilterChain`.
 
-
+// end::config[]
 
 [[hazelcast-spring-security-sample]]
 == Hazelcast Spring Security Sample Application

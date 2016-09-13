@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hazelcast
-	xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.5.xsd"
-	xmlns="http://www.hazelcast.com/schema/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<hazelcast xmlns="http://www.hazelcast.com/schema/config"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.6.xsd">
+
 	<group>
 		<name>spring-session-it-test-idle-time-map-name</name>
 		<password>test-pass</password>
 	</group>
+
 	<network>
 		<port auto-increment="true" port-count="100">5701</port>
 		<outbound-ports>
@@ -24,14 +26,20 @@
 			</aws>
 		</join>
 	</network>
+
 	<map name="test-sessions">
 		<in-memory-format>BINARY</in-memory-format>
 		<backup-count>1</backup-count>
 		<async-backup-count>0</async-backup-count>
 		<time-to-live-seconds>0</time-to-live-seconds>
 		<max-idle-seconds>300</max-idle-seconds>
-		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy
-		</merge-policy>
+		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy</merge-policy>
+		<attributes>
+			<attribute extractor="org.springframework.session.hazelcast.PrincipalNameExtractor">principalName</attribute>
+		</attributes>
+		<indexes>
+			<index ordered="false">principalName</index>
+		</indexes>
 	</map>
 
 </hazelcast>

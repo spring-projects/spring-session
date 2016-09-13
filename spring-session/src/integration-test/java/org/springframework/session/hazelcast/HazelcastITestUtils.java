@@ -17,6 +17,8 @@
 package org.springframework.session.hazelcast;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.MapAttributeConfig;
+import com.hazelcast.config.MapIndexConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -38,8 +40,20 @@ public final class HazelcastITestUtils {
 	 * @return the Hazelcast instance
 	 */
 	public static HazelcastInstance embeddedHazelcastServer(int port) {
+		MapAttributeConfig attributeConfig = new MapAttributeConfig()
+				.setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+				.setExtractor(PrincipalNameExtractor.class.getName());
+
 		Config config = new Config();
-		config.getNetworkConfig().setPort(port);
+
+		config.getNetworkConfig()
+				.setPort(port);
+
+		config.getMapConfig("spring:session:sessions")
+				.addMapAttributeConfig(attributeConfig)
+				.addMapIndexConfig(new MapIndexConfig(
+						HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+
 		return Hazelcast.newHazelcastInstance(config);
 	}
 

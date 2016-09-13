@@ -22,7 +22,7 @@ import org.springframework.security.web.context.AbstractSecurityWebApplicationIn
 public class SecurityInitializer extends AbstractSecurityWebApplicationInitializer {
 
 	public SecurityInitializer() {
-		super(SecurityConfig.class, Config.class);
+		super(SecurityConfig.class, SessionConfig.class);
 	}
 }
 // end::class[]
