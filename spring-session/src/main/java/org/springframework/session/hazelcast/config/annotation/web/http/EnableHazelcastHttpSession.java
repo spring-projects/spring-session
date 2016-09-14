@@ -47,6 +47,7 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
  * instead.
  *
  * @author Tommy Ludwig
+ * @author Eddú Meléndez
  * @since 1.1
  * @see EnableSpringHttpSession
  */
@@ -70,5 +71,14 @@ public @interface EnableHazelcastHttpSession {
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
 	String sessionMapName() default "spring:session:sessions";
+
+	/**
+	 * This is the flag that will be used to persist sessions after
+	 * something has changed or immediately. By default, session will be persisted
+	 * immediately.
+	 *
+	 * @return the flag to persist sessions after changes.
+	 */
+	boolean persistOnSessionChange() default false;
 
 }

@@ -33,6 +33,7 @@ import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
@@ -56,12 +57,14 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private String sessionMapName = "spring:session:sessions";
 
+	private boolean persistOnSessionChange = false;
+
 	private String sessionListenerUid;
 
 	private IMap<String, ExpiringSession> sessionsMap;
 
 	@Bean
-	public SessionRepository<ExpiringSession> sessionRepository(
+	public SessionRepository<MapSession> sessionRepository(
 			HazelcastInstance hazelcastInstance, SessionEntryListener sessionListener) {
 		this.sessionsMap = hazelcastInstance.getMap(this.sessionMapName);
 		this.sessionListenerUid = this.sessionsMap.addEntryListener(sessionListener,
@@ -71,7 +74,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 				new ExpiringSessionMap(this.sessionsMap));
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-
+		sessionRepository.setPersistOnSessionChange(this.persistOnSessionChange);
 		return sessionRepository;
 	}
 
@@ -98,6 +101,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		setMaxInactiveIntervalInSeconds(
 				(Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
+		setPersistOnSessionChange(enableAttrs.getBoolean("persistOnSessionChange"));
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -106,6 +110,10 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	public void setSessionMapName(String sessionMapName) {
 		this.sessionMapName = sessionMapName;
+	}
+
+	public void setPersistOnSessionChange(boolean persistOnSessionChange) {
+		this.persistOnSessionChange = persistOnSessionChange;
 	}
 
 	/**

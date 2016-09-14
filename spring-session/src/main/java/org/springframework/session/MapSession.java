@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 1.0
  */
 public final class MapSession implements ExpiringSession, Serializable {
@@ -53,6 +54,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
 	private long creationTime = System.currentTimeMillis();
 	private long lastAccessedTime = this.creationTime;
+	private boolean changed;
 
 	/**
 	 * Defaults to 30 minutes.
@@ -75,6 +77,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	 */
 	public MapSession(String id) {
 		this.id = id;
+		this.changed = true;
 	}
 
 	/**
@@ -101,6 +104,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 
 	public void setLastAccessedTime(long lastAccessedTime) {
 		this.lastAccessedTime = lastAccessedTime;
+		this.changed = true;
 	}
 
 	public long getCreationTime() {
@@ -117,6 +121,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 
 	public void setMaxInactiveIntervalInSeconds(int interval) {
 		this.maxInactiveInterval = interval;
+		this.changed = true;
 	}
 
 	public int getMaxInactiveIntervalInSeconds() {
@@ -150,11 +155,17 @@ public final class MapSession implements ExpiringSession, Serializable {
 		}
 		else {
 			this.sessionAttrs.put(attributeName, attributeValue);
+			this.changed = true;
 		}
 	}
 
 	public void removeAttribute(String attributeName) {
 		this.sessionAttrs.remove(attributeName);
+		this.changed = true;
+	}
+
+	boolean isChanged() {
+		return this.changed;
 	}
 
 	/**
@@ -187,4 +198,8 @@ public final class MapSession implements ExpiringSession, Serializable {
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;
+
+	void markUnchanged() {
+		this.changed = false;
+	}
 }

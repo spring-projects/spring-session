@@ -16,21 +16,24 @@
 
 package org.springframework.session;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import org.springframework.beans.DirectFieldAccessor;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class MapSessionRepositoryTests {
-	MapSessionRepository repository;
+	MockMapSessionRepository repository;
 
 	MapSession session;
 
 	@Before
 	public void setup() {
-		this.repository = new MapSessionRepository();
+		this.repository = new MockMapSessionRepository();
 		this.session = new MapSession();
 	}
 
@@ -64,4 +67,48 @@ public class MapSessionRepositoryTests {
 		assertThat(session.getMaxInactiveIntervalInSeconds())
 				.isEqualTo(expectedMaxInterval);
 	}
+
+	@Test
+	public void createAndNotPersistOnSessionChange() {
+		MapSession session = this.repository.createSession();
+
+		this.repository.save(session);
+
+		assertThat(this.repository.getSessions().size()).isEqualTo(1);
+	}
+
+	@Test
+	public void createAndPersistOnSessionChange() {
+		this.repository.setPersistOnSessionChange(true);
+		MapSession session = this.repository.createSession();
+
+		assertThat(session.isChanged()).isTrue();
+		this.repository.save(session);
+		assertThat(session.isChanged()).isFalse();
+	}
+
+	@Test
+	public void modifyAndPersistOnSessionChange() {
+		this.repository.setPersistOnSessionChange(true);
+		MapSession session = this.repository.createSession();
+
+		assertThat(session.isChanged()).isTrue();
+		this.repository.save(session);
+		assertThat(session.isChanged()).isFalse();
+
+		session.setAttribute("foo", "bar");
+		assertThat(session.isChanged()).isTrue();
+		this.repository.save(session);
+		assertThat(session.isChanged()).isFalse();
+	}
+
+	static class MockMapSessionRepository extends MapSessionRepository {
+
+		public Map<String, MapSession> getSessions() {
+			return (Map<String, MapSession>) new DirectFieldAccessor(this)
+					.getPropertyValue("sessions");
+		}
+
+	}
+
 }

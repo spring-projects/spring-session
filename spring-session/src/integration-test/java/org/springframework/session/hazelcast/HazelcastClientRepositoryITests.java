@@ -25,7 +25,6 @@ import org.junit.runner.RunWith;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -43,8 +42,8 @@ import org.springframework.util.SocketUtils;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class HazelcastClientRepositoryITests<S extends ExpiringSession>
-		extends AbstractHazelcastRepositoryITests<S> {
+public class HazelcastClientRepositoryITests
+		extends AbstractHazelcastRepositoryITests {
 
 	private static final int PORT = SocketUtils.findAvailableTcpPort();
 

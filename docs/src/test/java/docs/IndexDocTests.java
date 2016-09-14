@@ -23,6 +23,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -43,7 +44,7 @@ public class IndexDocTests {
 
 	@Test
 	public void repositoryDemo() {
-		RepositoryDemo<ExpiringSession> demo = new RepositoryDemo<ExpiringSession>();
+		RepositoryDemo<MapSession> demo = new RepositoryDemo<MapSession>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
@@ -75,7 +76,7 @@ public class IndexDocTests {
 
 	@Test
 	public void expireRepositoryDemo() {
-		ExpiringRepositoryDemo<ExpiringSession> demo = new ExpiringRepositoryDemo<ExpiringSession>();
+		ExpiringRepositoryDemo<MapSession> demo = new ExpiringRepositoryDemo<MapSession>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
