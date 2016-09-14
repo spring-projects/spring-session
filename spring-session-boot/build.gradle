@@ -1,0 +1,32 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+    }
+}
+
+apply from: JAVA_GRADLE
+apply plugin: 'spring-io'
+
+description = "Aggregator for Spring Session and Spring Boot"
+
+dependencies {
+    optional project(':spring-session'),
+            "org.springframework.boot:spring-boot-actuator:$springBootVersion",
+            "org.springframework.boot:spring-boot-starter-jdbc:$springBootVersion",
+            "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
+
+    testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion",
+            "com.h2database:h2:$h2Version",
+            "org.assertj:assertj-core:$assertjVersion"
+}
+
+dependencyManagement {
+    springIoTestRuntime {
+        imports {
+            mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+        }
+    }
+}
