@@ -116,7 +116,7 @@ public class MongoExpiringSession implements ExpiringSession {
 	}
 
 	public boolean isExpired() {
-		return new Date().after(this.expireAt);
+		return this.interval >= 0 && new Date().after(this.expireAt);
 	}
 
 	public Date getExpireAt() {
