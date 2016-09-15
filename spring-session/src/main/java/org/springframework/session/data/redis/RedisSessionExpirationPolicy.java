@@ -80,15 +80,23 @@ final class RedisSessionExpirationPolicy {
 			}
 		}
 
+		long sessionExpireInSeconds = session.getMaxInactiveIntervalInSeconds();
+		String sessionKey = getSessionKey(keyToExpire);
+
+		if (sessionExpireInSeconds < 0) {
+			this.redis.boundValueOps(sessionKey).append("");
+			this.redis.boundValueOps(sessionKey).persist();
+			this.redis.boundHashOps(getSessionKey(session.getId())).persist();
+			return;
+		}
+
 		String expireKey = getExpirationKey(toExpire);
 		BoundSetOperations<Object, Object> expireOperations = this.redis
 				.boundSetOps(expireKey);
 		expireOperations.add(keyToExpire);
 
-		long sessionExpireInSeconds = session.getMaxInactiveIntervalInSeconds();
 		long fiveMinutesAfterExpires = sessionExpireInSeconds
 				+ TimeUnit.MINUTES.toSeconds(5);
-		String sessionKey = getSessionKey(keyToExpire);
 
 		expireOperations.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 		if (sessionExpireInSeconds == 0) {

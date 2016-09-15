@@ -137,4 +137,36 @@ public class RedisSessionExpirationPolicyTests {
 		verify(this.hashOperations).expire(this.session.getMaxInactiveIntervalInSeconds()
 				+ TimeUnit.MINUTES.toSeconds(5), TimeUnit.SECONDS);
 	}
+
+	@Test
+	public void onExpirationUpdatedDeleteOnZero() throws Exception {
+		String sessionKey = this.policy.getSessionKey("expires:" + this.session.getId());
+
+		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
+
+		this.session.setMaxInactiveIntervalInSeconds(0);
+
+		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);
+
+		// verify the original is removed
+		verify(this.setOperations).remove("expires:" + this.session.getId());
+		verify(this.setOperations).add("expires:" + this.session.getId());
+		verify(this.sessionRedisOperations).delete(sessionKey);
+		verify(this.setOperations).expire(this.session.getMaxInactiveIntervalInSeconds()
+				+ TimeUnit.MINUTES.toSeconds(5), TimeUnit.SECONDS);
+	}
+
+	@Test
+	public void onExpirationUpdatedPersistOnNegativeExpiration() throws Exception {
+		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
+
+		this.session.setMaxInactiveIntervalInSeconds(-1);
+
+		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);
+
+		verify(this.setOperations).remove("expires:" + this.session.getId());
+		verify(this.valueOperations).append("");
+		verify(this.valueOperations).persist();
+		verify(this.hashOperations).persist();
+	}
 }
