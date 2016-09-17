@@ -14,41 +14,36 @@
 
 	<!-- tag::beans[] -->
 	<!--1-->
-	<util:properties id="applicationProperties"
-                     location="classpath:META-INF/spring/application.properties"/>
-
-	<!--2-->
-	<context:property-placeholder properties-ref="applicationProperties"/>
-
-	<!--3-->
 	<context:annotation-config/>
 
-	<!--4-->
-	<bean class="org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration"
-          p:maxInactiveIntervalInSeconds="30"/>
+	<!--2-->
+	<context:property-placeholder location="classpath:META-INF/spring/application.properties"/>
 
-	<!--5-->
+	<!--3-->
 	<bean class="sample.GemFireCacheServerReadyBeanPostProcessor"/>
 
-	<!--6-->
+	<!--4-->
 	<util:properties id="gemfireProperties">
 		<prop key="log-level">${sample.httpsession.gemfire.log-level:warning}</prop>
 	</util:properties>
 
+	<!--5-->
 	<gfe:client-cache properties-ref="gemfireProperties"/>
 
-	<!--7-->
-	<gfe:pool free-connection-timeout="5000"
-              keep-alive="false"
+	<!--6-->
+	<gfe:pool keep-alive="false"
               ping-interval="5000"
               read-timeout="5000"
-              retry-attempts="2"
+              retry-attempts="1"
               subscription-enabled="true"
-              thread-local-connections="false"
-              max-connections="${application.gemfire.client-server.max-connections}">
+              thread-local-connections="false">
 		<gfe:server host="${application.gemfire.client-server.host}"
                     port="${spring.session.data.gemfire.port:${application.gemfire.client-server.port}}"/>
 	</gfe:pool>
+
+	<!--7-->
+	<bean class="org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration"
+		  p:maxInactiveIntervalInSeconds="30"/>
 	<!-- end::beans[] -->
 
 </beans>

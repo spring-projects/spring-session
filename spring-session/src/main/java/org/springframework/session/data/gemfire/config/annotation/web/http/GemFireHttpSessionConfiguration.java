@@ -46,8 +46,8 @@ import org.springframework.session.config.annotation.web.http.SpringHttpSessionC
 import org.springframework.session.data.gemfire.AbstractGemFireOperationsSessionRepository.GemFireSession;
 import org.springframework.session.data.gemfire.GemFireOperationsSessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.support.GemFireCacheTypeAwareRegionFactoryBean;
+import org.springframework.session.data.gemfire.config.annotation.web.http.support.SessionAttributesIndexFactoryBean;
 import org.springframework.session.data.gemfire.support.GemFireUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -56,7 +56,15 @@ import org.springframework.util.StringUtils;
  * HttpSession provider implementation in Spring Session.
  *
  * @author John Blum
- * @see EnableGemFireHttpSession
+ * @see org.springframework.beans.factory.BeanClassLoaderAware
+ * @see org.springframework.context.annotation.Bean
+ * @see org.springframework.context.annotation.Configuration
+ * @see org.springframework.context.annotation.ImportAware
+ * @see org.springframework.data.gemfire.GemfireTemplate
+ * @see org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
+ * @see com.gemstone.gemfire.cache.GemFireCache
+ * @see com.gemstone.gemfire.cache.Region
  * @since 1.1.0
  */
 @Configuration
@@ -97,7 +105,7 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	/**
 	 * The default names of all Session attributes that should be indexed by GemFire.
 	 */
-	public static final String[] DEFAULT_INDEXABLE_SESSION_ATTRIBUTES = new String[0];
+	public static final String[] DEFAULT_INDEXABLE_SESSION_ATTRIBUTES = {};
 
 	private int maxInactiveIntervalInSeconds = DEFAULT_MAX_INACTIVE_INTERVAL_IN_SECONDS;
 
@@ -183,28 +191,6 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	protected String[] getIndexableSessionAttributes() {
 		return (this.indexableSessionAttributes != null ? this.indexableSessionAttributes
 			: DEFAULT_INDEXABLE_SESSION_ATTRIBUTES);
-	}
-
-	/**
-	 * Gets the names of all Session attributes that will be indexed by GemFire as single
-	 * String value constituting the Index expression of the Index definition.
-	 *
-	 * @return a String composed of all the named Session attributes on which a GemFire
-	 * Index will be created as an Index definition expression. If the indexable Session
-	 * attributes were not specified, then the wildcard ("*") is returned.
-	 * @see com.gemstone.gemfire.cache.query.Index#getIndexedExpression()
-	 */
-	protected String getIndexableSessionAttributesAsGemFireIndexExpression() {
-		StringBuilder builder = new StringBuilder();
-
-		for (String sessionAttribute : getIndexableSessionAttributes()) {
-			builder.append(builder.length() > 0 ? ", " : "");
-			builder.append(String.format("'%1$s'", sessionAttribute));
-		}
-
-		String indexExpression = builder.toString();
-
-		return (indexExpression.isEmpty() ? "*" : indexExpression);
 	}
 
 	/**
@@ -385,7 +371,7 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	 */
 	@Bean(name = DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME)
 	public GemFireCacheTypeAwareRegionFactoryBean<Object, ExpiringSession> sessionRegion(GemFireCache gemfireCache,
-			RegionAttributes<Object, ExpiringSession> sessionRegionAttributes) {
+			@Qualifier("sessionRegionAttributes") RegionAttributes<Object, ExpiringSession> sessionRegionAttributes) {
 
 		GemFireCacheTypeAwareRegionFactoryBean<Object, ExpiringSession> sessionRegion =
 			new GemFireCacheTypeAwareRegionFactoryBean<Object, ExpiringSession>();
@@ -448,27 +434,19 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	}
 
 	/**
-	 * Defines a Spring GemFire Index bean on the GemFire cache {@link Region} storing and
-	 * managing Sessions, specifically on the 'principalName' property for quick lookup
-	 * and queries. This index will only be created on a server @{link Region}.
+	 * Defines a GemFire Index bean on the GemFire cache {@link Region} storing and managing Sessions,
+	 * specifically on the 'principalName' property for quick lookup of Sessions by 'principalName'.
 	 *
 	 * @param gemfireCache a reference to the GemFire cache.
-	 * @return a IndexFactoryBean creating an GemFire Index on the 'principalName'
-	 * property of Sessions stored in the GemFire cache {@link Region}.
+	 * @return a {@link IndexFactoryBean} to create an GemFire Index on the 'principalName' property
+	 * for Sessions stored in the GemFire cache {@link Region}.
 	 * @see org.springframework.data.gemfire.IndexFactoryBean
 	 * @see com.gemstone.gemfire.cache.GemFireCache
 	 */
 	@Bean
 	@DependsOn(DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME)
-	public IndexFactoryBean principalNameIndex(final GemFireCache gemfireCache) {
-		IndexFactoryBean index = new IndexFactoryBean() {
-			@Override
-			public void afterPropertiesSet() throws Exception {
-				if (GemFireUtils.isPeer(gemfireCache)) {
-					super.afterPropertiesSet();
-				}
-			}
-		};
+	public IndexFactoryBean principalNameIndex(GemFireCache gemfireCache) {
+		IndexFactoryBean index = new IndexFactoryBean();
 
 		index.setCache(gemfireCache);
 		index.setName("principalNameIndex");
@@ -481,37 +459,25 @@ public class GemFireHttpSessionConfiguration extends SpringHttpSessionConfigurat
 	}
 
 	/**
-	 * Defines a Spring GemFire Index bean on the GemFire cache {@link Region} storing and
-	 * managing Sessions, specifically on Session attributes for quick lookup and queries
-	 * on Session attribute names with a given value. This index will only be created on a
-	 * server @{link Region}.
+	 * Defines a GemFire Index bean on the GemFire cache {@link Region} storing and managing Sessions,
+	 * specifically on all Session attributes for quick lookup and queries on Session attribute names
+	 * with a given value.
 	 *
 	 * @param gemfireCache a reference to the GemFire cache.
-	 * @return a IndexFactoryBean creating an GemFire Index on attributes of Sessions
+	 * @return a {@link IndexFactoryBean} to create an GemFire Index on attributes of Sessions
 	 * stored in the GemFire cache {@link Region}.
 	 * @see org.springframework.data.gemfire.IndexFactoryBean
 	 * @see com.gemstone.gemfire.cache.GemFireCache
 	 */
 	@Bean
 	@DependsOn(DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME)
-	public IndexFactoryBean sessionAttributesIndex(final GemFireCache gemfireCache) {
-		IndexFactoryBean index = new IndexFactoryBean() {
-			@Override
-			public void afterPropertiesSet() throws Exception {
-				if (GemFireUtils.isPeer(gemfireCache) && !ObjectUtils.isEmpty(getIndexableSessionAttributes())) {
-					super.afterPropertiesSet();
-				}
-			}
-		};
+	public SessionAttributesIndexFactoryBean sessionAttributesIndex(GemFireCache gemfireCache) {
+		SessionAttributesIndexFactoryBean sessionAttributesIndex = new SessionAttributesIndexFactoryBean();
 
-		index.setCache(gemfireCache);
-		index.setName("sessionAttributesIndex");
-		index.setExpression(String.format("s.attributes[%1$s]",
-			getIndexableSessionAttributesAsGemFireIndexExpression()));
-		index.setFrom(String.format("%1$s s", GemFireUtils.toRegionPath(getSpringSessionGemFireRegionName())));
-		index.setOverride(true);
+		sessionAttributesIndex.setGemFireCache(gemfireCache);
+		sessionAttributesIndex.setIndexableSessionAttributes(getIndexableSessionAttributes());
+		sessionAttributesIndex.setRegionName(getSpringSessionGemFireRegionName());
 
-		return index;
+		return sessionAttributesIndex;
 	}
-
 }
