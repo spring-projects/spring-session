@@ -128,34 +128,6 @@ public class GemFireHttpSessionConfigurationTest {
 	}
 
 	@Test
-	public void setAndGetIndexableSessionAttributes() {
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(
-			GemFireHttpSessionConfiguration.DEFAULT_INDEXABLE_SESSION_ATTRIBUTES);
-
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributesAsGemFireIndexExpression()).isEqualTo("*");
-
-		this.gemfireConfiguration.setIndexableSessionAttributes(toArray("one", "two", "three"));
-
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(
-			toArray("one", "two", "three"));
-
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributesAsGemFireIndexExpression()).isEqualTo(
-			"'one', 'two', 'three'");
-
-		this.gemfireConfiguration.setIndexableSessionAttributes(toArray("one"));
-
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(toArray("one"));
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributesAsGemFireIndexExpression()).isEqualTo("'one'");
-
-		this.gemfireConfiguration.setIndexableSessionAttributes(null);
-
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributes()).isEqualTo(
-			GemFireHttpSessionConfiguration.DEFAULT_INDEXABLE_SESSION_ATTRIBUTES);
-
-		assertThat(this.gemfireConfiguration.getIndexableSessionAttributesAsGemFireIndexExpression()).isEqualTo("*");
-	}
-
-	@Test
 	public void setAndGetMaxInactiveIntervalInSeconds() {
 		assertThat(this.gemfireConfiguration.getMaxInactiveIntervalInSeconds()).isEqualTo(
 				GemFireHttpSessionConfiguration.DEFAULT_MAX_INACTIVE_INTERVAL_IN_SECONDS);
@@ -363,6 +335,7 @@ public class GemFireHttpSessionConfigurationTest {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void createsAndInitializesSessionRegionAttributesWithoutExpiration() throws Exception {
 		ClientCache mockClientCache = mock(ClientCache.class);
 
@@ -431,5 +404,4 @@ public class GemFireHttpSessionConfigurationTest {
 
 		assertThat(this.gemfireConfiguration.isExpirationAllowed(mockCache)).isFalse();
 	}
-
 }

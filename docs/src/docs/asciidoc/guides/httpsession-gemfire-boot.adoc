@@ -89,16 +89,17 @@ We start with the _Spring Boot_ application for configuring and bootstrapping a 
 include::{samples-dir}httpsession-gemfire-boot/src/main/java/sample/server/GemFireServer.java[tags=class]
 ----
 
-<1> The `@EnableGemFireHttpSession` annotation is used on the GemFire Server mainly to define the corresponding
+<1> The `@EnableGemFireHttpSession` annotation is used on the GemFire Server to mainly define the corresponding
 Region (e.g. `ClusteredSpringSessions`, the default) in which Session state information will be stored
 and managed by GemFire.  As well, we have specified an arbitrary expiration attribute (i.e. `maxInactiveIntervalInSeconds`)
 for when the Session will timeout, which is triggered by a GemFire Region entry expiration event that also invalidates
 the Session object in the Region.
-<2> Next, we define a few `Properties` allowing us to configure certain aspects of the GemFire Server using
+<2> Next, we define a few `Properties` that allow us to configure certain aspects of the GemFire Server using
 http://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
-<3> Then, we create an instance of the GemFire Cache using our defined `Properties`.
-<4> Finally, we setup a Cache Server instance running in the GemFire Server to listen for connections from cache clients.
-The Cache Server `Socket` will be used to connect our GemFire client cache, _Spring Boot_ web application to the server.
+<3> Then, we create an instance of the GemFire `Cache` using our defined `Properties`.
+<4> Finally, we configure and start a `CacheServer` running in the GemFire Server to listen for connections
+from cache clients.  The `CacheServer's` `Socket` will be used to connect our GemFire cache client,
+_Spring Boot_ web application to the server.
 
 The sample also makes use of a `PropertySourcesPlaceholderConfigurer` bean in order to externalize the sample application
 configuration to affect GemFire and application configuration/behavior from the command-line (e.g. such as GemFire's
@@ -106,9 +107,9 @@ configuration to affect GemFire and application configuration/behavior from the 
 
 === Spring Boot-based GemFire cache client Web application
 
-Now, we create the _Spring Boot_ web application (a GemFire cache client), exposing our Web service
-using Spring MVC along with _Spring Session_ backed by GemFire, connected to our _Spring Boot_-based GemFire Server,
-in order to manage Session state in a cluster/replicated-enabled fashion.
+Now, we create our _Spring Boot_ Web application exposing our Web service with Spring MVC, running as a
+GemFire cache client connected to our _Spring Boot_-based GemFire Server, using Spring Session backed by GemFire
+to manage Session state in a clustered, replicated fashion.
 
 [source,java]
 ----
@@ -116,28 +117,29 @@ include::{samples-dir}httpsession-gemfire-boot/src/main/java/sample/client/Appli
 ----
 
 <1> Here, again, we use the `@EnableGemFireHttpSession` annotation to not only configure the GemFire cache client,
-but also to override the (HTTP) Web application container's `HttpSession` and replace it with a Session implementation
-backed by _Spring Session_ in conjunction with GemFire.  Also notice, we did not define any Session expiration timeout
-with the `maxInactiveIntervalInSeconds` attribute this time.  That is because the Session expiration is managed
-by GemFire, which will appropriately notify the cache client when the Session times out.  Again, we have just resorted
-to using the default Region, `ClusteredSpringSessions`.  Of course, we can change the Region name, but we must do so
-on both the client and the server.  That is a GemFire requirement, not a _Spring Session Data GemFire_ requirement.
-<2> Similary to the server configuration, we set a few basic GemFire System `Properties` on the client.
-<3> Although, this time, an instance of `ClientCache` is created with the `ClientCacheFactoryBean` from _Spring Data GemFire_.
-<4> However, in order to connect to the GemFire Server we must define a GemFire `Pool` bean containing pre-populated
-connections to the server.  Whenever a client Region entry operation corresponding to a Session update occurs,
+but to also override the (HTTP) Web application container's `HttpSession` and replace it with a Session implementation
+backed by _Spring Session_ and GemFire.  Also notice, we did not define any Session expiration timeout with the
+`maxInactiveIntervalInSeconds` attribute this time.  That is because the Session expiration is managed by GemFire,
+on the server, which will appropriately notify the cache client when the Session times out.  Again, we have just
+resorted to using the default named Region, `ClusteredSpringSessions`.  Of course, we can change the Region name,
+but we must do so on both the client and the server.  That is a GemFire requirement, not a
+_Spring Session Data GemFire_ requirement.
+<2> Similarly to the server configuration, we set a few basic GemFire System `Properties` on the client.
+<3> Although, this time, an instance of `ClientCache` is created with the `ClientCacheFactoryBean`
+from _Spring Data GemFire_.
+<4> However, in order to connect to the GemFire Server we must define a GemFire `Pool` bean containing a
+pool of connections to the server.  Whenever a client Region entry operation corresponding to a Session update occurs,
 the client-side Region will use an existing, pooled connection to route the operation to the server.
 <5> The following _Spring_ `BeanPostProcessor` (along with some utility methods) are only needed for testing purposes
-and is not required by any production code.  Specifically, the `BeanPostProcessor` along with the code referenced in *6*
+and are not required by any production code.  Specifically, the `BeanPostProcessor` along with the code referenced in *6*
 is useful in integration test cases where the client and server processes are forked by the test framework.  It is pretty
 easy to figure out that a race condition is imminent without proper coordination between the client and the server,
 therefore, the BPP and `ClientMembershipListener` help sync the interaction between the client and the server
 on startup during automated testing.
-<6> See <5> above.
-<7> Navigates the Web application to the home page (`index.html`), which uses **Thymeleaf** templates for server-side
+<6> Navigates the Web application to the home page (`index.html`), which uses **Thymeleaf** templates for server-side
 pages.
-<8> Heartbeat web service endpoint (useful for manual testing purposes).
-<9> Web service endpoint for adding a Session attributes defined by the user using the Web application UI.  In addition,
+<7> Heartbeat Web service endpoint (useful for manual testing purposes).
+<8> Web service endpoint allowing the user to add a Session attribute using the Web application UI.  In addition,
 the webapp stores an additional Session attribute (`requestCount`) to keep track of how many HTTP requests the user
 has sent during the current "session".
 
@@ -159,11 +161,13 @@ and GemFire out-of-the-box using the following attributes:
 * `clientRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
 with a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
 (default is `PROXY`).  This attribute is only used when configuring client Region.
+* `poolName` - name of the dedicated GemFire Pool used to connect a client to the cluster of servers.  The attribute
+is only used when the application is a GemFire cache client.  Defaults to `gemfirePool`.
 * `serverRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
 using a GemFire http://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
 (default is `PARTITION`).  This attribute is only used when configuring server Regions, or when a p2p topology is employed.
 
-NOTE: It is important to note that the GemFire client Region name must match a server Region by the same name if
+NOTE: It is important to remember that the GemFire client Region name must match a server Region by the same name if
 the client Region is a `PROXY` or `CACHING_PROXY`.  Client and server Region names are not required to match if
 the client Region used to store Spring Sessions is `LOCAL`.  However, keep in mind that your session state will not
 be propagated to the server and you lose all the benefits of using GemFire to store and manage distributed, replicated
