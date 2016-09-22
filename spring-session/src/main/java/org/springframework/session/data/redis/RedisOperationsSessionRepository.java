@@ -684,7 +684,7 @@ public class RedisOperationsSessionRepository implements
 			this.delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
 			this.delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
 			this.isNew = true;
-			flushImmediateIfNecessary();
+			this.flushImmediateIfNecessary();
 		}
 
 		/**
@@ -705,8 +705,7 @@ public class RedisOperationsSessionRepository implements
 
 		public void setLastAccessedTime(long lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			this.delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
-			flushImmediateIfNecessary();
+			this.putAndFlush(LAST_ACCESSED_ATTR, getLastAccessedTime());
 		}
 
 		public boolean isExpired() {
@@ -731,8 +730,7 @@ public class RedisOperationsSessionRepository implements
 
 		public void setMaxInactiveIntervalInSeconds(int interval) {
 			this.cached.setMaxInactiveIntervalInSeconds(interval);
-			this.delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
-			flushImmediateIfNecessary();
+			this.putAndFlush(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
 		}
 
 		public int getMaxInactiveIntervalInSeconds() {
@@ -749,20 +747,23 @@ public class RedisOperationsSessionRepository implements
 
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.cached.setAttribute(attributeName, attributeValue);
-			this.delta.put(getSessionAttrNameKey(attributeName), attributeValue);
-			flushImmediateIfNecessary();
+			this.putAndFlush(getSessionAttrNameKey(attributeName), attributeValue);
 		}
 
 		public void removeAttribute(String attributeName) {
 			this.cached.removeAttribute(attributeName);
-			this.delta.put(getSessionAttrNameKey(attributeName), null);
-			flushImmediateIfNecessary();
+			this.putAndFlush(getSessionAttrNameKey(attributeName), null);
 		}
 
 		private void flushImmediateIfNecessary() {
 			if (RedisOperationsSessionRepository.this.redisFlushMode == RedisFlushMode.IMMEDIATE) {
 				saveDelta();
 			}
+		}
+
+		private void putAndFlush(String a, Object v) {
+			this.delta.put(a, v);
+			this.flushImmediateIfNecessary();
 		}
 
 		/**
