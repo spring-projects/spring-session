@@ -761,7 +761,7 @@ public class RedisOperationsSessionRepository implements
 				saveDelta();
 			}
 		}
-		
+
 		private void putAndFlush(String a, Object v) {
 			this.delta.put(a, v);
 			this.flushImmediateIfNecessary();
