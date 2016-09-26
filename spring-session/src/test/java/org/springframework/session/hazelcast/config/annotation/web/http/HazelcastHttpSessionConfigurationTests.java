@@ -31,6 +31,7 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -42,6 +43,7 @@ import static org.mockito.Matchers.isA;
  * Tests for {@link HazelcastHttpSessionConfiguration}.
  *
  * @author Vedran Pavic
+ * @author Aleksandar Stojsavljevic
  */
 @RunWith(MockitoJUnitRunner.class)
 public class HazelcastHttpSessionConfigurationTests {
@@ -49,6 +51,8 @@ public class HazelcastHttpSessionConfigurationTests {
 	private static final String MAP_NAME = "spring:test:sessions";
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 600;
+
+	private static final HazelcastFlushMode HAZELCAST_FLUSH_MODE = HazelcastFlushMode.IMMEDIATE;
 
 	@Rule
 	public final ExpectedException thrown = ExpectedException.none();
@@ -139,6 +143,29 @@ public class HazelcastHttpSessionConfigurationTests {
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
 
+	@Test
+	public void customFlushImmediately() {
+		registerAndRefresh(CustomFlushImmediatelyConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context
+				.getBean(HazelcastSessionRepository.class);
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode")).isEqualTo(
+				HazelcastFlushMode.IMMEDIATE);
+	}
+
+	@Test
+	public void setCustomFlushImmediately() {
+		registerAndRefresh(BaseConfiguration.class,
+				CustomFlushImmediatelySetConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context
+				.getBean(HazelcastSessionRepository.class);
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode")).isEqualTo(
+				HazelcastFlushMode.IMMEDIATE);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -191,6 +218,22 @@ public class HazelcastHttpSessionConfigurationTests {
 	@Configuration
 	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalInSecondsConfiguration
+			extends BaseConfiguration {
+	}
+
+	@Configuration
+	static class CustomFlushImmediatelySetConfiguration
+			extends HazelcastHttpSessionConfiguration {
+
+		CustomFlushImmediatelySetConfiguration() {
+			setHazelcastFlushMode(HAZELCAST_FLUSH_MODE);
+		}
+
+	}
+
+	@Configuration
+	@EnableHazelcastHttpSession(hazelcastFlushMode = HazelcastFlushMode.IMMEDIATE)
+	static class CustomFlushImmediatelyConfiguration
 			extends BaseConfiguration {
 	}
 

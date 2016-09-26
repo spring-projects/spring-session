@@ -29,6 +29,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
+import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
@@ -52,6 +53,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private String sessionMapName = DEFAULT_SESSION_MAP_NAME;
 
+	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
+
 	@Bean
 	public HazelcastSessionRepository sessionRepository(
 			HazelcastInstance hazelcastInstance,
@@ -63,6 +66,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		sessionRepository.setApplicationEventPublisher(eventPublisher);
 		sessionRepository.setDefaultMaxInactiveInterval(
 				this.maxInactiveIntervalInSeconds);
+		sessionRepository.setHazelcastFlushMode(this.hazelcastFlushMode);
 		return sessionRepository;
 	}
 
@@ -73,6 +77,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		setMaxInactiveIntervalInSeconds(
 				(Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
+		setHazelcastFlushMode((HazelcastFlushMode) enableAttrs.getEnum("hazelcastFlushMode"));
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -83,4 +88,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.sessionMapName = sessionMapName;
 	}
 
+	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
+		this.hazelcastFlushMode = hazelcastFlushMode;
+	}
 }
