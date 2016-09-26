@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.session.MapSession;
+import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,7 +42,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 	@Test
 	public void createAndDestroySession() {
-		MapSession sessionToSave = this.repository.createSession();
+		HazelcastSession sessionToSave = this.repository.createSession();
 		String sessionId = sessionToSave.getId();
 
 		IMap<String, MapSession> hazelcastMap = this.hazelcast.getMap(

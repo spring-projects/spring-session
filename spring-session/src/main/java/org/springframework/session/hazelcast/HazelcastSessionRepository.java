@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -36,8 +37,10 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -100,10 +103,11 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @author Tommy Ludwig
  * @author Mark Anderson
+ * @author Aleksandar Stojsavljevic
  * @since 1.3.0
  */
 public class HazelcastSessionRepository implements
-		FindByIndexNameSessionRepository<MapSession>,
+		FindByIndexNameSessionRepository<HazelcastSessionRepository.HazelcastSession>,
 		EntryAddedListener<String, MapSession>,
 		EntryEvictedListener<String, MapSession>,
 		EntryRemovedListener<String, MapSession> {
@@ -116,6 +120,8 @@ public class HazelcastSessionRepository implements
 	private static final Log logger = LogFactory.getLog(HazelcastSessionRepository.class);
 
 	private final IMap<String, MapSession> sessions;
+
+	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 
@@ -175,20 +181,33 @@ public class HazelcastSessionRepository implements
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
-	public MapSession createSession() {
-		MapSession result = new MapSession();
+	/**
+	 * Sets the Hazelcast flush mode. Default flush mode is {@link HazelcastFlushMode#ON_SAVE}.
+	 *
+	 * @param hazelcastFlushMode the new Hazelcast flush mode
+	 */
+	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
+		Assert.notNull(hazelcastFlushMode, "HazelcastFlushMode cannot be null");
+		this.hazelcastFlushMode = hazelcastFlushMode;
+	}
+
+	public HazelcastSession createSession() {
+		HazelcastSession result = new HazelcastSession();
 		if (this.defaultMaxInactiveInterval != null) {
 			result.setMaxInactiveIntervalInSeconds(this.defaultMaxInactiveInterval);
 		}
 		return result;
 	}
 
-	public void save(MapSession session) {
-		this.sessions.put(session.getId(), session,
-				session.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
+	public void save(HazelcastSession session) {
+		if (session.isChanged()) {
+			this.sessions.put(session.getId(), session.getDelegate(),
+					session.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
+			session.markUnchanged();
+		}
 	}
 
-	public MapSession getSession(String id) {
+	public HazelcastSession getSession(String id) {
 		MapSession saved = this.sessions.get(id);
 		if (saved == null) {
 			return null;
@@ -197,24 +216,24 @@ public class HazelcastSessionRepository implements
 			delete(saved.getId());
 			return null;
 		}
-		return saved;
+		return new HazelcastSession(saved);
 	}
 
 	public void delete(String id) {
 		this.sessions.remove(id);
 	}
 
-	public Map<String, MapSession> findByIndexNameAndIndexValue(
+	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(
 			String indexName, String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
 		}
 		Collection<MapSession> sessions = this.sessions.values(
 				Predicates.equal(PRINCIPAL_NAME_ATTRIBUTE, indexValue));
-		Map<String, MapSession> sessionMap = new HashMap<String, MapSession>(
+		Map<String, HazelcastSession> sessionMap = new HashMap<String, HazelcastSession>(
 				sessions.size());
 		for (MapSession session : sessions) {
-			sessionMap.put(session.getId(), session);
+			sessionMap.put(session.getId(), new HazelcastSession(session));
 		}
 		return sessionMap;
 	}
@@ -242,4 +261,106 @@ public class HazelcastSessionRepository implements
 				.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
 	}
 
+	/**
+	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
+	 * basis for its mapping. It keeps track if changes have been made since last save.
+	 *
+	 * @author Aleksandar Stojsavljevic
+	 * @since 1.3
+	 */
+	final class HazelcastSession implements ExpiringSession {
+		private final MapSession delegate;
+		private boolean changed;
+
+		/**
+		 * Creates a new instance ensuring to mark all of the new attributes to be
+		 * persisted in the next save operation.
+		 */
+		HazelcastSession() {
+			this(new MapSession());
+			this.changed = true;
+			flushImmediateIfNecessary();
+		}
+
+		/**
+		 * Creates a new instance from the provided {@link MapSession}.
+		 *
+		 * @param cached the {@link MapSession} that represents the persisted session that was
+		 * retrieved. Cannot be null.
+		 */
+		HazelcastSession(MapSession cached) {
+			Assert.notNull(cached, "MapSession cannot be null");
+			this.delegate = cached;
+		}
+
+		public void setLastAccessedTime(long lastAccessedTime) {
+			this.delegate.setLastAccessedTime(lastAccessedTime);
+			this.changed = true;
+			flushImmediateIfNecessary();
+		}
+
+		public boolean isExpired() {
+			return this.delegate.isExpired();
+		}
+
+		public long getCreationTime() {
+			return this.delegate.getCreationTime();
+		}
+
+		public String getId() {
+			return this.delegate.getId();
+		}
+
+		public long getLastAccessedTime() {
+			return this.delegate.getLastAccessedTime();
+		}
+
+		public void setMaxInactiveIntervalInSeconds(int interval) {
+			this.delegate.setMaxInactiveIntervalInSeconds(interval);
+			this.changed = true;
+			flushImmediateIfNecessary();
+		}
+
+		public int getMaxInactiveIntervalInSeconds() {
+			return this.delegate.getMaxInactiveIntervalInSeconds();
+		}
+
+		public <T> T getAttribute(String attributeName) {
+			return this.delegate.getAttribute(attributeName);
+		}
+
+		public Set<String> getAttributeNames() {
+			return this.delegate.getAttributeNames();
+		}
+
+		public void setAttribute(String attributeName, Object attributeValue) {
+			this.delegate.setAttribute(attributeName, attributeValue);
+			this.changed = true;
+			flushImmediateIfNecessary();
+		}
+
+		public void removeAttribute(String attributeName) {
+			this.delegate.removeAttribute(attributeName);
+			this.changed = true;
+			flushImmediateIfNecessary();
+		}
+
+		boolean isChanged() {
+			return this.changed;
+		}
+
+		void markUnchanged() {
+			this.changed = false;
+		}
+
+		MapSession getDelegate() {
+			return this.delegate;
+		}
+
+		private void flushImmediateIfNecessary() {
+			if (HazelcastSessionRepository.this.hazelcastFlushMode == HazelcastFlushMode.IMMEDIATE) {
+				HazelcastSessionRepository.this.save(this);
+			}
+		}
+	}
 }
