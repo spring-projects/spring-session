@@ -690,8 +690,8 @@ public class RedisOperationsSessionRepository implements
 		/**
 		 * Creates a new instance from the provided {@link MapSession}.
 		 *
-		 * @param cached the {@MapSession} that represents the persisted session that was
-		 * retrieved. Cannot be null.
+		 * @param cached the {@link MapSession} that represents the persisted session that
+		 * was retrieved. Cannot be null.
 		 */
 		RedisSession(MapSession cached) {
 			Assert.notNull("MapSession cannot be null");
@@ -739,8 +739,7 @@ public class RedisOperationsSessionRepository implements
 			return this.cached.getMaxInactiveIntervalInSeconds();
 		}
 
-		@SuppressWarnings("unchecked")
-		public Object getAttribute(String attributeName) {
+		public <T> T getAttribute(String attributeName) {
 			return this.cached.getAttribute(attributeName);
 		}
 
