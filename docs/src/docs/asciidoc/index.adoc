@@ -26,6 +26,7 @@ Additional features include:
 
 Below are the highlights of what is new in Spring Session 1.2. You can find a complete list of what's new in https://github.com/spring-projects/spring-session/issues?utf8=%E2%9C%93&q=milestone%3A%221.2.0+RC1%22[1.2.0 RC1] by referring to the changelog.
 
+* Added https://github.com/maseev/spring-session-orientdb[OrientDB Community Extension]
 * Added <<httpsession-jdbc,JdbcOperationsSessionRepository>> (See https://github.com/spring-projects/spring-session/issues/364[#364]).
 * Added <<httpsession-mongo,MongoOperationsSessionRepository>> (See https://github.com/spring-projects/spring-session/pull/371[#371]).
 * SessionRepositoryFilter caches null session lookup (See https://github.com/spring-projects/spring-session/issues/423[#423])
