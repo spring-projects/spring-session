@@ -9,7 +9,7 @@ sonarqube {
 }
 
 dependencies {
-	compile project(':spring-session-data-geode'),
+	compile project(':spring-session-data-gemfire'),
 		"org.springframework:spring-web:$springVersion",
 		"org.webjars:bootstrap:$bootstrapVersion",
 		"org.webjars:webjars-taglib:$webjarsTaglibVersion",
