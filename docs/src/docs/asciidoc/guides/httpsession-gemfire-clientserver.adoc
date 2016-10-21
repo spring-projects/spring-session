@@ -84,33 +84,26 @@ include::{samples-dir}httpsession-gemfire-clientserver/src/main/java/sample/Clie
 ----
 
 <1> The `@EnableGemFireHttpSession` annotation creates a Spring bean named `springSessionRepositoryFilter` that
-implements `Filter`. The filter is what replaces the `HttpSession` with an implementation backed by Spring Session.
-In this instance, Spring Session is backed by GemFire.
+implements `Filter`. The filter is what replaces the `HttpSession` with an implementation backed by Spring Session
+and GemFire.
 <2> Next, we register a `Properties` bean that allows us to configure certain aspects of the GemFire client cache
 using http://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
-<3> Then, we configure a `Pool` of client connections to talk to the GemFire Server in our Client/Server topology. In our
+<3> We use the `Properties` to configure an instance of a GemFire `ClientCache`.
+<4> Then, we configure a `Pool` of client connections to talk to the GemFire Server in our Client/Server topology. In our
 configuration, we have used sensible settings for timeouts, number of connections and so on. Also, the `Pool` has been
 configured to connect directly to a server. Learn more about various `Pool` configuration settings from the
 http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/PoolFactory.html[PoolFactory API].
-<4> After configuring a `Pool`, we create an instance of the GemFire client cache using the GemFire `Properties`
-and `Pool` to communicate with the server and perform cache data access operations.
-<5> Finally, we include a Spring `BeanPostProcessor` to block the client until our GemFire Server is up and running,
+<56> Finally, we include a Spring `BeanPostProcessor` to block the client until our GemFire Server is up and running,
 listening for and accepting client connections.
 
 The `gemfireCacheServerReadyBeanPostProcessor` is necessary in order to coordinate the client and server in
 an automated fashion during testing, but unnecessary in situations where the GemFire cluster is already presently
-running, such as in production. This `BeanPostProcessor` implements 2 approaches to ensure our server has adequate
-time to startup.
+running, such as in production.
 
-The first approach uses a timed wait, checking at periodic intervals to determine whether a client `Socket` connection
-can be made to the server's `CacheServer` endpoint.
-
-The second approach uses a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/management/membership/ClientMembershipListener.html[ClientMembershipListener]
+The `BeanPostProcessor` uses a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/management/membership/ClientMembershipListener.html[ClientMembershipListener]
 that will be notified when the client has successfully connected to the server. Once a connection has been established,
 the listener releases the latch that the `BeanPostProcessor` will wait on (up to the specified timeout) in the
-`postProcessAfterInitialization` callback to block the client. Either one of these approaches are sufficient
-by themselves, but both are demonstrated here to illustrate how this might work and to give you ideas, or other options
-in practice.
+`postProcessAfterInitialization` callback to block the client.
 
 TIP: In typical GemFire deployments, where the cluster includes potentially hundreds of GemFire data nodes (servers),
 it is more common for clients to connect to one or more GemFire Locators running in the cluster. A Locator passes meta-data
@@ -122,11 +115,16 @@ NOTE: For more information on configuring _Spring Data GemFire_, refer to the ht
 The `@EnableGemFireHttpSession` annotation enables a developer to configure certain aspects of both Spring Session
 and GemFire out-of-the-box using the following attributes:
 
-* `maxInactiveIntervalInSeconds` - controls HttpSession idle-timeout expiration (defaults to **30 minutes**).
-* `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "_ClusteredSpringSessions_").
-* `clientRegionShort` - specifies GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policies]
+* `maxInactiveIntervalInSeconds` - controls _HttpSession_ idle-timeout expiration (defaults to **30 minutes**).
+* `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "*ClusteredSpringSessions*").
+* `clientRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
 with a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
-(default is `PROXY`).
+(default is `PROXY`).  This attribute is only used when configuring client Region.
+* `poolName` - name of the dedicated GemFire Pool used to connect a client to the cluster of servers.  The attribute
+is only used when the application is a GemFire cache client.  Defaults to `gemfirePool`.
+* `serverRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
+using a GemFire http://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
+(default is `PARTITION`).  This attribute is only used when configuring server Regions, or when a p2p topology is employed.
 
 NOTE: It is important to note that the GemFire client Region name must match a server Region by the same name if
 the client Region is a `PROXY` or `CACHING_PROXY`.  Names are not required to match if the client Region used to
@@ -134,13 +132,13 @@ store Spring Sessions is `LOCAL`, however, keep in mind that your session state 
 and you lose all benefits of using GemFire to store and manage distributed, replicated session state information
 in a cluster.
 
-NOTE: `serverRegionShort` is ignored in a client/server cache configuration and only applies when a peer-to-peer (P2P) topology,
-and more specifically, a GemFire peer cache is used.
+NOTE: `serverRegionShort` is ignored in a client/server cache configuration and only applies when
+a peer-to-peer (P2P) topology, and more specifically, a GemFire peer cache is used.
 
 === Server Configuration
 
-Now, we have only covered one side of the equation.  We also need a GemFire Server for our client to talk to and pass
-session state up to the server to manage.
+We have only covered one side of the equation.  We also need a GemFire Server for our client to talk to and send
+session state to the server to manage.
 
 In this sample, we will use the following GemFire Server Java Configuration:
 
@@ -149,15 +147,15 @@ In this sample, we will use the following GemFire Server Java Configuration:
 include::{samples-dir}httpsession-gemfire-clientserver/src/main/java/sample/ServerConfig.java[tags=class]
 ----
 
-<1> On the server, we also configure Spring Session using the `@EnableGemFireHttpSession` annotation. For one, this
-ensures that the Region names on both the client and server match (in this sample, we use the default "_ClusteredSpringSessions_").
+<1> On the server, we also configure Spring Session using the `@EnableGemFireHttpSession` annotation. This ensures
+the Region names on both the client and server match (in this sample, we use the default "_ClusteredSpringSessions_").
 We have also set the session timeout to **30 seconds**. Later, we will see how this timeout is used.
-<2> Next, we configure the GemFire Server using GemFire System properties very much like our P2P samples.
+<2> Next, we configure the GemFire Server using GemFire System Properties very much like our P2P samples.
 With the `mcast-port` set to 0 and no `locators` property specified, our server will be standalone. We also allow a
 JMX client (e.g. _Gfsh_) to connect to our server with the use of the GemFire-specific JMX System properties.
-<3> Then, we create an instance of the GemFire peer cache using our GemFire System properties.
-<4> We also setup a GemFire `CacheServer` instance running on **localhost**, listening on port **12480**,
-to accept our client connection.
+<3> Then, we create an instance of a GemFire peer `Cache` initialized with our GemFire System Properties.
+<4> We also setup a GemFire `CacheServer` instance running on **localhost**, listening to port **12480**,
+ready to accept our client connection.
 <5> Finally, we declare a `main` method as an entry point for launching and running our GemFire Server
 from the command-line.
 

@@ -47,7 +47,7 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
 @EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 20) // <1>
 public class GemFireServer {
 
-	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
+	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
 
 	public static void main(String[] args) {
 		SpringApplication springApplication = new SpringApplication(GemFireServer.class);
@@ -60,23 +60,25 @@ public class GemFireServer {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 
-	String applicationName() {
-		return "samples:httpsession-gemfire-boot-"
-				.concat(GemFireServer.class.getSimpleName());
-	}
-
-	String gemfireLogLevel() {
-		return System.getProperty("gemfire.log-level", DEFAULT_GEMFIRE_LOG_LEVEL);
-	}
-
 	Properties gemfireProperties() { // <2>
 		Properties gemfireProperties = new Properties();
 
 		gemfireProperties.setProperty("name", applicationName());
 		gemfireProperties.setProperty("mcast-port", "0");
-		gemfireProperties.setProperty("log-level", gemfireLogLevel());
+		gemfireProperties.setProperty("log-level", logLevel());
+		gemfireProperties.setProperty("jmx-manager", "true");
+		gemfireProperties.setProperty("jmx-manager-start", "true");
 
 		return gemfireProperties;
+	}
+
+	String applicationName() {
+		return "samples:httpsession-gemfire-boot:"
+			.concat(getClass().getSimpleName());
+	}
+
+	String logLevel() {
+		return System.getProperty("gemfire.log-level", DEFAULT_GEMFIRE_LOG_LEVEL);
 	}
 
 	@Bean
@@ -98,12 +100,11 @@ public class GemFireServer {
 		CacheServerFactoryBean gemfireCacheServer = new CacheServerFactoryBean();
 
 		gemfireCacheServer.setAutoStartup(true);
-		gemfireCacheServer.setCache(gemfireCache);
 		gemfireCacheServer.setBindAddress(bindAddress);
+		gemfireCacheServer.setCache(gemfireCache);
 		gemfireCacheServer.setHostNameForClients(hostnameForClients);
 		gemfireCacheServer.setMaxTimeBetweenPings(
-				Long.valueOf(TimeUnit.MINUTES.toMillis(1)).intValue());
-		gemfireCacheServer.setNotifyBySubscription(true);
+			Long.valueOf(TimeUnit.SECONDS.toMillis(60)).intValue());
 		gemfireCacheServer.setPort(port);
 
 		return gemfireCacheServer;

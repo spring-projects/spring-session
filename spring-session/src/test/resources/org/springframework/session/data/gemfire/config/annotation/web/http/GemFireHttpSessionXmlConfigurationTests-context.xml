@@ -16,7 +16,7 @@
 		<prop key="log-level">warning</prop>
 	</util:properties>
 
-	<gfe:cache properties-ref="gemfireProperties" close="true"/>
+	<gfe:cache properties-ref="gemfireProperties"/>
 
 	<bean class="org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration"
 		p:indexableSessionAttributes="one, two, three" p:maxInactiveIntervalInSeconds="3600"

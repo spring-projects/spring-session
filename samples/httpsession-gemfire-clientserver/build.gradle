@@ -12,6 +12,8 @@ dependencies {
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
+	runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+
 	testCompile "junit:junit:$junitVersion"
 
 	integrationTestCompile gebDependencies
