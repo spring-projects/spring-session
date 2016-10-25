@@ -25,6 +25,7 @@ dependencies {
             "org.springframework.boot:spring-boot-starter-web",
             "org.springframework.boot:spring-boot-starter-thymeleaf",
             "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
+            "biz.paluch.redis:lettuce:$lettuceVersion",
             "org.springframework.security:spring-security-web:$springSecurityVersion",
             "org.springframework.security:spring-security-core:$springSecurityVersion",
             "org.springframework.security:spring-security-config:$springSecurityVersion",
