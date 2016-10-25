@@ -58,6 +58,7 @@ asciidoctor {
 			'download-url' : "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
 			'spring-session-version' : version,
 			'spring-version' : springVersion,
+			'lettuce-version' : lettuceVersion,
 			'hazelcast-version' : hazelcastVersion,
 			'docs-itest-dir' : rootProject.projectDir.path + '/docs/src/integration-test/java/',
 			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
