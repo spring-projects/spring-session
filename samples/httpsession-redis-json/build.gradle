@@ -28,6 +28,7 @@ dependencies {
             "org.springframework.boot:spring-boot-starter-thymeleaf",
             "org.springframework.boot:spring-boot-starter-security",
             "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
+            "biz.paluch.redis:lettuce:$lettuceVersion",
             "org.apache.httpcomponents:httpclient"
 
     testCompile "org.springframework.boot:spring-boot-starter-test",

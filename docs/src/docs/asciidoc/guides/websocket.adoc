@@ -85,7 +85,7 @@ include::{samples-dir}websocket/src/main/java/sample/config/WebSecurityConfig.ja
 [NOTE]
 ====
 For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
-Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
+Alternatively, you can update the `LettuceConnectionFactory` to point to a Redis server.
 ====
 
 ----

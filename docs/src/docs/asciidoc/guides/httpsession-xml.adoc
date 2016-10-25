@@ -24,6 +24,11 @@ If you are using Maven, ensure to add the following dependencies:
 		<type>pom</type>
 	</dependency>
 	<dependency>
+		<groupId>biz.paluch.redis</groupId>
+		<artifactId>lettuce</artifactId>
+		<version>{lettuce-version}</version>
+	</dependency>
+	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-web</artifactId>
 		<version>{spring-version}</version>
@@ -129,7 +134,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 [NOTE]
 ====
 For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
-Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
+Alternatively, you can update the `LettuceConnectionFactory` to point to a Redis server.
 ====
 
 ----
