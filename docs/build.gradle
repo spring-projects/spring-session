@@ -43,7 +43,7 @@ dependencies {
 				"org.springframework:spring-test:$springVersion",
 				"org.assertj:assertj-core:$assertjVersion",
 				"com.hazelcast:hazelcast:$hazelcastVersion",
-				"redis.clients:jedis:2.4.1",
+				"biz.paluch.redis:lettuce:$lettuceVersion",
 				"javax.servlet:javax.servlet-api:$servletApiVersion"
 }
 
@@ -58,6 +58,7 @@ asciidoctor {
 			'download-url' : "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
 			'spring-session-version' : version,
 			'spring-version' : springVersion,
+			'lettuce-version' : lettuceVersion,
 			'hazelcast-version' : hazelcastVersion,
 			'docs-itest-dir' : rootProject.projectDir.path + '/docs/src/integration-test/java/',
 			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
