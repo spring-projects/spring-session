@@ -230,6 +230,9 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		}
 
 		public void afterPropertiesSet() throws Exception {
+			if (this.configure == ConfigureRedisAction.NO_OP) {
+				return;
+			}
 			RedisConnection connection = this.connectionFactory.getConnection();
 			this.configure.configure(connection);
 		}
