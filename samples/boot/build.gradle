@@ -19,13 +19,12 @@ dependencies {
 			"org.springframework.boot:spring-boot-starter-redis",
 			"org.springframework.boot:spring-boot-starter-web",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",
+			"org.springframework.boot:spring-boot-starter-security",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
 			"org.thymeleaf.extras:thymeleaf-extras-conditionalcomments",
 			"org.webjars:bootstrap:$bootstrapVersion",
 			"org.webjars:html5shiv:$html5ShivVersion",
-			"org.webjars:webjars-locator",
-			"org.springframework.security:spring-security-web:$springSecurityVersion",
-			"org.springframework.security:spring-security-config:$springSecurityVersion"
+			"org.webjars:webjars-locator"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 

@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.security.jackson2.SecurityJacksonModules;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
@@ -51,7 +51,7 @@ public class SessionConfig implements BeanClassLoaderAware {
 	 */
 	ObjectMapper objectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModules(SecurityJacksonModules.getModules(this.loader));
+		mapper.registerModules(SecurityJackson2Modules.getModules(this.loader));
 		return mapper;
 	}
 
