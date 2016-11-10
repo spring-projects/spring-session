@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,24 @@
  */
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
-
 import org.junit.Test;
+
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
 public class RedisHttpSessionConfigurationTests {
 
 	@Test
-	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoOpThenNoInteractionWithConnectionFactory() throws Exception {
+	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoOpThenNoInteractionWithConnectionFactory()
+			throws Exception {
 		RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 
-		EnableRedisKeyspaceNotificationsInitializer init =
-				new EnableRedisKeyspaceNotificationsInitializer(factory, ConfigureRedisAction.NO_OP);
+		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(factory,
+				ConfigureRedisAction.NO_OP);
 
 		init.afterPropertiesSet();
 
