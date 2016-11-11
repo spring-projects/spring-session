@@ -53,6 +53,10 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private boolean useBase64Encoding;
 
+	private String rememberMeRequestAttribute;
+
+	private int rememberMeCookieMaxAge = Integer.MAX_VALUE;
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -110,6 +114,10 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 		if ("".equals(requestedCookieValue)) {
 			sessionCookie.setMaxAge(0);
+		}
+		else if (this.rememberMeRequestAttribute != null &&
+				request.getAttribute(this.rememberMeRequestAttribute) != null) {
+			sessionCookie.setMaxAge(this.rememberMeCookieMaxAge);
 		}
 		else {
 			sessionCookie.setMaxAge(this.cookieMaxAge);
@@ -201,6 +209,10 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @param cookieMaxAge the maxAge property of the Cookie
 	 */
 	public void setCookieMaxAge(int cookieMaxAge) {
+		if (cookieMaxAge > this.rememberMeCookieMaxAge) {
+			throw new IllegalArgumentException("cookieMaxAge cannot be greater than " +
+					"rememberMeCookieMaxAge");
+		}
 		this.cookieMaxAge = cookieMaxAge;
 	}
 
@@ -289,6 +301,36 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 */
 	public void setUseBase64Encoding(boolean useBase64Encoding) {
 		this.useBase64Encoding = useBase64Encoding;
+	}
+
+	/**
+	 * Set the request attribute name that indicates remember-me login. Used to write
+	 * {@link Cookie} with {@code maxAge} property indicated by
+	 * {@link #rememberMeCookieMaxAge}.
+	 * @param rememberMeRequestAttribute the remember-me request attribute name
+	 * @since 1.3.0
+	 * @see #setRememberMeCookieMaxAge(int)
+	 */
+	public void setRememberMeRequestAttribute(String rememberMeRequestAttribute) {
+		if (rememberMeRequestAttribute == null) {
+			throw new IllegalArgumentException(
+					"rememberMeRequestAttribute cannot be null");
+		}
+		this.rememberMeRequestAttribute = rememberMeRequestAttribute;
+	}
+
+	/**
+	 * Set the {@code maxAge} property of the {@link Cookie} to be used when remember-me
+	 * is requested. The default is {@link Integer#MAX_VALUE}.
+	 * @param rememberMeCookieMaxAge the {@code maxAge} property of the {@code Cookie}
+	 * @since 1.3.0
+	 */
+	public void setRememberMeCookieMaxAge(int rememberMeCookieMaxAge) {
+		if (rememberMeCookieMaxAge < 1 || rememberMeCookieMaxAge < this.cookieMaxAge) {
+			throw new IllegalArgumentException("rememberMeCookieMaxAge must be greater " +
+					"than zero and greater than cookieMaxAge");
+		}
+		this.rememberMeCookieMaxAge = rememberMeCookieMaxAge;
 	}
 
 	private String getDomainName(HttpServletRequest request) {

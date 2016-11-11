@@ -25,7 +25,8 @@ dependencies {
 			"org.springframework:spring-web:$springVersion",
 			"org.springframework:spring-messaging:$springVersion",
 			"org.springframework:spring-websocket:$springVersion",
-			"org.springframework.security:spring-security-core:$springSecurityVersion"
+			"org.springframework.security:spring-security-core:$springSecurityVersion",
+			"org.springframework.security:spring-security-web:$springSecurityVersion"
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 	integrationTestCompile "redis.clients:jedis:$jedisVersion",
 			"org.apache.commons:commons-pool2:2.2",

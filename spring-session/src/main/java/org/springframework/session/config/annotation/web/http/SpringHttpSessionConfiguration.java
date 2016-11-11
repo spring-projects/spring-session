@@ -19,22 +19,29 @@ package org.springframework.session.config.annotation.web.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSessionListener;
 
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.security.SpringSessionRememberMeServices;
 import org.springframework.session.web.http.CookieHttpSessionStrategy;
 import org.springframework.session.web.http.CookieSerializer;
+import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.MultiHttpSessionStrategy;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.util.ClassUtils;
 
 /**
  * Configures the basics for setting up Spring Session in a web environment. In order to
@@ -75,20 +82,38 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * </ul>
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.1
  *
  * @see EnableSpringHttpSession
  */
 @Configuration
-public class SpringHttpSessionConfiguration {
+public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	private CookieHttpSessionStrategy defaultHttpSessionStrategy = new CookieHttpSessionStrategy();
+
+	private boolean usesSpringSessionRememberMeServices;
+
+	private ServletContext servletContext;
+
+	private CookieSerializer cookieSerializer;
 
 	private HttpSessionStrategy httpSessionStrategy = this.defaultHttpSessionStrategy;
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<HttpSessionListener>();
 
-	private ServletContext servletContext;
+	@PostConstruct
+	public void init() {
+		if (this.cookieSerializer != null) {
+			this.defaultHttpSessionStrategy.setCookieSerializer(this.cookieSerializer);
+		}
+		else if (this.usesSpringSessionRememberMeServices) {
+			DefaultCookieSerializer cookieSerializer = new DefaultCookieSerializer();
+			cookieSerializer.setRememberMeRequestAttribute(
+					SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
+			this.defaultHttpSessionStrategy.setCookieSerializer(cookieSerializer);
+		}
+	}
 
 	@Bean
 	public SessionEventHttpSessionListenerAdapter sessionEventHttpSessionListenerAdapter() {
@@ -111,6 +136,15 @@ public class SpringHttpSessionConfiguration {
 		return sessionRepositoryFilter;
 	}
 
+	public void setApplicationContext(ApplicationContext applicationContext)
+			throws BeansException {
+		if (ClassUtils.isPresent("org.springframework.security.web.authentication." +
+				"RememberMeServices", null)) {
+			this.usesSpringSessionRememberMeServices = !applicationContext
+					.getBeansOfType(SpringSessionRememberMeServices.class).isEmpty();
+		}
+	}
+
 	@Autowired(required = false)
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
@@ -118,7 +152,7 @@ public class SpringHttpSessionConfiguration {
 
 	@Autowired(required = false)
 	public void setCookieSerializer(CookieSerializer cookieSerializer) {
-		this.defaultHttpSessionStrategy.setCookieSerializer(cookieSerializer);
+		this.cookieSerializer = cookieSerializer;
 	}
 
 	@Autowired(required = false)
@@ -130,4 +164,5 @@ public class SpringHttpSessionConfiguration {
 	public void setHttpSessionListeners(List<HttpSessionListener> listeners) {
 		this.httpSessionListeners = listeners;
 	}
+
 }

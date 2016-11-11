@@ -19,7 +19,9 @@ package org.springframework.session.web.http;
 import javax.servlet.http.Cookie;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
@@ -44,6 +46,9 @@ public class DefaultCookieSerializerTests {
 	public static Object[] parameters() {
 		return new Object[] { false, true };
 	}
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
 
 	private boolean useBase64Encoding;
 
@@ -422,6 +427,45 @@ public class DefaultCookieSerializerTests {
 		this.request.setCookies(createCookie(this.cookieName, "." + jvmRoute));
 
 		assertThat(this.serializer.readCookieValues(this.request)).containsOnly("");
+	}
+
+	// --- rememberMe ---
+
+	@Test
+	public void setRememberMeCookieMaxAgeNotGreaterThanZero() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("rememberMeCookieMaxAge must be greater than zero and " +
+				"greater than cookieMaxAge");
+		this.serializer.setRememberMeCookieMaxAge(0);
+	}
+
+	@Test
+	public void setRememberMeCookieMaxAgeNotGreaterMaxCookieAge() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("rememberMeCookieMaxAge must be greater than zero and " +
+				"greater than cookieMaxAge");
+		this.serializer.setCookieMaxAge(20);
+		this.serializer.setRememberMeCookieMaxAge(10);
+	}
+
+	@Test
+	public void writeCookieRememberMeCookieMaxAgeDefault() {
+		this.request.setAttribute("rememberMe", true);
+		this.serializer.setRememberMeRequestAttribute("rememberMe");
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
+
+		assertThat(getCookie().getMaxAge()).isEqualTo(Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void writeCookieRememberMeCookieMaxAgeExplicit() {
+		this.request.setAttribute("rememberMe", true);
+		this.serializer.setRememberMeRequestAttribute("rememberMe");
+		this.serializer.setRememberMeCookieMaxAge(100);
+
+		this.serializer.writeCookieValue(cookieValue(this.sessionId));
+
+		assertThat(getCookie().getMaxAge()).isEqualTo(100);
 	}
 
 	public void setCookieName(String cookieName) {
