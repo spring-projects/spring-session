@@ -3,6 +3,7 @@ buildscript {
 		maven { url "https://repo.spring.io/plugins-release" }
 	}
 	dependencies {
+		classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
 		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.5")
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath("io.spring.gradle:spring-io-plugin:0.0.4.RELEASE")
