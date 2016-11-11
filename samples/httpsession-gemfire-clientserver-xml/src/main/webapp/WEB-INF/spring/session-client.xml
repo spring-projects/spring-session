@@ -28,7 +28,7 @@
 	</util:properties>
 
 	<!--5-->
-	<gfe:client-cache properties-ref="gemfireProperties"/>
+	<gfe:client-cache properties-ref="gemfireProperties" pool-name="gemfirePool"/>
 
 	<!--6-->
 	<gfe:pool keep-alive="false"
@@ -43,7 +43,7 @@
 
 	<!--7-->
 	<bean class="org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration"
-		  p:maxInactiveIntervalInSeconds="30"/>
+		  p:maxInactiveIntervalInSeconds="30" p:poolName="DEFAULT"/>
 	<!-- end::beans[] -->
 
 </beans>

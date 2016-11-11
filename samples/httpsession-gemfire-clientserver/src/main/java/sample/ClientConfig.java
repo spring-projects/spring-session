@@ -32,13 +32,12 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
-import org.springframework.data.gemfire.client.PoolFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.util.Assert;
 
 // tag::class[]
-@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 30) // <1>
+@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 30, poolName = "DEFAULT") // <1>
 public class ClientConfig {
 
 	static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
@@ -70,32 +69,26 @@ public class ClientConfig {
 	}
 
 	@Bean
-	ClientCacheFactoryBean gemfireCache() { // <3>
+	ClientCacheFactoryBean gemfireCache(
+			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") int port) { // <3>
+
 		ClientCacheFactoryBean clientCacheFactory = new ClientCacheFactoryBean();
 
 		clientCacheFactory.setClose(true);
 		clientCacheFactory.setProperties(gemfireProperties());
 
-		return clientCacheFactory;
-	}
+		// GemFire Pool settings <4>
+		clientCacheFactory.setKeepAlive(false);
+		clientCacheFactory.setPingInterval(TimeUnit.SECONDS.toMillis(5));
+		clientCacheFactory.setReadTimeout(2000); // 2 seconds
+		clientCacheFactory.setRetryAttempts(1);
+		clientCacheFactory.setSubscriptionEnabled(true);
+		clientCacheFactory.setThreadLocalConnections(false);
 
-	@Bean
-	PoolFactoryBean gemfirePool(// <4>
-			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") int port) {
-
-		PoolFactoryBean poolFactory = new PoolFactoryBean();
-
-		poolFactory.setKeepAlive(false);
-		poolFactory.setPingInterval(TimeUnit.SECONDS.toMillis(5));
-		poolFactory.setReadTimeout(2000); // 2 seconds
-		poolFactory.setRetryAttempts(1);
-		poolFactory.setSubscriptionEnabled(true);
-		poolFactory.setThreadLocalConnections(false);
-
-		poolFactory.setServers(Collections.singletonList(
+		clientCacheFactory.setServers(Collections.singletonList(
 			newConnectionEndpoint(ServerConfig.SERVER_HOST, port)));
 
-		return poolFactory;
+		return clientCacheFactory;
 	}
 
 	ConnectionEndpoint newConnectionEndpoint(String host, int port) {

@@ -50,7 +50,6 @@ public class ServerConfig {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 
-	@Bean
 	Properties gemfireProperties() { // <2>
 		Properties gemfireProperties = new Properties();
 
