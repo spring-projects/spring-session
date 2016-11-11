@@ -9,7 +9,7 @@ buildscript {
 
 apply from: JAVA_GRADLE
 apply plugin: "application"
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 
 tasks.findByPath("artifactoryPublish")?.enabled = false
 
