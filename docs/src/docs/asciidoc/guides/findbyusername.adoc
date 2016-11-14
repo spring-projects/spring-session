@@ -33,10 +33,10 @@ Consider the following scenario:
 Wouldn't it be nice if we could allow the user to invalidate the session at the library from any device they authenticate with?
 This sample demonstrates how this is possible.
 
-[[findbyprincipalnamesessionrepository]]
+[[findbyindexnamesessionrepository]]
 == FindByIndexNameSessionRepository
 
-In order to look up a user by their username, you must first choose a `SessionRepository` that implements <<index.doc#api-findbyprincipalnamesessionrepository,FindByIndexNameSessionRepository>>.
+In order to look up a user by their username, you must first choose a `SessionRepository` that implements link:../#api-findbyindexnamesessionrepository[FindByIndexNameSessionRepository].
 Our sample application assumes that the Redis support is already setup, so we are ready to go.
 
 == Mapping the username
