@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-	id "org.sonarqube" version "1.2"
+	id "org.sonarqube" version "2.2"
 }
 
 group = 'org.springframework.session'
