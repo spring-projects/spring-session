@@ -6,8 +6,6 @@ This guide describes how to use Spring Session to find sessions by username.
 
 NOTE: The completed guide can be found in the <<findbyusername-sample, findbyusername application>>.
 
-NOTE: This feature will likely be refactored in the next release to account for https://github.com/spring-projects/spring-session/issues/301[#301]
-
 
 [[findbyusername-assumptions]]
 == Assumptions
