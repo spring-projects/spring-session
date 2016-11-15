@@ -77,19 +77,15 @@ public @interface EnableHazelcastHttpSession {
 	String sessionMapName() default HazelcastHttpSessionConfiguration.DEFAULT_SESSION_MAP_NAME;
 
 	/**
-	 * <p>
-	 * Sets the flush mode for the Hazelcast sessions. The default is ON_SAVE which only
+	 * Flush mode for the Hazelcast sessions. The default is {@code ON_SAVE} which only
 	 * updates the backing Hazelcast when
 	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
 	 * a web environment this happens just before the HTTP response is committed.
-	 * </p>
 	 * <p>
-	 * Setting the value to IMMEDIATE will ensure that the any updates to the Session are
-	 * immediately written to the Hazelcast instance.
-	 * </p>
-	 *
+	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
+	 * Session are immediately written to the Hazelcast instance.
 	 * @return the {@link HazelcastFlushMode} to use
-	 * @since 1.3
+	 * @since 1.3.0
 	 */
 	HazelcastFlushMode hazelcastFlushMode() default HazelcastFlushMode.ON_SAVE;
 

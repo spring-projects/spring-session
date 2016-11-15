@@ -150,8 +150,8 @@ public class HazelcastHttpSessionConfigurationTests {
 		HazelcastSessionRepository repository = this.context
 				.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode")).isEqualTo(
-				HazelcastFlushMode.IMMEDIATE);
+		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode"))
+				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
 	}
 
 	@Test
@@ -162,8 +162,8 @@ public class HazelcastHttpSessionConfigurationTests {
 		HazelcastSessionRepository repository = this.context
 				.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode")).isEqualTo(
-				HazelcastFlushMode.IMMEDIATE);
+		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode"))
+				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {

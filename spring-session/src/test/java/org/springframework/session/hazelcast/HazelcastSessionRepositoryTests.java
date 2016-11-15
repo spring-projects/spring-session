@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -129,7 +128,6 @@ public class HazelcastSessionRepositoryTests {
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void saveUpdatedAttributeFlushModeImmediate() {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
@@ -138,7 +136,6 @@ public class HazelcastSessionRepositoryTests {
 		session.setAttribute("testName", "testValue");
 		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
-		reset(this.sessions);
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -155,7 +152,6 @@ public class HazelcastSessionRepositoryTests {
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void removeAttributeFlushModeImmediate() {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
@@ -164,7 +160,6 @@ public class HazelcastSessionRepositoryTests {
 		session.removeAttribute("testName");
 		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
-		reset(this.sessions);
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -181,7 +176,6 @@ public class HazelcastSessionRepositoryTests {
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void saveUpdatedLastAccessedTimeFlushModeImmediate() {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
@@ -190,7 +184,6 @@ public class HazelcastSessionRepositoryTests {
 		session.setLastAccessedTime(System.currentTimeMillis());
 		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
-		reset(this.sessions);
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -207,7 +200,6 @@ public class HazelcastSessionRepositoryTests {
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void saveUpdatedMaxInactiveIntervalInSecondsFlushModeImmediate() {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
@@ -216,26 +208,22 @@ public class HazelcastSessionRepositoryTests {
 		session.setMaxInactiveIntervalInSeconds(1);
 		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
-		reset(this.sessions);
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void saveUnchangedFlushModeOnSave() {
 		HazelcastSession session = this.repository.createSession();
 		this.repository.save(session);
 		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
-		reset(this.sessions);
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void saveUnchangedFlushModeImmediate() {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
@@ -243,7 +231,6 @@ public class HazelcastSessionRepositoryTests {
 		HazelcastSession session = this.repository.createSession();
 		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
-		reset(this.sessions);
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);

@@ -77,7 +77,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		setMaxInactiveIntervalInSeconds(
 				(Integer) enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
-		setHazelcastFlushMode((HazelcastFlushMode) enableAttrs.getEnum("hazelcastFlushMode"));
+		setHazelcastFlushMode(
+				(HazelcastFlushMode) enableAttrs.getEnum("hazelcastFlushMode"));
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -91,4 +92,5 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
 		this.hazelcastFlushMode = hazelcastFlushMode;
 	}
+
 }

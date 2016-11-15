@@ -22,9 +22,10 @@ import org.springframework.session.SessionRepository;
  * Specifies when to write to the backing Hazelcast instance.
  *
  * @author Aleksandar Stojsavljevic
- * @since 1.3
+ * @since 1.3.0
  */
 public enum HazelcastFlushMode {
+
 	/**
 	 * Only writes to Hazelcast when
 	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
@@ -34,9 +35,10 @@ public enum HazelcastFlushMode {
 
 	/**
 	 * Writes to Hazelcast as soon as possible. For example
-	 * {@link SessionRepository#createSession()} will write the session to Hazelcast. Another
-	 * example is that setting an attribute on the session will also write to Hazelcast
-	 * immediately.
+	 * {@link SessionRepository#createSession()} will write the session to Hazelcast.
+	 * Another example is that setting an attribute on the session will also write to
+	 * Hazelcast immediately.
 	 */
 	IMMEDIATE
+
 }

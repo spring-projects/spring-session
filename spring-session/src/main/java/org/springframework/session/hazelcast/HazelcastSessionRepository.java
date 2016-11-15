@@ -182,8 +182,8 @@ public class HazelcastSessionRepository implements
 	}
 
 	/**
-	 * Sets the Hazelcast flush mode. Default flush mode is {@link HazelcastFlushMode#ON_SAVE}.
-	 *
+	 * Sets the Hazelcast flush mode. Default flush mode is
+	 * {@link HazelcastFlushMode#ON_SAVE}.
 	 * @param hazelcastFlushMode the new Hazelcast flush mode
 	 */
 	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
@@ -266,9 +266,9 @@ public class HazelcastSessionRepository implements
 	 * basis for its mapping. It keeps track if changes have been made since last save.
 	 *
 	 * @author Aleksandar Stojsavljevic
-	 * @since 1.3
 	 */
 	final class HazelcastSession implements ExpiringSession {
+
 		private final MapSession delegate;
 		private boolean changed;
 
@@ -284,9 +284,8 @@ public class HazelcastSessionRepository implements
 
 		/**
 		 * Creates a new instance from the provided {@link MapSession}.
-		 *
-		 * @param cached the {@link MapSession} that represents the persisted session that was
-		 * retrieved. Cannot be null.
+		 * @param cached the {@link MapSession} that represents the persisted session that
+		 * was retrieved. Cannot be {@code null}.
 		 */
 		HazelcastSession(MapSession cached) {
 			Assert.notNull(cached, "MapSession cannot be null");
@@ -362,5 +361,7 @@ public class HazelcastSessionRepository implements
 				HazelcastSessionRepository.this.save(this);
 			}
 		}
+
 	}
+
 }
