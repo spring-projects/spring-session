@@ -14,7 +14,7 @@ buildscript {
 }
 
 plugins {
-	id "org.sonarqube" version "2.2"
+	id "org.sonarqube" version "2.1"
 }
 
 group = 'org.springframework.session'
@@ -24,6 +24,7 @@ ext.IDE_GRADLE = "$rootDir/gradle/ide.gradle"
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.SPRING3_GRADLE = "$rootDir/gradle/spring3.gradle"
 ext.MAVEN_GRADLE = "$rootDir/gradle/publish-maven.gradle"
+ext.BOM_GRADLE = "$rootDir/gradle/bom.gradle"
 ext.SAMPLE_GRADLE = "$rootDir/gradle/sample.gradle"
 ext.TOMCAT_GRADLE = "$rootDir/gradle/tomcat.gradle"
 ext.TOMCAT_6_GRADLE = "$rootDir/gradle/tomcat6.gradle"
