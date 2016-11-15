@@ -23,7 +23,9 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+import org.springframework.session.hazelcast.HazelcastFlushMode;
 
 /**
  * Add this annotation to a {@code @Configuration} class to expose the
@@ -48,6 +50,7 @@ import org.springframework.session.config.annotation.web.http.EnableSpringHttpSe
  * instead.
  *
  * @author Tommy Ludwig
+ * @author Aleksandar Stojsavljevic
  * @since 1.1
  * @see EnableSpringHttpSession
  */
@@ -72,5 +75,22 @@ public @interface EnableHazelcastHttpSession {
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
 	String sessionMapName() default HazelcastHttpSessionConfiguration.DEFAULT_SESSION_MAP_NAME;
+
+	/**
+	 * <p>
+	 * Sets the flush mode for the Hazelcast sessions. The default is ON_SAVE which only
+	 * updates the backing Hazelcast when
+	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
+	 * a web environment this happens just before the HTTP response is committed.
+	 * </p>
+	 * <p>
+	 * Setting the value to IMMEDIATE will ensure that the any updates to the Session are
+	 * immediately written to the Hazelcast instance.
+	 * </p>
+	 *
+	 * @return the {@link HazelcastFlushMode} to use
+	 * @since 1.3
+	 */
+	HazelcastFlushMode hazelcastFlushMode() default HazelcastFlushMode.ON_SAVE;
 
 }
