@@ -93,7 +93,8 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 	public static final String INVALID_SESSION_ID_ATTR = SESSION_REPOSITORY_ATTR
 			+ ".invalidSessionId";
 
-	private static final String CURRENT_SESSION_ATTR = "org.springframework.session.web.http.CURRENT_SESSION"; // compile-time constant.
+	private static final String CURRENT_SESSION_ATTR = SESSION_REPOSITORY_ATTR
+			+ ".CURRENT_SESSION";
 
 	/**
 	 * The default filter order.
@@ -149,7 +150,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
 			HttpServletResponse response, FilterChain filterChain)
-					throws ServletException, IOException {
+			throws ServletException, IOException {
 		request.setAttribute(SESSION_REPOSITORY_ATTR, this.sessionRepository);
 
 		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(
