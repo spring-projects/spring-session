@@ -9,7 +9,7 @@
 	<security:http>
 		<!-- other config goes here... -->
 		<security:session-management>
-			<security:concurrency-control max-sessions="2" session-registry-ref="sessionRegistry"
+			<security:concurrency-control max-sessions="2" session-registry-ref="sessionRegistry"/>
 		</security:session-management>
 	</security:http>
 
