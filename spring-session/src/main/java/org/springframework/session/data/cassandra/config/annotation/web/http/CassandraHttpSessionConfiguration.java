@@ -21,7 +21,6 @@ import java.util.Map;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,9 +33,7 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.cassandra.CassandraSessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
-import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.util.StringUtils;
-
 
 
 /**
@@ -49,8 +46,8 @@ import org.springframework.util.StringUtils;
  * {@link Session} must be exposed as a Bean.
  *
  * @author John Blum
- * @since 1.1.0
  * @see EnableGemFireHttpSession
+ * @since 1.1.0
  */
 @Configuration
 public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
@@ -62,7 +59,6 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 	private int port = 9042;
 
 	private String tableName = CassandraSessionRepository.DEFAULT_TABLE_NAME;
-
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
@@ -79,12 +75,10 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 			@Qualifier("springSessionCassandraCluster") Cluster cluster) {
 		if (!StringUtils.isEmpty(this.keyspace)) {
 			return cluster.connect(this.keyspace);
-		}
-		else {
+		} else {
 			return cluster.connect();
 		}
 	}
-
 
 	@Bean
 	public CassandraOperations springSessionCassandraOperations(
@@ -104,15 +98,12 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 		return cassandraSessionRepository;
 	}
 
-
-
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
-				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
+				.getAnnotationAttributes(EnableCassandraHttpSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 		this.tableName = enableAttrs.getString("tableName");
-		this.maxInactiveIntervalInSeconds = enableAttrs
-				.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
 		this.keyspace = enableAttrs.getString("keyspace");
 		this.contactPoints = enableAttrs.getStringArray("contactPoints");
 		this.port = enableAttrs.getNumber("port");

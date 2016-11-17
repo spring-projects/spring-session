@@ -74,7 +74,6 @@ public class CassandraSessionRepositoryITest {
 	@BeforeClass
 	public static void setUp() throws Exception {
 		EmbeddedCassandraServerHelper.startEmbeddedCassandra();
-
 	}
 
 	@Before
@@ -530,7 +529,6 @@ public class CassandraSessionRepositoryITest {
 
 	@Configuration
 	static class Config {
-
 
 		static final String CREATE_KEYSPACE = "CREATE KEYSPACE spring_session WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};";
 
