@@ -16,6 +16,7 @@
 package sample;
 
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

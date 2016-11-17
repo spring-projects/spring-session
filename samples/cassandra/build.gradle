@@ -32,12 +32,13 @@ dependencies {
 
 integrationTest {
 	doFirst {
-		def port = reservePort()
+		def port = 8080
 		def host = 'localhost:' + port
 		systemProperties['geb.build.baseUrl'] = 'http://' + host + '/'
 		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
 		systemProperties['server.port'] = port
 		systemProperties['management.port'] = 0
-		systemProperties['spring.session.redis.namespace'] = project.name
 	}
+	testLogging.showStandardStreams = true
 }
+

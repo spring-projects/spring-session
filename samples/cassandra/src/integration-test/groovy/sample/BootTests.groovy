@@ -16,7 +16,6 @@
 package sample
 
 import geb.spock.*
-import pages.*
 import sample.pages.HomePage
 import sample.pages.LoginPage
 import spock.lang.Stepwise
