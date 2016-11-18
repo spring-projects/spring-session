@@ -1,0 +1,44 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
+	}
+}
+
+apply plugin: 'spring-boot'
+apply from: JAVA_GRADLE
+apply from: SAMPLE_GRADLE
+
+group = 'samples'
+
+dependencies {
+	compile project(':spring-session'),
+			"org.springframework.boot:spring-boot-starter-web",
+			"org.springframework.boot:spring-boot-starter-thymeleaf",
+			"org.springframework.data:spring-data-cassandra:$springDataCassandraVersion",
+			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
+			"org.webjars:bootstrap:$bootstrapVersion",
+			"org.springframework.security:spring-security-web:$springSecurityVersion",
+			"org.springframework.security:spring-security-config:$springSecurityVersion"
+	compile("org.cassandraunit:cassandra-unit-shaded:$cassandraUnitVersion"){
+		exclude(group: "com.datastax.cassandra", module: "cassandra-driver-core")
+	}
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+	integrationTestCompile gebDependencies,
+			"org.spockframework:spock-spring:$spockVersion"
+}
+
+integrationTest {
+	doFirst {
+		def port = 8080
+		def host = 'localhost:' + port
+		systemProperties['geb.build.baseUrl'] = 'http://' + host + '/'
+		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
+		systemProperties['server.port'] = port
+		systemProperties['management.port'] = 0
+	}
+	testLogging.showStandardStreams = true
+}
+
