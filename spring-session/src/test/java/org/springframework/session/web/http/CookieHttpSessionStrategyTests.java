@@ -196,12 +196,6 @@ public class CookieHttpSessionStrategyTests {
 		assertThat(getSessionId()).isEqualTo(existing.getId());
 	}
 
-	@SuppressWarnings("deprecation")
-	@Test(expected = IllegalArgumentException.class)
-	public void setCookieNameNull() throws Exception {
-		this.strategy.setCookieName(null);
-	}
-
 	@Test
 	public void encodeURLNoExistingQuery() {
 		assertThat(this.strategy.encodeURL("/url", "2")).isEqualTo("/url?_s=2");
@@ -725,9 +719,10 @@ public class CookieHttpSessionStrategyTests {
 		return buffer.toString();
 	}
 
-	@SuppressWarnings("deprecation")
 	public void setCookieName(String cookieName) {
-		this.strategy.setCookieName(cookieName);
+		DefaultCookieSerializer cookieSerializer = new DefaultCookieSerializer();
+		cookieSerializer.setCookieName(cookieName);
+		this.strategy.setCookieSerializer(cookieSerializer);
 		this.cookieName = cookieName;
 	}
 
