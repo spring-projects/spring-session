@@ -105,6 +105,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session with Mongo.
 | link:guides/mongo.html[Mongo Guide]
 
+| {gh-samples-url}Cassandra[Apache Cassandra]
+| Demonstrates how to use Spring Session with Cassandra.
+| link:guides/cassandra.html[Cassandra Guide]
+
 [[samples-hazelcast]]
 | {gh-samples-url}hazelcast[Hazelcast]
 | Demonstrates how to use Spring Session with Hazelcast.
@@ -316,6 +320,16 @@ NOTE: The <<samples, HttpSession JDBC Spring Boot Sample>> provides a working sa
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC Spring Boot Guide when integrating with your own application.
 
 include::guides/httpsession-jdbc-boot.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-cassandra]]
+=== HttpSession with Apache Cassandra
+
+This section describes how to use Apache Cassandra to back `HttpSession` using a Java based annotation configuration.
+
+NOTE: The <<samples, HttpSession Cassandra Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
+
+include::guides/cassandra.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-mongo]]
 === HttpSession with Mongo

@@ -25,9 +25,12 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-
 /**
- * javadoc this.
+ * Add this annotation to a {@code @Configuration} class to expose the
+ * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by
+ * Cassandra. The annotation properties can be used to control the way the cluster is used
+ * to store sessions.
+ *
  * @author Andrew Fitzgerald
  */
 @Retention(RetentionPolicy.RUNTIME)
