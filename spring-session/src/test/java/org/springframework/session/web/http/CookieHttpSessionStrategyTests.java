@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -194,12 +194,6 @@ public class CookieHttpSessionStrategyTests {
 				CookieHttpSessionStrategy.DEFAULT_SESSION_ALIAS_PARAM_NAME, "new");
 		this.strategy.onInvalidateSession(this.request, this.response);
 		assertThat(getSessionId()).isEqualTo(existing.getId());
-	}
-
-	@SuppressWarnings("deprecation")
-	@Test(expected = IllegalArgumentException.class)
-	public void setCookieNameNull() throws Exception {
-		this.strategy.setCookieName(null);
 	}
 
 	@Test
@@ -725,9 +719,10 @@ public class CookieHttpSessionStrategyTests {
 		return buffer.toString();
 	}
 
-	@SuppressWarnings("deprecation")
 	public void setCookieName(String cookieName) {
-		this.strategy.setCookieName(cookieName);
+		DefaultCookieSerializer cookieSerializer = new DefaultCookieSerializer();
+		cookieSerializer.setCookieName(cookieName);
+		this.strategy.setCookieSerializer(cookieSerializer);
 		this.cookieName = cookieName;
 	}
 

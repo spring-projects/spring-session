@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,8 +37,9 @@ import org.springframework.util.Assert;
 
 /**
  * A {@link HttpSessionStrategy} that uses a cookie to obtain the session from.
- * Specifically, this implementation will allow specifying a cookie name using
- * {@link CookieHttpSessionStrategy#setCookieName(String)}. The default is "SESSION".
+ * Specifically, this implementation will allow specifying a cookie serialization strategy
+ * using {@link CookieHttpSessionStrategy#setCookieSerializer(CookieSerializer)}. The
+ * default is cookie name is "SESSION".
  *
  * When a session is created, the HTTP response will have a cookie with the specified
  * cookie name and the value of the session id. The cookie will be marked as a session
@@ -294,18 +295,6 @@ public final class CookieHttpSessionStrategy
 	public void setCookieSerializer(CookieSerializer cookieSerializer) {
 		Assert.notNull(cookieSerializer, "cookieSerializer cannot be null");
 		this.cookieSerializer = cookieSerializer;
-	}
-
-	/**
-	 * Sets the name of the cookie to be used.
-	 * @param cookieName the name of the cookie to be used
-	 * @deprecated use {@link #setCookieSerializer(CookieSerializer)}
-	 */
-	@Deprecated
-	public void setCookieName(String cookieName) {
-		DefaultCookieSerializer serializer = new DefaultCookieSerializer();
-		serializer.setCookieName(cookieName);
-		this.cookieSerializer = serializer;
 	}
 
 	/**
