@@ -75,7 +75,8 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 			@Qualifier("springSessionCassandraCluster") Cluster cluster) {
 		if (!StringUtils.isEmpty(this.keyspace)) {
 			return cluster.connect(this.keyspace);
-		} else {
+		}
+		else {
 			return cluster.connect();
 		}
 	}
