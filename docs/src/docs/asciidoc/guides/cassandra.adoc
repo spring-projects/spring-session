@@ -1,0 +1,103 @@
+= Spring Session - Cassandra Repositories
+Jesús Zazueta
+:toc:
+
+This guide describes how to use Spring Session backed by Cassandra inside a Spring Boot application.
+
+NOTE: The completed guide can be found in the <<cassandra, Cassandra sample application>>.
+
+== Dependency Requirements
+In order to work with this implementation, only the following artifact is required for your dependency management
+system of choice:
+
+[source]
+org.springframework.data:spring-data-cassandra
+
+[[cassandra-spring-configuration]]
+== Spring Configuration
+The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation
+with an implementation backed by Spring Session.
+
+// tag::config[]
+All you have to do is to add the following Spring Configuration:
+
+[source,java]
+----
+include::{samples-dir}cassandra/src/main/java/sample/config/HttpSessionConfig.java[tags=class]
+----
+
+<1> The `@EnableCassandraHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter`
+that implements Filter. The filter is what is in charge of replacing the `HttpSession` implementation to be backed by
+Spring Session, which is in turn backed by Cassandra.
+// end::config[]
+
+[[boot-cassandra-configuration]]
+== Configuring Cassandra
+
+When a Cassandra cluster is available, the primary configuration properties are available via
+`@EnableCassandraHttpSession`
+
+=== `tableName`
+The name of cassandra table used by Spring Session to store sessions. Defaults to `spring_session`.
+
+In a similar fashion to the JDBC implementation, this implementation requires you to pre-initialize the tables to be
+be used to persist session data across the cluster. Typically, you'd want to use an initialization CQL script, or a
+schema migration tool such as `cassandra-migration-tool-java`
+https://github.com/smartcat-labs/cassandra-migration-tool-java
+
+Once a schema is initialized, this implementation will also attempt to access a secondary table, with the `_by_name`
+suffix. For example, using the default primary table name, a secondary table will be accessed by the following name:
+
+`spring_session_by_name`
+
+=== `keyspace`
+The name of cassandra keyspace to connect to.
+
+=== `contactPoints`
+The list of cassandra contact points. Defaults to `localhost`.
+
+=== `port`
+The cassandra port to connect to. Defaults to `9042`.
+
+=== `maxInactiveIntervalInSeconds`
+The session timeout in seconds. Defaults to 1800 seconds (30 minutes).
+
+TODO add consistency level tuning properties for session read/write operations, as well as a few notes on their impact
+on cluster performance.
+
+For more information, refer to http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-nosql.html#boot-features-cassandra[Connecting to Cassandra]
+portion of the Spring Boot documentation.
+
+TODO we may want to integrate connection configuration parameters with `spring-boot-starter-data-cassandra` as per docs
+above.
+
+[[cassandra-sample]]
+== Cassandra Sample Application
+
+The Cassandra Sample Application demonstrates how to use Spring Session to transparently leverage Cassandra to back a
+web application's `HttpSession` when using Spring Boot.
+
+[[cassandra-running]]
+=== Running the Cassandra Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+----
+$ ./gradlew :samples:cassandra:bootRun
+----
+
+You should now be able to access the application at http://localhost:8080/
+
+To login, use the following credentials:
+
+* **Username** _user_
+* **Password** _password_
+
+Once logged in, The user's information is stored in Cassandra rather than Tomcat's `HttpSession` implementation.
+
+When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id
+of the client's session.
+
+To verify this, you may inspect the browser's cookies with
+https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or
+https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox].
