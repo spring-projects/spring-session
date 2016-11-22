@@ -29,10 +29,10 @@ dependencies {
 			"org.apache.httpcomponents:httpclient"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test",
-				"org.assertj:assertj-core:$assertjVersion"
+				"org.assertj:assertj-core:$assertjVersion",
+				"org.projectlombok:lombok:$lombokVersion"
 
-	integrationTestCompile gebDependencies,
-			"org.spockframework:spock-spring:$spockVersion"
+	integrationTestCompile seleniumDependencies
 
 }
 
@@ -40,9 +40,6 @@ integrationTest {
 	doFirst {
 		def port = reservePort()
 
-		def host = 'localhost:' + port
-		systemProperties['geb.build.baseUrl'] = 'http://'+host+'/'
-		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
 		systemProperties['server.port'] = port
 		systemProperties['management.port'] = 0
 
