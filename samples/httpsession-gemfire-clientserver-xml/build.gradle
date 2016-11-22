@@ -19,9 +19,11 @@ dependencies {
 
 	runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 
-	testCompile "junit:junit:$junitVersion"
+	testCompile "junit:junit:$junitVersion",
+			"org.assertj:assertj-core:$assertjVersion",
+			"org.projectlombok:lombok:$lombokVersion"
 
-	integrationTestCompile gebDependencies
+	integrationTestCompile seleniumDependencies
 
 	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 }

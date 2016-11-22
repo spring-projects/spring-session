@@ -28,10 +28,11 @@ dependencies {
 			"org.webjars:webjars-locator",
 			"com.h2database:h2"
 
-	testCompile "org.springframework.boot:spring-boot-starter-test"
+	testCompile "org.springframework.boot:spring-boot-starter-test",
+			"org.assertj:assertj-core:$assertjVersion",
+			"org.projectlombok:lombok:$lombokVersion"
 
-	integrationTestCompile gebDependencies,
-			"org.spockframework:spock-spring:$spockVersion"
+	integrationTestCompile seleniumDependencies
 
 }
 
