@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.security;
+package org.springframework.session.security.web.authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 
 /**
@@ -34,7 +35,8 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @since 1.3.0
  */
-public class SpringSessionRememberMeServices implements RememberMeServices {
+public class SpringSessionRememberMeServices
+		implements RememberMeServices, LogoutHandler {
 
 	/**
 	 * Remember-me login request attribute name.
@@ -42,13 +44,14 @@ public class SpringSessionRememberMeServices implements RememberMeServices {
 	public static final String REMEMBER_ME_LOGIN_ATTR = SpringSessionRememberMeServices.class
 			.getName() + "REMEMBER_ME_LOGIN_ATTR";
 
-	private static final String DEFAULT_PARAMETER = "remember-me";
+	private static final String DEFAULT_REMEMBERME_PARAMETER = "remember-me";
 
 	private static final int THIRTY_DAYS_SECONDS = 2592000;
 
-	private static final Log logger = LogFactory.getLog(SpringSessionRememberMeServices.class);
+	private static final Log logger = LogFactory
+			.getLog(SpringSessionRememberMeServices.class);
 
-	private String parameter = DEFAULT_PARAMETER;
+	private String rememberMeParameterName = DEFAULT_REMEMBERME_PARAMETER;
 
 	private boolean alwaysRemember;
 
@@ -59,17 +62,15 @@ public class SpringSessionRememberMeServices implements RememberMeServices {
 		return null;
 	}
 
-	public final void loginFail(HttpServletRequest request, HttpServletResponse response) {
-		logger.debug("Interactive login attempt was unsuccessful.");
-		HttpSession session = request.getSession(false);
-		if (session != null) {
-			session.invalidate();
-		}
+	public final void loginFail(HttpServletRequest request,
+			HttpServletResponse response) {
+		logout(request);
 	}
 
-	public final void loginSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication successfulAuthentication) {
-		if (!this.alwaysRemember && !rememberMeRequested(request, this.parameter)) {
+	public final void loginSuccess(HttpServletRequest request,
+			HttpServletResponse response, Authentication successfulAuthentication) {
+		if (!this.alwaysRemember
+				&& !rememberMeRequested(request, this.rememberMeParameterName)) {
 			logger.debug("Remember-me login not requested.");
 			return;
 		}
@@ -96,8 +97,8 @@ public class SpringSessionRememberMeServices implements RememberMeServices {
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Did not send remember-me cookie (principal did not set " +
-					"parameter '" + parameter + "')");
+			logger.debug("Did not send remember-me cookie (principal did not set "
+					+ "parameter '" + parameter + "')");
 		}
 		return false;
 	}
@@ -106,11 +107,12 @@ public class SpringSessionRememberMeServices implements RememberMeServices {
 	 * Set the name of the parameter which should be checked for to see if a remember-me
 	 * has been requested during a login request. This should be the same name you assign
 	 * to the checkbox in your login form.
-	 * @param parameter the request parameter
+	 * @param rememberMeParameterName the request parameter
 	 */
-	public void setParameter(String parameter) {
-		Assert.hasText(parameter, "Parameter name cannot be empty or null");
-		this.parameter = parameter;
+	public void setRememberMeParameterName(String rememberMeParameterName) {
+		Assert.hasText(rememberMeParameterName,
+				"rememberMeParameterName cannot be empty or null");
+		this.rememberMeParameterName = rememberMeParameterName;
 	}
 
 	public void setAlwaysRemember(boolean alwaysRemember) {
@@ -121,4 +123,16 @@ public class SpringSessionRememberMeServices implements RememberMeServices {
 		this.validitySeconds = validitySeconds;
 	}
 
+	public void logout(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication) {
+		logout(request);
+	}
+
+	private void logout(HttpServletRequest request) {
+		logger.debug("Interactive login attempt was unsuccessful.");
+		HttpSession session = request.getSession(false);
+		if (session != null) {
+			session.invalidate();
+		}
+	}
 }

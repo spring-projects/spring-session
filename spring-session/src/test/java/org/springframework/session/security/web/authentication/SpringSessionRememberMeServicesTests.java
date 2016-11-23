@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.security;
+package org.springframework.session.security.web.authentication;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,44 +50,48 @@ public class SpringSessionRememberMeServicesTests {
 	@Test
 	public void create() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "parameter"))
-				.isEqualTo("remember-me");
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember"))
-				.isEqualTo(false);
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds"))
-				.isEqualTo(2592000);
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices,
+				"rememberMeParameterName")).isEqualTo("remember-me");
+		assertThat(
+				ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember"))
+						.isEqualTo(false);
+		assertThat(
+				ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds"))
+						.isEqualTo(2592000);
 	}
 
 	@Test
 	public void createWithCustomParameter() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		this.rememberMeServices.setParameter("test-param");
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "parameter"))
-				.isEqualTo("test-param");
+		this.rememberMeServices.setRememberMeParameterName("test-param");
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices,
+				"rememberMeParameterName")).isEqualTo("test-param");
 	}
 
 	@Test
 	public void createWithNullParameter() {
 		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Parameter name cannot be empty or null");
+		this.thrown.expectMessage("rememberMeParameterName cannot be empty or null");
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		this.rememberMeServices.setParameter(null);
+		this.rememberMeServices.setRememberMeParameterName(null);
 	}
 
 	@Test
 	public void createWithAlwaysRemember() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.setAlwaysRemember(true);
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember"))
-				.isEqualTo(true);
+		assertThat(
+				ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember"))
+						.isEqualTo(true);
 	}
 
 	@Test
 	public void createWithCustomValidity() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.setValiditySeconds(100000);
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds"))
-				.isEqualTo(100000);
+		assertThat(
+				ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds"))
+						.isEqualTo(100000);
 	}
 
 	@Test
@@ -139,7 +143,7 @@ public class SpringSessionRememberMeServicesTests {
 		given(request.getParameter(eq("test-param"))).willReturn("true");
 		given(request.getSession()).willReturn(session);
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		this.rememberMeServices.setParameter("test-param");
+		this.rememberMeServices.setRememberMeParameterName("test-param");
 		this.rememberMeServices.loginSuccess(request, response, authentication);
 		verify(request, times(1)).getParameter(eq("test-param"));
 		verify(request, times(1)).getSession();
@@ -172,8 +176,7 @@ public class SpringSessionRememberMeServicesTests {
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		Authentication authentication = mock(Authentication.class);
 		HttpSession session = mock(HttpSession.class);
-		given(request.getParameter(eq("remember-me")))
-				.willReturn("true");
+		given(request.getParameter(eq("remember-me"))).willReturn("true");
 		given(request.getSession()).willReturn(session);
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.setValiditySeconds(100000);

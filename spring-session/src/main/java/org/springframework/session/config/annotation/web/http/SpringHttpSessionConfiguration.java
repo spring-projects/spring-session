@@ -33,7 +33,7 @@ import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
-import org.springframework.session.security.SpringSessionRememberMeServices;
+import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
 import org.springframework.session.web.http.CookieHttpSessionStrategy;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
@@ -42,6 +42,7 @@ import org.springframework.session.web.http.MultiHttpSessionStrategy;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ObjectUtils;
 
 /**
  * Configures the basics for setting up Spring Session in a web environment. In order to
@@ -138,10 +139,12 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
-		if (ClassUtils.isPresent("org.springframework.security.web.authentication." +
-				"RememberMeServices", null)) {
-			this.usesSpringSessionRememberMeServices = !applicationContext
-					.getBeansOfType(SpringSessionRememberMeServices.class).isEmpty();
+		if (ClassUtils.isPresent(
+				"org.springframework.security.web.authentication.RememberMeServices",
+				null)) {
+			this.usesSpringSessionRememberMeServices = !ObjectUtils
+					.isEmpty(applicationContext
+							.getBeanNamesForType(SpringSessionRememberMeServices.class));
 		}
 	}
 

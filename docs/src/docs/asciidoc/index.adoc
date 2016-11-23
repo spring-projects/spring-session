@@ -1,3 +1,4 @@
+
 = Spring Session
 Rob Winch, Vedran Pavić, Jakub Kubrynski
 :doctype: book
@@ -518,16 +519,48 @@ Before using WebSocket integration, you should be sure that you have <<httpsessi
 
 include::guides/websocket.adoc[tags=config,leveloffset=+2]
 
-[[spring-security-concurrent-sessions]]
+[[spring-security]]
 == Spring Security Integration
+
+Spring Session provides integration with Spring Security.
+
+[[spring-security-rememberme]]
+=== Spring Security Remember-Me Support
+
+Spring Session provides integration with http://docs.spring.io/spring-security/site/docs/4.2.x/reference/htmlsingle/#remember-me[Spring Security's Remember-Me Authentication].
+The support will:
+
+* Change the session expiration length
+* Ensure the session cookie expires at `Integer.MAX_VALUE`.
+The cookie expiration is set to the largest possible value because the cookie is only set when the session is created.
+If it were set to the same value as the session expiration, then the session would get renewed when the user used it but the cookie expiration would not be updated causing the expiration to be fixed.
+
+To configure Spring Session with Spring Security in Java Configuration use the following as a guide:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/security/RememberMeSecurityConfiguration.java[tags=http-rememberme]
+	}
+
+include::{docs-test-dir}docs/security/RememberMeSecurityConfiguration.java[tags=rememberme-bean]
+----
+
+An XML based configuration would look something like this:
+
+[source,xml,indent=0]
+----
+include::{docs-test-resources-dir}docs/security/RememberMeSecurityConfigurationXmlTests-context.xml[tags=config]
+----
+
+
+[[spring-security-concurrent-sessions]]
+=== Spring Security Concurrent Session Control
+
 
 Spring Session provides integration with Spring Security to support its concurrent session control.
 This allows limiting the number of active sessions that a single user can have concurrently, but unlike the default
 Spring Security support this will also work in a clustered environment. This is done by providing a custom
 implementation of Spring Security's `SessionRegistry` interface.
-
-[[spring-security-concurrent-sessions-how]]
-=== Configuring Spring Security's concurrent session management
 
 When using Spring Security's Java config DSL, you can configure the custom `SessionRegistry` through the
 `SessionManagementConfigurer` like this:

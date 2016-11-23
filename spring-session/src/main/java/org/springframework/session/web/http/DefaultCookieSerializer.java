@@ -55,8 +55,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private String rememberMeRequestAttribute;
 
-	private int rememberMeCookieMaxAge = Integer.MAX_VALUE;
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -115,9 +113,11 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		if ("".equals(requestedCookieValue)) {
 			sessionCookie.setMaxAge(0);
 		}
-		else if (this.rememberMeRequestAttribute != null &&
-				request.getAttribute(this.rememberMeRequestAttribute) != null) {
-			sessionCookie.setMaxAge(this.rememberMeCookieMaxAge);
+		else if (this.rememberMeRequestAttribute != null
+				&& request.getAttribute(this.rememberMeRequestAttribute) != null) {
+			// the cookie is only written at time of session creation, so we rely on
+			// session expiration rather than cookie expiration if remember me is enabled
+			sessionCookie.setMaxAge(Integer.MAX_VALUE);
 		}
 		else {
 			sessionCookie.setMaxAge(this.cookieMaxAge);
@@ -209,10 +209,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @param cookieMaxAge the maxAge property of the Cookie
 	 */
 	public void setCookieMaxAge(int cookieMaxAge) {
-		if (cookieMaxAge > this.rememberMeCookieMaxAge) {
-			throw new IllegalArgumentException("cookieMaxAge cannot be greater than " +
-					"rememberMeCookieMaxAge");
-		}
 		this.cookieMaxAge = cookieMaxAge;
 	}
 
@@ -304,12 +300,10 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/**
-	 * Set the request attribute name that indicates remember-me login. Used to write
-	 * {@link Cookie} with {@code maxAge} property indicated by
-	 * {@link #rememberMeCookieMaxAge}.
+	 * Set the request attribute name that indicates remember-me login. If specified, the
+	 * cookie will be written as Integer.MAX_VALUE.
 	 * @param rememberMeRequestAttribute the remember-me request attribute name
 	 * @since 1.3.0
-	 * @see #setRememberMeCookieMaxAge(int)
 	 */
 	public void setRememberMeRequestAttribute(String rememberMeRequestAttribute) {
 		if (rememberMeRequestAttribute == null) {
@@ -317,20 +311,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 					"rememberMeRequestAttribute cannot be null");
 		}
 		this.rememberMeRequestAttribute = rememberMeRequestAttribute;
-	}
-
-	/**
-	 * Set the {@code maxAge} property of the {@link Cookie} to be used when remember-me
-	 * is requested. The default is {@link Integer#MAX_VALUE}.
-	 * @param rememberMeCookieMaxAge the {@code maxAge} property of the {@code Cookie}
-	 * @since 1.3.0
-	 */
-	public void setRememberMeCookieMaxAge(int rememberMeCookieMaxAge) {
-		if (rememberMeCookieMaxAge < 1 || rememberMeCookieMaxAge < this.cookieMaxAge) {
-			throw new IllegalArgumentException("rememberMeCookieMaxAge must be greater " +
-					"than zero and greater than cookieMaxAge");
-		}
-		this.rememberMeCookieMaxAge = rememberMeCookieMaxAge;
 	}
 
 	private String getDomainName(HttpServletRequest request) {

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- tag::config[] -->
+	<security:http>
+		<!-- ... -->
+		<security:form-login />
+		<security:remember-me services-ref="rememberMeServices"/>
+	</security:http>
+
+	<bean id="rememberMeServices"
+		class="org.springframework.session.security.web.authentication.SpringSessionRememberMeServices"
+		p:alwaysRemember="true"/>
+	<!-- end::config[] -->
+
+
+	<security:user-service>
+		<security:user name="user" password="password" authorities="ROLE_USER"/>
+	</security:user-service>
+
+	<bean class="org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration"/>
+	<bean id="springSessionRepository" class="org.springframework.session.MapSessionRepository"/>
+</beans>
