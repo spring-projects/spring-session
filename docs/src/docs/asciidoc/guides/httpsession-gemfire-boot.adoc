@@ -232,6 +232,9 @@ or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
 see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
+NOTE: In order to run the following, you must uncomment the lines in the `GemFireServer` class, `gemfireProperties` bean
+for the following GemFire System properties: `jmx-manager` and `jmx-manager-start`.
+
 If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
 at the command-line:
 

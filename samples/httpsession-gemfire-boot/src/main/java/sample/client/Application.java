@@ -72,7 +72,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class Application {
 
-	static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
+	static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(60);
 
 	static final CountDownLatch latch = new CountDownLatch(1);
 
@@ -127,7 +127,7 @@ public class Application {
 
 		gemfirePool.setKeepAlive(false);
 		gemfirePool.setPingInterval(TimeUnit.SECONDS.toMillis(5));
-		gemfirePool.setReadTimeout(Long.valueOf(TimeUnit.SECONDS.toMillis(2)).intValue());
+		gemfirePool.setReadTimeout(Long.valueOf(TimeUnit.SECONDS.toMillis(15)).intValue());
 		gemfirePool.setRetryAttempts(1);
 		gemfirePool.setSubscriptionEnabled(true);
 		gemfirePool.setThreadLocalConnections(false);

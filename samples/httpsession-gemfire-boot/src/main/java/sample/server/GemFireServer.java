@@ -66,15 +66,14 @@ public class GemFireServer {
 		gemfireProperties.setProperty("name", applicationName());
 		gemfireProperties.setProperty("mcast-port", "0");
 		gemfireProperties.setProperty("log-level", logLevel());
-		gemfireProperties.setProperty("jmx-manager", "true");
-		gemfireProperties.setProperty("jmx-manager-start", "true");
+		//gemfireProperties.setProperty("jmx-manager", "true");
+		//gemfireProperties.setProperty("jmx-manager-start", "true");
 
 		return gemfireProperties;
 	}
 
 	String applicationName() {
-		return "samples:httpsession-gemfire-boot:"
-			.concat(getClass().getSimpleName());
+		return "samples:httpsession-gemfire-boot:".concat(getClass().getSimpleName());
 	}
 
 	String logLevel() {
