@@ -21,7 +21,7 @@ import org.springframework.session.SessionRepository;
 
 /**
  * For {@link SessionRepository} implementations that support it, this event is fired when
- * a {@link Session} is destroyed either explicitly or via expiration.
+ * a {@link Session} is created.
  *
  * @author Rob Winch
  * @since 1.0
