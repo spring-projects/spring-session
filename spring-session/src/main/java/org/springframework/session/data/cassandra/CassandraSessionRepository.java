@@ -25,6 +25,8 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.datastax.driver.core.BatchStatement;
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.QueryOptions;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.querybuilder.Insert;
@@ -131,6 +133,11 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	 */
 	private String tableName = DEFAULT_TABLE_NAME;
 
+	/**
+	 * The consistency level to use for Spring Session queries.
+	 */
+	private ConsistencyLevel consistencyLevel = QueryOptions.DEFAULT_CONSISTENCY_LEVEL;
+
 	@Autowired
 	public CassandraSessionRepository(CassandraOperations cassandraOperations) {
 		this.cassandraOperations = cassandraOperations;
@@ -157,6 +164,14 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	public void setTableName(String tableName) {
 		Assert.hasText(tableName, "Table name must not be empty");
 		this.tableName = tableName.trim();
+	}
+
+	/**
+	 * Set the consistency level to use for Spring Session queries.
+	 * @param consistencyLevel to use
+	 */
+	public void setConsistencyLevel(ConsistencyLevel consistencyLevel) {
+		this.consistencyLevel = consistencyLevel;
 	}
 
 	public String getTableName() {
@@ -191,6 +206,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 
 
 		BatchStatement batch = new BatchStatement();
+		batch.setConsistencyLevel(this.consistencyLevel);
 		batch.add(insert);
 
 		String savedPrincipalName = session.getSavedPrincipalName();
@@ -223,6 +239,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		Select select = QueryBuilder.select("id", "creation_time", "last_accessed", "max_inactive_interval_in_seconds", "attributes")
 				.from(this.tableName);
 		select.where(QueryBuilder.eq("id", UUID.fromString(id)));
+		select.setConsistencyLevel(this.consistencyLevel);
 		Row row = this.cassandraOperations.getSession().execute(select).one();
 		if (row == null) {
 			return null;
@@ -256,6 +273,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 			BatchStatement batchStatement = new BatchStatement();
 			batchStatement.add(delete);
 			batchStatement.add(deleteIdx);
+			batchStatement.setConsistencyLevel(this.consistencyLevel);
 			this.cassandraOperations.execute(batchStatement);
 		}
 
@@ -265,7 +283,8 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	public Map<String, CassandraHttpSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		Select select = QueryBuilder.select("id")
 				.from(this.getIndexTableName());
-		select.where(QueryBuilder.eq("principal_name", indexValue));
+				select.where(QueryBuilder.eq("principal_name", indexValue));
+				select.setConsistencyLevel(this.consistencyLevel);
 		List<UUID> uuids = this.cassandraOperations.queryForList(select, UUID.class);
 		Map<String, CassandraHttpSession> result = new HashMap<String, CassandraHttpSession>();
 		for (UUID id : uuids) {

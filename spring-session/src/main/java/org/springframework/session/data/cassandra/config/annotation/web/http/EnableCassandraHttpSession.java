@@ -22,6 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import com.datastax.driver.core.ConsistencyLevel;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
@@ -71,5 +73,12 @@ public @interface EnableCassandraHttpSession {
 	 * @return the seconds a session can be inactive before expiring
 	 */
 	int maxInactiveIntervalInSeconds() default 1800;
+
+
+	/**
+	 * The consistency level that will be used for spring session queries.
+	 * @return the consistency level
+	 */
+	ConsistencyLevel consistencyLevel() default ConsistencyLevel.ONE;
 
 }

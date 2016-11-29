@@ -19,6 +19,8 @@ package org.springframework.session.data.cassandra.config.annotation.web.http;
 import java.util.Map;
 
 import com.datastax.driver.core.Cluster;
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.QueryOptions;
 import com.datastax.driver.core.Session;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,6 +64,8 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
+	private ConsistencyLevel consistencyLevel = QueryOptions.DEFAULT_CONSISTENCY_LEVEL;
+
 	@Bean
 	public Cluster springSessionCassandraCluster() {
 		return Cluster.builder()
@@ -96,6 +100,7 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 		}
 		cassandraSessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		cassandraSessionRepository.setConsistencyLevel(this.consistencyLevel);
 		return cassandraSessionRepository;
 	}
 
@@ -108,5 +113,6 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.keyspace = enableAttrs.getString("keyspace");
 		this.contactPoints = enableAttrs.getStringArray("contactPoints");
 		this.port = enableAttrs.getNumber("port");
+		this.consistencyLevel = enableAttrs.getEnum("consistencyLevel");
 	}
 }
