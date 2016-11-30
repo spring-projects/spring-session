@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.ConsistencyLevel;
@@ -37,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.cassandra.core.CqlOperations;
 import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -118,7 +118,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 
-	private final CassandraOperations cassandraOperations;
+	private final CqlOperations cassandraOperations;
 	private final SessionAttributeDeserializer sessionAttributeDeserializer = new SessionAttributeDeserializer();
 	private final SessionAttributeSerializer sessionAttributeSerializer = new SessionAttributeSerializer();
 	private final TtlCalculator ttlCalculator = new TtlCalculator();
@@ -139,7 +139,7 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	private ConsistencyLevel consistencyLevel = QueryOptions.DEFAULT_CONSISTENCY_LEVEL;
 
 	@Autowired
-	public CassandraSessionRepository(CassandraOperations cassandraOperations) {
+	public CassandraSessionRepository(CqlOperations cassandraOperations) {
 		this.cassandraOperations = cassandraOperations;
 	}
 
@@ -185,7 +185,6 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 	public void save(CassandraHttpSession session) {
 
 		int ttl;
-		TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - session.getLastAccessedTime());
 		try {
 			ttl = this.ttlCalculator.calculateTtlInSeconds(System.currentTimeMillis(), session);
 		}

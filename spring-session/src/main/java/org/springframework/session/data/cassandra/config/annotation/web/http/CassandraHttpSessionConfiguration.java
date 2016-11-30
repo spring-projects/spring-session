@@ -24,6 +24,7 @@ import com.datastax.driver.core.QueryOptions;
 import com.datastax.driver.core.Session;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cassandra.core.CqlOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
@@ -34,7 +35,6 @@ import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.cassandra.CassandraSessionRepository;
-import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.util.StringUtils;
 
 
@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils;
  * {@link Session} must be exposed as a Bean.
  *
  * @author John Blum
- * @see EnableGemFireHttpSession
+ * @see EnableCassandraHttpSession
  * @since 1.1.0
  */
 @Configuration
@@ -86,7 +86,7 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 	}
 
 	@Bean
-	public CassandraOperations springSessionCassandraOperations(
+	public CqlOperations springSessionCassandraOperations(
 			@Qualifier("springSessionCassandraDatastaxDriverSession") Session session) {
 		return new CassandraTemplate(session);
 	}
