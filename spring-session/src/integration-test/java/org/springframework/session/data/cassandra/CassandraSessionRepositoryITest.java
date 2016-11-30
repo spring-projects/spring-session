@@ -30,9 +30,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cassandra.core.CqlOperations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -65,7 +65,7 @@ public class CassandraSessionRepositoryITest {
 	@Autowired
 	private CassandraSessionRepository repository;
 	@Autowired
-	private CassandraOperations cassandraOperations;
+	private CqlOperations cqlOperations;
 
 	private SecurityContext context;
 
@@ -88,8 +88,8 @@ public class CassandraSessionRepositoryITest {
 				"changedContext-" + UUID.randomUUID(), "na",
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
 
-		this.cassandraOperations.truncate(this.repository.getTableName());
-		this.cassandraOperations.truncate(this.repository.getIndexTableName());
+		this.cqlOperations.truncate(this.repository.getTableName());
+		this.cqlOperations.truncate(this.repository.getIndexTableName());
 	}
 
 	@Test
@@ -563,13 +563,13 @@ public class CassandraSessionRepositoryITest {
 		}
 
 		@Bean
-		public CassandraOperations cassandraOperations(com.datastax.driver.core.Session session) {
+		public CqlOperations cqlOperations(com.datastax.driver.core.Session session) {
 			return new CassandraTemplate(session);
 		}
 
 		@Bean
-		public CassandraSessionRepository cassandraSessionRepository(CassandraOperations cassandraOperations) {
-			return new CassandraSessionRepository(cassandraOperations);
+		public CassandraSessionRepository cassandraSessionRepository(CqlOperations cqlOperations) {
+			return new CassandraSessionRepository(cqlOperations);
 		}
 	}
 }

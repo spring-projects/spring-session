@@ -18,7 +18,6 @@ package org.springframework.session.data.cassandra.config.annotation.web.http;
 
 import java.util.Map;
 
-import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.ConsistencyLevel;
 import com.datastax.driver.core.QueryOptions;
 import com.datastax.driver.core.Session;
@@ -30,7 +29,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.data.cassandra.core.CassandraOperations;
 import org.springframework.data.cassandra.core.CassandraTemplate;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
@@ -61,7 +59,7 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 	private ConsistencyLevel consistencyLevel = QueryOptions.DEFAULT_CONSISTENCY_LEVEL;
 
 	@Bean
-	public CqlOperations springSessionCassandraOperations(Session session) {
+	public CqlOperations springSessionCqlOperations(Session session) {
 		return new CassandraTemplate(session);
 	}
 

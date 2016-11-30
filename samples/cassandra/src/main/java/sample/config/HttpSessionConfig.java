@@ -18,7 +18,7 @@ package sample.config;
 import org.springframework.session.data.cassandra.config.annotation.web.http.EnableCassandraHttpSession;
 
 // tag::class[]
-@EnableCassandraHttpSession(port = 9142)  // <1>
+@EnableCassandraHttpSession  // <1>
 public class HttpSessionConfig {
 
 }

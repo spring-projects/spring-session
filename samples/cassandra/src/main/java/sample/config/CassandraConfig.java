@@ -26,10 +26,6 @@ import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import org.springframework.data.cassandra.core.CassandraOperations;
-import org.springframework.data.cassandra.core.CassandraTemplate;
-import org.springframework.session.data.cassandra.CassandraSessionRepository;
-
 /**
  * Example Cassandra initialization code. In a very similar way as the integration test suite,
  * {@code cassandra-unit} is leveraged to bring up a test cluster to connect to. Here you would
@@ -78,16 +74,6 @@ public class CassandraConfig {
 			this.session.execute(STRING_CREATE_IDX_TABLE);
 		}
 		return this.session;
-	}
-
-	@Bean
-	public CassandraOperations cassandraOperations(com.datastax.driver.core.Session session) {
-		return new CassandraTemplate(session);
-	}
-
-	@Bean
-	public CassandraSessionRepository cassandraSessionRepository(CassandraOperations cassandraOperations) {
-		return new CassandraSessionRepository(cassandraOperations);
 	}
 
 	@PreDestroy
