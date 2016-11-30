@@ -244,11 +244,11 @@ public class CassandraSessionRepository implements FindByIndexNameSessionReposit
 		if (row == null) {
 			return null;
 		}
-		long creationTime = row.getLong(1);
-		long lastAccessed = row.getLong(2);
-		int maxInactiveIntervalInSeconds = row.getInt(3);
+		long creationTime = row.getLong("creation_time");
+		long lastAccessed = row.getLong("last_accessed");
+		int maxInactiveIntervalInSeconds = row.getInt("max_inactive_interval_in_seconds");
 
-		Map<String, String> attributes = row.getMap(4, String.class, String.class);
+		Map<String, String> attributes = row.getMap("attributes", String.class, String.class);
 		CassandraHttpSession result = new CassandraHttpSession(id);
 		result.setCreationTime(creationTime);
 		result.setLastAccessedTime(lastAccessed);
