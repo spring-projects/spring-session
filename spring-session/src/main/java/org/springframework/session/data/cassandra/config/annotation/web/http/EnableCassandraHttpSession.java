@@ -49,24 +49,6 @@ public @interface EnableCassandraHttpSession {
 	String tableName() default "spring_session";
 
 	/**
-	 * The name of cassandra keyspace to connect to.
-	 * @return the cassandra keyspace
-	 */
-	String keyspace() default "";
-
-	/**
-	 * The list of cassandra contact points.
-	 * @return the cassandra contact points
-	 */
-	String[] contactPoints() default "localhost";
-
-	/**
-	 * The cassandra port to connect to.
-	 * @return the cassandra port
-	 */
-	int port() default 9042;
-
-	/**
 	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
 	 * This should be a non-negative integer.
 	 *

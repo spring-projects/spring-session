@@ -54,12 +54,6 @@ import org.springframework.util.StringUtils;
 @Configuration
 public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
-	private String keyspace = "";
-
-	private String[] contactPoints = new String[]{"localhost"};
-
-	private int port = 9042;
-
 	private String tableName = CassandraSessionRepository.DEFAULT_TABLE_NAME;
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
@@ -67,34 +61,14 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 	private ConsistencyLevel consistencyLevel = QueryOptions.DEFAULT_CONSISTENCY_LEVEL;
 
 	@Bean
-	public Cluster springSessionCassandraCluster() {
-		return Cluster.builder()
-				.addContactPoints(this.contactPoints)
-				.withPort(this.port)
-				.build();
-	}
-
-	@Bean
-	public Session springSessionCassandraDatastaxDriverSession(
-			@Qualifier("springSessionCassandraCluster") Cluster cluster) {
-		if (!StringUtils.isEmpty(this.keyspace)) {
-			return cluster.connect(this.keyspace);
-		}
-		else {
-			return cluster.connect();
-		}
-	}
-
-	@Bean
-	public CqlOperations springSessionCassandraOperations(
-			@Qualifier("springSessionCassandraDatastaxDriverSession") Session session) {
+	public CqlOperations springSessionCassandraOperations(Session session) {
 		return new CassandraTemplate(session);
 	}
 
 	@Bean
 	public SessionRepository repository(
-			@Qualifier("springSessionCassandraOperations") CassandraOperations cassandraOperations) {
-		CassandraSessionRepository cassandraSessionRepository = new CassandraSessionRepository(cassandraOperations);
+			@Qualifier("springSessionCqlOperations") CqlOperations cqlOperations) {
+		CassandraSessionRepository cassandraSessionRepository = new CassandraSessionRepository(cqlOperations);
 		if (StringUtils.hasText(this.tableName)) {
 			cassandraSessionRepository.setTableName(this.tableName);
 		}
@@ -110,9 +84,6 @@ public class CassandraHttpSessionConfiguration extends SpringHttpSessionConfigur
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 		this.tableName = enableAttrs.getString("tableName");
 		this.maxInactiveIntervalInSeconds = enableAttrs.getNumber("maxInactiveIntervalInSeconds");
-		this.keyspace = enableAttrs.getString("keyspace");
-		this.contactPoints = enableAttrs.getStringArray("contactPoints");
-		this.port = enableAttrs.getNumber("port");
 		this.consistencyLevel = enableAttrs.getEnum("consistencyLevel");
 	}
 }
