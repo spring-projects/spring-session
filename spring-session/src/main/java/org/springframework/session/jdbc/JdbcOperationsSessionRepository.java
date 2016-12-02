@@ -176,7 +176,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
 			"DELETE FROM %TABLE_NAME% " +
-					"WHERE LAST_ACCESS_TIME < ? - MAX_INACTIVE_INTERVAL * 1000";
+					"WHERE MAX_INACTIVE_INTERVAL < (? - LAST_ACCESS_TIME) / 1000";
 
 	private static final Log logger = LogFactory
 			.getLog(JdbcOperationsSessionRepository.class);
