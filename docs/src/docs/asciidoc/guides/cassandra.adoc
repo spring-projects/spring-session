@@ -39,10 +39,9 @@ When a Cassandra cluster is available, the primary configuration properties are 
 
 === Application context provided dependencies.
 
-In order to enable Spring session's session management capabilities using Cassandra it is mandatory for your application
-to configure and auto-wire a bean of the type `com.datastax.driver.core.Session` which must define a cluster contact
-point host, as well as a port number. When injected, this bean will be used in conjunction with
-`org.springframework.cassandra.core.CqlOperations` to issue queries against the Cassandra cluster.
+In order to enable Spring session's session management capabilities using Cassandra, it is mandatory for your application
+to configure and auto-wire a bean of the type `org.springframework.cassandra.core.CqlOperations` in order to issue queries
+against the Cassandra cluster.
 
 === `tableName`
 The name of cassandra table used by Spring Session to store sessions. Defaults to `spring_session`.
