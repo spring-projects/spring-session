@@ -19,7 +19,6 @@ import javax.annotation.PreDestroy;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
-import com.datastax.driver.core.exceptions.AlreadyExistsException;
 
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 
@@ -37,7 +36,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CassandraConfig {
 
-	static final String CREATE_KEYSPACE = "CREATE KEYSPACE spring_session WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};";
+	static final String CREATE_KEYSPACE = "CREATE KEYSPACE IF NOT EXISTS spring_session WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};";
 	static final String CREATE_SESSION_TABLE = "CREATE TABLE IF NOT EXISTS spring_session (\n" +
 			"    id uuid PRIMARY KEY,\n" +
 			"    attributes map<text, text>,\n" +
@@ -61,14 +60,9 @@ public class CassandraConfig {
 	@Bean
 	public com.datastax.driver.core.Session session() throws Exception {
 		if (initCluster()) {
-			this.session = Cluster.builder().addContactPoint("localhost").withPort(9142)
-					.build().connect();
-			try {
-				this.session.execute(CREATE_KEYSPACE);
-			}
-			catch (AlreadyExistsException e) {
-
-			}
+			this.session = Cluster.builder().addContactPoint("localhost")
+					.withPort(9142).build().connect();
+			this.session.execute(CREATE_KEYSPACE);
 			this.session.execute("use spring_session");
 			this.session.execute(CREATE_SESSION_TABLE);
 			this.session.execute(STRING_CREATE_IDX_TABLE);

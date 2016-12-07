@@ -37,6 +37,12 @@ Spring Session, which is in turn backed by Cassandra.
 When a Cassandra cluster is available, the primary configuration properties are available via
 `@EnableCassandraHttpSession`
 
+=== Application context provided dependencies.
+
+In order to enable Spring session's session management capabilities using Cassandra, it is mandatory for your application
+to configure and auto-wire a bean of the type `org.springframework.cassandra.core.CqlOperations` in order to issue queries
+against the Cassandra cluster.
+
 === `tableName`
 The name of cassandra table used by Spring Session to store sessions. Defaults to `spring_session`.
 
@@ -50,26 +56,15 @@ suffix. For example, using the default primary table name, a secondary table wil
 
 `spring_session_by_name`
 
-=== `keyspace`
-The name of cassandra keyspace to connect to.
-
-=== `contactPoints`
-The list of cassandra contact points. Defaults to `localhost`.
-
-=== `port`
-The cassandra port to connect to. Defaults to `9042`.
-
 === `maxInactiveIntervalInSeconds`
 The session timeout in seconds. Defaults to 1800 seconds (30 minutes).
 
-TODO add consistency level tuning properties for session read/write operations, as well as a few notes on their impact
-on cluster performance.
+=== `consistencyLevel`
+The consistency level that will be used for all Spring session management queries. Defaults to `ConsistencyLevel.ONE`.
+Depending on your application's performance requirements, it might be necessary to customize this value.
 
 For more information, refer to http://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-nosql.html#boot-features-cassandra[Connecting to Cassandra]
 portion of the Spring Boot documentation.
-
-TODO we may want to integrate connection configuration parameters with `spring-boot-starter-data-cassandra` as per docs
-above.
 
 [[cassandra-sample]]
 == Cassandra Sample Application

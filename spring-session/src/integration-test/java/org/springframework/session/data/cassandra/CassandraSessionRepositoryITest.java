@@ -22,7 +22,6 @@ import java.util.UUID;
 
 
 import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.exceptions.AlreadyExistsException;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -530,7 +529,7 @@ public class CassandraSessionRepositoryITest {
 	@Configuration
 	static class Config {
 
-		static final String CREATE_KEYSPACE = "CREATE KEYSPACE spring_session WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};";
+		static final String CREATE_KEYSPACE = "CREATE KEYSPACE IF NOT EXISTS spring_session WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 1};";
 
 		static final String CREATE_SESSION_TABLE = "CREATE TABLE IF NOT EXISTS spring_session (\n" +
 				"    id uuid PRIMARY KEY,\n" +
@@ -550,12 +549,7 @@ public class CassandraSessionRepositoryITest {
 					.addContactPoint("localhost")
 					.withPort(9142)
 					.build().connect();
-			try {
-				session.execute(CREATE_KEYSPACE);
-			}
-			catch (AlreadyExistsException e) {
-
-			}
+			session.execute(CREATE_KEYSPACE);
 			session.execute("use spring_session");
 			session.execute(CREATE_SESSION_TABLE);
 			session.execute(STRING_CREATE_IDX_TABLE);
