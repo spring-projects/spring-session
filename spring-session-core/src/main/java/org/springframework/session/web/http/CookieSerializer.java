@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,12 +55,18 @@ public interface CookieSerializer {
 	 * {@link HttpServletResponse}.
 	 *
 	 * @author Rob Winch
+	 * @author Vedran Pavic
 	 * @since 1.1
 	 */
 	class CookieValue {
+
 		private final HttpServletRequest request;
+
 		private final HttpServletResponse response;
+
 		private final String cookieValue;
+
+		private int cookieMaxAge = -1;
 
 		/**
 		 * Creates a new instance.
@@ -72,11 +78,14 @@ public interface CookieSerializer {
 		 * modified by the {@link CookieSerializer} when writing to the actual cookie so
 		 * long as the original value is returned when the cookie is read.
 		 */
-		public CookieValue(HttpServletRequest request, HttpServletResponse response,
+		CookieValue(HttpServletRequest request, HttpServletResponse response,
 				String cookieValue) {
 			this.request = request;
 			this.response = response;
 			this.cookieValue = cookieValue;
+			if ("".equals(this.cookieValue)) {
+				this.cookieMaxAge = 0;
+			}
 		}
 
 		/**
@@ -105,5 +114,24 @@ public interface CookieSerializer {
 		public String getCookieValue() {
 			return this.cookieValue;
 		}
+
+		/**
+		 * Get the cookie max age. The default is -1 which signals to delete the cookie
+		 * when the browser is closed, or 0 if cookie value is empty.
+		 * @return the cookie max age
+		 */
+		public int getCookieMaxAge() {
+			return this.cookieMaxAge;
+		}
+
+		/**
+		 * Set the cookie max age.
+		 * @param cookieMaxAge the cookie max age
+		 */
+		public void setCookieMaxAge(int cookieMaxAge) {
+			this.cookieMaxAge = cookieMaxAge;
+		}
+
 	}
+
 }

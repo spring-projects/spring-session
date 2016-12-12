@@ -45,7 +45,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private String cookiePath;
 
-	private int cookieMaxAge = -1;
+	private Integer cookieMaxAge;
 
 	private String domainName;
 
@@ -112,18 +112,18 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			sessionCookie.setHttpOnly(true);
 		}
 
-		if ("".equals(requestedCookieValue)) {
-			sessionCookie.setMaxAge(0);
+		if (cookieValue.getCookieMaxAge() < 0) {
+			if (this.rememberMeRequestAttribute != null
+					&& request.getAttribute(this.rememberMeRequestAttribute) != null) {
+				// the cookie is only written at time of session creation, so we rely on
+				// session expiration rather than cookie expiration if remember me is enabled
+				cookieValue.setCookieMaxAge(Integer.MAX_VALUE);
+			}
+			else if (this.cookieMaxAge != null) {
+				cookieValue.setCookieMaxAge(this.cookieMaxAge);
+			}
 		}
-		else if (this.rememberMeRequestAttribute != null
-				&& request.getAttribute(this.rememberMeRequestAttribute) != null) {
-			// the cookie is only written at time of session creation, so we rely on
-			// session expiration rather than cookie expiration if remember me is enabled
-			sessionCookie.setMaxAge(Integer.MAX_VALUE);
-		}
-		else {
-			sessionCookie.setMaxAge(this.cookieMaxAge);
-		}
+		sessionCookie.setMaxAge(cookieValue.getCookieMaxAge());
 
 		response.addCookie(sessionCookie);
 	}
@@ -205,8 +205,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/**
-	 * Sets the maxAge property of the Cookie. The default is -1 which signals to delete
-	 * the cookie when the browser is closed.
+	 * Sets the maxAge property of the Cookie. The default is to delete the cookie when
+	 * the browser is closed.
 	 *
 	 * @param cookieMaxAge the maxAge property of the Cookie
 	 */
