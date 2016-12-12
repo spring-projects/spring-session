@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -343,6 +343,16 @@ public class DefaultCookieSerializerTests {
 		assertThat(getCookie().getMaxAge()).isEqualTo(0);
 	}
 
+	@Test
+	public void writeCookieCookieMaxAgeExplicitCookieValue() {
+		CookieValue cookieValue = cookieValue(this.sessionId);
+		cookieValue.setCookieMaxAge(100);
+
+		this.serializer.writeCookieValue(cookieValue);
+
+		assertThat(getCookie().getMaxAge()).isEqualTo(100);
+	}
+
 	// --- secure ---
 
 	@Test
@@ -441,6 +451,17 @@ public class DefaultCookieSerializerTests {
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(Integer.MAX_VALUE);
+	}
+
+	@Test
+	public void writeCookieRememberMeCookieMaxAgeOverride() {
+		this.request.setAttribute("rememberMe", true);
+		this.serializer.setRememberMeRequestAttribute("rememberMe");
+		CookieValue cookieValue = cookieValue(this.sessionId);
+		cookieValue.setCookieMaxAge(100);
+		this.serializer.writeCookieValue(cookieValue);
+
+		assertThat(getCookie().getMaxAge()).isEqualTo(100);
 	}
 
 	public void setCookieName(String cookieName) {
