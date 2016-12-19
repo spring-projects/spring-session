@@ -37,7 +37,7 @@ https://github.com/spring-projects/spring-session/milestone/19?closed=1[1.3.0.RE
 * https://github.com/spring-projects/spring-session/tree/1.3.0.RELEASE/samples/httpsession-redis-json[GenericJackson2JsonRedisSerializer sample] with Spring Security's new Jackson Support
 * Guides now https://github.com/spring-projects/spring-session/pull/652[use Lettuce]
 * `spring.session.cleanup.cron.expression` can be used to override the cleanup task’s cron expression
-* Lots of performance improvemetns and bug fixes
+* Lots of performance improvements and bug fixes
 
 [[samples]]
 == Samples and Guides (Start Here)
