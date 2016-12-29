@@ -16,8 +16,8 @@ dependencies {
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
 	testCompile "junit:junit:$junitVersion",
-				"org.springframework.security:spring-security-test:$springSecurityVersion"
-
-	integrationTestCompile spockDependencies,
-					'org.codehaus.groovy.modules.http-builder:http-builder:0.7'
+			"org.springframework.security:spring-security-test:$springSecurityVersion",
+			"org.assertj:assertj-core:$assertjVersion",
+			"org.springframework:spring-test:$springVersion",
+			"commons-codec:commons-codec:1.6"
 }

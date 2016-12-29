@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sample.pages
 
-import geb.*
+package sample.pages;
+
+import org.openqa.selenium.WebDriver;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The home page
- *
- * @author Rob Winch
+ * @author Pool Dolorier
  */
-class HomePage extends Page {
-	static url = ''
-	static at = { assert driver.title == 'Spring Session Sample - Secured Content'; true}
-	static content = {
-		username { $('#un').text() }
-		logout(to:LoginPage) { $('input[type=submit]').click() }
+public class LinkPage  extends BasePage {
+
+	public LinkPage(WebDriver driver) {
+		super(driver);
+	}
+
+	public void assertAt() {
+		assertThat(getDriver().getTitle()).isEqualTo("Linked Page");
 	}
 }
