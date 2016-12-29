@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sample.pages
 
-import geb.*
+package sample;
 
 /**
- * The Links Page
- *
- * @author Rob Winch
+ * @author Pool Dolorier
  */
-class LoginPage extends Page {
-	static url = '/login'
-	static at = { assert driver.title == 'Login Page'; true}
-	static content = {
-		form { $('form') }
-		submit { $('input[type=submit]') }
-		login(required:false) { user='user', pass='password' ->
-			form.username = user
-			form.password = pass
-			submit.click(HomePage)
-		}
+public class User {
+
+	private String username;
+
+	public String getUsername() {
+		return this.username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 }
