@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,28 @@
  * limitations under the License.
  */
 
-package sample.pages
+package sample.pages;
 
-import geb.*
+import org.openqa.selenium.WebDriver;
 
 /**
- * The Links Page
  *
- * @author Rob Winch
+ * @author Pool Dolorier
  */
-class LinkPage extends Page {
-	static url = ''
-	static at = { assert driver.title == 'Linked Page'; true}
-	static content = {
-		form { $('#navLinks') }
-		username(required:false) { $('#un').text() }
-		userMenu() {
-			if(!$('#user-menu').displayed) {
-				$('#toggle').jquery.click()
-			}
-			waitFor {
-				$('#user-menu').displayed
-			}
-		}
-		switchAccount{ un ->
-			userMenu()
-			$("#switchAccount${un}").click(HomePage)
-		}
+public abstract class BasePage {
+
+	private WebDriver driver;
+
+	public BasePage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	public WebDriver getDriver() {
+		return this.driver;
+	}
+
+	public static void get(WebDriver driver, String get) {
+		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port");
+		driver.get(baseUrl + get);
 	}
 }

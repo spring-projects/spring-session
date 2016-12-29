@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,27 @@
  * limitations under the License.
  */
 
-package sample.pages
+package sample.pages;
 
-import geb.Page
+import org.openqa.selenium.WebDriver;
 
 /**
- * The home page
- *
- * @author Rob Winch
+ * @author Pool Dolorier
  */
-class HomePage extends Page {
-	static url = ''
-	static at = { assert driver.title == 'Secured Content'; true}
-	static content = {
-		username { $('#un').text() }
-		logout(to:LoginPage) { $('input[type=submit]').click() }
+public abstract class BasePage {
+
+	private WebDriver driver;
+
+	public BasePage(WebDriver driver) {
+		this.driver = driver;
+	}
+
+	public WebDriver getDriver() {
+		return this.driver;
+	}
+
+	public static void get(WebDriver driver, String get) {
+		String baseUrl = "http://localhost";
+		driver.get(baseUrl + get);
 	}
 }
