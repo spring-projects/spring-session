@@ -10,12 +10,7 @@ buildscript {
 apply from: JAVA_GRADLE
 apply plugin: "application"
 apply plugin: 'org.springframework.boot'
-
-tasks.findByPath("artifactoryPublish")?.enabled = false
-
-sonarqube {
-	skipProject = true
-}
+apply from: SAMPLE_GRADLE
 
 dependencies {
 	compile project(':spring-session-data-gemfire'),

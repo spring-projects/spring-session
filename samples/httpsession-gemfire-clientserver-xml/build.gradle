@@ -1,12 +1,7 @@
 apply from: JAVA_GRADLE
 apply from: TOMCAT_7_GRADLE
 apply plugin: "application"
-
-tasks.findByPath("artifactoryPublish")?.enabled = false
-
-sonarqube {
-	skipProject = true
-}
+apply from: SAMPLE_GRADLE
 
 dependencies {
 	compile project(':spring-session-data-gemfire'),
