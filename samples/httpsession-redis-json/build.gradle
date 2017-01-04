@@ -10,8 +10,7 @@ buildscript {
 apply plugin: 'org.springframework.boot'
 
 apply from: JAVA_GRADLE
-
-//tasks.findByPath("artifactoryPublish")?.enabled = false
+apply from: SAMPLE_GRADLE
 
 group = 'samples'
 ext {
