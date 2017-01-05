@@ -19,7 +19,7 @@
 
         <h1>Try it</h1>
 
-        <form class="form-inline" role="form" action="./session" method="post">
+        <form id="attr" class="form-inline" role="form" action="./session" method="post">
             <label for="attributeName">Attribute Name</label>
             <input id="attributeName" type="text" name="attributeName"/>
             <label for="attributeValue">Attribute Value</label>

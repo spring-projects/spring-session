@@ -16,26 +16,20 @@
 
 package sample.pages;
 
+import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 public class LoginPage extends BasePage {
-
-	@FindBy(name = "username")
-	private WebElement username;
-
-	@FindBy(name = "password")
-	private WebElement password;
-
-	@FindBy(name = "submit")
-	private WebElement button;
 
 	public LoginPage(WebDriver driver) {
 		super(driver);
@@ -45,10 +39,31 @@ public class LoginPage extends BasePage {
 		assertThat(getDriver().getTitle()).isEqualTo("Login Page");
 	}
 
-	public HomePage login() {
-		this.username.sendKeys("user");
-		this.password.sendKeys("password");
-		this.button.click();
-		return PageFactory.initElements(getDriver(), HomePage.class);
+	public Form form() {
+		return new Form(getDriver());
 	}
+
+	public class Form {
+
+		@FindBy(name = "username")
+		private WebElement username;
+
+		@FindBy(name = "password")
+		private WebElement password;
+
+		@FindBy(name = "submit")
+		private WebElement button;
+
+		public Form(SearchContext context) {
+			PageFactory.initElements(new DefaultElementLocatorFactory(context), this);
+		}
+
+		public <T> T login(Class<T> page) {
+			this.username.sendKeys("user");
+			this.password.sendKeys("password");
+			this.button.click();
+			return PageFactory.initElements(getDriver(), page);
+		}
+	}
+
 }

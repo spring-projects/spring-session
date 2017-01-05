@@ -47,9 +47,7 @@ public class BootTests {
 
 	@Before
 	public void setup() {
-		this.driver = MockMvcHtmlUnitDriverBuilder
-				.mockMvcSetup(this.mockMvc)
-				.build();
+		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@After
@@ -61,14 +59,14 @@ public class BootTests {
 	public void home() {
 		LoginPage login = HomePage.go(this.driver);
 		login.assertAt();
-		HomePage home = login.login();
+		HomePage home = login.form().login(HomePage.class);
 		home.assertAt();
 	}
 
 	@Test
 	public void login() {
 		LoginPage login = HomePage.go(this.driver);
-		HomePage home = login.login();
+		HomePage home = login.form().login(HomePage.class);
 		home.containCookie("SESSION");
 		home.doesNotContainCookie("JSESSIONID");
 	}
@@ -76,7 +74,7 @@ public class BootTests {
 	@Test
 	public void logout() {
 		LoginPage login = HomePage.go(this.driver);
-		HomePage home = login.login();
+		HomePage home = login.form().login(HomePage.class);
 		login = home.logout();
 		login.assertAt();
 	}

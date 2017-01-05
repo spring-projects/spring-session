@@ -22,26 +22,26 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 public class HomePage extends BasePage {
+	@FindBy(css = "input[type=\"submit\"]")
+	WebElement logout;
 
 	public HomePage(WebDriver driver) {
 		super(driver);
 	}
 
-	public static LoginPage go(WebDriver driver) {
-		get(driver, "/");
-		return PageFactory.initElements(driver, LoginPage.class);
-	}
-
 	public void assertAt() {
-		assertThat(getDriver().getTitle()).isEqualTo("Spring Session Sample - Secured Content");
+		assertThat(getDriver().getTitle())
+				.isEqualTo("Spring Session Sample - Secured Content");
 	}
 
 	public void containCookie(String cookieName) {
@@ -67,9 +67,12 @@ public class HomePage extends BasePage {
 	}
 
 	public HomePage logout() {
-		WebElement logout = getDriver().findElement(By.cssSelector("input[type=\"submit\"]"));
-		logout.click();
+		this.logout.click();
 		return PageFactory.initElements(getDriver(), HomePage.class);
 	}
 
+	public static LoginPage go(WebDriver driver) {
+		get(driver, "/");
+		return PageFactory.initElements(driver, LoginPage.class);
+	}
 }

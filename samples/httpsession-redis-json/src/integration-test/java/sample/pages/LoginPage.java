@@ -36,7 +36,7 @@ public class LoginPage extends BasePage {
 	}
 
 	public void assertAt() {
-		assertThat(getDriver().getTitle()).isEqualTo("Spring Session Sample - Log In");
+		assertThat(getDriver().getTitle()).isEqualTo("Spring Session Sample - Login");
 	}
 
 	public Form form() {
@@ -65,4 +65,5 @@ public class LoginPage extends BasePage {
 			return PageFactory.initElements(getDriver(), page);
 		}
 	}
+
 }

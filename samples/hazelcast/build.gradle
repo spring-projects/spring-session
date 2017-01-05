@@ -12,8 +12,7 @@ dependencies {
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
 	testCompile "junit:junit:$junitVersion",
-			"org.assertj:assertj-core:$assertjVersion",
-			"org.projectlombok:lombok:$lombokVersion"
+			"org.assertj:assertj-core:$assertjVersion"
 
 	integrationTestCompile seleniumDependencies
 }

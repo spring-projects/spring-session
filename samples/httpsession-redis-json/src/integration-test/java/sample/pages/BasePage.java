@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package samples.pages;
+package sample.pages;
 
 import org.openqa.selenium.WebDriver;
 

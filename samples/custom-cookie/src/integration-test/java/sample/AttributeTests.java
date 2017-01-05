@@ -16,17 +16,21 @@
 
 package sample;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import sample.pages.HomePage;
+import sample.pages.HomePage.Attribute;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 public class AttributeTests {
 
@@ -51,16 +55,24 @@ public class AttributeTests {
 	@Test
 	public void noAttributes() {
 		HomePage home = HomePage.go(this.driver);
-		assertThat(home.attributes().size()).isEqualTo(0);
+		assertThat(home.attributes()).isEmpty();
 	}
 
 	@Test
 	public void createAttribute() {
 		HomePage home = HomePage.go(this.driver);
-		home.addAttribute("a", "b");
-		assertThat(home.attributes().size()).isEqualTo(1);
-		assertThat(home.row(0).getAttributeName()).isEqualTo("a");
-		assertThat(home.row(0).getAttributeValue()).isEqualTo("b");
+		// @formatter:off
+		home = home.form()
+				.attributeName("a")
+				.attributeValue("b")
+				.submit(HomePage.class);
+		// @formatter:on
+
+		List<Attribute> attributes = home.attributes();
+		assertThat(attributes).hasSize(1);
+		Attribute row = attributes.get(0);
+		assertThat(row.getAttributeName()).isEqualTo("a");
+		assertThat(row.getAttributeValue()).isEqualTo("b");
 	}
 
 }

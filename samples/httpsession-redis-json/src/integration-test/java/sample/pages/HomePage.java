@@ -18,7 +18,10 @@ package sample.pages;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.openqa.selenium.By;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -36,7 +39,7 @@ public class HomePage {
 
 	private WebDriver driver;
 
-	@FindBy(css = "form")
+	@FindBy(css = "form[name=\"f\"]")
 	WebElement form;
 
 	@FindBy(css = "table tbody tr")
@@ -59,8 +62,21 @@ public class HomePage {
 		return PageFactory.initElements(driver, page);
 	}
 
-	public void assertAt() {
-		assertThat(this.driver.getTitle()).isEqualTo("Session Attributes");
+	public void containCookie(String cookieName) {
+		Set<Cookie> cookies = this.driver.manage().getCookies();
+		assertThat(cookies).extracting("name").contains(cookieName);
+	}
+
+	public void doesNotContainCookie(String cookieName) {
+		Set<Cookie> cookies = this.driver.manage().getCookies();
+		assertThat(cookies).extracting("name").doesNotContain(cookieName);
+	}
+
+	public HomePage logout() {
+		WebElement logout = this.driver
+				.findElement(By.cssSelector("input[type=\"submit\"]"));
+		logout.click();
+		return PageFactory.initElements(this.driver, HomePage.class);
 	}
 
 	public List<Attribute> attributes() {
@@ -77,13 +93,13 @@ public class HomePage {
 	}
 
 	public class Form {
-		@FindBy(name = "attributeName")
+		@FindBy(name = "key")
 		WebElement attributeName;
 
-		@FindBy(name = "attributeValue")
+		@FindBy(name = "value")
 		WebElement attributeValue;
 
-		@FindBy(css = "input[type=\"submit\"]")
+		@FindBy(css = "button[type=\"submit\"]")
 		WebElement submit;
 
 		public Form(SearchContext context) {
