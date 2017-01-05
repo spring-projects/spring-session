@@ -14,7 +14,9 @@ dependencies {
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-	testCompile "junit:junit:$junitVersion"
+	testCompile	"junit:junit:$junitVersion",
+			"org.springframework:spring-test:$springVersion",
+			"org.assertj:assertj-core:$assertjVersion"
 
-	integrationTestCompile gebDependencies
+	integrationTestCompile seleniumDependencies
 }

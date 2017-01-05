@@ -29,8 +29,8 @@ dependencies {
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 
-	integrationTestCompile gebDependencies,
-		"org.spockframework:spock-spring:$spockVersion"
+	integrationTestCompile seleniumDependencies,
+			"org.projectlombok:lombok:$lombokVersion"
 
 	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 }
@@ -70,11 +70,8 @@ integrationTest {
 	dependsOn runGemFireServer
 	doFirst {
 		def port = reservePort()
-		def host = 'localhost:' + port
 		systemProperties['server.port'] = port
 		systemProperties['management.port'] = 0
-		systemProperties['geb.build.baseUrl'] = 'http://'+host+'/'
-		systemProperties['geb.build.reportsDir'] = 'build/geb-reports'
 		systemProperties['gemfire.cache.server.port'] = runGemFireServer.port
 	}
 	doLast {
