@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,7 @@ public class RestMockMvcTests {
 
 	@Test
 	public void noSessionOnNoCredentials() throws Exception {
-		this.mvc.perform(get("/")).andExpect(header().doesNotExist("x-auth-token"))
+		this.mvc.perform(get("/")).andExpect(header().doesNotExist("X-Auth-Token"))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -73,13 +73,12 @@ public class RestMockMvcTests {
 	@Test
 	public void autheticatedAnnotation() throws Exception {
 		this.mvc.perform(get("/")).andExpect(content().string("{\"username\":\"user\"}"));
-
 	}
 
 	@Test
 	public void autheticatedRequestPostProcessor() throws Exception {
 		this.mvc.perform(get("/").with(user("user")))
 				.andExpect(content().string("{\"username\":\"user\"}"));
-
 	}
+
 }
