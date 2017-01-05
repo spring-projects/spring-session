@@ -4,7 +4,7 @@
 			xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<head>
 		<title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">Spring Session Sample</title>
-		<link rel="icon" type="image/x-icon" th:href="@{/resources/img/favicon.ico}" href="../static/img/favicon.ico"/>
+		<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" href="../static/favicon.ico"/>
 		<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet"></link>
 		<style type="text/css">
 			/* Sticky footer styles
@@ -79,7 +79,7 @@
 			<div class="navbar navbar-inverse navbar-static-top">
 				<div class="navbar-inner">
 					<div class="container">
-						<a class="brand" th:href="@{/}"><img th:src="@{/resources/img/logo.png}" alt="Spring Security Sample"/></a>
+						<a class="brand" th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Spring Security Sample"/></a>
 
 <div class="nav-collapse collapse"
 		th:with="currentUser=${#httpServletRequest.userPrincipal?.principal}">
@@ -115,7 +115,7 @@
 
 		<div id="footer">
 			<div class="container">
-				<p class="muted credit">Visit the <a href="http://spring.io/spring-security">Spring Security</a> site for more <a href="https://github.com/spring-projects/spring-security/blob/master/samples/">samples</a>.</p>
+				<p class="muted credit">Visit the <a href="https://projects.spring.io/spring-session/">Spring Session</a> site for more <a href="https://github.com/spring-projects/spring-session/tree/master/samples">samples</a>.</p>
 			</div>
 		</div>
 	</body>

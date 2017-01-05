@@ -73,12 +73,11 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 
 [TIP]
 ====
-For the purposes of testing session expiration, you may want to change the session expiration to be 1 minute (default is 30 minutes) by removing the comment from the following file before starting the application:
+For the purposes of testing session expiration, you may want to change the session expiration to be 1 minute (default is 30 minutes) by adding the following configuration property starting before the application:
 
-.src/main/java/samples/config/WebSecurityConfig.java
-[source,java]
+.src/main/resources/application.properties
 ----
-include::{samples-dir}boot/websocket/src/main/java/sample/config/WebSecurityConfig.java[tags=enable-redis-httpsession]
+server.session.timeout=60
 ----
 ====
 

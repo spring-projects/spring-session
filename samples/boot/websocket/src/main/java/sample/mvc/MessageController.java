@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
  * Controller for managing {@link Message} instances.
@@ -38,7 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
  *
  */
 @Controller
-@RequestMapping("/")
 public class MessageController {
 	private SimpMessageSendingOperations messagingTemplate;
 	private ActiveWebSocketUserRepository activeUserRepository;
@@ -48,11 +46,6 @@ public class MessageController {
 			SimpMessageSendingOperations messagingTemplate) {
 		this.activeUserRepository = activeUserRepository;
 		this.messagingTemplate = messagingTemplate;
-	}
-
-	@RequestMapping("/")
-	public String im() {
-		return "index";
 	}
 
 	@MessageMapping("/im")

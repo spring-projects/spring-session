@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,40 +17,17 @@
 package sample.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.data.repository.query.SecurityEvaluationContextExtension;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 @Configuration
-@EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-// tag::enable-redis-httpsession[]
-@EnableRedisHttpSession // (maxInactiveIntervalInSeconds = 60)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-	// end::enable-redis-httpsession[]
-
-	// @formatter:off
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
-			.authorizeRequests()
-				.anyRequest().authenticated()
-				.and()
-			.formLogin()
-				.and()
-			.logout()
-				.permitAll();
-	}
-	// @formatter:on
 
 	// @formatter:off
 	@Override
@@ -62,15 +39,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	// @formatter:off
 	@Autowired
-	public void configureGlobal(AuthenticationManagerBuilder auth, UserDetailsService userDetailsService) throws Exception {
+	public void configureGlobal(AuthenticationManagerBuilder auth,
+			UserDetailsService userDetailsService) throws Exception {
 		auth
 			.userDetailsService(userDetailsService)
 				.passwordEncoder(new BCryptPasswordEncoder());
 	}
 	// @formatter:on
 
-	@Bean
-	public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
-		return new SecurityEvaluationContextExtension();
-	}
 }

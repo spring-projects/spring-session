@@ -4,7 +4,7 @@
 			xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 	<head>
 		<title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">Spring Session Sample</title>
-		<link rel="icon" type="image/x-icon" th:href="@{/resources/img/favicon.ico}" href="../static/img/favicon.ico"/>
+		<link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" href="../static/favicon.ico"/>
 		<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" href="/webjars/bootstrap/css/bootstrap.min.css" rel="stylesheet"></link>
 		<style type="text/css">
 			/* Sticky footer styles
@@ -79,7 +79,7 @@
 			<div class="navbar navbar-inverse navbar-static-top">
 				<div class="navbar-inner">
 					<div class="container">
-						<a class="brand" th:href="@{/}"><img th:src="@{/resources/img/logo.png}" alt="Spring Security Sample"/></a>
+						<a class="brand" th:href="@{/}"><img th:src="@{/images/logo.png}" alt="Spring Security Sample"/></a>
 
 <div class="nav-collapse collapse"
 		 th:with="currentUser=${#httpServletRequest.userPrincipal?.principal}">

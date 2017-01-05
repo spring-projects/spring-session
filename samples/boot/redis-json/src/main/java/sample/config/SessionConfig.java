@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * @author jitendra on 3/3/16.
  */
-@EnableRedisHttpSession
+@Configuration
 public class SessionConfig implements BeanClassLoaderAware {
 
 	private ClassLoader loader;
@@ -49,7 +49,7 @@ public class SessionConfig implements BeanClassLoaderAware {
 	 *
 	 * @return the {@link ObjectMapper} to use
 	 */
-	ObjectMapper objectMapper() {
+	private ObjectMapper objectMapper() {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.registerModules(SecurityJackson2Modules.getModules(this.loader));
 		return mapper;

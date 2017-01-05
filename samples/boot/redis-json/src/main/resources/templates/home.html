@@ -1,37 +1,34 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorator="layout">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Home</title>
-    <link th:href="@{/resources/css/bootstrap.css}" href="../static/resources/css/bootstrap.css" rel="stylesheet"></link>
-    <link th:href="@{resources/css/bootstrap-responsive.css}" href="/static/resources/css/bootstrap-responsive.css" rel="stylesheet"></link>
+	<title>Home</title>
 </head>
 <body>
-    <div layout:fragment="content">
-        <form class="form-inline" name="f" th:action="@{/setValue}" method="post">
-            <fieldset>
-                <legend>Add value to session</legend>
-                <input type="text" id="key" name="key" placeholder="key"/>
-                <input type="text" id="value" name="value" placeholder="value"/>
-                <button type="submit" class="btn btn-primary">Save</button>
-            </fieldset>
-        </form>
-    </div>
-    <div layout:fragment="table-content">
-        <table class="table table-bordered" style="table-layout: fixed; word-wrap: break-word;">
-            <thead>
-	            <tr>
-	                <th>Attribute Name</th>
-	                <th>Attribute Value</th>
-	            </tr>
-            </thead>
-            <tbody>
-	            <tr th:each="name : ${T(java.util.Collections).list(#httpSession.getAttributeNames())}">
-	                <td th:text="${name}"></td>
-	                <td th:text="${#httpSession.getAttribute(name)}"></td>
-	            </tr>
-            </tbody>
-        </table>
-    </div>
+	<div layout:fragment="content">
+		<form class="form-inline" name="f" th:action="@{/setValue}" method="post">
+			<fieldset>
+				<legend>Add value to session</legend>
+				<input type="text" id="key" name="key" placeholder="key"/>
+				<input type="text" id="value" name="value" placeholder="value"/>
+				<button type="submit" class="btn btn-primary">Save</button>
+			</fieldset>
+		</form>
+	</div>
+	<div layout:fragment="table-content">
+		<table class="table table-bordered" style="table-layout: fixed; word-wrap: break-word;">
+			<thead>
+				<tr>
+					<th>Attribute Name</th>
+					<th>Attribute Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="name : ${T(java.util.Collections).list(#httpSession.getAttributeNames())}">
+					<td th:text="${name}"></td>
+					<td th:text="${#httpSession.getAttribute(name)}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </body>
 </html>

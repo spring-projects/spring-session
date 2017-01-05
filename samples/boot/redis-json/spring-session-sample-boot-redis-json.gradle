@@ -1,19 +1,23 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-	compile project(':spring-session')
-	compile"org.springframework.data:spring-data-redis"
-	compile"biz.paluch.redis:lettuce"
-	compile"org.springframework.boot:spring-boot-starter-web"
-	compile"org.springframework.boot:spring-boot-starter-thymeleaf"
-	compile"org.springframework.boot:spring-boot-starter-security"
-	compile"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
-	compile"org.apache.httpcomponents:httpclient"
+	compile(project(':spring-session-data-redis')) {
+		exclude module: 'jedis'
+		exclude module: 'commons-pool2'
+	}
+	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+	compile "org.springframework.boot:spring-boot-starter-security"
+	compile "org.springframework.boot:spring-boot-devtools"
+	compile "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	compile "org.webjars:bootstrap"
+	compile "org.webjars:html5shiv"
+	compile "org.webjars:webjars-locator"
+	compile "biz.paluch.redis:lettuce"
+	compile "org.apache.httpcomponents:httpclient"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
-	testCompile"org.assertj:assertj-core"
+	testCompile "org.assertj:assertj-core"
 	testCompile "org.skyscreamer:jsonassert"
 
 	integrationTestCompile seleniumDependencies
-
 }

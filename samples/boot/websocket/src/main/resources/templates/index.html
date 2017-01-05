@@ -56,7 +56,7 @@
 	<script th:src="@{/webjars/stomp-websocket/stomp.min.js}" src="/webjars/stomp-websocket/stomp.min.js"></script>
 
 	<!-- application -->
-	<script src="resources/js/message.js"></script>
+	<script th:src="@{/js/message.js}" src="../static/js/message.js"></script>
 	<script type="text/javascript">
 	  (function() {
 		var socket = new SockJS('/messages');

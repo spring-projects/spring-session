@@ -1,5 +1,5 @@
 = Spring Session - Spring Boot
-Rob Winch
+Rob Winch, Vedran Pavić
 :toc:
 
 This guide describes how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` when using Spring Boot.
@@ -20,64 +20,38 @@ If you are using Maven, ensure to add the following dependencies:
 
 	<dependency>
 		<groupId>org.springframework.session</groupId>
-		<artifactId>spring-session</artifactId>
-		<version>{spring-session-version}</version>
-	</dependency>
-	<dependency>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-data-redis</artifactId>
+		<artifactId>spring-session-data-redis</artifactId>
 	</dependency>
 </dependencies>
 ----
 
-ifeval::["{version-snapshot}" == "true"]
-Since We are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
-Ensure you have the following in your pom.xml:
-
-.pom.xml
-[source,xml]
-----
-<repositories>
-
-	<!-- ... -->
-
-	<repository>
-		<id>spring-snapshot</id>
-		<url>https://repo.spring.io/libs-snapshot</url>
-	</repository>
-</repositories>
-----
-endif::[]
-
-ifeval::["{version-milestone}" == "true"]
-Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
-Ensure you have the following in your pom.xml:
-
-.pom.xml
-[source,xml]
-----
-<repository>
-	<id>spring-milestone</id>
-	<url>https://repo.spring.io/libs-milestone</url>
-</repository>
-----
-endif::[]
+Spring Boot provides dependency management for Spring Session modules, so there's no need to explicitly declare dependency version.
 
 [[boot-spring-configuration]]
-== Spring Configuration
+== Spring Boot Configuration
 
-After adding the required dependencies, we can create our Spring configuration.
-The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
-Add the following Spring Configuration:
+After adding the required dependencies, we can create our Spring Boot configuration.
+Thanks to first-class auto configuration support, setting up Spring Session backed by Redis is as simple as adding a single configuration property to your `application.properties`:
 
-[source,java]
+.src/main/resources/application.properties
 ----
-include::{samples-dir}boot/redis/src/main/java/sample/config/HttpSessionConfig.java[tags=class]
+spring.session.store-type=redis
 ----
 
-<1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+Under the hood, Spring Boot will apply configuration that is equivalent to manually adding `@EnableRedisHttpSession` annotation.
+This creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
-In this instance Spring Session is backed by Redis.
+
+Further customization is possible using `application.properties`:
+
+.src/main/resources/application.properties
+----
+server.session.timeout= # Session timeout in seconds.
+spring.session.redis.flush-mode= # Sessions flush mode.
+spring.session.redis.namespace= # Namespace for keys used to store sessions.
+----
+
+For more information, refer to http://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
 
 [[boot-redis-configuration]]
 == Configuring the Redis Connection
@@ -93,12 +67,12 @@ spring.redis.password=secret
 spring.redis.port=6379
 ----
 
-For more information, refer to http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
+For more information, refer to http://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
 
 [[boot-servlet-configuration]]
 == Servlet Container Initialization
 
-Our <<boot-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
+Our <<boot-spring-configuration,Spring Boot Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
 
 In order for our `Filter` to do its magic, Spring needs to load our `Config` class.
@@ -106,12 +80,12 @@ Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `spring
 Fortunately, Spring Boot takes care of both of these steps for us.
 
 [[boot-sample]]
-== boot Sample Application
+== Boot Sample Application
 
-The boot Sample Application demonstrates how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` when using Spring Boot.
+The Boot Sample Application demonstrates how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` when using Spring Boot.
 
 [[boot-running]]
-=== Running the boot Sample Application
+=== Running the Boot Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
