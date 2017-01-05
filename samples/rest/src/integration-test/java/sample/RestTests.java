@@ -40,7 +40,7 @@ public class RestTests {
 
 	private static final String AUTHORIZATION = "Authorization";
 	private static final String BASIC = "Basic ";
-	private static final String X_AUTH_TOKEN = "x-auth-token";
+	private static final String X_AUTH_TOKEN = "X-Auth-Token";
 
 	private RestTemplate restTemplate;
 

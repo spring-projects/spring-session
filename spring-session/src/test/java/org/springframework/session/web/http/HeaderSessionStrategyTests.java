@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.session.Session;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HeaderSessionStrategyTests {
+
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
 
@@ -36,7 +37,7 @@ public class HeaderSessionStrategyTests {
 
 	@Before
 	public void setup() throws Exception {
-		this.headerName = "x-auth-token";
+		this.headerName = "X-Auth-Token";
 		this.session = new MapSession();
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
@@ -127,4 +128,5 @@ public class HeaderSessionStrategyTests {
 	public String getSessionId() {
 		return this.response.getHeader(this.headerName);
 	}
+
 }

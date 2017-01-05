@@ -154,7 +154,7 @@ In the output you will notice the following:
 ----
 HTTP/1.1 200 OK
 ...
-x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3
+X-Auth-Token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3
 
 {"username":"user"}
 ----
@@ -162,25 +162,25 @@ x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3
 Specifically, we notice the following things about our response:
 
 * The HTTP Status is now a 200
-* We have a header with the name of *x-auth-token* which contains a new session id
+* We have a header with the name of *X-Auth-Token* which contains a new session id
 * The current username is displayed
 
-We can now use the *x-auth-token* to make another request without providing the username and password again. For example, the following outputs the username just as before:
+We can now use the *X-Auth-Token* to make another request without providing the username and password again. For example, the following outputs the username just as before:
 
-	$ curl -v http://localhost:8080/ -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
+	$ curl -v http://localhost:8080/ -H "X-Auth-Token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
 
 The only difference is that the session id is not provided in the response headers because we are reusing an existing session.
 
-If we invalidate the session, then the x-auth-token is displayed in the response with an empty value. For example, the following will invalidate our session:
+If we invalidate the session, then the X-Auth-Token is displayed in the response with an empty value. For example, the following will invalidate our session:
 
-	$ curl -v http://localhost:8080/logout -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
+	$ curl -v http://localhost:8080/logout -H "X-Auth-Token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
 
-You will see in the output that the x-auth-token provides an empty String indicating that the previous session was invalidated.
+You will see in the output that the X-Auth-Token provides an empty String indicating that the previous session was invalidated.
 
 ----
 HTTP/1.1 204 No Content
 ...
-x-auth-token:
+X-Auth-Token:
 ----
 
 === How does it work?
@@ -188,7 +188,7 @@ x-auth-token:
 Spring Security interacts with the standard `HttpSession` in `SecurityContextPersistenceFilter`.
 
 Instead of using Tomcat's `HttpSession`, Spring Security is now persisting the values in Redis.
-Spring Session creates a header named x-auth-token in your browser that contains the id of your session.
+Spring Session creates a header named X-Auth-Token in your browser that contains the id of your session.
 
 If you like, you can easily see that the session is created in Redis. First create a session using the following:
 
@@ -199,7 +199,7 @@ In the output you will notice the following:
 ----
 HTTP/1.1 200 OK
 ...
-x-auth-token: 7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+X-Auth-Token: 7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 
 {"username":"user"}
 ----
@@ -214,6 +214,6 @@ Alternatively, you can also delete the explicit key. Enter the following into yo
 
 	$ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 
-We can now use the *x-auth-token* to make another request with the session we deleted and observe we are prompted for a authentication. For example, the following returns an HTTP 401:
+We can now use the *X-Auth-Token* to make another request with the session we deleted and observe we are prompted for a authentication. For example, the following returns an HTTP 401:
 
-	$ curl -v http://localhost:8080/ -H "x-auth-token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
+	$ curl -v http://localhost:8080/ -H "X-Auth-Token: 0dc1f6e1-c7f1-41ac-8ce2-32b6b3e57aa3"
