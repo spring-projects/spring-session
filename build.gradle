@@ -3,10 +3,10 @@ buildscript {
 		maven { url "https://repo.spring.io/plugins-release" }
 	}
 	dependencies {
-		classpath 'io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE'
+		classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RC2'
 		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.5")
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
-		classpath("io.spring.gradle:spring-io-plugin:0.0.4.RELEASE")
+		classpath("io.spring.gradle:spring-io-plugin:0.0.6.RELEASE")
 		classpath('me.champeau.gradle:gradle-javadoc-hotfix-plugin:0.1')
 		classpath 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
 		classpath 'com.github.ben-manes:gradle-versions-plugin:0.12.0'
@@ -19,7 +19,7 @@ plugins {
 
 group = 'org.springframework.session'
 
-ext.springBootVersion = '1.4.2.RELEASE'
+ext.springBootVersion = '1.5.0.BUILD-SNAPSHOT'
 ext.IDE_GRADLE = "$rootDir/gradle/ide.gradle"
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.SPRING3_GRADLE = "$rootDir/gradle/spring3.gradle"
