@@ -41,10 +41,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
  * @author Jakub Kubrynski
+ * @author Eddú Meléndez
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MongoOperationsSessionRepositoryTests {
@@ -91,6 +93,51 @@ public class MongoOperationsSessionRepositoryTests {
 
 		// then
 		verify(collection).save(dbSession);
+	}
+
+	@Test
+	public void shouldSaveSessionOnce() throws Exception {
+		// given
+		MongoExpiringSession session = this.sut.createSession();
+		BasicDBObject dbSession = new BasicDBObject();
+		DBCollection collection = mock(DBCollection.class);
+
+		given(this.converter.convert(session,
+				TypeDescriptor.valueOf(MongoExpiringSession.class),
+				TypeDescriptor.valueOf(DBObject.class))).willReturn(dbSession);
+		given(this.mongoOperations
+				.getCollection(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
+				.willReturn(collection);
+		// when
+		this.sut.save(session);
+		this.sut.save(session);
+
+		// then
+		verify(collection, times(1)).save(dbSession);
+	}
+
+	@Test
+	public void shouldSaveSessionTwice() throws Exception {
+		// given
+		MongoExpiringSession session = new MongoExpiringSession();
+		BasicDBObject dbSession = new BasicDBObject();
+		DBCollection collection = mock(DBCollection.class);
+
+		given(this.converter.convert(session,
+				TypeDescriptor.valueOf(MongoExpiringSession.class),
+				TypeDescriptor.valueOf(DBObject.class))).willReturn(dbSession);
+		given(this.mongoOperations
+				.getCollection(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
+				.willReturn(collection);
+		// when
+		this.sut.save(session);
+
+		session.setAttribute("bar", "foo");
+
+		this.sut.save(session);
+
+		// then
+		verify(collection, times(2)).save(dbSession);
 	}
 
 	@Test

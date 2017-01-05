@@ -39,6 +39,7 @@ import org.springframework.session.FindByIndexNameSessionRepository;
  * done every minute.
  *
  * @author Jakub Kubrynski
+ * @author Eddú Meléndez
  * @since 1.2
  */
 public class MongoOperationsSessionRepository
@@ -70,8 +71,11 @@ public class MongoOperationsSessionRepository
 	}
 
 	public void save(MongoExpiringSession session) {
-		DBObject sessionDbObject = convertToDBObject(session);
-		this.mongoOperations.getCollection(this.collectionName).save(sessionDbObject);
+		if (session.isChanged()) {
+			DBObject sessionDbObject = convertToDBObject(session);
+			this.mongoOperations.getCollection(this.collectionName).save(sessionDbObject);
+			session.markUnchanged();
+		}
 	}
 
 	public MongoExpiringSession getSession(String id) {
