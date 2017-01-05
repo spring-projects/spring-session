@@ -29,8 +29,7 @@ dependencies {
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 
-	integrationTestCompile seleniumDependencies,
-			"org.projectlombok:lombok:$lombokVersion"
+	integrationTestCompile seleniumDependencies
 
 	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
 }

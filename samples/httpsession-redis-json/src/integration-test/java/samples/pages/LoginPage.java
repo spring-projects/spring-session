@@ -19,14 +19,13 @@ package samples.pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
 import org.openqa.selenium.By;
+import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -71,35 +70,41 @@ public class LoginPage extends BasePage {
 	}
 
 	public List<Row> attributes() {
-		WebElement table = getDriver().findElement(By.tagName("table"));
-		List<WebElement> trs = table.findElements(By.tagName("tr"));
+		List<WebElement> trs = getDriver().findElements(By.cssSelector("table tbody tr"));
 
 		List<Row> rows = new ArrayList<Row>();
 		for (WebElement tr : trs) {
-			List<WebElement> tds = tr.findElements(By.cssSelector("td"));
-			if (!tds.isEmpty()) {
-				Row row = Row.builder()
-						.driver(getDriver())
-						.key(tds.get(0).getText())
-						.value(tds.get(1).getText())
-						.build();
-				rows.add(row);
-			}
+			rows.add(new Row(tr));
 		}
 		return rows;
 	}
 
-	@Data
-	@Builder
 	public static class Row {
+		@FindBy(css = "td:text")
+		String key;
 
-		final String key;
+		@FindBy(css = "td:last.text()")
+		String value;
 
-		final String value;
+		public Row(SearchContext context) {
+			super();
+			DefaultElementLocatorFactory factory = new DefaultElementLocatorFactory(context);
+			PageFactory.initElements(factory, this);
+		}
 
-		@Getter(AccessLevel.PRIVATE)
-		final WebDriver driver;
+		/**
+		 * @return the key
+		 */
+		public String getKey() {
+			return this.key;
+		}
 
+		/**
+		 * @return the value
+		 */
+		public String getValue() {
+			return this.value;
+		}
 	}
 
 }

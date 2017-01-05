@@ -33,8 +33,7 @@ dependencies {
             "org.apache.httpcomponents:httpclient"
 
     testCompile "org.springframework.boot:spring-boot-starter-test",
-            "org.assertj:assertj-core:$assertjVersion",
-            "org.projectlombok:lombok:$lombokVersion"
+            "org.assertj:assertj-core:$assertjVersion"
     testCompile "org.skyscreamer:jsonassert:$jsonassertVersion"
     integrationTestCompile seleniumDependencies
 

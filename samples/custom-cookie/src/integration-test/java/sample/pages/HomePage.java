@@ -19,14 +19,12 @@ package sample.pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import org.openqa.selenium.By;
+import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +35,18 @@ public class HomePage {
 
 	private WebDriver driver;
 
+	@FindBy(name = "attributeName")
+	WebElement attributeName;
+
+	@FindBy(name = "attributeValue")
+	WebElement attributeValue;
+
+	@FindBy(css = "input[type=\"submit\"]")
+	WebElement submit;
+
+	@FindBy(css = "table tbody tr")
+	List<WebElement> trs;
+
 	private List<Row> rows;
 
 	public HomePage(WebDriver driver) {
@@ -45,7 +55,7 @@ public class HomePage {
 	}
 
 	private static void get(WebDriver driver, String get) {
-		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port");
+		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port", "8080");
 		driver.get(baseUrl + get);
 	}
 
@@ -59,30 +69,16 @@ public class HomePage {
 	}
 
 	public void addAttribute(String name, String value) {
-		WebElement form = this.driver.findElement(By.tagName("form"));
-		WebElement attributeName = form.findElement(By.name("attributeName"));
-		WebElement attributeValue = form.findElement(By.name("attributeValue"));
+		this.attributeName.sendKeys(name);
+		this.attributeValue.sendKeys(value);
 
-		attributeName.sendKeys(name);
-		attributeValue.sendKeys(value);
-
-		form.findElement(By.cssSelector("input[type=\"submit\"]")).click();
+		this.submit.click();
 	}
 
 	public List<Row> attributes() {
-		WebElement table = this.driver.findElement(By.tagName("table"));
-		WebElement tbody = table.findElement(By.tagName("tbody"));
-		List<WebElement> trs = tbody.findElements(By.tagName("tr"));
-
 		List<Row> rows = new ArrayList<Row>();
-		for (WebElement tr : trs) {
-			List<WebElement> tds = tr.findElements(By.cssSelector("td"));
-			Row row = Row.builder()
-					.driver(this.driver)
-					.attributeName(tds.get(0).getText())
-					.attributeValue(tds.get(1).getText())
-					.build();
-			rows.add(row);
+		for (WebElement tr : this.trs) {
+			rows.add(new Row(tr));
 		}
 		this.rows.addAll(rows);
 		return this.rows;
@@ -92,17 +88,33 @@ public class HomePage {
 		return this.rows.get(index);
 	}
 
-	@Data
-	@Builder
 	public static class Row {
+		@FindBy(xpath = "//td[1]")
+		WebElement attributeName;
 
-		final String attributeName;
+		@FindBy(xpath = "//td[2]")
+		WebElement attributeValue;
 
-		final String attributeValue;
+		public Row(SearchContext context) {
+			super();
+			DefaultElementLocatorFactory factory = new DefaultElementLocatorFactory(
+					context);
+			PageFactory.initElements(factory, this);
+		}
 
-		@Getter(AccessLevel.PRIVATE)
-		final WebDriver driver;
+		/**
+		 * @return the attributeName
+		 */
+		public String getAttributeName() {
+			return this.attributeName.getText();
+		}
 
+		/**
+		 * @return the attributeValue
+		 */
+		public String getAttributeValue() {
+			return this.attributeValue.getText();
+		}
 	}
 
 }

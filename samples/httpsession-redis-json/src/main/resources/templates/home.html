@@ -19,14 +19,18 @@
     </div>
     <div layout:fragment="table-content">
         <table class="table table-bordered" style="table-layout: fixed; word-wrap: break-word;">
-            <tr>
-                <th>Attribute Name</th>
-                <th>Attribute Value</th>
-            </tr>
-            <tr th:each="name : ${T(java.util.Collections).list(#httpSession.getAttributeNames())}">
-                <td th:text="${name}"></td>
-                <td th:text="${#httpSession.getAttribute(name)}"></td>
-            </tr>
+            <thead>
+	            <tr>
+	                <th>Attribute Name</th>
+	                <th>Attribute Value</th>
+	            </tr>
+            </thead>
+            <tbody>
+	            <tr th:each="name : ${T(java.util.Collections).list(#httpSession.getAttributeNames())}">
+	                <td th:text="${name}"></td>
+	                <td th:text="${#httpSession.getAttribute(name)}"></td>
+	            </tr>
+            </tbody>
         </table>
     </div>
 </body>
