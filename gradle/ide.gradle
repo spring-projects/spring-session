@@ -45,7 +45,8 @@ task cleanEclipseJdtUi(type: Delete) {
 	delete project.file(".settings/org.eclipse.wst.common.project.facet.core.xml")
 }
 
-task eclipseConfiguration(dependsOn: [eclipseCheckstyle, eclipseSettings, eclipseWstComponent]) {
+task eclipseConfiguration(dependsOn: [eclipseCheckstyle, eclipseJdtPrepare, eclipseSettings, eclipseWstComponent]) {
+	group 'ide'
 }
 
 tasks["eclipseJdt"].dependsOn(eclipseJdtPrepare)
