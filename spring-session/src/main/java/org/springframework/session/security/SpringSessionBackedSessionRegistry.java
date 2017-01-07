@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.session.security;
 
 import java.security.Principal;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,54 +24,64 @@ import java.util.List;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
-
 import org.springframework.util.Assert;
 
 /**
- * A {@link SessionRegistry} that retrieves session information from Spring Session, rather than maintaining it itself.
- * This allows concurrent session management with Spring Security in a clustered environment.
+ * A {@link SessionRegistry} that retrieves session information from Spring Session,
+ * rather than maintaining it itself. This allows concurrent session management with
+ * Spring Security in a clustered environment.
  * <p>
- * Relies on being able to derive the same String-based representation of the principal given to
- * {@link #getAllSessions(Object, boolean)} as used by Spring Session in order to look up the user's sessions.
+ * Relies on being able to derive the same String-based representation of the principal
+ * given to {@link #getAllSessions(Object, boolean)} as used by Spring Session in order to
+ * look up the user's sessions.
  * <p>
  * Does not support {@link #getAllPrincipals()}, since that information is not available.
  *
+ * @param <S> the {@link ExpiringSession} type.
  * @author Joris Kuipers
+ * @author Vedran Pavic
  * @since 1.3
  */
-public class SpringSessionBackedSessionRegistry implements SessionRegistry {
+public class SpringSessionBackedSessionRegistry<S extends ExpiringSession>
+		implements SessionRegistry {
 
-	private final FindByIndexNameSessionRepository<ExpiringSession> sessionRepository;
+	private final FindByIndexNameSessionRepository<S> sessionRepository;
 
-	public SpringSessionBackedSessionRegistry(FindByIndexNameSessionRepository<ExpiringSession> sessionRepository) {
+	public SpringSessionBackedSessionRegistry(
+			FindByIndexNameSessionRepository<S> sessionRepository) {
 		Assert.notNull(sessionRepository, "sessionRepository cannot be null");
 		this.sessionRepository = sessionRepository;
 	}
 
 	public List<Object> getAllPrincipals() {
-		throw new UnsupportedOperationException("SpringSessionBackedSessionRegistry does not support retrieving all principals, " +
-				"since Spring Session provides no way to obtain that information");
+		throw new UnsupportedOperationException("SpringSessionBackedSessionRegistry does "
+				+ "not support retrieving all principals, since Spring Session provides "
+				+ "no way to obtain that information");
 	}
 
-	public List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
-		Collection<ExpiringSession> sessions =
-			this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, name(principal)).values();
+	public List<SessionInformation> getAllSessions(Object principal,
+			boolean includeExpiredSessions) {
+		Collection<S> sessions = this.sessionRepository.findByIndexNameAndIndexValue(
+				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				name(principal)).values();
 		List<SessionInformation> infos = new ArrayList<SessionInformation>();
-		for (ExpiringSession session : sessions) {
-			if (includeExpiredSessions || !Boolean.TRUE.equals(session.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
-				infos.add(new SpringSessionBackedSessionInformation(session, this.sessionRepository));
+		for (S session : sessions) {
+			if (includeExpiredSessions || !Boolean.TRUE.equals(session
+					.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
+				infos.add(new SpringSessionBackedSessionInformation<S>(session,
+						this.sessionRepository));
 			}
 		}
 		return infos;
 	}
 
 	public SessionInformation getSessionInformation(String sessionId) {
-		ExpiringSession session = this.sessionRepository.getSession(sessionId);
+		S session = this.sessionRepository.getSession(sessionId);
 		if (session != null) {
-			return new SpringSessionBackedSessionInformation(session, this.sessionRepository);
+			return new SpringSessionBackedSessionInformation<S>(session,
+					this.sessionRepository);
 		}
 		return null;
 	}
@@ -99,7 +108,8 @@ public class SpringSessionBackedSessionRegistry implements SessionRegistry {
 	 * Derives a String name for the given principal.
 	 *
 	 * @param principal as provided by Spring Security
-	 * @return name of the principal, or its {@code toString()} representation if no name could be derived
+	 * @return name of the principal, or its {@code toString()} representation if no name
+	 * could be derived
 	 */
 	protected String name(Object principal) {
 		if (principal instanceof UserDetails) {
@@ -110,4 +120,5 @@ public class SpringSessionBackedSessionRegistry implements SessionRegistry {
 		}
 		return principal.toString();
 	}
+
 }
