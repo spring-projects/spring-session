@@ -33,16 +33,16 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.gemstone.gemfire.DataSerializable;
-import com.gemstone.gemfire.DataSerializer;
-import com.gemstone.gemfire.Delta;
-import com.gemstone.gemfire.Instantiator;
-import com.gemstone.gemfire.InvalidDeltaException;
-import com.gemstone.gemfire.cache.EntryEvent;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.util.CacheListenerAdapter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.geode.DataSerializable;
+import org.apache.geode.DataSerializer;
+import org.apache.geode.Delta;
+import org.apache.geode.Instantiator;
+import org.apache.geode.InvalidDeltaException;
+import org.apache.geode.cache.EntryEvent;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.util.CacheListenerAdapter;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
@@ -65,20 +65,30 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * AbstractGemFireOperationsSessionRepository is an abstract base class encapsulating functionality
+ * {@link AbstractGemFireOperationsSessionRepository} is an abstract base class encapsulating functionality
  * common to all implementations that support {@link SessionRepository} operations backed by GemFire.
  *
  * @author John Blum
  * @since 1.1.0
+ * @see org.apache.geode.DataSerializable
+ * @see org.apache.geode.DataSerializer
+ * @see org.apache.geode.Delta
+ * @see org.apache.geode.Instantiator
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.util.CacheListenerAdapter
  * @see org.springframework.beans.factory.InitializingBean
+ * @see org.springframework.context.ApplicationEventPublisher
  * @see org.springframework.context.ApplicationEventPublisherAware
+ * @see org.springframework.data.gemfire.GemfireOperations
  * @see org.springframework.session.ExpiringSession
+ * @see org.springframework.session.Session
+ * @see org.springframework.session.SessionRepository
  * @see org.springframework.session.FindByIndexNameSessionRepository
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
  * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
- * @see com.gemstone.gemfire.cache.util.CacheListenerAdapter
  */
 public abstract class AbstractGemFireOperationsSessionRepository extends CacheListenerAdapter<Object, ExpiringSession>
-		implements InitializingBean, FindByIndexNameSessionRepository<ExpiringSession>, ApplicationEventPublisherAware {
+		implements ApplicationEventPublisherAware, FindByIndexNameSessionRepository<ExpiringSession>, InitializingBean {
 
 	private int maxInactiveIntervalInSeconds = GemFireHttpSessionConfiguration.DEFAULT_MAX_INACTIVE_INTERVAL_IN_SECONDS;
 
@@ -192,7 +202,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	/**
 	 * Callback method during Spring bean initialization that will capture the fully-qualified name
 	 * of the GemFire cache {@link Region} used to manage Session state and register this SessionRepository
-	 * as a GemFire {@link com.gemstone.gemfire.cache.CacheListener}.
+	 * as a GemFire {@link org.apache.geode.cache.CacheListener}.
 	 *
 	 * Additionally, this method registers GemFire {@link Instantiator}s for the {@link GemFireSession}
 	 * and {@link GemFireSessionAttributes} types to optimize GemFire's instantiation logic on deserialization
@@ -230,7 +240,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * {@link Region}.
 	 *
 	 * @param event an EntryEvent containing the details of the cache operation.
-	 * @see com.gemstone.gemfire.cache.EntryEvent
+	 * @see org.apache.geode.cache.EntryEvent
 	 * @see #handleCreated(String, ExpiringSession)
 	 */
 	@Override
@@ -245,7 +255,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * {@link Region}.
 	 *
 	 * @param event an EntryEvent containing the details of the cache operation.
-	 * @see com.gemstone.gemfire.cache.EntryEvent
+	 * @see org.apache.geode.cache.EntryEvent
 	 * @see #handleDestroyed(String, ExpiringSession)
 	 */
 	@Override
@@ -258,7 +268,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * {@link Region}.
 	 *
 	 * @param event an EntryEvent containing the details of the cache operation.
-	 * @see com.gemstone.gemfire.cache.EntryEvent
+	 * @see org.apache.geode.cache.EntryEvent
 	 * @see #handleExpired(String, ExpiringSession)
 	 */
 	@Override
@@ -350,8 +360,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 
 		protected static final boolean DEFAULT_ALLOW_JAVA_SERIALIZATION = true;
 
-		protected static final DateFormat TO_STRING_DATE_FORMAT = new SimpleDateFormat(
-				"YYYY-MM-dd-HH-mm-ss");
+		protected static final DateFormat TO_STRING_DATE_FORMAT = new SimpleDateFormat("YYYY-MM-dd-HH-mm-ss");
 
 		protected static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -362,8 +371,7 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		private long creationTime;
 		private long lastAccessedTime;
 
-		private transient final GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes(
-				this);
+		private transient final GemFireSessionAttributes sessionAttributes = new GemFireSessionAttributes(this);
 
 		private transient final SpelExpressionParser parser = new SpelExpressionParser();
 
@@ -654,9 +662,9 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * are effectively a name to value mapping.
 	 *
 	 * @see java.util.AbstractMap
-	 * @see com.gemstone.gemfire.DataSerializable
-	 * @see com.gemstone.gemfire.DataSerializer
-	 * @see com.gemstone.gemfire.Delta
+	 * @see org.apache.geode.DataSerializable
+	 * @see org.apache.geode.DataSerializer
+	 * @see org.apache.geode.Delta
 	 */
 	@SuppressWarnings("serial")
 	public static class GemFireSessionAttributes extends AbstractMap<String, Object>

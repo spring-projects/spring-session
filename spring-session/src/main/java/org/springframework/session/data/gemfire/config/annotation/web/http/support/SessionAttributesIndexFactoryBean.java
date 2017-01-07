@@ -18,8 +18,8 @@ package org.springframework.session.data.gemfire.config.annotation.web.http.supp
 
 import javax.servlet.http.HttpSession;
 
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.query.Index;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.query.Index;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
@@ -41,7 +41,7 @@ import org.springframework.util.ObjectUtils;
  * @see org.springframework.beans.factory.BeanNameAware
  * @see org.springframework.beans.factory.FactoryBean
  * @see org.springframework.beans.factory.InitializingBean
- * @see com.gemstone.gemfire.cache.query.Index
+ * @see org.apache.geode.cache.query.Index
  */
 public class SessionAttributesIndexFactoryBean implements FactoryBean<Index>,
 		InitializingBean, BeanFactoryAware, BeanNameAware {
@@ -107,7 +107,7 @@ public class SessionAttributesIndexFactoryBean implements FactoryBean<Index>,
 	 * @return a String composed of all the named Session attributes for which GemFire
 	 * will create an Index as an Index definition expression. If the indexable Session
 	 * attributes were not configured, then the wildcard ("*") is returned.
-	 * @see com.gemstone.gemfire.cache.query.Index#getIndexedExpression()
+	 * @see org.apache.geode.cache.query.Index#getIndexedExpression()
 	 */
 	protected String getIndexableSessionAttributesAsGemFireIndexExpression() {
 		StringBuilder builder = new StringBuilder();

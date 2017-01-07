@@ -20,10 +20,11 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.ExpirationAction;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionShortcut;
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.ExpirationAction;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionShortcut;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,14 +66,13 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
- * @see com.gemstone.gemfire.cache.Region
+ * @see org.apache.geode.cache.Region
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @DirtiesContext
 @WebAppConfiguration
-public class EnableGemFireHttpSessionEventsIntegrationTests
-		extends AbstractGemFireIntegrationTests {
+public class EnableGemFireHttpSessionEventsIntegrationTests extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 
@@ -264,5 +264,4 @@ public class EnableGemFireHttpSessionEventsIntegrationTests
 			return new SessionEventListener();
 		}
 	}
-
 }

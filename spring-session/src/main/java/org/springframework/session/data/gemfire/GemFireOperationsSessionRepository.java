@@ -19,18 +19,21 @@ package org.springframework.session.data.gemfire;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gemstone.gemfire.cache.query.SelectResults;
+import org.apache.geode.cache.query.SelectResults;
 
 import org.springframework.data.gemfire.GemfireOperations;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.SessionRepository;
 
 /**
- * The GemFireOperationsSessionRepository class is a Spring SessionRepository
- * implementation that interfaces with and uses GemFire to back and store Spring Sessions.
+ * The {@link GemFireOperationsSessionRepository} class is a Spring {@link SessionRepository} implementation
+ * that interfaces with and uses GemFire to back and store Spring Sessions.
  *
  * @author John Blum
  * @since 1.1.0
- * @see AbstractGemFireOperationsSessionRepository
+ * @see org.springframework.data.gemfire.GemfireOperations
+ * @see org.springframework.session.ExpiringSession
+ * @see org.springframework.session.data.gemfire.AbstractGemFireOperationsSessionRepository
  */
 public class GemFireOperationsSessionRepository extends AbstractGemFireOperationsSessionRepository {
 
@@ -152,5 +155,4 @@ public class GemFireOperationsSessionRepository extends AbstractGemFireOperation
 	public void delete(String sessionId) {
 		handleDeleted(sessionId, getTemplate().<Object, ExpiringSession>remove(sessionId));
 	}
-
 }

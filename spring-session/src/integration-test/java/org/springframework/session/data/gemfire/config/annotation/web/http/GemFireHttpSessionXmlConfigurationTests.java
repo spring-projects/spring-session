@@ -16,12 +16,13 @@
 
 package org.springframework.session.data.gemfire.config.annotation.web.http;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.ExpirationAction;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.query.Index;
-import com.gemstone.gemfire.cache.query.QueryService;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.ExpirationAction;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.query.Index;
+import org.apache.geode.cache.query.QueryService;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -49,8 +50,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.Region
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.Region
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration

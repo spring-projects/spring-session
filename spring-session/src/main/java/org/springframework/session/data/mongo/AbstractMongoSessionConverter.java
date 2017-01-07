@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.mongo;
 
 import java.util.Collections;
@@ -22,6 +23,8 @@ import java.util.Set;
 import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.bson.Document;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
@@ -97,14 +100,17 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 				new ConvertiblePair(DBObject.class, MongoExpiringSession.class));
 	}
 
-	public Object convert(Object source, TypeDescriptor sourceType,
-			TypeDescriptor targetType) {
+	@SuppressWarnings("unchecked")
+	public Object convert(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
 		if (source == null) {
 			return null;
 		}
 
 		if (DBObject.class.isAssignableFrom(sourceType.getType())) {
-			return convert((DBObject) source);
+			return convert(new Document(((DBObject) source).toMap()));
+		}
+		else if (Document.class.isAssignableFrom(sourceType.getType())) {
+			return convert((Document) source);
 		}
 		else {
 			return convert((MongoExpiringSession) source);
@@ -113,5 +119,5 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
 	protected abstract DBObject convert(MongoExpiringSession session);
 
-	protected abstract MongoExpiringSession convert(DBObject sessionWrapper);
+	protected abstract MongoExpiringSession convert(Document sessionWrapper);
 }

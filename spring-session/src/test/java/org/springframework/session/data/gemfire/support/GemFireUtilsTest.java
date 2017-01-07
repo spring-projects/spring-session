@@ -19,11 +19,12 @@ package org.springframework.session.data.gemfire.support;
 import java.io.Closeable;
 import java.io.IOException;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.client.ClientCache;
-import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.RegionShortcut;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
+
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -183,5 +184,4 @@ public class GemFireUtilsTest {
 		assertThat(GemFireUtils.toRegionPath("/")).isEqualTo("//");
 		assertThat(GemFireUtils.toRegionPath("")).isEqualTo("/");
 	}
-
 }

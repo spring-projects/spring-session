@@ -16,14 +16,15 @@
 
 package org.springframework.session.data.gemfire.config.annotation.web.http.support;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.InterestResultPolicy;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionAttributes;
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.client.ClientCache;
-import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.InterestResultPolicy;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionAttributes;
+import org.apache.geode.cache.RegionShortcut;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,16 +51,15 @@ import static org.mockito.Mockito.mock;
  * @see org.junit.Test
  * @see org.junit.rules.ExpectedException
  * @see org.mockito.Mockito
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.support.
- * GemFireCacheTypeAwareRegionFactoryBean
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.GemFireCache
- * @see com.gemstone.gemfire.cache.InterestResultPolicy
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.RegionAttributes
- * @see com.gemstone.gemfire.cache.RegionShortcut
- * @see com.gemstone.gemfire.cache.client.ClientCache
- * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.support.GemFireCacheTypeAwareRegionFactoryBean
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.InterestResultPolicy
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.RegionAttributes
+ * @see org.apache.geode.cache.RegionShortcut
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.client.ClientRegionShortcut
  */
 @RunWith(MockitoJUnitRunner.class)
 public class GemFireCacheTypeAwareRegionFactoryBeanTest {
@@ -293,5 +293,4 @@ public class GemFireCacheTypeAwareRegionFactoryBeanTest {
 		assertThat(this.regionFactoryBean.getServerRegionShortcut()).isEqualTo(
 			GemFireCacheTypeAwareRegionFactoryBean.DEFAULT_SERVER_REGION_SHORTCUT);
 	}
-
 }

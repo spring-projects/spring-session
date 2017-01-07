@@ -19,7 +19,7 @@ package sample.server;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.gemstone.gemfire.cache.Cache;
+import org.apache.geode.cache.Cache;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -37,9 +37,8 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
  * @see org.springframework.boot.SpringApplication
  * @see org.springframework.boot.autoconfigure.SpringBootApplication
  * @see org.springframework.context.annotation.Bean
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.
- * EnableGemFireHttpSession
- * @see com.gemstone.gemfire.cache.Cache
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
+ * @see org.apache.geode.cache.Cache
  * @since 1.2.1
  */
 // tag::class[]
@@ -47,7 +46,7 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
 @EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 20) // <1>
 public class GemFireServer {
 
-	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
+	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
 
 	public static void main(String[] args) {
 		SpringApplication springApplication = new SpringApplication(GemFireServer.class);
@@ -65,6 +64,7 @@ public class GemFireServer {
 
 		gemfireProperties.setProperty("name", applicationName());
 		gemfireProperties.setProperty("mcast-port", "0");
+		//gemfireProperties.setProperty("log-file", "gemfire-server.log");
 		gemfireProperties.setProperty("log-level", logLevel());
 		//gemfireProperties.setProperty("jmx-manager", "true");
 		//gemfireProperties.setProperty("jmx-manager-start", "true");
@@ -102,8 +102,7 @@ public class GemFireServer {
 		gemfireCacheServer.setBindAddress(bindAddress);
 		gemfireCacheServer.setCache(gemfireCache);
 		gemfireCacheServer.setHostNameForClients(hostnameForClients);
-		gemfireCacheServer.setMaxTimeBetweenPings(
-			Long.valueOf(TimeUnit.SECONDS.toMillis(60)).intValue());
+		gemfireCacheServer.setMaxTimeBetweenPings(Long.valueOf(TimeUnit.SECONDS.toMillis(60)).intValue());
 		gemfireCacheServer.setPort(port);
 
 		return gemfireCacheServer;

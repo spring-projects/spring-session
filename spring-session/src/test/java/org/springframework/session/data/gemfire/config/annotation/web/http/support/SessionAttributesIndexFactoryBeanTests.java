@@ -16,7 +16,7 @@
 
 package org.springframework.session.data.gemfire.config.annotation.web.http.support;
 
-import com.gemstone.gemfire.cache.query.Index;
+import org.apache.geode.cache.query.Index;
 
 import org.junit.Before;
 import org.junit.Test;

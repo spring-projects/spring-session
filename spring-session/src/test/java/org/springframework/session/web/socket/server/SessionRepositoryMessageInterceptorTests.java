@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.Message;
@@ -285,14 +285,11 @@ public class SessionRepositoryMessageInterceptorTests {
 		return new AlmostNowMatcher();
 	}
 
-	static class AlmostNowMatcher extends ArgumentMatcher<Long> {
+	static class AlmostNowMatcher implements ArgumentMatcher<Long> {
 
-		@Override
-		public boolean matches(Object argument) {
-			long other = (Long) argument;
+		public boolean matches(Long argument) {
 			long now = System.currentTimeMillis();
-
-			long delta = now - other;
+			long delta = now - argument;
 			return delta >= 0 && delta < TimeUnit.SECONDS.toMillis(3);
 		}
 

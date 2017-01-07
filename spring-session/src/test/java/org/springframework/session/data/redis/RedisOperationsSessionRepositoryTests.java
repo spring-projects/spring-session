@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.DefaultMessage;
@@ -298,8 +298,6 @@ public class RedisOperationsSessionRepositoryTests {
 				.willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString()))
 				.willReturn(this.boundSetOperations);
-		given(this.redisOperations.boundValueOps(anyString()))
-				.willReturn(this.boundValueOperations);
 
 		this.redisRepository.save(session);
 
@@ -329,8 +327,6 @@ public class RedisOperationsSessionRepositoryTests {
 				.willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString()))
 				.willReturn(this.boundSetOperations);
-		given(this.redisOperations.boundValueOps(anyString()))
-				.willReturn(this.boundValueOperations);
 		Map map = map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName),
 				expected.getAttribute(attrName),
 				RedisOperationsSessionRepository.CREATION_TIME_ATTR,
@@ -356,10 +352,6 @@ public class RedisOperationsSessionRepositoryTests {
 	public void deleteNullSession() {
 		given(this.redisOperations.boundHashOps(anyString()))
 				.willReturn(this.boundHashOperations);
-		given(this.redisOperations.boundSetOps(anyString()))
-				.willReturn(this.boundSetOperations);
-		given(this.redisOperations.boundValueOps(anyString()))
-				.willReturn(this.boundValueOperations);
 
 		String id = "abc";
 		this.redisRepository.delete(id);
@@ -474,8 +466,6 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void cleanupExpiredSessions() {
 		String expiredId = "expired-id";
-		given(this.redisOperations.boundHashOps(getKey(expiredId)))
-				.willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString()))
 				.willReturn(this.boundSetOperations);
 

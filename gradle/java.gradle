@@ -16,18 +16,6 @@ targetCompatibility = 1.5
 
 ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'Cairo-BUILD-SNAPSHOT'
 
-ext.spockDependencies = [
-		dependencies.create("org.spockframework:spock-core:$spockVersion") {
-			exclude group: 'junit', module: 'junit-dep'
-		}
-]
-
-ext.gebDependencies = spockDependencies + [
-		"org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
-		"org.gebish:geb-spock:$gebVersion",
-		"org.codehaus.groovy:groovy:$groovyVersion"
-]
-
 ext.seleniumDependencies = [
 		"org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
 		"org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"

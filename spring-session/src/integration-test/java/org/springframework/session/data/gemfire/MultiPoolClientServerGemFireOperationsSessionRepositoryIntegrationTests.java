@@ -25,11 +25,11 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionAttributes;
-import com.gemstone.gemfire.cache.client.ClientCache;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionAttributes;
+import org.apache.geode.cache.client.ClientCache;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -64,10 +64,9 @@ import org.springframework.util.SocketUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The MultiPoolClientServerGemFireOperationsSessionRepositoryIntegrationTests class is a test suite of test cases
- * testing the functionality of a GemFire cache client in a Spring Session application using a specifically named
- * GemFire {@link com.gemstone.gemfire.cache.client.Pool} as configured with the 'poolName' attribute on the
- * Spring Session Data GemFire {@link EnableGemFireHttpSession} annotation.
+ * Integration test to test the functionality of a GemFire cache client in a Spring Session application
+ * using a specifically named GemFire {@link org.apache.geode.cache.client.Pool} configured with
+ * the 'poolName' attribute in the Spring Session Data GemFire {@link EnableGemFireHttpSession} annotation.
  *
  * @author John Blum
  * @see org.junit.Test
@@ -79,10 +78,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.client.ClientCache
- * @see com.gemstone.gemfire.cache.client.Pool
- * @see com.gemstone.gemfire.cache.server.CacheServer
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.client.Pool
+ * @see org.apache.geode.cache.server.CacheServer
  * @since 1.3.0
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -342,5 +341,4 @@ public class MultiPoolClientServerGemFireOperationsSessionRepositoryIntegrationT
 			writeProcessControlFile(WORKING_DIRECTORY);
 		}
 	}
-
 }

@@ -20,7 +20,7 @@
 
 	<bean class="org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration"
 		p:indexableSessionAttributes="one, two, three" p:maxInactiveIntervalInSeconds="3600"
-		  p:serverRegionShortcut="#{T(com.gemstone.gemfire.cache.RegionShortcut).LOCAL}"
+		  p:serverRegionShortcut="#{T(org.apache.geode.cache.RegionShortcut).LOCAL}"
 		  	p:springSessionGemFireRegionName="XmlExample"/>
 
 </beans>

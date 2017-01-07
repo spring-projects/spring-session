@@ -19,7 +19,11 @@ plugins {
 
 group = 'org.springframework.session'
 
-ext.springBootVersion = '1.5.0.BUILD-SNAPSHOT'
+ext.springBootVersion = '1.5.0.RC1'
+ext.springDataGemFireVersion = "${springDataVersion}"
+ext.springDataMongoVersion = "${springDataVersion}"
+ext.springDataRedisVersion = "${springDataVersion}"
+
 ext.IDE_GRADLE = "$rootDir/gradle/ide.gradle"
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.SPRING3_GRADLE = "$rootDir/gradle/spring3.gradle"

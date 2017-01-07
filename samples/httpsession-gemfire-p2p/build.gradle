@@ -11,10 +11,11 @@ dependencies {
 
 	providedCompile "javax.servlet:javax.servlet-api:$servletApiVersion"
 
-	testCompile "junit:junit:$junitVersion"
+	testCompile "junit:junit:$junitVersion",
+		"org.projectlombok:lombok:$lombokVersion"
 
 	integrationTestCompile seleniumDependencies,
-			"org.assertj:assertj-core:$assertjVersion"
+		"org.assertj:assertj-core:$assertjVersion"
 
-	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.1.0.RELEASE"
 }

@@ -20,15 +20,15 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.ExpirationAction;
-import com.gemstone.gemfire.cache.ExpirationAttributes;
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionAttributes;
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.client.ClientCache;
-import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.ExpirationAction;
+import org.apache.geode.cache.ExpirationAttributes;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionAttributes;
+import org.apache.geode.cache.RegionShortcut;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -60,12 +60,11 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @see org.springframework.data.gemfire.GemfireOperations
  * @see org.springframework.data.gemfire.GemfireTemplate
  * @see org.springframework.session.data.gemfire.GemFireOperationsSessionRepository
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.
- * GemFireHttpSessionConfiguration
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.GemFireCache
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.client.ClientCache
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
  */
 public class GemFireHttpSessionConfigurationTest {
 

@@ -27,25 +27,24 @@ asciidoctorj {
 tasks.findByPath("artifactoryPublish")?.enabled = false
 
 dependencies {
-		testCompile project(':spring-session'),
-				project(':spring-session-data-mongo'),
-				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
-				"org.springframework.data:spring-data-redis:$springDataRedisVersion",
-				"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
-				"org.springframework:spring-webmvc:${springVersion}",
-				"org.springframework:spring-websocket:${springVersion}",
-				"org.springframework:spring-messaging:${springVersion}",
-				"org.springframework:spring-jdbc:${springVersion}",
-				"org.springframework.security:spring-security-config:${springSecurityVersion}",
-				"org.springframework.security:spring-security-web:${springSecurityVersion}",
-				"org.springframework.security:spring-security-test:${springSecurityVersion}",
-				"junit:junit:$junitVersion",
-				"org.mockito:mockito-core:$mockitoVersion",
-				"org.springframework:spring-test:$springVersion",
-				"org.assertj:assertj-core:$assertjVersion",
-				"com.hazelcast:hazelcast:$hazelcastVersion",
-				"biz.paluch.redis:lettuce:$lettuceVersion",
-				"javax.servlet:javax.servlet-api:$servletApiVersion"
+	testCompile project(':spring-session'),
+			project(':spring-session-data-gemfire'),
+			project(':spring-session-data-mongo'),
+			project(':spring-session-data-redis'),
+			"org.springframework:spring-jdbc:${springVersion}",
+			"org.springframework:spring-messaging:${springVersion}",
+			"org.springframework:spring-webmvc:${springVersion}",
+			"org.springframework:spring-websocket:${springVersion}",
+			"org.springframework.security:spring-security-config:${springSecurityVersion}",
+			"org.springframework.security:spring-security-web:${springSecurityVersion}",
+			"org.springframework.security:spring-security-test:${springSecurityVersion}",
+			"junit:junit:$junitVersion",
+			"org.mockito:mockito-core:$mockitoVersion",
+			"org.springframework:spring-test:$springVersion",
+			"org.assertj:assertj-core:$assertjVersion",
+			"com.hazelcast:hazelcast:$hazelcastVersion",
+			"biz.paluch.redis:lettuce:$lettuceVersion",
+			"javax.servlet:javax.servlet-api:$servletApiVersion"
 }
 
 asciidoctor {

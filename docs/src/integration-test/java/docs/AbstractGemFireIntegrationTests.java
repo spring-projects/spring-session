@@ -25,17 +25,18 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.CacheClosedException;
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.ExpirationAction;
-import com.gemstone.gemfire.cache.ExpirationAttributes;
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.client.ClientCache;
-import com.gemstone.gemfire.cache.client.ClientCacheFactory;
-import com.gemstone.gemfire.cache.query.Index;
-import com.gemstone.gemfire.cache.server.CacheServer;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.CacheClosedException;
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.ExpirationAction;
+import org.apache.geode.cache.ExpirationAttributes;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientCacheFactory;
+import org.apache.geode.cache.query.Index;
+import org.apache.geode.cache.server.CacheServer;
+
 import org.junit.Before;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,34 +56,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 1.1.0
  * @see org.springframework.session.ExpiringSession
  * @see org.springframework.session.events.AbstractSessionEvent
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.DataPolicy
- * @see com.gemstone.gemfire.cache.ExpirationAttributes
- * @see com.gemstone.gemfire.cache.GemFireCache
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.client.ClientCache
- * @see com.gemstone.gemfire.cache.server.CacheServer
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.DataPolicy
+ * @see org.apache.geode.cache.ExpirationAttributes
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.server.CacheServer
  */
 public class AbstractGemFireIntegrationTests {
-	public static final String GEMFIRE_LOG_LEVEL = System
-			.getProperty("spring.session.data.gemfire.log-level", "warning");
+
+	public static final String GEMFIRE_LOG_LEVEL =
+		System.getProperty("spring.session.data.gemfire.log-level", "warning");
 
 	protected static final boolean DEFAULT_ENABLE_QUERY_DEBUGGING = false;
-	protected static final boolean GEMFIRE_QUERY_DEBUG = Boolean
-			.getBoolean("spring.session.data.gemfire.query.debug");
-
-	protected static final int DEFAULT_GEMFIRE_SERVER_PORT = CacheServer.DEFAULT_PORT;
+	protected static final boolean GEMFIRE_QUERY_DEBUG = Boolean.getBoolean("spring.session.data.gemfire.query.debug");
 
 	protected static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
 	protected static final long DEFAULT_WAIT_INTERVAL = 500L;
 
-	protected static final File WORKING_DIRECTORY = new File(
-			System.getProperty("user.dir"));
+	protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
 
 	protected static final String DEFAULT_PROCESS_CONTROL_FILENAME = "process.ctl";
 
-	protected static final String GEMFIRE_LOG_FILE_NAME = System
-			.getProperty("spring.session.data.gemfire.log-file", "server.log");
+	protected static final String GEMFIRE_LOG_FILE_NAME =
+		System.getProperty("spring.session.data.gemfire.log-file", "gemfire-server.log");
 
 	@Autowired
 	protected Cache gemfireCache;
@@ -93,7 +91,7 @@ public class AbstractGemFireIntegrationTests {
 	@Before
 	public void setup() {
 		System.setProperty("gemfire.Query.VERBOSE",
-				String.valueOf(isQueryDebuggingEnabled()));
+			String.valueOf(isQueryDebuggingEnabled()));
 	}
 
 	/* (non-Javadoc) */
@@ -101,8 +99,7 @@ public class AbstractGemFireIntegrationTests {
 		File directory = new File(WORKING_DIRECTORY, pathname);
 
 		assertThat(directory.isDirectory() || directory.mkdirs())
-				.as(String.format("Failed to create directory (%1$s)", directory))
-				.isTrue();
+			.as(String.format("Failed to create directory (%1$s)", directory)).isTrue();
 
 		directory.deleteOnExit();
 
@@ -110,8 +107,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static List<String> createJavaProcessCommandLine(Class<?> type,
-			String... args) {
+	protected static List<String> createJavaProcessCommandLine(Class<?> type, String... args) {
 		List<String> commandLine = new ArrayList<String>();
 
 		String javaHome = System.getProperty("java.home");
@@ -122,8 +118,7 @@ public class AbstractGemFireIntegrationTests {
 		commandLine.add("-ea");
 		commandLine.add(String.format("-Dgemfire.log-file=%1$s", GEMFIRE_LOG_FILE_NAME));
 		commandLine.add(String.format("-Dgemfire.log-level=%1$s", GEMFIRE_LOG_LEVEL));
-		commandLine
-				.add(String.format("-Dgemfire.Query.VERBOSE=%1$s", GEMFIRE_QUERY_DEBUG));
+		commandLine.add(String.format("-Dgemfire.Query.VERBOSE=%1$s", GEMFIRE_QUERY_DEBUG));
 		commandLine.addAll(extractJvmArguments(args));
 		commandLine.add("-classpath");
 		commandLine.add(System.getProperty("java.class.path"));
@@ -136,7 +131,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static List<String> extractJvmArguments(final String... args) {
+	protected static List<String> extractJvmArguments(String... args) {
 		List<String> jvmArgs = new ArrayList<String>(args.length);
 
 		for (String arg : args) {
@@ -149,7 +144,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static List<String> extractProgramArguments(final String... args) {
+	protected static List<String> extractProgramArguments(String... args) {
 		List<String> jvmArgs = new ArrayList<String>(args.length);
 
 		for (String arg : args) {
@@ -162,10 +157,8 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static Process run(Class<?> type, File directory, String... args)
-			throws IOException {
-		return new ProcessBuilder().command(createJavaProcessCommandLine(type, args))
-				.directory(directory).start();
+	protected static Process run(Class<?> type, File directory, String... args) throws IOException {
+		return new ProcessBuilder().command(createJavaProcessCommandLine(type, args)).directory(directory).start();
 	}
 
 	/* (non-Javadoc) */
@@ -174,10 +167,8 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static boolean waitForCacheServerToStart(CacheServer cacheServer,
-			long duration) {
-		return waitForCacheServerToStart(cacheServer.getBindAddress(),
-				cacheServer.getPort(), duration);
+	protected static boolean waitForCacheServerToStart(CacheServer cacheServer, long duration) {
+		return waitForCacheServerToStart(cacheServer.getBindAddress(), cacheServer.getPort(), duration);
 	}
 
 	/* (non-Javadoc) */
@@ -186,8 +177,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static boolean waitForCacheServerToStart(final String host, final int port,
-			long duration) {
+	protected static boolean waitForCacheServerToStart(final String host, final int port, long duration) {
 		return waitOnCondition(new Condition() {
 			AtomicBoolean connected = new AtomicBoolean(false);
 
@@ -247,8 +237,7 @@ public class AbstractGemFireIntegrationTests {
 
 	/* (non-Javadoc) */
 	@SuppressWarnings("all")
-	protected static boolean waitForProcessToStart(Process process, File directory,
-			long duration) {
+	protected static boolean waitForProcessToStart(Process process, File directory, long duration) {
 		final File processControl = new File(directory, DEFAULT_PROCESS_CONTROL_FILENAME);
 
 		waitOnCondition(new Condition() {
@@ -266,8 +255,7 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected static int waitForProcessToStop(Process process, File directory,
-			long duration) {
+	protected static int waitForProcessToStop(Process process, File directory, long duration) {
 		final long timeout = (System.currentTimeMillis() + duration);
 
 		try {
@@ -322,35 +310,31 @@ public class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
-	protected void assertRegion(Region<?, ?> actualRegion, String expectedName,
-			DataPolicy expectedDataPolicy) {
+	protected void assertRegion(Region<?, ?> actualRegion, String expectedName, DataPolicy expectedDataPolicy) {
 		assertThat(actualRegion).isNotNull();
 		assertThat(actualRegion.getName()).isEqualTo(expectedName);
-		assertThat(actualRegion.getFullPath())
-				.isEqualTo(GemFireUtils.toRegionPath(expectedName));
+		assertThat(actualRegion.getFullPath()).isEqualTo(GemFireUtils.toRegionPath(expectedName));
 		assertThat(actualRegion.getAttributes()).isNotNull();
 		assertThat(actualRegion.getAttributes().getDataPolicy())
-				.isEqualTo(expectedDataPolicy);
+			.isEqualTo(expectedDataPolicy);
 	}
 
 	/* (non-Javadoc) */
-	protected void assertIndex(Index index, String expectedExpression,
-			String expectedFromClause) {
+	protected void assertIndex(Index index, String expectedExpression, String expectedFromClause) {
 		assertThat(index).isNotNull();
 		assertThat(index.getIndexedExpression()).isEqualTo(expectedExpression);
 		assertThat(index.getFromClause()).isEqualTo(expectedFromClause);
 	}
 
 	/* (non-Javadoc) */
-	protected void assertEntryIdleTimeout(Region<?, ?> region,
-			ExpirationAction expectedAction, int expectedTimeout) {
-		assertEntryIdleTimeout(region.getAttributes().getEntryIdleTimeout(),
-				expectedAction, expectedTimeout);
+	protected void assertEntryIdleTimeout(Region<?, ?> region, ExpirationAction expectedAction, int expectedTimeout) {
+		assertEntryIdleTimeout(region.getAttributes().getEntryIdleTimeout(), expectedAction, expectedTimeout);
 	}
 
 	/* (non-Javadoc) */
 	protected void assertEntryIdleTimeout(ExpirationAttributes actualExpirationAttributes,
-			ExpirationAction expectedAction, int expectedTimeout) {
+		ExpirationAction expectedAction, int expectedTimeout) {
+
 		assertThat(actualExpirationAttributes).isNotNull();
 		assertThat(actualExpirationAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(actualExpirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
@@ -426,8 +410,7 @@ public class AbstractGemFireIntegrationTests {
 	 * @see org.springframework.context.ApplicationListener
 	 * @see org.springframework.session.events.AbstractSessionEvent
 	 */
-	public static class SessionEventListener
-			implements ApplicationListener<AbstractSessionEvent> {
+	public static class SessionEventListener implements ApplicationListener<AbstractSessionEvent> {
 
 		private volatile AbstractSessionEvent sessionEvent;
 
@@ -463,5 +446,4 @@ public class AbstractGemFireIntegrationTests {
 	protected interface Condition {
 		boolean evaluate();
 	}
-
 }

@@ -19,13 +19,13 @@ package org.springframework.session.data.gemfire.support;
 import java.io.Closeable;
 import java.io.IOException;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.client.ClientCache;
-import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
-import com.gemstone.gemfire.internal.cache.GemFireCacheImpl;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionShortcut;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientRegionShortcut;
+import org.apache.geode.internal.cache.GemFireCacheImpl;
 
 /**
  * GemFireUtils is an abstract, extensible utility class for working with GemFire types
@@ -62,8 +62,8 @@ public abstract class GemFireUtils {
 	 *
 	 * @param gemFireCache a reference to the GemFire cache.
 	 * @return a boolean value indicating whether the GemFire cache is a client.
-	 * @see com.gemstone.gemfire.cache.client.ClientCache
-	 * @see com.gemstone.gemfire.cache.GemFireCache
+	 * @see org.apache.geode.cache.client.ClientCache
+	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	public static boolean isClient(GemFireCache gemFireCache) {
 		boolean client = (gemFireCache instanceof ClientCache);
@@ -76,8 +76,8 @@ public abstract class GemFireUtils {
 	 *
 	 * @param gemFireCache a reference to the GemFire cache.
 	 * @return a boolean value indicating whether the GemFire cache is a peer.
-	 * @see com.gemstone.gemfire.cache.Cache
-	 * @see com.gemstone.gemfire.cache.GemFireCache
+	 * @see org.apache.geode.cache.Cache
+	 * @see org.apache.geode.cache.GemFireCache
 	 */
 	public static boolean isPeer(GemFireCache gemFireCache) {
 		return (gemFireCache instanceof Cache && !isClient(gemFireCache));
@@ -89,7 +89,7 @@ public abstract class GemFireUtils {
 	 * @param shortcut the ClientRegionShortcut to evaluate.
 	 * @return a boolean value indicating if the {@link ClientRegionShortcut} is local or
 	 * not.
-	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 */
 	public static boolean isLocal(ClientRegionShortcut shortcut) {
 		switch (shortcut) {
@@ -111,7 +111,7 @@ public abstract class GemFireUtils {
 	 * @param shortcut the client {@link ClientRegionShortcut} to evaluate.
 	 * @return a boolean value indicating whether the client {@link ClientRegionShortcut}
 	 * refers to a proxy-based shortcut.
-	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 */
 	public static boolean isProxy(ClientRegionShortcut shortcut) {
 		switch (shortcut) {
@@ -129,7 +129,7 @@ public abstract class GemFireUtils {
 	 * @param shortcut the peer {@link RegionShortcut} to evaluate.
 	 * @return a boolean value indicating whether the peer {@link RegionShortcut} refers
 	 * to a proxy-based shortcut.
-	 * @see com.gemstone.gemfire.cache.RegionShortcut
+	 * @see org.apache.geode.cache.RegionShortcut
 	 */
 	public static boolean isProxy(RegionShortcut shortcut) {
 		switch (shortcut) {
@@ -147,8 +147,8 @@ public abstract class GemFireUtils {
 	 *
 	 * @param regionName a String specifying the name of the {@link Region}.
 	 * @return a String path for the given {@link Region} by name.
-	 * @see com.gemstone.gemfire.cache.Region#getFullPath()
-	 * @see com.gemstone.gemfire.cache.Region#getName()
+	 * @see org.apache.geode.cache.Region#getFullPath()
+	 * @see org.apache.geode.cache.Region#getName()
 	 */
 	public static String toRegionPath(String regionName) {
 		return String.format("%1$s%2$s", Region.SEPARATOR, regionName);

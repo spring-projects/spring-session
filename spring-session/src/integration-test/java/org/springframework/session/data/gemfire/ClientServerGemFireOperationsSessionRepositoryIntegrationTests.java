@@ -26,11 +26,12 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionAttributes;
-import com.gemstone.gemfire.cache.client.ClientCache;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionAttributes;
+import org.apache.geode.cache.client.ClientCache;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -81,10 +82,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.client.ClientCache
- * @see com.gemstone.gemfire.cache.client.Pool
- * @see com.gemstone.gemfire.cache.server.CacheServer
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.client.Pool
+ * @see org.apache.geode.cache.server.CacheServer
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = ClientServerGemFireOperationsSessionRepositoryIntegrationTests.SpringSessionGemFireClientConfiguration.class)
@@ -244,11 +245,10 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 	static class SpringSessionGemFireClientConfiguration {
 
 		@Bean
-		PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			return new PropertySourcesPlaceholderConfigurer();
 		}
 
-		@Bean
 		Properties gemfireProperties() {
 			Properties gemfireProperties = new Properties();
 			gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
@@ -266,8 +266,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		}
 
 		@Bean
-		PoolFactoryBean gemfirePool(@Value("${spring.session.data.gemfire.port:"
-				+ DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
+		PoolFactoryBean gemfirePool(
+				@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
 
 			PoolFactoryBean poolFactory = new PoolFactoryBean();
 
@@ -294,8 +294,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		// used for debugging purposes
 		@SuppressWarnings("resource")
 		public static void main(final String[] args) {
-			ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(
-					SpringSessionGemFireClientConfiguration.class);
+			ConfigurableApplicationContext applicationContext =
+				new AnnotationConfigApplicationContext(SpringSessionGemFireClientConfiguration.class);
 
 			applicationContext.registerShutdownHook();
 
@@ -308,7 +308,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		}
 	}
 
-	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME, maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
+		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireServerConfiguration {
 
 		static final int MAX_CONNECTIONS = 50;
@@ -362,11 +363,10 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		@SuppressWarnings("resource")
 		public static void main(final String[] args) throws IOException {
-			AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(
-				SpringSessionGemFireServerConfiguration.class);
+			AnnotationConfigApplicationContext context =
+				new AnnotationConfigApplicationContext(SpringSessionGemFireServerConfiguration.class);
 			context.registerShutdownHook();
 			writeProcessControlFile(WORKING_DIRECTORY);
 		}
 	}
-
 }

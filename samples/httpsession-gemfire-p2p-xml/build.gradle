@@ -14,7 +14,8 @@ dependencies {
 	testCompile "junit:junit:$junitVersion"
 
 	integrationTestCompile seleniumDependencies,
-			"org.assertj:assertj-core:$assertjVersion"
+		"org.assertj:assertj-core:$assertjVersion",
+		"org.projectlombok:lombok:$lombokVersion"
 
-	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.1.0.RELEASE"
 }

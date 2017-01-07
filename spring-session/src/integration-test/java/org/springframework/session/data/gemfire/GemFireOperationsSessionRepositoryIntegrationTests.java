@@ -23,15 +23,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.ExpirationAction;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.query.Query;
-import com.gemstone.gemfire.cache.query.QueryService;
-import com.gemstone.gemfire.cache.query.SelectResults;
-import com.gemstone.gemfire.pdx.PdxReader;
-import com.gemstone.gemfire.pdx.PdxSerializable;
-import com.gemstone.gemfire.pdx.PdxWriter;
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.ExpirationAction;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.query.Query;
+import org.apache.geode.cache.query.QueryService;
+import org.apache.geode.cache.query.SelectResults;
+import org.apache.geode.pdx.PdxReader;
+import org.apache.geode.pdx.PdxSerializable;
+import org.apache.geode.pdx.PdxWriter;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,9 +56,8 @@ import org.springframework.util.ObjectUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The GemFireOperationsSessionRepositoryIntegrationTests class is a test suite of test
- * cases testing the findByPrincipalName query method on the
- * GemFireOpeationsSessionRepository class.
+ * Integration test to test the {@code findByPrincipalName} query method
+ * on {@link GemFireOperationsSessionRepository}.
  *
  * @author John Blum
  * @since 1.1.0
@@ -69,15 +69,14 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @see org.springframework.test.context.ContextConfiguration
  * @see org.springframework.test.context.junit4.SpringJUnit4ClassRunner
  * @see org.springframework.test.context.web.WebAppConfiguration
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.Region
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.Region
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @DirtiesContext
 @WebAppConfiguration
-public class GemFireOperationsSessionRepositoryIntegrationTests
-		extends AbstractGemFireIntegrationTests {
+public class GemFireOperationsSessionRepositoryIntegrationTests extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 300;
 
@@ -474,5 +473,4 @@ public class GemFireOperationsSessionRepositoryIntegrationTests
 			return getName();
 		}
 	}
-
 }

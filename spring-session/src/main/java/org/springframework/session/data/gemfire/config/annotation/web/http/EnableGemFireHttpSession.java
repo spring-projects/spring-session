@@ -22,8 +22,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
+import org.apache.geode.cache.RegionShortcut;
+import org.apache.geode.cache.client.ClientRegionShortcut;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -33,8 +33,8 @@ import org.springframework.context.annotation.Import;
  * as a bean named "springSessionRepositoryFilter" and backed by Pivotal GemFire or Apache Geode.
  *
  * In order to leverage the annotation, a single Pivotal GemFire/Apache Geode
- * {@link com.gemstone.gemfire.cache.Cache}
- * or {@link com.gemstone.gemfire.cache.client.ClientCache} instance must be provided.
+ * {@link org.apache.geode.cache.Cache}
+ * or {@link org.apache.geode.cache.client.ClientCache} instance must be provided.
  *
  * For example:
  *
@@ -63,7 +63,7 @@ import org.springframework.context.annotation.Import;
  * </code> </pre>
  *
  * Alternatively, Spring Session can be configured to use Pivotal GemFire (Apache Geode) as a client
- * using a dedicated GemFire Server cluster and a {@link com.gemstone.gemfire.cache.client.ClientCache}.
+ * using a dedicated GemFire Server cluster and a {@link org.apache.geode.cache.client.ClientCache}.
  *
  * For example:
  *
@@ -116,7 +116,7 @@ public @interface EnableGemFireHttpSession {
 	 *
 	 * @return a ClientRegionShortcut used to specify and configure the ClientCache Region
 	 * DataPolicy.
-	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 */
 	ClientRegionShortcut clientRegionShortcut() default ClientRegionShortcut.PROXY;
 
@@ -139,13 +139,13 @@ public @interface EnableGemFireHttpSession {
 	int maxInactiveIntervalInSeconds() default 1800;
 
 	/**
-	 * Specifies the name of the specific GemFire {@link com.gemstone.gemfire.cache.client.Pool} used
+	 * Specifies the name of the specific GemFire {@link org.apache.geode.cache.client.Pool} used
 	 * by the Spring Session Data GemFire client Region ('ClusteredSpringSessions') when performing
 	 * cache operations.  This is attribute is only used in the client/server topology.
 	 *
-	 * @return the name of the GemFire {@link com.gemstone.gemfire.cache.client.Pool} to be used
+	 * @return the name of the GemFire {@link org.apache.geode.cache.client.Pool} to be used
 	 * by the client Region used to manage (HTTP) Sessions.
-	 * @see org.springframework.data.gemfire.config.GemfireConstants#DEFAULT_GEMFIRE_POOL_NAME
+	 * @see org.springframework.data.gemfire.config.xml.GemfireConstants#DEFAULT_GEMFIRE_POOL_NAME
 	 */
 	String poolName() default GemFireHttpSessionConfiguration.DEFAULT_GEMFIRE_POOL_NAME;
 
@@ -154,7 +154,7 @@ public @interface EnableGemFireHttpSession {
 	 *
 	 * @return a String specifying the name of the GemFire (Client)Cache Region used to
 	 * store Sessions.
-	 * @see com.gemstone.gemfire.cache.Region#getName()
+	 * @see org.apache.geode.cache.Region#getName()
 	 */
 	String regionName() default "ClusteredSpringSessions";
 
@@ -163,7 +163,7 @@ public @interface EnableGemFireHttpSession {
 	 *
 	 * @return a RegionShortcut used to specify and configure the Peer Cache Region
 	 * DataPolicy.
-	 * @see com.gemstone.gemfire.cache.RegionShortcut
+	 * @see org.apache.geode.cache.RegionShortcut
 	 */
 	RegionShortcut serverRegionShortcut() default RegionShortcut.PARTITION;
 

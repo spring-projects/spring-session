@@ -17,7 +17,7 @@ group = 'samples'
 
 dependencies {
 	compile project(':spring-session'),
-			"org.springframework.boot:spring-boot-starter-data-mongodb",
+			"org.springframework.data:spring-data-mongodb:$springDataMongoVersion",
 			"org.springframework.boot:spring-boot-starter-web",
 			"org.springframework.boot:spring-boot-starter-security",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",

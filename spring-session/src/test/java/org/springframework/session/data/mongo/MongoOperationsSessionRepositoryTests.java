@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.mongo;
 
 import java.util.Collections;
@@ -20,14 +21,16 @@ import java.util.Map;
 import java.util.UUID;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
+
+import org.bson.Document;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -50,9 +53,10 @@ import static org.mockito.Mockito.verify;
 public class MongoOperationsSessionRepositoryTests {
 
 	@Mock
-	MongoOperations mongoOperations;
-	@Mock
 	AbstractMongoSessionConverter converter;
+
+	@Mock
+	MongoOperations mongoOperations;
 
 	MongoOperationsSessionRepository sut;
 
@@ -78,31 +82,29 @@ public class MongoOperationsSessionRepositoryTests {
 		// given
 		MongoExpiringSession session = new MongoExpiringSession();
 		BasicDBObject dbSession = new BasicDBObject();
-		DBCollection collection = mock(DBCollection.class);
 
 		given(this.converter.convert(session,
 				TypeDescriptor.valueOf(MongoExpiringSession.class),
 				TypeDescriptor.valueOf(DBObject.class))).willReturn(dbSession);
-		given(this.mongoOperations
-				.getCollection(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
-						.willReturn(collection);
 		// when
 		this.sut.save(session);
 
 		// then
-		verify(collection).save(dbSession);
+		verify(this.mongoOperations).save(dbSession, MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME);
 	}
 
 	@Test
 	public void shouldGetSession() throws Exception {
 		// given
 		String sessionId = UUID.randomUUID().toString();
-		BasicDBObject dbSession = new BasicDBObject();
-		given(this.mongoOperations.findById(sessionId, DBObject.class,
-				MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
-						.willReturn(dbSession);
+		Document sessionDocument = new Document();
+
+		given(this.mongoOperations.findById(sessionId, Document.class,
+			MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).willReturn(sessionDocument);
+
 		MongoExpiringSession session = new MongoExpiringSession();
-		given(this.converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class),
+
+		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
 				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
 		// when
@@ -116,21 +118,22 @@ public class MongoOperationsSessionRepositoryTests {
 	public void shouldHandleExpiredSession() throws Exception {
 		// given
 		String sessionId = UUID.randomUUID().toString();
-		BasicDBObject dbSession = new BasicDBObject();
-		given(this.mongoOperations.findById(sessionId, DBObject.class,
-				MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
-						.willReturn(dbSession);
+		Document sessionDocument = new Document();
+
+		given(this.mongoOperations.findById(sessionId, Document.class,
+			MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)).willReturn(sessionDocument);
+
 		MongoExpiringSession session = mock(MongoExpiringSession.class);
+
 		given(session.isExpired()).willReturn(true);
-		given(session.getId()).willReturn(sessionId);
-		given(this.converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class),
-				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
+		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
+			TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
 		// when
 		this.sut.getSession(sessionId);
 
 		// then
-		verify(this.mongoOperations).remove(any(DBObject.class),
+		verify(this.mongoOperations).remove(any(Document.class),
 				eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
 	}
 
@@ -139,12 +142,17 @@ public class MongoOperationsSessionRepositoryTests {
 		// given
 		String sessionId = UUID.randomUUID().toString();
 
+		Document sessionDocument = new Document();
+
+		given(this.mongoOperations.findById(eq(sessionId), eq(Document.class),
+			eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))).willReturn(sessionDocument);
+
 		// when
 		this.sut.delete(sessionId);
 
 		// then
-		verify(this.mongoOperations).remove(any(DBObject.class),
-				eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
+		verify(this.mongoOperations).remove(any(Document.class),
+			eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME));
 	}
 
 	@Test
@@ -152,21 +160,23 @@ public class MongoOperationsSessionRepositoryTests {
 		// given
 		String principalNameIndexName = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
-		DBObject dbSession = new BasicDBObject();
-		given(this.converter.getQueryForIndex(anyString(), Matchers.anyObject()))
-				.willReturn(mock(Query.class));
-		given(this.mongoOperations.find(any(Query.class), eq(DBObject.class),
+		Document document = new Document();
+
+		given(this.converter.getQueryForIndex(anyString(), Matchers.anyObject())).willReturn(mock(Query.class));
+		given(this.mongoOperations.find(any(Query.class), eq(Document.class),
 				eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)))
-						.willReturn(Collections.singletonList(dbSession));
+						.willReturn(Collections.singletonList(document));
 
 		String sessionId = UUID.randomUUID().toString();
 
 		MongoExpiringSession session = new MongoExpiringSession(sessionId, 1800);
-		given(this.converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class),
+
+		given(this.converter.convert(document, TypeDescriptor.valueOf(Document.class),
 				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
+
 		// when
-		Map<String, MongoExpiringSession> sessionsMap = this.sut
-				.findByIndexNameAndIndexValue(principalNameIndexName, "john");
+		Map<String, MongoExpiringSession> sessionsMap =
+			this.sut.findByIndexNameAndIndexValue(principalNameIndexName, "john");
 
 		// then
 		assertThat(sessionsMap).containsOnlyKeys(sessionId);
@@ -185,5 +195,4 @@ public class MongoOperationsSessionRepositoryTests {
 		// then
 		assertThat(sessionsMap).isEmpty();
 	}
-
 }

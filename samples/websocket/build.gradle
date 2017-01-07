@@ -16,16 +16,17 @@ apply from: SAMPLE_GRADLE
 
 group = 'samples'
 
+ext['reactor.version'] = reactorVersion
+
 dependencies {
 	compile(project(':spring-session-data-redis')) {
 		exclude module: 'jedis'
 	}
-	compile "org.springframework.boot:spring-boot-starter-web",
-			"org.springframework.boot:spring-boot-starter-data-jpa",
+	compile "org.springframework.boot:spring-boot-starter-data-jpa",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",
+			"org.springframework.boot:spring-boot-starter-web",
 			"org.springframework.boot:spring-boot-starter-websocket",
 			"org.springframework:spring-websocket:${springVersion}",
-			"org.springframework.data:spring-data-jpa",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
 			"org.thymeleaf.extras:thymeleaf-extras-conditionalcomments",
 			"biz.paluch.redis:lettuce:$lettuceVersion",

@@ -25,17 +25,18 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.gemstone.gemfire.cache.Cache;
-import com.gemstone.gemfire.cache.CacheClosedException;
-import com.gemstone.gemfire.cache.DataPolicy;
-import com.gemstone.gemfire.cache.ExpirationAction;
-import com.gemstone.gemfire.cache.ExpirationAttributes;
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.client.ClientCache;
-import com.gemstone.gemfire.cache.client.ClientCacheFactory;
-import com.gemstone.gemfire.cache.query.Index;
-import com.gemstone.gemfire.cache.server.CacheServer;
+import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.CacheClosedException;
+import org.apache.geode.cache.DataPolicy;
+import org.apache.geode.cache.ExpirationAction;
+import org.apache.geode.cache.ExpirationAttributes;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.client.ClientCache;
+import org.apache.geode.cache.client.ClientCacheFactory;
+import org.apache.geode.cache.query.Index;
+import org.apache.geode.cache.server.CacheServer;
+
 import org.junit.Before;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,35 +48,31 @@ import org.springframework.session.events.AbstractSessionEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * AbstractGemFireIntegrationTests is an abstract base class encapsulating common
- * operations for writing Spring Session GemFire integration tests.
+ * {@link AbstractGemFireIntegrationTests} is an abstract base class encapsulating common functionality
+ * for writing Spring Session GemFire integration tests.
  *
  * @author John Blum
  * @since 1.1.0
+ * @see org.apache.geode.cache.Cache
+ * @see org.apache.geode.cache.GemFireCache
+ * @see org.apache.geode.cache.Region
+ * @see org.apache.geode.cache.client.ClientCache
+ * @see org.apache.geode.cache.query.Index
+ * @see org.apache.geode.cache.server.CacheServer
  * @see org.springframework.session.ExpiringSession
- * @see org.springframework.session.events.AbstractSessionEvent
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.DataPolicy
- * @see com.gemstone.gemfire.cache.ExpirationAttributes
- * @see com.gemstone.gemfire.cache.GemFireCache
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.client.ClientCache
- * @see com.gemstone.gemfire.cache.server.CacheServer
  */
 public abstract class AbstractGemFireIntegrationTests {
 
 	protected static final boolean DEFAULT_ENABLE_QUERY_DEBUGGING = false;
 
-	protected static final boolean GEMFIRE_QUERY_DEBUG =
-		Boolean.getBoolean("spring.session.data.gemfire.query.debug");
+	protected static final boolean GEMFIRE_QUERY_DEBUG = Boolean.getBoolean("spring.session.data.gemfire.query.debug");
 
 	protected static final int DEFAULT_GEMFIRE_SERVER_PORT = CacheServer.DEFAULT_PORT;
 
 	protected static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
 	protected static final long DEFAULT_WAIT_INTERVAL = 500L;
 
-	protected static final File WORKING_DIRECTORY =
-		new File(System.getProperty("user.dir"));
+	protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
 
 	protected static final String DEFAULT_PROCESS_CONTROL_FILENAME = "process.ctl";
 
@@ -100,8 +97,8 @@ public abstract class AbstractGemFireIntegrationTests {
 	protected static File createDirectory(String pathname) {
 		File directory = new File(WORKING_DIRECTORY, pathname);
 
-		assertThat(directory.isDirectory() || directory.mkdirs()).as(
-			String.format("Failed to create directory (%1$s)", directory)).isTrue();
+		assertThat(directory.isDirectory() || directory.mkdirs())
+			.as(String.format("Failed to create directory (%1$s)", directory)).isTrue();
 
 		directory.deleteOnExit();
 
@@ -335,6 +332,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	/* (non-Javadoc) */
 	protected void assertEntryIdleTimeout(ExpirationAttributes actualExpirationAttributes,
 			ExpirationAction expectedAction, int expectedTimeout) {
+
 		assertThat(actualExpirationAttributes).isNotNull();
 		assertThat(actualExpirationAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(actualExpirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
@@ -446,5 +444,4 @@ public abstract class AbstractGemFireIntegrationTests {
 	protected interface Condition {
 		boolean evaluate();
 	}
-
 }

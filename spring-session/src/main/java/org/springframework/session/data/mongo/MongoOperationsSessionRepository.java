@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.mongo;
 
 import java.util.Collections;
@@ -23,6 +24,8 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import com.mongodb.DBObject;
+
+import org.bson.Document;
 
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.IndexOperations;
@@ -56,8 +59,9 @@ public class MongoOperationsSessionRepository
 
 	private final MongoOperations mongoOperations;
 
-	private AbstractMongoSessionConverter mongoSessionConverter = SessionConverterProvider
-			.getDefaultMongoConverter();
+	private AbstractMongoSessionConverter mongoSessionConverter =
+		SessionConverterProvider.getDefaultMongoConverter();
+
 	private Integer maxInactiveIntervalInSeconds = DEFAULT_INACTIVE_INTERVAL;
 	private String collectionName = DEFAULT_COLLECTION_NAME;
 
@@ -71,11 +75,11 @@ public class MongoOperationsSessionRepository
 
 	public void save(MongoExpiringSession session) {
 		DBObject sessionDbObject = convertToDBObject(session);
-		this.mongoOperations.getCollection(this.collectionName).save(sessionDbObject);
+		this.mongoOperations.save(sessionDbObject, this.collectionName);
 	}
 
 	public MongoExpiringSession getSession(String id) {
-		DBObject sessionWrapper = findSession(id);
+		Document sessionWrapper = findSession(id);
 		if (sessionWrapper == null) {
 			return null;
 		}
@@ -103,9 +107,8 @@ public class MongoOperationsSessionRepository
 		if (query == null) {
 			return Collections.emptyMap();
 		}
-		List<DBObject> mapSessions = this.mongoOperations.find(query, DBObject.class,
-				this.collectionName);
-		for (DBObject dbSession : mapSessions) {
+		List<Document> mapSessions = this.mongoOperations.find(query, Document.class, this.collectionName);
+		for (Document dbSession : mapSessions) {
 			MongoExpiringSession mapSession = convertToSession(dbSession);
 			result.put(mapSession.getId(), mapSession);
 		}
@@ -123,13 +126,13 @@ public class MongoOperationsSessionRepository
 		this.mongoSessionConverter.ensureIndexes(indexOperations);
 	}
 
-	DBObject findSession(String id) {
-		return this.mongoOperations.findById(id, DBObject.class, this.collectionName);
+	Document findSession(String id) {
+		return this.mongoOperations.findById(id, Document.class, this.collectionName);
 	}
 
-	MongoExpiringSession convertToSession(DBObject session) {
+	MongoExpiringSession convertToSession(Document session) {
 		return (MongoExpiringSession) this.mongoSessionConverter.convert(session,
-				TypeDescriptor.valueOf(DBObject.class),
+				TypeDescriptor.valueOf(Document.class),
 				TypeDescriptor.valueOf(MongoExpiringSession.class));
 	}
 

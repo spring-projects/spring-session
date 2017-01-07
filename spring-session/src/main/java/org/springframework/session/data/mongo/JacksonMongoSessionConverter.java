@@ -27,8 +27,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.mongodb.DBObject;
 import com.mongodb.util.JSON;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.bson.Document;
 
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -94,8 +96,9 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 	}
 
 	@Override
-	protected MongoExpiringSession convert(DBObject source) {
+	protected MongoExpiringSession convert(Document source) {
 		String json = JSON.serialize(source);
+
 		try {
 			return this.objectMapper.readValue(json, MongoExpiringSession.class);
 		}

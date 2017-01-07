@@ -26,10 +26,8 @@ import sample.pages.HomePage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
@@ -40,9 +38,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eddú Meléndez
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = Application.class, loader = SpringBootContextLoader.class)
 public class AttributeTests {
 
 	@Autowired
@@ -52,9 +49,7 @@ public class AttributeTests {
 
 	@Before
 	public void setup() {
-		this.driver = MockMvcHtmlUnitDriverBuilder
-				.mockMvcSetup(this.mockMvc)
-				.build();
+		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@After
@@ -78,5 +73,4 @@ public class AttributeTests {
 		assertThat(home.row(1).getAttributeName()).isEqualTo("a");
 		assertThat(home.row(1).getAttributeValue()).isEqualTo("b");
 	}
-
 }

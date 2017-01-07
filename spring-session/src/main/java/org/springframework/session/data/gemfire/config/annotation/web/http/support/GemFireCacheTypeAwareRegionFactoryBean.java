@@ -16,13 +16,13 @@
 
 package org.springframework.session.data.gemfire.config.annotation.web.http.support;
 
-import com.gemstone.gemfire.cache.GemFireCache;
-import com.gemstone.gemfire.cache.InterestResultPolicy;
-import com.gemstone.gemfire.cache.Region;
-import com.gemstone.gemfire.cache.RegionAttributes;
-import com.gemstone.gemfire.cache.RegionShortcut;
-import com.gemstone.gemfire.cache.client.ClientRegionShortcut;
-import com.gemstone.gemfire.cache.client.Pool;
+import org.apache.geode.cache.GemFireCache;
+import org.apache.geode.cache.InterestResultPolicy;
+import org.apache.geode.cache.Region;
+import org.apache.geode.cache.RegionAttributes;
+import org.apache.geode.cache.RegionShortcut;
+import org.apache.geode.cache.client.ClientRegionShortcut;
+import org.apache.geode.cache.client.Pool;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -37,9 +37,9 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * The GemFireCacheTypeAwareRegionFactoryBean class is a Spring {@link FactoryBean} used
- * to construct, configure and initialize the GemFire cache {@link Region} used to store
- * and manage Session state.
+ * The {@link GemFireCacheTypeAwareRegionFactoryBean} class is a Spring {@link FactoryBean}
+ * used to construct, configure and initialize the GemFire cache {@link Region} used to
+ * store and manage Session state.
  *
  * @param <K> the type of keys
  * @param <V> the type of values
@@ -105,14 +105,14 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * from a GemFire cache client.
 	 *
 	 * @param gemfireCache a reference to the GemFire
-	 * {@link com.gemstone.gemfire.cache.Cache}.
+	 * {@link org.apache.geode.cache.Cache}.
 	 * @return a peer-to-peer-based GemFire cache {@link Region} to store and manage
 	 * Session state.
 	 * @throws Exception if the instantiation, configuration and initialization of the
 	 * GemFire cache {@link Region} fails.
 	 * @see org.springframework.data.gemfire.GenericRegionFactoryBean
-	 * @see com.gemstone.gemfire.cache.GemFireCache
-	 * @see com.gemstone.gemfire.cache.Region
+	 * @see org.apache.geode.cache.GemFireCache
+	 * @see org.apache.geode.cache.Region
 	 * @see #getRegionAttributes()
 	 * @see #getRegionName()
 	 * @see #getServerRegionShortcut()
@@ -135,14 +135,14 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * GemFire cache client.
 	 *
 	 * @param gemfireCache a reference to the GemFire
-	 * {@link com.gemstone.gemfire.cache.Cache}.
+	 * {@link org.apache.geode.cache.Cache}.
 	 * @return a client-server-based GemFire cache {@link Region} to store and manage
 	 * Session state.
 	 * @throws Exception if the instantiation, configuration and initialization of the
 	 * GemFire cache {@link Region} fails.
 	 * @see org.springframework.data.gemfire.client.ClientRegionFactoryBean
-	 * @see com.gemstone.gemfire.cache.GemFireCache
-	 * @see com.gemstone.gemfire.cache.Region
+	 * @see org.apache.geode.cache.GemFireCache
+	 * @see org.apache.geode.cache.Region
 	 * @see #getClientRegionShortcut()
 	 * @see #getRegionAttributes()
 	 * @see #getRegionName()
@@ -186,7 +186,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 *
 	 * @return the {@link Region} used to store and manage Session state.
 	 * @throws Exception if the {@link Region} reference cannot be obtained.
-	 * @see com.gemstone.gemfire.cache.Region
+	 * @see org.apache.geode.cache.Region
 	 */
 	public Region<K, V> getObject() throws Exception {
 		return this.region;
@@ -197,7 +197,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * initialized or Region.class when uninitialized.
 	 *
 	 * @return the GemFire cache {@link Region} class type constructed by this factory.
-	 * @see com.gemstone.gemfire.cache.Region
+	 * @see org.apache.geode.cache.Region
 	 * @see java.lang.Class
 	 */
 	public Class<?> getObjectType() {
@@ -248,7 +248,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 *
 	 * @param clientRegionShortcut a {@link ClientRegionShortcut} to specify the client
 	 * {@link Region} data management policy.
-	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 */
 	public void setClientRegionShortcut(ClientRegionShortcut clientRegionShortcut) {
 		this.clientRegionShortcut = clientRegionShortcut;
@@ -261,7 +261,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * @return a {@link ClientRegionShortcut} specifying the client {@link Region} data
 	 * management policy.
 	 * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration#DEFAULT_CLIENT_REGION_SHORTCUT
-	 * @see com.gemstone.gemfire.cache.client.ClientRegionShortcut
+	 * @see org.apache.geode.cache.client.ClientRegionShortcut
 	 */
 	protected ClientRegionShortcut getClientRegionShortcut() {
 		return (this.clientRegionShortcut != null ? this.clientRegionShortcut : DEFAULT_CLIENT_REGION_SHORTCUT);
@@ -319,7 +319,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 *
 	 * @param regionAttributes the GemFire {@link RegionAttributes} used to configure the
 	 * GemFire cache {@link Region}.
-	 * @see com.gemstone.gemfire.cache.RegionAttributes
+	 * @see org.apache.geode.cache.RegionAttributes
 	 */
 	public void setRegionAttributes(RegionAttributes<K, V> regionAttributes) {
 		this.regionAttributes = regionAttributes;
@@ -331,7 +331,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 *
 	 * @return the GemFire {@link RegionAttributes} used to configure the GemFire cache
 	 * {@link Region}.
-	 * @see com.gemstone.gemfire.cache.RegionAttributes
+	 * @see org.apache.geode.cache.RegionAttributes
 	 */
 	protected RegionAttributes<K, V> getRegionAttributes() {
 		return this.regionAttributes;
@@ -352,7 +352,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 * manage Session state. Defaults to "ClusteredSpringSessions"
 	 *
 	 * @return a String specifying the name of the GemFire cache {@link Region}.
-	 * @see com.gemstone.gemfire.cache.Region#getName()
+	 * @see org.apache.geode.cache.Region#getName()
 	 */
 	protected String getRegionName() {
 		return (StringUtils.hasText(this.regionName) ? this.regionName : DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME);
@@ -364,7 +364,7 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 *
 	 * @param serverRegionShortcut a {@link RegionShortcut} to specify the peer
 	 * {@link Region} data management policy.
-	 * @see com.gemstone.gemfire.cache.RegionShortcut
+	 * @see org.apache.geode.cache.RegionShortcut
 	 */
 	public void setServerRegionShortcut(RegionShortcut serverRegionShortcut) {
 		this.serverRegionShortcut = serverRegionShortcut;
@@ -376,10 +376,9 @@ public class GemFireCacheTypeAwareRegionFactoryBean<K, V>
 	 *
 	 * @return a {@link RegionShortcut} specifying the peer {@link Region} data management
 	 * policy.
-	 * @see com.gemstone.gemfire.cache.RegionShortcut
+	 * @see org.apache.geode.cache.RegionShortcut
 	 */
 	protected RegionShortcut getServerRegionShortcut() {
 		return (this.serverRegionShortcut != null ? this.serverRegionShortcut : DEFAULT_SERVER_REGION_SHORTCUT);
 	}
-
 }

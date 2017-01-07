@@ -16,27 +16,30 @@ configurations {
 
 dependencies {
 	compile "commons-logging:commons-logging:$commonsLoggingVersion"
-	optional "org.springframework.data:spring-data-redis:$springDataRedisVersion",
-			"com.hazelcast:hazelcast:$hazelcastVersion",
-			"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
+
+	optional "org.springframework:spring-context:$springVersion",
 			"org.springframework:spring-jdbc:$springVersion",
-			"org.springframework.data:spring-data-mongodb:$springDataMongoVersion",
-			"org.springframework:spring-context:$springVersion",
-			"org.springframework:spring-web:$springVersion",
 			"org.springframework:spring-messaging:$springVersion",
+			"org.springframework:spring-web:$springVersion",
 			"org.springframework:spring-websocket:$springVersion",
+			"org.springframework.data:spring-data-gemfire",
+			"org.springframework.data:spring-data-mongodb",
+			"org.springframework.data:spring-data-redis",
 			"org.springframework.security:spring-security-core:$springSecurityVersion",
-			"org.springframework.security:spring-security-web:$springSecurityVersion"
+			"org.springframework.security:spring-security-web:$springSecurityVersion",
+			"com.hazelcast:hazelcast:$hazelcastVersion"
+
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
+
 	integrationTestCompile "redis.clients:jedis:$jedisVersion",
 			"org.apache.commons:commons-pool2:2.2",
-			"com.hazelcast:hazelcast-client:$hazelcastVersion",
-			"com.h2database:h2:$h2Version",
-			"org.hsqldb:hsqldb:2.3.3",
 			"org.apache.derby:derby:10.12.1.1",
+			"com.h2database:h2:$h2Version",
+			"com.hazelcast:hazelcast-client:$hazelcastVersion",
+			"org.hsqldb:hsqldb:2.3.3",
 			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.2"
 
-	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	integrationTestRuntime "org.springframework.shell:spring-shell:1.1.0.RELEASE"
 
 	testCompile "junit:junit:$junitVersion",
 			"org.mockito:mockito-core:$mockitoVersion",
@@ -50,6 +53,9 @@ dependencies {
 }
 
 dependencyManagement {
+	imports {
+		mavenBom "org.springframework.data:spring-data-releasetrain:$springDataReleaseTrainVersion"
+	}
 	springIoTestRuntime {
 		imports {
 			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"

@@ -33,7 +33,7 @@
 	<!--6-->
 	<gfe:pool keep-alive="false"
               ping-interval="5000"
-              read-timeout="5000"
+              read-timeout="15000"
               retry-attempts="1"
               subscription-enabled="true"
               thread-local-connections="false">

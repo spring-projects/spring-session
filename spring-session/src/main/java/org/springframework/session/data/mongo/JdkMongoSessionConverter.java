@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.mongo;
 
 import java.util.Date;
@@ -21,6 +22,9 @@ import java.util.Map;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+
+import org.bson.Document;
+import org.bson.types.Binary;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.serializer.support.DeserializingConverter;
@@ -86,14 +90,15 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 	}
 
 	@Override
-	protected MongoExpiringSession convert(DBObject sessionWrapper) {
+	protected MongoExpiringSession convert(Document sessionWrapper) {
 		MongoExpiringSession session = new MongoExpiringSession(
-				(String) sessionWrapper.get(ID),
-				(Integer) sessionWrapper.get(MAX_INTERVAL));
-		session.setCreationTime((Long) sessionWrapper.get(CREATION_TIME));
-		session.setLastAccessedTime((Long) sessionWrapper.get(LAST_ACCESSED_TIME));
+			sessionWrapper.getString(ID), sessionWrapper.getInteger(MAX_INTERVAL));
+
+		session.setCreationTime(sessionWrapper.getLong(CREATION_TIME));
+		session.setLastAccessedTime(sessionWrapper.getLong(LAST_ACCESSED_TIME));
 		session.setExpireAt((Date) sessionWrapper.get(EXPIRE_AT_FIELD_NAME));
 		deserializeAttributes(sessionWrapper, session);
+
 		return session;
 	}
 
@@ -106,13 +111,13 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void deserializeAttributes(DBObject sessionWrapper, Session session) {
-		byte[] attributesBytes = (byte[]) sessionWrapper.get(ATTRIBUTES);
-		Map<String, Object> attributes = (Map<String, Object>) this.deserializer
-				.convert(attributesBytes);
+	private void deserializeAttributes(Document sessionWrapper, Session session) {
+		Object sessionAttributes = sessionWrapper.get(ATTRIBUTES);
+		byte[] attributesBytes = (sessionAttributes instanceof Binary
+			? ((Binary) sessionAttributes).getData() : (byte[]) sessionAttributes);
+		Map<String, Object> attributes = (Map<String, Object>) this.deserializer.convert(attributesBytes);
 		for (Map.Entry<String, Object> entry : attributes.entrySet()) {
 			session.setAttribute(entry.getKey(), entry.getValue());
 		}
 	}
-
 }
