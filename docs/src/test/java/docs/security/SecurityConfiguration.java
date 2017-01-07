@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,20 +33,23 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	FindByIndexNameSessionRepository<ExpiringSession> sessionRepository;
+	private FindByIndexNameSessionRepository<ExpiringSession> sessionRepository;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		// @formatter:off
 		http
 			// other config goes here...
 			.sessionManagement()
 				.maximumSessions(2)
 				.sessionRegistry(sessionRegistry());
+		// @formatter:on
 	}
 
 	@Bean
 	SpringSessionBackedSessionRegistry sessionRegistry() {
-		return new SpringSessionBackedSessionRegistry(this.sessionRepository);
+		return new SpringSessionBackedSessionRegistry<ExpiringSession>(
+				this.sessionRepository);
 	}
 }
 // end::class[]
