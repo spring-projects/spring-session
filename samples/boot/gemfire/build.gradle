@@ -48,9 +48,10 @@ task runGemFireServer() {
 		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
 
 		String[] commandLine = ['java', '-server', '-ea', '-classpath', classpath,
-				"-Dgemfire.cache.server.port=$port",
-				"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'warning'),
-				'sample.server.GemFireServer']
+								"-Dgemfire.cache.server.port=$port",
+								//"-Dgemfire.log-file=gemfire-server.log",
+								"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'config'),
+								'sample.server.GemFireServer']
 
 		//println commandLine
 

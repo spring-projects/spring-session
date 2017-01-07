@@ -244,11 +244,10 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 	static class SpringSessionGemFireClientConfiguration {
 
 		@Bean
-		PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
 			return new PropertySourcesPlaceholderConfigurer();
 		}
 
-		@Bean
 		Properties gemfireProperties() {
 			Properties gemfireProperties = new Properties();
 			gemfireProperties.setProperty("log-level", GEMFIRE_LOG_LEVEL);
@@ -308,7 +307,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		}
 	}
 
-	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME, maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
+		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionGemFireServerConfiguration {
 
 		static final int MAX_CONNECTIONS = 50;

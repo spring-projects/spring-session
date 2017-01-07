@@ -71,8 +71,6 @@ public class AbstractGemFireIntegrationTests {
 	protected static final boolean GEMFIRE_QUERY_DEBUG = Boolean
 			.getBoolean("spring.session.data.gemfire.query.debug");
 
-	protected static final int DEFAULT_GEMFIRE_SERVER_PORT = CacheServer.DEFAULT_PORT;
-
 	protected static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
 	protected static final long DEFAULT_WAIT_INTERVAL = 500L;
 
@@ -82,7 +80,7 @@ public class AbstractGemFireIntegrationTests {
 	protected static final String DEFAULT_PROCESS_CONTROL_FILENAME = "process.ctl";
 
 	protected static final String GEMFIRE_LOG_FILE_NAME = System
-			.getProperty("spring.session.data.gemfire.log-file", "server.log");
+			.getProperty("spring.session.data.gemfire.log-file", "gemfire-server.log");
 
 	@Autowired
 	protected Cache gemfireCache;

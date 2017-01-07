@@ -21,7 +21,7 @@ import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import com.gemstone.gemfire.cache.client.Pool;
+import com.gemstone.gemfire.cache.Region;
 import com.gemstone.gemfire.management.membership.ClientMembership;
 import com.gemstone.gemfire.management.membership.ClientMembershipEvent;
 import com.gemstone.gemfire.management.membership.ClientMembershipListenerAdapter;
@@ -40,14 +40,14 @@ import org.springframework.util.Assert;
 @EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 30, poolName = "DEFAULT") // <1>
 public class ClientConfig {
 
-	static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
+	static final long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
 
-	static final CountDownLatch latch = new CountDownLatch(1);
+	static final CountDownLatch LATCH = new CountDownLatch(1);
 
 	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
 
 	@Bean
-	static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+	static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
 
@@ -70,6 +70,7 @@ public class ClientConfig {
 
 	@Bean
 	ClientCacheFactoryBean gemfireCache(
+			@Value("${spring.session.data.gemfire.host:" + ServerConfig.SERVER_HOST + "}") String host,
 			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") int port) { // <3>
 
 		ClientCacheFactoryBean clientCacheFactory = new ClientCacheFactoryBean();
@@ -80,55 +81,59 @@ public class ClientConfig {
 		// GemFire Pool settings <4>
 		clientCacheFactory.setKeepAlive(false);
 		clientCacheFactory.setPingInterval(TimeUnit.SECONDS.toMillis(5));
-		clientCacheFactory.setReadTimeout(2000); // 2 seconds
+		clientCacheFactory.setReadTimeout(intValue(TimeUnit.SECONDS.toMillis(15)));
 		clientCacheFactory.setRetryAttempts(1);
 		clientCacheFactory.setSubscriptionEnabled(true);
 		clientCacheFactory.setThreadLocalConnections(false);
+		clientCacheFactory.setServers(Collections.singletonList(newConnectionEndpoint(host, port)));
 
-		clientCacheFactory.setServers(Collections.singletonList(
-			newConnectionEndpoint(ServerConfig.SERVER_HOST, port)));
+		registerClientMembershipListener(); // <5>
 
 		return clientCacheFactory;
+	}
+
+	int intValue(Number number) {
+		return number.intValue();
 	}
 
 	ConnectionEndpoint newConnectionEndpoint(String host, int port) {
 		return new ConnectionEndpoint(host, port);
 	}
 
+	void registerClientMembershipListener() {
+		ClientMembership.registerClientMembershipListener(
+			new ClientMembershipListenerAdapter() {
+				@Override
+				public void memberJoined(ClientMembershipEvent event) {
+					LATCH.countDown();
+				}
+			});
+	}
+
 	@Bean
-	BeanPostProcessor gemfireCacheServerReadyBeanPostProcessor() { // <5>
+	BeanPostProcessor gemfireCacheServerReadyBeanPostProcessor(
+			@Value("${spring.session.data.gemfire.host:" + ServerConfig.SERVER_HOST + "}") final String host,
+			@Value("${spring.session.data.gemfire.port:" + ServerConfig.SERVER_PORT + "}") final int port) { // <5>
+
 		return new BeanPostProcessor() {
 
-			public Object postProcessBeforeInitialization(Object bean, String beanName)
-				throws BeansException {
-
-				if ("gemfirePool".equals(beanName)) {
-					ClientMembership.registerClientMembershipListener(
-						new ClientMembershipListenerAdapter() {
-							@Override
-							public void memberJoined(ClientMembershipEvent event) {
-								latch.countDown();
-							}
-						});
-				}
-
-				return bean;
-			}
-
-			public Object postProcessAfterInitialization(Object bean, String beanName)
-				throws BeansException {
-
-				if (bean instanceof Pool && "gemfirePool".equals(beanName)) {
+			public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+				if (bean instanceof Region) {
 					try {
-						Assert.state(latch.await(DEFAULT_WAIT_DURATION, TimeUnit.MILLISECONDS),
-							String.format("GemFire Cache Server failed to start on host [%1$s] and port [%2$d]",
-								ServerConfig.SERVER_HOST, ServerConfig.SERVER_PORT));
+						boolean didNotTimeout = LATCH.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+
+						Assert.state(didNotTimeout, String.format(
+							"GemFire Cache Server failed to start on host [%s] and port [%d]", host, port));
 					}
 					catch (InterruptedException e) {
 						Thread.currentThread().interrupt();
 					}
 				}
 
+				return bean;
+			}
+
+			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
 				return bean;
 			}
 		};
