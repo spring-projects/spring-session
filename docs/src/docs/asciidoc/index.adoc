@@ -52,6 +52,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
 | link:guides/httpsession.html[HttpSession Guide]
 
+| {gh-samples-url}httpsession-redis-lettuce[HttpSession with Redis and Lettuce]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using the https://github.com/mp911de/lettuce[Lettuce] Redis client.
+| link:guides/httpsession-lettuce.html[HttpSession Lettuce Guide]
+
 | {gh-samples-url}httpsession-xml[HttpSession XML]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using XML based configuration.
 | link:guides/httpsession-xml.html[HttpSession XML Guide]
@@ -158,6 +162,7 @@ Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter be
 You can choose from enabling this using either:
 
 * <<httpsession-redis-jc,Java Based Configuration>>
+* <<httpsession-redis-jc-lettuce,Java Based Configuration using Lettuce>>
 * <<httpsession-redis-xml,XML Based Configuration>>
 
 [[httpsession-redis-jc]]
@@ -169,6 +174,18 @@ NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to in
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
 include::guides/httpsession.adoc[tags=config,leveloffset=+3]
+
+[[httpsession-redis-jc-lettuce]]
+==== Redis Java Based Configuration using Lettuce
+
+This section describes how to use Redis with the Lettuce client to back `HttpSession` using Java based configuration.
+
+https://github.com/mp911de/lettuce[Lettuce] is an asynchronous Redis client based on http://netty.io[netty] that improves application scalability. Redis connections created by Lettuce can be shared amongst multiple threads without the need for connection pooling. Traffic spikes do not affect the number of Redis connections as Spring Session with Lettuce requires fixed number of connections.
+
+NOTE: The <<samples, HttpSession with Redis and Lettuce>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
+
+include::guides/httpsession-lettuce.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-redis-xml]]
 ==== Redis XML Based Configuration
