@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package samples;
+package sample;
+
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
-import sample.Application;
-import samples.pages.HomePage;
-import samples.pages.LoginPage;
+import sample.pages.HomePage;
+import sample.pages.HomePage.Attribute;
+import sample.pages.LoginPage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
@@ -43,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = Application.class, loader = SpringBootContextLoader.class)
 public class HttpRedisJsonTest {
 
 	@Autowired
@@ -53,9 +52,7 @@ public class HttpRedisJsonTest {
 
 	@Before
 	public void setup() {
-		this.driver = MockMvcHtmlUnitDriverBuilder
-				.mockMvcSetup(this.mockMvc)
-				.build();
+		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@After
@@ -65,31 +62,38 @@ public class HttpRedisJsonTest {
 
 	@Test
 	public void goLoginRedirectToLogin() {
-		LoginPage login = LoginPage.go(this.driver);
+		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		login.assertAt();
 	}
 
 	@Test
 	public void goHomeRedirectLoginPage() {
-		LoginPage login = HomePage.go(this.driver);
+		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		login.assertAt();
 	}
 
 	@Test
 	public void login() {
-		LoginPage login = LoginPage.go(this.driver);
-		HomePage home = login.login();
+		LoginPage login = HomePage.go(this.driver, LoginPage.class);
+		HomePage home = login.form().login(HomePage.class);
 		home.containCookie("SESSION");
 		home.doesNotContainCookie("JSESSIONID");
 	}
 
 	@Test
 	public void createAttribute() {
-		LoginPage login = LoginPage.go(this.driver);
-		login.login();
-		login.addAttribute("Demo Key", "Demo Value");
-		assertThat(login.attributes()).extracting("key").contains("Demo Key");
-		assertThat(login.attributes()).extracting("value").contains("Demo Value");
+		LoginPage login = HomePage.go(this.driver, LoginPage.class);
+		HomePage home = login.form().login(HomePage.class);
+		// @formatter:off
+		home = home.form()
+				.attributeName("Demo Key")
+				.attributeValue("Demo Value")
+				.submit(HomePage.class);
+		// @formatter:on
+
+		List<Attribute> attributes = home.attributes();
+		assertThat(attributes).extracting("attributeName").contains("Demo Key");
+		assertThat(attributes).extracting("attributeValue").contains("Demo Value");
 	}
 
 }
