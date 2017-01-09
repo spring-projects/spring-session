@@ -26,6 +26,7 @@ import sample.pages.LoginPage;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 public class HazelcastSpringTests {
 
@@ -51,7 +52,7 @@ public class HazelcastSpringTests {
 	public void login() {
 		LoginPage login = HomePage.go(this.driver);
 		login.assertAt();
-		HomePage home = login.login();
+		HomePage home = login.form().login(HomePage.class);
 		home.containCookie("SESSION");
 		home.doesNotContainCookie("JSESSIONID");
 	}

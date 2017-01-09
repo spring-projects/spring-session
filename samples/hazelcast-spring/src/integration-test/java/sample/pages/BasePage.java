@@ -20,6 +20,7 @@ import org.openqa.selenium.WebDriver;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 public class BasePage {
 
@@ -34,7 +35,7 @@ public class BasePage {
 	}
 
 	public static void get(WebDriver driver, String get) {
-		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port");
+		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port", "8080");
 		driver.get(baseUrl + get);
 	}
 
