@@ -14,7 +14,7 @@ group = 'org.springframework.session'
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
 
-ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'Brussels-BUILD-SNAPSHOT'
+ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'Cairo-BUILD-SNAPSHOT'
 
 ext.spockDependencies = [
 		dependencies.create("org.spockframework:spock-core:$spockVersion") {
