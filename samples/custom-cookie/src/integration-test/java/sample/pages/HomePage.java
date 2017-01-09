@@ -30,28 +30,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 public class HomePage {
 
 	private WebDriver driver;
 
-	@FindBy(name = "attributeName")
-	WebElement attributeName;
-
-	@FindBy(name = "attributeValue")
-	WebElement attributeValue;
-
-	@FindBy(css = "input[type=\"submit\"]")
-	WebElement submit;
+	@FindBy(css = "form")
+	WebElement form;
 
 	@FindBy(css = "table tbody tr")
 	List<WebElement> trs;
 
-	private List<Row> rows;
+	List<Attribute> attributes;
 
 	public HomePage(WebDriver driver) {
 		this.driver = driver;
-		this.rows = new ArrayList<Row>();
+		this.attributes = new ArrayList<Attribute>();
 	}
 
 	private static void get(WebDriver driver, String get) {
@@ -68,38 +63,58 @@ public class HomePage {
 		assertThat(this.driver.getTitle()).isEqualTo("Session Attributes");
 	}
 
-	public void addAttribute(String name, String value) {
-		this.attributeName.sendKeys(name);
-		this.attributeValue.sendKeys(value);
-
-		this.submit.click();
-	}
-
-	public List<Row> attributes() {
-		List<Row> rows = new ArrayList<Row>();
+	public List<Attribute> attributes() {
+		List<Attribute> rows = new ArrayList<Attribute>();
 		for (WebElement tr : this.trs) {
-			rows.add(new Row(tr));
+			rows.add(new Attribute(tr));
 		}
-		this.rows.addAll(rows);
-		return this.rows;
+		this.attributes.addAll(rows);
+		return this.attributes;
 	}
 
-	public Row row(int index) {
-		return this.rows.get(index);
+	public Form form() {
+		return new Form(this.form);
 	}
 
-	public static class Row {
+	public class Form {
+		@FindBy(name = "attributeName")
+		WebElement attributeName;
+
+		@FindBy(name = "attributeValue")
+		WebElement attributeValue;
+
+		@FindBy(css = "input[type=\"submit\"]")
+		WebElement submit;
+
+		public Form(SearchContext context) {
+			PageFactory.initElements(new DefaultElementLocatorFactory(context), this);
+		}
+
+		public Form attributeName(String text) {
+			this.attributeName.sendKeys(text);
+			return this;
+		}
+
+		public Form attributeValue(String text) {
+			this.attributeValue.sendKeys(text);
+			return this;
+		}
+
+		public <T> T submit(Class<T> page) {
+			this.submit.click();
+			return PageFactory.initElements(HomePage.this.driver, page);
+		}
+	}
+
+	public static class Attribute {
 		@FindBy(xpath = "//td[1]")
 		WebElement attributeName;
 
 		@FindBy(xpath = "//td[2]")
 		WebElement attributeValue;
 
-		public Row(SearchContext context) {
-			super();
-			DefaultElementLocatorFactory factory = new DefaultElementLocatorFactory(
-					context);
-			PageFactory.initElements(factory, this);
+		public Attribute(SearchContext context) {
+			PageFactory.initElements(new DefaultElementLocatorFactory(context), this);
 		}
 
 		/**
