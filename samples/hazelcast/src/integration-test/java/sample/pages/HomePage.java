@@ -19,33 +19,38 @@ package sample.pages;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import org.openqa.selenium.By;
+import org.openqa.selenium.SearchContext;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.pagefactory.DefaultElementLocatorFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 public class HomePage {
 
 	private WebDriver driver;
 
-	private List<Row> rows;
+	@FindBy(css = "form")
+	WebElement form;
+
+	@FindBy(css = "table tbody tr")
+	List<WebElement> trs;
+
+	List<Attribute> attributes;
 
 	public HomePage(WebDriver driver) {
 		this.driver = driver;
-		this.rows = new ArrayList<Row>();
+		this.attributes = new ArrayList<Attribute>();
 	}
 
 	private static void get(WebDriver driver, String get) {
-		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port");
+		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port", "8080");
 		driver.get(baseUrl + get);
 	}
 
@@ -58,51 +63,73 @@ public class HomePage {
 		assertThat(this.driver.getTitle()).isEqualTo("Session Attributes");
 	}
 
-	public void addAttribute(String name, String value) {
-		WebElement form = this.driver.findElement(By.tagName("form"));
-		WebElement attributeName = form.findElement(By.name("attributeName"));
-		WebElement attributeValue = form.findElement(By.name("attributeValue"));
-
-		attributeName.sendKeys(name);
-		attributeValue.sendKeys(value);
-
-		form.findElement(By.cssSelector("input[type=\"submit\"]")).click();
-	}
-
-	public List<Row> attributes() {
-		WebElement table = this.driver.findElement(By.tagName("table"));
-		WebElement tbody = table.findElement(By.tagName("tbody"));
-		List<WebElement> trs = tbody.findElements(By.tagName("tr"));
-
-		List<Row> rows = new ArrayList<Row>();
-		for (WebElement tr : trs) {
-			List<WebElement> tds = tr.findElements(By.cssSelector("td"));
-			Row row = Row.builder()
-					.driver(this.driver)
-					.attributeName(tds.get(0).getText())
-					.attributeValue(tds.get(1).getText())
-					.build();
-			rows.add(row);
+	public List<Attribute> attributes() {
+		List<Attribute> rows = new ArrayList<Attribute>();
+		for (WebElement tr : this.trs) {
+			rows.add(new Attribute(tr));
 		}
-		this.rows.addAll(rows);
-		return this.rows;
+		this.attributes.addAll(rows);
+		return this.attributes;
 	}
 
-	public Row row(int index) {
-		return this.rows.get(index);
+	public Form form() {
+		return new Form(this.form);
 	}
 
-	@Data
-	@Builder
-	public static class Row {
+	public class Form {
+		@FindBy(name = "attributeName")
+		WebElement attributeName;
 
-		final String attributeName;
+		@FindBy(name = "attributeValue")
+		WebElement attributeValue;
 
-		final String attributeValue;
+		@FindBy(css = "input[type=\"submit\"]")
+		WebElement submit;
 
-		@Getter(AccessLevel.PRIVATE)
-		final WebDriver driver;
+		public Form(SearchContext context) {
+			PageFactory.initElements(new DefaultElementLocatorFactory(context), this);
+		}
 
+		public Form attributeName(String text) {
+			this.attributeName.sendKeys(text);
+			return this;
+		}
+
+		public Form attributeValue(String text) {
+			this.attributeValue.sendKeys(text);
+			return this;
+		}
+
+		public <T> T submit(Class<T> page) {
+			this.submit.click();
+			return PageFactory.initElements(HomePage.this.driver, page);
+		}
+	}
+
+	public static class Attribute {
+		@FindBy(xpath = "//td[1]")
+		WebElement attributeName;
+
+		@FindBy(xpath = "//td[2]")
+		WebElement attributeValue;
+
+		public Attribute(SearchContext context) {
+			PageFactory.initElements(new DefaultElementLocatorFactory(context), this);
+		}
+
+		/**
+		 * @return the attributeName
+		 */
+		public String getAttributeName() {
+			return this.attributeName.getText();
+		}
+
+		/**
+		 * @return the attributeValue
+		 */
+		public String getAttributeValue() {
+			return this.attributeValue.getText();
+		}
 	}
 
 }
