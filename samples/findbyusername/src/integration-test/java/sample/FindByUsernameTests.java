@@ -34,6 +34,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
@@ -47,9 +48,7 @@ public class FindByUsernameTests {
 
 	@Before
 	public void setup() {
-		this.driver = MockMvcHtmlUnitDriverBuilder
-				.mockMvcSetup(this.mockMvc)
-				.build();
+		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@After
@@ -66,7 +65,7 @@ public class FindByUsernameTests {
 	@Test
 	public void login() {
 		LoginPage login = HomePage.go(this.driver);
-		HomePage home = login.login();
+		HomePage home = login.form().login(HomePage.class);
 		home.assertAt();
 		home.containCookie("SESSION");
 		home.doesNotContainCookie("JSESSIONID");
