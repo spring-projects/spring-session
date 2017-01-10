@@ -39,4 +39,4 @@ task spring3Test(type: Test) {
 	}
 }
 
-check.dependsOn spring3Test
+//check.dependsOn spring3Test
