@@ -44,17 +44,19 @@ public class AttributeTests {
 
 	@Test
 	public void noAttributes() {
-		HomePage home = HomePage.go(this.driver);
+		HomePage home = HomePage.go(this.driver, HomePage.class);
 		assertThat(home.attributes().size()).isEqualTo(0);
 	}
 
 	@Test
 	public void createAttribute() {
-		HomePage home = HomePage.go(this.driver);
-		home.addAttribute("a", "b");
-		assertThat(home.attributes().size()).isEqualTo(1);
-		assertThat(home.row(0).getAttributeName()).isEqualTo("a");
-		assertThat(home.row(0).getAttributeValue()).isEqualTo("b");
+		HomePage home = HomePage.go(this.driver, HomePage.class);
+		home = home.form()
+				.attributeName("a")
+				.attributeValue("b")
+				.submit(HomePage.class);
+		assertThat(home.attributes()).extracting("attributeName").containsOnly("a");
+		assertThat(home.attributes()).extracting("attributeValue").containsOnly("b");
 	}
 
 }
