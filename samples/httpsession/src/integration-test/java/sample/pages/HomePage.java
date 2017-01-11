@@ -107,10 +107,10 @@ public class HomePage {
 	}
 
 	public static class Attribute {
-		@FindBy(xpath = "//td[1]")
+		@FindBy(xpath = ".//td[1]")
 		WebElement attributeName;
 
-		@FindBy(xpath = "//td[2]")
+		@FindBy(xpath = ".//td[2]")
 		WebElement attributeValue;
 
 		public Attribute(SearchContext context) {
