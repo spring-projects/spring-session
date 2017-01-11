@@ -16,6 +16,8 @@
 
 package sample;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,13 +25,12 @@ import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
 import sample.client.Application;
 import sample.pages.HomePage;
+import sample.pages.HomePage.Attribute;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
@@ -38,11 +39,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Eddú Meléndez
+ * @author Rob Winch
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = Application.class, loader = SpringBootContextLoader.class)
 public class AttributeTests {
 
 	@Autowired
@@ -63,20 +64,33 @@ public class AttributeTests {
 	}
 
 	@Test
+	public void home() {
+		HomePage home = HomePage.go(this.driver);
+		home.assertAt();
+	}
+
+	@Test
 	public void noAttributes() {
 		HomePage home = HomePage.go(this.driver);
-		assertThat(home.attributes().size()).isEqualTo(0);
+		assertThat(home.attributes()).isEmpty();
 	}
 
 	@Test
 	public void createAttribute() {
 		HomePage home = HomePage.go(this.driver);
-		home.addAttribute("a", "b");
-		assertThat(home.attributes().size()).isEqualTo(2);
-		assertThat(home.row(0).getAttributeName()).isEqualTo("requestCount");
-		assertThat(home.row(0).getAttributeValue()).isEqualTo("1");
-		assertThat(home.row(1).getAttributeName()).isEqualTo("a");
-		assertThat(home.row(1).getAttributeValue()).isEqualTo("b");
+		// @formatter:off
+		home = home.form()
+				.attributeName("a")
+				.attributeValue("b")
+				.submit(HomePage.class);
+		// @formatter:on
+
+		List<Attribute> attributes = home.attributes();
+		assertThat(attributes).hasSize(2);
+		assertThat(attributes.get(0).getAttributeName()).isEqualTo("requestCount");
+		assertThat(attributes.get(0).getAttributeValue()).isEqualTo("1");
+		assertThat(attributes.get(1).getAttributeName()).isEqualTo("a");
+		assertThat(attributes.get(1).getAttributeValue()).isEqualTo("b");
 	}
 
 }
