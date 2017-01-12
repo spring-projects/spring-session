@@ -28,29 +28,33 @@ def process
 
 mainClassName = "sample.ServerConfig"
 
-task availablePort() << {
-	def serverSocket = new ServerSocket(0)
-	port = serverSocket.localPort
-	serverSocket.close()
+task availablePort() {
+	doLast {
+		def serverSocket = new ServerSocket(0)
+		port = serverSocket.localPort
+		serverSocket.close()
+	}
 }
 
-task runGemFireServer(dependsOn: availablePort) << {
-	println 'STARTING GEMFIRE SERVER...'
+task runGemFireServer(dependsOn: availablePort) {
+	doLast {
+		println 'STARTING GEMFIRE SERVER...'
 
-	String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
+		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
 
-	String[] commandLine = ['java', '-server', '-ea',
-							"-Dspring.session.data.gemfire.port=$port",
-							"-Dsample.httpsession.gemfire.log-level="
-								+ System.getProperty('sample.httpsession.gemfire.log-level', 'warning'),
-							'-classpath', classpath, 'sample.ServerConfig']
+		String[] commandLine = ['java', '-server', '-ea',
+				"-Dspring.session.data.gemfire.port=$port",
+				"-Dsample.httpsession.gemfire.log-level="
+						+ System.getProperty('sample.httpsession.gemfire.log-level', 'warning'),
+				'-classpath', classpath, 'sample.ServerConfig']
 
-	//println commandLine
+		//println commandLine
 
-	process = commandLine.execute()
-	process.in.close()
-	process.out.close()
-	process.err.close()
+		process = commandLine.execute()
+		process.in.close()
+		process.out.close()
+		process.err.close()
+	}
 }
 
 integrationTest.doLast {
