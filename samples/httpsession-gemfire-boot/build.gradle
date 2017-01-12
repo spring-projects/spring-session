@@ -38,24 +38,26 @@ springBoot {
 	mainClass = 'sample.client.Application'
 }
 
-task runGemFireServer() << {
-	println 'STARTING GEMFIRE SERVER...'
+task runGemFireServer() {
+	doLast {
+		println 'STARTING GEMFIRE SERVER...'
 
-	ext.port = reservePort()
+		ext.port = reservePort()
 
-	String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
+		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
 
-	String[] commandLine = ['java', '-server', '-ea', '-classpath', classpath,
-							"-Dgemfire.cache.server.port=$port",
-							"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'warning'),
-							'sample.server.GemFireServer']
+		String[] commandLine = ['java', '-server', '-ea', '-classpath', classpath,
+				"-Dgemfire.cache.server.port=$port",
+				"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'warning'),
+				'sample.server.GemFireServer']
 
-	//println commandLine
+		//println commandLine
 
-	ext.process = commandLine.execute()
-	process.in.close()
-	process.out.close()
-	process.err.close()
+		ext.process = commandLine.execute()
+		process.in.close()
+		process.out.close()
+		process.err.close()
+	}
 }
 
 
