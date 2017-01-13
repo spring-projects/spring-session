@@ -1,5 +1,4 @@
 apply from: JAVA_GRADLE
-apply from: SPRING3_GRADLE
 apply from: MAVEN_GRADLE
 
 apply plugin: 'spring-io'

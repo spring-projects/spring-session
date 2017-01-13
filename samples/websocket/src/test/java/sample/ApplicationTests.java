@@ -26,9 +26,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.WebIntegrationTest;
+import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.socket.TextMessage;
@@ -44,13 +44,12 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
  * @author Rob Winch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(Application.class)
-@WebIntegrationTest(randomPort = true)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 	@Rule
 	public final ExpectedException thrown = ExpectedException.none();
 
-	@Value("${local.server.port}")
+	@LocalServerPort
 	String port;
 
 	@Autowired

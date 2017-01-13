@@ -23,7 +23,6 @@ group = 'org.springframework.session'
 ext.springBootVersion = '1.5.0.RC1'
 ext.IDE_GRADLE = "$rootDir/gradle/ide.gradle"
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
-ext.SPRING3_GRADLE = "$rootDir/gradle/spring3.gradle"
 ext.MAVEN_GRADLE = "$rootDir/gradle/publish-maven.gradle"
 ext.BOM_GRADLE = "$rootDir/gradle/bom.gradle"
 ext.SAMPLE_GRADLE = "$rootDir/gradle/sample.gradle"
