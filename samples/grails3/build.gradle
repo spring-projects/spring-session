@@ -59,7 +59,7 @@ dependencies {
 	testCompile "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
 	testCompile "net.sourceforge.htmlunit:htmlunit:2.18"
 
-	compile "org.springframework.boot:spring-boot-starter-redis"
+	compile "org.springframework.boot:spring-boot-starter-data-redis"
 	compile 'org.springframework.session:spring-session:1.1.1.RELEASE'
 
 	compile 'org.grails.plugins:spring-security-core:3.0.4'

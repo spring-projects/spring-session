@@ -1,6 +1,7 @@
 buildscript {
 	repositories {
 		mavenCentral()
+		maven { url "https://repo.spring.io/milestone" }
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion")
@@ -16,7 +17,7 @@ group = 'samples'
 
 dependencies {
 	compile project(':spring-session'),
-			"org.springframework.boot:spring-boot-starter-redis",
+			"org.springframework.boot:spring-boot-starter-data-redis",
 			"org.springframework.boot:spring-boot-starter-web",
 			"org.springframework.boot:spring-boot-starter-security",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",

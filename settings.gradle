@@ -23,7 +23,6 @@ include 'samples:security'
 include 'samples:users'
 include 'samples:websocket'
 include 'samples:mongo'
-include 'samples:grails3'
 
 include 'spring-session'
 include 'spring-session-data-gemfire'
