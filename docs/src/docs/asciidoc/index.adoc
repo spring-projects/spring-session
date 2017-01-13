@@ -44,95 +44,115 @@ https://github.com/spring-projects/spring-session/milestone/19?closed=1[1.3.0.RE
 
 If you are looking to get started with Spring Session, the best place to start is our Sample Applications.
 
-.Sample Applications
+.Sample Applications using Spring Boot
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}httpsession[HttpSession]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
-| link:guides/httpsession.html[HttpSession Guide]
+| {gh-samples-url}boot/boot-redis[HttpSession with Redis]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
+| link:guides/boot.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}httpsession-xml[HttpSession XML]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store using XML based configuration.
-| link:guides/httpsession-xml.html[HttpSession XML Guide]
-
-| {gh-samples-url}httpsession-gemfire-boot[HttpSession with GemFire using Spring Boot]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology in a Spring Boot application.
-| link:guides/httpsession-gemfire-boot.html[HttpSession GemFire Boot Guide]
-
-| {gh-samples-url}httpsession-gemfire-clientserver[HttpSession with GemFire (Client/Server)]
+| {gh-samples-url}boot/boot-gemfire[HttpSession with GemFire]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
-| link:guides/httpsession-gemfire-clientserver.html[HttpSession GemFire Client/Server Guide]
+| link:guides/boot-gemfire.html[HttpSession with GemFire Guide]
 
-| {gh-samples-url}httpsession-gemfire-clientserver-xml[HttpSession with GemFire (Client/Server) using XML]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology configured with XML.
-| link:guides/httpsession-gemfire-clientserver-xml.html[HttpSession GemFire Client/Server XML Guide]
+| {gh-samples-url}boot/boot-mongo[HttpSession with Mongo]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Mongo.
+| link:guides/boot-mongo.html[HttpSession with Mongo Guide]
 
-| {gh-samples-url}httpsession-gemfire-p2p[HttpSession with GemFire (P2P)]
+| {gh-samples-url}boot/boot-jdbc[HttpSession with JDBC]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
+| link:guides/boot-jdbc.html[HttpSession with JDBC Guide]
+
+| {gh-samples-url}boot/boot-findbyusername[Find by Username]
+| Demonstrates how to use Spring Session to find sessions by username.
+| link:guides/boot-findbyusername.html[Find by Username Guide]
+
+| {gh-samples-url}boot/boot-websocket[WebSockets]
+| Demonstrates how to use Spring Session with WebSockets.
+| link:guides/boot-websocket.html[WebSockets Guide]
+
+| {gh-samples-url}boot/boot-redis-json[HttpSession with Redis JSON serialization]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.
+| TBD
+
+|===
+
+.Sample Applications using Spring Java based configuration
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}java/java-redis[HttpSession with Redis]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
+| link:guides/java-redis.html[HttpSession with Redis Guide]
+
+| {gh-samples-url}java/java-gemfire-clientserver[HttpSession with GemFire (Client/Server)]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
+| link:guides/java-gemfire-clientserver.html[HttpSession with GemFire (Client/Server) Guide]
+
+| {gh-samples-url}java/java-gemfire-p2p[HttpSession with GemFire (P2P)]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a P2P topology.
-| link:guides/httpsession-gemfire-p2p.html[HttpSession GemFire P2P Guide]
+| link:guides/java-gemfire-p2p.html[HttpSession with GemFire (P2P) Guide]
 
-| {gh-samples-url}httpsession-gemfire-p2p-xml[HttpSession with GemFire (P2P) using XML]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a P2P topology configured with XML.
-| link:guides/httpsession-gemfire-p2p-xml.html[HttpSession GemFire P2P XML Guide]
+| {gh-samples-url}java/java-jdbc[HttpSession with JDBC]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
+| link:guides/java-jdbc.html[HttpSession with JDBC Guide]
 
-| {gh-samples-url}custom-cookie[Custom Cookie]
+| {gh-samples-url}java/java-hazelcast[HttpSession with Hazelcast]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
+| link:guides/java-hazelcast.html[HttpSession with Hazelcast Guide]
+
+| {gh-samples-url}java/java-custom-cookie[Custom Cookie]
 | Demonstrates how to use Spring Session and customize the cookie.
 | link:guides/custom-cookie.html[Custom Cookie Guide]
 
-| {gh-samples-url}boot[Spring Boot]
-| Demonstrates how to use Spring Session with Spring Boot.
-| link:guides/boot.html[Spring Boot Guide]
+| {gh-samples-url}java/java-security[Spring Security]
+| Demonstrates how to use Spring Session with an existing Spring Security application.
+| link:guides/java-security.html[Spring Security Guide]
 
-| {gh-samples-url}grails3[Grails 3]
+| {gh-samples-url}java/java-rest[REST]
+| Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
+| link:guides/java-rest.html[REST Guide]
+
+| {gh-samples-url}java/java-users[Multiple Users]
+| Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
+| link:guides/java-users.html[Multiple Users Guide]
+
+|===
+
+.Sample Applications using Spring XML based configuration
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}xml/xml-redis[HttpSession with Redis]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
+| link:guides/xml-redis.html[HttpSession with Redis Guide]
+
+| {gh-samples-url}xml/xml-gemfire-clientserver[HttpSession with GemFire (Client/Server)]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
+| link:guides/xml-gemfire-clientserver.html[HttpSession with GemFire (Client/Server) Guide]
+
+| {gh-samples-url}xml/xml-gemfire-p2p[HttpSession with GemFire (P2P)]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a P2P topology.
+| link:guides/xml-gemfire-p2p.html[HttpSession with GemFire (P2P) Guide]
+
+| {gh-samples-url}xml/xml-jdbc[HttpSession with JDBC]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
+| link:guides/xml-jdbc.html[HttpSession with JDBC Guide]
+
+|===
+
+.Misc sample Applications
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}misc/grails3[Grails 3]
 | Demonstrates how to use Spring Session with Grails 3.
 | link:guides/grails3.html[Grails 3 Guide]
 
-| {gh-samples-url}security[Spring Security]
-| Demonstrates how to use Spring Session with an existing Spring Security application.
-| link:guides/security.html[Spring Security Guide]
-
-| {gh-samples-url}rest[REST]
-| Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
-| link:guides/rest.html[REST Guide]
-
-| {gh-samples-url}findbyusername[Find by Username]
-| Demonstrates how to use Spring Session to find sessions by username.
-| link:guides/findbyusername.html[Find by Username]
-
-| {gh-samples-url}users[Multiple Users]
-| Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
-| link:guides/users.html[Manage Multiple Users Guide]
-
-| {gh-samples-url}websocket[WebSocket]
-| Demonstrates how to use Spring Session with WebSockets.
-| link:guides/websocket.html[WebSocket Guide]
-
-| {gh-samples-url}mongo[Mongo]
-| Demonstrates how to use Spring Session with Mongo.
-| link:guides/mongo.html[Mongo Guide]
-
-[[samples-hazelcast]]
-| {gh-samples-url}hazelcast[Hazelcast]
-| Demonstrates how to use Spring Session with Hazelcast.
+| {gh-samples-url}misc/hazelcast[Hazelcast]
+| Demonstrates how to use Spring Session with Hazelcast in a Java EE application.
 | TBD
-
-[[samples-hazelcast-spring]]
-| {gh-samples-url}hazelcast-spring[Hazelcast Spring]
-| Demonstrates how to use Spring Session and Hazelcast with an existing Spring Security application.
-| link:guides/hazelcast-spring.html[Hazelcast Spring Guide]
-
-| {gh-samples-url}httpsession-jdbc[HttpSession JDBC]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
-| link:guides/httpsession-jdbc.html[HttpSession JDBC Guide]
-
-| {gh-samples-url}httpsession-jdbc-xml[HttpSession JDBC XML]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store using XML based configuration.
-| link:guides/httpsession-jdbc-xml.html[HttpSession JDBC XML Guide]
-
-| {gh-samples-url}httpsession-jdbc-boot[HttpSession JDBC Spring Boot]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store when using Spring Boot.
-| link:guides/httpsession-jdbc-boot.html[HttpSession JDBC Spring Boot Guide]
 
 |===
 
@@ -168,7 +188,7 @@ This section describes how to use Redis to back `HttpSession` using Java based c
 NOTE: The <<samples, HttpSession Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
-include::guides/httpsession.adoc[tags=config,leveloffset=+3]
+include::guides/java-redis.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-redis-xml]]
 ==== Redis XML Based Configuration
@@ -178,7 +198,7 @@ This section describes how to use Redis to back `HttpSession` using XML based co
 NOTE: The <<samples, HttpSession XML Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using XML configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession XML Guide when integrating with your own application.
 
-include::guides/httpsession-xml.adoc[tags=config,leveloffset=+3]
+include::guides/xml-redis.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-gemfire]]
 === HttpSession with Pivotal GemFire
@@ -223,7 +243,7 @@ Spring Session and GemFire to replace the HttpSession using Java configuration. 
 integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (Client-Server)
 Guide when integrating with your own application.
 
-include::guides/httpsession-gemfire-clientserver.adoc[tags=config,leveloffset=+3]
+include::guides/java-gemfire-clientserver.adoc[tags=config,leveloffset=+3]
 
 [[http-session-gemfire-clientserver-xml]]
 ===== GemFire Client-Server XML-based Configuration
@@ -235,7 +255,7 @@ integrate Spring Session and GemFire to replace the `HttpSession` using XML conf
 for integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (Client-Server)
 using XML Guide when integrating with your own application.
 
-include::guides/httpsession-gemfire-clientserver-xml.adoc[tags=config,leveloffset=+3]
+include::guides/xml-gemfire-clientserver.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-gemfire-p2p]]
 ==== GemFire Peer-To-Peer (P2P)
@@ -270,7 +290,7 @@ Spring Session and GemFire to replace the `HttpSession` using Java configuration
 for integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (P2P) Guide
 when integrating with your own application.
 
-include::guides/httpsession-gemfire-p2p.adoc[tags=config,leveloffset=+3]
+include::guides/java-gemfire-p2p.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-gemfire-p2p-xml]]
 ===== GemFire Peer-To-Peer (P2P) XML-based Configuration
@@ -282,7 +302,7 @@ Spring Session and GemFire to replace the `HttpSession` using XML configuration.
 integration below, but you are encouraged to follow along with the detailed HttpSession with GemFire (P2P) using XML
 Guide when integrating with your own application.
 
-include::guides/httpsession-gemfire-p2p-xml.adoc[tags=config,leveloffset=+3]
+include::guides/xml-gemfire-p2p.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-jdbc]]
 === HttpSession with JDBC
@@ -302,7 +322,7 @@ This section describes how to use a relational database to back `HttpSession` us
 NOTE: The <<samples, HttpSession JDBC Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC Guide when integrating with your own application.
 
-include::guides/httpsession-jdbc.adoc[tags=config,leveloffset=+3]
+include::guides/java-jdbc.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-jdbc-xml]]
 ==== JDBC XML Based Configuration
@@ -312,7 +332,7 @@ This section describes how to use a relational database to back `HttpSession` us
 NOTE: The <<samples, HttpSession JDBC XML Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using XML configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC XML Guide when integrating with your own application.
 
-include::guides/httpsession-jdbc-xml.adoc[tags=config,leveloffset=+3]
+include::guides/xml-jdbc.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-jdbc-boot]]
 ==== JDBC Spring Boot Based Configuration
@@ -322,7 +342,7 @@ This section describes how to use a relational database to back `HttpSession` wh
 NOTE: The <<samples, HttpSession JDBC Spring Boot Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Spring Boot.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC Spring Boot Guide when integrating with your own application.
 
-include::guides/httpsession-jdbc-boot.adoc[tags=config,leveloffset=+3]
+include::guides/boot-jdbc.adoc[tags=config,leveloffset=+3]
 
 [[httpsession-mongo]]
 === HttpSession with Mongo
@@ -334,7 +354,7 @@ This section describes how to use Mongo to back `HttpSession` using Java based c
 NOTE: The <<samples, HttpSession Mongo Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
 
-include::guides/mongo.adoc[tags=config,leveloffset=+3]
+include::guides/boot-mongo.adoc[tags=config,leveloffset=+3]
 
 ==== Session serialization mechanisms
 
@@ -385,7 +405,7 @@ This section describes how to use Hazelcast to back `HttpSession` using Java bas
 NOTE: The <<samples, Hazelcast Spring Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed Hazelcast Spring Guide when integrating with your own application.
 
-include::guides/hazelcast-spring.adoc[tags=config,leveloffset=+2]
+include::guides/java-hazelcast.adoc[tags=config,leveloffset=+2]
 
 [[httpsession-how]]
 === How HttpSession Integration Works
@@ -452,7 +472,7 @@ This provides the ability to support authenticating with multiple users in the s
 NOTE: The <<samples,Manage Multiple Users Guide>> provides a complete working example of managing multiple users in the same browser instance.
 You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed Manage Multiple Users Guide when integrating with your own application.
 
-include::guides/users.adoc[tags=how-does-it-work,leveloffset=+1]
+include::guides/java-users.adoc[tags=how-does-it-work,leveloffset=+1]
 
 [[httpsession-rest]]
 === HttpSession & RESTful APIs
@@ -463,7 +483,7 @@ Spring Session can work with RESTful APIs by allowing the session to be provided
 NOTE: The <<samples, REST Sample>> provides a working sample on how to use Spring Session in a REST application to support authenticating with a header.
 You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed REST Guide when integrating with your own application.
 
-include::guides/rest.adoc[tags=config,leveloffset=+2]
+include::guides/java-rest.adoc[tags=config,leveloffset=+2]
 
 [[httpsession-httpsessionlistener]]
 === HttpSessionListener
@@ -496,7 +516,7 @@ include::{docs-test-resources-dir}docs/http/HttpSessionListenerXmlTests-context.
 
 Spring Session provides transparent integration with Spring's WebSocket support.
 
-include::guides/websocket.adoc[tags=disclaimer,leveloffset=+1]
+include::guides/boot-websocket.adoc[tags=disclaimer,leveloffset=+1]
 
 [[websocket-why]]
 === Why Spring Session & WebSockets?
@@ -522,7 +542,7 @@ You can follow the basic steps for integration below, but you are encouraged to 
 
 Before using WebSocket integration, you should be sure that you have <<httpsession>> working first.
 
-include::guides/websocket.adoc[tags=config,leveloffset=+2]
+include::guides/boot-websocket.adoc[tags=config,leveloffset=+2]
 
 [[spring-security]]
 == Spring Security Integration

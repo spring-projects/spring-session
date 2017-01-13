@@ -2,9 +2,9 @@
 Rob Winch, Vedran Pavić
 :toc:
 
-This guide describes how to use Spring Session to transparently leverage a relational to back a web application's `HttpSession` with XML based configuration.
+This guide describes how to use Spring Session to transparently leverage a relational database to back a web application's `HttpSession` with Java Configuration.
 
-NOTE: The completed guide can be found in the <<httpsession-jdbc-xml-sample, httpsession-jdbc-xml sample application>>.
+NOTE: The completed guide can be found in the <<httpsession-jdbc-sample, httpsession-jdbc sample application>>.
 
 == Updating Dependencies
 Before you use Spring Session, you must ensure to update your dependencies.
@@ -66,21 +66,19 @@ endif::[]
 
 // tag::config[]
 
-[[httpsession-jdbc-xml-spring-configuration]]
-== Spring XML Configuration
+[[httpsession-jdbc-spring-configuration]]
+== Spring Java Configuration
 
 After adding the required dependencies, we can create our Spring configuration.
 The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
 Add the following Spring Configuration:
 
-.src/main/webapp/WEB-INF/spring/session.xml
-[source,xml,indent=0]
+[source,java]
 ----
-include::{samples-dir}httpsession-jdbc-xml/src/main/webapp/WEB-INF/spring/session.xml[tags=beans]
+include::{samples-dir}java/java-jdbc/src/main/java/sample/Config.java[tags=class]
 ----
 
-<1> We use the combination of `<context:annotation-config/>` and `JdbcHttpSessionConfiguration` because Spring Session does not yet provide XML Namespace support (see https://github.com/spring-projects/spring-session/issues/104[gh-104]).
-This creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+<1> The `@EnableJdbcHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
 In this instance Spring Session is backed by a relational database.
 <2> We create a `dataSource` that connects Spring Session to an embedded instance of H2 database.
@@ -89,52 +87,44 @@ We configure the H2 database to create database tables using the SQL script whic
 
 For additional information on how to configure data access related concerns, please refer to the http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
 
-== XML Servlet Container Initialization
+== Java Servlet Container Initialization
 
-Our <<httpsession-xml-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
+Our <<httpsession-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
 
-In order for our `Filter` to do its magic, we need to instruct Spring to load our `session.xml` configuration.
-We do this with the following configuration:
-
-
-.src/main/webapp/WEB-INF/web.xml
-[source,xml,indent=0]
-----
-include::{samples-dir}httpsession-xml/src/main/webapp/WEB-INF/web.xml[tags=context-param]
-include::{samples-dir}httpsession-xml/src/main/webapp/WEB-INF/web.xml[tags=listeners]
-----
-
-The http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener] reads the contextConfigLocation and picks up our session.xml configuration.
-
+In order for our `Filter` to do its magic, Spring needs to load our `Config` class.
 Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
-The following snippet performs this last step for us:
+Fortunately, Spring Session provides a utility class named `AbstractHttpSessionApplicationInitializer` both of these steps extremely easy.
+You can find an example below:
 
-.src/main/webapp/WEB-INF/web.xml
-[source,xml,indent=0]
+.src/main/java/sample/Initializer.java
+[source,java]
 ----
-include::{samples-dir}httpsession-xml/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
+include::{samples-dir}java/java-jdbc/src/main/java/sample/Initializer.java[tags=class]
 ----
 
-The http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy] will look up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
-For every request that `DelegatingFilterProxy` is invoked, the `springSessionRepositoryFilter` will be invoked.
+NOTE: The name of our class (Initializer) does not matter. What is important is that we extend `AbstractHttpSessionApplicationInitializer`.
+
+<1> The first step is to extend `AbstractHttpSessionApplicationInitializer`.
+This ensures that the Spring Bean by the name `springSessionRepositoryFilter` is registered with our Servlet Container for every request.
+<2> `AbstractHttpSessionApplicationInitializer` also provides a mechanism to easily ensure Spring loads our `Config`.
 
 // end::config[]
 
-[[httpsession-jdbc-xml-sample]]
-== httpsession-jdbc-xml Sample Application
+[[httpsession-jdbc-sample]]
+== httpsession-jdbc Sample Application
 
-=== Running the httpsession-jdbc-xml Sample Application
+=== Running the httpsession-jdbc Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
 ----
-$ ./gradlew :samples:httpsession-jdbc-xml:tomcatRun
+$ ./gradlew :samples:httpsession-jdbc:tomcatRun
 ----
 
 You should now be able to access the application at http://localhost:8080/
 
-=== Exploring the httpsession-jdbc-xml Sample Application
+=== Exploring the httpsession-jdbc Sample Application
 
 Try using the application. Fill out the form with the following information:
 
@@ -150,7 +140,7 @@ We interact with the standard `HttpSession` in the `SessionServlet` shown below:
 .src/main/java/sample/SessionServlet.java
 [source,java]
 ----
-include::{samples-dir}httpsession-jdbc-xml/src/main/java/sample/SessionServlet.java[tags=class]
+include::{samples-dir}java/java-jdbc/src/main/java/sample/SessionServlet.java[tags=class]
 ----
 
 Instead of using Tomcat's `HttpSession`, we are actually persisting the values in H2 database.

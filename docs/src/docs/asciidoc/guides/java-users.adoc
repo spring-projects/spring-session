@@ -99,7 +99,7 @@ We can obtain the `HttpSessionManager` from the `HttpServletRequest` using the f
 .src/main/java/sample/UserAccountsFilter.java
 [source,java,indent=0]
 ----
-include::{samples-dir}users/src/main/java/sample/UserAccountsFilter.java[tags=HttpSessionManager]
+include::{samples-dir}java/java-users/src/main/java/sample/UserAccountsFilter.java[tags=HttpSessionManager]
 ----
 
 We can now use it to create a URL to add another session.
@@ -107,7 +107,7 @@ We can now use it to create a URL to add another session.
 .src/main/java/sample/UserAccountsFilter.java
 [source,java,indent=0]
 ----
-include::{samples-dir}users/src/main/java/sample/UserAccountsFilter.java[tags=addAccountUrl]
+include::{samples-dir}java/java-users/src/main/java/sample/UserAccountsFilter.java[tags=addAccountUrl]
 ----
 
 <1> We have an existing variable named `unauthenticatedAlias`.
@@ -148,7 +148,7 @@ For example, if we are currently using the session with the alias of *1*, then t
 .src/main/webapp/index.jsp
 [source,xml,indent=0]
 ----
-include::{samples-dir}users/src/main/webapp/index.jsp[tags=link]
+include::{samples-dir}java/java-users/src/main/webapp/index.jsp[tags=link]
 ----
 
 will output a link of:
