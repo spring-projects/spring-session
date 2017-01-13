@@ -16,6 +16,8 @@
 
 package org.springframework.session.config.annotation.web.http;
 
+import javax.servlet.ServletContext;
+
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
@@ -82,23 +85,44 @@ public class SpringHttpSessionConfigurationTests {
 	}
 
 	@Test
+	public void sessionCookieConfigConfiguration() {
+		registerAndRefresh(SessionCookieConfigConfiguration.class);
+
+		SessionRepositoryFilter sessionRepositoryFilter = this.context
+				.getBean(SessionRepositoryFilter.class);
+		assertThat(sessionRepositoryFilter).isNotNull();
+		CookieHttpSessionStrategy httpSessionStrategy = (CookieHttpSessionStrategy) ReflectionTestUtils
+				.getField(sessionRepositoryFilter, "httpSessionStrategy");
+		assertThat(httpSessionStrategy).isNotNull();
+		DefaultCookieSerializer cookieSerializer = (DefaultCookieSerializer) ReflectionTestUtils
+				.getField(httpSessionStrategy, "cookieSerializer");
+		assertThat(cookieSerializer).isNotNull();
+		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookieName"))
+				.isEqualTo("test-name");
+		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookiePath"))
+				.isEqualTo("test-path");
+		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookieMaxAge"))
+				.isEqualTo(600);
+		assertThat(ReflectionTestUtils.getField(cookieSerializer, "domainName"))
+				.isEqualTo("test-domain");
+	}
+
+	@Test
 	public void rememberMeServicesConfiguration() {
 		registerAndRefresh(RememberMeServicesConfiguration.class);
 
-		SessionRepositoryFilter sessionRepositoryFilter = this.context.getBean(
-				SessionRepositoryFilter.class);
+		SessionRepositoryFilter sessionRepositoryFilter = this.context
+				.getBean(SessionRepositoryFilter.class);
 		assertThat(sessionRepositoryFilter).isNotNull();
-		CookieHttpSessionStrategy httpSessionStrategy =
-				(CookieHttpSessionStrategy) ReflectionTestUtils.getField(
-						sessionRepositoryFilter, "httpSessionStrategy");
+		CookieHttpSessionStrategy httpSessionStrategy = (CookieHttpSessionStrategy) ReflectionTestUtils
+				.getField(sessionRepositoryFilter, "httpSessionStrategy");
 		assertThat(httpSessionStrategy).isNotNull();
-		DefaultCookieSerializer cookieSerializer =
-				(DefaultCookieSerializer) ReflectionTestUtils.getField(
-						httpSessionStrategy, "cookieSerializer");
+		DefaultCookieSerializer cookieSerializer = (DefaultCookieSerializer) ReflectionTestUtils
+				.getField(httpSessionStrategy, "cookieSerializer");
 		assertThat(cookieSerializer).isNotNull();
-		assertThat(ReflectionTestUtils.getField(
-				cookieSerializer, "rememberMeRequestAttribute"))
-				.isEqualTo(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
+		assertThat(ReflectionTestUtils.getField(cookieSerializer,
+				"rememberMeRequestAttribute")).isEqualTo(
+						SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
 	}
 
 	@Configuration
@@ -120,6 +144,21 @@ public class SpringHttpSessionConfigurationTests {
 	static class DefaultConfiguration extends BaseConfiguration {
 	}
 
+	@Configuration
+	@EnableSpringHttpSession
+	static class SessionCookieConfigConfiguration extends BaseConfiguration {
+
+		@Bean
+		public ServletContext servletContext() {
+			MockServletContext servletContext = new MockServletContext();
+			servletContext.getSessionCookieConfig().setName("test-name");
+			servletContext.getSessionCookieConfig().setDomain("test-domain");
+			servletContext.getSessionCookieConfig().setPath("test-path");
+			servletContext.getSessionCookieConfig().setMaxAge(600);
+			return servletContext;
+		}
+
+	}
 
 	@Configuration
 	@EnableSpringHttpSession
