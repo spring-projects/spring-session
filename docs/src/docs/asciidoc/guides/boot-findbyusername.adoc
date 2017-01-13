@@ -65,7 +65,7 @@ For example, our sample application includes the location and access type of the
 
 [source,java,indent=0]
 ----
-include::{samples-dir}findbyusername/src/main/java/sample/session/SessionDetails.java[tags=class]
+include::{samples-dir}boot/boot-findbyusername/src/main/java/sample/session/SessionDetails.java[tags=class]
 ----
 
 We then inject that information into the session on each HTTP request using a `SessionDetailsFilter`.
@@ -73,7 +73,7 @@ For example:
 
 [source,java,indent=0]
 ----
-include::{samples-dir}findbyusername/src/main/java/sample/session/SessionDetailsFilter.java[tags=dofilterinternal]
+include::{samples-dir}boot/boot-findbyusername/src/main/java/sample/session/SessionDetailsFilter.java[tags=dofilterinternal]
 ----
 
 We obtain the information we want and then set the `SessionDetails` as an attribute in the `Session`.
@@ -93,7 +93,7 @@ We can now find all the sessions for a specific user.
 
 [source,java,indent=0]
 ----
-include::{samples-dir}findbyusername/src/main/java/sample/mvc/IndexController.java[tags=findbyusername]
+include::{samples-dir}boot/boot-findbyusername/src/main/java/sample/mvc/IndexController.java[tags=findbyusername]
 ----
 
 In our instance, we find all sessions for the currently logged in user.

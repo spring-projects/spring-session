@@ -49,7 +49,7 @@ dependencies {
 
 asciidoctor {
 	def ghTag = snapshotBuild ? 'master' : project.version
-	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag/"
+	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
 	attributes	'version-snapshot': snapshotBuild,
 			'version-milestone': milestoneBuild,
 			'version-release': releaseBuild,

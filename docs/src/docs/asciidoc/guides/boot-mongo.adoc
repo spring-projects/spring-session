@@ -1,10 +1,10 @@
-= Spring Session - Spring Boot
-Rob Winch
+= Spring Session - Mongo Repositories
+Jakub Kubrynski
 :toc:
 
-This guide describes how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` when using Spring Boot.
+This guide describes how to use Spring Session backed by Mongo.
 
-NOTE: The completed guide can be found in the <<boot-sample, boot sample application>>.
+NOTE: The completed guide can be found in the <<mongo-sample, mongo sample application>>.
 
 == Updating Dependencies
 Before you use Spring Session, you must ensure to update your dependencies.
@@ -25,7 +25,7 @@ If you are using Maven, ensure to add the following dependencies:
 	</dependency>
 	<dependency>
 		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-data-redis</artifactId>
+		<artifactId>spring-boot-starter-data-mongodb</artifactId>
 	</dependency>
 </dependencies>
 ----
@@ -63,37 +63,43 @@ Ensure you have the following in your pom.xml:
 ----
 endif::[]
 
-[[boot-spring-configuration]]
+[[mongo-spring-configuration]]
 == Spring Configuration
 
 After adding the required dependencies, we can create our Spring configuration.
 The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
-Add the following Spring Configuration:
+
+// tag::config[]
+All you have to do is to add the following Spring Configuration:
 
 [source,java]
 ----
-include::{samples-dir}boot/src/main/java/sample/config/HttpSessionConfig.java[tags=class]
+include::{samples-dir}boot/boot-mongo/src/main/java/sample/config/HttpSessionConfig.java[tags=class]
 ----
 
-<1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+<1> The `@EnableMongoHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
 The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
-In this instance Spring Session is backed by Redis.
+In this instance Spring Session is backed by Mongo.
 
-[[boot-redis-configuration]]
-== Configuring the Redis Connection
+<2> We explicitly configure `JdkMongoSessionConverter` since Spring Security's objects cannot be automatically persisted using Jackson (the default if Jackson is on the classpath).
 
-Spring Boot automatically creates a `RedisConnectionFactory` that connects Spring Session to a Redis Server on localhost on port 6379 (default port).
-In a production environment you need to ensure to update your configuration to point to your Redis server.
+// end::config[]
+
+[[boot-mongo-configuration]]
+== Configuring the Mongo Connection
+
+Spring Boot automatically creates a `MongoClient` that connects Spring Session to a Mongo Server on localhost on port 27017 (default port).
+In a production environment you need to ensure to update your configuration to point to your Mongo server.
 For example, you can include the following in your *application.properties*
 
 .src/main/resources/application.properties
 ----
-spring.redis.host=localhost
-spring.redis.password=secret
-spring.redis.port=6379
+spring.data.mongodb.host=mongo-srv
+spring.data.mongodb.port=27018
+spring.data.mongodb.database=prod
 ----
 
-For more information, refer to http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
+For more information, refer to http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-connecting-to-mongodb[Connecting to MongoDB] portion of the Spring Boot documentation.
 
 [[boot-servlet-configuration]]
 == Servlet Container Initialization
@@ -105,24 +111,18 @@ In order for our `Filter` to do its magic, Spring needs to load our `Config` cla
 Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
 Fortunately, Spring Boot takes care of both of these steps for us.
 
-[[boot-sample]]
-== boot Sample Application
+[[mongo-sample]]
+== Mongo Sample Application
 
-The boot Sample Application demonstrates how to use Spring Session to transparently leverage Redis to back a web application's `HttpSession` when using Spring Boot.
+The Mongo Sample Application demonstrates how to use Spring Session to transparently leverage Mongo to back a web application's `HttpSession` when using Spring Boot.
 
-[[boot-running]]
-=== Running the boot Sample Application
+[[mongo-running]]
+=== Running the Mongo Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-[NOTE]
-====
-For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
-Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
-====
-
 ----
-$ ./gradlew :samples:boot:bootRun
+$ ./gradlew :samples:mongo:bootRun
 ----
 
 You should now be able to access the application at http://localhost:8080/
@@ -137,26 +137,32 @@ Try using the application. Enter the following to log in:
 
 Now click the **Login** button.
 You should now see a message indicating your are logged in with the user entered previously.
-The user's information is stored in Redis rather than Tomcat's `HttpSession` implementation.
+The user's information is stored in Mongo rather than Tomcat's `HttpSession` implementation.
 
-[[boot-how]]
+[[mongo-how]]
 === How does it work?
 
-Instead of using Tomcat's `HttpSession`, we are actually persisting the values in Redis.
-Spring Session replaces the `HttpSession` with an implementation that is backed by Redis.
-When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into Redis.
+Instead of using Tomcat's `HttpSession`, we are actually persisting the values in Mongo.
+Spring Session replaces the `HttpSession` with an implementation that is backed by Mongo.
+When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into Mongo.
 
 When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
 Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
-If you like, you can easily remove the session using redis-cli. For example, on a Linux based system you can type:
+If you like, you can easily inspect the session using mongo client. For example, on a Linux based system you can type:
 
-	$ redis-cli keys '*' | xargs redis-cli del
+[NOTE]
+====
+The sample application uses an embedded MongoDB instance that listens on a randomly allocated port.
+The port used by embedded MongoDB together with exact command to connect to it is logged during application startup.
+====
 
-TIP: The Redis documentation has instructions for http://redis.io/topics/quickstart[installing redis-cli].
+	$ mongo --port ...
+	> use test
+	> db.sessions.find().pretty()
 
-Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
+Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `60f17293-839b-477c-bb92-07a9c3658843` with the value of your SESSION cookie:
 
-	$ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+	> db.sessions.remove({"_id":"60f17293-839b-477c-bb92-07a9c3658843"})
 
 Now visit the application at http://localhost:8080/ and observe that we are no longer authenticated.

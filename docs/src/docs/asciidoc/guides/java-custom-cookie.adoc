@@ -17,7 +17,7 @@ You can find an example of customizing Spring Session's cookie below:
 
 [source,java]
 ----
-include::{samples-dir}custom-cookie/src/main/java/sample/Config.java[tags=cookie-serializer]
+include::{samples-dir}java/java-custom-cookie/src/main/java/sample/Config.java[tags=cookie-serializer]
 ----
 
 <1> We customize the name of the cookie to be JSESSIONID
