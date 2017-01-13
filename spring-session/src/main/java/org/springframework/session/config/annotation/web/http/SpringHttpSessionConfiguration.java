@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,11 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
+import javax.servlet.SessionCookieConfig;
 import javax.servlet.http.HttpSessionListener;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +95,8 @@ import org.springframework.util.ObjectUtils;
 @Configuration
 public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
+	private final Log logger = LogFactory.getLog(getClass());
+
 	private CookieHttpSessionStrategy defaultHttpSessionStrategy = new CookieHttpSessionStrategy();
 
 	private boolean usesSpringSessionRememberMeServices;
@@ -105,15 +111,9 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	@PostConstruct
 	public void init() {
-		if (this.cookieSerializer != null) {
-			this.defaultHttpSessionStrategy.setCookieSerializer(this.cookieSerializer);
-		}
-		else if (this.usesSpringSessionRememberMeServices) {
-			DefaultCookieSerializer cookieSerializer = new DefaultCookieSerializer();
-			cookieSerializer.setRememberMeRequestAttribute(
-					SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
-			this.defaultHttpSessionStrategy.setCookieSerializer(cookieSerializer);
-		}
+		CookieSerializer cookieSerializer = this.cookieSerializer != null
+				? this.cookieSerializer : createDefaultCookieSerializer();
+		this.defaultHttpSessionStrategy.setCookieSerializer(cookieSerializer);
 	}
 
 	@Bean
@@ -166,6 +166,39 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 	@Autowired(required = false)
 	public void setHttpSessionListeners(List<HttpSessionListener> listeners) {
 		this.httpSessionListeners = listeners;
+	}
+
+	private CookieSerializer createDefaultCookieSerializer() {
+		DefaultCookieSerializer cookieSerializer = new DefaultCookieSerializer();
+		if (this.servletContext != null) {
+			SessionCookieConfig sessionCookieConfig = null;
+			try {
+				sessionCookieConfig = this.servletContext.getSessionCookieConfig();
+			}
+			catch (UnsupportedOperationException e) {
+				this.logger
+						.warn("Unable to obtain SessionCookieConfig: " + e.getMessage());
+			}
+			if (sessionCookieConfig != null) {
+				if (sessionCookieConfig.getName() != null) {
+					cookieSerializer.setCookieName(sessionCookieConfig.getName());
+				}
+				if (sessionCookieConfig.getDomain() != null) {
+					cookieSerializer.setDomainName(sessionCookieConfig.getDomain());
+				}
+				if (sessionCookieConfig.getPath() != null) {
+					cookieSerializer.setCookiePath(sessionCookieConfig.getPath());
+				}
+				if (sessionCookieConfig.getMaxAge() != -1) {
+					cookieSerializer.setCookieMaxAge(sessionCookieConfig.getMaxAge());
+				}
+			}
+		}
+		if (this.usesSpringSessionRememberMeServices) {
+			cookieSerializer.setRememberMeRequestAttribute(
+					SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
+		}
+		return cookieSerializer;
 	}
 
 }
