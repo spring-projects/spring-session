@@ -19,7 +19,7 @@ plugins {
 
 group = 'org.springframework.session'
 
-ext.springBootVersion = '1.5.0.RC1'
+ext.springBootVersion = '2.0.0.BUILD-SNAPSHOT'
 ext.springDataGemFireVersion = "${springDataVersion}"
 ext.springDataMongoVersion = "${springDataVersion}"
 ext.springDataRedisVersion = "${springDataVersion}"
