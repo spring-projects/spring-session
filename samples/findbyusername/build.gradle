@@ -15,12 +15,13 @@ apply from: SAMPLE_GRADLE
 
 group = 'samples'
 
+ext['spring-data-releasetrain.version'] = springDataReleaseTrainVersion
+
 dependencies {
-	compile project(':spring-session'),
-			"org.springframework.boot:spring-boot-starter-data-redis",
-			"org.springframework.boot:spring-boot-starter-web",
+	compile project(':spring-session-data-redis'),
 			"org.springframework.boot:spring-boot-starter-security",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",
+			"org.springframework.boot:spring-boot-starter-web",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
 			"org.thymeleaf.extras:thymeleaf-extras-conditionalcomments",
 			"org.webjars:bootstrap:$bootstrapVersion",

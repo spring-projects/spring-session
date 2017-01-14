@@ -15,15 +15,12 @@ buildscript {
 
 plugins {
 	id "org.sonarqube" version "2.1"
+	id "io.spring.dependency-management" version "1.0.0.RC2"
 }
 
 group = 'org.springframework.session'
 
 ext.springBootVersion = '2.0.0.BUILD-SNAPSHOT'
-ext.springDataGemFireVersion = "${springDataVersion}"
-ext.springDataMongoVersion = "${springDataVersion}"
-ext.springDataRedisVersion = "${springDataVersion}"
-
 ext.IDE_GRADLE = "$rootDir/gradle/ide.gradle"
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.SPRING3_GRADLE = "$rootDir/gradle/spring3.gradle"
@@ -39,7 +36,22 @@ ext.snapshotBuild = version.endsWith('SNAPSHOT')
 ext.milestoneBuild = !(releaseBuild || snapshotBuild)
 
 apply plugin: 'base'
+apply from: JAVA_GRADLE
 
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.data:spring-data-releasetrain:$springDataReleaseTrainVersion"
+	}
+}
+
+def managedVersions = dependencyManagement.managedVersions
+
+//println "ManagedVersions Count: " + managedVersions.size()
+//managedVersions.each { entry -> println entry }
+
+ext.springDataGemFireVersion = managedVersions['org.springframework.data:spring-data-gemfire']
+ext.springDataMongoDBVersion = managedVersions['org.springframework.data:spring-data-mongodb']
+ext.springDataRedisVersion = managedVersions['org.springframework.data:spring-data-redis']
 
 sonarqube {
 	properties {

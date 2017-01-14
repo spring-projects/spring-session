@@ -14,6 +14,14 @@ configurations {
 	jacoco //Configuration Group used by Sonar to provide Code Coverage using JaCoCo
 }
 
+dependencyManagement {
+	springIoTestRuntime {
+		imports {
+			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+		}
+	}
+}
+
 dependencies {
 	compile "commons-logging:commons-logging:$commonsLoggingVersion"
 
@@ -22,9 +30,9 @@ dependencies {
 			"org.springframework:spring-messaging:$springVersion",
 			"org.springframework:spring-web:$springVersion",
 			"org.springframework:spring-websocket:$springVersion",
-			"org.springframework.data:spring-data-gemfire",
-			"org.springframework.data:spring-data-mongodb",
-			"org.springframework.data:spring-data-redis",
+			"org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
+			"org.springframework.data:spring-data-mongodb:$springDataMongoDBVersion",
+			"org.springframework.data:spring-data-redis:$springDataRedisVersion",
 			"org.springframework.security:spring-security-core:$springSecurityVersion",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",
 			"com.hazelcast:hazelcast:$hazelcastVersion"
@@ -50,17 +58,6 @@ dependencies {
 
 	jacoco "org.jacoco:org.jacoco.agent:0.7.2.201409121644:runtime"
 
-}
-
-dependencyManagement {
-	imports {
-		mavenBom "org.springframework.data:spring-data-releasetrain:$springDataReleaseTrainVersion"
-	}
-	springIoTestRuntime {
-		imports {
-			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
-		}
-	}
 }
 
 ext.javadocLinks = [

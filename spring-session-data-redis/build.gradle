@@ -6,6 +6,14 @@ apply plugin: 'spring-io'
 
 description = "Aggregator for Spring Session and Spring Data Redis"
 
+dependencyManagement {
+	springIoTestRuntime {
+		imports {
+			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+		}
+	}
+}
+
 dependencies {
 	compile project(':spring-session')
 	compile ("org.springframework.data:spring-data-redis:$springDataRedisVersion") {
@@ -14,12 +22,4 @@ dependencies {
 	}
     compile "redis.clients:jedis:$jedisVersion",
 			"org.apache.commons:commons-pool2:$commonsPoolVersion"
-}
-
-dependencyManagement {
-	springIoTestRuntime {
-		imports {
-			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
-		}
-	}
 }

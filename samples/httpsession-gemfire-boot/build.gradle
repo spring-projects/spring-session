@@ -9,14 +9,14 @@ buildscript {
 }
 
 apply from: JAVA_GRADLE
+apply from: SAMPLE_GRADLE
 apply plugin: "application"
 apply plugin: 'org.springframework.boot'
-apply from: SAMPLE_GRADLE
+
+ext['spring-data-releasetrain.version'] = springDataReleaseTrainVersion
 
 dependencies {
-	compile "org.springframework.data:spring-data-gemfire:$springDataGemFireVersion",
-		project(":spring-session"),
-		// project(':spring-session-data-gemfire'),
+	compile project(':spring-session-data-gemfire'),
 		"org.springframework.boot:spring-boot-starter-thymeleaf",
 		"org.springframework.boot:spring-boot-starter-web",
 		"org.webjars:bootstrap:$bootstrapVersion",
@@ -49,11 +49,13 @@ task runGemFireServer() {
 
 		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
 
-		String[] commandLine = ['java', '-server', '-ea', '-classpath', classpath,
-				"-Dgemfire.cache.server.port=$port",
-				//"-Dgemfire.log-file=gemfire-server.log",
-				"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'config'),
-				'sample.server.GemFireServer']
+		String[] commandLine = [
+			'java', '-server', '-ea', '-classpath', classpath,
+			"-Dgemfire.cache.server.port=$port",
+			//"-Dgemfire.log-file=gemfire-server.log",
+			"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'config'),
+			'sample.server.GemFireServer'
+		]
 
 		//println commandLine
 

@@ -40,12 +40,14 @@ task runGemFireServer(dependsOn: availablePort) {
 		println 'STARTING GEMFIRE SERVER...'
 
 		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
+		String gemfireLogLevel = System.getProperty('sample.httpsession.gemfire.log-level', 'warning')
 
-		String[] commandLine = ['java', '-server', '-ea',
-				"-Dspring.session.data.gemfire.port=$port",
-				"-Dsample.httpsession.gemfire.log-level="
-						+ System.getProperty('sample.httpsession.gemfire.log-level', 'warning'),
-				'-classpath', classpath, 'sample.Application']
+		String[] commandLine = [
+			'java', '-server', '-ea', '-classpath', classpath,
+			"-Dspring.session.data.gemfire.port=$port",
+			"-Dsample.httpsession.gemfire.log-level=" + gemfireLogLevel,
+			'sample.Application'
+		]
 
 		//println commandLine
 

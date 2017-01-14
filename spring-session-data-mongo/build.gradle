@@ -6,15 +6,15 @@ apply plugin: 'spring-io'
 
 description = "Aggregator for Spring Session and Spring Data Mongo"
 
-dependencies {
-	compile project(':spring-session'),
-			"org.springframework.data:spring-data-mongodb:$springDataMongoVersion"
-}
-
 dependencyManagement {
 	springIoTestRuntime {
 		imports {
 			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
 		}
 	}
+}
+
+dependencies {
+	compile project(':spring-session'),
+			"org.springframework.data:spring-data-mongodb:$springDataMongoDBVersion"
 }
