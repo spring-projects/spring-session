@@ -80,7 +80,7 @@ Add the following Spring Configuration:
 
 [source,java]
 ----
-include::{samples-dir}java/java-rest/src/main/java/sample/HttpSessionConfig.java[tags=class]
+include::{samples-dir}javaconfig/rest/src/main/java/sample/HttpSessionConfig.java[tags=class]
 ----
 
 <1> The `@EnableRedisHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements `Filter`.
@@ -101,7 +101,7 @@ In order for our `Filter` to do its magic, Spring needs to load our `Config` cla
 .src/main/java/sample/mvc/MvcInitializer.java
 [source,java,indent=0]
 ----
-include::{samples-dir}java/java-rest/src/main/java/sample/mvc/MvcInitializer.java[tags=config]
+include::{samples-dir}javaconfig/rest/src/main/java/sample/mvc/MvcInitializer.java[tags=config]
 ----
 
 Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
@@ -110,7 +110,7 @@ Fortunately, Spring Session provides a utility class named `AbstractHttpSessionA
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
-include::{samples-dir}java/java-rest/src/main/java/sample/Initializer.java[tags=class]
+include::{samples-dir}javaconfig/rest/src/main/java/sample/Initializer.java[tags=class]
 ----
 
 NOTE: The name of our class (Initializer) does not matter. What is important is that we extend `AbstractHttpSessionApplicationInitializer`.

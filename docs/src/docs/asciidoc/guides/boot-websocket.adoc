@@ -38,7 +38,7 @@ For example:
 .src/main/java/samples/config/WebSocketConfig.java
 [source,java]
 ----
-include::{samples-dir}boot/boot-websocket/src/main/java/sample/config/WebSocketConfig.java[tags=class]
+include::{samples-dir}boot/websocket/src/main/java/sample/config/WebSocketConfig.java[tags=class]
 ----
 
 To hook in the Spring Session support we only need to change two things:
@@ -78,7 +78,7 @@ For the purposes of testing session expiration, you may want to change the sessi
 .src/main/java/samples/config/WebSecurityConfig.java
 [source,java]
 ----
-include::{samples-dir}boot/boot-websocket/src/main/java/sample/config/WebSecurityConfig.java[tags=enable-redis-httpsession]
+include::{samples-dir}boot/websocket/src/main/java/sample/config/WebSecurityConfig.java[tags=enable-redis-httpsession]
 ----
 ====
 

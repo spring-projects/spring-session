@@ -2,32 +2,37 @@ rootProject.name = 'spring-session-build'
 
 include 'docs'
 
-include 'samples:boot:boot-findbyusername'
-include 'samples:boot:boot-gemfire'
-include 'samples:boot:boot-jdbc'
-include 'samples:boot:boot-mongo'
-include 'samples:boot:boot-redis'
-include 'samples:boot:boot-redis-json'
-include 'samples:boot:boot-websocket'
-include 'samples:java:java-custom-cookie'
-include 'samples:java:java-gemfire-clientserver'
-include 'samples:java:java-gemfire-p2p'
-include 'samples:java:java-hazelcast'
-include 'samples:java:java-jdbc'
-include 'samples:java:java-redis'
-include 'samples:java:java-rest'
-include 'samples:java:java-security'
-include 'samples:java:java-users'
-//include 'samples:misc:grails3'
-include 'samples:misc:hazelcast'
-include 'samples:xml:xml-gemfire-clientserver'
-include 'samples:xml:xml-gemfire-p2p'
-include 'samples:xml:xml-jdbc'
-include 'samples:xml:xml-redis'
-
 include 'spring-session'
 include 'spring-session-data-gemfire'
 include 'spring-session-data-mongo'
 include 'spring-session-data-redis'
 include 'spring-session-hazelcast'
 include 'spring-session-jdbc'
+
+includeSamples("samples" + File.separator + "boot")
+includeSamples("samples" + File.separator + "javaconfig")
+includeSamples("samples" + File.separator + "misc")
+includeSamples("samples" + File.separator + "xml")
+
+void includeSamples(String samplesDir) {
+	FileTree tree = fileTree(samplesDir) {
+		include '**' + File.separator + '*.gradle'
+		exclude 'grails3'
+	}
+	tree.each {File file ->
+		String projectDir = file.path.substring(file.path.indexOf(samplesDir), file.path.lastIndexOf(File.separator))
+		String projectPath = projectDir.substring(projectDir.lastIndexOf(File.separator) + 1)
+		String projectNamePrefix = samplesDir.substring(samplesDir.lastIndexOf(File.separator) + 1).toLowerCase();
+
+		include projectPath
+
+		def project = findProject(":${projectPath}")
+
+		project.name = "spring-session-samples-${projectNamePrefix}-${project.name}"
+		project.projectDir = new File(settingsDir, projectDir)
+
+		if (!project.buildFile.exists()) {
+			project.buildFileName = file.path.substring(file.path.lastIndexOf(File.separator) + 1)
+		}
+	}
+}

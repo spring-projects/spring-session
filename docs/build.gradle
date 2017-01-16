@@ -76,3 +76,5 @@ asciidoctor {
 			'docinfo1':'true',
 			'revnumber' : project.version
 }
+
+eclipse.project.name = 'spring-session-docs'

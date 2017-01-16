@@ -81,7 +81,7 @@ Add the following Spring Configuration:
 .src/main/webapp/WEB-INF/spring/session.xml
 [source,xml,indent=0]
 ----
-include::{samples-dir}xml/xml-gemfire-p2p/src/main/webapp/WEB-INF/spring/session.xml[tags=beans]
+include::{samples-dir}xml/gemfire-p2p/src/main/webapp/WEB-INF/spring/session.xml[tags=beans]
 ----
 
 <1> We use the combination of `<context:annotation-config/>` and `GemFireHttpSessionConfiguration` because Spring Session
@@ -114,8 +114,8 @@ We do this with the following configuration:
 .src/main/webapp/WEB-INF/web.xml
 [source,xml,indent=0]
 ----
-include::{samples-dir}xml/xml-gemfire-p2p/src/main/webapp/WEB-INF/web.xml[tags=context-param]
-include::{samples-dir}xml/xml-gemfire-p2p/src/main/webapp/WEB-INF/web.xml[tags=listeners]
+include::{samples-dir}xml/gemfire-p2p/src/main/webapp/WEB-INF/web.xml[tags=context-param]
+include::{samples-dir}xml/gemfire-p2p/src/main/webapp/WEB-INF/web.xml[tags=listeners]
 ----
 
 The http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener]
@@ -129,7 +129,7 @@ The following snippet performs this last step for us:
 .src/main/webapp/WEB-INF/web.xml
 [source,xml,indent=0]
 ----
-include::{samples-dir}xml/xml-gemfire-p2p/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
+include::{samples-dir}xml/gemfire-p2p/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
 ----
 
 The http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy]
@@ -167,7 +167,7 @@ We interact with the standard `HttpSession` in the `SessionServlet` shown below:
 .src/main/java/sample/SessionServlet.java
 [source,java]
 ----
-include::{samples-dir}xml/xml-gemfire-p2p/src/main/java/sample/SessionServlet.java[tags=class]
+include::{samples-dir}xml/gemfire-p2p/src/main/java/sample/SessionServlet.java[tags=class]
 ----
 
 Instead of using Tomcat's `HttpSession`, we are actually persisting the values in GemFire.
