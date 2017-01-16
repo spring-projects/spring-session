@@ -80,7 +80,7 @@ Add the following Spring Configuration:
 
 [source,java]
 ----
-include::{samples-dir}java/java-gemfire-p2p/src/main/java/sample/Config.java[tags=class]
+include::{samples-dir}javaconfig/gemfire-p2p/src/main/java/sample/Config.java[tags=class]
 ----
 
 <1> The `@EnableGemFireHttpSession` annotation creates a Spring bean named `springSessionRepositoryFilter` that
@@ -125,7 +125,7 @@ You can find an example below:
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
-include::{samples-dir}java/java-gemfire-p2p/src/main/java/sample/Initializer.java[tags=class]
+include::{samples-dir}javaconfig/gemfire-p2p/src/main/java/sample/Initializer.java[tags=class]
 ----
 
 NOTE: The name of our class (`Initializer`) does not matter. What is important is that we extend `AbstractHttpSessionApplicationInitializer`.
@@ -166,7 +166,7 @@ We interact with the standard `HttpSession` in the `SessionServlet` shown below:
 .src/main/java/sample/SessionServlet.java
 [source,java]
 ----
-include::{samples-dir}java/java-gemfire-p2p/src/main/java/sample/SessionServlet.java[tags=class]
+include::{samples-dir}javaconfig/gemfire-p2p/src/main/java/sample/SessionServlet.java[tags=class]
 ----
 
 Instead of using Tomcat's `HttpSession`, we are actually persisting the values in GemFire.

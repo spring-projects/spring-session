@@ -48,31 +48,31 @@ If you are looking to get started with Spring Session, the best place to start i
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}boot/boot-redis[HttpSession with Redis]
+| {gh-samples-url}boot/redis[HttpSession with Redis]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
 | link:guides/boot.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}boot/boot-gemfire[HttpSession with GemFire]
+| {gh-samples-url}boot/gemfire[HttpSession with GemFire]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
 | link:guides/boot-gemfire.html[HttpSession with GemFire Guide]
 
-| {gh-samples-url}boot/boot-mongo[HttpSession with Mongo]
+| {gh-samples-url}boot/mongo[HttpSession with Mongo]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Mongo.
 | link:guides/boot-mongo.html[HttpSession with Mongo Guide]
 
-| {gh-samples-url}boot/boot-jdbc[HttpSession with JDBC]
+| {gh-samples-url}boot/jdbc[HttpSession with JDBC]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/boot-jdbc.html[HttpSession with JDBC Guide]
 
-| {gh-samples-url}boot/boot-findbyusername[Find by Username]
+| {gh-samples-url}boot/findbyusername[Find by Username]
 | Demonstrates how to use Spring Session to find sessions by username.
 | link:guides/boot-findbyusername.html[Find by Username Guide]
 
-| {gh-samples-url}boot/boot-websocket[WebSockets]
+| {gh-samples-url}boot/websocket[WebSockets]
 | Demonstrates how to use Spring Session with WebSockets.
 | link:guides/boot-websocket.html[WebSockets Guide]
 
-| {gh-samples-url}boot/boot-redis-json[HttpSession with Redis JSON serialization]
+| {gh-samples-url}boot/redis-json[HttpSession with Redis JSON serialization]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.
 | TBD
 
@@ -82,39 +82,39 @@ If you are looking to get started with Spring Session, the best place to start i
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}java/java-redis[HttpSession with Redis]
+| {gh-samples-url}javaconfig/redis[HttpSession with Redis]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
 | link:guides/java-redis.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}java/java-gemfire-clientserver[HttpSession with GemFire (Client/Server)]
+| {gh-samples-url}javaconfig/gemfire-clientserver[HttpSession with GemFire (Client/Server)]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
 | link:guides/java-gemfire-clientserver.html[HttpSession with GemFire (Client/Server) Guide]
 
-| {gh-samples-url}java/java-gemfire-p2p[HttpSession with GemFire (P2P)]
+| {gh-samples-url}javaconfig/gemfire-p2p[HttpSession with GemFire (P2P)]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a P2P topology.
 | link:guides/java-gemfire-p2p.html[HttpSession with GemFire (P2P) Guide]
 
-| {gh-samples-url}java/java-jdbc[HttpSession with JDBC]
+| {gh-samples-url}javaconfig/jdbc[HttpSession with JDBC]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/java-jdbc.html[HttpSession with JDBC Guide]
 
-| {gh-samples-url}java/java-hazelcast[HttpSession with Hazelcast]
+| {gh-samples-url}javaconfig/hazelcast[HttpSession with Hazelcast]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
 | link:guides/java-hazelcast.html[HttpSession with Hazelcast Guide]
 
-| {gh-samples-url}java/java-custom-cookie[Custom Cookie]
+| {gh-samples-url}javaconfig/custom-cookie[Custom Cookie]
 | Demonstrates how to use Spring Session and customize the cookie.
 | link:guides/custom-cookie.html[Custom Cookie Guide]
 
-| {gh-samples-url}java/java-security[Spring Security]
+| {gh-samples-url}javaconfig/security[Spring Security]
 | Demonstrates how to use Spring Session with an existing Spring Security application.
 | link:guides/java-security.html[Spring Security Guide]
 
-| {gh-samples-url}java/java-rest[REST]
+| {gh-samples-url}javaconfig/rest[REST]
 | Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
 | link:guides/java-rest.html[REST Guide]
 
-| {gh-samples-url}java/java-users[Multiple Users]
+| {gh-samples-url}javaconfig/users[Multiple Users]
 | Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
 | link:guides/java-users.html[Multiple Users Guide]
 
@@ -124,19 +124,19 @@ If you are looking to get started with Spring Session, the best place to start i
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}xml/xml-redis[HttpSession with Redis]
+| {gh-samples-url}xml/redis[HttpSession with Redis]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
 | link:guides/xml-redis.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}xml/xml-gemfire-clientserver[HttpSession with GemFire (Client/Server)]
+| {gh-samples-url}xml/gemfire-clientserver[HttpSession with GemFire (Client/Server)]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
 | link:guides/xml-gemfire-clientserver.html[HttpSession with GemFire (Client/Server) Guide]
 
-| {gh-samples-url}xml/xml-gemfire-p2p[HttpSession with GemFire (P2P)]
+| {gh-samples-url}xml/gemfire-p2p[HttpSession with GemFire (P2P)]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a P2P topology.
 | link:guides/xml-gemfire-p2p.html[HttpSession with GemFire (P2P) Guide]
 
-| {gh-samples-url}xml/xml-jdbc[HttpSession with JDBC]
+| {gh-samples-url}xml/jdbc[HttpSession with JDBC]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/xml-jdbc.html[HttpSession with JDBC Guide]
 

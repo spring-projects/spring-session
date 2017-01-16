@@ -98,7 +98,7 @@ Since our application is already loading Spring configuration using our `Securit
 .src/main/java/sample/SecurityInitializer.java
 [source,java]
 ----
-include::{samples-dir}java/java-hazelcast/src/main/java/sample/SecurityInitializer.java[tags=class]
+include::{samples-dir}javaconfig/hazelcast/src/main/java/sample/SecurityInitializer.java[tags=class]
 ----
 
 Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
@@ -110,7 +110,7 @@ You can find an example below:
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
-include::{samples-dir}java/java-hazelcast/src/main/java/sample/Initializer.java[tags=class]
+include::{samples-dir}javaconfig/hazelcast/src/main/java/sample/Initializer.java[tags=class]
 ----
 
 NOTE: The name of our class (Initializer) does not matter. What is important is that we extend `AbstractHttpSessionApplicationInitializer`.

@@ -86,7 +86,7 @@ We start with the _Spring Boot_ application for configuring and bootstrapping a 
 
 [source,java]
 ----
-include::{samples-dir}boot/boot-gemfire/src/main/java/sample/server/GemFireServer.java[tags=class]
+include::{samples-dir}boot/gemfire/src/main/java/sample/server/GemFireServer.java[tags=class]
 ----
 
 <1> The `@EnableGemFireHttpSession` annotation is used on the GemFire Server to mainly define the corresponding
@@ -113,7 +113,7 @@ to manage Session state in a clustered, replicated fashion.
 
 [source,java]
 ----
-include::{samples-dir}boot/boot-gemfire/src/main/java/sample/client/Application.java[tags=class]
+include::{samples-dir}boot/gemfire/src/main/java/sample/client/Application.java[tags=class]
 ----
 
 <1> Here, again, we use the `@EnableGemFireHttpSession` annotation to not only configure the GemFire cache client,
