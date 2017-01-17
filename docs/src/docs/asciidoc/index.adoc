@@ -1163,16 +1163,6 @@ can be added to an `@Configuration` class. This extends the functionality provid
 You must provide a single `HazelcastInstance` bean for the configuration to work.
 Complete configuration example can be found in the <<samples>>
 
-[[api-enablehazelcasthttpsession-storage]]
-==== Storage Details
-
-Sessions will be stored in a distributed `IMap` in Hazelcast using a <<api-mapsessionrepository,MapSessionRepository>>.
-The `IMap` interface methods will be used to `get()` and `put()` Sessions.
-Additionally, `values()` method is used to support `FindByIndexNameSessionRepository#findByIndexNameAndIndexValue` operation, together with appropriate `ValueExtractor` that needs to be registered with Hazelcast. Refer to <<samples, Hazelcast Spring Sample>> for more details on this configuration.
-The expiration of a session in the `IMap` is handled by Hazelcast's support for setting the time to live on an entry when it is `put()` into the `IMap`. Entries (sessions) that have been idle longer than the time to live will be automatically removed from the `IMap`.
-
-You shouldn't need to configure any settings such as `max-idle-seconds` or `time-to-live-seconds` for the `IMap` within the Hazelcast configuration.
-
 [[api-enablehazelcasthttpsession-customize]]
 ==== Basic Customization
 You can use the following attributes on `@EnableHazelcastHttpSession` to customize the configuration:
@@ -1183,7 +1173,22 @@ You can use the following attributes on `@EnableHazelcastHttpSession` to customi
 [[api-enablehazelcasthttpsession-events]]
 ==== Session Events
 Using a `MapListener` to respond to entries being added, evicted, and removed from the distributed `Map`, these events will trigger
-publishing SessionCreatedEvent, SessionExpiredEvent, and SessionDeletedEvent events respectively using the `ApplicationEventPublisher`.
+publishing `SessionCreatedEvent`, `SessionExpiredEvent`, and `SessionDeletedEvent` events respectively using the `ApplicationEventPublisher`.
+
+[[api-enablehazelcasthttpsession-storage]]
+==== Storage Details
+
+Sessions will be stored in a distributed `IMap` in Hazelcast.
+The `IMap` interface methods will be used to `get()` and `put()` Sessions.
+Additionally, `values()` method is used to support `FindByIndexNameSessionRepository#findByIndexNameAndIndexValue` operation, together with appropriate `ValueExtractor` that needs to be registered with Hazelcast. Refer to <<samples, Hazelcast Spring Sample>> for more details on this configuration.
+The expiration of a session in the `IMap` is handled by Hazelcast's support for setting the time to live on an entry when it is `put()` into the `IMap`. Entries (sessions) that have been idle longer than the time to live will be automatically removed from the `IMap`.
+
+You shouldn't need to configure any settings such as `max-idle-seconds` or `time-to-live-seconds` for the `IMap` within the Hazelcast configuration.
+
+Note that if you use Hazelcast's `MapStore` to persist your sessions `IMap` there are some limitations when reloading the sessions from `MapStore`:
+
+* reload triggers `EntryAddedListener` which results in `SessionCreatedEvent` being re-published
+* reload uses default TTL for a given `IMap` which results in sessions losing their original TTL
 
 [[community]]
 == Spring Session Community
