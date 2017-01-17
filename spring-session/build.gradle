@@ -51,7 +51,7 @@ dependencies {
 dependencyManagement {
 	springIoTestRuntime {
 		imports {
-			mavenBom "io.spring.platform:platform-bom:${springIoVersion}"
+			mavenBom "io.spring.platform:platform-bom:$springIoVersion"
 		}
 	}
 }

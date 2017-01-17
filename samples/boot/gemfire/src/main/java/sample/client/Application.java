@@ -69,7 +69,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 // tag::class[]
 @SpringBootApplication
-@EnableGemFireHttpSession // <1>
+@EnableGemFireHttpSession(poolName = "DEFAULT")// <1>
 @Controller
 public class Application {
 
@@ -77,7 +77,7 @@ public class Application {
 
 	static final CountDownLatch LATCH = new CountDownLatch(1);
 
-	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
+	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
 	static final String INDEX_TEMPLATE_VIEW_NAME = "index";
 	static final String PING_RESPONSE = "PONG";
 	static final String REQUEST_COUNT_ATTRIBUTE_NAME = "requestCount";
@@ -102,18 +102,17 @@ public class Application {
 	}
 
 	String applicationName() {
-		return "samples:httpsession-gemfire-boot:"
-			.concat(getClass().getSimpleName());
+		return "spring-session-data-gemfire-boot-sample.".concat(getClass().getSimpleName());
 	}
 
 	String logLevel() {
-		return System.getProperty("gemfire.log-level", DEFAULT_GEMFIRE_LOG_LEVEL);
+		return System.getProperty("spring-session-data-gemfire.log.level", DEFAULT_GEMFIRE_LOG_LEVEL);
 	}
 
 	@Bean
 	ClientCacheFactoryBean gemfireCache(
-			@Value("${gemfire.cache.server.host:localhost}") String host,
-			@Value("${gemfire.cache.server.port:12480}") int port) { // <3>
+			@Value("${spring-session-data-gemfire.cache.server.host:localhost}") String host,
+			@Value("${spring-session-data-gemfire.cache.server.port:12480}") int port) { // <3>
 
 		ClientCacheFactoryBean gemfireCache = new ClientCacheFactoryBean();
 
@@ -153,8 +152,8 @@ public class Application {
 
 	@Bean
 	BeanPostProcessor gemfireCacheServerReadyBeanPostProcessor(
-			@Value("${gemfire.cache.server.host:localhost}") final String host,
-			@Value("${gemfire.cache.server.port:12480}") final int port) { // <5>
+			@Value("${spring-session-data-gemfire.cache.server.host:localhost}") final String host,
+			@Value("${spring-session-data-gemfire.cache.server.port:12480}") final int port) { // <5>
 
 		return new BeanPostProcessor() {
 

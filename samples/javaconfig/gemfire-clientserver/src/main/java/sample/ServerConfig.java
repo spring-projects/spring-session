@@ -36,13 +36,12 @@ public class ServerConfig {
 
 	static final int SERVER_PORT = 12480;
 
-	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
+	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
 	static final String SERVER_HOST = "localhost";
 
 	@SuppressWarnings("resource")
 	public static void main(String[] args) throws IOException { // <5>
-		new AnnotationConfigApplicationContext(ServerConfig.class)
-			.registerShutdownHook();
+		new AnnotationConfigApplicationContext(ServerConfig.class).registerShutdownHook();
 	}
 
 	@Bean
@@ -55,21 +54,20 @@ public class ServerConfig {
 
 		gemfireProperties.setProperty("name", applicationName());
 		gemfireProperties.setProperty("mcast-port", "0");
+		// gemfireProperties.setProperty("log-file", "gemfire-server.log");
 		gemfireProperties.setProperty("log-level", logLevel());
-		gemfireProperties.setProperty("jmx-manager", "true");
-		gemfireProperties.setProperty("jmx-manager-start", "true");
+		// gemfireProperties.setProperty("jmx-manager", "true");
+		// gemfireProperties.setProperty("jmx-manager-start", "true");
 
 		return gemfireProperties;
 	}
 
 	String applicationName() {
-		return "samples:httpsession-gemfire-clientserver:"
-			.concat(getClass().getSimpleName());
+		return "samples:httpsession-gemfire-clientserver:".concat(getClass().getSimpleName());
 	}
 
 	String logLevel() {
-		return System.getProperty("sample.httpsession.gemfire.log-level",
-			DEFAULT_GEMFIRE_LOG_LEVEL);
+		return System.getProperty("sample.httpsession.gemfire.log-level", DEFAULT_GEMFIRE_LOG_LEVEL);
 	}
 
 	@Bean
