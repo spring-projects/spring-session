@@ -46,7 +46,7 @@ import org.springframework.session.data.gemfire.config.annotation.web.http.Enabl
 @EnableGemFireHttpSession(maxInactiveIntervalInSeconds = 20) // <1>
 public class GemFireServer {
 
-	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
+	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
 
 	public static void main(String[] args) {
 		SpringApplication springApplication = new SpringApplication(GemFireServer.class);
@@ -63,7 +63,6 @@ public class GemFireServer {
 		Properties gemfireProperties = new Properties();
 
 		gemfireProperties.setProperty("name", applicationName());
-		gemfireProperties.setProperty("mcast-port", "0");
 		//gemfireProperties.setProperty("log-file", "gemfire-server.log");
 		gemfireProperties.setProperty("log-level", logLevel());
 		//gemfireProperties.setProperty("jmx-manager", "true");
@@ -73,11 +72,11 @@ public class GemFireServer {
 	}
 
 	String applicationName() {
-		return "samples:httpsession-gemfire-boot:".concat(getClass().getSimpleName());
+		return "spring-session-data-gemfire-boot-sample:".concat(getClass().getSimpleName());
 	}
 
 	String logLevel() {
-		return System.getProperty("gemfire.log-level", DEFAULT_GEMFIRE_LOG_LEVEL);
+		return System.getProperty("spring-session-data-gemfire.log.level", DEFAULT_GEMFIRE_LOG_LEVEL);
 	}
 
 	@Bean
@@ -92,9 +91,9 @@ public class GemFireServer {
 
 	@Bean
 	CacheServerFactoryBean gemfireCacheServer(Cache gemfireCache,
-			@Value("${gemfire.cache.server.bind-address:localhost}") String bindAddress,
-			@Value("${gemfire.cache.server.hostname-for-clients:localhost}") String hostnameForClients,
-			@Value("${gemfire.cache.server.port:12480}") int port) { // <4>
+			@Value("${spring-session-data-gemfire.cache.server.bind-address:localhost}") String bindAddress,
+			@Value("${spring-session-data-gemfire.cache.server.hostname-for-clients:localhost}") String hostnameForClients,
+			@Value("${spring-session-data-gemfire.cache.server.port:12480}") int port) { // <4>
 
 		CacheServerFactoryBean gemfireCacheServer = new CacheServerFactoryBean();
 

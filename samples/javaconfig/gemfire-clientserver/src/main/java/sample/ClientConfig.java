@@ -44,7 +44,9 @@ public class ClientConfig {
 
 	static final CountDownLatch LATCH = new CountDownLatch(1);
 
-	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
+	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
+	static final String PROXY_HOST = "dummy.example.com";
+	static final String PROXY_PORT = "3128";
 
 	@Bean
 	static PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer() {
@@ -54,6 +56,7 @@ public class ClientConfig {
 	Properties gemfireProperties() { // <2>
 		Properties gemfireProperties = new Properties();
 		gemfireProperties.setProperty("name", applicationName());
+		// gemfireProperties.setProperty("log-file", "gemfire-client.log");
 		gemfireProperties.setProperty("log-level", logLevel());
 		return gemfireProperties;
 	}

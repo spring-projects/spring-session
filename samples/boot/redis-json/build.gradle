@@ -19,7 +19,6 @@ ext {
     assertjVersion = "2.4.0"
 }
 
-ext['reactor.version'] = reactorVersion
 ext['spring-security.version'] = springSecurityVersion
 
 dependencies {

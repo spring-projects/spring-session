@@ -1,7 +1,7 @@
 apply from: JAVA_GRADLE
+apply from: SAMPLE_GRADLE
 apply from: TOMCAT_7_GRADLE
 apply plugin: "application"
-apply from: SAMPLE_GRADLE
 
 dependencies {
 	compile project(':spring-session-data-gemfire'),
@@ -38,10 +38,13 @@ task availablePort() {
 
 task runGemFireServer(dependsOn: availablePort) {
 	doLast {
-		println 'STARTING GEMFIRE SERVER...'
+		println "Starting GemFire Server on port [$port]..."
+
+		def out = new StringBuilder()
+		def err = new StringBuilder()
 
 		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
-		String gemfireLogLevel = System.getProperty('sample.httpsession.gemfire.log-level', 'warning')
+		String gemfireLogLevel = System.getProperty('sample.httpsession.gemfire.log-level', 'config')
 
 		String[] commandLine = [
 			'java', '-server', '-ea', '-classpath', classpath,
@@ -53,14 +56,16 @@ task runGemFireServer(dependsOn: availablePort) {
 		//println commandLine
 
 		process = commandLine.execute()
-		process.in.close()
-		process.out.close()
-		process.err.close()
+
+		process.consumeProcessOutput(out, err)
+
+		//println 'OUT: ' + out
+		//println 'ERR: ' + err
 	}
 }
 
 integrationTest.doLast {
-	println 'STOPPING GEMFIRE SERVER...'
+	println 'Stopping GemFire Server...'
 	process?.destroyForcibly()
 }
 

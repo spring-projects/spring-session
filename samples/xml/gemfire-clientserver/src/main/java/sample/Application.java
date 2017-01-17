@@ -27,8 +27,7 @@ import org.springframework.context.annotation.ImportResource;
 public class Application {
 
 	public static void main(final String[] args) {
-		new AnnotationConfigApplicationContext(Application.class)
-			.registerShutdownHook();
+		new AnnotationConfigApplicationContext(Application.class).registerShutdownHook();
 	}
 }
 // tag::end[]

@@ -16,8 +16,6 @@ apply from: SAMPLE_GRADLE
 
 group = 'samples'
 
-ext['reactor.version'] = reactorVersion
-
 dependencies {
 	compile(project(':spring-session-data-redis')) {
 		exclude module: 'jedis'

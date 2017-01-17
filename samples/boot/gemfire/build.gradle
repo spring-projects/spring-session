@@ -43,26 +43,34 @@ springBoot {
 
 task runGemFireServer() {
 	doLast {
-		println 'STARTING GEMFIRE SERVER...'
-
 		ext.port = reservePort()
+
+		println "Starting GemFire Server on port [$port] ..."
+
+		def out = new StringBuilder()
+		def err = new StringBuilder()
 
 		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
 
 		String[] commandLine = [
 			'java', '-server', '-ea', '-classpath', classpath,
-			"-Dgemfire.cache.server.port=$port",
 			//"-Dgemfire.log-file=gemfire-server.log",
-			"-Dgemfire.log-level=" + System.getProperty('gemfire.log.level', 'config'),
+			//"-Dgemfire.log-level=config",
+			"-Dspring-session-data-gemfire.cache.server.port=$port",
+			"-Dspring-session-data-gemfire.log.level="
+				+ System.getProperty('spring-session-data-gemfire.log.level', 'config'),
 			'sample.server.GemFireServer'
 		]
 
 		//println commandLine
 
 		ext.process = commandLine.execute()
-		process.in.close()
-		process.out.close()
-		process.err.close()
+		//ext.process = new ProcessBuilder().command(commandLine).redirectErrorStream(true).start();
+
+		ext.process.consumeProcessOutput(out, err)
+
+		//println 'OUT: ' + out
+		//println 'ERR: ' + err
 	}
 }
 
@@ -71,12 +79,15 @@ integrationTest {
 	dependsOn runGemFireServer
 	doFirst {
 		def port = reservePort()
-		systemProperties['server.port'] = port
 		systemProperties['management.port'] = 0
-		systemProperties['gemfire.cache.server.port'] = runGemFireServer.port
+		systemProperties['server.port'] = port
+		//systemProperties['gemfire.log-file'] = "gemfire-client.log"
+		//systemProperties['gemfire.log-level'] = "config"
+		systemProperties['spring-session-data-gemfire.cache.server.port'] = runGemFireServer.port
+		systemProperties['spring-session-data-gemfire.log.level'] = System.getProperty("spring-session-data-gemfire.log.level", "warning")
 	}
 	doLast {
-		println 'STOPPING GEMFIRE SERVER...'
+		println 'Stopping GemFire Server...'
 		runGemFireServer.process?.destroyForcibly()
 	}
 }
