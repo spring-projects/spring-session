@@ -20,11 +20,12 @@
 	<context:property-placeholder location="classpath:META-INF/spring/application.properties"/>
 
 	<!--3-->
-	<bean class="sample.GemFireCacheServerReadyBeanPostProcessor"/>
+	<bean class="sample.GemFireClientServerReadyBeanPostProcessor"/>
 
 	<!--4-->
 	<util:properties id="gemfireProperties">
-		<prop key="log-level">${sample.httpsession.gemfire.log-level:warning}</prop>
+		<!--<prop key="log-file">gemfire-client.log</prop>-->
+		<prop key="log-level">${spring.session.data.gemfire.log-level:warning}</prop>
 	</util:properties>
 
 	<!--5-->

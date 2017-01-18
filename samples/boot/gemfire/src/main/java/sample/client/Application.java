@@ -24,10 +24,16 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.http.HttpSession;
 
 import com.gemstone.gemfire.cache.Region;
+import com.gemstone.gemfire.cache.client.ClientCache;
+import com.gemstone.gemfire.cache.client.Pool;
+import com.gemstone.gemfire.cache.client.PoolManager;
+import com.gemstone.gemfire.cache.client.internal.PoolImpl;
 import com.gemstone.gemfire.management.membership.ClientMembership;
 import com.gemstone.gemfire.management.membership.ClientMembershipEvent;
 import com.gemstone.gemfire.management.membership.ClientMembershipListenerAdapter;
@@ -40,6 +46,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
+import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.data.gemfire.util.CollectionUtils;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
@@ -78,6 +85,7 @@ public class Application {
 	static final CountDownLatch LATCH = new CountDownLatch(1);
 
 	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
+	static final String GEMFIRE_DEFAULT_POOL_NAME = "DEFAULT";
 	static final String INDEX_TEMPLATE_VIEW_NAME = "index";
 	static final String PING_RESPONSE = "PONG";
 	static final String REQUEST_COUNT_ATTRIBUTE_NAME = "requestCount";
@@ -151,21 +159,20 @@ public class Application {
 	}
 
 	@Bean
-	BeanPostProcessor gemfireCacheServerReadyBeanPostProcessor(
+	BeanPostProcessor gemfireClientServerReadyBeanPostProcessor(
 			@Value("${spring-session-data-gemfire.cache.server.host:localhost}") final String host,
 			@Value("${spring-session-data-gemfire.cache.server.port:12480}") final int port) { // <5>
 
 		return new BeanPostProcessor() {
 
+			private final AtomicBoolean checkGemFireServerIsRunning = new AtomicBoolean(true);
+			private final AtomicReference<Pool> defaultPool = new AtomicReference<Pool>(null);
+
 			public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-				if (GemFireHttpSessionConfiguration.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME.equals(beanName)
-						|| bean instanceof Region) {
-
+				if (shouldCheckWhetherGemFireServerIsRunning(bean, beanName)) {
 					try {
-						boolean didNotTimeout = LATCH.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-
-						Assert.state(didNotTimeout, String.format(
-							"GemFire Cache Server failed to start on host [%s] and port [%d]", host, port));
+						validateCacheClientNotified();
+						validateCacheClientSubscriptionQueueConnectionEstablished();
 					}
 					catch (InterruptedException e) {
 						Thread.currentThread().interrupt();
@@ -173,6 +180,69 @@ public class Application {
 				}
 
 				return bean;
+			}
+
+			private boolean shouldCheckWhetherGemFireServerIsRunning(Object bean, String beanName) {
+				return (isGemFireRegion(bean, beanName)
+					? checkGemFireServerIsRunning.compareAndSet(true, false)
+					: whenGemFireCache(bean, beanName));
+			}
+
+			private boolean isGemFireRegion(Object bean, String beanName) {
+				return (GemFireHttpSessionConfiguration.DEFAULT_SPRING_SESSION_GEMFIRE_REGION_NAME.equals(beanName)
+					|| bean instanceof Region);
+			}
+
+			private boolean whenGemFireCache(Object bean, String beanName) {
+				if (bean instanceof ClientCache) {
+					defaultPool.compareAndSet(null, ((ClientCache) bean).getDefaultPool());
+				}
+
+				return false;
+			}
+
+			private void validateCacheClientNotified() throws InterruptedException {
+				boolean didNotTimeout = LATCH.await(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+
+				Assert.state(didNotTimeout, String.format(
+					"GemFire Cache Server failed to start on host [%s] and port [%d]", host, port));
+			}
+
+			@SuppressWarnings("all")
+			private void validateCacheClientSubscriptionQueueConnectionEstablished() throws InterruptedException {
+				boolean cacheClientSubscriptionQueueConnectionEstablished = false;
+
+				Pool pool = defaultIfNull(this.defaultPool.get(), GemfireConstants.DEFAULT_GEMFIRE_POOL_NAME,
+					GEMFIRE_DEFAULT_POOL_NAME);
+
+				if (pool instanceof PoolImpl) {
+					long timeout = (System.currentTimeMillis() + DEFAULT_TIMEOUT);
+
+					while (System.currentTimeMillis() < timeout
+						&& !((PoolImpl) pool).isPrimaryUpdaterAlive()) {
+
+						synchronized (pool) {
+							TimeUnit.MILLISECONDS.timedWait(pool, 500L);
+						}
+
+					}
+
+					cacheClientSubscriptionQueueConnectionEstablished |=
+						((PoolImpl) pool).isPrimaryUpdaterAlive();
+				}
+
+				Assert.state(cacheClientSubscriptionQueueConnectionEstablished, String.format(
+					"Cache client subscription queue connection not established; GemFire Pool was [%s];"
+						+ " GemFire Pool configuration was [locators = %s, servers = %s]",
+							pool, pool.getLocators(), pool.getServers()));
+			}
+
+			private Pool defaultIfNull(Pool pool, String... poolNames) {
+				for (String poolName : poolNames) {
+					pool = (pool != null ? pool : PoolManager.find(poolName));
+				}
+
+				return pool;
 			}
 
 			public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {

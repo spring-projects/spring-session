@@ -23,9 +23,12 @@
 	<util:properties id="gemfireProperties">
 		<prop key="name">GemFireClientServerHttpSessionXmlSample</prop>
 		<prop key="mcast-port">0</prop>
-		<prop key="log-level">${sample.httpsession.gemfire.log-level:warning}</prop>
+		<!--<prop key="log-file">gemfire-server.log</prop>-->
+		<prop key="log-level">${spring.session.data.gemfire.log-level:warning}</prop>
+<!--
 		<prop key="jmx-manager">true</prop>
 		<prop key="jmx-manager-start">true</prop>
+-->
 	</util:properties>
 
 	<!--4-->

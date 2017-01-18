@@ -36,7 +36,7 @@ public class ServerConfig {
 
 	static final int SERVER_PORT = 12480;
 
-	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "config";
+	static final String DEFAULT_GEMFIRE_LOG_LEVEL = "warning";
 	static final String SERVER_HOST = "localhost";
 
 	@SuppressWarnings("resource")
