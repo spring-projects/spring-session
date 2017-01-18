@@ -43,12 +43,14 @@ task runGemFireServer(dependsOn: availablePort) {
 		def err = new StringBuilder()
 
 		String classpath = sourceSets.main.runtimeClasspath.collect { it }.join(File.pathSeparator)
-		String gemfireLogLevel = System.getProperty('sample.httpsession.gemfire.log-level', 'warning')
+		String gemfireLogLevel = System.getProperty('spring.session.data.gemfire.log-level', 'warning')
 
 		String[] commandLine = [
 			'java', '-server', '-ea', '-classpath', classpath,
+			//"-Dgemfire.log-file=gemfire-server.log",
+			//"-Dgemfire.log-level=config",
+			"-Dspring.session.data.gemfire.log-level=" + gemfireLogLevel,
 			"-Dspring.session.data.gemfire.port=$port",
-			"-Dsample.httpsession.gemfire.log-level=" + gemfireLogLevel,
 			'sample.Application'
 		]
 

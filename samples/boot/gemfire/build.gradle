@@ -58,7 +58,7 @@ task runGemFireServer() {
 			//"-Dgemfire.log-level=config",
 			"-Dspring-session-data-gemfire.cache.server.port=$port",
 			"-Dspring-session-data-gemfire.log.level="
-				+ System.getProperty('spring-session-data-gemfire.log.level', 'config'),
+				+ System.getProperty('spring-session-data-gemfire.log.level', 'warning'),
 			'sample.server.GemFireServer'
 		]
 
