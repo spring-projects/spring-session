@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,10 @@ import java.util.UUID;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-
 import org.bson.Document;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -47,29 +44,44 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
+ * Tests for {@link MongoOperationsSessionRepository}.
+ *
  * @author Jakub Kubrynski
+ * @author Vedran Pavic
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MongoOperationsSessionRepositoryTests {
 
 	@Mock
-	AbstractMongoSessionConverter converter;
+	private AbstractMongoSessionConverter converter;
 
 	@Mock
-	MongoOperations mongoOperations;
+	private MongoOperations mongoOperations;
 
-	MongoOperationsSessionRepository sut;
+	private MongoOperationsSessionRepository repository;
 
 	@Before
 	public void setUp() throws Exception {
-		this.sut = new MongoOperationsSessionRepository(this.mongoOperations);
-		this.sut.setMongoSessionConverter(this.converter);
+		this.repository = new MongoOperationsSessionRepository(this.mongoOperations);
+		this.repository.setMongoSessionConverter(this.converter);
 	}
 
 	@Test
 	public void shouldCreateSession() throws Exception {
 		// when
-		ExpiringSession session = this.sut.createSession();
+		ExpiringSession session = this.repository.createSession();
+
+		// then
+		assertThat(session.getId()).isNotEmpty();
+		assertThat(session.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL);
+	}
+
+	@Test
+	public void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() throws Exception {
+		// when
+		this.repository.setMaxInactiveIntervalInSeconds(null);
+		ExpiringSession session = this.repository.createSession();
 
 		// then
 		assertThat(session.getId()).isNotEmpty();
@@ -87,7 +99,7 @@ public class MongoOperationsSessionRepositoryTests {
 				TypeDescriptor.valueOf(MongoExpiringSession.class),
 				TypeDescriptor.valueOf(DBObject.class))).willReturn(dbSession);
 		// when
-		this.sut.save(session);
+		this.repository.save(session);
 
 		// then
 		verify(this.mongoOperations).save(dbSession, MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME);
@@ -108,7 +120,7 @@ public class MongoOperationsSessionRepositoryTests {
 				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
 		// when
-		ExpiringSession retrievedSession = this.sut.getSession(sessionId);
+		ExpiringSession retrievedSession = this.repository.getSession(sessionId);
 
 		// then
 		assertThat(retrievedSession).isEqualTo(session);
@@ -130,7 +142,7 @@ public class MongoOperationsSessionRepositoryTests {
 			TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
 		// when
-		this.sut.getSession(sessionId);
+		this.repository.getSession(sessionId);
 
 		// then
 		verify(this.mongoOperations).remove(any(Document.class),
@@ -148,7 +160,7 @@ public class MongoOperationsSessionRepositoryTests {
 			eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))).willReturn(sessionDocument);
 
 		// when
-		this.sut.delete(sessionId);
+		this.repository.delete(sessionId);
 
 		// then
 		verify(this.mongoOperations).remove(any(Document.class),
@@ -162,7 +174,7 @@ public class MongoOperationsSessionRepositoryTests {
 
 		Document document = new Document();
 
-		given(this.converter.getQueryForIndex(anyString(), Matchers.anyObject())).willReturn(mock(Query.class));
+		given(this.converter.getQueryForIndex(anyString(), any(Object.class))).willReturn(mock(Query.class));
 		given(this.mongoOperations.find(any(Query.class), eq(Document.class),
 				eq(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME)))
 						.willReturn(Collections.singletonList(document));
@@ -176,7 +188,7 @@ public class MongoOperationsSessionRepositoryTests {
 
 		// when
 		Map<String, MongoExpiringSession> sessionsMap =
-			this.sut.findByIndexNameAndIndexValue(principalNameIndexName, "john");
+			this.repository.findByIndexNameAndIndexValue(principalNameIndexName, "john");
 
 		// then
 		assertThat(sessionsMap).containsOnlyKeys(sessionId);
@@ -189,7 +201,7 @@ public class MongoOperationsSessionRepositoryTests {
 		String index = "some_not_supported_index_name";
 
 		// when
-		Map<String, MongoExpiringSession> sessionsMap = this.sut
+		Map<String, MongoExpiringSession> sessionsMap = this.repository
 				.findByIndexNameAndIndexValue(index, "some_value");
 
 		// then
