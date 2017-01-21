@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.mongo;
 
 import java.util.Collections;
@@ -44,28 +45,44 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
+ * Tests for {@link MongoOperationsSessionRepository}.
+ *
  * @author Jakub Kubrynski
+ * @author Vedran Pavic
  */
 @RunWith(MockitoJUnitRunner.class)
 public class MongoOperationsSessionRepositoryTests {
 
 	@Mock
-	MongoOperations mongoOperations;
-	@Mock
-	AbstractMongoSessionConverter converter;
+	private MongoOperations mongoOperations;
 
-	MongoOperationsSessionRepository sut;
+	@Mock
+	private AbstractMongoSessionConverter converter;
+
+	private MongoOperationsSessionRepository repository;
 
 	@Before
 	public void setUp() throws Exception {
-		this.sut = new MongoOperationsSessionRepository(this.mongoOperations);
-		this.sut.setMongoSessionConverter(this.converter);
+		this.repository = new MongoOperationsSessionRepository(this.mongoOperations);
+		this.repository.setMongoSessionConverter(this.converter);
 	}
 
 	@Test
 	public void shouldCreateSession() throws Exception {
 		// when
-		ExpiringSession session = this.sut.createSession();
+		ExpiringSession session = this.repository.createSession();
+
+		// then
+		assertThat(session.getId()).isNotEmpty();
+		assertThat(session.getMaxInactiveIntervalInSeconds())
+				.isEqualTo(MongoOperationsSessionRepository.DEFAULT_INACTIVE_INTERVAL);
+	}
+
+	@Test
+	public void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() throws Exception {
+		// when
+		this.repository.setMaxInactiveIntervalInSeconds(null);
+		ExpiringSession session = this.repository.createSession();
 
 		// then
 		assertThat(session.getId()).isNotEmpty();
@@ -87,7 +104,7 @@ public class MongoOperationsSessionRepositoryTests {
 				.getCollection(MongoOperationsSessionRepository.DEFAULT_COLLECTION_NAME))
 						.willReturn(collection);
 		// when
-		this.sut.save(session);
+		this.repository.save(session);
 
 		// then
 		verify(collection).save(dbSession);
@@ -106,7 +123,7 @@ public class MongoOperationsSessionRepositoryTests {
 				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
 		// when
-		ExpiringSession retrievedSession = this.sut.getSession(sessionId);
+		ExpiringSession retrievedSession = this.repository.getSession(sessionId);
 
 		// then
 		assertThat(retrievedSession).isEqualTo(session);
@@ -127,7 +144,7 @@ public class MongoOperationsSessionRepositoryTests {
 				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 
 		// when
-		this.sut.getSession(sessionId);
+		this.repository.getSession(sessionId);
 
 		// then
 		verify(this.mongoOperations).remove(any(DBObject.class),
@@ -140,7 +157,7 @@ public class MongoOperationsSessionRepositoryTests {
 		String sessionId = UUID.randomUUID().toString();
 
 		// when
-		this.sut.delete(sessionId);
+		this.repository.delete(sessionId);
 
 		// then
 		verify(this.mongoOperations).remove(any(DBObject.class),
@@ -165,7 +182,7 @@ public class MongoOperationsSessionRepositoryTests {
 		given(this.converter.convert(dbSession, TypeDescriptor.valueOf(DBObject.class),
 				TypeDescriptor.valueOf(MongoExpiringSession.class))).willReturn(session);
 		// when
-		Map<String, MongoExpiringSession> sessionsMap = this.sut
+		Map<String, MongoExpiringSession> sessionsMap = this.repository
 				.findByIndexNameAndIndexValue(principalNameIndexName, "john");
 
 		// then
@@ -179,7 +196,7 @@ public class MongoOperationsSessionRepositoryTests {
 		String index = "some_not_supported_index_name";
 
 		// when
-		Map<String, MongoExpiringSession> sessionsMap = this.sut
+		Map<String, MongoExpiringSession> sessionsMap = this.repository
 				.findByIndexNameAndIndexValue(index, "some_value");
 
 		// then
