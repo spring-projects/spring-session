@@ -28,7 +28,6 @@ dependencies {
 			"org.springframework.boot:spring-boot-starter-websocket",
 			"org.springframework:spring-websocket:${springVersion}",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
-			"org.thymeleaf.extras:thymeleaf-extras-conditionalcomments",
 			"biz.paluch.redis:lettuce:$lettuceVersion",
 			"org.webjars:bootstrap:$bootstrapVersion",
 			"org.webjars:html5shiv:$html5ShivVersion",

@@ -22,7 +22,6 @@ dependencies {
 			"org.springframework.boot:spring-boot-starter-security",
 			"org.springframework.boot:spring-boot-starter-thymeleaf",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
-			"org.thymeleaf.extras:thymeleaf-extras-conditionalcomments",
 			"org.webjars:bootstrap:$bootstrapVersion",
 			"org.webjars:html5shiv:$html5ShivVersion",
 			"org.webjars:webjars-locator",
