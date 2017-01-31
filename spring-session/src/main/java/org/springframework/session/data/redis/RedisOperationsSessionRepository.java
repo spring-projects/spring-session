@@ -694,7 +694,7 @@ public class RedisOperationsSessionRepository implements
 		 * was retrieved. Cannot be null.
 		 */
 		RedisSession(MapSession cached) {
-			Assert.notNull("MapSession cannot be null");
+			Assert.notNull(cached, "MapSession cannot be null");
 			this.cached = cached;
 			this.originalPrincipalName = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
 		}
