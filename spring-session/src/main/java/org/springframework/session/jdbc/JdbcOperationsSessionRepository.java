@@ -658,7 +658,7 @@ public class JdbcOperationsSessionRepository implements
 		}
 
 		JdbcSession(ExpiringSession delegate) {
-			Assert.notNull("ExpiringSession cannot be null");
+			Assert.notNull(delegate, "ExpiringSession cannot be null");
 			this.delegate = delegate;
 		}
 
