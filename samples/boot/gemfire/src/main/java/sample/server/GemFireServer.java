@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import org.apache.geode.cache.Cache;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -51,7 +50,7 @@ public class GemFireServer {
 
 	public static void main(String[] args) {
 		SpringApplication springApplication = new SpringApplication(GemFireServer.class);
-		springApplication.setWebApplicationType(WebApplicationType.NONE);
+		springApplication.setWebEnvironment(false);
 		springApplication.run(args);
 	}
 

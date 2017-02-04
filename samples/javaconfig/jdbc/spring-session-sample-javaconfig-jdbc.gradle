@@ -1,0 +1,18 @@
+apply plugin: 'io.spring.convention.spring-sample-war'
+
+dependencies {
+	compile project(':spring-session-jdbc')
+	compile  "org.springframework:spring-web"
+	compile "org.webjars:bootstrap"
+	compile "org.webjars:webjars-taglib"
+	compile "com.h2database:h2"
+	compile jstlDependencies
+	compile slf4jDependencies
+
+	providedCompile "javax.servlet:javax.servlet-api"
+
+	testCompile "junit:junit"
+	testCompile "org.assertj:assertj-core"
+
+	integrationTestCompile seleniumDependencies
+}

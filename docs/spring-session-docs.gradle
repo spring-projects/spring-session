@@ -1,0 +1,45 @@
+apply plugin: 'io.spring.convention.docs'
+apply plugin: 'io.spring.convention.spring-test'
+
+dependencies {
+	testCompile project(':spring-session')
+	testCompile project(':spring-session-data-gemfire')
+	testCompile project(':spring-session-data-mongo')
+	testCompile project(':spring-session-data-redis')
+	testCompile "org.springframework:spring-jdbc"
+	testCompile "org.springframework:spring-messaging"
+	testCompile "org.springframework:spring-webmvc"
+	testCompile "org.springframework:spring-websocket"
+	testCompile "org.springframework.security:spring-security-config"
+	testCompile "org.springframework.security:spring-security-web"
+	testCompile "org.springframework.security:spring-security-test"
+	testCompile "junit:junit"
+	testCompile "org.mockito:mockito-core"
+	testCompile "org.springframework:spring-test"
+	testCompile "org.assertj:assertj-core"
+	testCompile "com.hazelcast:hazelcast"
+	testCompile "io.lettuce:lettuce-core"
+	testCompile "javax.servlet:javax.servlet-api"
+}
+
+def versions = dependencyManagement.managedVersions
+
+asciidoctor {
+	def ghTag = snapshotBuild ? 'master' : project.version
+	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
+	attributes	'version-snapshot': snapshotBuild,
+			'version-milestone': milestoneBuild,
+			'version-release': releaseBuild,
+			'gh-url': ghUrl,
+			'gh-samples-url': "$ghUrl/samples/",
+			'download-url' : "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
+			'spring-session-version' : version,
+			'spring-version' : versions['org.springframework:spring-core'],
+			'lettuce-version' : versions['io.lettuce:lettuce-core'],
+			'hazelcast-version' : versions['com.hazelcast:hazelcast'],
+			'docs-itest-dir' : rootProject.projectDir.path + '/docs/src/integration-test/java/',
+			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
+			'docs-test-resources-dir' : rootProject.projectDir.path + '/docs/src/test/resources/',
+			'samples-dir' : rootProject.projectDir.path + '/samples/',
+			'session-main-resources-dir' : rootProject.projectDir.path + '/spring-session/src/main/resources/'
+}

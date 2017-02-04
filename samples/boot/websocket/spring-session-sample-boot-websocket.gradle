@@ -1,0 +1,30 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+	compile(project(':spring-session-data-redis')) {
+		exclude module: 'jedis'
+	}
+	compile "org.springframework.boot:spring-boot-starter-data-jpa"
+	compile"org.springframework.boot:spring-boot-starter-thymeleaf"
+	compile"org.springframework.boot:spring-boot-starter-web"
+	compile"org.springframework.boot:spring-boot-starter-websocket"
+	compile"org.springframework:spring-websocket"
+	compile"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	compile"io.lettuce:lettuce-core"
+	compile"org.webjars:bootstrap"
+	compile"org.webjars:html5shiv"
+	compile"org.webjars:knockout"
+	compile"org.webjars:sockjs-client"
+	compile"org.webjars:stomp-websocket"
+	compile"org.webjars:webjars-locator"
+	compile"com.h2database:h2"
+	compile"org.springframework.security:spring-security-web"
+	compile"org.springframework.security:spring-security-config"
+	compile"org.springframework.security:spring-security-messaging"
+	compile"org.springframework.security:spring-security-data"
+
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+	testCompile "org.springframework.security:spring-security-test"
+
+}

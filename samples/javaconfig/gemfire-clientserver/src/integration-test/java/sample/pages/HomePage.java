@@ -53,7 +53,7 @@ public class HomePage {
 	}
 
 	private static void get(WebDriver driver, String get) {
-		String baseUrl = "http://localhost:" + System.getProperty("tomcat.port", "8080");
+		String baseUrl = "http://localhost:" + System.getProperty("app.port", "8080");
 		driver.get(baseUrl + get);
 	}
 

@@ -48,7 +48,7 @@ public class RestTests {
 
 	@Before
 	public void setUp() {
-		this.baseUrl = "http://localhost:" + System.getProperty("tomcat.port");
+		this.baseUrl = "http://localhost:" + System.getProperty("app.port");
 		this.restTemplate = new RestTemplate();
 	}
 

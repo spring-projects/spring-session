@@ -1,0 +1,22 @@
+apply plugin: 'io.spring.convention.spring-sample-war'
+apply plugin: "gemfire-server"
+
+dependencies {
+	compile project(':spring-session-data-gemfire')
+	compile "org.springframework:spring-web"
+	compile "org.webjars:bootstrap"
+	compile "org.webjars:webjars-taglib"
+	compile jstlDependencies
+	compile slf4jDependencies
+
+	providedCompile "javax.servlet:javax.servlet-api"
+
+	runtime "org.springframework.shell:spring-shell"
+
+	testCompile "junit:junit"
+	testCompile "org.assertj:assertj-core"
+
+	integrationTestCompile seleniumDependencies
+
+	integrationTestRuntime "org.springframework.shell:spring-shell"
+}

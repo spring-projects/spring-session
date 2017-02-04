@@ -1,0 +1,19 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+	compile project(':spring-session')
+	compile "org.springframework.data:spring-data-mongodb"
+	compile "org.springframework.boot:spring-boot-starter-web"
+	compile "org.springframework.boot:spring-boot-starter-security"
+	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+	compile "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	compile "org.webjars:bootstrap"
+	compile "org.webjars:html5shiv"
+	compile "org.webjars:webjars-locator"
+	compile "de.flapdoodle.embed:de.flapdoodle.embed.mongo"
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+
+	integrationTestCompile seleniumDependencies
+
+}

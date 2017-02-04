@@ -1,0 +1,21 @@
+apply plugin: 'io.spring.convention.spring-sample-war'
+
+dependencies {
+	compile project(':spring-session')
+	compile "org.springframework:spring-web"
+	compile "org.springframework.security:spring-security-config"
+	compile "org.springframework.security:spring-security-web"
+	compile "org.webjars:bootstrap"
+	compile "org.webjars:webjars-taglib"
+	compile "com.hazelcast:hazelcast-client"
+	compile jstlDependencies
+	compile slf4jDependencies
+
+	providedCompile "javax.servlet:javax.servlet-api"
+	providedCompile "javax.servlet.jsp:javax.servlet.jsp-api"
+
+	testCompile "junit:junit"
+	testCompile "org.assertj:assertj-core"
+
+	integrationTestCompile seleniumDependencies
+}

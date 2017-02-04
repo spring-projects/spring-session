@@ -53,9 +53,7 @@ public class FindByUsernameTests {
 
 	@After
 	public void tearDown() {
-		if (this.driver != null) {
-			this.driver.quit();
-		}
+		this.driver.quit();
 	}
 
 	@Test

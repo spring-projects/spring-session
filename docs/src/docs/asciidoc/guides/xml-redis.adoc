@@ -24,8 +24,8 @@ If you are using Maven, ensure to add the following dependencies:
 		<type>pom</type>
 	</dependency>
 	<dependency>
-		<groupId>biz.paluch.redis</groupId>
-		<artifactId>lettuce</artifactId>
+		<groupId>io.lettuce</groupId>
+		<artifactId>lettuce-core</artifactId>
 		<version>{lettuce-version}</version>
 	</dependency>
 	<dependency>
