@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
@@ -562,6 +563,16 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 		public String toString() {
 			return getClass().getName() + "[delegate=" + this.delegate.toString() + "]";
+		}
+
+		@Override
+		public boolean isReady() {
+			return this.delegate.isReady();
+		}
+
+		@Override
+		public void setWriteListener(WriteListener writeListener) {
+			this.delegate.setWriteListener(writeListener);
 		}
 	}
 }
