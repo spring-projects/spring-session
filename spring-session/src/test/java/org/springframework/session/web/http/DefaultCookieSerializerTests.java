@@ -16,6 +16,8 @@
 
 package org.springframework.session.web.http;
 
+import java.util.Base64;
+
 import javax.servlet.http.Cookie;
 
 import org.junit.Before;
@@ -38,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Eddú Meléndez
  */
 @RunWith(Parameterized.class)
 public class DefaultCookieSerializerTests {
@@ -447,7 +450,7 @@ public class DefaultCookieSerializerTests {
 
 	private Cookie createCookie(String name, String value) {
 		if (this.useBase64Encoding && StringUtils.hasLength(value)) {
-			value = new String(Base64.encode(value.getBytes()));
+			value = new String(Base64.getEncoder().encode(value.getBytes()));
 		}
 		return new Cookie(name, value);
 	}
@@ -464,7 +467,7 @@ public class DefaultCookieSerializerTests {
 		if (value == null) {
 			return null;
 		}
-		return new String(Base64.decode(value.getBytes()));
+		return new String(Base64.getDecoder().decode(value));
 	}
 
 	private CookieValue cookieValue(String cookieValue) {

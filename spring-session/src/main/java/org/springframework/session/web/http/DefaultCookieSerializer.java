@@ -17,6 +17,7 @@
 package org.springframework.session.web.http;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Eddú Meléndez
  * @since 1.1
  */
 public class DefaultCookieSerializer implements CookieSerializer {
@@ -134,7 +136,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 */
 	private String base64Decode(String base64Value) {
 		try {
-			byte[] decodedCookieBytes = Base64.decode(base64Value.getBytes());
+			byte[] decodedCookieBytes = Base64.getDecoder().decode(base64Value);
 			return new String(decodedCookieBytes);
 		}
 		catch (Exception e) {
@@ -149,7 +151,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @since 1.2.2
 	 */
 	private String base64Encode(String value) {
-		byte[] encodedCookieBytes = Base64.encode(value.getBytes());
+		byte[] encodedCookieBytes = Base64.getEncoder().encode(value.getBytes());
 		return new String(encodedCookieBytes);
 	}
 
