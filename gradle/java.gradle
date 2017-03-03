@@ -17,7 +17,7 @@ targetCompatibility = 1.5
 ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'Cairo-BUILD-SNAPSHOT'
 
 ext.seleniumDependencies = [
-		"org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion",
+		"org.seleniumhq.selenium:htmlunit-driver:$htmlUnitVersion",
 		"org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
 ]
 
