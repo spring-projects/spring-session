@@ -18,13 +18,15 @@ package org.springframework.session.data;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.session.events.AbstractSessionEvent;
 
 public class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
 	private Map<String, AbstractSessionEvent> events = new HashMap<>();
-	private Map<String, Object> locks = new HashMap<>();
+	private ConcurrentMap<String, Object> locks = new ConcurrentHashMap<>();
 
 	public void onApplicationEvent(AbstractSessionEvent event) {
 		String sessionId = event.getSessionId();
@@ -63,13 +65,6 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 	}
 
 	private Object getLock(String sessionId) {
-		synchronized (this.locks) {
-			Object lock = this.locks.get(sessionId);
-			if (lock == null) {
-				lock = new Object();
-				this.locks.put(sessionId, lock);
-			}
-			return lock;
-		}
+		return this.locks.computeIfAbsent(sessionId, k -> new Object());
 	}
 }
