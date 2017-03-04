@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public final class WebSocketRegistryListener
 			CloseStatus.POLICY_VIOLATION.getCode(),
 			"This connection was established under an authenticated HTTP Session that has expired");
 
-	private final ConcurrentHashMap<String, Map<String, WebSocketSession>> httpSessionIdToWsSessions = new ConcurrentHashMap<String, Map<String, WebSocketSession>>();
+	private final ConcurrentHashMap<String, Map<String, WebSocketSession>> httpSessionIdToWsSessions = new ConcurrentHashMap<>();
 
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof SessionDestroyedEvent) {
@@ -117,7 +117,7 @@ public final class WebSocketRegistryListener
 		Map<String, WebSocketSession> sessions = this.httpSessionIdToWsSessions
 				.get(httpSessionId);
 		if (sessions == null) {
-			sessions = new ConcurrentHashMap<String, WebSocketSession>();
+			sessions = new ConcurrentHashMap<>();
 			this.httpSessionIdToWsSessions.putIfAbsent(httpSessionId, sessions);
 			sessions = this.httpSessionIdToWsSessions.get(httpSessionId);
 		}

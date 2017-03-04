@@ -237,7 +237,7 @@ public final class CookieHttpSessionStrategy
 		Set<String> sessionsWritten = (Set<String>) request
 				.getAttribute(SESSION_IDS_WRITTEN_ATTR);
 		if (sessionsWritten == null) {
-			sessionsWritten = new HashSet<String>();
+			sessionsWritten = new HashSet<>();
 			request.setAttribute(SESSION_IDS_WRITTEN_ATTR, sessionsWritten);
 		}
 		return sessionsWritten;
@@ -326,7 +326,7 @@ public final class CookieHttpSessionStrategy
 		List<String> cookieValues = this.cookieSerializer.readCookieValues(request);
 		String sessionCookieValue = cookieValues.isEmpty() ? ""
 				: cookieValues.iterator().next();
-		Map<String, String> result = new LinkedHashMap<String, String>();
+		Map<String, String> result = new LinkedHashMap<>();
 		StringTokenizer tokens = new StringTokenizer(sessionCookieValue,
 				this.deserializationDelimiter);
 		if (tokens.countTokens() == 1) {

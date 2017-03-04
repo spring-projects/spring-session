@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,7 +107,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	@Bean
 	public RedisTemplate<Object, Object> sessionRedisTemplate(
 			RedisConnectionFactory connectionFactory) {
-		RedisTemplate<Object, Object> template = new RedisTemplate<Object, Object>();
+		RedisTemplate<Object, Object> template = new RedisTemplate<>();
 		template.setKeySerializer(new StringRedisSerializer());
 		template.setHashKeySerializer(new StringRedisSerializer());
 		if (this.defaultRedisSerializer != null) {

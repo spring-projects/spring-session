@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.session.security;
 
 import java.security.Principal;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,10 +24,8 @@ import java.util.List;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
-
 import org.springframework.util.Assert;
 
 /**
@@ -60,7 +57,7 @@ public class SpringSessionBackedSessionRegistry implements SessionRegistry {
 	public List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
 		Collection<ExpiringSession> sessions =
 			this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, name(principal)).values();
-		List<SessionInformation> infos = new ArrayList<SessionInformation>();
+		List<SessionInformation> infos = new ArrayList<>();
 		for (ExpiringSession session : sessions) {
 			if (includeExpiredSessions || !Boolean.TRUE.equals(session.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
 				infos.add(new SpringSessionBackedSessionInformation(session, this.sessionRepository));

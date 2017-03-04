@@ -469,7 +469,7 @@ public class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString()))
 				.willReturn(this.boundSetOperations);
 
-		Set<Object> expiredIds = new HashSet<Object>(
+		Set<Object> expiredIds = new HashSet<>(
 				Arrays.asList("expired-key1", "expired-key2"));
 		given(this.boundSetOperations.members()).willReturn(expiredIds);
 
@@ -701,7 +701,7 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	private Map map(Object... objects) {
-		Map<String, Object> result = new HashMap<String, Object>();
+		Map<String, Object> result = new HashMap<>();
 		if (objects == null) {
 			return result;
 		}

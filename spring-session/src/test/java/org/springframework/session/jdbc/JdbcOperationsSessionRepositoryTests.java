@@ -493,7 +493,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		String principal = "username";
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal,
 				"notused", AuthorityUtils.createAuthorityList("ROLE_USER"));
-		List<MapSession> saved = new ArrayList<MapSession>(2);
+		List<MapSession> saved = new ArrayList<>(2);
 		MapSession saved1 = new MapSession();
 		saved1.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved1);

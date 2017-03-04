@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
 	private String id;
-	private Map<String, Object> sessionAttrs = new HashMap<String, Object>();
+	private Map<String, Object> sessionAttrs = new HashMap<>();
 	private long creationTime = System.currentTimeMillis();
 	private long lastAccessedTime = this.creationTime;
 
@@ -88,7 +88,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 			throw new IllegalArgumentException("session cannot be null");
 		}
 		this.id = session.getId();
-		this.sessionAttrs = new HashMap<String, Object>(
+		this.sessionAttrs = new HashMap<>(
 				session.getAttributeNames().size());
 		for (String attrName : session.getAttributeNames()) {
 			Object attrValue = session.getAttribute(attrName);

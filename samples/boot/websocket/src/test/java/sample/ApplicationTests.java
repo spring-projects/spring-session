@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class ApplicationTests {
 
 	@Test
 	public void run() throws Exception {
-		List<Transport> transports = new ArrayList<Transport>(2);
+		List<Transport> transports = new ArrayList<>(2);
 		transports.add(new WebSocketTransport(new StandardWebSocketClient()));
 		transports.add(new RestTemplateXhrTransport());
 

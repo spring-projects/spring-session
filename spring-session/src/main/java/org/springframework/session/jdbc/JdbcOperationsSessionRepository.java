@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -391,7 +391,7 @@ public class JdbcOperationsSessionRepository implements
 
 							});
 					if (!session.getAttributeNames().isEmpty()) {
-						final List<String> attributeNames = new ArrayList<String>(session.getAttributeNames());
+						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
 						JdbcOperationsSessionRepository.this.jdbcOperations.batchUpdate(
 								JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
 								new BatchPreparedStatementSetter() {
@@ -551,7 +551,7 @@ public class JdbcOperationsSessionRepository implements
 
 		});
 
-		Map<String, JdbcSession> sessionMap = new HashMap<String, JdbcSession>(
+		Map<String, JdbcSession> sessionMap = new HashMap<>(
 				sessions.size());
 
 		for (ExpiringSession session : sessions) {
@@ -650,7 +650,7 @@ public class JdbcOperationsSessionRepository implements
 
 		private boolean changed;
 
-		private Map<String, Object> delta = new HashMap<String, Object>();
+		private Map<String, Object> delta = new HashMap<>();
 
 		JdbcSession() {
 			this.delegate = new MapSession();
@@ -767,7 +767,7 @@ public class JdbcOperationsSessionRepository implements
 			implements ResultSetExtractor<List<ExpiringSession>> {
 
 		public List<ExpiringSession> extractData(ResultSet rs) throws SQLException, DataAccessException {
-			List<ExpiringSession> sessions = new ArrayList<ExpiringSession>();
+			List<ExpiringSession> sessions = new ArrayList<>();
 			while (rs.next()) {
 				String id = rs.getString("SESSION_ID");
 				MapSession session;
