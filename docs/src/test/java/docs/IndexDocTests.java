@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class IndexDocTests {
 
 	@Test
 	public void repositoryDemo() {
-		RepositoryDemo<ExpiringSession> demo = new RepositoryDemo<ExpiringSession>();
+		RepositoryDemo<ExpiringSession> demo = new RepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
@@ -81,7 +81,7 @@ public class IndexDocTests {
 
 	@Test
 	public void expireRepositoryDemo() {
-		ExpiringRepositoryDemo<ExpiringSession> demo = new ExpiringRepositoryDemo<ExpiringSession>();
+		ExpiringRepositoryDemo<ExpiringSession> demo = new ExpiringRepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();

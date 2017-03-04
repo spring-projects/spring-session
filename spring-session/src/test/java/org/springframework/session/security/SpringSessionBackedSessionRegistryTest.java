@@ -140,7 +140,7 @@ public class SpringSessionBackedSessionRegistryTest {
 		ExpiringSession session1 = createSession(SESSION_ID, USER_NAME, NOW.getTime());
 		session1.setAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR, Boolean.TRUE);
 		ExpiringSession session2 = createSession(SESSION_ID2, USER_NAME, NOW.getTime());
-		Map<String, ExpiringSession> sessions = new LinkedHashMap<String, ExpiringSession>();
+		Map<String, ExpiringSession> sessions = new LinkedHashMap<>();
 		sessions.put(session1.getId(), session1);
 		sessions.put(session2.getId(), session2);
 		when(this.sessionRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, USER_NAME)).thenReturn(sessions);

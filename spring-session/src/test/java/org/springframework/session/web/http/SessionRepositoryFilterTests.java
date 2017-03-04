@@ -88,9 +88,9 @@ public class SessionRepositoryFilterTests {
 
 	@Before
 	public void setup() throws Exception {
-		this.sessions = new HashMap<String, ExpiringSession>();
+		this.sessions = new HashMap<>();
 		this.sessionRepository = new MapSessionRepository(this.sessions);
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(
+		this.filter = new SessionRepositoryFilter<>(
 				this.sessionRepository);
 		setupRequest();
 	}
@@ -129,7 +129,7 @@ public class SessionRepositoryFilterTests {
 		session.setLastAccessedTime(0L);
 		this.sessionRepository = spy(this.sessionRepository);
 		given(this.sessionRepository.createSession()).willReturn(session);
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(
+		this.filter = new SessionRepositoryFilter<>(
 				this.sessionRepository);
 
 		doFilter(new DoInFilter() {
@@ -235,7 +235,7 @@ public class SessionRepositoryFilterTests {
 	@Test
 	public void doFilterServletContextExplicit() throws Exception {
 		final ServletContext expectedContext = new MockServletContext();
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(
+		this.filter = new SessionRepositoryFilter<>(
 				this.sessionRepository);
 		this.filter.setServletContext(expectedContext);
 
@@ -426,7 +426,7 @@ public class SessionRepositoryFilterTests {
 				return createSession();
 			}
 		};
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(
+		this.filter = new SessionRepositoryFilter<>(
 				this.sessionRepository);
 		doFilter(new DoInFilter() {
 			@Override
@@ -1259,7 +1259,7 @@ public class SessionRepositoryFilterTests {
 		SessionRepository<ExpiringSession> sessionRepository = spy(
 				new MapSessionRepository());
 
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1287,7 +1287,7 @@ public class SessionRepositoryFilterTests {
 		SessionRepository<ExpiringSession> sessionRepository = spy(
 				new MapSessionRepository());
 
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1307,7 +1307,7 @@ public class SessionRepositoryFilterTests {
 				this.sessionRepository);
 		setSessionCookie(session.getId());
 
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(sessionRepository);
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1348,7 +1348,7 @@ public class SessionRepositoryFilterTests {
 	public void getSessionFalseWithInvalidSessionIdShouldOnlyAskRepositoryOnce()
 			throws ServletException, IOException {
 		this.sessionRepository = spy(this.sessionRepository);
-		this.filter = new SessionRepositoryFilter<ExpiringSession>(
+		this.filter = new SessionRepositoryFilter<>(
 				this.sessionRepository);
 
 		final String nonExistantSessionId = "nonExistantSessionId";
@@ -1425,7 +1425,7 @@ public class SessionRepositoryFilterTests {
 	}
 
 	private void nextRequest() throws Exception {
-		Map<String, Cookie> nameToCookie = new HashMap<String, Cookie>();
+		Map<String, Cookie> nameToCookie = new HashMap<>();
 		if (this.request.getCookies() != null) {
 			for (Cookie cookie : this.request.getCookies()) {
 				nameToCookie.put(cookie.getName(), cookie);
@@ -1436,7 +1436,7 @@ public class SessionRepositoryFilterTests {
 				nameToCookie.put(cookie.getName(), cookie);
 			}
 		}
-		Cookie[] nextRequestCookies = new ArrayList<Cookie>(nameToCookie.values())
+		Cookie[] nextRequestCookies = new ArrayList<>(nameToCookie.values())
 				.toArray(new Cookie[0]);
 
 		setupRequest();

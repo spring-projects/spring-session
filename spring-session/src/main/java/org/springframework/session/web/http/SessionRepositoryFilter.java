@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -275,7 +275,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 			}
 
 			// eagerly get session attributes in case implementation lazily loads them
-			Map<String, Object> attrs = new HashMap<String, Object>();
+			Map<String, Object> attrs = new HashMap<>();
 			Enumeration<String> iAttrNames = session.getAttributeNames();
 			while (iAttrNames.hasMoreElements()) {
 				String attrName = iAttrNames.nextElement();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public class Initializer implements ServletContextListener {
 
 		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(
 				sessions);
-		SessionRepositoryFilter<ExpiringSession> filter = new SessionRepositoryFilter<ExpiringSession>(
+		SessionRepositoryFilter<ExpiringSession> filter = new SessionRepositoryFilter<>(
 				sessionRepository);
 		Dynamic fr = sc.addFilter("springSessionFilter", filter);
 		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");

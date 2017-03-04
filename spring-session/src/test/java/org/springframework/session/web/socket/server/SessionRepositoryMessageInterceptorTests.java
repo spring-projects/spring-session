@@ -67,11 +67,11 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	@Before
 	public void setup() {
-		this.interceptor = new SessionRepositoryMessageInterceptor<ExpiringSession>(
+		this.interceptor = new SessionRepositoryMessageInterceptor<>(
 				this.sessionRepository);
 		this.headers = SimpMessageHeaderAccessor.create();
 		this.headers.setSessionId("session");
-		this.headers.setSessionAttributes(new HashMap<String, Object>());
+		this.headers.setSessionAttributes(new HashMap<>());
 		setMessageType(SimpMessageType.MESSAGE);
 		String sessionId = "http-session";
 		setSessionId(sessionId);
@@ -80,7 +80,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void preSendconstructorNullRepository() {
-		new SessionRepositoryMessageInterceptor<ExpiringSession>(null);
+		new SessionRepositoryMessageInterceptor<>(null);
 	}
 
 	@Test
@@ -246,7 +246,7 @@ public class SessionRepositoryMessageInterceptorTests {
 		MockHttpServletRequest httpRequest = new MockHttpServletRequest();
 		HttpSession httpSession = httpRequest.getSession();
 		ServletServerHttpRequest request = new ServletServerHttpRequest(httpRequest);
-		Map<String, Object> attributes = new HashMap<String, Object>();
+		Map<String, Object> attributes = new HashMap<>();
 
 		assertThat(this.interceptor.beforeHandshake(request, null, null, attributes))
 				.isTrue();

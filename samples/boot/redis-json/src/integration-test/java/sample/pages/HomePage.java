@@ -49,7 +49,7 @@ public class HomePage {
 
 	public HomePage(WebDriver driver) {
 		this.driver = driver;
-		this.attributes = new ArrayList<Attribute>();
+		this.attributes = new ArrayList<>();
 	}
 
 	private static void get(WebDriver driver, String get) {
@@ -80,7 +80,7 @@ public class HomePage {
 	}
 
 	public List<Attribute> attributes() {
-		List<Attribute> rows = new ArrayList<Attribute>();
+		List<Attribute> rows = new ArrayList<>();
 		for (WebElement tr : this.trs) {
 			rows.add(new Attribute(tr));
 		}

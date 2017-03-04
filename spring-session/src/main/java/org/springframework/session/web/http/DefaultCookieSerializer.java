@@ -65,7 +65,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 */
 	public List<String> readCookieValues(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
-		List<String> matchingCookieValues = new ArrayList<String>();
+		List<String> matchingCookieValues = new ArrayList<>();
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (this.cookieName.equals(cookie.getName())) {

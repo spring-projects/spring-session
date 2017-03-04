@@ -74,7 +74,7 @@ public class WebSocketRegistryListenerTests {
 	@Before
 	public void setup() {
 		this.sessionId = "session-id";
-		this.attributes = new HashMap<String, Object>();
+		this.attributes = new HashMap<>();
 		SessionRepositoryMessageInterceptor.setSessionId(this.attributes, this.sessionId);
 
 		given(this.wsSession.getAttributes()).willReturn(this.attributes);
@@ -85,7 +85,7 @@ public class WebSocketRegistryListenerTests {
 		given(this.wsSession2.getPrincipal()).willReturn(this.principal);
 		given(this.wsSession2.getId()).willReturn("wsSession-id2");
 
-		Map<String, Object> headers = new HashMap<String, Object>();
+		Map<String, Object> headers = new HashMap<>();
 		headers.put(SimpMessageHeaderAccessor.SESSION_ATTRIBUTES, this.attributes);
 		given(this.message.getHeaders()).willReturn(new MessageHeaders(headers));
 

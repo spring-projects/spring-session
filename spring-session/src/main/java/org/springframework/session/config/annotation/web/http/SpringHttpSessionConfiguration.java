@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	private HttpSessionStrategy httpSessionStrategy = this.defaultHttpSessionStrategy;
 
-	private List<HttpSessionListener> httpSessionListeners = new ArrayList<HttpSessionListener>();
+	private List<HttpSessionListener> httpSessionListeners = new ArrayList<>();
 
 	@PostConstruct
 	public void init() {
@@ -124,7 +124,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 	@Bean
 	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(
 			SessionRepository<S> sessionRepository) {
-		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<S>(
+		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(
 				sessionRepository);
 		sessionRepositoryFilter.setServletContext(this.servletContext);
 		if (this.httpSessionStrategy instanceof MultiHttpSessionStrategy) {
