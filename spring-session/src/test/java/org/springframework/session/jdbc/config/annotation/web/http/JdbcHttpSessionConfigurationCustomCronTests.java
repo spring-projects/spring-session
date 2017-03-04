@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.session.jdbc.config.annotation.web.http;
 
 import javax.sql.DataSource;
 
-import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,12 +55,10 @@ public class JdbcHttpSessionConfigurationCustomCronTests {
 	public void overrideCron() {
 		this.context.register(Config.class);
 
-		assertThatThrownBy(new ThrowingCallable() {
-			public void call() throws Throwable {
-				JdbcHttpSessionConfigurationCustomCronTests.this.context.refresh();
-			}
-		}).hasStackTraceContaining(
-				"Encountered invalid @Scheduled method 'cleanUpExpiredSessions': Cron expression must consist of 6 fields (found 1 in \"oops\")");
+		assertThatThrownBy(() ->
+				JdbcHttpSessionConfigurationCustomCronTests.this.context.refresh())
+				.hasStackTraceContaining(
+						"Encountered invalid @Scheduled method 'cleanUpExpiredSessions': Cron expression must consist of 6 fields (found 1 in \"oops\")");
 	}
 
 	@EnableJdbcHttpSession

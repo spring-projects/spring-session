@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,9 +31,7 @@ public interface ConfigureRedisAction {
 	/**
 	 * A do nothing implementation of {@link ConfigureRedisAction}.
 	 */
-	ConfigureRedisAction NO_OP = new ConfigureRedisAction() {
-
-		public void configure(RedisConnection connection) {
-		}
+	ConfigureRedisAction NO_OP = connection -> {
 	};
+
 }
