@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,12 +55,10 @@ public class RedisHttpSessionConfigurationCustomCronTests {
 	public void overrideCron() {
 		this.context.register(Config.class);
 
-		assertThatThrownBy(new ThrowingCallable() {
-			public void call() throws Throwable {
-				RedisHttpSessionConfigurationCustomCronTests.this.context.refresh();
-			}
-		}).hasStackTraceContaining(
-				"Encountered invalid @Scheduled method 'cleanupExpiredSessions': Cron expression must consist of 6 fields (found 1 in \"oops\")");
+		assertThatThrownBy(() ->
+				RedisHttpSessionConfigurationCustomCronTests.this.context.refresh())
+				.hasStackTraceContaining(
+						"Encountered invalid @Scheduled method 'cleanupExpiredSessions': Cron expression must consist of 6 fields (found 1 in \"oops\")");
 	}
 
 	@EnableRedisHttpSession

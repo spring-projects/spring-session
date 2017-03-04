@@ -42,7 +42,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
@@ -54,7 +53,6 @@ import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -379,16 +377,12 @@ public class JdbcOperationsSessionRepository implements
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					JdbcOperationsSessionRepository.this.jdbcOperations.update(
 							JdbcOperationsSessionRepository.this.createSessionQuery,
-							new PreparedStatementSetter() {
-
-								public void setValues(PreparedStatement ps) throws SQLException {
-									ps.setString(1, session.getId());
-									ps.setLong(2, session.getCreationTime());
-									ps.setLong(3, session.getLastAccessedTime());
-									ps.setInt(4, session.getMaxInactiveIntervalInSeconds());
-									ps.setString(5, session.getPrincipalName());
-								}
-
+							ps -> {
+								ps.setString(1, session.getId());
+								ps.setLong(2, session.getCreationTime());
+								ps.setLong(3, session.getLastAccessedTime());
+								ps.setInt(4, session.getMaxInactiveIntervalInSeconds());
+								ps.setString(5, session.getPrincipalName());
 							});
 					if (!session.getAttributeNames().isEmpty()) {
 						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
@@ -420,16 +414,11 @@ public class JdbcOperationsSessionRepository implements
 					if (session.isChanged()) {
 						JdbcOperationsSessionRepository.this.jdbcOperations.update(
 								JdbcOperationsSessionRepository.this.updateSessionQuery,
-								new PreparedStatementSetter() {
-
-									public void setValues(PreparedStatement ps)
-											throws SQLException {
-										ps.setLong(1, session.getLastAccessedTime());
-										ps.setInt(2, session.getMaxInactiveIntervalInSeconds());
-										ps.setString(3, session.getPrincipalName());
-										ps.setString(4, session.getId());
-									}
-
+								ps -> {
+									ps.setLong(1, session.getLastAccessedTime());
+									ps.setInt(2, session.getMaxInactiveIntervalInSeconds());
+									ps.setString(3, session.getPrincipalName());
+									ps.setString(4, session.getId());
 								});
 					}
 					Map<String, Object> delta = session.getDelta();
@@ -438,38 +427,26 @@ public class JdbcOperationsSessionRepository implements
 							if (entry.getValue() == null) {
 								JdbcOperationsSessionRepository.this.jdbcOperations.update(
 										JdbcOperationsSessionRepository.this.deleteSessionAttributeQuery,
-										new PreparedStatementSetter() {
-
-											public void setValues(PreparedStatement ps) throws SQLException {
-												ps.setString(1, session.getId());
-												ps.setString(2, entry.getKey());
-											}
-
+										ps -> {
+											ps.setString(1, session.getId());
+											ps.setString(2, entry.getKey());
 										});
 							}
 							else {
 								int updatedCount = JdbcOperationsSessionRepository.this.jdbcOperations.update(
 										JdbcOperationsSessionRepository.this.updateSessionAttributeQuery,
-										new PreparedStatementSetter() {
-
-											public void setValues(PreparedStatement ps) throws SQLException {
-												serialize(ps, 1, entry.getValue());
-												ps.setString(2, session.getId());
-												ps.setString(3, entry.getKey());
-											}
-
+										ps -> {
+											serialize(ps, 1, entry.getValue());
+											ps.setString(2, session.getId());
+											ps.setString(3, entry.getKey());
 										});
 								if (updatedCount == 0) {
 									JdbcOperationsSessionRepository.this.jdbcOperations.update(
 											JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
-											new PreparedStatementSetter() {
-
-												public void setValues(PreparedStatement ps) throws SQLException {
-													ps.setString(1, session.getId());
-													ps.setString(2, entry.getKey());
-													serialize(ps, 3, entry.getValue());
-												}
-
+											ps -> {
+												ps.setString(1, session.getId());
+												ps.setString(2, entry.getKey());
+												serialize(ps, 3, entry.getValue());
 											});
 								}
 							}
@@ -483,26 +460,16 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	public JdbcSession getSession(final String id) {
-		final ExpiringSession session = this.transactionOperations.execute(new TransactionCallback<ExpiringSession>() {
-
-			public ExpiringSession doInTransaction(TransactionStatus status) {
-				List<ExpiringSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
-						JdbcOperationsSessionRepository.this.getSessionQuery,
-						new PreparedStatementSetter() {
-
-							public void setValues(PreparedStatement ps) throws SQLException {
-								ps.setString(1, id);
-							}
-
-						},
-						JdbcOperationsSessionRepository.this.extractor
-				);
-				if (sessions.isEmpty()) {
-					return null;
-				}
-				return sessions.get(0);
+		final ExpiringSession session = this.transactionOperations.execute(status -> {
+			List<ExpiringSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
+					JdbcOperationsSessionRepository.this.getSessionQuery,
+					ps -> ps.setString(1, id),
+					JdbcOperationsSessionRepository.this.extractor
+			);
+			if (sessions.isEmpty()) {
+				return null;
 			}
-
+			return sessions.get(0);
 		});
 
 		if (session != null) {
@@ -533,23 +500,11 @@ public class JdbcOperationsSessionRepository implements
 			return Collections.emptyMap();
 		}
 
-		List<ExpiringSession> sessions = this.transactionOperations.execute(new TransactionCallback<List<ExpiringSession>>() {
-
-			public List<ExpiringSession> doInTransaction(TransactionStatus status) {
-				return JdbcOperationsSessionRepository.this.jdbcOperations.query(
+		List<ExpiringSession> sessions = this.transactionOperations.execute(status ->
+				JdbcOperationsSessionRepository.this.jdbcOperations.query(
 						JdbcOperationsSessionRepository.this.listSessionsByPrincipalNameQuery,
-						new PreparedStatementSetter() {
-
-							public void setValues(PreparedStatement ps) throws SQLException {
-								ps.setString(1, indexValue);
-							}
-
-						},
-						JdbcOperationsSessionRepository.this.extractor
-				);
-			}
-
-		});
+						ps -> ps.setString(1, indexValue),
+						JdbcOperationsSessionRepository.this.extractor));
 
 		Map<String, JdbcSession> sessionMap = new HashMap<>(
 				sessions.size());
@@ -563,15 +518,10 @@ public class JdbcOperationsSessionRepository implements
 
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
-		int deletedCount = this.transactionOperations.execute(new TransactionCallback<Integer>() {
-
-			public Integer doInTransaction(TransactionStatus transactionStatus) {
-				return JdbcOperationsSessionRepository.this.jdbcOperations.update(
+		int deletedCount = this.transactionOperations.execute(transactionStatus ->
+				JdbcOperationsSessionRepository.this.jdbcOperations.update(
 						JdbcOperationsSessionRepository.this.deleteSessionsByLastAccessTimeQuery,
-						System.currentTimeMillis());
-			}
-
-		});
+						System.currentTimeMillis()));
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cleaned up " + deletedCount + " expired sessions");
