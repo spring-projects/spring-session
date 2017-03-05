@@ -75,7 +75,7 @@
 		<module name="AvoidStarImport"/>
 		<module name="AvoidStaticImport">
 			<property name="excludes"
-					value="org.assertj.core.api.Assertions.*, org.mockito.Mockito.*, org.mockito.BDDMockito.*, org.mockito.AdditionalMatchers.*, org.mockito.Matchers.*, org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*, org.springframework.test.web.servlet.result.MockMvcResultHandlers.*, org.springframework.test.web.servlet.result.MockMvcResultMatchers.*, org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*, org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*, org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*, org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo"/>
+					value="org.assertj.core.api.Assertions.*, org.mockito.Mockito.*, org.mockito.BDDMockito.*, org.mockito.AdditionalMatchers.*, org.mockito.ArgumentMatchers.*, org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*, org.springframework.test.web.servlet.result.MockMvcResultHandlers.*, org.springframework.test.web.servlet.result.MockMvcResultMatchers.*, org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*, org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*, org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.*, org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo"/>
 		</module>
 		<module name="IllegalImport"/>
 		<module name="RedundantImport"/>
