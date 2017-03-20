@@ -1200,6 +1200,7 @@ Spring Session is Open Source software released under the http://www.apache.org/
 [[community-extensions]]
 === Community Extensions
 https://github.com/maseev/spring-session-orientdb[Spring Session OrientDB]
+http://infinispan.org/docs/dev/user_guide/user_guide.html#externalizing_session_using_spring_session[Spring Session Infinispan]
 
 [[minimum-requirements]]
 == Minimum Requirements
