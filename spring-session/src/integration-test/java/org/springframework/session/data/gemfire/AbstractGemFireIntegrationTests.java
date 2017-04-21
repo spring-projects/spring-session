@@ -80,7 +80,7 @@ public abstract class AbstractGemFireIntegrationTests {
 		System.getProperty("spring.session.data.gemfire.log-file", "server.log");
 
 	protected static final String GEMFIRE_LOG_LEVEL =
-		System.getProperty("spring.session.data.gemfire.log-level", "warning");
+		System.getProperty("spring.session.data.gemfire.log-level", "error");
 
 	@Autowired
 	protected Cache gemfireCache;
@@ -255,7 +255,7 @@ public abstract class AbstractGemFireIntegrationTests {
 
 	/* (non-Javadoc) */
 	protected static int waitForProcessToStop(Process process, File directory, long duration) {
-		final long timeout = (System.currentTimeMillis() + duration);
+		long timeout = (System.currentTimeMillis() + duration);
 
 		try {
 			while (process.isAlive() && System.currentTimeMillis() < timeout) {
@@ -279,7 +279,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	/* (non-Javadoc) */
 	@SuppressWarnings("all")
 	protected static boolean waitOnCondition(Condition condition, long duration) {
-		final long timeout = (System.currentTimeMillis() + duration);
+		long timeout = (System.currentTimeMillis() + duration);
 
 		try {
 			while (!condition.evaluate() && System.currentTimeMillis() < timeout) {

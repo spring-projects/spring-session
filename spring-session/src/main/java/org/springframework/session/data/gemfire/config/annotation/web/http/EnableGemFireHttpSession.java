@@ -101,7 +101,7 @@ import org.springframework.context.annotation.Import;
  *
  * @author John Blum
  * @see org.springframework.session.config.annotation.web.http.EnableSpringHttpSession
- * @see GemFireHttpSessionConfiguration
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
  * @since 1.1.0
  */
 @Documented

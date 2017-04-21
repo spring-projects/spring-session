@@ -277,6 +277,19 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/**
+	 * Deletes the given {@link Session} from GemFire.
+	 *
+	 * @param session {@link Session} to delete.
+	 * @return {@literal null}.
+	 * @see org.springframework.session.Session
+	 * @see #delete(String)
+	 */
+	protected ExpiringSession delete(Session session) {
+		delete(session.getId());
+		return null;
+	}
+
+	/**
 	 * Causes Session created events to be published to the Spring application context.
 	 *
 	 * @param sessionId a String indicating the ID of the Session.
@@ -344,8 +357,21 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 			getApplicationEventPublisher().publishEvent(event);
 		}
 		catch (Throwable t) {
-			this.logger.error(String.format("error occurred publishing event (%1$s)", event), t);
+			this.logger.error(String.format("Error occurred publishing event [%s]", event), t);
 		}
+	}
+
+	/**
+	 * Updates the {@link ExpiringSession#setLastAccessedTime(long)} property of the {@link ExpiringSession}.
+	 *
+	 * @param <T> {@link Class} sub-type of the {@link ExpiringSession}.
+	 * @param expiringSession {@link ExpiringSession} to touch.
+	 * @return the {@link ExpiringSession}.
+	 * @see org.springframework.session.ExpiringSession#setLastAccessedTime(long)
+	 */
+	protected <T extends ExpiringSession> T touch(T expiringSession) {
+		expiringSession.setLastAccessedTime(System.currentTimeMillis());
+		return expiringSession;
 	}
 
 	/**
@@ -407,11 +433,13 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 			return session;
 		}
 
+		public static GemFireSession copy(ExpiringSession session) {
+			return new GemFireSession(session);
+		}
+
 		/* (non-Javadoc) */
-		public static GemFireSession from(ExpiringSession expiringSession) {
-			GemFireSession session = new GemFireSession(expiringSession);
-			session.setLastAccessedTime(System.currentTimeMillis());
-			return session;
+		public static GemFireSession from(ExpiringSession session) {
+			return (session instanceof GemFireSession ? (GemFireSession) session : copy(session));
 		}
 
 		/* (non-Javadoc) */

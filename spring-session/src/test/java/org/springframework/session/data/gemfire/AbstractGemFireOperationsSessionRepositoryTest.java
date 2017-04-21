@@ -32,14 +32,13 @@ import java.util.concurrent.TimeUnit;
 
 import edu.umd.cs.mtc.MultithreadedTestCase;
 import edu.umd.cs.mtc.TestFramework;
+
 import org.apache.commons.logging.Log;
 import org.apache.geode.cache.AttributesMutator;
 import org.apache.geode.cache.EntryEvent;
 import org.apache.geode.cache.Region;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -70,14 +69,17 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
- * Unit tests for {@link AbstractGemFireOperationsSessionRepository} class.
+ * Unit tests for {@link AbstractGemFireOperationsSessionRepository}.
  *
  * @author John Blum
  * @since 1.1.0
@@ -88,6 +90,7 @@ import static org.mockito.Mockito.verify;
  * @see org.mockito.Mock
  * @see org.mockito.Mockito
  * @see org.mockito.junit.MockitoJUnitRunner
+ * @see org.mockito.Spy
  * @see org.springframework.data.gemfire.GemfireOperations
  * @see org.springframework.data.gemfire.GemfireTemplate
  * @see org.springframework.session.ExpiringSession
@@ -103,8 +106,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 	protected static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 600;
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
+	private AbstractGemFireOperationsSessionRepository sessionRepository;
 
 	@Mock
 	private GemfireOperations mockGemfireOperations;
@@ -112,16 +114,14 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	@Mock
 	private Log mockLog;
 
-	private AbstractGemFireOperationsSessionRepository sessionRepository;
-
 	@Before
 	public void setup() {
-		this.sessionRepository = new TestGemFireOperationsSessionRepository(this.mockGemfireOperations) {
+		this.sessionRepository = spy(new TestGemFireOperationsSessionRepository(this.mockGemfireOperations) {
 			@Override
 			Log newLogger() {
 				return AbstractGemFireOperationsSessionRepositoryTest.this.mockLog;
 			}
-		};
+		});
 	}
 
 	protected static <E> Set<E> asSet(E... elements) {
@@ -133,12 +133,12 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 	protected ExpiringSession mockSession(String sessionId, long creationAndLastAccessedTime,
 			int maxInactiveIntervalInSeconds) {
 
-		return mockSession(sessionId, creationAndLastAccessedTime,
-			creationAndLastAccessedTime, maxInactiveIntervalInSeconds);
+		return mockSession(sessionId, creationAndLastAccessedTime, creationAndLastAccessedTime,
+			maxInactiveIntervalInSeconds);
 	}
 
-	protected ExpiringSession mockSession(String sessionId, long creationTime,
-			long lastAccessedTime, int maxInactiveIntervalInSeconds) {
+	protected ExpiringSession mockSession(String sessionId, long creationTime, long lastAccessedTime,
+			int maxInactiveIntervalInSeconds) {
 
 		ExpiringSession mockSession = mock(ExpiringSession.class, sessionId);
 
@@ -150,12 +150,17 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		return mockSession;
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void constructGemFireOperationsSessionRepositoryWithNullTemplate() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("GemfireOperations must not be null");
+		try {
+			new TestGemFireOperationsSessionRepository(null);
+		}
+		catch (IllegalArgumentException expected) {
+			assertThat(expected).hasMessage("GemfireOperations must not be null");
+			assertThat(expected).hasNoCause();
 
-		new TestGemFireOperationsSessionRepository(null);
+			throw expected;
+		}
 	}
 
 	@Test
@@ -208,9 +213,9 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(this.sessionRepository.getMaxInactiveIntervalInSeconds()).isEqualTo(Integer.MIN_VALUE);
 
-		this.sessionRepository.setMaxInactiveIntervalInSeconds(3600);
+		this.sessionRepository.setMaxInactiveIntervalInSeconds(1024000);
 
-		assertThat(this.sessionRepository.getMaxInactiveIntervalInSeconds()).isEqualTo(3600);
+		assertThat(this.sessionRepository.getMaxInactiveIntervalInSeconds()).isEqualTo(1024000);
 
 		this.sessionRepository.setMaxInactiveIntervalInSeconds(Integer.MAX_VALUE);
 
@@ -258,7 +263,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockEntryEvent, times(2)).getNewValue();
 		verify(mockEntryEvent, never()).getOldValue();
 		verify(mockSession, times(1)).getId();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionCreatedEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionCreatedEvent.class));
 	}
 
 	@Test
@@ -298,7 +304,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockEntryEvent, times(1)).getKey();
 		verify(mockEntryEvent, times(2)).getNewValue();
 		verify(mockEntryEvent, never()).getOldValue();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionCreatedEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionCreatedEvent.class));
 	}
 
 	@Test
@@ -364,7 +371,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockEntryEvent, never()).getNewValue();
 		verify(mockEntryEvent, times(1)).getOldValue();
 		verify(mockSession, times(1)).getId();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionDestroyedEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionDestroyedEvent.class));
 	}
 
 	@Test
@@ -404,7 +412,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockEntryEvent, times(1)).getKey();
 		verify(mockEntryEvent, never()).getNewValue();
 		verify(mockEntryEvent, times(1)).getOldValue();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionDestroyedEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionDestroyedEvent.class));
 	}
 
 	@Test
@@ -444,7 +453,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockEntryEvent, times(1)).getKey();
 		verify(mockEntryEvent, never()).getNewValue();
 		verify(mockEntryEvent, times(1)).getOldValue();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionDestroyedEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionDestroyedEvent.class));
 	}
 
 	@Test
@@ -528,7 +538,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockEntryEvent, times(1)).getKey();
 		verify(mockEntryEvent, never()).getNewValue();
 		verify(mockEntryEvent, times(1)).getOldValue();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionExpiredEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionExpiredEvent.class));
 	}
 
 	@Test
@@ -568,7 +579,20 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockEntryEvent, times(1)).getKey();
 		verify(mockEntryEvent, never()).getNewValue();
 		verify(mockEntryEvent, times(1)).getOldValue();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionExpiredEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionExpiredEvent.class));
+	}
+
+	@Test
+	public void deleteSessionCallsDeleteSessionId() {
+		Session mockSession = mock(Session.class);
+
+		doNothing().when(this.sessionRepository).delete(anyString());
+		given(mockSession.getId()).willReturn("2");
+
+		assertThat(this.sessionRepository.delete(mockSession)).isNull();
+
+		verify(this.sessionRepository, times(1)).delete(eq("2"));
 	}
 
 	@Test
@@ -603,7 +627,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(this.sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
 
 		verify(mockSession, times(1)).getId();
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionDeletedEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionDeletedEvent.class));
 	}
 
 	@Test
@@ -634,7 +659,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(this.sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
 
-		verify(mockApplicationEventPublisher, times(1)).publishEvent(isA(SessionDeletedEvent.class));
+		verify(mockApplicationEventPublisher, times(1))
+			.publishEvent(isA(SessionDeletedEvent.class));
 	}
 
 	@Test
@@ -652,13 +678,23 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(this.sessionRepository.getApplicationEventPublisher()).isSameAs(mockApplicationEventPublisher);
 
 		verify(mockApplicationEventPublisher, times(1)).publishEvent(eq(mockApplicationEvent));
-		verify(this.mockLog, times(1)).error(eq(String.format("error occurred publishing event (%s)",
-			mockApplicationEvent)), isA(IllegalStateException.class));
+		verify(this.mockLog, times(1))
+			.error(eq(String.format("Error occurred publishing event [%s]", mockApplicationEvent)),
+				isA(IllegalStateException.class));
+	}
+
+	@Test
+	public void touchSetsLastAccessedTime() {
+		ExpiringSession mockSession = mock(ExpiringSession.class);
+
+		assertThat(this.sessionRepository.touch(mockSession)).isSameAs(mockSession);
+
+		verify(mockSession, times(1)).setLastAccessedTime(anyInt());
 	}
 
 	@Test
 	public void constructGemFireSessionWithDefaultInitialization() {
-		final long beforeOrAtCreationTime = System.currentTimeMillis();
+		long beforeOrAtCreationTime = System.currentTimeMillis();
 
 		AbstractGemFireOperationsSessionRepository.GemFireSession session =
 			new AbstractGemFireOperationsSessionRepository.GemFireSession();
@@ -668,12 +704,12 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(session.getLastAccessedTime()).isGreaterThanOrEqualTo(beforeOrAtCreationTime);
 		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(0);
 		assertThat(session.getAttributeNames()).isNotNull();
-		assertThat(session.getAttributeNames().isEmpty()).isTrue();
+		assertThat(session.getAttributeNames()).isEmpty();
 	}
 
 	@Test
 	public void constructGemFireSessionWithId() {
-		final long beforeOrAtCreationTime = System.currentTimeMillis();
+		long beforeOrAtCreationTime = System.currentTimeMillis();
 
 		AbstractGemFireOperationsSessionRepository.GemFireSession session =
 			new AbstractGemFireOperationsSessionRepository.GemFireSession("1");
@@ -683,16 +719,29 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(session.getLastAccessedTime()).isGreaterThanOrEqualTo(beforeOrAtCreationTime);
 		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(0);
 		assertThat(session.getAttributeNames()).isNotNull();
-		assertThat(session.getAttributeNames().isEmpty()).isTrue();
+		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void constructGemFireSessionWithUnspecifiedId() {
+		try {
+			new AbstractGemFireOperationsSessionRepository.GemFireSession(" ");
+		}
+		catch (IllegalArgumentException expected) {
+			assertThat(expected).hasMessage("ID must be specified");
+			assertThat(expected).hasNoCause();
+
+			throw expected;
+		}
 	}
 
 	@Test
 	public void constructGemFireSessionWithSession() {
-		final long expectedCreationTime = 1L;
-		final long expectedLastAccessTime = 2L;
+		long expectedCreationTime = 1L;
+		long expectedLastAccessTime = 2L;
 
-		ExpiringSession mockSession = mockSession("2", expectedCreationTime, expectedLastAccessTime,
-			MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		ExpiringSession mockSession =
+			mockSession("2", expectedCreationTime, expectedLastAccessTime, MAX_INACTIVE_INTERVAL_IN_SECONDS);
 
 		Set<String> expectedAttributedNames = asSet("attrOne", "attrTwo");
 
@@ -720,25 +769,22 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockSession, times(1)).getAttribute(eq("attrTwo"));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void constructGemFireSessionWithNullSession() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("The ExpiringSession to copy cannot be null");
+		try {
+			new AbstractGemFireOperationsSessionRepository.GemFireSession((ExpiringSession) null);
+		}
+		catch (IllegalArgumentException expected) {
+			assertThat(expected).hasMessage("The ExpiringSession to copy cannot be null");
+			assertThat(expected).hasNoCause();
 
-		new AbstractGemFireOperationsSessionRepository.GemFireSession((ExpiringSession) null);
-	}
-
-	@Test
-	public void constructGemFireSessionWithUnspecifiedId() {
-		this.expectedException.expect(IllegalArgumentException.class);
-		this.expectedException.expectMessage("ID must be specified");
-
-		new AbstractGemFireOperationsSessionRepository.GemFireSession(" ");
+			throw expected;
+		}
 	}
 
 	@Test
 	public void createNewGemFireSession() {
-		final long beforeOrAtCreationTime = System.currentTimeMillis();
+		long beforeOrAtCreationTime = System.currentTimeMillis();
 
 		AbstractGemFireOperationsSessionRepository.GemFireSession session =
 			AbstractGemFireOperationsSessionRepository.GemFireSession.create(120);
@@ -754,8 +800,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 	@Test
 	public void fromExistingSession() {
-		final long expectedCreationTime = 1L;
-		final long expectedLastAccessedTime = 2L;
+		long expectedCreationTime = 1L;
+		long expectedLastAccessedTime = 2L;
 
 		ExpiringSession mockSession = mockSession("4", expectedCreationTime, expectedLastAccessedTime,
 			MAX_INACTIVE_INTERVAL_IN_SECONDS);
@@ -768,9 +814,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(gemfireSession).isNotNull();
 		assertThat(gemfireSession.getId()).isEqualTo("4");
 		assertThat(gemfireSession.getCreationTime()).isEqualTo(expectedCreationTime);
-		assertThat(gemfireSession.getLastAccessedTime()).isNotEqualTo(expectedLastAccessedTime);
-		assertThat(gemfireSession.getLastAccessedTime()).isGreaterThanOrEqualTo(expectedCreationTime);
-		assertThat(gemfireSession.getLastAccessedTime()).isLessThanOrEqualTo(System.currentTimeMillis());
+		assertThat(gemfireSession.getLastAccessedTime()).isEqualTo(expectedLastAccessedTime);
 		assertThat(gemfireSession.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		assertThat(gemfireSession.getAttributeNames()).isNotNull();
 		assertThat(gemfireSession.getAttributeNames().isEmpty()).isTrue();
@@ -781,6 +825,17 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockSession, times(1)).getMaxInactiveIntervalInSeconds();
 		verify(mockSession, times(1)).getAttributeNames();
 		verify(mockSession, never()).getAttribute(anyString());
+	}
+
+	@Test
+	public void fromExistingGemFireSessionIsGemFireSession() {
+		AbstractGemFireOperationsSessionRepository.GemFireSession gemfireSession =
+			AbstractGemFireOperationsSessionRepository.GemFireSession.create(300);
+
+		AbstractGemFireOperationsSessionRepository.GemFireSession fromGemFireSession =
+			AbstractGemFireOperationsSessionRepository.GemFireSession.from(gemfireSession);
+
+		assertThat(fromGemFireSession).isSameAs(gemfireSession);
 	}
 
 	@Test
@@ -918,17 +973,18 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		verify(mockDataOutput, times(1)).writeUTF(eq("1"));
 		verify(mockDataOutput, times(1)).writeLong(eq(session.getCreationTime()));
 		verify(mockDataOutput, times(1)).writeLong(eq(session.getLastAccessedTime()));
-		verify(mockDataOutput, times(1)).writeInt(eq(session.getMaxInactiveIntervalInSeconds()));
+		verify(mockDataOutput, times(1))
+			.writeInt(eq(session.getMaxInactiveIntervalInSeconds()));
 		verify(mockDataOutput, times(1)).writeInt(eq("jblum".length()));
 		verify(mockDataOutput, times(1)).writeUTF(eq(session.getPrincipalName()));
 	}
 
 	@Test
 	public void sessionFromData() throws Exception {
-		final long expectedCreationTime = 1L;
-		final long expectedLastAccessedTime = 2L;
+		long expectedCreationTime = 1L;
+		long expectedLastAccessedTime = 2L;
 
-		final int expectedMaxInactiveIntervalInSeconds = (int) TimeUnit.HOURS.toSeconds(6);
+		int expectedMaxInactiveIntervalInSeconds = (int) TimeUnit.HOURS.toSeconds(6);
 
 		final String expectedPrincipalName = "jblum";
 
@@ -958,8 +1014,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		session.fromData(mockDataInput);
 
-		Set<String> expectedAttributeNames = asSet("attrOne", "attrTwo",
-			FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+		Set<String> expectedAttributeNames =
+			asSet("attrOne", "attrTwo", FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 
 		assertThat(session.getId()).isEqualTo("2");
 		assertThat(session.getCreationTime()).isEqualTo(expectedCreationTime);
@@ -1044,7 +1100,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 	@Test
 	public void hasDeltaWhenSessionLastAccessedTimeIsUpdatedIsTrue() {
-		final long expectedLastAccessTime = 1L;
+		long expectedLastAccessTime = 1L;
 
 		AbstractGemFireOperationsSessionRepository.GemFireSession session =
 			new AbstractGemFireOperationsSessionRepository.GemFireSession();
@@ -1065,7 +1121,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 	@Test
 	public void hasDeltaWhenSessionMaxInactiveIntervalInSecondsIsUpdatedIsTrue() {
-		final int expectedMaxInactiveIntervalInSeconds = 300;
+		int expectedMaxInactiveIntervalInSeconds = 300;
 
 		AbstractGemFireOperationsSessionRepository.GemFireSession session =
 			new AbstractGemFireOperationsSessionRepository.GemFireSession();
@@ -1146,7 +1202,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 	@Test
 	public void sessionComparisons() {
-		final long twoHoursAgo = (System.currentTimeMillis() - TimeUnit.HOURS.toMillis(2));
+		long twoHoursAgo = (System.currentTimeMillis() - TimeUnit.HOURS.toMillis(2));
 
 		AbstractGemFireOperationsSessionRepository.GemFireSession sessionOne =
 			new AbstractGemFireOperationsSessionRepository.GemFireSession(
@@ -1528,8 +1584,9 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			assertThat(this.session.getMaxInactiveIntervalInSeconds()).isEqualTo(60);
 			assertThat(this.session.getPrincipalName()).isEqualTo("jblum");
 			assertThat(this.session.getAttributeNames().size()).isEqualTo(1);
-			assertThat(String.valueOf(this.session.getAttribute(
-				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))).isEqualTo("jblum");
+			assertThat(String.valueOf(
+				this.session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)))
+					.isEqualTo("jblum");
 
 			this.session.setAttribute("tennis", "ping");
 			this.session.setAttribute("junk", "test");
@@ -1595,24 +1652,24 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			super(gemfireOperations);
 		}
 
-		public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
-			throw new UnsupportedOperationException("not implemented");
+		public ExpiringSession createSession() {
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
-		public ExpiringSession createSession() {
-			throw new UnsupportedOperationException("not implemented");
+		public Map<String, ExpiringSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		public ExpiringSession getSession(String id) {
-			throw new UnsupportedOperationException("not implemented");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		public void save(ExpiringSession session) {
-			throw new UnsupportedOperationException("not implemented");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 
 		public void delete(String id) {
-			throw new UnsupportedOperationException("not implemented");
+			throw new UnsupportedOperationException("Not Implemented");
 		}
 	}
 }
