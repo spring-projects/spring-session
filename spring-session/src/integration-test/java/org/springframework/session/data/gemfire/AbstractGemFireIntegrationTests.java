@@ -47,8 +47,8 @@ import org.springframework.session.events.AbstractSessionEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * AbstractGemFireIntegrationTests is an abstract base class encapsulating common
- * operations for writing Spring Session GemFire integration tests.
+ * {@link AbstractGemFireIntegrationTests} is an abstract base class encapsulating common
+ * operations for writing Spring Session Data GemFire integration tests.
  *
  * @author John Blum
  * @since 1.1.0
@@ -74,8 +74,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	protected static final long DEFAULT_WAIT_DURATION = TimeUnit.SECONDS.toMillis(20);
 	protected static final long DEFAULT_WAIT_INTERVAL = 500L;
 
-	protected static final File WORKING_DIRECTORY =
-		new File(System.getProperty("user.dir"));
+	protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
 
 	protected static final String DEFAULT_PROCESS_CONTROL_FILENAME = "process.ctl";
 
@@ -83,7 +82,7 @@ public abstract class AbstractGemFireIntegrationTests {
 		System.getProperty("spring.session.data.gemfire.log-file", "server.log");
 
 	protected static final String GEMFIRE_LOG_LEVEL =
-		System.getProperty("spring.session.data.gemfire.log-level", "warning");
+		System.getProperty("spring.session.data.gemfire.log-level", "error");
 
 	@Autowired
 	protected Cache gemfireCache;
@@ -258,7 +257,7 @@ public abstract class AbstractGemFireIntegrationTests {
 
 	/* (non-Javadoc) */
 	protected static int waitForProcessToStop(Process process, File directory, long duration) {
-		final long timeout = (System.currentTimeMillis() + duration);
+		long timeout = (System.currentTimeMillis() + duration);
 
 		try {
 			while (process.isAlive() && System.currentTimeMillis() < timeout) {
@@ -282,7 +281,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	/* (non-Javadoc) */
 	@SuppressWarnings("all")
 	protected static boolean waitOnCondition(Condition condition, long duration) {
-		final long timeout = (System.currentTimeMillis() + duration);
+		long timeout = (System.currentTimeMillis() + duration);
 
 		try {
 			while (!condition.evaluate() && System.currentTimeMillis() < timeout) {
@@ -335,6 +334,7 @@ public abstract class AbstractGemFireIntegrationTests {
 	/* (non-Javadoc) */
 	protected void assertEntryIdleTimeout(ExpirationAttributes actualExpirationAttributes,
 			ExpirationAction expectedAction, int expectedTimeout) {
+
 		assertThat(actualExpirationAttributes).isNotNull();
 		assertThat(actualExpirationAttributes.getAction()).isEqualTo(expectedAction);
 		assertThat(actualExpirationAttributes.getTimeout()).isEqualTo(expectedTimeout);
@@ -446,5 +446,4 @@ public abstract class AbstractGemFireIntegrationTests {
 	protected interface Condition {
 		boolean evaluate();
 	}
-
 }

@@ -119,15 +119,12 @@ public class GemFireOperationsSessionRepository extends AbstractGemFireOperation
 		ExpiringSession storedSession = getTemplate().get(sessionId);
 
 		if (storedSession != null) {
-			if (storedSession.isExpired()) {
-				delete(storedSession.getId());
-			}
-			else {
-				return GemFireSession.from(storedSession);
-			}
+			storedSession = storedSession.isExpired()
+				? delete(storedSession)
+				: touch(GemFireSession.from(storedSession));
 		}
 
-		return null;
+		return storedSession;
 	}
 
 	/**
@@ -138,7 +135,7 @@ public class GemFireOperationsSessionRepository extends AbstractGemFireOperation
 	 * @see org.springframework.session.ExpiringSession
 	 */
 	public void save(ExpiringSession session) {
-		getTemplate().put(session.getId(), new GemFireSession(session));
+		getTemplate().put(session.getId(), GemFireSession.from(session));
 	}
 
 	/**
@@ -152,5 +149,4 @@ public class GemFireOperationsSessionRepository extends AbstractGemFireOperation
 	public void delete(String sessionId) {
 		handleDeleted(sessionId, getTemplate().<Object, ExpiringSession>remove(sessionId));
 	}
-
 }
