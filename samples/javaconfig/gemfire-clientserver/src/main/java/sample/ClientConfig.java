@@ -38,7 +38,7 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.gemfire.client.ClientCacheFactoryBean;
-import org.springframework.data.gemfire.config.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;

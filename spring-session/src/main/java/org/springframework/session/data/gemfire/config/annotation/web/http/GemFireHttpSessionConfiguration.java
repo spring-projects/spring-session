@@ -40,7 +40,7 @@ import org.springframework.data.gemfire.GemfireTemplate;
 import org.springframework.data.gemfire.IndexFactoryBean;
 import org.springframework.data.gemfire.IndexType;
 import org.springframework.data.gemfire.RegionAttributesFactoryBean;
-import org.springframework.data.gemfire.config.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.gemfire.AbstractGemFireOperationsSessionRepository.GemFireSession;

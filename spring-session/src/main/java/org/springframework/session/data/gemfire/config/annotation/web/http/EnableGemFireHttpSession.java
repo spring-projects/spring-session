@@ -101,7 +101,7 @@ import org.springframework.context.annotation.Import;
  *
  * @author John Blum
  * @see org.springframework.session.config.annotation.web.http.EnableSpringHttpSession
- * @see GemFireHttpSessionConfiguration
+ * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
  * @since 1.1.0
  */
 @Documented
@@ -145,7 +145,7 @@ public @interface EnableGemFireHttpSession {
 	 *
 	 * @return the name of the GemFire {@link com.gemstone.gemfire.cache.client.Pool} to be used
 	 * by the client Region used to manage (HTTP) Sessions.
-	 * @see org.springframework.data.gemfire.config.GemfireConstants#DEFAULT_GEMFIRE_POOL_NAME
+	 * @see org.springframework.data.gemfire.config.xml.GemfireConstants#DEFAULT_GEMFIRE_POOL_NAME
 	 */
 	String poolName() default GemFireHttpSessionConfiguration.DEFAULT_GEMFIRE_POOL_NAME;
 

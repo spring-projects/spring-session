@@ -32,7 +32,7 @@ import com.gemstone.gemfire.management.membership.ClientMembershipListenerAdapte
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.data.gemfire.config.GemfireConstants;
+import org.springframework.data.gemfire.config.xml.GemfireConstants;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
 import org.springframework.util.Assert;
 
