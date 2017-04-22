@@ -38,7 +38,7 @@ run {
 }
 
 springBoot {
-	mainClass = 'sample.client.Application'
+	mainClassName = 'sample.client.Application'
 }
 
 task runGemFireServer() {
