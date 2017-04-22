@@ -17,6 +17,8 @@
 package sample.websocket;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
 
 import sample.data.ActiveWebSocketUser;
 import sample.data.ActiveWebSocketUserRepository;
@@ -42,14 +44,11 @@ public class WebSocketDisconnectHandler<S>
 		if (id == null) {
 			return;
 		}
-		ActiveWebSocketUser user = this.repository.findOne(id);
-		if (user == null) {
-			return;
+		Optional<ActiveWebSocketUser> user = this.repository.findOne(id);
+		if (user.isPresent()) {
+			this.repository.delete(id);
+			this.messagingTemplate.convertAndSend("/topic/friends/signout",
+				Collections.singleton(user.map(ActiveWebSocketUser::getUsername)));
 		}
-
-		this.repository.delete(id);
-		this.messagingTemplate.convertAndSend("/topic/friends/signout",
-				Arrays.asList(user.getUsername()));
-
 	}
 }

@@ -68,6 +68,10 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 			return AuthorityUtils.createAuthorityList("ROLE_USER");
 		}
 
+		public String getName() {
+			return getUsername();
+		}
+
 		public String getUsername() {
 			return getEmail();
 		}

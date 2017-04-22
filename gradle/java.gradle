@@ -11,8 +11,8 @@ apply from: IDE_GRADLE
 
 group = 'org.springframework.session'
 
-sourceCompatibility = 1.5
-targetCompatibility = 1.5
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 ext.springIoVersion = project.hasProperty('platformVersion') ? platformVersion : 'Cairo-BUILD-SNAPSHOT'
 
@@ -29,6 +29,7 @@ ext.jstlDependencies = [
 repositories {
 	mavenCentral()
 	maven { url 'https://repo.spring.io/libs-snapshot' }
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 configurations.all {
