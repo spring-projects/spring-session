@@ -62,6 +62,7 @@ import org.springframework.session.events.SessionExpiredEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -69,7 +70,6 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -689,7 +689,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(this.sessionRepository.touch(mockSession)).isSameAs(mockSession);
 
-		verify(mockSession, times(1)).setLastAccessedTime(anyInt());
+		verify(mockSession, times(1)).setLastAccessedTime(anyLong());
 	}
 
 	@Test
