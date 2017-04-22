@@ -3,7 +3,7 @@ buildscript {
 		maven { url "https://repo.spring.io/plugins-release" }
 	}
 	dependencies {
-		classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RC2'
+		classpath 'io.spring.gradle:dependency-management-plugin:1.0.2.RELEASE'
 		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.5")
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath("io.spring.gradle:spring-io-plugin:0.0.6.RELEASE")
@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
 	id "org.sonarqube" version "2.1"
-	id "io.spring.dependency-management" version "1.0.0.RC2"
+	id "io.spring.dependency-management" version "1.0.2.RELEASE"
 }
 
 group = 'org.springframework.session'

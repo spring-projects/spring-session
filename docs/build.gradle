@@ -16,11 +16,6 @@ liveReload {
 	docRoot asciidoctor.sourceDir.canonicalPath
 }
 
-repositories {
-	maven { url 'http://dist.gemstone.com/maven/release' }
-	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-}
-
 asciidoctorj {
 
 }
