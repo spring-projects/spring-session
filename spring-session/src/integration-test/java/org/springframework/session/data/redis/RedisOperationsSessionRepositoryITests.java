@@ -77,7 +77,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		this.repository.save(toSave);
 
 		assertThat(this.registry.receivedEvent(toSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(toSave.getId()))
+		assertThat(this.registry.<SessionCreatedEvent>getEvent(toSave.getId()))
 				.isInstanceOf(SessionCreatedEvent.class);
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members())
 				.contains(toSave.getId());
@@ -86,7 +86,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
-		assertThat(session.getAttribute(expectedAttributeName))
+		assertThat(session.<String>getAttribute(expectedAttributeName))
 				.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		this.registry.clear();
@@ -94,13 +94,13 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		this.repository.delete(toSave.getId());
 
 		assertThat(this.repository.getSession(toSave.getId())).isNull();
-		assertThat(this.registry.getEvent(toSave.getId()))
+		assertThat(this.registry.<SessionDestroyedEvent>getEvent(toSave.getId()))
 				.isInstanceOf(SessionDestroyedEvent.class);
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members())
 				.doesNotContain(toSave.getId());
 
 		assertThat(this.registry.getEvent(toSave.getId()).getSession()
-				.getAttribute(expectedAttributeName)).isEqualTo(expectedAttributeValue);
+				.<String>getAttribute(expectedAttributeName)).isEqualTo(expectedAttributeValue);
 	}
 
 	@Test
@@ -118,8 +118,8 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		Session session = this.repository.getSession(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
-		assertThat(session.getAttribute("a")).isEqualTo("b");
-		assertThat(session.getAttribute("1")).isEqualTo("2");
+		assertThat(session.<String>getAttribute("a")).isEqualTo("b");
+		assertThat(session.<String>getAttribute("1")).isEqualTo("2");
 
 		this.repository.delete(toSave.getId());
 	}

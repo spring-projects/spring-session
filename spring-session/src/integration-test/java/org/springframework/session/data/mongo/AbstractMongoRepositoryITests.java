@@ -78,7 +78,7 @@ abstract public class AbstractMongoRepositoryITests extends AbstractITests {
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
-		assertThat(session.getAttribute(expectedAttributeName))
+		assertThat(session.<String>getAttribute(expectedAttributeName))
 				.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		this.repository.delete(toSave.getId());
@@ -102,8 +102,8 @@ abstract public class AbstractMongoRepositoryITests extends AbstractITests {
 
 		Session session = this.repository.getSession(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
-		assertThat(session.getAttribute("a")).isEqualTo("b");
-		assertThat(session.getAttribute("1")).isEqualTo("2");
+		assertThat(session.<String>getAttribute("a")).isEqualTo("b");
+		assertThat(session.<String>getAttribute("1")).isEqualTo("2");
 
 		this.repository.delete(toSave.getId());
 	}

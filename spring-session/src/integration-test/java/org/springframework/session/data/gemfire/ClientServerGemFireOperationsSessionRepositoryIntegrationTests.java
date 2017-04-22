@@ -190,7 +190,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		createdSession.setAttribute("attrOne", 1);
 
-		assertThat(save(touch(createdSession)).getAttribute("attrOne")).isEqualTo(1);
+		assertThat(save(touch(createdSession)).<Integer>getAttribute("attrOne")).isEqualTo(1);
 
 		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
@@ -206,8 +206,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
-		assertThat(sessionEvent.getSession()).isEqualTo(expectedSession);
-		assertThat(this.sessionEventListener.getSessionEvent()).isNull();
+		assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(expectedSession);
+		assertThat(this.sessionEventListener.<SessionCreatedEvent>getSessionEvent()).isNull();
 
 		ExpiringSession savedSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
 

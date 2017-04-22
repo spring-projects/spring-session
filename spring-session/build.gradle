@@ -44,7 +44,7 @@ dependencies {
 			"org.apache.derby:derby:10.12.1.1",
 			"com.h2database:h2:$h2Version",
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
-			"org.hsqldb:hsqldb:2.3.3",
+			"org.hsqldb:hsqldb:2.4.0",
 			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.2"
 
 	integrationTestRuntime "org.springframework.shell:spring-shell:1.1.0.RELEASE"
@@ -54,7 +54,14 @@ dependencies {
 			"edu.umd.cs.mtc:multithreadedtc:1.01",
 			"org.springframework:spring-test:$springVersion",
 			"org.assertj:assertj-core:$assertjVersion",
-			"org.springframework.security:spring-security-core:$springSecurityVersion"
+			"org.springframework.security:spring-security-core:$springSecurityVersion",
+			"org.apache.commons:commons-pool2:2.2",
+			"org.apache.derby:derby:10.12.1.1",
+			"com.h2database:h2:$h2Version",
+			"com.hazelcast:hazelcast-client:$hazelcastVersion",
+			"org.hsqldb:hsqldb:2.4.0",
+			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.2",
+			"redis.clients:jedis:$jedisVersion"
 
 	jacoco "org.jacoco:org.jacoco.agent:0.7.2.201409121644:runtime"
 

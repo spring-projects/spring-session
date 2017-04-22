@@ -89,7 +89,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId()))
+		assertThat(this.registry.<SessionCreatedEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionCreatedEvent.class);
 
 		Session session = this.repository.getSession(sessionToSave.getId());
@@ -97,7 +97,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 		assertThat(session.getAttributeNames())
 				.isEqualTo(sessionToSave.getAttributeNames());
-		assertThat(session.getAttribute(expectedAttributeName))
+		assertThat(session.<String>getAttribute(expectedAttributeName))
 				.isEqualTo(sessionToSave.getAttribute(expectedAttributeName));
 	}
 
@@ -108,7 +108,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId()))
+		assertThat(this.registry.<SessionCreatedEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionCreatedEvent.class);
 		this.registry.clear();
 
@@ -116,10 +116,10 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId()))
+		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionExpiredEvent.class);
 
-		assertThat(this.repository.getSession(sessionToSave.getId())).isNull();
+		assertThat(this.repository.<ExpiringSession>getSession(sessionToSave.getId())).isNull();
 	}
 
 	@Test
@@ -129,14 +129,14 @@ public class EnableHazelcastHttpSessionEventsTests<S extends ExpiringSession> {
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId()))
+		assertThat(this.registry.<SessionCreatedEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionCreatedEvent.class);
 		this.registry.clear();
 
 		this.repository.delete(sessionToSave.getId());
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
-		assertThat(this.registry.getEvent(sessionToSave.getId()))
+		assertThat(this.registry.<SessionDeletedEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionDeletedEvent.class);
 
 		assertThat(this.repository.getSession(sessionToSave.getId())).isNull();

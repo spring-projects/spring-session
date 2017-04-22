@@ -242,7 +242,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isEqualTo(mockSession);
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(mockSession);
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -284,7 +284,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isNull();
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -350,7 +350,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isEqualTo(mockSession);
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(mockSession);
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -392,7 +392,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isNull();
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -433,7 +433,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isNull();
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -477,7 +477,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isEqualTo(mockSession);
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(mockSession);
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -518,7 +518,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isNull();
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -559,7 +559,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isNull();
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -614,7 +614,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isEqualTo(mockSession);
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(mockSession);
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -647,7 +647,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 				assertThat(sessionEvent.getSource())
 					.isEqualTo(AbstractGemFireOperationsSessionRepositoryTest.this.sessionRepository);
-				assertThat(sessionEvent.getSession()).isNull();
+				assertThat(sessionEvent.<ExpiringSession>getSession()).isNull();
 				assertThat(sessionEvent.getSessionId()).isEqualTo(sessionId);
 
 				return null;
@@ -757,8 +757,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(gemfireSession.getLastAccessedTime()).isEqualTo(expectedLastAccessTime);
 		assertThat(gemfireSession.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		assertThat(gemfireSession.getAttributeNames()).isEqualTo(expectedAttributedNames);
-		assertThat(String.valueOf(gemfireSession.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(String.valueOf(gemfireSession.getAttribute("attrTwo"))).isEqualTo("testTwo");
+		assertThat(gemfireSession.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(gemfireSession.<String>getAttribute("attrTwo")).isEqualTo("testTwo");
 
 		verify(mockSession, times(1)).getId();
 		verify(mockSession, times(1)).getCreationTime();
@@ -850,25 +850,25 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		session.setAttribute("attrOne", "testOne");
 
 		assertThat(session.getAttributeNames()).isEqualTo(asSet("attrOne"));
-		assertThat(String.valueOf(session.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(session.getAttribute("attrTwo")).isNull();
+		assertThat(session.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(session.<String>getAttribute("attrTwo")).isNull();
 
 		session.setAttribute("attrTwo", "testTwo");
 
 		assertThat(session.getAttributeNames()).isEqualTo(asSet("attrOne", "attrTwo"));
-		assertThat(String.valueOf(session.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(String.valueOf(session.getAttribute("attrTwo"))).isEqualTo("testTwo");
+		assertThat(session.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(session.<String>getAttribute("attrTwo")).isEqualTo("testTwo");
 
 		session.setAttribute("attrTwo", null);
 
 		assertThat(session.getAttributeNames()).isEqualTo(asSet("attrOne"));
-		assertThat(String.valueOf(session.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(session.getAttribute("attrTwo")).isNull();
+		assertThat(session.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(session.<String>getAttribute("attrTwo")).isNull();
 
 		session.removeAttribute("attrOne");
 
-		assertThat(session.getAttribute("attrOne")).isNull();
-		assertThat(session.getAttribute("attrTwo")).isNull();
+		assertThat(session.<String>getAttribute("attrOne")).isNull();
+		assertThat(session.<String>getAttribute("attrTwo")).isNull();
 		assertThat(session.getAttributeNames().isEmpty()).isTrue();
 	}
 
@@ -933,14 +933,14 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(session.getPrincipalName()).isEqualTo("jblum");
 		assertThat(session.getAttributeNames())
 			.isEqualTo(asSet(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME));
-		assertThat(String.valueOf(session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)))
+		assertThat(session.<String>getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))
 			.isEqualTo("jblum");
 
 		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, "rwinch");
 
 		assertThat(session.getAttributeNames())
 			.isEqualTo(asSet(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME));
-		assertThat(String.valueOf(session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)))
+		assertThat(session.<String>getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))
 			.isEqualTo("rwinch");
 		assertThat(session.getPrincipalName()).isEqualTo("rwinch");
 
@@ -1024,9 +1024,9 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 		assertThat(session.getPrincipalName()).isEqualTo(expectedPrincipalName);
 		assertThat(session.getAttributeNames().size()).isEqualTo(3);
 		assertThat(session.getAttributeNames().containsAll(expectedAttributeNames)).isTrue();
-		assertThat(String.valueOf(session.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(String.valueOf(session.getAttribute("attrTwo"))).isEqualTo("testTwo");
-		assertThat(String.valueOf(session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)))
+		assertThat(session.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(session.<String>getAttribute("attrTwo")).isEqualTo("testTwo");
+		assertThat(session.<String>getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))
 			.isEqualTo(expectedPrincipalName);
 
 		verify(mockDataInput, times(2)).readUTF();
@@ -1268,8 +1268,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(sessionAttributes.getAttributeNames().size()).isEqualTo(2);
 		assertThat(sessionAttributes.getAttributeNames().containsAll(asSet("attrOne", "attrTwo"))).isTrue();
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrTwo"))).isEqualTo("testTwo");
+		assertThat(sessionAttributes.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(sessionAttributes.<String>getAttribute("attrTwo")).isEqualTo("testTwo");
 
 		verify(mockSession, times(1)).getAttributeNames();
 		verify(mockSession, times(1)).getAttribute(eq("attrOne"));
@@ -1293,8 +1293,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(target.getAttributeNames().size()).isEqualTo(2);
 		assertThat(target.getAttributeNames().containsAll(asSet("attrOne", "attrTwo"))).isTrue();
-		assertThat(String.valueOf(target.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(String.valueOf(target.getAttribute("attrTwo"))).isEqualTo("testTwo");
+		assertThat(target.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(target.<String>getAttribute("attrTwo")).isEqualTo("testTwo");
 	}
 
 	@Test
@@ -1349,8 +1349,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(sessionAttributes.getAttributeNames().size()).isEqualTo(2);
 		assertThat(sessionAttributes.getAttributeNames().containsAll(asSet("attrOne", "attrTwo"))).isTrue();
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrTwo"))).isEqualTo("testTwo");
+		assertThat(sessionAttributes.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(sessionAttributes.<String>getAttribute("attrTwo")).isEqualTo("testTwo");
 
 		verify(mockDataInput, times(1)).readInt();
 		verify(mockDataInput, times(2)).readUTF();
@@ -1370,7 +1370,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		sessionAttributes.setAttribute("attrOne", "testOne");
 
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrOne"))).isEqualTo("testOne");
+		assertThat(sessionAttributes.<String>getAttribute("attrOne")).isEqualTo("testOne");
 		assertThat(sessionAttributes.hasDelta()).isTrue();
 	}
 
@@ -1450,16 +1450,16 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(sessionAttributes.getAttributeNames().size()).isEqualTo(2);
 		assertThat(sessionAttributes.getAttributeNames().containsAll(asSet("attrOne", "attrTwo"))).isTrue();
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrOne"))).isEqualTo("one");
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrTwo"))).isEqualTo("two");
+		assertThat(sessionAttributes.<String>getAttribute("attrOne")).isEqualTo("one");
+		assertThat(sessionAttributes.<String>getAttribute("attrTwo")).isEqualTo("two");
 		assertThat(sessionAttributes.hasDelta()).isTrue();
 
 		sessionAttributes.fromDelta(mockDataInput);
 
 		assertThat(sessionAttributes.getAttributeNames().size()).isEqualTo(2);
 		assertThat(sessionAttributes.getAttributeNames().containsAll(asSet("attrOne", "attrTwo"))).isTrue();
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrOne"))).isEqualTo("testOne");
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrTwo"))).isEqualTo("testTwo");
+		assertThat(sessionAttributes.<String>getAttribute("attrOne")).isEqualTo("testOne");
+		assertThat(sessionAttributes.<String>getAttribute("attrTwo")).isEqualTo("testTwo");
 		assertThat(sessionAttributes.hasDelta()).isFalse();
 
 		verify(mockDataInput, times(1)).readInt();
@@ -1474,16 +1474,16 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 
 		assertThat(sessionAttributes.getAttributeNames().size()).isEqualTo(2);
 		assertThat(sessionAttributes.getAttributeNames().containsAll(asSet("attrOne", "attrTwo"))).isTrue();
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrOne"))).isEqualTo("one");
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrTwo"))).isEqualTo("two");
+		assertThat(sessionAttributes.<String>getAttribute("attrOne")).isEqualTo("one");
+		assertThat(sessionAttributes.<String>getAttribute("attrTwo")).isEqualTo("two");
 		assertThat(sessionAttributes.hasDelta()).isTrue();
 
 		sessionAttributes.fromDelta(mockDataInput);
 
 		assertThat(sessionAttributes.getAttributeNames().size()).isEqualTo(2);
 		assertThat(sessionAttributes.getAttributeNames().containsAll(asSet("attrOne", "attrTwo"))).isTrue();
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrOne"))).isEqualTo("one");
-		assertThat(String.valueOf(sessionAttributes.getAttribute("attrTwo"))).isEqualTo("testThree");
+		assertThat(sessionAttributes.<String>getAttribute("attrOne")).isEqualTo("one");
+		assertThat(sessionAttributes.<String>getAttribute("attrTwo")).isEqualTo("testThree");
 		assertThat(sessionAttributes.hasDelta()).isTrue();
 
 		verify(mockDataInput, times(1)).readInt();
@@ -1584,8 +1584,7 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			assertThat(this.session.getMaxInactiveIntervalInSeconds()).isEqualTo(60);
 			assertThat(this.session.getPrincipalName()).isEqualTo("jblum");
 			assertThat(this.session.getAttributeNames().size()).isEqualTo(1);
-			assertThat(String.valueOf(
-				this.session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME)))
+			assertThat(this.session.<String>getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME))
 					.isEqualTo("jblum");
 
 			this.session.setAttribute("tennis", "ping");
@@ -1605,9 +1604,9 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			assertThat(this.session.getAttributeNames().size()).isEqualTo(3);
 			assertThat(this.session.getAttributeNames().containsAll(asSet("tennis", "greeting"))).isTrue();
 			assertThat(this.session.getAttributeNames().contains("junk")).isFalse();
-			assertThat(this.session.getAttribute("junk")).isNull();
-			assertThat(String.valueOf(this.session.getAttribute("tennis"))).isEqualTo("pong");
-			assertThat(String.valueOf(this.session.getAttribute("greeting"))).isEqualTo("hello");
+			assertThat(this.session.<String>getAttribute("junk")).isNull();
+			assertThat(this.session.<String>getAttribute("tennis")).isEqualTo("pong");
+			assertThat(this.session.<String>getAttribute("greeting")).isEqualTo("hello");
 		}
 
 		public void thread2() {
@@ -1626,8 +1625,8 @@ public class AbstractGemFireOperationsSessionRepositoryTest {
 			assertThat(this.session.getPrincipalName()).isEqualTo("rwinch");
 			assertThat(this.session.getAttributeNames().size()).isEqualTo(3);
 			assertThat(this.session.getAttributeNames().containsAll(asSet("tennis", "junk"))).isTrue();
-			assertThat(String.valueOf(this.session.getAttribute("junk"))).isEqualTo("test");
-			assertThat(String.valueOf(this.session.getAttribute("tennis"))).isEqualTo("ping");
+			assertThat(this.session.<String>getAttribute("junk")).isEqualTo("test");
+			assertThat(this.session.<String>getAttribute("tennis")).isEqualTo("ping");
 
 			this.session.setAttribute("tennis", "pong");
 			this.session.setAttribute("greeting", "hello");
