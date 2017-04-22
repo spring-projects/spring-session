@@ -18,6 +18,7 @@ liveReload {
 
 repositories {
 	maven { url 'http://dist.gemstone.com/maven/release' }
+	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 asciidoctorj {
@@ -43,7 +44,7 @@ dependencies {
 			"org.springframework:spring-test:$springVersion",
 			"org.assertj:assertj-core:$assertjVersion",
 			"com.hazelcast:hazelcast:$hazelcastVersion",
-			"biz.paluch.redis:lettuce:$lettuceVersion",
+			"io.lettuce:lettuce-core:$lettuceVersion",
 			"javax.servlet:javax.servlet-api:$servletApiVersion"
 }
 

@@ -7,7 +7,7 @@ dependencies {
 		exclude module: 'jedis'
 	}
 	compile "org.springframework:spring-web:$springVersion",
-			"biz.paluch.redis:lettuce:$lettuceVersion",
+			"io.lettuce:lettuce-core:$lettuceVersion",
 			"org.webjars:bootstrap:$bootstrapVersion",
 			"org.webjars:webjars-taglib:$webjarsTaglibVersion",
 			jstlDependencies

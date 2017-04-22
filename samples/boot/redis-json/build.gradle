@@ -24,7 +24,7 @@ ext['spring-security.version'] = springSecurityVersion
 dependencies {
     compile project(':spring-session'),
             "org.springframework.data:spring-data-redis:$springDataRedisVersion",
-            "biz.paluch.redis:lettuce:$lettuceVersion",
+            "io.lettuce:lettuce-core:$lettuceVersion",
             "org.springframework.boot:spring-boot-starter-web",
             "org.springframework.boot:spring-boot-starter-thymeleaf",
             "org.springframework.boot:spring-boot-starter-security",
