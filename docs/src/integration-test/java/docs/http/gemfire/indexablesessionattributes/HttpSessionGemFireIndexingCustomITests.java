@@ -18,11 +18,14 @@ package docs.http.gemfire.indexablesessionattributes;
 
 import java.util.Map;
 
-import docs.AbstractGemFireIntegrationTests;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gemfire.config.annotation.PeerCacheApplication;
 import org.springframework.session.ExpiringSession;
+import org.springframework.session.data.gemfire.GemFireOperationsSessionRepository;
+import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -30,16 +33,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
- *
+ * @author John Blum
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = GemFireHttpSessionConfig.class)
-public class HttpSessionGemFireIndexingCustomITests
-		extends AbstractGemFireIntegrationTests {
+@ContextConfiguration(classes = HttpSessionGemFireIndexingCustomITests.Config.class)
+public class HttpSessionGemFireIndexingCustomITests {
+
+	@Autowired
+	private GemFireOperationsSessionRepository sessionRepository;
 
 	@Test
 	public void findByIndexName() {
-		ExpiringSession session = sessionRepository.createSession();
+		ExpiringSession session = this.sessionRepository.createSession();
 		String attrValue = "HttpSessionGemFireIndexingCustomITests-findByIndexName";
 
 		// tag::findbyindexname-set[]
@@ -47,15 +52,21 @@ public class HttpSessionGemFireIndexingCustomITests
 		session.setAttribute(indexName, attrValue);
 		// end::findbyindexname-set[]
 
-		sessionRepository.save(session);
+		this.sessionRepository.save(session);
 
 		// tag::findbyindexname-get[]
-		Map<String, ExpiringSession> idToSessions = sessionRepository
-				.findByIndexNameAndIndexValue(indexName, attrValue);
+		Map<String, ExpiringSession> idToSessions =
+			this.sessionRepository.findByIndexNameAndIndexValue(indexName, attrValue);
 		// end::findbyindexname-get[]
 
 		assertThat(idToSessions.keySet()).containsOnly(session.getId());
 
-		sessionRepository.delete(session.getId());
+		this.sessionRepository.delete(session.getId());
+	}
+
+	@PeerCacheApplication(name = "HttpSessionGemFireIndexingCustomITests", logLevel = "error")
+	@EnableGemFireHttpSession(indexableSessionAttributes = { "name1", "name2", "name3" },
+		regionName = "HttpSessionGemFireIndexingCustomTestRegion")
+	static class Config {
 	}
 }
