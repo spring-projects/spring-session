@@ -9,6 +9,9 @@ configurations.spring3TestRuntime {
 				&& details.requested.name != 'spring-messaging') {
 			details.useVersion '3.2.14.RELEASE'
 		}
+		if (details.requested.name == 'spring-data-redis') {
+			details.useVersion springDataRedisSpring3Version
+		}
 	}
 }
 
