@@ -135,7 +135,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 	}
 
 	@AfterClass
-	public static void stopGemFireServerAndDeleteArtifacts() {
+	public static void stopGemFireServer() {
 		if (gemfireServer != null) {
 			gemfireServer.destroy();
 			System.err.printf("GemFire Server [exit code = %1$d]%n",
@@ -332,7 +332,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		}
 
 		String name() {
-			return SpringSessionDataGemFireServerConfiguration.class.getName();
+			return ClientServerGemFireOperationsSessionRepositoryIntegrationTests.class.getName();
 		}
 
 		@Bean

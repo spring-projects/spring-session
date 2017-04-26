@@ -34,6 +34,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -46,6 +47,10 @@ import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
+import org.springframework.session.events.AbstractSessionEvent;
+import org.springframework.session.events.SessionCreatedEvent;
+import org.springframework.session.events.SessionDeletedEvent;
+import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.FileSystemUtils;
@@ -54,29 +59,15 @@ import org.springframework.util.SocketUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests testing the addition/removal of HTTP Session Attributes
- * and the proper persistence of the HTTP Session state in a GemFire cache
- * across a client/server topology.
+ * The ClientServerProxyRegionSessionOperationsIntegrationTests class...
  *
  * @author John Blum
- * @see org.junit.Test
- * @see org.junit.runner.RunWith
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.session.ExpiringSession
- * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
- * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringRunner
- * @see com.gemstone.gemfire.cache.Cache
- * @see com.gemstone.gemfire.cache.Region
- * @see com.gemstone.gemfire.cache.client.ClientCache
- * @since 1.3.1
+ * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes =
-	ClientServerHttpSessionAttributesDeltaIntegrationTests.SpringSessionDataGemFireClientConfiguration.class)
-public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends AbstractGemFireIntegrationTests {
+	ClientServerProxyRegionSessionOperationsIntegrationTests.SpringSessionDataGemFireClientConfiguration.class)
+public class ClientServerProxyRegionSessionOperationsIntegrationTests extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 
@@ -85,6 +76,9 @@ public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends Abst
 	private static File processWorkingDirectory;
 
 	private static Process gemfireServer;
+
+	@Autowired
+	private SessionEventListener sessionEventListener;
 
 	@BeforeClass
 	public static void startGemFireServer() throws IOException {
@@ -127,42 +121,68 @@ public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends Abst
 	}
 
 	@Test
-	public void sessionCreationAndAccessIsSuccessful() {
+	public void createReadUpdateExpireRecreateDeleteRecreateSessionResultsCorrectSessionCreatedEvents() {
 		ExpiringSession session = save(touch(createSession()));
 
-		assertThat(session).isNotNull();
-		assertThat(session.isExpired()).isFalse();
+		assertValidSession(session);
 
-		session.setAttribute("attrOne", 1);
-		session.setAttribute("attrTwo", 2);
+		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
-		save(touch(session));
+		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
 
+		// GET
 		ExpiringSession loadedSession = get(session.getId());
 
 		assertThat(loadedSession).isNotNull();
-		assertThat(loadedSession.isExpired()).isFalse();
-		assertThat(loadedSession).isNotSameAs(session);
 		assertThat(loadedSession.getId()).isEqualTo(session.getId());
-		assertThat(loadedSession.<Integer>getAttribute("attrOne")).isEqualTo(1);
-		assertThat(loadedSession.<Integer>getAttribute("attrTwo")).isEqualTo(2);
+		assertThat(loadedSession.getCreationTime()).isEqualTo(session.getCreationTime());
+		assertThat(loadedSession.getLastAccessedTime()).isGreaterThanOrEqualTo((session.getLastAccessedTime()));
 
-		loadedSession.removeAttribute("attrTwo");
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
-		assertThat(loadedSession.getAttributeNames()).doesNotContain("attrTwo");
-		assertThat(loadedSession.getAttributeNames()).hasSize(1);
+		assertThat(sessionEvent).isNull();
 
+		loadedSession.setAttribute("attrOne", 1);
+		loadedSession.setAttribute("attrTwo", 2);
+
+		// UPDATE
 		save(touch(loadedSession));
 
-		ExpiringSession reloadedSession = get(loadedSession.getId());
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
-		assertThat(reloadedSession).isNotNull();
-		assertThat(reloadedSession.isExpired()).isFalse();
-		assertThat(reloadedSession).isNotSameAs(loadedSession);
-		assertThat(reloadedSession.getId()).isEqualTo(loadedSession.getId());
-		assertThat(reloadedSession.getAttributeNames()).hasSize(1);
-		assertThat(reloadedSession.getAttributeNames()).doesNotContain("attrTwo");
-		assertThat(reloadedSession.<Integer>getAttribute("attrOne")).isEqualTo(1);
+		assertThat(sessionEvent).isNull();
+
+		// EXPIRE
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(
+			TimeUnit.SECONDS.toMillis(MAX_INACTIVE_INTERVAL_IN_SECONDS + 1));
+
+		assertThat(sessionEvent).isInstanceOf(SessionExpiredEvent.class);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
+
+		// RECREATE
+		save(touch(session));
+
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
+
+		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
+
+		// DELETE
+		delete(session);
+
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
+
+		assertThat(sessionEvent).isInstanceOf(SessionDeletedEvent.class);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
+
+		// RECREATE
+		save(touch(session));
+
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
+
+		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
 	}
 
 	@EnableGemFireHttpSession
@@ -207,6 +227,11 @@ public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends Abst
 			return poolFactory;
 		}
 
+		@Bean
+		public SessionEventListener sessionEventListener() {
+			return new SessionEventListener();
+		}
+
 		// used for debugging purposes
 		@SuppressWarnings("resource")
 		public static void main(String[] args) {
@@ -245,7 +270,7 @@ public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends Abst
 		}
 
 		String name() {
-			return ClientServerHttpSessionAttributesDeltaIntegrationTests.class.getName();
+			return ClientServerProxyRegionSessionOperationsIntegrationTests.class.getName();
 		}
 
 		@Bean
