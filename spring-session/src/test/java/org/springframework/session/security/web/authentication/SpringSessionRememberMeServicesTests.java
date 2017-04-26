@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -103,8 +104,9 @@ public class SpringSessionRememberMeServicesTests {
 		verifyZeroInteractions(request, response);
 	}
 
+	// gh-752
 	@Test
-	public void loginFailInvalidatesSession() {
+	public void loginFailRemoveSecurityContext() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		HttpSession session = mock(HttpSession.class);
@@ -112,7 +114,7 @@ public class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.loginFail(request, response);
 		verify(request, times(1)).getSession(eq(false));
-		verify(session, times(1)).invalidate();
+		verify(session, times(1)).removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
 		verifyZeroInteractions(request, response, session);
 	}
 
