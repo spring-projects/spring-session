@@ -29,7 +29,6 @@ dependencies {
 			"org.springframework:spring-websocket:${springVersion}",
 			"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect",
 			"io.lettuce:lettuce-core:$lettuceVersion",
-			'org.latencyutils:LatencyUtils:2.0.3',
 			"org.webjars:bootstrap:$bootstrapVersion",
 			"org.webjars:html5shiv:$html5ShivVersion",
 			"org.webjars:knockout:2.3.0",

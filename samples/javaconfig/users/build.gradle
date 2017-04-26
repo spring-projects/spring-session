@@ -8,7 +8,6 @@ dependencies {
 	}
 	compile "org.springframework:spring-web:$springVersion",
 			"io.lettuce:lettuce-core:$lettuceVersion",
-			'org.latencyutils:LatencyUtils:2.0.3',
 			"org.webjars:bootstrap:$bootstrapVersion",
 			"org.webjars:webjars-taglib:$webjarsTaglibVersion",
 			jstlDependencies
