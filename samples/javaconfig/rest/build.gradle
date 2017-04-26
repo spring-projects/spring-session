@@ -7,6 +7,7 @@ dependencies {
 		exclude module: 'jedis'
 	}
 	compile "io.lettuce:lettuce-core:$lettuceVersion",
+			'org.latencyutils:LatencyUtils:2.0.3',
 			"org.springframework:spring-webmvc:$springVersion",
 			"org.springframework.security:spring-security-config:$springSecurityVersion",
 			"org.springframework.security:spring-security-web:$springSecurityVersion",

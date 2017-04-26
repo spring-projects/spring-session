@@ -40,6 +40,7 @@ dependencies {
 			"org.assertj:assertj-core:$assertjVersion",
 			"com.hazelcast:hazelcast:$hazelcastVersion",
 			"io.lettuce:lettuce-core:$lettuceVersion",
+			'org.latencyutils:LatencyUtils:2.0.3',
 			"javax.servlet:javax.servlet-api:$servletApiVersion"
 }
 
