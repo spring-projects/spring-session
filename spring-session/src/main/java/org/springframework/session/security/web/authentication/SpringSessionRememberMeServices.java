@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.util.Assert;
 
 /**
@@ -56,6 +57,8 @@ public class SpringSessionRememberMeServices
 	private boolean alwaysRemember;
 
 	private int validitySeconds = THIRTY_DAYS_SECONDS;
+
+	private String sessionAttrToDeleteOnLoginFail = HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 	public final Authentication autoLogin(HttpServletRequest request,
 			HttpServletResponse response) {
@@ -132,7 +135,7 @@ public class SpringSessionRememberMeServices
 		logger.debug("Interactive login attempt was unsuccessful.");
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			session.invalidate();
+			session.removeAttribute(this.sessionAttrToDeleteOnLoginFail);
 		}
 	}
 }
