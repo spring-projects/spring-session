@@ -16,6 +16,7 @@
 
 package org.springframework.session.web.http;
 
+import java.util.Base64;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -92,8 +93,8 @@ public class CookieHttpSessionStrategyTests {
 		Cookie[] cookies = this.response.getCookies();
 		assertThat(cookies).hasSize(2);
 
-		assertThat(cookies[0].getValue()).isEqualTo(this.session.getId());
-		assertThat(cookies[1].getValue()).isEqualTo(newSession.getId());
+		assertThat(base64Decode(cookies[0].getValue())).isEqualTo(this.session.getId());
+		assertThat(base64Decode(cookies[1].getValue())).isEqualTo(newSession.getId());
 	}
 
 	@Test
@@ -727,10 +728,19 @@ public class CookieHttpSessionStrategyTests {
 	}
 
 	public void setSessionCookie(String value) {
-		this.request.setCookies(new Cookie(this.cookieName, value));
+		this.request.setCookies(new Cookie(this.cookieName, base64Encode(value)));
 	}
 
 	public String getSessionId() {
-		return this.response.getCookie(this.cookieName).getValue();
+		return base64Decode(this.response.getCookie(this.cookieName).getValue());
 	}
+
+	private static String base64Encode(String value) {
+		return Base64.getEncoder().encodeToString(value.getBytes());
+	}
+
+	private static String base64Decode(String value) {
+		return new String(Base64.getDecoder().decode(value));
+	}
+
 }

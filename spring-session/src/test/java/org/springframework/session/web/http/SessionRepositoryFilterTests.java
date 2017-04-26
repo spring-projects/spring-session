@@ -19,6 +19,7 @@ package org.springframework.session.web.http;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -186,7 +187,7 @@ public class SessionRepositoryFilterTests {
 		});
 
 		final String id = (String) this.request.getAttribute(ID_ATTR);
-		assertThat(getSessionCookie().getValue()).isEqualTo(id);
+		assertThat(base64Decode(getSessionCookie().getValue())).isEqualTo(id);
 		setSessionCookie(id);
 
 		doFilter(new DoInFilter() {
@@ -517,7 +518,7 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
-		final String originalSessionId = getSessionCookie().getValue();
+		final String originalSessionId = base64Decode(getSessionCookie().getValue());
 		nextRequest();
 
 		// change the session id
@@ -1414,7 +1415,7 @@ public class SessionRepositoryFilterTests {
 	}
 
 	private void setSessionCookie(String sessionId) {
-		this.request.setCookies(new Cookie[] { new Cookie("SESSION", sessionId) });
+		this.request.setCookies(new Cookie("SESSION", base64Encode(sessionId)));
 	}
 
 	private void setupRequest() {
@@ -1456,6 +1457,14 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 		this.filter.doFilter(this.request, this.response, this.chain);
+	}
+
+	private static String base64Encode(String value) {
+		return Base64.getEncoder().encodeToString(value.getBytes());
+	}
+
+	private static String base64Decode(String value) {
+		return new String(Base64.getDecoder().decode(value));
 	}
 
 	abstract class DoInFilter {

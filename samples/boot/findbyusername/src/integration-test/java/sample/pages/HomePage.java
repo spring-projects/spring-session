@@ -16,6 +16,7 @@
 
 package sample.pages;
 
+import java.util.Base64;
 import java.util.Set;
 
 import org.openqa.selenium.By;
@@ -59,7 +60,7 @@ public class HomePage extends BasePage {
 		String cookieValue = null;
 		for (Cookie cookie : cookies) {
 			if ("SESSION".equals(cookie.getName())) {
-				cookieValue = cookie.getValue();
+				cookieValue = new String(Base64.getDecoder().decode(cookie.getValue()));
 			}
 		}
 		WebElement element = getDriver().findElement(By.id("terminate-" + cookieValue));

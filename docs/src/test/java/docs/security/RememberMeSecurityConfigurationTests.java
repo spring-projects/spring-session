@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package docs.security;
 
+import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
@@ -79,7 +80,8 @@ public class RememberMeSecurityConfigurationTests<T extends ExpiringSession> {
 
 		Cookie cookie = result.getResponse().getCookie("SESSION");
 		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
-		T session = this.sessions.getSession(cookie.getValue());
+		T session = this.sessions
+				.getSession(new String(Base64.getDecoder().decode(cookie.getValue())));
 		assertThat(session.getMaxInactiveIntervalInSeconds())
 				.isEqualTo((int) TimeUnit.DAYS.toSeconds(30));
 
