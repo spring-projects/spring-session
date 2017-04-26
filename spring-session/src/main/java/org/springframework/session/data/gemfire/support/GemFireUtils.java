@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import org.apache.geode.cache.Cache;
+import org.apache.geode.cache.DataPolicy;
 import org.apache.geode.cache.GemFireCache;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.RegionShortcut;
@@ -123,6 +124,19 @@ public abstract class GemFireUtils {
 	}
 
 	/**
+	 * Determines whether the given {@link Region} is a PROXY, which would be indicated by the {@link Region}
+	 * having a {@link DataPolicy} of {@link DataPolicy#EMPTY}.
+	 *
+	 * @param region {@link Region} to evaluate.
+	 * @return a boolean value indicating whether the {@link Region} is a PROXY.
+	 * @see org.apache.geode.cache.DataPolicy
+	 * @see org.apache.geode.cache.Region
+	 */
+	public static boolean isProxy(Region<?, ?> region) {
+		return DataPolicy.EMPTY.equals(region.getAttributes().getDataPolicy());
+	}
+
+	/**
 	 * Determines whether the peer {@link RegionShortcut} is a proxy-based shortcut. NOTE:
 	 * "proxy"-based Regions keep no local state.
 	 *
@@ -153,5 +167,4 @@ public abstract class GemFireUtils {
 	public static String toRegionPath(String regionName) {
 		return String.format("%1$s%2$s", Region.SEPARATOR, regionName);
 	}
-
 }

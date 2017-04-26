@@ -27,15 +27,8 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.geode.cache.Cache;
-import org.apache.geode.cache.DataPolicy;
-import org.apache.geode.cache.Region;
-import org.apache.geode.cache.RegionAttributes;
 import org.apache.geode.cache.client.ClientCache;
-import org.apache.geode.cache.client.ClientRegionShortcut;
-
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,50 +46,27 @@ import org.springframework.data.gemfire.server.CacheServerFactoryBean;
 import org.springframework.data.gemfire.support.ConnectionEndpoint;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession;
-import org.springframework.session.data.gemfire.support.GemFireUtils;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.util.SocketUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Integration tests to test the functionality of GemFire-backed Spring Sessions using
- * the GemFire client-server topology.
+ * The ClientServerProxyRegionSessionOperationsIntegrationTests class...
  *
  * @author John Blum
- * @since 1.1.0
- * @see org.junit.Test
- * @see org.junit.runner.RunWith
- * @see org.springframework.context.ConfigurableApplicationContext
- * @see org.springframework.session.ExpiringSession
- * @see org.springframework.session.data.gemfire.AbstractGemFireIntegrationTests
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.EnableGemFireHttpSession
- * @see org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration
- * @see org.springframework.test.annotation.DirtiesContext
- * @see org.springframework.test.context.ContextConfiguration
- * @see org.springframework.test.context.junit4.SpringRunner
- * @see org.springframework.test.context.web.WebAppConfiguration
- * @see org.apache.geode.cache.Cache
- * @see org.apache.geode.cache.Region
- * @see org.apache.geode.cache.client.ClientCache
- * @see org.apache.geode.cache.client.Pool
- * @see org.apache.geode.cache.server.CacheServer
+ * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes =
-	ClientServerGemFireOperationsSessionRepositoryIntegrationTests.SpringSessionDataGemFireClientConfiguration.class)
-@DirtiesContext
-@WebAppConfiguration
-public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
-		extends AbstractGemFireIntegrationTests {
+	ClientServerProxyRegionSessionOperationsIntegrationTests.SpringSessionDataGemFireClientConfiguration.class)
+public class ClientServerProxyRegionSessionOperationsIntegrationTests extends AbstractGemFireIntegrationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 
@@ -105,8 +75,6 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 	private static File processWorkingDirectory;
 
 	private static Process gemfireServer;
-
-	private static final String SPRING_SESSION_GEMFIRE_REGION_NAME = "TestClientServerSessions";
 
 	@Autowired
 	private SessionEventListener sessionEventListener;
@@ -151,104 +119,72 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		assertThat(waitForClientCacheToClose(DEFAULT_WAIT_DURATION)).isTrue();
 	}
 
-	@Before
-	public void setup() {
-		assertThat(GemFireUtils.isClient(gemfireCache)).isTrue();
-
-		Region<Object, ExpiringSession> springSessionGemFireRegion =
-			gemfireCache.getRegion(SPRING_SESSION_GEMFIRE_REGION_NAME);
-
-		assertThat(springSessionGemFireRegion).isNotNull();
-
-		RegionAttributes<Object, ExpiringSession> springSessionGemFireRegionAttributes =
-			springSessionGemFireRegion.getAttributes();
-
-		assertThat(springSessionGemFireRegionAttributes).isNotNull();
-		assertThat(springSessionGemFireRegionAttributes.getDataPolicy()).isEqualTo(DataPolicy.NORMAL);
-	}
-
-	@After
-	public void tearDown() {
-		this.sessionEventListener.getSessionEvent();
-	}
-
 	@Test
-	public void createSessionFiresSessionCreatedEvent() {
-		long beforeOrAtCreationTime = System.currentTimeMillis();
+	public void createReadUpdateExpireRecreateDeleteRecreateSessionResultsCorrectSessionCreatedEvents() {
+		ExpiringSession session = save(touch(createSession()));
 
-		ExpiringSession expectedSession = save(createSession());
+		assertValidSession(session);
 
 		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
 
-		ExpiringSession createdSession = sessionEvent.getSession();
+		// GET
+		ExpiringSession loadedSession = get(session.getId());
 
-		assertThat(createdSession.getId()).isEqualTo(expectedSession.getId());
-		assertThat(createdSession.getCreationTime()).isGreaterThanOrEqualTo(beforeOrAtCreationTime);
-		assertThat(createdSession.getLastAccessedTime()).isEqualTo(createdSession.getCreationTime());
-		assertThat(createdSession.getMaxInactiveIntervalInSeconds()).isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
-
-		createdSession.setAttribute("attrOne", 1);
-
-		assertThat(save(touch(createdSession)).<Integer>getAttribute("attrOne")).isEqualTo(1);
+		assertThat(loadedSession).isNotNull();
+		assertThat(loadedSession.getId()).isEqualTo(session.getId());
+		assertThat(loadedSession.getCreationTime()).isEqualTo(session.getCreationTime());
+		assertThat(loadedSession.getLastAccessedTime()).isGreaterThanOrEqualTo((session.getLastAccessedTime()));
 
 		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isNull();
 
-		this.gemfireSessionRepository.delete(expectedSession.getId());
-	}
+		loadedSession.setAttribute("attrOne", 1);
+		loadedSession.setAttribute("attrTwo", 2);
 
-	@Test
-	public void getExistingNonExpiredSessionBeforeAndAfterExpiration() {
-		ExpiringSession expectedSession = save(touch(createSession()));
+		// UPDATE
+		save(touch(loadedSession));
 
-		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
-		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
-		assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(expectedSession);
-		assertThat(this.sessionEventListener.<SessionCreatedEvent>getSessionEvent()).isNull();
+		assertThat(sessionEvent).isNull();
 
-		ExpiringSession savedSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
-
-		assertThat(savedSession).isEqualTo(expectedSession);
-
+		// EXPIRE
 		sessionEvent = this.sessionEventListener.waitForSessionEvent(
 			TimeUnit.SECONDS.toMillis(MAX_INACTIVE_INTERVAL_IN_SECONDS + 1));
 
 		assertThat(sessionEvent).isInstanceOf(SessionExpiredEvent.class);
-		assertThat(sessionEvent.getSessionId()).isEqualTo(expectedSession.getId());
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
 
-		ExpiringSession expiredSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
+		// RECREATE
+		save(touch(session));
 
-		assertThat(expiredSession).isNull();
-	}
-
-	@Test
-	public void deleteExistingNonExpiredSessionFiresSessionDeletedEventAndReturnsNullOnGet() {
-		ExpiringSession expectedSession = save(touch(createSession()));
-
-		AbstractSessionEvent sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
-		assertThat(sessionEvent.<ExpiringSession>getSession()).isEqualTo(expectedSession);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
 
-		this.gemfireSessionRepository.delete(expectedSession.getId());
+		// DELETE
+		delete(session);
 
 		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
 
 		assertThat(sessionEvent).isInstanceOf(SessionDeletedEvent.class);
-		assertThat(sessionEvent.getSessionId()).isEqualTo(expectedSession.getId());
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
 
-		ExpiringSession deletedSession = this.gemfireSessionRepository.getSession(expectedSession.getId());
+		// RECREATE
+		save(touch(session));
 
-		assertThat(deletedSession).isNull();
+		sessionEvent = this.sessionEventListener.waitForSessionEvent(500);
+
+		assertThat(sessionEvent).isInstanceOf(SessionCreatedEvent.class);
+		assertThat(sessionEvent.getSessionId()).isEqualTo(session.getId());
 	}
 
-	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
-		clientRegionShortcut = ClientRegionShortcut.CACHING_PROXY,
-			maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession
 	static class SpringSessionDataGemFireClientConfiguration {
 
 		@Bean
@@ -273,8 +209,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		}
 
 		@Bean
-		PoolFactoryBean gemfirePool(
-				@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
+		PoolFactoryBean gemfirePool(@Value("${spring.session.data.gemfire.port:"
+				+ DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
 
 			PoolFactoryBean poolFactory = new PoolFactoryBean();
 
@@ -298,8 +234,8 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		// used for debugging purposes
 		@SuppressWarnings("resource")
 		public static void main(String[] args) {
-			ConfigurableApplicationContext applicationContext = new AnnotationConfigApplicationContext(
-					SpringSessionDataGemFireClientConfiguration.class);
+			ConfigurableApplicationContext applicationContext =
+				new AnnotationConfigApplicationContext(SpringSessionDataGemFireClientConfiguration.class);
 
 			applicationContext.registerShutdownHook();
 
@@ -312,8 +248,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		}
 	}
 
-	@EnableGemFireHttpSession(regionName = SPRING_SESSION_GEMFIRE_REGION_NAME,
-		maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class SpringSessionDataGemFireServerConfiguration {
 
 		static final String SERVER_HOSTNAME = "localhost";
@@ -334,7 +269,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 		}
 
 		String name() {
-			return ClientServerGemFireOperationsSessionRepositoryIntegrationTests.class.getName();
+			return ClientServerProxyRegionSessionOperationsIntegrationTests.class.getName();
 		}
 
 		@Bean
@@ -349,7 +284,7 @@ public class ClientServerGemFireOperationsSessionRepositoryIntegrationTests
 
 		@Bean
 		CacheServerFactoryBean gemfireCacheServer(Cache gemfireCache,
-				@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
+			@Value("${spring.session.data.gemfire.port:" + DEFAULT_GEMFIRE_SERVER_PORT + "}") int port) {
 
 			CacheServerFactoryBean cacheServerFactory = new CacheServerFactoryBean();
 

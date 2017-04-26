@@ -112,7 +112,7 @@ public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends Abst
 	}
 
 	@AfterClass
-	public static void stopGemFireServerAndDeleteArtifacts() {
+	public static void stopGemFireServer() {
 		if (gemfireServer != null) {
 			gemfireServer.destroy();
 			System.err.printf("GemFire Server [exit code = %1$d]%n",
@@ -165,7 +165,7 @@ public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends Abst
 		assertThat(reloadedSession.<Integer>getAttribute("attrOne")).isEqualTo(1);
 	}
 
-	@EnableGemFireHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableGemFireHttpSession
 	static class SpringSessionDataGemFireClientConfiguration {
 
 		@Bean
@@ -245,7 +245,7 @@ public class ClientServerHttpSessionAttributesDeltaIntegrationTests extends Abst
 		}
 
 		String name() {
-			return SpringSessionDataGemFireServerConfiguration.class.getName();
+			return ClientServerHttpSessionAttributesDeltaIntegrationTests.class.getName();
 		}
 
 		@Bean

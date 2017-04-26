@@ -41,8 +41,10 @@ import org.apache.geode.Delta;
 import org.apache.geode.Instantiator;
 import org.apache.geode.InvalidDeltaException;
 import org.apache.geode.cache.EntryEvent;
+import org.apache.geode.cache.Operation;
 import org.apache.geode.cache.Region;
 import org.apache.geode.cache.util.CacheListenerAdapter;
+import org.apache.geode.internal.concurrent.ConcurrentHashSet;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
@@ -57,11 +59,13 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.gemfire.config.annotation.web.http.GemFireHttpSessionConfiguration;
+import org.springframework.session.data.gemfire.support.GemFireUtils;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -99,6 +103,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 		public void publishEvent(Object event) {
 		}
 	};
+
+	private final Set<Integer> cachedSessionIds = new ConcurrentHashSet<Integer>();
 
 	private final GemfireOperations template;
 
@@ -226,8 +232,49 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/* (non-Javadoc) */
-	boolean isExpiringSessionOrNull(Object obj) {
-		return (obj == null || obj instanceof ExpiringSession);
+	boolean isCreate(EntryEvent<?, ?> event) {
+		return (isCreate(event.getOperation()) && isNotUpdate(event) && isExpiringSessionOrNull(event.getNewValue()));
+	}
+
+	/* (non-Javadoc) */
+	private boolean isCreate(Operation operation) {
+		return (operation.isCreate() && !Operation.LOCAL_LOAD_CREATE.equals(operation));
+	}
+
+	/**
+	 * Used to determine whether the developer is storing (HTTP) Sessions with other, arbitrary application
+	 * domain objects in the same GemFire cache {@link Region}; crazier things have happened!
+	 *
+	 * @param obj {@link Object} to evaluate.
+	 * @return a boolean value indicating whether the {@link Object} from the entry event is indeed
+	 * a {@link ExpiringSession}.
+	 * @see org.springframework.session.ExpiringSession
+	 */
+	private boolean isExpiringSessionOrNull(Object obj) {
+		return (obj instanceof ExpiringSession || obj == null);
+	}
+
+	/* (non-Javadoc) */
+	private boolean isNotUpdate(EntryEvent event) {
+		return (isNotProxyRegion() || !this.cachedSessionIds.contains(ObjectUtils.nullSafeHashCode(event.getKey())));
+	}
+
+	/* (non-Javadoc) */
+	private boolean isNotProxyRegion() {
+		return !isProxyRegion();
+	}
+
+	/* (non-Javadoc) */
+	private boolean isProxyRegion() {
+		return GemFireUtils.isProxy(((GemfireAccessor) getTemplate()).getRegion());
+	}
+
+	boolean forget(Object sessionId) {
+		return this.cachedSessionIds.remove(ObjectUtils.nullSafeHashCode(sessionId));
+	}
+
+	boolean remember(Object sessionId) {
+		return (isProxyRegion() && this.cachedSessionIds.add(ObjectUtils.nullSafeHashCode(sessionId)));
 	}
 
 	/* (non-Javadoc) */
@@ -236,16 +283,15 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	}
 
 	/**
-	 * Callback method triggered when an entry is created in the GemFire cache
-	 * {@link Region}.
+	 * Callback method triggered when an entry is created in the GemFire cache {@link Region}.
 	 *
-	 * @param event an EntryEvent containing the details of the cache operation.
+	 * @param event {@link EntryEvent} containing the details of the cache {@link Region} operation.
 	 * @see org.apache.geode.cache.EntryEvent
 	 * @see #handleCreated(String, ExpiringSession)
 	 */
 	@Override
 	public void afterCreate(EntryEvent<Object, ExpiringSession> event) {
-		if (isExpiringSessionOrNull(event.getNewValue())) {
+		if (isCreate(event)) {
 			handleCreated(event.getKey().toString(), toExpiringSession(event.getNewValue()));
 		}
 	}
@@ -299,6 +345,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see #publishEvent(ApplicationEvent)
 	 */
 	protected void handleCreated(String sessionId, ExpiringSession session) {
+		remember(sessionId);
+
 		publishEvent(session != null ? new SessionCreatedEvent(this, session)
 			: new SessionCreatedEvent(this, sessionId));
 	}
@@ -313,6 +361,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see #publishEvent(ApplicationEvent)
 	 */
 	protected void handleDeleted(String sessionId, ExpiringSession session) {
+		forget(sessionId);
+
 		publishEvent(session != null ? new SessionDeletedEvent(this, session)
 			: new SessionDeletedEvent(this, sessionId));
 	}
@@ -327,6 +377,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see #publishEvent(ApplicationEvent)
 	 */
 	protected void handleDestroyed(String sessionId, ExpiringSession session) {
+		forget(sessionId);
+
 		publishEvent(session != null ? new SessionDestroyedEvent(this, session)
 			: new SessionDestroyedEvent(this, sessionId));
 	}
@@ -341,6 +393,8 @@ public abstract class AbstractGemFireOperationsSessionRepository extends CacheLi
 	 * @see #publishEvent(ApplicationEvent)
 	 */
 	protected void handleExpired(String sessionId, ExpiringSession session) {
+		forget(sessionId);
+
 		publishEvent(session != null ? new SessionExpiredEvent(this, session)
 			: new SessionExpiredEvent(this, sessionId));
 	}

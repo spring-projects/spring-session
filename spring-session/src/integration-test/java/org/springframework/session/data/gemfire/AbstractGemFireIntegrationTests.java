@@ -309,6 +309,13 @@ public abstract class AbstractGemFireIntegrationTests {
 	}
 
 	/* (non-Javadoc) */
+	protected void assertValidSession(ExpiringSession session) {
+		assertThat(session).isNotNull();
+		assertThat(session.getId()).isNotEmpty();
+		assertThat(session.isExpired()).isFalse();
+	}
+
+	/* (non-Javadoc) */
 	protected void assertRegion(Region<?, ?> actualRegion, String expectedName, DataPolicy expectedDataPolicy) {
 		assertThat(actualRegion).isNotNull();
 		assertThat(actualRegion.getName()).isEqualTo(expectedName);
@@ -375,6 +382,12 @@ public abstract class AbstractGemFireIntegrationTests {
 		GemFireOperationsSessionRepository.GemFireSession session = createSession();
 		session.setPrincipalName(principalName);
 		return (T) session;
+	}
+
+	/* (non-Javadoc) */
+	protected <T extends ExpiringSession> T delete(T session) {
+		this.gemfireSessionRepository.delete(session);
+		return session;
 	}
 
 	/* (non-Javadoc) */
