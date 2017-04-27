@@ -52,10 +52,6 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
 | link:guides/boot.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}boot/mongo[HttpSession with Mongo]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with Mongo.
-| link:guides/boot-mongo.html[HttpSession with Mongo Guide]
-
 | {gh-samples-url}boot/jdbc[HttpSession with JDBC]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/boot-jdbc.html[HttpSession with JDBC Guide]
@@ -219,57 +215,6 @@ NOTE: The <<samples, HttpSession JDBC Spring Boot Sample>> provides a working sa
 You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession JDBC Spring Boot Guide when integrating with your own application.
 
 include::guides/boot-jdbc.adoc[tags=config,leveloffset=+3]
-
-[[httpsession-mongo]]
-=== HttpSession with Mongo
-
-Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
-
-This section describes how to use Mongo to back `HttpSession` using Java based configuration.
-
-NOTE: The <<samples, HttpSession Mongo Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
-You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
-
-include::guides/boot-mongo.adoc[tags=config,leveloffset=+3]
-
-==== Session serialization mechanisms
-
-To be able to persist session objects in MongoDB we need to provide the serialization/deserialization mechanism.
-Depending on your classpath Spring Session will choose one of two build-in converters:
-
-* `JacksonMongoSessionConverter` when `ObjectMapper` class is available, or
-* `JdkMongoSessionConverter` otherwise.
-
-===== JacksonMongoSessionConverter
-
-This mechanism uses Jackson to serialize session objects to/from JSON.
-`JacksonMongoSessionConverter` will be the default when Jackson is detected on the classpath and the user has not explicitly registered a `AbstractMongoSessionConverter` Bean.
-
-If you would like to provide custom Jackson modules you can do it by explicitly registering `JacksonMongoSessionConverter`:
-
-[source,java,indent=0]
-----
-include::{docs-test-dir}docs/http/MongoJacksonSessionConfiguration.java[tags=config]
-----
-
-==== JdkMongoSessionConverter
-
-`JdkMongoSessionConverter` uses standard Java serialization to persist session attributes map to MongoDB in a binary form.
-However, standard session elements like id, access time, etc are still written as a plain Mongo objects and can be read and queried without additional effort.
-`JdkMongoSessionConverter` is used if Jackson is not on the classpath and no explicit `AbstractMongoSessionConverter` Bean has been defined.
-You can explicitly register `JdkMongoSessionConverter` by defining it as a Bean.
-
-[source,java,indent=0]
-----
-include::{docs-test-dir}docs/http/MongoJdkSessionConfiguration.java[tags=config]
-----
-
-There is also a constructor taking `Serializer` and `Deserializer` objects, allowing you to pass custom implementations, which is especially important when you want to use non-default classloader.
-
-==== Using custom converters
-
-You can create your own session converter by extending `AbstractMongoSessionConverter` class.
-The implementation will be used for serializing, deserializing your objects and for providing queries to access the session.
 
 [[httpsession-hazelcast]]
 === HttpSession with Hazelcast
@@ -480,7 +425,7 @@ include::{docs-test-resources-dir}docs/security/security-config.xml[tags=config]
 ----
 
 This assumes that your Spring Session `SessionRegistry` bean is called `sessionRegistry`, which is the name used by all
-`SpringHttpSessionConfiguration` subclasses except for the one for MongoDB: there it's called `mongoSessionRepository`.
+`SpringHttpSessionConfiguration` subclasses.
 
 [[spring-security-concurrent-sessions-limitations]]
 === Limitations

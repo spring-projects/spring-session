@@ -16,9 +16,6 @@ configurations.spring3TestRuntime {
 			if (details.requested.name == 'spring-data-keyvalue') {
 				details.useVersion '1.1.1.RELEASE'
 			}
-			if (details.requested.name == 'spring-data-mongodb') {
-				details.useVersion '1.9.1.RELEASE'
-			}
 			if (details.requested.name == 'spring-data-redis') {
 				details.useVersion '1.7.1.RELEASE'
 			}

@@ -1,8 +1,0 @@
-apply plugin: 'io.spring.convention.spring-pom'
-
-description = "Aggregator for Spring Session and Spring Data Mongo"
-
-dependencies {
-	compile project(':spring-session')
-	compile "org.springframework.data:spring-data-mongodb"
-}
