@@ -13,9 +13,6 @@ configurations.spring3TestRuntime {
 			if (details.requested.name == 'spring-data-commons') {
 				details.useVersion '1.12.1.RELEASE'
 			}
-			if (details.requested.name == 'spring-data-gemfire') {
-				details.useVersion '1.8.1.RELEASE'
-			}
 			if (details.requested.name == 'spring-data-keyvalue') {
 				details.useVersion '1.1.1.RELEASE'
 			}

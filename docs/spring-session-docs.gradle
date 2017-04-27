@@ -3,7 +3,6 @@ apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
 	testCompile project(':spring-session')
-	testCompile project(':spring-session-data-gemfire')
 	testCompile project(':spring-session-data-mongo')
 	testCompile project(':spring-session-data-redis')
 	testCompile "org.springframework:spring-jdbc"

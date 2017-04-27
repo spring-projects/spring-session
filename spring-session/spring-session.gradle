@@ -10,7 +10,6 @@ dependencies {
 	optional "org.springframework:spring-messaging"
 	optional "org.springframework:spring-web"
 	optional "org.springframework:spring-websocket"
-	optional "org.springframework.data:spring-data-gemfire"
 	optional "org.springframework.data:spring-data-mongodb"
 	optional "org.springframework.data:spring-data-redis"
 	optional "org.springframework.security:spring-security-core"
@@ -27,7 +26,6 @@ dependencies {
 	integrationTestCompile "org.hsqldb:hsqldb"
 	integrationTestCompile "de.flapdoodle.embed:de.flapdoodle.embed.mongo"
 
-	integrationTestRuntime "org.springframework.shell:spring-shell"
 
 	testCompile "junit:junit"
 	testCompile "org.mockito:mockito-core"
