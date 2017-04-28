@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package sample.websocket;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import sample.data.ActiveWebSocketUser;
 import sample.data.ActiveWebSocketUserRepository;
@@ -43,14 +42,14 @@ public class WebSocketDisconnectHandler<S>
 		if (id == null) {
 			return;
 		}
-		Optional<ActiveWebSocketUser> user = this.repository.findOne(id);
-		if (!user.isPresent()) {
+		ActiveWebSocketUser user = this.repository.findOne(id);
+		if (user == null) {
 			return;
 		}
 
 		this.repository.delete(id);
 		this.messagingTemplate.convertAndSend("/topic/friends/signout",
-				Arrays.asList(user.get().getUsername()));
+				Arrays.asList(user.getUsername()));
 
 	}
 }

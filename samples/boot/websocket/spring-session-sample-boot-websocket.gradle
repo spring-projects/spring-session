@@ -10,7 +10,7 @@ dependencies {
 	compile"org.springframework.boot:spring-boot-starter-websocket"
 	compile"org.springframework:spring-websocket"
 	compile"nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
-	compile"io.lettuce:lettuce-core"
+	compile"biz.paluch.redis:lettuce"
 	compile"org.webjars:bootstrap"
 	compile"org.webjars:html5shiv"
 	compile"org.webjars:knockout"
