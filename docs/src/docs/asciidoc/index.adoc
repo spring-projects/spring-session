@@ -50,7 +50,7 @@ If you are looking to get started with Spring Session, the best place to start i
 
 | {gh-samples-url}boot/redis[HttpSession with Redis]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
-| link:guides/boot.html[HttpSession with Redis Guide]
+| link:guides/boot-redis.html[HttpSession with Redis Guide]
 
 | {gh-samples-url}boot/gemfire[HttpSession with GemFire]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with GemFire using a Client/Server topology.
@@ -104,7 +104,7 @@ If you are looking to get started with Spring Session, the best place to start i
 
 | {gh-samples-url}javaconfig/custom-cookie[Custom Cookie]
 | Demonstrates how to use Spring Session and customize the cookie.
-| link:guides/custom-cookie.html[Custom Cookie Guide]
+| link:guides/java-custom-cookie.html[Custom Cookie Guide]
 
 | {gh-samples-url}javaconfig/security[Spring Security]
 | Demonstrates how to use Spring Session with an existing Spring Security application.
