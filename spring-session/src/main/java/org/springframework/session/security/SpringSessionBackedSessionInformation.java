@@ -17,6 +17,7 @@
 package org.springframework.session.security;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,11 +53,13 @@ class SpringSessionBackedSessionInformation<S extends Session>
 	SpringSessionBackedSessionInformation(S session,
 			SessionRepository<S> sessionRepository) {
 		super(resolvePrincipal(session), session.getId(),
-				new Date(session.getLastAccessedTime()));
+				Date.from(session.getLastAccessedTime()));
 		this.sessionRepository = sessionRepository;
-		if (Boolean.TRUE.equals(session.getAttribute(EXPIRED_ATTR))) {
-			super.expireNow();
-		}
+		session.getAttribute(EXPIRED_ATTR).ifPresent(expired -> {
+			if (Boolean.TRUE.equals(expired)) {
+				super.expireNow();
+			}
+		});
 	}
 
 	/**
@@ -66,14 +69,16 @@ class SpringSessionBackedSessionInformation<S extends Session>
 	 * @return the principal's name, or empty String if it couldn't be determined
 	 */
 	private static String resolvePrincipal(Session session) {
-		String principalName = session
+		Optional<String> principalName = session
 				.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
-		if (principalName != null) {
-			return principalName;
+		if (principalName.isPresent()) {
+			return principalName.get();
 		}
-		SecurityContext securityContext = session.getAttribute(SPRING_SECURITY_CONTEXT);
-		if (securityContext != null && securityContext.getAuthentication() != null) {
-			return securityContext.getAuthentication().getName();
+		Optional<SecurityContext> securityContext = session
+				.getAttribute(SPRING_SECURITY_CONTEXT);
+		if (securityContext.isPresent()
+				&& securityContext.get().getAuthentication() != null) {
+			return securityContext.get().getAuthentication().getName();
 		}
 		return "";
 	}

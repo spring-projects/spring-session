@@ -16,6 +16,9 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import com.hazelcast.core.HazelcastInstance;
 import org.junit.Before;
 import org.junit.Test;
@@ -111,8 +114,8 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 				.isInstanceOf(SessionCreatedEvent.class);
 		this.registry.clear();
 
-		assertThat(sessionToSave.getMaxInactiveIntervalInSeconds())
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(sessionToSave.getMaxInactiveInterval())
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
 		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToSave.getId()))
@@ -150,16 +153,16 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		this.repository.save(sessionToSave);
 
 		synchronized (lock) {
-			lock.wait((sessionToSave.getMaxInactiveIntervalInSeconds() * 1000) - 500);
+			lock.wait(sessionToSave.getMaxInactiveInterval().minusMillis(500).toMillis());
 		}
 
 		// Get and save the session like SessionRepositoryFilter would.
 		S sessionToUpdate = this.repository.getSession(sessionToSave.getId());
-		sessionToUpdate.setLastAccessedTime(System.currentTimeMillis());
+		sessionToUpdate.setLastAccessedTime(Instant.now());
 		this.repository.save(sessionToUpdate);
 
 		synchronized (lock) {
-			lock.wait((sessionToUpdate.getMaxInactiveIntervalInSeconds() * 1000) - 100);
+			lock.wait(sessionToUpdate.getMaxInactiveInterval().minusMillis(100).toMillis());
 		}
 
 		assertThat(this.repository.getSession(sessionToUpdate.getId())).isNotNull();

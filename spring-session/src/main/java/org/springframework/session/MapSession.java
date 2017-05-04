@@ -17,11 +17,13 @@
 package org.springframework.session;
 
 import java.io.Serializable;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -41,23 +43,24 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.0
  */
 public final class MapSession implements Session, Serializable {
 	/**
-	 * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes).
+	 * Default {@link #setMaxInactiveInterval(Duration)} (30 minutes).
 	 */
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
 	private String id;
 	private Map<String, Object> sessionAttrs = new HashMap<>();
-	private long creationTime = System.currentTimeMillis();
-	private long lastAccessedTime = this.creationTime;
+	private Instant creationTime = Instant.now();
+	private Instant lastAccessedTime = this.creationTime;
 
 	/**
 	 * Defaults to 30 minutes.
 	 */
-	private int maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+	private Duration maxInactiveInterval = Duration.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	/**
 	 * Creates a new instance with a secure randomly generated identifier.
@@ -91,19 +94,19 @@ public final class MapSession implements Session, Serializable {
 		this.sessionAttrs = new HashMap<>(
 				session.getAttributeNames().size());
 		for (String attrName : session.getAttributeNames()) {
-			Object attrValue = session.getAttribute(attrName);
-			this.sessionAttrs.put(attrName, attrValue);
+			session.getAttribute(attrName)
+					.ifPresent(attrValue -> this.sessionAttrs.put(attrName, attrValue));
 		}
 		this.lastAccessedTime = session.getLastAccessedTime();
 		this.creationTime = session.getCreationTime();
-		this.maxInactiveInterval = session.getMaxInactiveIntervalInSeconds();
+		this.maxInactiveInterval = session.getMaxInactiveInterval();
 	}
 
-	public void setLastAccessedTime(long lastAccessedTime) {
+	public void setLastAccessedTime(Instant lastAccessedTime) {
 		this.lastAccessedTime = lastAccessedTime;
 	}
 
-	public long getCreationTime() {
+	public Instant getCreationTime() {
 		return this.creationTime;
 	}
 
@@ -111,33 +114,32 @@ public final class MapSession implements Session, Serializable {
 		return this.id;
 	}
 
-	public long getLastAccessedTime() {
+	public Instant getLastAccessedTime() {
 		return this.lastAccessedTime;
 	}
 
-	public void setMaxInactiveIntervalInSeconds(int interval) {
+	public void setMaxInactiveInterval(Duration interval) {
 		this.maxInactiveInterval = interval;
 	}
 
-	public int getMaxInactiveIntervalInSeconds() {
+	public Duration getMaxInactiveInterval() {
 		return this.maxInactiveInterval;
 	}
 
 	public boolean isExpired() {
-		return isExpired(System.currentTimeMillis());
+		return isExpired(Instant.now());
 	}
 
-	boolean isExpired(long now) {
-		if (this.maxInactiveInterval < 0) {
+	boolean isExpired(Instant now) {
+		if (this.maxInactiveInterval.isNegative()) {
 			return false;
 		}
-		return now - TimeUnit.SECONDS
-				.toMillis(this.maxInactiveInterval) >= this.lastAccessedTime;
+		return now.minus(this.maxInactiveInterval).compareTo(this.lastAccessedTime) >= 0;
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(String attributeName) {
-		return (T) this.sessionAttrs.get(attributeName);
+	public <T> Optional<T> getAttribute(String attributeName) {
+		return Optional.ofNullable((T) this.sessionAttrs.get(attributeName));
 	}
 
 	public Set<String> getAttributeNames() {
@@ -158,12 +160,11 @@ public final class MapSession implements Session, Serializable {
 	}
 
 	/**
-	 * Sets the time that this {@link Session} was created in milliseconds since midnight
-	 * of 1/1/1970 GMT. The default is when the {@link Session} was instantiated.
-	 * @param creationTime the time that this {@link Session} was created in milliseconds
-	 * since midnight of 1/1/1970 GMT.
+	 * Sets the time that this {@link Session} was created. The default is when the
+	 * {@link Session} was instantiated.
+	 * @param creationTime the time that this {@link Session} was created.
 	 */
-	public void setCreationTime(long creationTime) {
+	public void setCreationTime(Instant creationTime) {
 		this.creationTime = creationTime;
 	}
 

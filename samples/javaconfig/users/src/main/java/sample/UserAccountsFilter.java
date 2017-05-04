@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -66,15 +67,15 @@ public class UserAccountsFilter implements Filter {
 				continue;
 			}
 
-			String username = session.getAttribute("username");
-			if (username == null) {
+			Optional<String> username = session.getAttribute("username");
+			if (!username.isPresent()) {
 				unauthenticatedAlias = alias;
 				continue;
 			}
 
 			String logoutUrl = sessionManager.encodeURL("./logout", alias);
 			String switchAccountUrl = sessionManager.encodeURL("./", alias);
-			Account account = new Account(username, logoutUrl, switchAccountUrl);
+			Account account = new Account(username.get(), logoutUrl, switchAccountUrl);
 			if (currentSessionAlias.equals(alias)) {
 				currentAccount = account;
 			}

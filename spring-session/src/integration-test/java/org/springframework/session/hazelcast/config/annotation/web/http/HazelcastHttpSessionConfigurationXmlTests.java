@@ -16,6 +16,8 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
+import java.time.Duration;
+
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.NetworkConfig;
@@ -62,7 +64,8 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 			S session = this.repository.getSession(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1800);
+			assertThat(session.getMaxInactiveInterval())
+					.isEqualTo(Duration.ofMinutes(30));
 		}
 
 		@Configuration
@@ -99,7 +102,8 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 			S session = this.repository.getSession(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1200);
+			assertThat(session.getMaxInactiveInterval())
+					.isEqualTo(Duration.ofMinutes(20));
 		}
 
 		@Configuration

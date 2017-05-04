@@ -15,6 +15,8 @@
  */
 package org.springframework.session.jdbc;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -304,8 +306,8 @@ public class JdbcOperationsSessionRepositoryTests {
 				.createSession();
 
 		assertThat(session.isNew()).isTrue();
-		assertThat(session.getMaxInactiveIntervalInSeconds())
-				.isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
+		assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(new MapSession().getMaxInactiveInterval());
 		verifyZeroInteractions(this.jdbcOperations);
 	}
 
@@ -318,7 +320,7 @@ public class JdbcOperationsSessionRepositoryTests {
 				.createSession();
 
 		assertThat(session.isNew()).isTrue();
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(interval);
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(interval));
 		verifyZeroInteractions(this.jdbcOperations);
 	}
 
@@ -372,7 +374,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void saveUpdatedLastAccessedTime() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
 				new MapSession());
-		session.setLastAccessedTime(System.currentTimeMillis());
+		session.setLastAccessedTime(Instant.now());
 
 		this.repository.save(session);
 
@@ -413,8 +415,8 @@ public class JdbcOperationsSessionRepositoryTests {
 	@Test
 	public void getSessionExpired() {
 		MapSession expired = new MapSession();
-		expired.setLastAccessedTime(System.currentTimeMillis() -
-				(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+		expired.setLastAccessedTime(Instant.now().minusSeconds(
+				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 		given(this.jdbcOperations.query(isA(String.class),
 				isA(PreparedStatementSetter.class), isA(ResultSetExtractor.class)))
 				.willReturn(Collections.singletonList(expired));
@@ -443,7 +445,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.isNew()).isFalse();
-		assertThat(session.<String>getAttribute("savedName")).isEqualTo("savedValue");
+		assertThat(session.<String>getAttribute("savedName").orElse(null)).isEqualTo("savedValue");
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).query(isA(String.class),
 				isA(PreparedStatementSetter.class), isA(ResultSetExtractor.class));

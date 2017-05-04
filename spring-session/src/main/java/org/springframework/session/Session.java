@@ -16,6 +16,9 @@
 
 package org.springframework.session;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,6 +26,7 @@ import java.util.Set;
  * used by an HttpSession, WebSocket Session, or even non web related sessions.
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.0
  */
 public interface Session {
@@ -43,7 +47,7 @@ public interface Session {
 	 * associated to that name
 	 * @param <T> The return type of the attribute
 	 */
-	<T> T getAttribute(String attributeName);
+	<T> Optional<T> getAttribute(String attributeName);
 
 	/**
 	 * Gets the attribute names that have a value associated with it. Each value can be
@@ -73,49 +77,43 @@ public interface Session {
 	void removeAttribute(String attributeName);
 
 	/**
-	 * Gets the time when this session was created in milliseconds since midnight of
-	 * 1/1/1970 GMT.
+	 * Gets the time when this session was created.
 	 *
-	 * @return the time when this session was created in milliseconds since midnight of
-	 * 1/1/1970 GMT.
+	 * @return the time when this session was created.
 	 */
-	long getCreationTime();
+	Instant getCreationTime();
 
 	/**
-	 * Sets the last accessed time in milliseconds since midnight of 1/1/1970 GMT.
+	 * Sets the last accessed time.
 	 *
-	 * @param lastAccessedTime the last accessed time in milliseconds since midnight of
-	 * 1/1/1970 GMT
+	 * @param lastAccessedTime the last accessed time
 	 */
-	void setLastAccessedTime(long lastAccessedTime);
+	void setLastAccessedTime(Instant lastAccessedTime);
 
 	/**
-	 * Gets the last time this {@link Session} was accessed expressed in milliseconds
-	 * since midnight of 1/1/1970 GMT.
+	 * Gets the last time this {@link Session} was accessed.
 	 *
 	 * @return the last time the client sent a request associated with the session
-	 * expressed in milliseconds since midnight of 1/1/1970 GMT
 	 */
-	long getLastAccessedTime();
+	Instant getLastAccessedTime();
 
 	/**
-	 * Sets the maximum inactive interval in seconds between requests before this session
-	 * will be invalidated. A negative time indicates that the session will never timeout.
+	 * Sets the maximum inactive interval between requests before this session will be
+	 * invalidated. A negative time indicates that the session will never timeout.
 	 *
-	 * @param interval the number of seconds that the {@link Session} should be kept alive
+	 * @param interval the amount of time that the {@link Session} should be kept alive
 	 * between client requests.
 	 */
-	void setMaxInactiveIntervalInSeconds(int interval);
+	void setMaxInactiveInterval(Duration interval);
 
 	/**
-	 * Gets the maximum inactive interval in seconds between requests before this session
-	 * will be invalidated. A negative time indicates that the session will never timeout.
+	 * Gets the maximum inactive interval between requests before this session will be
+	 * invalidated. A negative time indicates that the session will never timeout.
 	 *
-	 * @return the maximum inactive interval in seconds between requests before this
-	 * session will be invalidated. A negative time indicates that the session will never
-	 * timeout.
+	 * @return the maximum inactive interval between requests before this session will be
+	 * invalidated. A negative time indicates that the session will never timeout.
 	 */
-	int getMaxInactiveIntervalInSeconds();
+	Duration getMaxInactiveInterval();
 
 	/**
 	 * Returns true if the session is expired.

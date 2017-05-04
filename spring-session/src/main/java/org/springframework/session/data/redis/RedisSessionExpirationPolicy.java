@@ -79,7 +79,7 @@ final class RedisSessionExpirationPolicy {
 			}
 		}
 
-		long sessionExpireInSeconds = session.getMaxInactiveIntervalInSeconds();
+		long sessionExpireInSeconds = session.getMaxInactiveInterval().getSeconds();
 		String sessionKey = getSessionKey(keyToExpire);
 
 		if (sessionExpireInSeconds < 0) {
@@ -147,8 +147,8 @@ final class RedisSessionExpirationPolicy {
 	}
 
 	static long expiresInMillis(Session session) {
-		int maxInactiveInSeconds = session.getMaxInactiveIntervalInSeconds();
-		long lastAccessedTimeInMillis = session.getLastAccessedTime();
+		int maxInactiveInSeconds = (int) session.getMaxInactiveInterval().getSeconds();
+		long lastAccessedTimeInMillis = session.getLastAccessedTime().toEpochMilli();
 		return lastAccessedTimeInMillis + TimeUnit.SECONDS.toMillis(maxInactiveInSeconds);
 	}
 

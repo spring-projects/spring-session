@@ -17,6 +17,7 @@
 package org.springframework.session.web.http;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -125,7 +126,7 @@ public class SessionRepositoryFilterTests {
 	@Test
 	public void doFilterCreateSetsLastAccessedTime() throws Exception {
 		MapSession session = new MapSession();
-		session.setLastAccessedTime(0L);
+		session.setLastAccessedTime(Instant.EPOCH);
 		this.sessionRepository = spy(this.sessionRepository);
 		given(this.sessionRepository.createSession()).willReturn(session);
 		this.filter = new SessionRepositoryFilter<>(

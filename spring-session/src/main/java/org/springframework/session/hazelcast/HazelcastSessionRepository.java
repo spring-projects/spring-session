@@ -16,10 +16,13 @@
 
 package org.springframework.session.hazelcast;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -134,7 +137,7 @@ public class HazelcastSessionRepository implements
 
 	/**
 	 * If non-null, this value is used to override
-	 * {@link MapSession#setMaxInactiveIntervalInSeconds(int)}.
+	 * {@link MapSession#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
 
@@ -193,7 +196,8 @@ public class HazelcastSessionRepository implements
 	public HazelcastSession createSession() {
 		HazelcastSession result = new HazelcastSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			result.setMaxInactiveIntervalInSeconds(this.defaultMaxInactiveInterval);
+			result.setMaxInactiveInterval(
+					Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
 	}
@@ -201,7 +205,7 @@ public class HazelcastSessionRepository implements
 	public void save(HazelcastSession session) {
 		if (session.isChanged()) {
 			this.sessions.put(session.getId(), session.getDelegate(),
-					session.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
+					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 			session.markUnchanged();
 		}
 	}
@@ -291,7 +295,7 @@ public class HazelcastSessionRepository implements
 			this.delegate = cached;
 		}
 
-		public void setLastAccessedTime(long lastAccessedTime) {
+		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.delegate.setLastAccessedTime(lastAccessedTime);
 			this.changed = true;
 			flushImmediateIfNecessary();
@@ -301,7 +305,7 @@ public class HazelcastSessionRepository implements
 			return this.delegate.isExpired();
 		}
 
-		public long getCreationTime() {
+		public Instant getCreationTime() {
 			return this.delegate.getCreationTime();
 		}
 
@@ -309,21 +313,21 @@ public class HazelcastSessionRepository implements
 			return this.delegate.getId();
 		}
 
-		public long getLastAccessedTime() {
+		public Instant getLastAccessedTime() {
 			return this.delegate.getLastAccessedTime();
 		}
 
-		public void setMaxInactiveIntervalInSeconds(int interval) {
-			this.delegate.setMaxInactiveIntervalInSeconds(interval);
+		public void setMaxInactiveInterval(Duration interval) {
+			this.delegate.setMaxInactiveInterval(interval);
 			this.changed = true;
 			flushImmediateIfNecessary();
 		}
 
-		public int getMaxInactiveIntervalInSeconds() {
-			return this.delegate.getMaxInactiveIntervalInSeconds();
+		public Duration getMaxInactiveInterval() {
+			return this.delegate.getMaxInactiveInterval();
 		}
 
-		public <T> T getAttribute(String attributeName) {
+		public <T> Optional<T> getAttribute(String attributeName) {
 			return this.delegate.getAttribute(attributeName);
 		}
 
