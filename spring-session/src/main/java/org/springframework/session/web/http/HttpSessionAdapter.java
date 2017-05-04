@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,23 +25,23 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionContext;
 
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 
 /**
- * Adapts Spring Session's {@link ExpiringSession} to an {@link HttpSession}.
+ * Adapts Spring Session's {@link Session} to an {@link HttpSession}.
  *
- * @param <S> the {@link ExpiringSession} type
+ * @param <S> the {@link Session} type
  * @author Rob Winch
  * @since 1.1
  */
 @SuppressWarnings("deprecation")
-class ExpiringSessionHttpSession<S extends ExpiringSession> implements HttpSession {
+class HttpSessionAdapter<S extends Session> implements HttpSession {
 	private S session;
 	private final ServletContext servletContext;
 	private boolean invalidated;
 	private boolean old;
 
-	ExpiringSessionHttpSession(S session, ServletContext servletContext) {
+	HttpSessionAdapter(S session, ServletContext servletContext) {
 		this.session = session;
 		this.servletContext = servletContext;
 	}

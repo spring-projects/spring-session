@@ -46,7 +46,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -185,8 +184,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private final TransactionOperations transactionOperations;
 
-	private final ResultSetExtractor<List<ExpiringSession>> extractor =
-			new ExpiringSessionResultSetExtractor();
+	private final ResultSetExtractor<List<Session>> extractor = new SessionResultSetExtractor();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -460,8 +458,8 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	public JdbcSession getSession(final String id) {
-		final ExpiringSession session = this.transactionOperations.execute(status -> {
-			List<ExpiringSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
+		final Session session = this.transactionOperations.execute(status -> {
+			List<Session> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
 					JdbcOperationsSessionRepository.this.getSessionQuery,
 					ps -> ps.setString(1, id),
 					JdbcOperationsSessionRepository.this.extractor
@@ -500,7 +498,7 @@ public class JdbcOperationsSessionRepository implements
 			return Collections.emptyMap();
 		}
 
-		List<ExpiringSession> sessions = this.transactionOperations.execute(status ->
+		List<Session> sessions = this.transactionOperations.execute(status ->
 				JdbcOperationsSessionRepository.this.jdbcOperations.query(
 						JdbcOperationsSessionRepository.this.listSessionsByPrincipalNameQuery,
 						ps -> ps.setString(1, indexValue),
@@ -509,7 +507,7 @@ public class JdbcOperationsSessionRepository implements
 		Map<String, JdbcSession> sessionMap = new HashMap<>(
 				sessions.size());
 
-		for (ExpiringSession session : sessions) {
+		for (Session session : sessions) {
 			sessionMap.put(session.getId(), new JdbcSession(session));
 		}
 
@@ -588,13 +586,13 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	/**
-	 * The {@link ExpiringSession} to use for {@link JdbcOperationsSessionRepository}.
+	 * The {@link Session} to use for {@link JdbcOperationsSessionRepository}.
 	 *
 	 * @author Vedran Pavic
 	 */
-	final class JdbcSession implements ExpiringSession {
+	final class JdbcSession implements Session {
 
-		private final ExpiringSession delegate;
+		private final Session delegate;
 
 		private boolean isNew;
 
@@ -607,8 +605,8 @@ public class JdbcOperationsSessionRepository implements
 			this.isNew = true;
 		}
 
-		JdbcSession(ExpiringSession delegate) {
-			Assert.notNull(delegate, "ExpiringSession cannot be null");
+		JdbcSession(Session delegate) {
+			Assert.notNull(delegate, "Session cannot be null");
 			this.delegate = delegate;
 		}
 
@@ -713,11 +711,10 @@ public class JdbcOperationsSessionRepository implements
 
 	}
 
-	private class ExpiringSessionResultSetExtractor
-			implements ResultSetExtractor<List<ExpiringSession>> {
+	private class SessionResultSetExtractor implements ResultSetExtractor<List<Session>> {
 
-		public List<ExpiringSession> extractData(ResultSet rs) throws SQLException, DataAccessException {
-			List<ExpiringSession> sessions = new ArrayList<>();
+		public List<Session> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			List<Session> sessions = new ArrayList<>();
 			while (rs.next()) {
 				String id = rs.getString("SESSION_ID");
 				MapSession session;
@@ -739,7 +736,7 @@ public class JdbcOperationsSessionRepository implements
 			return sessions;
 		}
 
-		private ExpiringSession getLast(List<ExpiringSession> sessions) {
+		private Session getLast(List<Session> sessions) {
 			return sessions.get(sessions.size() - 1);
 		}
 

@@ -47,9 +47,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.PrincipalNameResolver;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
@@ -130,7 +130,7 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void createSessionDefaultMaxInactiveInterval() throws Exception {
-		ExpiringSession session = this.redisRepository.createSession();
+		Session session = this.redisRepository.createSession();
 		assertThat(session.getMaxInactiveIntervalInSeconds())
 				.isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
 	}
@@ -139,7 +139,7 @@ public class RedisOperationsSessionRepositoryTests {
 	public void createSessionCustomMaxInactiveInterval() throws Exception {
 		int interval = 1;
 		this.redisRepository.setDefaultMaxInactiveInterval(interval);
-		ExpiringSession session = this.redisRepository.createSession();
+		Session session = this.redisRepository.createSession();
 		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(interval);
 	}
 

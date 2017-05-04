@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends ExpiringSession> {
+public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> {
 	@Autowired
 	private SessionRepository<S> repository;
 

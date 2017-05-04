@@ -38,7 +38,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,17 +53,17 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @RunWith(MockitoJUnitRunner.class)
 public class SessionRepositoryMessageInterceptorTests {
 	@Mock
-	SessionRepository<ExpiringSession> sessionRepository;
+	SessionRepository<Session> sessionRepository;
 	@Mock
 	MessageChannel channel;
 	@Mock
-	ExpiringSession session;
+	Session session;
 
 	Message<?> createMessage;
 
 	SimpMessageHeaderAccessor headers;
 
-	SessionRepositoryMessageInterceptor<ExpiringSession> interceptor;
+	SessionRepositoryMessageInterceptor<Session> interceptor;
 
 	@Before
 	public void setup() {
@@ -202,7 +202,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 		this.interceptor.preSend(createMessage(), this.channel);
 
-		verify(this.sessionRepository, times(0)).save(any(ExpiringSession.class));
+		verify(this.sessionRepository, times(0)).save(any(Session.class));
 	}
 
 	@Test

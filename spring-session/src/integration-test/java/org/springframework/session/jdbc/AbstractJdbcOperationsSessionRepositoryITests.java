@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -156,7 +155,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		toSave.setLastAccessedTime(lastAccessedTime);
 		this.repository.save(toSave);
 
-		ExpiringSession session = this.repository.getSession(toSave.getId());
+		Session session = this.repository.getSession(toSave.getId());
 
 		assertThat(session).isNotNull();
 		assertThat(session.isExpired()).isFalse();

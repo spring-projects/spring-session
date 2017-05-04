@@ -49,7 +49,6 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
@@ -74,11 +73,11 @@ public class SessionRepositoryFilterTests {
 	@Mock
 	private HttpSessionStrategy strategy;
 
-	private Map<String, ExpiringSession> sessions;
+	private Map<String, Session> sessions;
 
-	private SessionRepository<ExpiringSession> sessionRepository;
+	private SessionRepository<Session> sessionRepository;
 
-	private SessionRepositoryFilter<ExpiringSession> filter;
+	private SessionRepositoryFilter<Session> filter;
 
 	private MockHttpServletRequest request;
 
@@ -422,7 +421,7 @@ public class SessionRepositoryFilterTests {
 	public void doFilterSetsCookieIfChanged() throws Exception {
 		this.sessionRepository = new MapSessionRepository() {
 			@Override
-			public ExpiringSession getSession(String id) {
+			public Session getSession(String id) {
 				return createSession();
 			}
 		};
@@ -1256,8 +1255,7 @@ public class SessionRepositoryFilterTests {
 	@SuppressWarnings("unchecked")
 	public void doFilterRequestSessionNoRequestSessionNoSessionRepositoryInteractions()
 			throws Exception {
-		SessionRepository<ExpiringSession> sessionRepository = spy(
-				new MapSessionRepository());
+		SessionRepository<Session> sessionRepository = spy(new MapSessionRepository());
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
@@ -1284,8 +1282,7 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterLazySessionCreation() throws Exception {
-		SessionRepository<ExpiringSession> sessionRepository = spy(
-				new MapSessionRepository());
+		SessionRepository<Session> sessionRepository = spy(new MapSessionRepository());
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
@@ -1301,10 +1298,9 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterLazySessionUpdates() throws Exception {
-		ExpiringSession session = this.sessionRepository.createSession();
+		Session session = this.sessionRepository.createSession();
 		this.sessionRepository.save(session);
-		SessionRepository<ExpiringSession> sessionRepository = spy(
-				this.sessionRepository);
+		SessionRepository<Session> sessionRepository = spy(this.sessionRepository);
 		setSessionCookie(session.getId());
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);

@@ -33,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.annotation.Order;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
@@ -56,7 +55,7 @@ import org.springframework.session.SessionRepository;
  * <li>The session id is looked up using
  * {@link HttpSessionStrategy#getRequestedSessionId(javax.servlet.http.HttpServletRequest)}
  * . The default is to look in a cookie named SESSION.</li>
- * <li>The session id of newly created {@link org.springframework.session.ExpiringSession}
+ * <li>The session id of newly created {@link org.springframework.session.Session}
  * is sent to the client using
  * <li>The client is notified that the session id is no longer valid with
  * {@link HttpSessionStrategy#onInvalidateSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}
@@ -69,12 +68,12 @@ import org.springframework.session.SessionRepository;
  * persisted properly.
  * </p>
  *
- * @param <S> the {@link ExpiringSession} type.
+ * @param <S> the {@link Session} type.
  * @since 1.0
  * @author Rob Winch
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
-public class SessionRepositoryFilter<S extends ExpiringSession>
+public class SessionRepositoryFilter<S extends Session>
 		extends OncePerRequestFilter {
 	private static final String SESSION_LOGGER_NAME = SessionRepositoryFilter.class
 			.getName().concat(".SESSION_LOGGER");
@@ -402,7 +401,7 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 		 * @author Rob Winch
 		 * @since 1.0
 		 */
-		private final class HttpSessionWrapper extends ExpiringSessionHttpSession<S> {
+		private final class HttpSessionWrapper extends HttpSessionAdapter<S> {
 
 			HttpSessionWrapper(S session, ServletContext servletContext) {
 				super(session, servletContext);

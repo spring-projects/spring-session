@@ -35,9 +35,9 @@ import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
@@ -62,11 +62,10 @@ public class Initializer implements ServletContextListener {
 		cfg.addMapConfig(mc);
 
 		this.instance = Hazelcast.newHazelcastInstance(cfg);
-		Map<String, ExpiringSession> sessions = this.instance.getMap(sessionMapName);
+		Map<String, Session> sessions = this.instance.getMap(sessionMapName);
 
-		SessionRepository<ExpiringSession> sessionRepository = new MapSessionRepository(
-				sessions);
-		SessionRepositoryFilter<ExpiringSession> filter = new SessionRepositoryFilter<>(
+		SessionRepository<Session> sessionRepository = new MapSessionRepository(sessions);
+		SessionRepositoryFilter<Session> filter = new SessionRepositoryFilter<>(
 				sessionRepository);
 		Dynamic fr = sc.addFilter("springSessionFilter", filter);
 		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");

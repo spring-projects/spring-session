@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionInformation;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -32,12 +31,12 @@ import org.springframework.session.SessionRepository;
  * Ensures that calling {@link #expireNow()} propagates to Spring Session, since this
  * session information contains only derived data and is not the authoritative source.
  *
- * @param <S> the {@link ExpiringSession} type.
+ * @param <S> the {@link Session} type.
  * @author Joris Kuipers
  * @author Vedran Pavic
  * @since 1.3
  */
-class SpringSessionBackedSessionInformation<S extends ExpiringSession>
+class SpringSessionBackedSessionInformation<S extends Session>
 		extends SessionInformation {
 
 	static final String EXPIRED_ATTR = SpringSessionBackedSessionInformation.class

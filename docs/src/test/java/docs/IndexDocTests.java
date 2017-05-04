@@ -26,7 +26,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
@@ -49,7 +48,7 @@ public class IndexDocTests {
 
 	@Test
 	public void repositoryDemo() {
-		RepositoryDemo<ExpiringSession> demo = new RepositoryDemo<>();
+		RepositoryDemo<Session> demo = new RepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
@@ -81,14 +80,14 @@ public class IndexDocTests {
 
 	@Test
 	public void expireRepositoryDemo() {
-		ExpiringRepositoryDemo<ExpiringSession> demo = new ExpiringRepositoryDemo<>();
+		ExpiringRepositoryDemo<Session> demo = new ExpiringRepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
 	}
 
 	// tag::expire-repository-demo[]
-	public class ExpiringRepositoryDemo<S extends ExpiringSession> {
+	public class ExpiringRepositoryDemo<S extends Session> {
 		private SessionRepository<S> repository; // <1>
 
 		public void demo() {
@@ -111,7 +110,7 @@ public class IndexDocTests {
 	public void newRedisOperationsSessionRepository() {
 		// tag::new-redisoperationssessionrepository[]
 		LettuceConnectionFactory factory = new LettuceConnectionFactory();
-		SessionRepository<? extends ExpiringSession> repository = new RedisOperationsSessionRepository(
+		SessionRepository<? extends Session> repository = new RedisOperationsSessionRepository(
 				factory);
 		// end::new-redisoperationssessionrepository[]
 	}
@@ -120,7 +119,7 @@ public class IndexDocTests {
 	@SuppressWarnings("unused")
 	public void mapRepository() {
 		// tag::new-mapsessionrepository[]
-		SessionRepository<? extends ExpiringSession> repository = new MapSessionRepository();
+		SessionRepository<? extends Session> repository = new MapSessionRepository();
 		// end::new-mapsessionrepository[]
 	}
 
@@ -136,7 +135,7 @@ public class IndexDocTests {
 
 		// ... configure transactionManager ...
 
-		SessionRepository<? extends ExpiringSession> repository =
+		SessionRepository<? extends Session> repository =
 				new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
 		// end::new-jdbcoperationssessionrepository[]
 	}

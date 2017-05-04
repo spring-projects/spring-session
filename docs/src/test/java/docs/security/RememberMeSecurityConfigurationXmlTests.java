@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,7 +48,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ContextConfiguration
 @WebAppConfiguration
 @SuppressWarnings("rawtypes")
-public class RememberMeSecurityConfigurationXmlTests<T extends ExpiringSession> {
+public class RememberMeSecurityConfigurationXmlTests<T extends Session> {
 	@Autowired
 	WebApplicationContext context;
 	@Autowired

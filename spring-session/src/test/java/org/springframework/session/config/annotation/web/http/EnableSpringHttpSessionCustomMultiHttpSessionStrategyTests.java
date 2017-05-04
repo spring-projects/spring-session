@@ -29,8 +29,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.session.web.http.MultiHttpSessionStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
@@ -58,7 +58,7 @@ public class EnableSpringHttpSessionCustomMultiHttpSessionStrategyTests {
 	MockFilterChain chain;
 
 	@Autowired
-	SessionRepositoryFilter<? extends ExpiringSession> sessionRepositoryFilter;
+	SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
 
 	@Autowired
 	MultiHttpSessionStrategy strategy;
