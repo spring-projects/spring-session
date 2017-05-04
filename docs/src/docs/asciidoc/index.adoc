@@ -416,7 +416,7 @@ include::{docs-test-dir}docs/security/SecurityConfiguration.java[tags=class]
 ----
 
 This assumes that you've also configured Spring Session to provide a `FindByIndexNameSessionRepository` that
-returns `ExpiringSession` instances.
+returns `Session` instances.
 
 When using XML configuration, it would look something like this:
 [source,xml,indent=0]
@@ -458,11 +458,7 @@ include::{indexdoc-tests}[tags=repository-demo]
 <5> We retrieve the `Session` from the `SessionRepository`.
 <6> We obtain the persisted `User` from our `Session` without the need for explicitly casting our attribute.
 
-[[api-expiringsession]]
-=== ExpiringSession
-
-An `ExpiringSession` extends a `Session` by providing attributes related to the `Session` instance's expiration.
-If there is no need to interact with the expiration information, prefer using the more simple `Session` API.
+`Session` API also provides attributes related to the `Session` instance's expiration.
 
 Typical usage might look like the following:
 
@@ -471,17 +467,17 @@ Typical usage might look like the following:
 include::{indexdoc-tests}[tags=expire-repository-demo]
 ----
 
-<1> We create a `SessionRepository` instance with a generic type, `S`, that extends `ExpiringSession`. The generic type is defined in our class.
-<2> We create a new `ExpiringSession` using our `SessionRepository` and assign it to a variable of type `S`.
-<3> We interact with the `ExpiringSession`.
-In our example, we demonstrate updating the amount of time the `ExpiringSession` can be inactive before it expires.
-<4> We now save the `ExpiringSession`.
+<1> We create a `SessionRepository` instance with a generic type, `S`, that extends `Session`. The generic type is defined in our class.
+<2> We create a new `Session` using our `SessionRepository` and assign it to a variable of type `S`.
+<3> We interact with the `Session`.
+In our example, we demonstrate updating the amount of time the `Session` can be inactive before it expires.
+<4> We now save the `Session`.
 This is why we needed the generic type `S`.
-The `SessionRepository` only allows saving `ExpiringSession` instances that were created or retrieved using the same `SessionRepository`.
+The `SessionRepository` only allows saving `Session` instances that were created or retrieved using the same `SessionRepository`.
 This allows for the `SessionRepository` to make implementation specific optimizations (i.e. only writing attributes that have changed).
-The last accessed time is automatically updated when the `ExpiringSession` is saved.
-<5> We retrieve the `ExpiringSession` from the `SessionRepository`.
-If the `ExpiringSession` were expired, the result would be null.
+The last accessed time is automatically updated when the `Session` is saved.
+<5> We retrieve the `Session` from the `SessionRepository`.
+If the `Session` were expired, the result would be null.
 
 [[api-sessionrepository]]
 === SessionRepository
@@ -640,7 +636,7 @@ HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe sessionAttr:a
 [[api-redisoperationssessionrepository-expiration]]
 ===== Session Expiration
 
-An expiration is associated to each session using the EXPIRE command based upon the `ExpiringSession.getMaxInactiveInterval()`.
+An expiration is associated to each session using the EXPIRE command based upon the `Session.getMaxInactiveInterval()`.
 For example:
 
 ----
@@ -776,7 +772,7 @@ redis 127.0.0.1:6379> hget spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed
 [[api-mapsessionrepository]]
 === MapSessionRepository
 
-The `MapSessionRepository` allows for persisting `ExpiringSession` in a `Map` with the key being the `ExpiringSession` id and the value being the `ExpiringSession`.
+The `MapSessionRepository` allows for persisting `Session` in a `Map` with the key being the `Session` id and the value being the `Session`.
 The implementation can be used with a `ConcurrentHashMap` as a testing or convenience mechanism.
 Alternatively, it can be used with distributed `Map` implementations. For example, it can be used with Hazelcast.
 

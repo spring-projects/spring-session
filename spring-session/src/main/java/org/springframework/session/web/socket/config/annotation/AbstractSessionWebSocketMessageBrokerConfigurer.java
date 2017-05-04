@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.messaging.simp.config.ChannelRegistration;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.web.socket.handler.WebSocketConnectHandlerDecoratorFactory;
@@ -55,7 +54,7 @@ import org.springframework.web.util.UrlPathHelper;
  * {@literal @Configuration}
  * {@literal @EnableScheduling}
  * {@literal @EnableWebSocketMessageBroker}
- * {@literal public class WebSocketConfig<S extends ExpiringSession> extends AbstractSessionWebSocketMessageBrokerConfigurer<S>} {
+ * {@literal public class WebSocketConfig<S extends Session> extends AbstractSessionWebSocketMessageBrokerConfigurer<S>} {
  *
  *     {@literal @Override}
  *     protected void configureStompEndpoints(StompEndpointRegistry registry) {
@@ -71,11 +70,11 @@ import org.springframework.web.util.UrlPathHelper;
  * }
  * </code>
  *
- * @param <S> the type of ExpiringSession
+ * @param <S> the type of Session
  * @author Rob Winch
  * @since 1.0
  */
-public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends ExpiringSession>
+public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends Session>
 		extends AbstractWebSocketMessageBrokerConfigurer {
 
 	@Autowired

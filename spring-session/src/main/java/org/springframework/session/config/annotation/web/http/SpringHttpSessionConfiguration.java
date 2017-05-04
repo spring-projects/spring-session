@@ -33,7 +33,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -122,7 +122,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 	}
 
 	@Bean
-	public <S extends ExpiringSession> SessionRepositoryFilter<? extends ExpiringSession> springSessionRepositoryFilter(
+	public <S extends Session> SessionRepositoryFilter<? extends Session> springSessionRepositoryFilter(
 			SessionRepository<S> sessionRepository) {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(
 				sessionRepository);

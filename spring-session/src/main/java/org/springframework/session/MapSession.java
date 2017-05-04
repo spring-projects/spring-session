@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  * @author Rob Winch
  * @since 1.0
  */
-public final class MapSession implements ExpiringSession, Serializable {
+public final class MapSession implements Session, Serializable {
 	/**
 	 * Default {@link #setMaxInactiveIntervalInSeconds(int)} (30 minutes).
 	 */
@@ -83,7 +83,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	 * @param session the {@link Session} to initialize this {@link Session} with. Cannot
 	 * be null.
 	 */
-	public MapSession(ExpiringSession session) {
+	public MapSession(Session session) {
 		if (session == null) {
 			throw new IllegalArgumentException("session cannot be null");
 		}

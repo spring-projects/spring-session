@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class MapSessionTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullSession() {
-		new MapSession((ExpiringSession) null);
+		new MapSession((Session) null);
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class MapSessionTests {
 		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
-	static class CustomSession implements ExpiringSession {
+	static class CustomSession implements Session {
 
 		public long getCreationTime() {
 			return 0;

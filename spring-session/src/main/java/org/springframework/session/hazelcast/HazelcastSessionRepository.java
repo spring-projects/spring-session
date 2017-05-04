@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -267,7 +266,7 @@ public class HazelcastSessionRepository implements
 	 *
 	 * @author Aleksandar Stojsavljevic
 	 */
-	final class HazelcastSession implements ExpiringSession {
+	final class HazelcastSession implements Session {
 
 		private final MapSession delegate;
 		private boolean changed;

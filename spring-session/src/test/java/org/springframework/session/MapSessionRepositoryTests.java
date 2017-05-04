@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class MapSessionRepositoryTests {
 
 	@Test
 	public void createSessionDefaultExpiration() {
-		ExpiringSession session = this.repository.createSession();
+		Session session = this.repository.createSession();
 
 		assertThat(session).isInstanceOf(MapSession.class);
 		assertThat(session.getMaxInactiveIntervalInSeconds())
@@ -59,7 +59,7 @@ public class MapSessionRepositoryTests {
 				+ 10;
 		this.repository.setDefaultMaxInactiveInterval(expectedMaxInterval);
 
-		ExpiringSession session = this.repository.createSession();
+		Session session = this.repository.createSession();
 
 		assertThat(session.getMaxInactiveIntervalInSeconds())
 				.isEqualTo(expectedMaxInterval);

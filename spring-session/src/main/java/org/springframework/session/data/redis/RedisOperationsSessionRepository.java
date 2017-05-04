@@ -39,7 +39,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -259,20 +258,20 @@ public class RedisOperationsSessionRepository implements
 
 	/**
 	 * The key in the Hash representing
-	 * {@link org.springframework.session.ExpiringSession#getCreationTime()}.
+	 * {@link org.springframework.session.Session#getCreationTime()}.
 	 */
 	static final String CREATION_TIME_ATTR = "creationTime";
 
 	/**
 	 * The key in the Hash representing
-	 * {@link org.springframework.session.ExpiringSession#getMaxInactiveIntervalInSeconds()}
+	 * {@link org.springframework.session.Session#getMaxInactiveIntervalInSeconds()}
 	 * .
 	 */
 	static final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
 
 	/**
 	 * The key in the Hash representing
-	 * {@link org.springframework.session.ExpiringSession#getLastAccessedTime()}.
+	 * {@link org.springframework.session.Session#getLastAccessedTime()}.
 	 */
 	static final String LAST_ACCESSED_ATTR = "lastAccessedTime";
 
@@ -549,7 +548,7 @@ public class RedisOperationsSessionRepository implements
 
 	public void handleCreated(Map<Object, Object> loaded, String channel) {
 		String id = channel.substring(channel.lastIndexOf(":") + 1);
-		ExpiringSession session = loadSession(id, loaded);
+		Session session = loadSession(id, loaded);
 		publishEvent(new SessionCreatedEvent(this, session));
 	}
 
@@ -667,7 +666,7 @@ public class RedisOperationsSessionRepository implements
 	 * @author Rob Winch
 	 * @since 1.0
 	 */
-	final class RedisSession implements ExpiringSession {
+	final class RedisSession implements Session {
 		private final MapSession cached;
 		private Long originalLastAccessTime;
 		private Map<String, Object> delta = new HashMap<>();

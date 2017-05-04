@@ -34,8 +34,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -65,7 +65,7 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	MockFilterChain chain;
 
 	@Autowired
-	SessionRepositoryFilter<? extends ExpiringSession> sessionRepositoryFilter;
+	SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
 
 	@Autowired
 	CookieSerializer cookieSerializer;
