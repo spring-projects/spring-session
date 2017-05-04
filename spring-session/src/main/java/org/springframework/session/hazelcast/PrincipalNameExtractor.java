@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 
 package org.springframework.session.hazelcast;
+
+import java.util.Optional;
 
 import com.hazelcast.query.extractor.ValueCollector;
 import com.hazelcast.query.extractor.ValueExtractor;
@@ -56,16 +58,16 @@ public class PrincipalNameExtractor extends ValueExtractor<MapSession, String> {
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
-			String principalName = session.getAttribute(
+			Optional<String> principalName = session.getAttribute(
 					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName != null) {
-				return principalName;
+			if (principalName.isPresent()) {
+				return principalName.get();
 			}
-			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication != null) {
+			Optional<Object> authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication.isPresent()) {
 				Expression expression = this.parser
 						.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
+				return expression.getValue(authentication.get(), String.class);
 			}
 			return null;
 		}

@@ -16,6 +16,9 @@
 
 package docs;
 
+import java.time.Duration;
+import java.util.Optional;
+
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -70,8 +73,8 @@ public class IndexDocTests {
 			S session = this.repository.getSession(toSave.getId()); // <5>
 
 			// <6>
-			User user = session.getAttribute(ATTR_USER);
-			assertThat(user).isEqualTo(rwinch);
+			Optional<User> user = session.getAttribute(ATTR_USER);
+			assertThat(user.orElse(null)).isEqualTo(rwinch);
 		}
 
 		// ... setter methods ...
@@ -93,7 +96,7 @@ public class IndexDocTests {
 		public void demo() {
 			S toSave = this.repository.createSession(); // <2>
 			// ...
-			toSave.setMaxInactiveIntervalInSeconds(30); // <3>
+			toSave.setMaxInactiveInterval(Duration.ofSeconds(30)); // <3>
 
 			this.repository.save(toSave); // <4>
 

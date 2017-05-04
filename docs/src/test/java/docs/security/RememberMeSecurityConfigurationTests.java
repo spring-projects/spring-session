@@ -16,8 +16,8 @@
 
 package docs.security;
 
+import java.time.Duration;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 
@@ -82,8 +82,8 @@ public class RememberMeSecurityConfigurationTests<T extends Session> {
 		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
 		T session = this.sessions
 				.getSession(new String(Base64.getDecoder().decode(cookie.getValue())));
-		assertThat(session.getMaxInactiveIntervalInSeconds())
-				.isEqualTo((int) TimeUnit.DAYS.toSeconds(30));
+		assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(Duration.ofDays(30));
 
 	}
 }

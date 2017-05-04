@@ -16,7 +16,9 @@
 
 package org.springframework.session;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,9 +38,8 @@ public class MapSessionRepositoryTests {
 
 	@Test
 	public void getSessionExpired() {
-		this.session.setMaxInactiveIntervalInSeconds(1);
-		this.session.setLastAccessedTime(
-				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		this.session.setMaxInactiveInterval(Duration.ofSeconds(1));
+		this.session.setLastAccessedTime(Instant.now().minus(5, ChronoUnit.MINUTES));
 		this.repository.save(this.session);
 
 		assertThat(this.repository.getSession(this.session.getId())).isNull();
@@ -49,19 +50,20 @@ public class MapSessionRepositoryTests {
 		Session session = this.repository.createSession();
 
 		assertThat(session).isInstanceOf(MapSession.class);
-		assertThat(session.getMaxInactiveIntervalInSeconds())
-				.isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
+		assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(new MapSession().getMaxInactiveInterval());
 	}
 
 	@Test
 	public void createSessionCustomDefaultExpiration() {
-		final int expectedMaxInterval = new MapSession().getMaxInactiveIntervalInSeconds()
-				+ 10;
-		this.repository.setDefaultMaxInactiveInterval(expectedMaxInterval);
+		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval()
+				.plusSeconds(10);
+		this.repository.setDefaultMaxInactiveInterval(
+				(int) expectedMaxInterval.getSeconds());
 
 		Session session = this.repository.createSession();
 
-		assertThat(session.getMaxInactiveIntervalInSeconds())
+		assertThat(session.getMaxInactiveInterval())
 				.isEqualTo(expectedMaxInterval);
 	}
 }

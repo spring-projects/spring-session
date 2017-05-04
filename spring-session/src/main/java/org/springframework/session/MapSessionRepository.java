@@ -16,6 +16,7 @@
 
 package org.springframework.session;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,7 +40,7 @@ import org.springframework.session.events.SessionExpiredEvent;
 public class MapSessionRepository implements SessionRepository<Session> {
 	/**
 	 * If non-null, this value is used to override
-	 * {@link Session#setMaxInactiveIntervalInSeconds(int)}.
+	 * {@link Session#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
 
@@ -67,7 +68,7 @@ public class MapSessionRepository implements SessionRepository<Session> {
 
 	/**
 	 * If non-null, this value is used to override
-	 * {@link Session#setMaxInactiveIntervalInSeconds(int)}.
+	 * {@link Session#setMaxInactiveInterval(Duration)}.
 	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
 	 * should be kept alive between client requests.
 	 */
@@ -98,7 +99,8 @@ public class MapSessionRepository implements SessionRepository<Session> {
 	public Session createSession() {
 		Session result = new MapSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			result.setMaxInactiveIntervalInSeconds(this.defaultMaxInactiveInterval);
+			result.setMaxInactiveInterval(
+					Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
 	}

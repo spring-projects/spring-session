@@ -19,11 +19,14 @@ package org.springframework.session.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -211,7 +214,7 @@ public class JdbcOperationsSessionRepository implements
 
 	/**
 	 * If non-null, this value is used to override the default value for
-	 * {@link JdbcSession#setMaxInactiveIntervalInSeconds(int)}.
+	 * {@link JdbcSession#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
 
@@ -363,7 +366,7 @@ public class JdbcOperationsSessionRepository implements
 	public JdbcSession createSession() {
 		JdbcSession session = new JdbcSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			session.setMaxInactiveIntervalInSeconds(this.defaultMaxInactiveInterval);
+			session.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return session;
 	}
@@ -377,9 +380,9 @@ public class JdbcOperationsSessionRepository implements
 							JdbcOperationsSessionRepository.this.createSessionQuery,
 							ps -> {
 								ps.setString(1, session.getId());
-								ps.setLong(2, session.getCreationTime());
-								ps.setLong(3, session.getLastAccessedTime());
-								ps.setInt(4, session.getMaxInactiveIntervalInSeconds());
+								ps.setLong(2, session.getCreationTime().toEpochMilli());
+								ps.setLong(3, session.getLastAccessedTime().toEpochMilli());
+								ps.setInt(4, (int) session.getMaxInactiveInterval().getSeconds());
 								ps.setString(5, session.getPrincipalName());
 							});
 					if (!session.getAttributeNames().isEmpty()) {
@@ -392,7 +395,7 @@ public class JdbcOperationsSessionRepository implements
 										String attributeName = attributeNames.get(i);
 										ps.setString(1, session.getId());
 										ps.setString(2, attributeName);
-										serialize(ps, 3, session.getAttribute(attributeName));
+										serialize(ps, 3, session.getAttribute(attributeName).orElse(null));
 									}
 
 									public int getBatchSize() {
@@ -413,8 +416,8 @@ public class JdbcOperationsSessionRepository implements
 						JdbcOperationsSessionRepository.this.jdbcOperations.update(
 								JdbcOperationsSessionRepository.this.updateSessionQuery,
 								ps -> {
-									ps.setLong(1, session.getLastAccessedTime());
-									ps.setInt(2, session.getMaxInactiveIntervalInSeconds());
+									ps.setLong(1, session.getLastAccessedTime().toEpochMilli());
+									ps.setInt(2, (int) session.getMaxInactiveInterval().getSeconds());
 									ps.setString(3, session.getPrincipalName());
 									ps.setString(4, session.getId());
 								});
@@ -636,7 +639,7 @@ public class JdbcOperationsSessionRepository implements
 			return this.delegate.getId();
 		}
 
-		public <T> T getAttribute(String attributeName) {
+		public <T> Optional<T> getAttribute(String attributeName) {
 			return this.delegate.getAttribute(attributeName);
 		}
 
@@ -658,26 +661,26 @@ public class JdbcOperationsSessionRepository implements
 			this.delta.put(attributeName, null);
 		}
 
-		public long getCreationTime() {
+		public Instant getCreationTime() {
 			return this.delegate.getCreationTime();
 		}
 
-		public void setLastAccessedTime(long lastAccessedTime) {
+		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.delegate.setLastAccessedTime(lastAccessedTime);
 			this.changed = true;
 		}
 
-		public long getLastAccessedTime() {
+		public Instant getLastAccessedTime() {
 			return this.delegate.getLastAccessedTime();
 		}
 
-		public void setMaxInactiveIntervalInSeconds(int interval) {
-			this.delegate.setMaxInactiveIntervalInSeconds(interval);
+		public void setMaxInactiveInterval(Duration interval) {
+			this.delegate.setMaxInactiveInterval(interval);
 			this.changed = true;
 		}
 
-		public int getMaxInactiveIntervalInSeconds() {
-			return this.delegate.getMaxInactiveIntervalInSeconds();
+		public Duration getMaxInactiveInterval() {
+			return this.delegate.getMaxInactiveInterval();
 		}
 
 		public boolean isExpired() {
@@ -696,15 +699,15 @@ public class JdbcOperationsSessionRepository implements
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
-			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName != null) {
-				return principalName;
+			Optional<String> principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+			if (principalName.isPresent()) {
+				return principalName.get();
 			}
-			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication != null) {
+			Optional<Object> authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication.isPresent()) {
 				Expression expression = this.parser
 						.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
+				return expression.getValue(authentication.get(), String.class);
 			}
 			return null;
 		}
@@ -723,9 +726,9 @@ public class JdbcOperationsSessionRepository implements
 				}
 				else {
 					session = new MapSession(id);
-					session.setCreationTime(rs.getLong("CREATION_TIME"));
-					session.setLastAccessedTime(rs.getLong("LAST_ACCESS_TIME"));
-					session.setMaxInactiveIntervalInSeconds(rs.getInt("MAX_INACTIVE_INTERVAL"));
+					session.setCreationTime(Instant.ofEpochMilli(rs.getLong("CREATION_TIME")));
+					session.setLastAccessedTime(Instant.ofEpochMilli(rs.getLong("LAST_ACCESS_TIME")));
+					session.setMaxInactiveInterval(Duration.ofSeconds(rs.getInt("MAX_INACTIVE_INTERVAL")));
 				}
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {

@@ -16,6 +16,7 @@
 
 package org.springframework.session.web.http;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
@@ -56,7 +57,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 
 	public long getCreationTime() {
 		checkState();
-		return this.session.getCreationTime();
+		return this.session.getCreationTime().toEpochMilli();
 	}
 
 	public String getId() {
@@ -65,7 +66,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 
 	public long getLastAccessedTime() {
 		checkState();
-		return this.session.getLastAccessedTime();
+		return this.session.getLastAccessedTime().toEpochMilli();
 	}
 
 	public ServletContext getServletContext() {
@@ -73,11 +74,11 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	}
 
 	public void setMaxInactiveInterval(int interval) {
-		this.session.setMaxInactiveIntervalInSeconds(interval);
+		this.session.setMaxInactiveInterval(Duration.ofSeconds(interval));
 	}
 
 	public int getMaxInactiveInterval() {
-		return this.session.getMaxInactiveIntervalInSeconds();
+		return (int) this.session.getMaxInactiveInterval().getSeconds();
 	}
 
 	public HttpSessionContext getSessionContext() {
@@ -86,7 +87,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 
 	public Object getAttribute(String name) {
 		checkState();
-		return this.session.getAttribute(name);
+		return this.session.getAttribute(name).orElse(null);
 	}
 
 	public Object getValue(String name) {

@@ -16,6 +16,8 @@
 
 package org.springframework.session.data.redis;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
@@ -66,7 +68,7 @@ public class RedisSessionExpirationPolicyTests {
 		this.policy = new RedisSessionExpirationPolicy(this.sessionRedisOperations,
 				repository);
 		this.session = new MapSession();
-		this.session.setLastAccessedTime(1429116694675L);
+		this.session.setLastAccessedTime(Instant.ofEpochMilli(1429116694675L));
 		this.session.setId("12345");
 
 		given(this.sessionRedisOperations.boundSetOps(anyString()))
@@ -123,8 +125,9 @@ public class RedisSessionExpirationPolicyTests {
 
 		verify(this.sessionRedisOperations).boundSetOps(expectedExpireKey);
 		verify(this.setOperations).add("expires:" + this.session.getId());
-		verify(this.setOperations).expire(this.session.getMaxInactiveIntervalInSeconds()
-				+ TimeUnit.MINUTES.toSeconds(5), TimeUnit.SECONDS);
+		verify(this.setOperations).expire(
+				this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
+				TimeUnit.SECONDS);
 	}
 
 	@Test
@@ -134,8 +137,9 @@ public class RedisSessionExpirationPolicyTests {
 		this.policy.onExpirationUpdated(null, this.session);
 
 		verify(this.sessionRedisOperations).boundHashOps(sessionKey);
-		verify(this.hashOperations).expire(this.session.getMaxInactiveIntervalInSeconds()
-				+ TimeUnit.MINUTES.toSeconds(5), TimeUnit.SECONDS);
+		verify(this.hashOperations).expire(
+				this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
+				TimeUnit.SECONDS);
 	}
 
 	@Test
@@ -144,7 +148,7 @@ public class RedisSessionExpirationPolicyTests {
 
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
 
-		this.session.setMaxInactiveIntervalInSeconds(0);
+		this.session.setMaxInactiveInterval(Duration.ZERO);
 
 		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);
 
@@ -152,15 +156,16 @@ public class RedisSessionExpirationPolicyTests {
 		verify(this.setOperations).remove("expires:" + this.session.getId());
 		verify(this.setOperations).add("expires:" + this.session.getId());
 		verify(this.sessionRedisOperations).delete(sessionKey);
-		verify(this.setOperations).expire(this.session.getMaxInactiveIntervalInSeconds()
-				+ TimeUnit.MINUTES.toSeconds(5), TimeUnit.SECONDS);
+		verify(this.setOperations).expire(
+				this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
+				TimeUnit.SECONDS);
 	}
 
 	@Test
 	public void onExpirationUpdatedPersistOnNegativeExpiration() throws Exception {
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
 
-		this.session.setMaxInactiveIntervalInSeconds(-1);
+		this.session.setMaxInactiveInterval(Duration.ofSeconds(-1));
 
 		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);
 

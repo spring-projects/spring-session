@@ -16,6 +16,7 @@
 
 package org.springframework.session.web.socket.server;
 
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -123,7 +124,7 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 			S session = this.sessionRepository.getSession(sessionId);
 			if (session != null) {
 				// update the last accessed time
-				session.setLastAccessedTime(System.currentTimeMillis());
+				session.setLastAccessedTime(Instant.now());
 				this.sessionRepository.save(session);
 			}
 		}

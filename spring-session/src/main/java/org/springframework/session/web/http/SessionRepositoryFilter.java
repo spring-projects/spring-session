@@ -17,6 +17,7 @@
 package org.springframework.session.web.http;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -327,7 +328,7 @@ public class SessionRepositoryFilter<S extends Session>
 			if (session == null) {
 				return null;
 			}
-			session.setLastAccessedTime(System.currentTimeMillis());
+			session.setLastAccessedTime(Instant.now());
 			return session;
 		}
 
@@ -369,7 +370,7 @@ public class SessionRepositoryFilter<S extends Session>
 								"For debugging purposes only (not an error)"));
 			}
 			S session = SessionRepositoryFilter.this.sessionRepository.createSession();
-			session.setLastAccessedTime(System.currentTimeMillis());
+			session.setLastAccessedTime(Instant.now());
 			currentSession = new HttpSessionWrapper(session, getServletContext());
 			setCurrentSession(currentSession);
 			return currentSession;

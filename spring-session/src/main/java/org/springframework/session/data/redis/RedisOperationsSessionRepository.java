@@ -16,11 +16,13 @@
 
 package org.springframework.session.data.redis;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -151,7 +153,7 @@ import org.springframework.util.Assert;
  * <p>
  * An expiration is associated to each session using the
  * <a href="http://redis.io/commands/expire">EXPIRE command</a> based upon the
- * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveIntervalInSeconds()}
+ * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveInterval()}
  * . For example:
  * </p>
  *
@@ -239,6 +241,7 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.0
  */
 public class RedisOperationsSessionRepository implements
@@ -264,7 +267,7 @@ public class RedisOperationsSessionRepository implements
 
 	/**
 	 * The key in the Hash representing
-	 * {@link org.springframework.session.Session#getMaxInactiveIntervalInSeconds()}
+	 * {@link org.springframework.session.Session#getMaxInactiveInterval()}
 	 * .
 	 */
 	static final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
@@ -302,7 +305,7 @@ public class RedisOperationsSessionRepository implements
 
 	/**
 	 * If non-null, this value is used to override the default value for
-	 * {@link RedisSession#setMaxInactiveIntervalInSeconds(int)}.
+	 * {@link RedisSession#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
 
@@ -446,13 +449,13 @@ public class RedisOperationsSessionRepository implements
 		for (Map.Entry<Object, Object> entry : entries.entrySet()) {
 			String key = (String) entry.getKey();
 			if (CREATION_TIME_ATTR.equals(key)) {
-				loaded.setCreationTime((Long) entry.getValue());
+				loaded.setCreationTime(Instant.ofEpochMilli((long) entry.getValue()));
 			}
 			else if (MAX_INACTIVE_ATTR.equals(key)) {
-				loaded.setMaxInactiveIntervalInSeconds((Integer) entry.getValue());
+				loaded.setMaxInactiveInterval(Duration.ofSeconds((int) entry.getValue()));
 			}
 			else if (LAST_ACCESSED_ATTR.equals(key)) {
-				loaded.setLastAccessedTime((Long) entry.getValue());
+				loaded.setLastAccessedTime(Instant.ofEpochMilli((long) entry.getValue()));
 			}
 			else if (key.startsWith(SESSION_ATTR_PREFIX)) {
 				loaded.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()),
@@ -474,14 +477,15 @@ public class RedisOperationsSessionRepository implements
 		String expireKey = getExpiredKey(session.getId());
 		this.sessionRedisOperations.delete(expireKey);
 
-		session.setMaxInactiveIntervalInSeconds(0);
+		session.setMaxInactiveInterval(Duration.ZERO);
 		save(session);
 	}
 
 	public RedisSession createSession() {
 		RedisSession redisSession = new RedisSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			redisSession.setMaxInactiveIntervalInSeconds(this.defaultMaxInactiveInterval);
+			redisSession.setMaxInactiveInterval(
+					Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return redisSession;
 	}
@@ -668,7 +672,7 @@ public class RedisOperationsSessionRepository implements
 	 */
 	final class RedisSession implements Session {
 		private final MapSession cached;
-		private Long originalLastAccessTime;
+		private Instant originalLastAccessTime;
 		private Map<String, Object> delta = new HashMap<>();
 		private boolean isNew;
 		private String originalPrincipalName;
@@ -679,9 +683,9 @@ public class RedisOperationsSessionRepository implements
 		 */
 		RedisSession() {
 			this(new MapSession());
-			this.delta.put(CREATION_TIME_ATTR, getCreationTime());
-			this.delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
-			this.delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime());
+			this.delta.put(CREATION_TIME_ATTR, getCreationTime().toEpochMilli());
+			this.delta.put(MAX_INACTIVE_ATTR, (int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
 			this.flushImmediateIfNecessary();
 		}
@@ -702,9 +706,9 @@ public class RedisOperationsSessionRepository implements
 			this.isNew = isNew;
 		}
 
-		public void setLastAccessedTime(long lastAccessedTime) {
+		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			this.putAndFlush(LAST_ACCESSED_ATTR, getLastAccessedTime());
+			this.putAndFlush(LAST_ACCESSED_ATTR, getLastAccessedTime().toEpochMilli());
 		}
 
 		public boolean isExpired() {
@@ -715,7 +719,7 @@ public class RedisOperationsSessionRepository implements
 			return this.isNew;
 		}
 
-		public long getCreationTime() {
+		public Instant getCreationTime() {
 			return this.cached.getCreationTime();
 		}
 
@@ -723,20 +727,20 @@ public class RedisOperationsSessionRepository implements
 			return this.cached.getId();
 		}
 
-		public long getLastAccessedTime() {
+		public Instant getLastAccessedTime() {
 			return this.cached.getLastAccessedTime();
 		}
 
-		public void setMaxInactiveIntervalInSeconds(int interval) {
-			this.cached.setMaxInactiveIntervalInSeconds(interval);
-			this.putAndFlush(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
+		public void setMaxInactiveInterval(Duration interval) {
+			this.cached.setMaxInactiveInterval(interval);
+			this.putAndFlush(MAX_INACTIVE_ATTR, (int) getMaxInactiveInterval().getSeconds());
 		}
 
-		public int getMaxInactiveIntervalInSeconds() {
-			return this.cached.getMaxInactiveIntervalInSeconds();
+		public Duration getMaxInactiveInterval() {
+			return this.cached.getMaxInactiveInterval();
 		}
 
-		public <T> T getAttribute(String attributeName) {
+		public <T> Optional<T> getAttribute(String attributeName) {
 			return this.cached.getAttribute(attributeName);
 		}
 
@@ -799,8 +803,7 @@ public class RedisOperationsSessionRepository implements
 			this.delta = new HashMap<>(this.delta.size());
 
 			Long originalExpiration = this.originalLastAccessTime == null ? null
-					: this.originalLastAccessTime + TimeUnit.SECONDS
-							.toMillis(getMaxInactiveIntervalInSeconds());
+					: this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli();
 			RedisOperationsSessionRepository.this.expirationPolicy
 					.onExpirationUpdated(originalExpiration, this);
 		}
@@ -813,15 +816,15 @@ public class RedisOperationsSessionRepository implements
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
-			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName != null) {
-				return principalName;
+			Optional<String> principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+			if (principalName.isPresent()) {
+				return principalName.get();
 			}
-			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication != null) {
+			Optional<Object> authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication.isPresent()) {
 				Expression expression = this.parser
 						.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
+				return expression.getValue(authentication.get(), String.class);
 			}
 			return null;
 		}
