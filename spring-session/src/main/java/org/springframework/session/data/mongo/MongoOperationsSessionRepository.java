@@ -40,7 +40,9 @@ import org.springframework.session.FindByIndexNameSessionRepository;
  *
  * @author Jakub Kubrynski
  * @since 1.2
+ * @deprecated as of 1.4, to be removed in 2.0
  */
+@Deprecated
 public class MongoOperationsSessionRepository
 		implements FindByIndexNameSessionRepository<MongoExpiringSession> {
 
