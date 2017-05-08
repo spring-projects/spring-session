@@ -3,7 +3,7 @@ apply plugin: 'io.spring.convention.spring-module'
 description = "Spring Session"
 
 dependencies {
-	compile "commons-logging:commons-logging"
+	compile "org.springframework:spring-jcl"
 
 	optional "org.springframework:spring-context"
 	optional "org.springframework:spring-jdbc"

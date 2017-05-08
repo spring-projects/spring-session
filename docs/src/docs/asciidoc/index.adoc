@@ -978,6 +978,6 @@ While we re-run all unit tests against Spring 3.2.x, we recommend using the late
 
 [NOTE]
 ====
-At its core Spring Session only has a required dependency on commons-logging.
+At its core Spring Session only has a required dependency on `spring-jcl`.
 For an example of using Spring Session without any other Spring dependencies, refer to the <<samples,hazelcast sample>> application.
 ====
