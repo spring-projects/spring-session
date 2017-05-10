@@ -53,7 +53,7 @@ dependencyManagement {
 		dependency 'commons-io:commons-io:2.5'
 		dependency 'dom4j:dom4j:1.6.1'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
-		dependency 'io.lettuce:lettuce-core:5.0.0.BUILD-SNAPSHOT'
+		dependency 'io.lettuce:lettuce-core:5.0.0.M2'
 		dependency 'io.netty:netty-buffer:4.1.10.Final'
 		dependency 'io.netty:netty-codec:4.1.10.Final'
 		dependency 'io.netty:netty-common:4.1.10.Final'
