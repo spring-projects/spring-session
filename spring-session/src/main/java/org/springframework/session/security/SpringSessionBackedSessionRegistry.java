@@ -70,7 +70,7 @@ public class SpringSessionBackedSessionRegistry<S extends ExpiringSession>
 		for (S session : sessions) {
 			if (includeExpiredSessions || !Boolean.TRUE.equals(session
 					.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
-				infos.add(new SpringSessionBackedSessionInformation<S>(session,
+				infos.add(new SpringSessionBackedSessionInformation<>(session,
 						this.sessionRepository));
 			}
 		}
@@ -80,7 +80,7 @@ public class SpringSessionBackedSessionRegistry<S extends ExpiringSession>
 	public SessionInformation getSessionInformation(String sessionId) {
 		S session = this.sessionRepository.getSession(sessionId);
 		if (session != null) {
-			return new SpringSessionBackedSessionInformation<S>(session,
+			return new SpringSessionBackedSessionInformation<>(session,
 					this.sessionRepository);
 		}
 		return null;
