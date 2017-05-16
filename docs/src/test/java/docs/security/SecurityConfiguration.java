@@ -48,8 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	SpringSessionBackedSessionRegistry sessionRegistry() {
-		return new SpringSessionBackedSessionRegistry<ExpiringSession>(
-				this.sessionRepository);
+		return new SpringSessionBackedSessionRegistry<>(this.sessionRepository);
 	}
 }
 // end::class[]
