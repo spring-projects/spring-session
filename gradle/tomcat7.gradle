@@ -1,8 +1,0 @@
-apply from: TOMCAT_GRADLE
-
-dependencies {
-	def tomcatVersion = '7.0.59'
-	tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
-			"org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}",
-			"org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}"
-}

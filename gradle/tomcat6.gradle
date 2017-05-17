@@ -1,8 +1,0 @@
-apply from: TOMCAT_GRADLE
-
-dependencies {
-	def tomcatVersion = '6.0.43'
-	tomcat "org.apache.tomcat:catalina:${tomcatVersion}",
-			"org.apache.tomcat:coyote:${tomcatVersion}",
-			"org.apache.tomcat:jasper:${tomcatVersion}"
-}
