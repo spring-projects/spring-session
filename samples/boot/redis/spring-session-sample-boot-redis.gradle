@@ -2,6 +2,7 @@ apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
 	compile project(':spring-session-data-redis')
+	compile "org.springframework.boot:spring-boot-starter-web"
 	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
 	compile "org.springframework.boot:spring-boot-starter-security"
 	compile "org.springframework.boot:spring-boot-devtools"

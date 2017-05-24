@@ -5,6 +5,7 @@ dependencies {
 		exclude module: 'jedis'
 		exclude module: 'commons-pool2'
 	}
+	compile "org.springframework.boot:spring-boot-starter-web"
 	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
 	compile "org.springframework.boot:spring-boot-starter-security"
 	compile "org.springframework.boot:spring-boot-starter-data-jpa"
@@ -20,7 +21,7 @@ dependencies {
 	compile "org.webjars:sockjs-client"
 	compile "org.webjars:stomp-websocket"
 	compile "org.webjars:webjars-locator"
-	compile "biz.paluch.redis:lettuce"
+	compile "io.lettuce:lettuce-core"
 	compile "com.h2database:h2"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
