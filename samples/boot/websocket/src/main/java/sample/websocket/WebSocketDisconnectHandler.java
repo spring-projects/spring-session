@@ -18,7 +18,6 @@ package sample.websocket;
 
 import java.util.Arrays;
 
-import sample.data.ActiveWebSocketUser;
 import sample.data.ActiveWebSocketUserRepository;
 
 import org.springframework.context.ApplicationListener;
@@ -42,14 +41,10 @@ public class WebSocketDisconnectHandler<S>
 		if (id == null) {
 			return;
 		}
-		ActiveWebSocketUser user = this.repository.findOne(id);
-		if (user == null) {
-			return;
-		}
-
-		this.repository.delete(id);
-		this.messagingTemplate.convertAndSend("/topic/friends/signout",
-				Arrays.asList(user.getUsername()));
-
+		this.repository.findById(id).ifPresent(user -> {
+			this.repository.deleteById(id);
+			this.messagingTemplate.convertAndSend("/topic/friends/signout",
+					Arrays.asList(user.getUsername()));
+		});
 	}
 }
