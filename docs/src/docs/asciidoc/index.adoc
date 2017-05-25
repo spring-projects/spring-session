@@ -979,11 +979,11 @@ Spring Session is Open Source software released under the http://www.apache.org/
 
 The minimum requirements for Spring Session are:
 
-* Java 5+
-* If you are running in a Servlet Container (not required), Servlet 2.5+
-* If you are using other Spring libraries (not required), the minimum required version is Spring 3.2.14.
-While we re-run all unit tests against Spring 3.2.x, we recommend using the latest Spring 4.x version when possible.
+* Java 8+
+* If you are running in a Servlet Container (not required), Servlet 3.1+
+* If you are using other Spring libraries (not required), the minimum required version is Spring 5.0.x.
 * `@EnableRedisHttpSession` requires Redis 2.8+. This is necessary to support <<api-redisoperationssessionrepository-expiration,Session Expiration>>
+* `@EnableHazelcastHttpSession` requires Hazelcast 3.6+. This is necessary to support <<api-enablehazelcasthttpsession-storage,`FindByIndexNameSessionRepository`>>
 
 [NOTE]
 ====
