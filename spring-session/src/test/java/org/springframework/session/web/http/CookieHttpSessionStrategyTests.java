@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -710,19 +710,19 @@ public class CookieHttpSessionStrategyTests {
 	}
 
 	private String createSessionCookieValue(long size) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		for (long i = 0; i < size; i++) {
 			String hex = Long.toHexString(i);
-			buffer.append(hex);
-			buffer.append(" ");
-			buffer.append(i);
+			sb.append(hex);
+			sb.append(" ");
+			sb.append(i);
 			if (i < size - 1) {
-				buffer.append(" ");
+				sb.append(" ");
 			}
 		}
 
-		return buffer.toString();
+		return sb.toString();
 	}
 
 	@SuppressWarnings("deprecation")
