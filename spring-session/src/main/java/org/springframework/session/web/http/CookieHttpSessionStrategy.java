@@ -250,18 +250,18 @@ public final class CookieHttpSessionStrategy
 			return sessionIds.values().iterator().next();
 		}
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		for (Map.Entry<String, String> entry : sessionIds.entrySet()) {
 			String alias = entry.getKey();
 			String id = entry.getValue();
 
-			buffer.append(alias);
-			buffer.append(this.serializationDelimiter);
-			buffer.append(id);
-			buffer.append(this.serializationDelimiter);
+			sb.append(alias);
+			sb.append(this.serializationDelimiter);
+			sb.append(id);
+			sb.append(this.serializationDelimiter);
 		}
-		buffer.deleteCharAt(buffer.length() - 1);
-		return buffer.toString();
+		sb.deleteCharAt(sb.length() - 1);
+		return sb.toString();
 	}
 
 	public void onInvalidateSession(HttpServletRequest request,
