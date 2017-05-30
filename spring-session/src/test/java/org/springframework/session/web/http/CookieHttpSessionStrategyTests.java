@@ -705,19 +705,19 @@ public class CookieHttpSessionStrategyTests {
 	}
 
 	private String createSessionCookieValue(long size) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		for (long i = 0; i < size; i++) {
 			String hex = Long.toHexString(i);
-			buffer.append(hex);
-			buffer.append(" ");
-			buffer.append(i);
+			sb.append(hex);
+			sb.append(" ");
+			sb.append(i);
 			if (i < size - 1) {
-				buffer.append(" ");
+				sb.append(" ");
 			}
 		}
 
-		return buffer.toString();
+		return sb.toString();
 	}
 
 	public void setCookieName(String cookieName) {
