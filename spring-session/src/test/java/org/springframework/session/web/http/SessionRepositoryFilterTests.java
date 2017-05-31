@@ -1319,6 +1319,34 @@ public class SessionRepositoryFilterTests {
 		verifyZeroInteractions(sessionRepository);
 	}
 
+	@Test
+	public void doFilterIdWithDifferentJVMRouteInCookie() throws Exception { // gh-441
+		final String ID_ATTR = "create";
+		this.filter = new SessionRepositoryFilter<ExpiringSession>(this.sessionRepository);
+		ExpiringSession createSession = this.sessionRepository.createSession();
+		this.sessionRepository.save(createSession);
+		final String id = createSession.getId();
+
+		// When the jvmroute doesn't match the configured one, it needs to be ignored when getting a session
+		final String idWithJVMRoute = id + ".jvmroute";
+		given(this.strategy.getRequestedSessionId(any(HttpServletRequest.class))).willReturn(idWithJVMRoute);
+		this.filter.setHttpSessionStrategy(this.strategy);
+		// the session should still be found...
+		setSessionCookie(idWithJVMRoute);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				String newId = wrappedRequest.getSession().getId();
+				assertThat(newId).isNotNull();
+				assertThat(newId).isEqualTo(id);
+			}
+		});
+
+		// The cookie should be rewritten because the requested session id (with a different jvmroute) doesn't match the session id
+		verify(this.strategy, times(1)).onNewSession(any(Session.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
 	// --- order
 
 	@Test
