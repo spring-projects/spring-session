@@ -26,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -34,6 +33,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.AbstractRedisITests;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -44,7 +44,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> {
+public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session>
+		extends AbstractRedisITests {
+
 	@Autowired
 	private SessionRepository<S> repository;
 
@@ -110,15 +112,13 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 
 	@Configuration
 	@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1)
-	static class Config {
-		@Bean
-		public JedisConnectionFactory connectionFactory() throws Exception {
-			return new JedisConnectionFactory();
-		}
+	static class Config extends BaseConfig {
 
 		@Bean
 		public SessionExpiredEventRegistry sessionDestroyedEventRegistry() {
 			return new SessionExpiredEventRegistry();
 		}
+
 	}
+
 }

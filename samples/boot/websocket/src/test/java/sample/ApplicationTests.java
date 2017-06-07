@@ -20,14 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.testcontainers.containers.GenericContainer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.socket.TextMessage;
@@ -41,18 +48,27 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 /**
  * @author Rob Winch
+ * @author Vedran Pavic
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = ApplicationTests.Initializer.class)
 public class ApplicationTests {
+
+	private static final String DOCKER_IMAGE = "redis:3.2.9";
+
+	@ClassRule
+	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+			.withExposedPorts(6379);
+
 	@Rule
 	public final ExpectedException thrown = ExpectedException.none();
 
 	@Value("${local.server.port}")
-	String port;
+	private String port;
 
 	@Autowired
-	WebSocketHandler webSocketHandler;
+	private WebSocketHandler webSocketHandler;
 
 	@Test
 	public void run() throws Exception {
@@ -67,4 +83,19 @@ public class ApplicationTests {
 		this.thrown.expect(ExecutionException.class);
 		wsSession.get().sendMessage(new TextMessage("a"));
 	}
+
+	static class Initializer
+			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+		@Override
+		public void initialize(
+				ConfigurableApplicationContext configurableApplicationContext) {
+			TestPropertyValues
+					.of("spring.redis.host=" + redisContainer.getContainerIpAddress(),
+							"spring.redis.port=" + redisContainer.getFirstMappedPort())
+					.applyTo(configurableApplicationContext.getEnvironment());
+		}
+
+	}
+
 }

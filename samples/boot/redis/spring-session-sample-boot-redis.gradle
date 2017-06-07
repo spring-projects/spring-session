@@ -15,4 +15,5 @@ dependencies {
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 
 	integrationTestCompile seleniumDependencies
+	integrationTestCompile "org.testcontainers:testcontainers"
 }

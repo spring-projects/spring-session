@@ -1,20 +1,20 @@
 language: java
 
-services:
-  - redis-server
+sudo: required
 
-jdk:
-  - oraclejdk8
+services: docker
 
-os:
-  - linux
+jdk: oraclejdk8
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
 cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
 install: true
+
 script: ./gradlew clean build --refresh-dependencies --no-daemon

@@ -18,4 +18,5 @@ dependencies {
 	testCompile "org.skyscreamer:jsonassert"
 
 	integrationTestCompile seleniumDependencies
+	integrationTestCompile "org.testcontainers:testcontainers"
 }
