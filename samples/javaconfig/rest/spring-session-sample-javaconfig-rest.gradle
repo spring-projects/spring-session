@@ -17,4 +17,6 @@ dependencies {
 	testCompile "org.assertj:assertj-core"
 	testCompile "org.springframework:spring-test"
 	testCompile "commons-codec:commons-codec"
+
+	integrationTestCompile "org.testcontainers:testcontainers"
 }

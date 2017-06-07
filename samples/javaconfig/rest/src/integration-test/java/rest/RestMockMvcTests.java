@@ -17,16 +17,22 @@
 package rest;
 
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import sample.HttpSessionConfig;
+import org.testcontainers.containers.GenericContainer;
 import sample.SecurityConfig;
 import sample.mvc.MvcConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.session.Session;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.web.http.HeaderHttpSessionStrategy;
+import org.springframework.session.web.http.HttpSessionStrategy;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -44,18 +50,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { HttpSessionConfig.class, SecurityConfig.class,
+@ContextConfiguration(classes = { RestMockMvcTests.Config.class, SecurityConfig.class,
 		MvcConfig.class })
 @WebAppConfiguration
 public class RestMockMvcTests {
 
-	@Autowired
-	SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
+	private static final String DOCKER_IMAGE = "redis:3.2.9";
+
+	@ClassRule
+	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+			.withExposedPorts(6379);
 
 	@Autowired
-	WebApplicationContext context;
+	private SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
 
-	MockMvc mvc;
+	@Autowired
+	private WebApplicationContext context;
+
+	private MockMvc mvc;
 
 	@Before
 	public void setup() {
@@ -79,6 +91,23 @@ public class RestMockMvcTests {
 	public void autheticatedRequestPostProcessor() throws Exception {
 		this.mvc.perform(get("/").with(user("user")))
 				.andExpect(content().string("{\"username\":\"user\"}"));
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class Config {
+
+		@Bean
+		public LettuceConnectionFactory redisConnectionFactory() {
+			return new LettuceConnectionFactory(redisContainer.getContainerIpAddress(),
+					redisContainer.getFirstMappedPort());
+		}
+
+		@Bean
+		public HttpSessionStrategy httpSessionStrategy() {
+			return new HeaderHttpSessionStrategy();
+		}
+
 	}
 
 }

@@ -18,9 +18,11 @@ package sample;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
+import org.testcontainers.containers.GenericContainer;
 import sample.pages.HomePage;
 import sample.pages.LoginPage;
 
@@ -28,6 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
@@ -35,11 +41,19 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 /**
  * @author Eddú Meléndez
  * @author Rob Winch
+ * @author Vedran Pavic
  */
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
+@SpringBootTest(classes = FindByUsernameApplication.class, webEnvironment = WebEnvironment.MOCK)
+@ContextConfiguration(initializers = FindByUsernameTests.Initializer.class)
 public class FindByUsernameTests {
+
+	private static final String DOCKER_IMAGE = "redis:3.2.9";
+
+	@ClassRule
+	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+			.withExposedPorts(6379);
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -70,6 +84,20 @@ public class FindByUsernameTests {
 		home.containCookie("SESSION");
 		home.doesNotContainCookie("JSESSIONID");
 		home.terminateButtonDisabled();
+	}
+
+	static class Initializer
+			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+		@Override
+		public void initialize(
+				ConfigurableApplicationContext configurableApplicationContext) {
+			TestPropertyValues
+					.of("spring.redis.host=" + redisContainer.getContainerIpAddress(),
+							"spring.redis.port=" + redisContainer.getFirstMappedPort())
+					.applyTo(configurableApplicationContext.getEnvironment());
+		}
+
 	}
 
 }

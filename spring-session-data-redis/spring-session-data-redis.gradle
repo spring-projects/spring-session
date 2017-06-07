@@ -15,4 +15,5 @@ dependencies {
 
 	integrationTestCompile "redis.clients:jedis"
 	integrationTestCompile "org.apache.commons:commons-pool2"
+	integrationTestCompile "org.testcontainers:testcontainers"
 }

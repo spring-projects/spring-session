@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package sample;
 
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.testcontainers.containers.GenericContainer;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * @author jitendra on 8/3/16.
+ * @author jitendra
+ * @author Vedran Pavic
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(classes = Application.class)
+@ContextConfiguration(initializers = RedisSerializerTest.Initializer.class)
 public class RedisSerializerTest {
 
+	private static final String DOCKER_IMAGE = "redis:3.2.9";
+
+	@ClassRule
+	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+			.withExposedPorts(6379);
+
 	@Autowired
-	RedisTemplate<Object, Object> sessionRedisTemplate;
+	private RedisTemplate<Object, Object> sessionRedisTemplate;
 
 	@Test
 	public void testRedisTemplate() {
@@ -43,4 +58,19 @@ public class RedisSerializerTest {
 		assertThat(this.sessionRedisTemplate.getDefaultSerializer())
 				.isInstanceOf(GenericJackson2JsonRedisSerializer.class);
 	}
+
+	static class Initializer
+			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+		@Override
+		public void initialize(
+				ConfigurableApplicationContext configurableApplicationContext) {
+			TestPropertyValues
+					.of("spring.redis.host=" + redisContainer.getContainerIpAddress(),
+							"spring.redis.port=" + redisContainer.getFirstMappedPort())
+					.applyTo(configurableApplicationContext.getEnvironment());
+		}
+
+	}
+
 }
