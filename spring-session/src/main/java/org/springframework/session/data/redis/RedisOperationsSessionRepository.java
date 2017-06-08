@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -667,7 +668,9 @@ public class RedisOperationsSessionRepository implements
 	 * @author Rob Winch
 	 * @since 1.0
 	 */
-	final class RedisSession implements ExpiringSession {
+	public class RedisSession implements ExpiringSession, Serializable {
+
+		private static final long serialVersionUID = 846876191496369674L;
 		private final MapSession cached;
 		private Long originalLastAccessTime;
 		private Map<String, Object> delta = new HashMap<>();
@@ -678,7 +681,7 @@ public class RedisOperationsSessionRepository implements
 		 * Creates a new instance ensuring to mark all of the new attributes to be
 		 * persisted in the next save operation.
 		 */
-		RedisSession() {
+		public RedisSession() {
 			this(new MapSession());
 			this.delta.put(CREATION_TIME_ATTR, getCreationTime());
 			this.delta.put(MAX_INACTIVE_ATTR, getMaxInactiveIntervalInSeconds());
