@@ -3,6 +3,8 @@ image:https://badges.gitter.im/spring-projects/spring-session.svg[link="https://
 image:https://travis-ci.org/spring-projects/spring-session.svg?branch=master["Build Status", link="https://travis-ci.org/spring-projects/spring-session"]
 
 = Spring Session
+
+image:https://badges.gitter.im/spring-projects/spring-session.svg[link="https://gitter.im/spring-projects/spring-session?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 Rob Winch
 
 Spring Session aims to provide a common infrastructure for managing sessions. This provides many benefits including:
