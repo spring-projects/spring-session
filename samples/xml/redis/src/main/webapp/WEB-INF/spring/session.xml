@@ -15,4 +15,7 @@
 	<!--2-->
 	<bean class="org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory"/>
 	<!-- end::beans[] -->
+
+	<bean class="sample.EmbeddedRedisConfig"/>
+
 </beans>

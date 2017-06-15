@@ -9,6 +9,7 @@ dependencies {
 	compile "com.fasterxml.jackson.core:jackson-databind"
 	compile jstlDependencies
 	compile slf4jDependencies
+	compile "org.testcontainers:testcontainers"
 
 	providedCompile "javax.servlet:javax.servlet-api"
 
@@ -19,4 +20,8 @@ dependencies {
 	testCompile "commons-codec:commons-codec"
 
 	integrationTestCompile "org.testcontainers:testcontainers"
+}
+
+gretty {
+	jvmArgs = ['-Dspring.profiles.active=embedded-redis']
 }

@@ -16,21 +16,44 @@
 
 package sample;
 
+import java.io.IOException;
+
+import org.testcontainers.containers.GenericContainer;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
-@Import(EmbeddedRedisConfig.class)
-// tag::class[]
 @Configuration
-@EnableRedisHttpSession // <1>
-public class Config {
+@Profile("embedded-redis")
+public class EmbeddedRedisConfig {
+
+	private static final String REDIS_DOCKER_IMAGE = "redis:3.2.9";
+
+	@Bean(initMethod = "start")
+	public GenericContainer redisContainer() {
+		return new GenericContainer(REDIS_DOCKER_IMAGE) {
+
+			@Override
+			public void close() {
+				super.close();
+				try {
+					this.dockerClient.close();
+				}
+				catch (IOException ignored) {
+				}
+			}
+
+		}.withExposedPorts(6379);
+	}
 
 	@Bean
-	public LettuceConnectionFactory connectionFactory() {
-		return new LettuceConnectionFactory(); // <2>
+	@Primary
+	public LettuceConnectionFactory redisConnectionFactory() {
+		return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
+				redisContainer().getFirstMappedPort());
 	}
+
 }
-// end::class[]
