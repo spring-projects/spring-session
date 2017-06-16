@@ -3,7 +3,7 @@ apply plugin: 'io.spring.convention.spring-pom'
 description = "Aggregator for Spring Session and Spring Data Redis"
 
 dependencies {
-	compile project(':spring-session')
+	compile project(':spring-session-core')
 	compile ("org.springframework.data:spring-data-redis") {
 		exclude group: "org.slf4j", module: 'slf4j-api'
 		exclude group: "org.slf4j", module: 'jcl-over-slf4j'

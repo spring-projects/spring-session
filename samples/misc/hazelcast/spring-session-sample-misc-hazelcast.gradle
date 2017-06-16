@@ -1,7 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample-war'
 
 dependencies {
-	compile project(':spring-session')
+	compile project(':spring-session-core')
 	compile "org.webjars:bootstrap"
 	compile "org.webjars:webjars-taglib"
 	compile "com.hazelcast:hazelcast-client"

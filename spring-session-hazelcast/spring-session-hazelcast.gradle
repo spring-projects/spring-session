@@ -1,6 +1,6 @@
 apply plugin: 'io.spring.convention.spring-pom'
 
 dependencies {
-	compile project(':spring-session')
+	compile project(':spring-session-core')
 	compile "com.hazelcast:hazelcast"
 }
