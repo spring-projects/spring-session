@@ -5,6 +5,7 @@ dependencies {
 	testCompile project(':spring-session-core')
 	testCompile project(':spring-session-data-redis')
 	testCompile project(':spring-session-hazelcast')
+	testCompile project(':spring-session-jdbc')
 	testCompile "org.springframework:spring-jdbc"
 	testCompile "org.springframework:spring-messaging"
 	testCompile "org.springframework:spring-webmvc"
@@ -40,5 +41,5 @@ asciidoctor {
 			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
 			'docs-test-resources-dir' : rootProject.projectDir.path + '/docs/src/test/resources/',
 			'samples-dir' : rootProject.projectDir.path + '/samples/',
-			'session-main-resources-dir' : rootProject.projectDir.path + '/spring-session/src/main/resources/'
+			'session-jdbc-main-resources-dir' : project(':spring-session-jdbc').projectDir.path + '/src/main/resources/'
 }

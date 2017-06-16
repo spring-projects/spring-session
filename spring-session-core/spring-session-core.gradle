@@ -15,11 +15,6 @@ dependencies {
 
 	provided "javax.servlet:javax.servlet-api"
 
-	integrationTestCompile "org.apache.commons:commons-pool2"
-	integrationTestCompile "org.apache.derby:derby"
-	integrationTestCompile "com.h2database:h2"
-	integrationTestCompile "org.hsqldb:hsqldb"
-
 	testCompile "junit:junit"
 	testCompile "org.mockito:mockito-core"
 	testCompile "edu.umd.cs.mtc:multithreadedtc"

@@ -856,14 +856,14 @@ For example, with PostgreSQL database you would use the following schema script:
 
 [source,sql,indent=0]
 ----
-include::{session-main-resources-dir}org/springframework/session/jdbc/schema-postgresql.sql[]
+include::{session-jdbc-main-resources-dir}org/springframework/session/jdbc/schema-postgresql.sql[]
 ----
 
 And with MySQL database:
 
 [source,sql,indent=0]
 ----
-include::{session-main-resources-dir}org/springframework/session/jdbc/schema-mysql.sql[]
+include::{session-jdbc-main-resources-dir}org/springframework/session/jdbc/schema-mysql.sql[]
 ----
 
 ==== Transaction management
