@@ -1,6 +1,13 @@
-apply plugin: 'io.spring.convention.spring-pom'
+apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
 	compile project(':spring-session-core')
 	compile "com.hazelcast:hazelcast"
+	compile "org.springframework:spring-context"
+
+	testCompile "javax.servlet:javax.servlet-api"
+	testCompile "org.springframework.security:spring-security-core"
+	testCompile "org.springframework:spring-web"
+
+	integrationTestCompile "com.hazelcast:hazelcast-client"
 }

@@ -4,6 +4,7 @@ apply plugin: 'io.spring.convention.spring-test'
 dependencies {
 	testCompile project(':spring-session-core')
 	testCompile project(':spring-session-data-redis')
+	testCompile project(':spring-session-hazelcast')
 	testCompile "org.springframework:spring-jdbc"
 	testCompile "org.springframework:spring-messaging"
 	testCompile "org.springframework:spring-webmvc"

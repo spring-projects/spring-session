@@ -12,14 +12,12 @@ dependencies {
 	optional "org.springframework:spring-websocket"
 	optional "org.springframework.security:spring-security-core"
 	optional "org.springframework.security:spring-security-web"
-	optional "com.hazelcast:hazelcast"
 
 	provided "javax.servlet:javax.servlet-api"
 
 	integrationTestCompile "org.apache.commons:commons-pool2"
 	integrationTestCompile "org.apache.derby:derby"
 	integrationTestCompile "com.h2database:h2"
-	integrationTestCompile "com.hazelcast:hazelcast-client"
 	integrationTestCompile "org.hsqldb:hsqldb"
 
 	testCompile "junit:junit"
