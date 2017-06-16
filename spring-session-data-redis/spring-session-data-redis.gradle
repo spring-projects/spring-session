@@ -1,6 +1,6 @@
-apply plugin: 'io.spring.convention.spring-pom'
+apply plugin: 'io.spring.convention.spring-module'
 
-description = "Aggregator for Spring Session and Spring Data Redis"
+description = "Spring Session Redis implementation"
 
 dependencies {
 	compile project(':spring-session-core')
@@ -10,4 +10,8 @@ dependencies {
 	}
 	compile "redis.clients:jedis"
 	compile "org.apache.commons:commons-pool2"
+
+	testCompile "javax.servlet:javax.servlet-api"
+	testCompile "org.springframework.security:spring-security-core"
+	testCompile "org.springframework.security:spring-security-web"
 }

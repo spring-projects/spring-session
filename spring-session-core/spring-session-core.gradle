@@ -10,14 +10,12 @@ dependencies {
 	optional "org.springframework:spring-messaging"
 	optional "org.springframework:spring-web"
 	optional "org.springframework:spring-websocket"
-	optional "org.springframework.data:spring-data-redis"
 	optional "org.springframework.security:spring-security-core"
 	optional "org.springframework.security:spring-security-web"
 	optional "com.hazelcast:hazelcast"
 
 	provided "javax.servlet:javax.servlet-api"
 
-	integrationTestCompile "redis.clients:jedis"
 	integrationTestCompile "org.apache.commons:commons-pool2"
 	integrationTestCompile "org.apache.derby:derby"
 	integrationTestCompile "com.h2database:h2"
