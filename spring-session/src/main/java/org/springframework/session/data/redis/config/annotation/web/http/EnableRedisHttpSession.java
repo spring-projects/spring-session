@@ -61,10 +61,27 @@ public @interface EnableRedisHttpSession {
 
 	/**
 	 * <p>
+	 * Defines a default prefix for all key queries to the Redis Server.
+	 * "spring:session:&lt;redisNamespace&gt;:". The default is "spring:session" for backwards-compatible
+	 * reasons.
+	 * </p>
+	 *
+	 * <p>
+	 * For example, if you had an application named "Application A" that needed to keep
+	 * the sessions isolated from "Application B" you could set two different values for
+	 * the applications and they could function within the same Redis instance.
+	 * </p>
+	 *
+	 * @return the unique namespace for keys
+	 */
+	String redisDefaultPrefix() default "spring:session";
+
+	/**
+	 * <p>
 	 * Defines a unique namespace for keys. The value is used to isolate sessions by
-	 * changing the prefix from "spring:session:" to
-	 * "spring:session:&lt;redisNamespace&gt;:". The default is "" such that all Redis
-	 * keys begin with "spring:session".
+	 * changing the prefix from "&lt;redisDefaultPrefix&gt;:" to
+	 * "&lt;redisDefaultPrefix&gt;:&lt;redisNamespace&gt;:". The default is "" such that all Redis
+	 * keys begin with "&lt;redisDefaultPrefix&gt;:".
 	 * </p>
 	 *
 	 * <p>

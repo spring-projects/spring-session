@@ -73,6 +73,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private String redisNamespace = "";
 
+	private String redisDefaultPrefix;
+
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
 	private RedisSerializer<Object> defaultRedisSerializer;
@@ -135,6 +137,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			sessionRepository.setRedisKeyNamespace(redisNamespace);
 		}
 
+		sessionRepository.setRedisDefaultKeyPrefix(getRedisDefaultPrefix());
+
 		sessionRepository.setRedisFlushMode(this.redisFlushMode);
 		return sessionRepository;
 	}
@@ -150,6 +154,14 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
 		this.redisFlushMode = redisFlushMode;
+	}
+
+	public void setRedisDefaultPrefix(String redisDefaultPrefix) {
+		this.redisDefaultPrefix = redisDefaultPrefix;
+	}
+
+	public String getRedisDefaultPrefix() {
+		return this.redisDefaultPrefix;
 	}
 
 	private String getRedisNamespace() {
@@ -171,6 +183,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
 		}
 		this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
+		this.redisDefaultPrefix = enableAttrs.getString("redisDefaultPrefix");
 	}
 
 	@Bean
