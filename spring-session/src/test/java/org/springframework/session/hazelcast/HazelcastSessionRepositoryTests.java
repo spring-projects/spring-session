@@ -16,6 +16,8 @@
 
 package org.springframework.session.hazelcast;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -82,8 +84,8 @@ public class HazelcastSessionRepositoryTests {
 	public void createSessionDefaultMaxInactiveInterval() throws Exception {
 		HazelcastSession session = this.repository.createSession();
 
-		assertThat(session.getMaxInactiveIntervalInSeconds())
-				.isEqualTo(new MapSession().getMaxInactiveIntervalInSeconds());
+		assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(new MapSession().getMaxInactiveInterval());
 		verifyZeroInteractions(this.sessions);
 	}
 
@@ -94,7 +96,8 @@ public class HazelcastSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 
-		assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(interval);
+		assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(Duration.ofSeconds(interval));
 		verifyZeroInteractions(this.sessions);
 	}
 
@@ -168,7 +171,7 @@ public class HazelcastSessionRepositoryTests {
 	@Test
 	public void saveUpdatedLastAccessedTimeFlushModeOnSave() {
 		HazelcastSession session = this.repository.createSession();
-		session.setLastAccessedTime(System.currentTimeMillis());
+		session.setLastAccessedTime(Instant.now());
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
@@ -181,7 +184,7 @@ public class HazelcastSessionRepositoryTests {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
-		session.setLastAccessedTime(System.currentTimeMillis());
+		session.setLastAccessedTime(Instant.now());
 		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 
@@ -192,7 +195,7 @@ public class HazelcastSessionRepositoryTests {
 	@Test
 	public void saveUpdatedMaxInactiveIntervalInSecondsFlushModeOnSave() {
 		HazelcastSession session = this.repository.createSession();
-		session.setMaxInactiveIntervalInSeconds(1);
+		session.setMaxInactiveInterval(Duration.ofSeconds(1));
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
@@ -205,7 +208,7 @@ public class HazelcastSessionRepositoryTests {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
-		session.setMaxInactiveIntervalInSeconds(1);
+		session.setMaxInactiveInterval(Duration.ofSeconds(1));
 		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 
@@ -249,8 +252,8 @@ public class HazelcastSessionRepositoryTests {
 	@Test
 	public void getSessionExpired() {
 		MapSession expired = new MapSession();
-		expired.setLastAccessedTime(System.currentTimeMillis() -
-				(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+		expired.setLastAccessedTime(Instant.now().minusSeconds(
+				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 		given(this.sessions.get(eq(expired.getId()))).willReturn(expired);
 
 		HazelcastSession session = this.repository.getSession(expired.getId());
@@ -269,7 +272,7 @@ public class HazelcastSessionRepositoryTests {
 		HazelcastSession session = this.repository.getSession(saved.getId());
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
-		assertThat(session.<String>getAttribute("savedName")).isEqualTo("savedValue");
+		assertThat(session.<String>getAttribute("savedName").orElse(null)).isEqualTo("savedValue");
 		verify(this.sessions, times(1)).get(eq(saved.getId()));
 	}
 

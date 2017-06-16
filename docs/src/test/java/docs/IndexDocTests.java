@@ -16,6 +16,9 @@
 
 package docs;
 
+import java.time.Duration;
+import java.util.Optional;
+
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -26,7 +29,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
@@ -49,7 +51,7 @@ public class IndexDocTests {
 
 	@Test
 	public void repositoryDemo() {
-		RepositoryDemo<ExpiringSession> demo = new RepositoryDemo<>();
+		RepositoryDemo<Session> demo = new RepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
@@ -71,8 +73,8 @@ public class IndexDocTests {
 			S session = this.repository.getSession(toSave.getId()); // <5>
 
 			// <6>
-			User user = session.getAttribute(ATTR_USER);
-			assertThat(user).isEqualTo(rwinch);
+			Optional<User> user = session.getAttribute(ATTR_USER);
+			assertThat(user.orElse(null)).isEqualTo(rwinch);
 		}
 
 		// ... setter methods ...
@@ -81,20 +83,20 @@ public class IndexDocTests {
 
 	@Test
 	public void expireRepositoryDemo() {
-		ExpiringRepositoryDemo<ExpiringSession> demo = new ExpiringRepositoryDemo<>();
+		ExpiringRepositoryDemo<Session> demo = new ExpiringRepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
 	}
 
 	// tag::expire-repository-demo[]
-	public class ExpiringRepositoryDemo<S extends ExpiringSession> {
+	public class ExpiringRepositoryDemo<S extends Session> {
 		private SessionRepository<S> repository; // <1>
 
 		public void demo() {
 			S toSave = this.repository.createSession(); // <2>
 			// ...
-			toSave.setMaxInactiveIntervalInSeconds(30); // <3>
+			toSave.setMaxInactiveInterval(Duration.ofSeconds(30)); // <3>
 
 			this.repository.save(toSave); // <4>
 
@@ -111,7 +113,7 @@ public class IndexDocTests {
 	public void newRedisOperationsSessionRepository() {
 		// tag::new-redisoperationssessionrepository[]
 		LettuceConnectionFactory factory = new LettuceConnectionFactory();
-		SessionRepository<? extends ExpiringSession> repository = new RedisOperationsSessionRepository(
+		SessionRepository<? extends Session> repository = new RedisOperationsSessionRepository(
 				factory);
 		// end::new-redisoperationssessionrepository[]
 	}
@@ -120,7 +122,7 @@ public class IndexDocTests {
 	@SuppressWarnings("unused")
 	public void mapRepository() {
 		// tag::new-mapsessionrepository[]
-		SessionRepository<? extends ExpiringSession> repository = new MapSessionRepository();
+		SessionRepository<? extends Session> repository = new MapSessionRepository();
 		// end::new-mapsessionrepository[]
 	}
 
@@ -136,7 +138,7 @@ public class IndexDocTests {
 
 		// ... configure transactionManager ...
 
-		SessionRepository<? extends ExpiringSession> repository =
+		SessionRepository<? extends Session> repository =
 				new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
 		// end::new-jdbcoperationssessionrepository[]
 	}

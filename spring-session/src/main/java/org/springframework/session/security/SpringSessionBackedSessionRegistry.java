@@ -24,8 +24,8 @@ import java.util.List;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.util.Assert;
 
 /**
@@ -39,12 +39,12 @@ import org.springframework.util.Assert;
  * <p>
  * Does not support {@link #getAllPrincipals()}, since that information is not available.
  *
- * @param <S> the {@link ExpiringSession} type.
+ * @param <S> the {@link Session} type.
  * @author Joris Kuipers
  * @author Vedran Pavic
  * @since 1.3
  */
-public class SpringSessionBackedSessionRegistry<S extends ExpiringSession>
+public class SpringSessionBackedSessionRegistry<S extends Session>
 		implements SessionRegistry {
 
 	private final FindByIndexNameSessionRepository<S> sessionRepository;
@@ -69,8 +69,8 @@ public class SpringSessionBackedSessionRegistry<S extends ExpiringSession>
 		List<SessionInformation> infos = new ArrayList<>();
 		for (S session : sessions) {
 			if (includeExpiredSessions || !Boolean.TRUE.equals(session
-					.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
-				infos.add(new SpringSessionBackedSessionInformation<S>(session,
+					.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR).orElse(false))) {
+				infos.add(new SpringSessionBackedSessionInformation<>(session,
 						this.sessionRepository));
 			}
 		}
@@ -80,7 +80,7 @@ public class SpringSessionBackedSessionRegistry<S extends ExpiringSession>
 	public SessionInformation getSessionInformation(String sessionId) {
 		S session = this.sessionRepository.getSession(sessionId);
 		if (session != null) {
-			return new SpringSessionBackedSessionInformation<S>(session,
+			return new SpringSessionBackedSessionInformation<>(session,
 					this.sessionRepository);
 		}
 		return null;

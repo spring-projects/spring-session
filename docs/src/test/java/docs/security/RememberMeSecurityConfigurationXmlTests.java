@@ -16,8 +16,8 @@
 
 package docs.security;
 
+import java.time.Duration;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 
@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,7 +48,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ContextConfiguration
 @WebAppConfiguration
 @SuppressWarnings("rawtypes")
-public class RememberMeSecurityConfigurationXmlTests<T extends ExpiringSession> {
+public class RememberMeSecurityConfigurationXmlTests<T extends Session> {
 	@Autowired
 	WebApplicationContext context;
 	@Autowired
@@ -82,8 +82,8 @@ public class RememberMeSecurityConfigurationXmlTests<T extends ExpiringSession> 
 		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
 		T session = this.sessions
 				.getSession(new String(Base64.getDecoder().decode(cookie.getValue())));
-		assertThat(session.getMaxInactiveIntervalInSeconds())
-				.isEqualTo((int) TimeUnit.DAYS.toSeconds(30));
+		assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(Duration.ofDays(30));
 
 	}
 }

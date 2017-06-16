@@ -24,7 +24,7 @@ import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
 import org.springframework.context.ApplicationListener;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -73,8 +73,8 @@ public class SessionEventHttpSessionListenerAdapter
 	}
 
 	private HttpSessionEvent createHttpSessionEvent(AbstractSessionEvent event) {
-		ExpiringSession session = event.getSession();
-		HttpSession httpSession = new ExpiringSessionHttpSession<>(session,
+		Session session = event.getSession();
+		HttpSession httpSession = new HttpSessionAdapter<>(session,
 				this.context);
 		HttpSessionEvent httpSessionEvent = new HttpSessionEvent(httpSession);
 		return httpSessionEvent;

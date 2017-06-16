@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.springframework.session.data.redis;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -100,7 +101,8 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 				.doesNotContain(toSave.getId());
 
 		assertThat(this.registry.getEvent(toSave.getId()).getSession()
-				.<String>getAttribute(expectedAttributeName)).isEqualTo(expectedAttributeValue);
+				.<String>getAttribute(expectedAttributeName))
+				.isEqualTo(Optional.of(expectedAttributeValue));
 	}
 
 	@Test
@@ -118,8 +120,8 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		Session session = this.repository.getSession(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
-		assertThat(session.<String>getAttribute("a")).isEqualTo("b");
-		assertThat(session.<String>getAttribute("1")).isEqualTo("2");
+		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
+		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
 
 		this.repository.delete(toSave.getId());
 	}

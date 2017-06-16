@@ -16,6 +16,7 @@
 
 package org.springframework.session;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,14 +37,14 @@ import org.springframework.session.events.SessionExpiredEvent;
  * @author Rob Winch
  * @since 1.0
  */
-public class MapSessionRepository implements SessionRepository<ExpiringSession> {
+public class MapSessionRepository implements SessionRepository<Session> {
 	/**
 	 * If non-null, this value is used to override
-	 * {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
+	 * {@link Session#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
 
-	private final Map<String, ExpiringSession> sessions;
+	private final Map<String, Session> sessions;
 
 	/**
 	 * Creates an instance backed by a {@link java.util.concurrent.ConcurrentHashMap}.
@@ -58,7 +59,7 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 	 *
 	 * @param sessions the {@link java.util.Map} to use. Cannot be null.
 	 */
-	public MapSessionRepository(Map<String, ExpiringSession> sessions) {
+	public MapSessionRepository(Map<String, Session> sessions) {
 		if (sessions == null) {
 			throw new IllegalArgumentException("sessions cannot be null");
 		}
@@ -67,7 +68,7 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 
 	/**
 	 * If non-null, this value is used to override
-	 * {@link ExpiringSession#setMaxInactiveIntervalInSeconds(int)}.
+	 * {@link Session#setMaxInactiveInterval(Duration)}.
 	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
 	 * should be kept alive between client requests.
 	 */
@@ -75,12 +76,12 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 		this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);
 	}
 
-	public void save(ExpiringSession session) {
+	public void save(Session session) {
 		this.sessions.put(session.getId(), new MapSession(session));
 	}
 
-	public ExpiringSession getSession(String id) {
-		ExpiringSession saved = this.sessions.get(id);
+	public Session getSession(String id) {
+		Session saved = this.sessions.get(id);
 		if (saved == null) {
 			return null;
 		}
@@ -95,10 +96,11 @@ public class MapSessionRepository implements SessionRepository<ExpiringSession> 
 		this.sessions.remove(id);
 	}
 
-	public ExpiringSession createSession() {
-		ExpiringSession result = new MapSession();
+	public Session createSession() {
+		Session result = new MapSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			result.setMaxInactiveIntervalInSeconds(this.defaultMaxInactiveInterval);
+			result.setMaxInactiveInterval(
+					Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
 	}

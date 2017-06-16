@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
+import java.time.Duration;
+
 import com.hazelcast.config.ClasspathXmlConfig;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.NetworkConfig;
@@ -27,7 +29,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -42,12 +44,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Tommy Ludwig
  */
-public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession> {
+public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 
 	@RunWith(SpringJUnit4ClassRunner.class)
 	@ContextConfiguration
 	@WebAppConfiguration
-	public static class CustomXmlMapNameTest<S extends ExpiringSession> {
+	public static class CustomXmlMapNameTest<S extends Session> {
 
 		@Autowired
 		private SessionRepository<S> repository;
@@ -62,7 +64,8 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 			S session = this.repository.getSession(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1800);
+			assertThat(session.getMaxInactiveInterval())
+					.isEqualTo(Duration.ofMinutes(30));
 		}
 
 		@Configuration
@@ -84,7 +87,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 	@RunWith(SpringJUnit4ClassRunner.class)
 	@ContextConfiguration
 	@WebAppConfiguration
-	public static class CustomXmlMapNameAndIdleTest<S extends ExpiringSession> {
+	public static class CustomXmlMapNameAndIdleTest<S extends Session> {
 
 		@Autowired
 		private SessionRepository<S> repository;
@@ -99,7 +102,8 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends ExpiringSession
 			S session = this.repository.getSession(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-			assertThat(session.getMaxInactiveIntervalInSeconds()).isEqualTo(1200);
+			assertThat(session.getMaxInactiveInterval())
+					.isEqualTo(Duration.ofMinutes(20));
 		}
 
 		@Configuration

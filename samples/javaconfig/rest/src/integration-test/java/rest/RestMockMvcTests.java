@@ -26,7 +26,7 @@ import sample.mvc.MvcConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -50,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class RestMockMvcTests {
 
 	@Autowired
-	SessionRepositoryFilter<? extends ExpiringSession> sessionRepositoryFilter;
+	SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
 
 	@Autowired
 	WebApplicationContext context;

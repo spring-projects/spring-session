@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,12 @@
 
 package org.springframework.session.jdbc;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
@@ -34,7 +37,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -137,8 +139,8 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		Session session = this.repository.getSession(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
-		assertThat(session.<String>getAttribute("a")).isEqualTo("b");
-		assertThat(session.<String>getAttribute("1")).isEqualTo("2");
+		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
+		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
 
 		this.repository.delete(toSave.getId());
 	}
@@ -147,16 +149,16 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 	public void updateLastAccessedTime() {
 		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
 				.createSession();
-		toSave.setLastAccessedTime(System.currentTimeMillis()
-				- (MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+		toSave.setLastAccessedTime(Instant.now().minusSeconds(
+				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 
 		this.repository.save(toSave);
 
-		long lastAccessedTime = System.currentTimeMillis();
+		Instant lastAccessedTime = Instant.now();
 		toSave.setLastAccessedTime(lastAccessedTime);
 		this.repository.save(toSave);
 
-		ExpiringSession session = this.repository.getSession(toSave.getId());
+		Session session = this.repository.getSession(toSave.getId());
 
 		assertThat(session).isNotNull();
 		assertThat(session.isExpired()).isFalse();
@@ -194,8 +196,8 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
 				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
-		toSave.setLastAccessedTime(System.currentTimeMillis()
-				- (MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+		toSave.setLastAccessedTime(Instant.now().minusSeconds(
+				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS+ 1));
 
 		this.repository.save(toSave);
 		this.repository.cleanUpExpiredSessions();
@@ -366,8 +368,8 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		JdbcOperationsSessionRepository.JdbcSession toSave = this.repository
 				.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
-		toSave.setLastAccessedTime(System.currentTimeMillis()
-				- (MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
+		toSave.setLastAccessedTime(Instant.now().minusSeconds(
+				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 
 		this.repository.save(toSave);
 		this.repository.cleanUpExpiredSessions();
@@ -514,15 +516,15 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(this.repository.getSession(session.getId())).isNotNull();
 
-		long now = System.currentTimeMillis();
+		Instant now = Instant.now();
 
-		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(10));
+		session.setLastAccessedTime(now.minus(10, ChronoUnit.MINUTES));
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 
 		assertThat(this.repository.getSession(session.getId())).isNotNull();
 
-		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(30));
+		session.setLastAccessedTime(now.minus(30, ChronoUnit.MINUTES));
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 
@@ -534,7 +536,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 	public void cleanupInactiveSessionsUsingSessionDefinedInterval() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
 				.createSession();
-		session.setMaxInactiveIntervalInSeconds((int) TimeUnit.MINUTES.toSeconds(45));
+		session.setMaxInactiveInterval(Duration.ofMinutes(45));
 
 		this.repository.save(session);
 
@@ -544,15 +546,15 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(this.repository.getSession(session.getId())).isNotNull();
 
-		long now = System.currentTimeMillis();
+		Instant now = Instant.now();
 
-		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(40));
+		session.setLastAccessedTime(now.minus(40, ChronoUnit.MINUTES));
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 
 		assertThat(this.repository.getSession(session.getId())).isNotNull();
 
-		session.setLastAccessedTime(now - TimeUnit.MINUTES.toMillis(50));
+		session.setLastAccessedTime(now.minus(50, ChronoUnit.MINUTES));
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 

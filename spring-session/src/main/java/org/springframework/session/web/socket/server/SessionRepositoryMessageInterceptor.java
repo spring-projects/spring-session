@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.session.web.socket.server;
 
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -31,7 +32,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.ChannelInterceptorAdapter;
-import org.springframework.session.ExpiringSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.Assert;
@@ -41,12 +41,12 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 /**
  * <p>
  * Acts as a {@link ChannelInterceptor} and a {@link HandshakeInterceptor} to ensure the
- * {@link ExpiringSession#getLastAccessedTime()} is up to date.
+ * {@link Session#getLastAccessedTime()} is up to date.
  * </p>
  * <ul>
  * <li>Associates the {@link Session#getId()} with the WebSocket Session attributes when
  * the handshake is performed. This is later used when intercepting messages to ensure the
- * {@link ExpiringSession#getLastAccessedTime()} is updated.</li>
+ * {@link Session#getLastAccessedTime()} is updated.</li>
  * <li>Intercepts {@link Message}'s that are have {@link SimpMessageType} that corresponds
  * to {@link #setMatchingMessageTypes(Set)} and updates the last accessed time of the
  * {@link Session}. If the {@link Session} is expired, the {@link Message} is prevented
@@ -58,11 +58,11 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * {@link ChannelInterceptor} and a {@link HandshakeInterceptor} .
  * </p>
  *
- * @param <S> the {@link ExpiringSession} type
+ * @param <S> the {@link Session} type
  * @author Rob Winch
  * @since 1.0
  */
-public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession>
+public final class SessionRepositoryMessageInterceptor<S extends Session>
 		extends ChannelInterceptorAdapter implements HandshakeInterceptor {
 
 	private static final String SPRING_SESSION_ID_ATTR_NAME = "SPRING.SESSION.ID";
@@ -88,7 +88,7 @@ public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession
 	 * <p>
 	 * Sets the {@link SimpMessageType} to match on. If the {@link Message} matches, then
 	 * {@link #preSend(Message, MessageChannel)} ensures the {@link Session} is not
-	 * expired and updates the {@link ExpiringSession#getLastAccessedTime()}
+	 * expired and updates the {@link Session#getLastAccessedTime()}
 	 * </p>
 	 *
 	 * <p>
@@ -124,7 +124,7 @@ public final class SessionRepositoryMessageInterceptor<S extends ExpiringSession
 			S session = this.sessionRepository.getSession(sessionId);
 			if (session != null) {
 				// update the last accessed time
-				session.setLastAccessedTime(System.currentTimeMillis());
+				session.setLastAccessedTime(Instant.now());
 				this.sessionRepository.save(session);
 			}
 		}

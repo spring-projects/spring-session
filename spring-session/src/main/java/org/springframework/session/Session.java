@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.session;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,6 +26,7 @@ import java.util.Set;
  * used by an HttpSession, WebSocket Session, or even non web related sessions.
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.0
  */
 public interface Session {
@@ -43,7 +47,7 @@ public interface Session {
 	 * associated to that name
 	 * @param <T> The return type of the attribute
 	 */
-	<T> T getAttribute(String attributeName);
+	<T> Optional<T> getAttribute(String attributeName);
 
 	/**
 	 * Gets the attribute names that have a value associated with it. Each value can be
@@ -71,4 +75,51 @@ public interface Session {
 	 * @param attributeName the name of the attribute to remove
 	 */
 	void removeAttribute(String attributeName);
+
+	/**
+	 * Gets the time when this session was created.
+	 *
+	 * @return the time when this session was created.
+	 */
+	Instant getCreationTime();
+
+	/**
+	 * Sets the last accessed time.
+	 *
+	 * @param lastAccessedTime the last accessed time
+	 */
+	void setLastAccessedTime(Instant lastAccessedTime);
+
+	/**
+	 * Gets the last time this {@link Session} was accessed.
+	 *
+	 * @return the last time the client sent a request associated with the session
+	 */
+	Instant getLastAccessedTime();
+
+	/**
+	 * Sets the maximum inactive interval between requests before this session will be
+	 * invalidated. A negative time indicates that the session will never timeout.
+	 *
+	 * @param interval the amount of time that the {@link Session} should be kept alive
+	 * between client requests.
+	 */
+	void setMaxInactiveInterval(Duration interval);
+
+	/**
+	 * Gets the maximum inactive interval between requests before this session will be
+	 * invalidated. A negative time indicates that the session will never timeout.
+	 *
+	 * @return the maximum inactive interval between requests before this session will be
+	 * invalidated. A negative time indicates that the session will never timeout.
+	 */
+	Duration getMaxInactiveInterval();
+
+	/**
+	 * Returns true if the session is expired.
+	 *
+	 * @return true if the session is expired, else false.
+	 */
+	boolean isExpired();
+
 }

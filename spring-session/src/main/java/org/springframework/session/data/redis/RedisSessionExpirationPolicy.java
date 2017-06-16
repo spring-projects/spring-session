@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 
 /**
@@ -61,14 +61,13 @@ final class RedisSessionExpirationPolicy {
 		this.redisSession = redisSession;
 	}
 
-	public void onDelete(ExpiringSession session) {
+	public void onDelete(Session session) {
 		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 		String expireKey = getExpirationKey(toExpire);
 		this.redis.boundSetOps(expireKey).remove(session.getId());
 	}
 
-	public void onExpirationUpdated(Long originalExpirationTimeInMilli,
-			ExpiringSession session) {
+	public void onExpirationUpdated(Long originalExpirationTimeInMilli, Session session) {
 		String keyToExpire = "expires:" + session.getId();
 		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 
@@ -80,7 +79,7 @@ final class RedisSessionExpirationPolicy {
 			}
 		}
 
-		long sessionExpireInSeconds = session.getMaxInactiveIntervalInSeconds();
+		long sessionExpireInSeconds = session.getMaxInactiveInterval().getSeconds();
 		String sessionKey = getSessionKey(keyToExpire);
 
 		if (sessionExpireInSeconds < 0) {
@@ -147,9 +146,9 @@ final class RedisSessionExpirationPolicy {
 		this.redis.hasKey(key);
 	}
 
-	static long expiresInMillis(ExpiringSession session) {
-		int maxInactiveInSeconds = session.getMaxInactiveIntervalInSeconds();
-		long lastAccessedTimeInMillis = session.getLastAccessedTime();
+	static long expiresInMillis(Session session) {
+		int maxInactiveInSeconds = (int) session.getMaxInactiveInterval().getSeconds();
+		long lastAccessedTimeInMillis = session.getLastAccessedTime().toEpochMilli();
 		return lastAccessedTimeInMillis + TimeUnit.SECONDS.toMillis(maxInactiveInSeconds);
 	}
 

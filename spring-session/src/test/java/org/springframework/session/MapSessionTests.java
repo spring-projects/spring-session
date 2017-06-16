@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.session;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 
 import org.junit.Before;
@@ -30,12 +33,12 @@ public class MapSessionTests {
 	@Before
 	public void setup() {
 		this.session = new MapSession();
-		this.session.setLastAccessedTime(1413258262962L);
+		this.session.setLastAccessedTime(Instant.ofEpochMilli(1413258262962L));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorNullSession() {
-		new MapSession((ExpiringSession) null);
+		new MapSession((Session) null);
 	}
 
 	/**
@@ -69,50 +72,50 @@ public class MapSessionTests {
 
 	@Test
 	public void isExpiredExact() {
-		long now = 1413260062962L;
+		Instant now = Instant.ofEpochMilli(1413260062962L);
 		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
 	@Test
 	public void isExpiredOneMsTooSoon() {
-		long now = 1413260062961L;
+		Instant now = Instant.ofEpochMilli(1413260062961L);
 		assertThat(this.session.isExpired(now)).isFalse();
 	}
 
 	@Test
 	public void isExpiredOneMsAfter() {
-		long now = 1413260062963L;
+		Instant now = Instant.ofEpochMilli(1413260062963L);
 		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
-	static class CustomSession implements ExpiringSession {
+	static class CustomSession implements Session {
 
-		public long getCreationTime() {
-			return 0;
+		public Instant getCreationTime() {
+			return Instant.EPOCH;
 		}
 
 		public String getId() {
 			return "id";
 		}
 
-		public void setLastAccessedTime(long lastAccessedTime) {
+		public void setLastAccessedTime(Instant lastAccessedTime) {
 			throw new UnsupportedOperationException();
 		}
 
-		public long getLastAccessedTime() {
-			return 0;
+		public Instant getLastAccessedTime() {
+			return Instant.EPOCH;
 		}
 
-		public void setMaxInactiveIntervalInSeconds(int interval) {
+		public void setMaxInactiveInterval(Duration interval) {
 
 		}
 
-		public int getMaxInactiveIntervalInSeconds() {
-			return 0;
+		public Duration getMaxInactiveInterval() {
+			return Duration.ZERO;
 		}
 
-		public <T> T getAttribute(String attributeName) {
-			return null;
+		public <T> Optional<T> getAttribute(String attributeName) {
+			return Optional.empty();
 		}
 
 		public Set<String> getAttributeNames() {

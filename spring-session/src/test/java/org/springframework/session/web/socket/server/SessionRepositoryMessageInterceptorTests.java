@@ -16,6 +16,7 @@
 
 package org.springframework.session.web.socket.server;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -38,13 +39,13 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.longThat;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,17 +54,17 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 @RunWith(MockitoJUnitRunner.class)
 public class SessionRepositoryMessageInterceptorTests {
 	@Mock
-	SessionRepository<ExpiringSession> sessionRepository;
+	SessionRepository<Session> sessionRepository;
 	@Mock
 	MessageChannel channel;
 	@Mock
-	ExpiringSession session;
+	Session session;
 
 	Message<?> createMessage;
 
 	SimpMessageHeaderAccessor headers;
 
-	SessionRepositoryMessageInterceptor<ExpiringSession> interceptor;
+	SessionRepositoryMessageInterceptor<Session> interceptor;
 
 	@Before
 	public void setup() {
@@ -157,7 +158,7 @@ public class SessionRepositoryMessageInterceptorTests {
 		assertThat(this.interceptor.preSend(createMessage(), this.channel))
 				.isSameAs(this.createMessage);
 
-		verify(this.session).setLastAccessedTime(longThat(isAlmostNow()));
+		verify(this.session).setLastAccessedTime(argThat(isAlmostNow()));
 		verify(this.sessionRepository).save(this.session);
 	}
 
@@ -168,7 +169,7 @@ public class SessionRepositoryMessageInterceptorTests {
 		assertThat(this.interceptor.preSend(createMessage(), this.channel))
 				.isSameAs(this.createMessage);
 
-		verify(this.session).setLastAccessedTime(longThat(isAlmostNow()));
+		verify(this.session).setLastAccessedTime(argThat(isAlmostNow()));
 		verify(this.sessionRepository).save(this.session);
 	}
 
@@ -179,19 +180,19 @@ public class SessionRepositoryMessageInterceptorTests {
 		assertThat(this.interceptor.preSend(createMessage(), this.channel))
 				.isSameAs(this.createMessage);
 
-		verify(this.session).setLastAccessedTime(longThat(isAlmostNow()));
+		verify(this.session).setLastAccessedTime(argThat(isAlmostNow()));
 		verify(this.sessionRepository).save(this.session);
 	}
 
 	@Test
 	public void preSendUnsubscribeUpdatesLastUpdateTime() {
 		setMessageType(SimpMessageType.UNSUBSCRIBE);
-		this.session.setLastAccessedTime(0L);
+		this.session.setLastAccessedTime(Instant.EPOCH);
 
 		assertThat(this.interceptor.preSend(createMessage(), this.channel))
 				.isSameAs(this.createMessage);
 
-		verify(this.session).setLastAccessedTime(longThat(isAlmostNow()));
+		verify(this.session).setLastAccessedTime(argThat(isAlmostNow()));
 		verify(this.sessionRepository).save(this.session);
 	}
 
@@ -202,7 +203,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 		this.interceptor.preSend(createMessage(), this.channel);
 
-		verify(this.sessionRepository, times(0)).save(any(ExpiringSession.class));
+		verify(this.sessionRepository, times(0)).save(any(Session.class));
 	}
 
 	@Test
@@ -285,11 +286,11 @@ public class SessionRepositoryMessageInterceptorTests {
 		return new AlmostNowMatcher();
 	}
 
-	static class AlmostNowMatcher implements ArgumentMatcher<Long> {
+	static class AlmostNowMatcher implements ArgumentMatcher<Instant> {
 
-		public boolean matches(Long argument) {
+		public boolean matches(Instant argument) {
 			long now = System.currentTimeMillis();
-			long delta = now - argument;
+			long delta = now - argument.toEpochMilli();
 			return delta >= 0 && delta < TimeUnit.SECONDS.toMillis(3);
 		}
 
