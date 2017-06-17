@@ -46,22 +46,22 @@ public class HeaderSessionStrategyTests {
 
 	@Test
 	public void getRequestedSessionIdNull() throws Exception {
-		assertThat(this.strategy.getRequestedSessionId(this.request)).isNull();
+		assertThat(this.strategy.getRequestedSessionIds(this.request)).isEmpty();
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNull() throws Exception {
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request))
-				.isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionIds(this.request))
+				.contains(this.session.getId());
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNullCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request))
-				.isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionIds(this.request))
+				.contains(this.session.getId());
 	}
 
 	@Test

@@ -1159,11 +1159,11 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterAdapterGetRequestedSessionId() throws Exception {
+		this.sessionRepository.save(new MapSession("MultiHttpSessionStrategyAdapter-requested-id"));
 		this.filter.setHttpSessionStrategy(this.strategy);
 		final String expectedId = "MultiHttpSessionStrategyAdapter-requested-id";
-		given(this.strategy.getRequestedSessionId(any(HttpServletRequest.class)))
-				.willReturn(expectedId);
-
+		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+				.willReturn(Collections.singletonList(expectedId));
 		doFilter(new DoInFilter() {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest,
@@ -1206,8 +1206,8 @@ public class SessionRepositoryFilterTests {
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
 		String id = request.getSession().getId();
-		given(this.strategy.getRequestedSessionId(any(HttpServletRequest.class)))
-				.willReturn(id);
+		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+				.willReturn(Collections.singletonList(id));
 		setupRequest();
 
 		doFilter(new DoInFilter() {
@@ -1238,8 +1238,8 @@ public class SessionRepositoryFilterTests {
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
 		String id = request.getSession().getId();
-		given(this.strategy.getRequestedSessionId(any(HttpServletRequest.class)))
-				.willReturn(id);
+		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+				.willReturn(Collections.singletonList(id));
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1359,7 +1359,7 @@ public class SessionRepositoryFilterTests {
 						.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR))
 								.isNull();
 
-				// First call should go all the way through to the sessioRepository (it
+				// First call should go all the way through to the sessionRepository (it
 				// will not find the session)
 				HttpSession session = wrappedRequest.getSession(false);
 				verify(SessionRepositoryFilterTests.this.sessionRepository, times(1))

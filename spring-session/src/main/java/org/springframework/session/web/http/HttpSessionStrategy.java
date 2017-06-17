@@ -16,6 +16,8 @@
 
 package org.springframework.session.web.http;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -25,21 +27,22 @@ import org.springframework.session.Session;
  * A strategy for mapping HTTP request and responses to a {@link Session}.
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 1.0
  */
 public interface HttpSessionStrategy {
 
 	/**
-	 * Obtains the requested session id from the provided
-	 * {@link javax.servlet.http.HttpServletRequest}. For example, the session id might
+	 * Obtains the requested session ids from the provided
+	 * {@link javax.servlet.http.HttpServletRequest}. For example, the session ids might
 	 * come from a cookie or a request header.
 	 *
 	 * @param request the {@link javax.servlet.http.HttpServletRequest} to obtain the
-	 * session id from. Cannot be null.
+	 * session ids from. Cannot be null.
 	 * @return the {@link javax.servlet.http.HttpServletRequest} to obtain the session id
 	 * from.
 	 */
-	String getRequestedSessionId(HttpServletRequest request);
+	List<String> getRequestedSessionIds(HttpServletRequest request);
 
 	/**
 	 * This method is invoked when a new session is created and should inform a client

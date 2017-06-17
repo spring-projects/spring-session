@@ -51,22 +51,22 @@ public class CookieHttpSessionStrategyTests {
 
 	@Test
 	public void getRequestedSessionIdNull() throws Exception {
-		assertThat(this.strategy.getRequestedSessionId(this.request)).isNull();
+		assertThat(this.strategy.getRequestedSessionIds(this.request)).isEmpty();
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNull() throws Exception {
 		setSessionCookie(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request))
-				.isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionIds(this.request))
+				.contains(this.session.getId());
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNullCustomCookieName() throws Exception {
 		setCookieName("CUSTOM");
 		setSessionCookie(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request))
-				.isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionIds(this.request))
+				.contains(this.session.getId());
 	}
 
 	@Test

@@ -18,6 +18,7 @@ package org.springframework.session.web.http;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -137,6 +138,7 @@ import org.springframework.util.Assert;
  *
  *
  * @author Rob Winch
+ * @author Eddú Meléndez
  * @since 1.0
  */
 public final class CookieHttpSessionStrategy
@@ -171,10 +173,11 @@ public final class CookieHttpSessionStrategy
 	 */
 	private String serializationDelimiter = DEFAULT_DELIMITER;
 
-	public String getRequestedSessionId(HttpServletRequest request) {
+	public List<String> getRequestedSessionIds(HttpServletRequest request) {
 		Map<String, String> sessionIds = getSessionIds(request);
 		String sessionAlias = getCurrentSessionAlias(request);
-		return sessionIds.get(sessionAlias);
+		String sessionId = sessionIds.get(sessionAlias);
+		return sessionId == null ? Collections.<String>emptyList() : Collections.singletonList(sessionId);
 	}
 
 	public String getCurrentSessionAlias(HttpServletRequest request) {
