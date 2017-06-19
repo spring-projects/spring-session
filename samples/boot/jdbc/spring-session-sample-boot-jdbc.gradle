@@ -12,6 +12,9 @@ dependencies {
 	compile "org.webjars:webjars-locator"
 	compile "com.h2database:h2"
 
+	compile project(':spring-session-hazelcast')
+	compile project(':spring-session-data-redis')
+
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.assertj:assertj-core"
 

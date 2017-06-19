@@ -23,6 +23,8 @@ dependencies {
 	compile "io.lettuce:lettuce-core"
 	compile "com.h2database:h2"
 
+	compile project(':spring-session-hazelcast')
+
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.springframework.security:spring-security-test"
 }

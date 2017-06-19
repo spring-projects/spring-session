@@ -11,6 +11,8 @@ dependencies {
 	compile "org.webjars:html5shiv"
 	compile "org.webjars:webjars-locator"
 
+	compile project(':spring-session-hazelcast')
+
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 
 	integrationTestCompile seleniumDependencies

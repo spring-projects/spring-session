@@ -14,6 +14,8 @@ dependencies {
 	compile "com.maxmind.geoip2:geoip2"
 	compile "org.apache.httpcomponents:httpclient"
 
+	compile project(':spring-session-hazelcast')
+
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.assertj:assertj-core"
 
