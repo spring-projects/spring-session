@@ -204,7 +204,7 @@ public class HazelcastSessionRepository implements
 
 	public void save(HazelcastSession session) {
 		if (session.isChanged()) {
-			this.sessions.put(session.getId(), session.getDelegate(),
+			this.sessions.set(session.getId(), session.getDelegate(),
 					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 			session.markUnchanged();
 		}
@@ -223,7 +223,7 @@ public class HazelcastSessionRepository implements
 	}
 
 	public void delete(String id) {
-		this.sessions.remove(id);
+		this.sessions.delete(id);
 	}
 
 	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(
