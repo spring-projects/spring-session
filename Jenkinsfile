@@ -46,7 +46,6 @@ try {
 				try {
 					sh "./gradlew clean springIoCheck -PplatformVersion=Cairo-BUILD-SNAPSHOT -PexcludeProjects='**/samples/**' --refresh-dependencies --no-daemon --stacktrace"
 				} catch(Exception e) {
-					currentBuild.result = 'FAILED: springio'
 					throw e
 				} finally {
 					junit '**/build/spring-io*-results/*.xml'
