@@ -52,7 +52,7 @@ public interface SessionRepository<S extends Session> {
 	 *
 	 * @param session the {@link Session} to save
 	 */
-	void save(S session);
+	S save(S session);
 
 	/**
 	 * Gets the {@link Session} by the {@link Session#getId()} or null if no

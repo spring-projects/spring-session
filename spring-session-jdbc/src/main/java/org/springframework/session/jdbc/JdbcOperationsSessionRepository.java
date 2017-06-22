@@ -371,7 +371,7 @@ public class JdbcOperationsSessionRepository implements
 		return session;
 	}
 
-	public void save(final JdbcSession session) {
+	public JdbcSession save(final JdbcSession session) {
 		if (session.isNew()) {
 			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
@@ -458,6 +458,7 @@ public class JdbcOperationsSessionRepository implements
 			});
 		}
 		session.clearChangeFlags();
+		return session;
 	}
 
 	public JdbcSession getSession(final String id) {

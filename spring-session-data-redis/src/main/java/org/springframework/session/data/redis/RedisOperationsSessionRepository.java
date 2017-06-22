@@ -386,13 +386,14 @@ public class RedisOperationsSessionRepository implements
 		this.redisFlushMode = redisFlushMode;
 	}
 
-	public void save(RedisSession session) {
+	public RedisSession save(RedisSession session) {
 		session.saveDelta();
 		if (session.isNew()) {
 			String sessionCreatedKey = getSessionCreatedChannel(session.getId());
 			this.sessionRedisOperations.convertAndSend(sessionCreatedKey, session.delta);
 			session.setNew(false);
 		}
+		return session;
 	}
 
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
