@@ -60,6 +60,8 @@ public class OgmSessionRepository implements
 	 */
 	public static final String DEFAULT_LABEL = "SPRING_SESSION";
 	
+	public static final String DEFAULT_CYPHER_DELETE = "match (n:%LABEL%) where n.sessionId={id} delete n";
+	
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
@@ -72,6 +74,11 @@ public class OgmSessionRepository implements
 	 * The name of label used by Spring Session to store sessions.
 	 */
 	private String label = DEFAULT_LABEL;
+	
+	/**
+	 * The name of label used by Spring Session to store sessions.
+	 */
+	private String cypherDelete = DEFAULT_CYPHER_DELETE;
 	
 	/**
 	 * If non-null, this value is used to override the default value for
@@ -88,9 +95,7 @@ public class OgmSessionRepository implements
 	 * @param transactionManager the {@link PlatformTransactionManager} to use
 	 */
 	public OgmSessionRepository(SessionFactory sessionFactory) {
-		
-		//Session session = null;
-		
+
 		Assert.notNull(sessionFactory, "SessionFactory must not be null");
 		this.sessionFactory = sessionFactory;
 		this.conversionService = createDefaultConversionService();
@@ -107,6 +112,12 @@ public class OgmSessionRepository implements
 //		prepareQueries();
 	}
 
+	public void setCypherDelete(String cypherDelete) {
+		Assert.hasText(cypherDelete, "cypherDelete must not be empty");
+		this.cypherDelete = cypherDelete;
+//		prepareQueries();
+	}
+	
 	/**
 	 * Set the maximum inactive interval in seconds between requests before newly created
 	 * sessions will be invalidated. A negative time indicates that the session will never
@@ -275,8 +286,7 @@ public class OgmSessionRepository implements
 
 	public void delete(final String id) {
 		
-		String deleteCypher = "match (n:%LABEL%) where n.sessionId={id} delete n"; // TODO: Make this a property like label
-		String cypher = deleteCypher.replace("%LABEL%", label);
+		String cypher = cypherDelete.replace("%LABEL%", label);
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put("id", id);
 		
