@@ -29,6 +29,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.neo4j.ogm.session.SessionFactory;
+import org.neo4j.ogm.transaction.Transaction;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
@@ -134,6 +135,26 @@ public class OgmSessionRepository implements
 	}
 
 	public void save(final OgmSession session) {
+
+		if (session.isNew()) {
+		
+			 org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
+			 
+			 Transaction transaction = ogmSession.beginTransaction();
+
+			 try {
+//			     buyConcertTicket(person,concert);
+//			     bookHotel(person, hotel);
+				 
+			     transaction.commit();
+			 }
+			 catch (Exception e) {
+				 transaction.rollback();
+			 } finally {
+				 transaction.close();
+			 }
+			 
+		}
 //		if (session.isNew()) {
 //			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 //
