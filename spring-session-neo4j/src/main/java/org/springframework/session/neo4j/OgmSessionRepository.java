@@ -134,25 +134,31 @@ public class OgmSessionRepository implements
 		return session;
 	}
 
+	protected void executeCypher(String cypher, Map<String, Object> parameters) {
+	
+		 org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
+		 
+		 Transaction transaction = ogmSession.beginTransaction();
+
+		 try {
+
+			 ogmSession.query(cypher, parameters);
+
+		     transaction.commit();
+
+		 } catch (Exception e) {
+			 transaction.rollback();
+		 } finally {
+			 transaction.close();
+		 }
+		 
+	}
+	
 	public void save(final OgmSession session) {
 
 		if (session.isNew()) {
 		
-			 org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
-			 
-			 Transaction transaction = ogmSession.beginTransaction();
-
-			 try {
-//			     buyConcertTicket(person,concert);
-//			     bookHotel(person, hotel);
-				 
-			     transaction.commit();
-			 }
-			 catch (Exception e) {
-				 transaction.rollback();
-			 } finally {
-				 transaction.close();
-			 }
+			// Execute the create cypher
 			 
 		}
 //		if (session.isNew()) {
@@ -268,14 +274,14 @@ public class OgmSessionRepository implements
 	}
 
 	public void delete(final String id) {
-//		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-//
-//			protected void doInTransactionWithoutResult(TransactionStatus status) {
-//				OgmSessionRepository.this.jdbcOperations.update(
-//						OgmSessionRepository.this.deleteSessionQuery, id);
-//			}
-//
-//		});
+		
+		String deleteCypher = "match (n:%LABEL%) where n.sessionId={id} delete n"; // TODO: Make this a property like label
+		String cypher = deleteCypher.replace("%LABEL%", label);
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("id", id);
+		
+		executeCypher(cypher, parameters);
+		
 	}
 
 	public Map<String, OgmSession> findByIndexNameAndIndexValue(String indexName,
