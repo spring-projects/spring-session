@@ -4,7 +4,7 @@ buildscript {
 		maven { url "https://repo.spring.io/milestone" }
 	}
 	dependencies {
-		classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RC1'
+		classpath 'io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE'
 		classpath("com.bmuschko:gradle-tomcat-plugin:2.2.5")
 		classpath("org.springframework.build.gradle:propdeps-plugin:0.0.7")
 		classpath("io.spring.gradle:spring-io-plugin:0.0.6.RELEASE")
@@ -20,7 +20,7 @@ plugins {
 
 group = 'org.springframework.session'
 
-ext.springBootVersion = '1.5.0.RC1'
+ext.springBootVersion = '1.5.4.RELEASE'
 ext.IDE_GRADLE = "$rootDir/gradle/ide.gradle"
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.MAVEN_GRADLE = "$rootDir/gradle/publish-maven.gradle"
