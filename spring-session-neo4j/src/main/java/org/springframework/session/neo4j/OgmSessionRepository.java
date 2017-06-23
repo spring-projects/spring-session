@@ -21,38 +21,26 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
 // TODO: JavaDoc
@@ -100,7 +88,7 @@ public class OgmSessionRepository implements
 	 */
 	public OgmSessionRepository(SessionFactory sessionFactory) {
 		
-		Session session = null;
+		//Session session = null;
 		
 		Assert.notNull(sessionFactory, "SessionFactory must not be null");
 		this.sessionFactory = sessionFactory;
@@ -146,177 +134,163 @@ public class OgmSessionRepository implements
 	}
 
 	public void save(final OgmSession session) {
-		if (session.isNew()) {
-			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-
-				protected void doInTransactionWithoutResult(TransactionStatus status) {
-					OgmSessionRepository.this.jdbcOperations.update(
-							OgmSessionRepository.this.createSessionQuery,
-							ps -> {
-								ps.setString(1, session.getId());
-								ps.setLong(2, session.getCreationTime().toEpochMilli());
-								ps.setLong(3, session.getLastAccessedTime().toEpochMilli());
-								ps.setInt(4, (int) session.getMaxInactiveInterval().getSeconds());
-								ps.setString(5, session.getPrincipalName());
-							});
-					if (!session.getAttributeNames().isEmpty()) {
-						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
-						OgmSessionRepository.this.jdbcOperations.batchUpdate(
-								OgmSessionRepository.this.createSessionAttributeQuery,
-								new BatchPreparedStatementSetter() {
-
-									public void setValues(PreparedStatement ps, int i) throws SQLException {
-										String attributeName = attributeNames.get(i);
-										ps.setString(1, session.getId());
-										ps.setString(2, attributeName);
-										serialize(ps, 3, session.getAttribute(attributeName).orElse(null));
-									}
-
-									public int getBatchSize() {
-										return attributeNames.size();
-									}
-
-								});
-					}
-				}
-
-			});
-		}
-		else {
-			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-
-				protected void doInTransactionWithoutResult(TransactionStatus status) {
-					if (session.isChanged()) {
-						OgmSessionRepository.this.jdbcOperations.update(
-								OgmSessionRepository.this.updateSessionQuery,
-								ps -> {
-									ps.setLong(1, session.getLastAccessedTime().toEpochMilli());
-									ps.setInt(2, (int) session.getMaxInactiveInterval().getSeconds());
-									ps.setString(3, session.getPrincipalName());
-									ps.setString(4, session.getId());
-								});
-					}
-					Map<String, Object> delta = session.getDelta();
-					if (!delta.isEmpty()) {
-						for (final Map.Entry<String, Object> entry : delta.entrySet()) {
-							if (entry.getValue() == null) {
-								OgmSessionRepository.this.jdbcOperations.update(
-										OgmSessionRepository.this.deleteSessionAttributeQuery,
-										ps -> {
-											ps.setString(1, session.getId());
-											ps.setString(2, entry.getKey());
-										});
-							}
-							else {
-								int updatedCount = OgmSessionRepository.this.jdbcOperations.update(
-										OgmSessionRepository.this.updateSessionAttributeQuery,
-										ps -> {
-											serialize(ps, 1, entry.getValue());
-											ps.setString(2, session.getId());
-											ps.setString(3, entry.getKey());
-										});
-								if (updatedCount == 0) {
-									OgmSessionRepository.this.jdbcOperations.update(
-											OgmSessionRepository.this.createSessionAttributeQuery,
-											ps -> {
-												ps.setString(1, session.getId());
-												ps.setString(2, entry.getKey());
-												serialize(ps, 3, entry.getValue());
-											});
-								}
-							}
-						}
-					}
-				}
-
-			});
-		}
+//		if (session.isNew()) {
+//			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
+//
+//				protected void doInTransactionWithoutResult(TransactionStatus status) {
+//					OgmSessionRepository.this.jdbcOperations.update(
+//							OgmSessionRepository.this.createSessionQuery,
+//							ps -> {
+//								ps.setString(1, session.getId());
+//								ps.setLong(2, session.getCreationTime().toEpochMilli());
+//								ps.setLong(3, session.getLastAccessedTime().toEpochMilli());
+//								ps.setInt(4, (int) session.getMaxInactiveInterval().getSeconds());
+//								ps.setString(5, session.getPrincipalName());
+//							});
+//					if (!session.getAttributeNames().isEmpty()) {
+//						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
+//						OgmSessionRepository.this.jdbcOperations.batchUpdate(
+//								OgmSessionRepository.this.createSessionAttributeQuery,
+//								new BatchPreparedStatementSetter() {
+//
+//									public void setValues(PreparedStatement ps, int i) throws SQLException {
+//										String attributeName = attributeNames.get(i);
+//										ps.setString(1, session.getId());
+//										ps.setString(2, attributeName);
+//										serialize(ps, 3, session.getAttribute(attributeName).orElse(null));
+//									}
+//
+//									public int getBatchSize() {
+//										return attributeNames.size();
+//									}
+//
+//								});
+//					}
+//				}
+//
+//			});
+//		}
+//		else {
+//			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
+//
+//				protected void doInTransactionWithoutResult(TransactionStatus status) {
+//					if (session.isChanged()) {
+//						OgmSessionRepository.this.jdbcOperations.update(
+//								OgmSessionRepository.this.updateSessionQuery,
+//								ps -> {
+//									ps.setLong(1, session.getLastAccessedTime().toEpochMilli());
+//									ps.setInt(2, (int) session.getMaxInactiveInterval().getSeconds());
+//									ps.setString(3, session.getPrincipalName());
+//									ps.setString(4, session.getId());
+//								});
+//					}
+//					Map<String, Object> delta = session.getDelta();
+//					if (!delta.isEmpty()) {
+//						for (final Map.Entry<String, Object> entry : delta.entrySet()) {
+//							if (entry.getValue() == null) {
+//								OgmSessionRepository.this.jdbcOperations.update(
+//										OgmSessionRepository.this.deleteSessionAttributeQuery,
+//										ps -> {
+//											ps.setString(1, session.getId());
+//											ps.setString(2, entry.getKey());
+//										});
+//							}
+//							else {
+//								int updatedCount = OgmSessionRepository.this.jdbcOperations.update(
+//										OgmSessionRepository.this.updateSessionAttributeQuery,
+//										ps -> {
+//											serialize(ps, 1, entry.getValue());
+//											ps.setString(2, session.getId());
+//											ps.setString(3, entry.getKey());
+//										});
+//								if (updatedCount == 0) {
+//									OgmSessionRepository.this.jdbcOperations.update(
+//											OgmSessionRepository.this.createSessionAttributeQuery,
+//											ps -> {
+//												ps.setString(1, session.getId());
+//												ps.setString(2, entry.getKey());
+//												serialize(ps, 3, entry.getValue());
+//											});
+//								}
+//							}
+//						}
+//					}
+//				}
+//
+//			});
+//		}
 		session.clearChangeFlags();
 	}
 
 	public OgmSession getSession(final String id) {
-		final Session session = this.transactionOperations.execute(status -> {
-			List<Session> sessions = OgmSessionRepository.this.jdbcOperations.query(
-					OgmSessionRepository.this.getSessionQuery,
-					ps -> ps.setString(1, id),
-					OgmSessionRepository.this.extractor
-			);
-			if (sessions.isEmpty()) {
-				return null;
-			}
-			return sessions.get(0);
-		});
-
-		if (session != null) {
-			if (session.isExpired()) {
-				delete(id);
-			}
-			else {
-				return new OgmSession(session);
-			}
-		}
+//		final Session session = this.transactionOperations.execute(status -> {
+//			List<Session> sessions = OgmSessionRepository.this.jdbcOperations.query(
+//					OgmSessionRepository.this.getSessionQuery,
+//					ps -> ps.setString(1, id),
+//					OgmSessionRepository.this.extractor
+//			);
+//			if (sessions.isEmpty()) {
+//				return null;
+//			}
+//			return sessions.get(0);
+//		});
+//
+//		if (session != null) {
+//			if (session.isExpired()) {
+//				delete(id);
+//			}
+//			else {
+//				return new OgmSession(session);
+//			}
+//		}
 		return null;
 	}
 
 	public void delete(final String id) {
-		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-
-			protected void doInTransactionWithoutResult(TransactionStatus status) {
-				OgmSessionRepository.this.jdbcOperations.update(
-						OgmSessionRepository.this.deleteSessionQuery, id);
-			}
-
-		});
+//		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
+//
+//			protected void doInTransactionWithoutResult(TransactionStatus status) {
+//				OgmSessionRepository.this.jdbcOperations.update(
+//						OgmSessionRepository.this.deleteSessionQuery, id);
+//			}
+//
+//		});
 	}
 
 	public Map<String, OgmSession> findByIndexNameAndIndexValue(String indexName,
 			final String indexValue) {
-		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
-			return Collections.emptyMap();
-		}
-
-		List<Session> sessions = this.transactionOperations.execute(status ->
-				OgmSessionRepository.this.jdbcOperations.query(
-						OgmSessionRepository.this.listSessionsByPrincipalNameQuery,
-						ps -> ps.setString(1, indexValue),
-						OgmSessionRepository.this.extractor));
-
-		Map<String, OgmSession> sessionMap = new HashMap<>(
-				sessions.size());
-
-		for (Session session : sessions) {
-			sessionMap.put(session.getId(), new OgmSession(session));
-		}
-
-		return sessionMap;
+//		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
+//			return Collections.emptyMap();
+//		}
+//
+//		List<Session> sessions = this.transactionOperations.execute(status ->
+//				OgmSessionRepository.this.jdbcOperations.query(
+//						OgmSessionRepository.this.listSessionsByPrincipalNameQuery,
+//						ps -> ps.setString(1, indexValue),
+//						OgmSessionRepository.this.extractor));
+//
+//		Map<String, OgmSession> sessionMap = new HashMap<>(
+//				sessions.size());
+//
+//		for (Session session : sessions) {
+//			sessionMap.put(session.getId(), new OgmSession(session));
+//		}
+//
+//		return sessionMap;
+		
+		return null;
 	}
 
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
-		int deletedCount = this.transactionOperations.execute(transactionStatus ->
-				OgmSessionRepository.this.jdbcOperations.update(
-						OgmSessionRepository.this.deleteSessionsByLastAccessTimeQuery,
-						System.currentTimeMillis()));
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Cleaned up " + deletedCount + " expired sessions");
-		}
-	}
-
-	private static JdbcTemplate createDefaultJdbcTemplate(DataSource dataSource) {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.afterPropertiesSet();
-		return jdbcTemplate;
-	}
-
-	private static TransactionTemplate createTransactionTemplate(
-			PlatformTransactionManager transactionManager) {
-		TransactionTemplate transactionTemplate = new TransactionTemplate(
-				transactionManager);
-		transactionTemplate.setPropagationBehavior(
-				TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		transactionTemplate.afterPropertiesSet();
-		return transactionTemplate;
+//		int deletedCount = this.transactionOperations.execute(transactionStatus ->
+//				OgmSessionRepository.this.jdbcOperations.update(
+//						OgmSessionRepository.this.deleteSessionsByLastAccessTimeQuery,
+//						System.currentTimeMillis()));
+//
+//		if (logger.isDebugEnabled()) {
+//			logger.debug("Cleaned up " + deletedCount + " expired sessions");
+//		}
 	}
 
 	private static GenericConversionService createDefaultConversionService() {
@@ -330,18 +304,19 @@ public class OgmSessionRepository implements
 
 	private void serialize(PreparedStatement ps, int paramIndex, Object attributeValue)
 			throws SQLException {
-		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex,
-				(byte[]) this.conversionService.convert(attributeValue,
-						TypeDescriptor.valueOf(Object.class),
-						TypeDescriptor.valueOf(byte[].class)));
+//		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex,
+//				(byte[]) this.conversionService.convert(attributeValue,
+//						TypeDescriptor.valueOf(Object.class),
+//						TypeDescriptor.valueOf(byte[].class)));
 	}
 
 	private Object deserialize(ResultSet rs, String columnName)
 			throws SQLException {
-		return this.conversionService.convert(
-				this.lobHandler.getBlobAsBytes(rs, columnName),
-				TypeDescriptor.valueOf(byte[].class),
-				TypeDescriptor.valueOf(Object.class));
+//		return this.conversionService.convert(
+//				this.lobHandler.getBlobAsBytes(rs, columnName),
+//				TypeDescriptor.valueOf(byte[].class),
+//				TypeDescriptor.valueOf(Object.class));
+		return null;
 	}
 
 	/**
