@@ -121,7 +121,7 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 		String sessionId = sessionHeaders == null ? null
 				: (String) sessionHeaders.get(SPRING_SESSION_ID_ATTR_NAME);
 		if (sessionId != null) {
-			S session = this.sessionRepository.getSession(sessionId);
+			S session = this.sessionRepository.findById(sessionId);
 			if (session != null) {
 				// update the last accessed time
 				session.setLastAccessedTime(Instant.now());

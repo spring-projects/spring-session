@@ -70,7 +70,7 @@ public class IndexDocTests {
 
 			this.repository.save(toSave); // <4>
 
-			S session = this.repository.getSession(toSave.getId()); // <5>
+			S session = this.repository.findById(toSave.getId()); // <5>
 
 			// <6>
 			Optional<User> user = session.getAttribute(ATTR_USER);
@@ -100,7 +100,7 @@ public class IndexDocTests {
 
 			this.repository.save(toSave); // <4>
 
-			S session = this.repository.getSession(toSave.getId()); // <5>
+			S session = this.repository.findById(toSave.getId()); // <5>
 			// ...
 		}
 

@@ -202,7 +202,7 @@ public class RedisOperationsSessionRepositoryTests {
 		// the actual data in the session expires 5 minutes after expiration so the data
 		// can be accessed in expiration events
 		// if the session is retrieved and expired it will not be returned since
-		// getSession checks if it is expired
+		// findById checks if it is expired
 		long fiveMinutesAfterExpires = session.getMaxInactiveInterval().plusMinutes(5)
 				.getSeconds();
 		verify(this.boundHashOperations).expire(fiveMinutesAfterExpires,
@@ -232,7 +232,7 @@ public class RedisOperationsSessionRepositoryTests {
 		// the actual data in the session expires 5 minutes after expiration so the data
 		// can be accessed in expiration events
 		// if the session is retrieved and expired it will not be returned since
-		// getSession checks if it is expired
+		// findById checks if it is expired
 		verify(this.boundHashOperations).expire(
 				session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
 				TimeUnit.SECONDS);
@@ -370,7 +370,7 @@ public class RedisOperationsSessionRepositoryTests {
 				.willReturn(this.boundHashOperations);
 		given(this.boundHashOperations.entries()).willReturn(map());
 
-		assertThat(this.redisRepository.getSession(id)).isNull();
+		assertThat(this.redisRepository.findById(id)).isNull();
 	}
 
 	@Test
@@ -391,7 +391,7 @@ public class RedisOperationsSessionRepositoryTests {
 				expected.getLastAccessedTime().toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
 
-		RedisSession session = this.redisRepository.getSession(expected.getId());
+		RedisSession session = this.redisRepository.findById(expected.getId());
 		assertThat(session.getId()).isEqualTo(expected.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(expected.getAttributeNames());
 		assertThat(session.<String>getAttribute(attrName))
@@ -414,7 +414,7 @@ public class RedisOperationsSessionRepositoryTests {
 				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
 
-		assertThat(this.redisRepository.getSession(expiredId)).isNull();
+		assertThat(this.redisRepository.findById(expiredId)).isNull();
 	}
 
 	@Test

@@ -62,7 +62,7 @@ public class UserAccountsFilter implements Filter {
 			String alias = entry.getKey();
 			String sessionId = entry.getValue();
 
-			Session session = repo.getSession(sessionId);
+			Session session = repo.findById(sessionId);
 			if (session == null) {
 				continue;
 			}

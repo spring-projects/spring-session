@@ -62,7 +62,7 @@ public interface SessionRepository<S extends Session> {
 	 * @return the {@link Session} by the {@link Session#getId()} or null if no
 	 * {@link Session} is found.
 	 */
-	S getSession(String id);
+	S findById(String id);
 
 	/**
 	 * Deletes the {@link Session} with the given {@link Session#getId()} or does nothing

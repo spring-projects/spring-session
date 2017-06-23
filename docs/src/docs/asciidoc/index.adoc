@@ -649,7 +649,7 @@ An expiration is set on the session itself five minutes after it actually expire
 
 [NOTE]
 ====
-The `SessionRepository.getSession(String)` method ensures that no expired sessions will be returned.
+The `SessionRepository.findById(String)` method ensures that no expired sessions will be returned.
 This means there is no need to check the expiration before using a session.
 ====
 

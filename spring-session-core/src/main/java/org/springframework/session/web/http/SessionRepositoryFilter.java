@@ -324,7 +324,7 @@ public class SessionRepositoryFilter<S extends Session>
 
 		private S getSession(String sessionId) {
 			S session = SessionRepositoryFilter.this.sessionRepository
-					.getSession(sessionId);
+					.findById(sessionId);
 			if (session == null) {
 				return null;
 			}

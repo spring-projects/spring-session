@@ -461,7 +461,7 @@ public class JdbcOperationsSessionRepository implements
 		return session;
 	}
 
-	public JdbcSession getSession(final String id) {
+	public JdbcSession findById(final String id) {
 		final Session session = this.transactionOperations.execute(status -> {
 			List<Session> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
 					JdbcOperationsSessionRepository.this.getSessionQuery,

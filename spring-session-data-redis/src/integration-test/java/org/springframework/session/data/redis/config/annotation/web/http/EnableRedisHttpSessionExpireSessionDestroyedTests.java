@@ -76,7 +76,7 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 		if (!this.registry.receivedEvent()) {
 			// Redis makes no guarantees on when an expired event will be fired
 			// we can ensure it gets fired by trying to get the session
-			this.repository.getSession(toSave.getId());
+			this.repository.findById(toSave.getId());
 			synchronized (this.lock) {
 				if (!this.registry.receivedEvent()) {
 					// wait at most a minute

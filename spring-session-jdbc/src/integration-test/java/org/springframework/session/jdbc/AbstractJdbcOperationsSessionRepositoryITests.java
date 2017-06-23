@@ -102,7 +102,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		this.repository.save(toSave);
 
-		Session session = this.repository.getSession(toSave.getId());
+		Session session = this.repository.findById(toSave.getId());
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
@@ -111,7 +111,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		this.repository.delete(toSave.getId());
 
-		assertThat(this.repository.getSession(toSave.getId())).isNull();
+		assertThat(this.repository.findById(toSave.getId())).isNull();
 	}
 
 	@Test
@@ -130,14 +130,14 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		toSave.setAttribute("a", "b");
 
 		this.repository.save(toSave);
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
 		toSave.setAttribute("1", "2");
 
 		this.repository.save(toSave);
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
-		Session session = this.repository.getSession(toSave.getId());
+		Session session = this.repository.findById(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
 		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
 		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
@@ -158,7 +158,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		toSave.setLastAccessedTime(lastAccessedTime);
 		this.repository.save(toSave);
 
-		Session session = this.repository.getSession(toSave.getId());
+		Session session = this.repository.findById(toSave.getId());
 
 		assertThat(session).isNotNull();
 		assertThat(session.isExpired()).isFalse();
@@ -239,7 +239,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		this.repository.save(toSave);
 
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
@@ -303,7 +303,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
-				.getSession(toSave.getId());
+				.findById(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		this.repository.save(getSession);
 
@@ -324,7 +324,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
-				.getSession(toSave.getId());
+				.findById(toSave.getId());
 
 		getSession.setAttribute(INDEX_NAME, principalNameChanged);
 		this.repository.save(getSession);
@@ -408,7 +408,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		this.repository.save(toSave);
 
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
@@ -468,7 +468,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
-				.getSession(toSave.getId());
+				.findById(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		this.repository.save(getSession);
 
@@ -487,7 +487,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		JdbcOperationsSessionRepository.JdbcSession getSession = this.repository
-				.getSession(toSave.getId());
+				.findById(toSave.getId());
 
 		getSession.setAttribute(SPRING_SECURITY_CONTEXT, this.changedContext);
 		this.repository.save(getSession);
@@ -510,11 +510,11 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		this.repository.save(session);
 
-		assertThat(this.repository.getSession(session.getId())).isNotNull();
+		assertThat(this.repository.findById(session.getId())).isNotNull();
 
 		this.repository.cleanUpExpiredSessions();
 
-		assertThat(this.repository.getSession(session.getId())).isNotNull();
+		assertThat(this.repository.findById(session.getId())).isNotNull();
 
 		Instant now = Instant.now();
 
@@ -522,13 +522,13 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 
-		assertThat(this.repository.getSession(session.getId())).isNotNull();
+		assertThat(this.repository.findById(session.getId())).isNotNull();
 
 		session.setLastAccessedTime(now.minus(30, ChronoUnit.MINUTES));
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 
-		assertThat(this.repository.getSession(session.getId())).isNull();
+		assertThat(this.repository.findById(session.getId())).isNull();
 	}
 
 	// gh-580
@@ -540,11 +540,11 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		this.repository.save(session);
 
-		assertThat(this.repository.getSession(session.getId())).isNotNull();
+		assertThat(this.repository.findById(session.getId())).isNotNull();
 
 		this.repository.cleanUpExpiredSessions();
 
-		assertThat(this.repository.getSession(session.getId())).isNotNull();
+		assertThat(this.repository.findById(session.getId())).isNotNull();
 
 		Instant now = Instant.now();
 
@@ -552,13 +552,13 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 
-		assertThat(this.repository.getSession(session.getId())).isNotNull();
+		assertThat(this.repository.findById(session.getId())).isNotNull();
 
 		session.setLastAccessedTime(now.minus(50, ChronoUnit.MINUTES));
 		this.repository.save(session);
 		this.repository.cleanUpExpiredSessions();
 
-		assertThat(this.repository.getSession(session.getId())).isNull();
+		assertThat(this.repository.findById(session.getId())).isNull();
 	}
 
 	private String getSecurityName() {

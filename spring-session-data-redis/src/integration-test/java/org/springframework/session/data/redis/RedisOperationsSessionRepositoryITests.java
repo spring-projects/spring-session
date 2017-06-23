@@ -83,7 +83,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members())
 				.contains(toSave.getId());
 
-		Session session = this.repository.getSession(toSave.getId());
+		Session session = this.repository.findById(toSave.getId());
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
@@ -94,7 +94,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.repository.delete(toSave.getId());
 
-		assertThat(this.repository.getSession(toSave.getId())).isNull();
+		assertThat(this.repository.findById(toSave.getId())).isNull();
 		assertThat(this.registry.<SessionDestroyedEvent>getEvent(toSave.getId()))
 				.isInstanceOf(SessionDestroyedEvent.class);
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members())
@@ -111,14 +111,14 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		toSave.setAttribute("a", "b");
 
 		this.repository.save(toSave);
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
 		toSave.setAttribute("1", "2");
 
 		this.repository.save(toSave);
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
-		Session session = this.repository.getSession(toSave.getId());
+		Session session = this.repository.findById(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
 		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
 		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
@@ -202,7 +202,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.repository.save(toSave);
 
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
@@ -262,7 +262,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.repository.save(toSave);
 
-		RedisSession getSession = this.repository.getSession(toSave.getId());
+		RedisSession getSession = this.repository.findById(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		this.repository.save(getSession);
 
@@ -281,7 +281,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.repository.save(toSave);
 
-		RedisSession getSession = this.repository.getSession(toSave.getId());
+		RedisSession getSession = this.repository.findById(toSave.getId());
 
 		getSession.setAttribute(INDEX_NAME, principalNameChanged);
 		this.repository.save(getSession);
@@ -367,7 +367,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.repository.save(toSave);
 
-		toSave = this.repository.getSession(toSave.getId());
+		toSave = this.repository.findById(toSave.getId());
 
 		toSave.setAttribute("other", "value");
 		this.repository.save(toSave);
@@ -423,7 +423,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.repository.save(toSave);
 
-		RedisSession getSession = this.repository.getSession(toSave.getId());
+		RedisSession getSession = this.repository.findById(toSave.getId());
 		getSession.setAttribute(INDEX_NAME, null);
 		this.repository.save(getSession);
 
@@ -440,7 +440,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.repository.save(toSave);
 
-		RedisSession getSession = this.repository.getSession(toSave.getId());
+		RedisSession getSession = this.repository.findById(toSave.getId());
 
 		getSession.setAttribute(SPRING_SECURITY_CONTEXT, this.changedContext);
 		this.repository.save(getSession);

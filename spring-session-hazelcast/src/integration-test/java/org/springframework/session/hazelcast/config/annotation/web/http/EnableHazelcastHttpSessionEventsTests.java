@@ -94,7 +94,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		assertThat(this.registry.<SessionCreatedEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionCreatedEvent.class);
 
-		Session session = this.repository.getSession(sessionToSave.getId());
+		Session session = this.repository.findById(sessionToSave.getId());
 
 		assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 		assertThat(session.getAttributeNames())
@@ -121,7 +121,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionExpiredEvent.class);
 
-		assertThat(this.repository.<Session>getSession(sessionToSave.getId())).isNull();
+		assertThat(this.repository.<Session>findById(sessionToSave.getId())).isNull();
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		assertThat(this.registry.<SessionDeletedEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionDeletedEvent.class);
 
-		assertThat(this.repository.getSession(sessionToSave.getId())).isNull();
+		assertThat(this.repository.findById(sessionToSave.getId())).isNull();
 	}
 
 	@Test
@@ -157,7 +157,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		}
 
 		// Get and save the session like SessionRepositoryFilter would.
-		S sessionToUpdate = this.repository.getSession(sessionToSave.getId());
+		S sessionToUpdate = this.repository.findById(sessionToSave.getId());
 		sessionToUpdate.setLastAccessedTime(Instant.now());
 		this.repository.save(sessionToUpdate);
 
@@ -165,7 +165,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 			lock.wait(sessionToUpdate.getMaxInactiveInterval().minusMillis(100).toMillis());
 		}
 
-		assertThat(this.repository.getSession(sessionToUpdate.getId())).isNotNull();
+		assertThat(this.repository.findById(sessionToUpdate.getId())).isNotNull();
 	}
 
 	@Configuration

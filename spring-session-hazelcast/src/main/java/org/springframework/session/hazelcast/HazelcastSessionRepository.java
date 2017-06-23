@@ -211,7 +211,7 @@ public class HazelcastSessionRepository implements
 		return session;
 	}
 
-	public HazelcastSession getSession(String id) {
+	public HazelcastSession findById(String id) {
 		MapSession saved = this.sessions.get(id);
 		if (saved == null) {
 			return null;

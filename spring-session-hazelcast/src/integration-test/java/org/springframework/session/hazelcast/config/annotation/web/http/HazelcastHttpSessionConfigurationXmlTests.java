@@ -61,7 +61,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 
 			this.repository.save(sessionToSave);
 
-			S session = this.repository.getSession(sessionToSave.getId());
+			S session = this.repository.findById(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 			assertThat(session.getMaxInactiveInterval())
@@ -99,7 +99,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 
 			this.repository.save(sessionToSave);
 
-			S session = this.repository.getSession(sessionToSave.getId());
+			S session = this.repository.findById(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
 			assertThat(session.getMaxInactiveInterval())

@@ -81,7 +81,7 @@ public class MapSessionRepository implements SessionRepository<Session> {
 		return session;
 	}
 
-	public Session getSession(String id) {
+	public Session findById(String id) {
 		Session saved = this.sessions.get(id);
 		if (saved == null) {
 			return null;

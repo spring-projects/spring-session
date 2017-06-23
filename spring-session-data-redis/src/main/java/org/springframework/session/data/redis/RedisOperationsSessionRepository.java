@@ -170,7 +170,7 @@ import org.springframework.util.Assert;
  * </p>
  *
  * <p>
- * <b>NOTE:</b> The {@link #getSession(String)} method ensures that no expired sessions
+ * <b>NOTE:</b> The {@link #findById(String)} method ensures that no expired sessions
  * will be returned. This means there is no need to check the expiration before using a
  * session
  * </p>
@@ -401,7 +401,7 @@ public class RedisOperationsSessionRepository implements
 		this.expirationPolicy.cleanExpiredSessions();
 	}
 
-	public RedisSession getSession(String id) {
+	public RedisSession findById(String id) {
 		return getSession(id, false);
 	}
 
@@ -416,7 +416,7 @@ public class RedisOperationsSessionRepository implements
 		Map<String, RedisSession> sessions = new HashMap<>(
 				sessionIds.size());
 		for (Object id : sessionIds) {
-			RedisSession session = getSession((String) id);
+			RedisSession session = findById((String) id);
 			if (session != null) {
 				sessions.put(session.getId(), session);
 			}

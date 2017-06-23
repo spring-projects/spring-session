@@ -121,7 +121,7 @@ import org.springframework.util.Assert;
  * entry.getValue();
  * </code>
  *
- * Session session = repo.getSession(sessionId); if(session == null) { continue; }
+ * Session session = repo.findById(sessionId); if(session == null) { continue; }
  *
  * String username = session.getAttribute("username"); if(username == null) {
  * newSessionAlias = alias; continue; }

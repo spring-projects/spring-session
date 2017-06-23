@@ -40,7 +40,7 @@ public class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Se
 	public void savesOnCreate() throws InterruptedException {
 		S created = this.sessionRepository.createSession();
 
-		S getSession = this.sessionRepository.getSession(created.getId());
+		S getSession = this.sessionRepository.findById(created.getId());
 
 		assertThat(getSession).isNotNull();
 	}
