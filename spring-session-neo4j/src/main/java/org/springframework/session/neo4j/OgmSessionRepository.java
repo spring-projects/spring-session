@@ -144,26 +144,6 @@ public class OgmSessionRepository implements
 		}
 		return session;
 	}
-
-	protected void executeCypher(String cypher, Map<String, Object> parameters) {
-	
-		 org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
-		 
-		 Transaction transaction = ogmSession.beginTransaction();
-
-		 try {
-
-			 ogmSession.query(cypher, parameters);
-
-		     transaction.commit();
-
-		 } catch (Exception e) {
-			 transaction.rollback();
-		 } finally {
-			 transaction.close();
-		 }
-		 
-	}
 	
 	public void save(final OgmSession session) {
 
@@ -482,4 +462,24 @@ public class OgmSessionRepository implements
 
 	}
 
+	protected void executeCypher(String cypher, Map<String, Object> parameters) {
+		
+		 org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
+		 
+		 Transaction transaction = ogmSession.beginTransaction();
+
+		 try {
+
+			 ogmSession.query(cypher, parameters);
+
+		     transaction.commit();
+
+		 } catch (Exception e) {
+			 transaction.rollback();
+		 } finally {
+			 transaction.close();
+		 }
+		 
+	}
+	
 }
