@@ -22,12 +22,14 @@ import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.transaction.Transaction;
 import org.springframework.core.convert.ConversionService;
@@ -60,8 +62,10 @@ public class OgmSessionRepository implements
 	 */
 	public static final String DEFAULT_LABEL = "SPRING_SESSION";
 	
-	public static final String DEFAULT_CYPHER_DELETE = "match (n:%LABEL%) where n.sessionId={id} delete n";
+	private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={id} return n";
 	
+	public static final String DEFAULT_CYPHER_DELETE = "match (n:%LABEL%) where n.sessionId={id} delete n";
+			
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
@@ -69,6 +73,8 @@ public class OgmSessionRepository implements
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
 	private final SessionFactory sessionFactory;
+	
+	private String getSessionQuery = GET_SESSION_QUERY;
 	
 	/**
 	 * The name of label used by Spring Session to store sessions.
@@ -261,6 +267,22 @@ public class OgmSessionRepository implements
 //				return new OgmSession(session);
 //			}
 //		}
+		
+		//private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={id} return n";
+		String cypher = getSessionQuery.replace("%LABEL", label);
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("id", id);
+		
+		Result result = executeCypher(cypher, parameters);
+		
+		Iterator<Map<String, Object>> resultIterator = result.iterator();
+		
+		if (!resultIterator.hasNext()) {
+			return null;
+		}
+		
+		Map<String, Object> r = resultIterator.next();
+		
 		return null;
 	}
 
@@ -462,24 +484,37 @@ public class OgmSessionRepository implements
 
 	}
 
-	protected void executeCypher(String cypher, Map<String, Object> parameters) {
+	/**
+	 * Set the custom SQL query used to retrieve the session.
+	 * @param getSessionQuery the SQL query string
+	 */
+	public void setGetSessionQuery(String getSessionQuery) {
+		Assert.hasText(getSessionQuery, "Query must not be empty");
+		this.getSessionQuery = getSessionQuery;
+	}
+	
+	protected Result executeCypher(String cypher, Map<String, Object> parameters) {
+
+		Result result = null;
+
+		org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
+
+		Transaction transaction = ogmSession.beginTransaction();
+
+		try {
+
+			result = ogmSession.query(cypher, parameters);
+
+			transaction.commit();
+
+		} catch (Exception e) {
+			transaction.rollback();
+		} finally {
+			transaction.close();
+		}
 		
-		 org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
-		 
-		 Transaction transaction = ogmSession.beginTransaction();
+		return result;
 
-		 try {
-
-			 ogmSession.query(cypher, parameters);
-
-		     transaction.commit();
-
-		 } catch (Exception e) {
-			 transaction.rollback();
-		 } finally {
-			 transaction.close();
-		 }
-		 
 	}
 	
 }
