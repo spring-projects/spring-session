@@ -202,13 +202,12 @@ public class HazelcastSessionRepository implements
 		return result;
 	}
 
-	public HazelcastSession save(HazelcastSession session) {
+	public void save(HazelcastSession session) {
 		if (session.isChanged()) {
 			this.sessions.put(session.getId(), session.getDelegate(),
 					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 			session.markUnchanged();
 		}
-		return session;
 	}
 
 	public HazelcastSession findById(String id) {

@@ -76,9 +76,8 @@ public class MapSessionRepository implements SessionRepository<Session> {
 		this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);
 	}
 
-	public Session save(Session session) {
+	public void save(Session session) {
 		this.sessions.put(session.getId(), new MapSession(session));
-		return session;
 	}
 
 	public Session findById(String id) {
