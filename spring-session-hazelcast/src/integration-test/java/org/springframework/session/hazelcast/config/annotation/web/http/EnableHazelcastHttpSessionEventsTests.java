@@ -135,7 +135,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 				.isInstanceOf(SessionCreatedEvent.class);
 		this.registry.clear();
 
-		this.repository.delete(sessionToSave.getId());
+		this.repository.deleteById(sessionToSave.getId());
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
 		assertThat(this.registry.<SessionDeletedEvent>getEvent(sessionToSave.getId()))

@@ -69,5 +69,5 @@ public interface SessionRepository<S extends Session> {
 	 * if the {@link Session} is not found.
 	 * @param id the {@link org.springframework.session.Session#getId()} to delete
 	 */
-	void delete(String id);
+	void deleteById(String id);
 }

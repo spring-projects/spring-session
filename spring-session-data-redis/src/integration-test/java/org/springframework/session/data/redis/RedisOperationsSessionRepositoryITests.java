@@ -92,7 +92,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		this.registry.clear();
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 
 		assertThat(this.repository.findById(toSave.getId())).isNull();
 		assertThat(this.registry.<SessionDestroyedEvent>getEvent(toSave.getId()))
@@ -123,7 +123,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
 		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 	}
 
 	@Test
@@ -140,7 +140,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 		assertThat(this.registry.receivedEvent(toSave.getId())).isTrue();
 
 		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
@@ -310,7 +310,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 		assertThat(this.registry.receivedEvent(toSave.getId())).isTrue();
 
 		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,

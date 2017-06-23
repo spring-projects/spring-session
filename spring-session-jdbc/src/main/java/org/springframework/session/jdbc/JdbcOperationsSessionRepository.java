@@ -476,7 +476,7 @@ public class JdbcOperationsSessionRepository implements
 
 		if (session != null) {
 			if (session.isExpired()) {
-				delete(id);
+				deleteById(id);
 			}
 			else {
 				return new JdbcSession(session);
@@ -485,7 +485,7 @@ public class JdbcOperationsSessionRepository implements
 		return null;
 	}
 
-	public void delete(final String id) {
+	public void deleteById(final String id) {
 		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
 			protected void doInTransactionWithoutResult(TransactionStatus status) {

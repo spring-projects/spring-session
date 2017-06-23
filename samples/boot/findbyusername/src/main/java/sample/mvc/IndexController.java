@@ -60,7 +60,7 @@ public class IndexController {
 				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
 				principal.getName()).keySet();
 		if (usersSessionIds.contains(sessionIdToDelete)) {
-			this.sessions.delete(sessionIdToDelete);
+			this.sessions.deleteById(sessionIdToDelete);
 		}
 
 		return "redirect:/";

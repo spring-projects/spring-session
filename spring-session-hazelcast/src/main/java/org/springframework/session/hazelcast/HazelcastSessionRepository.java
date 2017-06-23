@@ -217,13 +217,13 @@ public class HazelcastSessionRepository implements
 			return null;
 		}
 		if (saved.isExpired()) {
-			delete(saved.getId());
+			deleteById(saved.getId());
 			return null;
 		}
 		return new HazelcastSession(saved);
 	}
 
-	public void delete(String id) {
+	public void deleteById(String id) {
 		this.sessions.remove(id);
 	}
 

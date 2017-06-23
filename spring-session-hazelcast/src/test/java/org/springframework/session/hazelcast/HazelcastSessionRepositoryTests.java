@@ -280,7 +280,7 @@ public class HazelcastSessionRepositoryTests {
 	public void delete() {
 		String sessionId = "testSessionId";
 
-		this.repository.delete(sessionId);
+		this.repository.deleteById(sessionId);
 
 		verify(this.sessions, times(1)).remove(eq(sessionId));
 	}

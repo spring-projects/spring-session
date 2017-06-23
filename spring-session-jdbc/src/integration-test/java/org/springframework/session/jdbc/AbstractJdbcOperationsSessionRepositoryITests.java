@@ -109,7 +109,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(session.<String>getAttribute(expectedAttributeName))
 				.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 
 		assertThat(this.repository.findById(toSave.getId())).isNull();
 	}
@@ -142,7 +142,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
 		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 	}
 
 	@Test
@@ -180,7 +180,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 
 		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				principalName);
@@ -354,7 +354,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
-		this.repository.delete(toSave.getId());
+		this.repository.deleteById(toSave.getId());
 
 		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
 				getSecurityName());

@@ -455,7 +455,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void delete() {
 		String sessionId = "testSessionId";
 
-		this.repository.delete(sessionId);
+		this.repository.deleteById(sessionId);
 
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), eq(sessionId));

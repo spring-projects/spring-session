@@ -466,7 +466,7 @@ public class RedisOperationsSessionRepository implements
 		return loaded;
 	}
 
-	public void delete(String sessionId) {
+	public void deleteById(String sessionId) {
 		RedisSession session = getSession(sessionId, true);
 		if (session == null) {
 			return;

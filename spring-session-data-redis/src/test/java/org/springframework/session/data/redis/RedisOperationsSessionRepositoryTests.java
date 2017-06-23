@@ -344,7 +344,7 @@ public class RedisOperationsSessionRepositoryTests {
 				.willReturn(this.boundSetOperations);
 
 		String id = expected.getId();
-		this.redisRepository.delete(id);
+		this.redisRepository.deleteById(id);
 
 		assertThat(getDelta().get(RedisOperationsSessionRepository.MAX_INACTIVE_ATTR))
 				.isEqualTo(0);
@@ -358,7 +358,7 @@ public class RedisOperationsSessionRepositoryTests {
 				.willReturn(this.boundHashOperations);
 
 		String id = "abc";
-		this.redisRepository.delete(id);
+		this.redisRepository.deleteById(id);
 		verify(this.redisOperations, times(0)).delete(anyString());
 		verify(this.redisOperations, times(0)).delete(anyString());
 	}
