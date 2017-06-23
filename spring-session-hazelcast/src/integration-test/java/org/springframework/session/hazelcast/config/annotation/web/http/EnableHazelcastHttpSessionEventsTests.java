@@ -35,7 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.data.SessionEventRegistry;
+import org.springframework.session.hazelcast.SessionEventRegistry;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
