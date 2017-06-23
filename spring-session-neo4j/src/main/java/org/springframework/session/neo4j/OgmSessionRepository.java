@@ -154,9 +154,35 @@ public class OgmSessionRepository implements
 	public void save(final OgmSession session) {
 
 		if (session.isNew()) {
-		
-			// Execute the create cypher
-			 
+
+			Map<String, Object> parameters = new HashMap<>(1);
+
+			int size = 5 + session.getAttributeNames().size();
+			Map<String, Object> nodeProperties = new HashMap<>(size);
+			parameters.put("nodeProperties", nodeProperties);
+			
+			parameters.put("id", session.getId());
+			parameters.put("creationTime", session.getCreationTime());
+			parameters.put("principalName", session.getPrincipalName());
+			parameters.put("lastAccessTime", session.getLastAccessedTime());
+			parameters.put("maxInactiveInterval", session.getMaxInactiveInterval());
+			
+			for (String attributeName : session.getAttributeNames()) {
+				
+				Optional<String> attributeValue = session.getAttribute(attributeName);
+				
+				if (attributeValue.isPresent()) {
+					// TODO: Serialize the attributeValue if it is not a native Neo4j type
+					parameters.put(attributeName, attributeValue);
+				}
+				
+			}
+
+			String CREATE = "create (n:%LABEL%) set {nodeProperties}"; // TODO: Move to a constant and check the cypher syntax
+			String cypher = CREATE.replace("%LABEL%", label);
+			
+			executeCypher(cypher, parameters);
+			
 		}
 //		if (session.isNew()) {
 //			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
@@ -277,11 +303,26 @@ public class OgmSessionRepository implements
 		
 		Iterator<Map<String, Object>> resultIterator = result.iterator();
 		
-		if (!resultIterator.hasNext()) {
-			return null;
-		}
+		if (resultIterator.hasNext()) {
 		
-		Map<String, Object> r = resultIterator.next();
+			Map<String, Object> r = resultIterator.next();
+			
+			// TODO: Convert r into a MapSession	
+			MapSession session = new MapSession(id);
+	//		session.setCreationTime(Instant.ofEpochMilli(rs.getLong("CREATION_TIME")));
+	//		session.setLastAccessedTime(Instant.ofEpochMilli(rs.getLong("LAST_ACCESS_TIME")));
+	//		session.setMaxInactiveInterval(Duration.ofSeconds(rs.getInt("MAX_INACTIVE_INTERVAL")));
+			//mapSession.setAttribute(attributeName, attributeValue);
+			
+			if (session != null) {
+				if (session.isExpired()) {
+					delete(id);
+				} else {
+					return new OgmSession(session);
+				}
+			}		
+
+		}
 		
 		return null;
 	}
