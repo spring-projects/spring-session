@@ -1,0 +1,17 @@
+apply plugin: 'io.spring.convention.spring-pom'
+
+description = "Spring Session and Spring Neo4j integration"
+
+dependencies {
+	compile project(':spring-session-core')
+	compile "org.springframework:spring-context"
+	compile "org.springframework:spring-neo4j"
+
+	testCompile "javax.servlet:javax.servlet-api"
+	testCompile "org.springframework.security:spring-security-core"
+	testCompile "org.springframework.security:spring-security-web"
+
+	integrationTestCompile "org.apache.derby:derby"
+	integrationTestCompile "com.h2database:h2"
+	integrationTestCompile "org.hsqldb:hsqldb"
+}
