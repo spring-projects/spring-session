@@ -33,6 +33,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -72,11 +73,12 @@ public class OgmSessionRepository implements
 	
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private static final Log logger = LogFactory
-			.getLog(OgmSessionRepository.class);
+	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
 
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
+	private final SessionFactory sessionFactory;
+	
 	/**
 	 * The name of label used by Spring Session to store sessions.
 	 */
@@ -92,30 +94,20 @@ public class OgmSessionRepository implements
 
 	/**
 	 * Create a new {@link OgmSessionRepository} instance which uses the
-	 * default {@link JdbcOperations} to manage sessions.
-	 * @param dataSource the {@link DataSource} to use
-	 * @param transactionManager the {@link PlatformTransactionManager} to use
-	 */
-	public OgmSessionRepository(DataSource dataSource,
-			PlatformTransactionManager transactionManager) {
-		this(createDefaultJdbcTemplate(dataSource), transactionManager);
-	}
-
-	/**
-	 * Create a new {@link OgmSessionRepository} instance which uses the
 	 * provided {@link JdbcOperations} to manage sessions.
 	 * @param jdbcOperations the {@link JdbcOperations} to use
 	 * @param transactionManager the {@link PlatformTransactionManager} to use
 	 */
-	public OgmSessionRepository(JdbcOperations jdbcOperations,
-			PlatformTransactionManager transactionManager) {
-		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
-		this.jdbcOperations = jdbcOperations;
-		this.transactionOperations = createTransactionTemplate(transactionManager);
+	public OgmSessionRepository(SessionFactory sessionFactory) {
+		
+		Session session = null;
+		
+		Assert.notNull(sessionFactory, "SessionFactory must not be null");
+		this.sessionFactory = sessionFactory;
 		this.conversionService = createDefaultConversionService();
-		prepareQueries();
+		//prepareQueries();
 	}
-
+	
 	/**
 	 * Set the label used to store sessions.
 	 * @param label the label
