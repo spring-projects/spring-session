@@ -270,7 +270,9 @@ public class OgmSessionRepository implements
 					byte attributeValueAsBytes[] = serialize(entry.getValue());
 					nodeProperties.put(key, attributeValueAsBytes);
 				}			
-			}			
+			}	
+			
+			executeCypher(updateSessionQuery, parameters);
 		}
 
 		session.clearChangeFlags();
