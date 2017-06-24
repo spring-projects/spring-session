@@ -66,7 +66,7 @@ public class OgmSessionRepository implements
 
 	private static final String CREATE_SESSION_QUERY = "create (n:%LABEL%) set {nodeProperties}";
 
-	private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} return n";
+	private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} return n order by n.creationTime desc";
 	
 	private static final String UPDATE_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} set {nodeProperties}";
 	
@@ -117,7 +117,6 @@ public class OgmSessionRepository implements
 	 * @param transactionManager the {@link PlatformTransactionManager} to use
 	 */
 	public OgmSessionRepository(SessionFactory sessionFactory) {
-
 		Assert.notNull(sessionFactory, "SessionFactory must not be null");
 		this.sessionFactory = sessionFactory;
 		this.conversionService = createDefaultConversionService();
@@ -278,7 +277,6 @@ public class OgmSessionRepository implements
 		session.clearChangeFlags();
 	}
 
-	//erics
 	public OgmSession getSession(final String sessionId) {
 
 		Map<String, Object> parameters = new HashMap<>(1);
@@ -330,8 +328,7 @@ public class OgmSessionRepository implements
 
 	public void delete(final String sessionId) {		
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("sessionId", sessionId);
-		
+		parameters.put("sessionId", sessionId);		
 		executeCypher(this.deleteSessionQuery, parameters);		
 	}
 
