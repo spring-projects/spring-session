@@ -16,7 +16,6 @@
 
 package org.springframework.session.neo4j;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -33,6 +32,7 @@ import org.neo4j.ogm.model.Result;
 import org.neo4j.ogm.session.SessionFactory;
 import org.neo4j.ogm.transaction.Transaction;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
@@ -45,6 +45,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 // TODO: JavaDoc
 /**
@@ -62,29 +63,45 @@ public class OgmSessionRepository implements
 	 */
 	public static final String DEFAULT_LABEL = "SPRING_SESSION";
 	
-	private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={id} return n";
-	
-	public static final String DEFAULT_CYPHER_DELETE = "match (n:%LABEL%) where n.sessionId={id} delete n";
-			
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
+	private static final String CREATE_SESSION_QUERY = "create (n:%LABEL%) set {nodeProperties}";
 
+	private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} return n";
+	
+	private static final String UPDATE_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} set {nodeProperties}";
+	
+	private static final String DELETE_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} detach delete n";
+	
+	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n";
+
+// TODO: Complete the deleteSessionByLastAccessTimeQuery
+//	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
+//			"DELETE FROM %TABLE_NAME% " +
+//					"WHERE MAX_INACTIVE_INTERVAL < (? - LAST_ACCESS_TIME) / 1000";
+	
+	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
+	
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
 	private final SessionFactory sessionFactory;
-	
-	private String getSessionQuery = GET_SESSION_QUERY;
 	
 	/**
 	 * The name of label used by Spring Session to store sessions.
 	 */
 	private String label = DEFAULT_LABEL;
 	
-	/**
-	 * The name of label used by Spring Session to store sessions.
-	 */
-	private String cypherDelete = DEFAULT_CYPHER_DELETE;
+	private String createSessionQuery;
+	
+	private String getSessionQuery;
+	
+	private String updateSessionQuery;
+	
+	private String deleteSessionQuery;
+	
+	private String listSessionsByPrincipalNameQuery;
+
+	private String deleteSessionsByLastAccessTimeQuery;
 	
 	/**
 	 * If non-null, this value is used to override the default value for
@@ -105,7 +122,7 @@ public class OgmSessionRepository implements
 		Assert.notNull(sessionFactory, "SessionFactory must not be null");
 		this.sessionFactory = sessionFactory;
 		this.conversionService = createDefaultConversionService();
-		//prepareQueries();
+		prepareQueries();
 	}
 	
 	/**
@@ -115,13 +132,61 @@ public class OgmSessionRepository implements
 	public void setLabel(String label) {
 		Assert.hasText(label, "label must not be empty");
 		this.label = label.trim();
-//		prepareQueries();
+		prepareQueries();
 	}
 
-	public void setCypherDelete(String cypherDelete) {
-		Assert.hasText(cypherDelete, "cypherDelete must not be empty");
-		this.cypherDelete = cypherDelete;
-//		prepareQueries();
+	/**
+	 * Set the custom Cypher query used to create the session.
+	 * @param createSessionQuery the Cypher query string
+	 */
+	public void setCreateSessionQuery(String createSessionQuery) {
+		Assert.hasText(createSessionQuery, "createSessionQuery must not be empty");
+		this.createSessionQuery = createSessionQuery;
+	}
+	
+	/**
+	 * Set the custom Cypher query used to retrieve the session.
+	 * @param getSessionQuery the Cypher query string
+	 */
+	public void setGetSessionQuery(String getSessionQuery) {
+		Assert.hasText(getSessionQuery, "getSessionQuery must not be empty");
+		this.getSessionQuery = getSessionQuery;
+	}
+	
+	/**
+	 * Set the custom Cypher query used to update the session.
+	 * @param updateSessionQuery the Cypher query string
+	 */
+	public void setUpdateSessionQuery(String updateSessionQuery) {
+		Assert.hasText(updateSessionQuery, "updateSessionQuery must not be empty");
+		this.updateSessionQuery = updateSessionQuery;
+	}
+	
+	/**
+	 * Set the custom Cypher query used to delete the session.
+	 * @param deleteSessionQuery the Cypher query string
+	 */
+	public void setDeleteSessionQuery(String deleteSessionQuery) {
+		Assert.hasText(deleteSessionQuery, "deleteSessionQuery must not be empty");
+		this.deleteSessionQuery = deleteSessionQuery;
+	}
+	
+	/**
+	 * Set the custom Cypher query used to retrieve the sessions by principal name.
+	 * @param listSessionsByPrincipalNameQuery the Cypher query string
+	 */
+	public void setListSessionsByPrincipalNameQuery(String listSessionsByPrincipalNameQuery) {
+		Assert.hasText(listSessionsByPrincipalNameQuery, "Query must not be empty");
+		this.listSessionsByPrincipalNameQuery = listSessionsByPrincipalNameQuery;
+	}
+
+	/**
+	 * Set the custom Cypher query used to delete the sessions by last access time.
+	 * @param deleteSessionsByLastAccessTimeQuery the Cypher query string
+	 */
+	public void setDeleteSessionsByLastAccessTimeQuery(String deleteSessionsByLastAccessTimeQuery) {
+		Assert.hasText(deleteSessionsByLastAccessTimeQuery, "Query must not be empty");
+		this.deleteSessionsByLastAccessTimeQuery = deleteSessionsByLastAccessTimeQuery;
 	}
 	
 	/**
@@ -152,7 +217,6 @@ public class OgmSessionRepository implements
 	}
 	
 	public void save(final OgmSession session) {
-
 		if (session.isNew()) {
 
 			Map<String, Object> parameters = new HashMap<>(1);
@@ -161,19 +225,21 @@ public class OgmSessionRepository implements
 			Map<String, Object> nodeProperties = new HashMap<>(size);
 			parameters.put("nodeProperties", nodeProperties);
 			
-			parameters.put("id", session.getId());
-			parameters.put("creationTime", session.getCreationTime());
-			parameters.put("principalName", session.getPrincipalName());
-			parameters.put("lastAccessTime", session.getLastAccessedTime());
-			parameters.put("maxInactiveInterval", session.getMaxInactiveInterval());
+			nodeProperties.put("sessionId", session.getId());
+			nodeProperties.put("creationTime", session.getCreationTime());
+			nodeProperties.put("principalName", session.getPrincipalName());
+			nodeProperties.put("lastAccessTime", session.getLastAccessedTime());
+			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval());
 			
 			for (String attributeName : session.getAttributeNames()) {
 				
 				Optional<String> attributeValue = session.getAttribute(attributeName);
-				
+
 				if (attributeValue.isPresent()) {
-					// TODO: Serialize the attributeValue if it is not a native Neo4j type
-					parameters.put(attributeName, attributeValue);
+					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
+					String key = "attribute_" + attributeName;
+					byte attributeValueAsBytes[] = serialize(attributeValue);
+					nodeProperties.put(key, attributeValueAsBytes);
 				}
 				
 			}
@@ -181,94 +247,44 @@ public class OgmSessionRepository implements
 			String CREATE = "create (n:%LABEL%) set {nodeProperties}"; // TODO: Move to a constant and check the cypher syntax
 			String cypher = CREATE.replace("%LABEL%", label);
 			
-			executeCypher(cypher, parameters);
+			executeCypher(createSessionQuery, parameters);
+			
+		} else {
+			
+			Map<String, Object> parameters = new HashMap<>(1);
+
+			int size = 5 + session.getAttributeNames().size();
+			Map<String, Object> nodeProperties = new HashMap<>(size);
+			parameters.put("nodeProperties", nodeProperties);
+			
+			parameters.put("principalName", session.getPrincipalName());
+			parameters.put("lastAccessTime", session.getLastAccessedTime());
+			parameters.put("maxInactiveInterval", session.getMaxInactiveInterval());
+			
+			Map<String, Object> delta = session.getDelta();
+			if (!delta.isEmpty()) {
+				
+				for (final Map.Entry<String, Object> entry : delta.entrySet()) {
+				
+					// TODO: Determine if setting a property as null removes it from the node; I believe it does
+					if (entry.getValue() == null) {
+	//					OgmSessionRepository.this.jdbcOperations.update(
+	//							OgmSessionRepository.this.deleteSessionAttributeQuery,
+	//							ps -> {
+	
+					} else {
+						
+							
+						
+					}
+				
+				}
+			
+			}
 			
 		}
-//		if (session.isNew()) {
-//			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-//
-//				protected void doInTransactionWithoutResult(TransactionStatus status) {
-//					OgmSessionRepository.this.jdbcOperations.update(
-//							OgmSessionRepository.this.createSessionQuery,
-//							ps -> {
-//								ps.setString(1, session.getId());
-//								ps.setLong(2, session.getCreationTime().toEpochMilli());
-//								ps.setLong(3, session.getLastAccessedTime().toEpochMilli());
-//								ps.setInt(4, (int) session.getMaxInactiveInterval().getSeconds());
-//								ps.setString(5, session.getPrincipalName());
-//							});
-//					if (!session.getAttributeNames().isEmpty()) {
-//						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
-//						OgmSessionRepository.this.jdbcOperations.batchUpdate(
-//								OgmSessionRepository.this.createSessionAttributeQuery,
-//								new BatchPreparedStatementSetter() {
-//
-//									public void setValues(PreparedStatement ps, int i) throws SQLException {
-//										String attributeName = attributeNames.get(i);
-//										ps.setString(1, session.getId());
-//										ps.setString(2, attributeName);
-//										serialize(ps, 3, session.getAttribute(attributeName).orElse(null));
-//									}
-//
-//									public int getBatchSize() {
-//										return attributeNames.size();
-//									}
-//
-//								});
-//					}
-//				}
-//
-//			});
-//		}
-//		else {
-//			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-//
-//				protected void doInTransactionWithoutResult(TransactionStatus status) {
-//					if (session.isChanged()) {
-//						OgmSessionRepository.this.jdbcOperations.update(
-//								OgmSessionRepository.this.updateSessionQuery,
-//								ps -> {
-//									ps.setLong(1, session.getLastAccessedTime().toEpochMilli());
-//									ps.setInt(2, (int) session.getMaxInactiveInterval().getSeconds());
-//									ps.setString(3, session.getPrincipalName());
-//									ps.setString(4, session.getId());
-//								});
-//					}
-//					Map<String, Object> delta = session.getDelta();
-//					if (!delta.isEmpty()) {
-//						for (final Map.Entry<String, Object> entry : delta.entrySet()) {
-//							if (entry.getValue() == null) {
-//								OgmSessionRepository.this.jdbcOperations.update(
-//										OgmSessionRepository.this.deleteSessionAttributeQuery,
-//										ps -> {
-//											ps.setString(1, session.getId());
-//											ps.setString(2, entry.getKey());
-//										});
-//							}
-//							else {
-//								int updatedCount = OgmSessionRepository.this.jdbcOperations.update(
-//										OgmSessionRepository.this.updateSessionAttributeQuery,
-//										ps -> {
-//											serialize(ps, 1, entry.getValue());
-//											ps.setString(2, session.getId());
-//											ps.setString(3, entry.getKey());
-//										});
-//								if (updatedCount == 0) {
-//									OgmSessionRepository.this.jdbcOperations.update(
-//											OgmSessionRepository.this.createSessionAttributeQuery,
-//											ps -> {
-//												ps.setString(1, session.getId());
-//												ps.setString(2, entry.getKey());
-//												serialize(ps, 3, entry.getValue());
-//											});
-//								}
-//							}
-//						}
-//					}
-//				}
-//
-//			});
-//		}
+		
+
 		session.clearChangeFlags();
 	}
 
@@ -327,14 +343,11 @@ public class OgmSessionRepository implements
 		return null;
 	}
 
-	public void delete(final String id) {
-		
-		String cypher = cypherDelete.replace("%LABEL%", label);
+	public void delete(final String sessionId) {		
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("id", id);
+		parameters.put("sessionId", sessionId);
 		
-		executeCypher(cypher, parameters);
-		
+		executeCypher(this.deleteSessionQuery, parameters);		
 	}
 
 	public Map<String, OgmSession> findByIndexNameAndIndexValue(String indexName,
@@ -382,13 +395,37 @@ public class OgmSessionRepository implements
 		return converter;
 	}
 
-	private void serialize(PreparedStatement ps, int paramIndex, Object attributeValue)
-			throws SQLException {
-//		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex,
-//				(byte[]) this.conversionService.convert(attributeValue,
-//						TypeDescriptor.valueOf(Object.class),
-//						TypeDescriptor.valueOf(byte[].class)));
+	private String getQuery(String base) {
+		return StringUtils.replace(base, "%LABEL%", this.label);
 	}
+	
+	private void prepareQueries() {
+		this.createSessionQuery = getQuery(CREATE_SESSION_QUERY);
+		this.getSessionQuery = getQuery(GET_SESSION_QUERY);
+		this.updateSessionQuery = getQuery(UPDATE_SESSION_QUERY);
+		this.deleteSessionQuery = getQuery(DELETE_SESSION_QUERY);
+		this.listSessionsByPrincipalNameQuery =
+				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY);
+// TODO: Complete the deleteSessionByLastAccessTimeQuery		
+//		this.deleteSessionsByLastAccessTimeQuery =
+//				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY);
+	}
+	
+	private byte[] serialize(Object attributeValue) {		
+		byte bytes[] = (byte[]) this.conversionService.convert(attributeValue,
+				TypeDescriptor.valueOf(Object.class),
+				TypeDescriptor.valueOf(byte[].class));
+
+		return bytes;
+	}
+	
+//	private void serialize(PreparedStatement ps, int paramIndex, Object attributeValue)
+//			throws SQLException {
+////		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex,
+////				(byte[]) this.conversionService.convert(attributeValue,
+////						TypeDescriptor.valueOf(Object.class),
+////						TypeDescriptor.valueOf(byte[].class)));
+//	}
 
 	private Object deserialize(ResultSet rs, String columnName)
 			throws SQLException {
@@ -525,15 +562,6 @@ public class OgmSessionRepository implements
 
 	}
 
-	/**
-	 * Set the custom SQL query used to retrieve the session.
-	 * @param getSessionQuery the SQL query string
-	 */
-	public void setGetSessionQuery(String getSessionQuery) {
-		Assert.hasText(getSessionQuery, "Query must not be empty");
-		this.getSessionQuery = getSessionQuery;
-	}
-	
 	protected Result executeCypher(String cypher, Map<String, Object> parameters) {
 
 		Result result = null;
