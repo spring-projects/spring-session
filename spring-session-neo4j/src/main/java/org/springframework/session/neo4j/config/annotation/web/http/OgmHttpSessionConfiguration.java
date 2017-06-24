@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,7 +36,6 @@ import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.neo4j.OgmSessionRepository;
@@ -67,8 +67,6 @@ public class OgmHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private Integer maxInactiveIntervalInSeconds;
 
-	private LobHandler lobHandler;
-
 	@Autowired(required = false)
 	@Qualifier("conversionService")
 	private ConversionService conversionService;
@@ -86,10 +84,10 @@ public class OgmHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Bean
 	public OgmSessionRepository sessionRepository(
-			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations,
-			PlatformTransactionManager transactionManager) {
-		OgmSessionRepository sessionRepository =
-				new OgmSessionRepository(jdbcOperations, transactionManager);
+			@Qualifier("springSessionOgmSession") SessionFactory sessionFactory) {
+		
+		OgmSessionRepository sessionRepository = new OgmSessionRepository(sessionFactory);
+		
 		String label = getLabel();
 		if (StringUtils.hasText(label)) {
 			sessionRepository.setLabel(label);
