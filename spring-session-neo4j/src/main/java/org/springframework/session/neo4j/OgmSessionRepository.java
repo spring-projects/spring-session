@@ -18,6 +18,7 @@ package org.springframework.session.neo4j;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -72,7 +73,7 @@ public class OgmSessionRepository implements
 	
 	private static final String DELETE_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} detach delete n";
 	
-	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n";
+	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n order by n.creationTime desc";;
 
 // TODO: Complete the deleteSessionByLastAccessTimeQuery
 //	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
@@ -334,26 +335,47 @@ public class OgmSessionRepository implements
 
 	public Map<String, OgmSession> findByIndexNameAndIndexValue(String indexName,
 			final String indexValue) {
-//		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
-//			return Collections.emptyMap();
-//		}
-//
-//		List<Session> sessions = this.transactionOperations.execute(status ->
-//				OgmSessionRepository.this.jdbcOperations.query(
-//						OgmSessionRepository.this.listSessionsByPrincipalNameQuery,
-//						ps -> ps.setString(1, indexValue),
-//						OgmSessionRepository.this.extractor));
-//
-//		Map<String, OgmSession> sessionMap = new HashMap<>(
-//				sessions.size());
-//
-//		for (Session session : sessions) {
-//			sessionMap.put(session.getId(), new OgmSession(session));
-//		}
-//
-//		return sessionMap;
+		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
+			return Collections.emptyMap();
+		}
+
+		Map<String, Object> parameters = new HashMap<String, Object>(1);
+		parameters.put("principalName", indexValue);
+		Result result = executeCypher(listSessionsByPrincipalNameQuery, parameters);
 		
-		return null;
+		Map<String, OgmSession> sessionMap = new HashMap<>();
+		
+		for (Map<String, Object> r : result.queryResults()) {
+		
+			String sessionId = (String) r.get("sessionId");	
+			MapSession session = new MapSession(sessionId);
+			
+			String principalName = (String) r.get("principalName");
+			//session.setPrincipalName(principalName);
+			
+			long creationTime = (long) r.get("creationTime");			
+			session.setCreationTime(Instant.ofEpochMilli(creationTime));
+			
+			long lastAccessedTime = (long) r.get("lastAccessedTime");
+			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
+			
+			int maxInactiveInterval = (int) r.get("maxInactiveInterval");
+			session.setMaxInactiveInterval(Duration.ofSeconds(maxInactiveInterval));
+
+			for (Entry<String, Object> entry : r.entrySet()) {			
+				String attributeName = entry.getKey();
+				if (attributeName.startsWith("attribute_")) {					
+					Object serializedValue = entry.getValue();
+					Object attributeValue = deserialize(serializedValue);
+					session.setAttribute(attributeName, attributeValue);;
+				}				
+			}
+			
+			OgmSession ogmSession = new OgmSession(session);
+			sessionMap.put(session.getId(), ogmSession);
+		}
+
+		return sessionMap;
 	}
 
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
@@ -408,8 +430,6 @@ public class OgmSessionRepository implements
 
 	/**
 	 * The {@link Session} to use for {@link OgmSessionRepository}.
-	 *
-	 * @author Eric Spiegelberg
 	 */
 	final class OgmSession implements Session {
 
