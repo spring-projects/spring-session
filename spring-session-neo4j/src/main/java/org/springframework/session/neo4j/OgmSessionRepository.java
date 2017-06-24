@@ -247,40 +247,31 @@ public class OgmSessionRepository implements
 			executeCypher(createSessionQuery, parameters);
 			
 		} else {
-			
-			Map<String, Object> parameters = new HashMap<>(1);
 
-			int size = 5 + session.getAttributeNames().size();
+			Map<String, Object> delta = session.getDelta();
+			
+			int size = 3 + delta.size();
+			Map<String, Object> parameters = new HashMap<>(1);			
 			Map<String, Object> nodeProperties = new HashMap<>(size);
 			parameters.put("nodeProperties", nodeProperties);
 			
-			parameters.put("principalName", session.getPrincipalName());
-			parameters.put("lastAccessTime", session.getLastAccessedTime());
-			parameters.put("maxInactiveInterval", session.getMaxInactiveInterval());
+			nodeProperties.put("principalName", session.getPrincipalName());
+			nodeProperties.put("lastAccessTime", session.getLastAccessedTime());
+			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval());
 			
-			Map<String, Object> delta = session.getDelta();
-			if (!delta.isEmpty()) {
-				
+			if (!delta.isEmpty()) {				
 				for (final Map.Entry<String, Object> entry : delta.entrySet()) {
-				
-					// TODO: Determine if setting a property as null removes it from the node; I believe it does
-					if (entry.getValue() == null) {
-	//					OgmSessionRepository.this.jdbcOperations.update(
-	//							OgmSessionRepository.this.deleteSessionAttributeQuery,
-	//							ps -> {
-	
-					} else {
-						
-							
-						
-					}
-				
-				}
-			
-			}
-			
+//					if (entry.getValue() == null) {
+//						// TODO: Verify a null property is removed from the node						
+//					} else {
+//					}				
+					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
+					String key = "attribute_" + entry.getKey();
+					byte attributeValueAsBytes[] = serialize(entry.getValue());
+					nodeProperties.put(key, attributeValueAsBytes);
+				}			
+			}			
 		}
-		
 
 		session.clearChangeFlags();
 	}
