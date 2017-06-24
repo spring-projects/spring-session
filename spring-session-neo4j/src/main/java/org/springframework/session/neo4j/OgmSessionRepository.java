@@ -19,6 +19,7 @@ package org.springframework.session.neo4j;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -75,11 +76,10 @@ public class OgmSessionRepository implements
 	
 	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n order by n.creationTime desc";;
 
-// TODO: Complete the deleteSessionByLastAccessTimeQuery
-	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
-			"DELETE FROM %TABLE_NAME% " +
-					"WHERE MAX_INACTIVE_INTERVAL < (? - LAST_ACCESS_TIME) / 1000";
-	
+// TODO: Complete the deleteSessionByLastAccessTimeQuery and test
+	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY = 
+			"match (n:%LABEL%) where n.maxInactiveInterval < n.maxInactiveInterval < ({lastAccessTime} - n.lastAccessedTime) / 1000 detach delete n";
+
 	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
 	
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
@@ -381,7 +381,9 @@ public class OgmSessionRepository implements
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
 
-		Map<String, Object> parameters = Collections.emptyMap();
+		Date now = new Date();
+		Map<String, Object> parameters = new HashMap<>();
+		parameters.put("lastAccessTime", now);
 		Result result = executeCypher(deleteSessionsByLastAccessTimeQuery, parameters);
 		int deletedCount = result.queryStatistics().getNodesDeleted();
 		
