@@ -35,7 +35,6 @@ import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.neo4j.OgmSessionRepository;
@@ -78,13 +77,8 @@ public class OgmHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
-		return new JdbcTemplate(dataSource);
-	}
-
-	@Bean
 	public OgmSessionRepository sessionRepository(
-			@Qualifier("springSessionOgmSession") SessionFactory sessionFactory) {
+			@Qualifier("springSessionOgmSessionFactory") SessionFactory sessionFactory) {
 		
 		OgmSessionRepository sessionRepository = new OgmSessionRepository(sessionFactory);
 		

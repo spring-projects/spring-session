@@ -63,8 +63,6 @@ import org.springframework.session.neo4j.OgmSessionRepository;
  * <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
  * Spring Framework Reference Documentation</a>.
  *
- * @author Vedran Pavic
- * @since 1.2.0
  * @see EnableSpringHttpSession
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -75,8 +73,8 @@ import org.springframework.session.neo4j.OgmSessionRepository;
 public @interface EnableOgmHttpSession {
 
 	/**
-	 * The name of database table used by Spring Session to store sessions.
-	 * @return the database table name
+	 * The name of label used by Spring Session to store sessions.
+	 * @return the label name
 	 */
 	String label() default OgmSessionRepository.DEFAULT_LABEL;
 
