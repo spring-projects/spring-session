@@ -16,13 +16,12 @@
 
 package org.springframework.session.neo4j;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
@@ -228,7 +227,7 @@ public class OgmSessionRepository implements
 			nodeProperties.put("sessionId", session.getId());
 			nodeProperties.put("creationTime", session.getCreationTime());
 			nodeProperties.put("principalName", session.getPrincipalName());
-			nodeProperties.put("lastAccessTime", session.getLastAccessedTime());
+			nodeProperties.put("lastAccessedTime", session.getLastAccessedTime());
 			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval());
 			
 			for (String attributeName : session.getAttributeNames()) {
@@ -279,58 +278,53 @@ public class OgmSessionRepository implements
 		session.clearChangeFlags();
 	}
 
-	public OgmSession getSession(final String id) {
-//		final Session session = this.transactionOperations.execute(status -> {
-//			List<Session> sessions = OgmSessionRepository.this.jdbcOperations.query(
-//					OgmSessionRepository.this.getSessionQuery,
-//					ps -> ps.setString(1, id),
-//					OgmSessionRepository.this.extractor
-//			);
-//			if (sessions.isEmpty()) {
-//				return null;
-//			}
-//			return sessions.get(0);
-//		});
-//
-//		if (session != null) {
-//			if (session.isExpired()) {
-//				delete(id);
-//			}
-//			else {
-//				return new OgmSession(session);
-//			}
-//		}
+	//erics
+	public OgmSession getSession(final String sessionId) {
+
+		Map<String, Object> parameters = new HashMap<>(1);
+		parameters.put("sessionId", sessionId);
 		
-		//private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={id} return n";
-		String cypher = getSessionQuery.replace("%LABEL", label);
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("id", id);
-		
-		Result result = executeCypher(cypher, parameters);
+		Result result = executeCypher(getSessionQuery, parameters);
 		
 		Iterator<Map<String, Object>> resultIterator = result.iterator();
 		
+		MapSession session = null;
 		if (resultIterator.hasNext()) {
 		
 			Map<String, Object> r = resultIterator.next();
 			
-			// TODO: Convert r into a MapSession	
-			MapSession session = new MapSession(id);
-	//		session.setCreationTime(Instant.ofEpochMilli(rs.getLong("CREATION_TIME")));
-	//		session.setLastAccessedTime(Instant.ofEpochMilli(rs.getLong("LAST_ACCESS_TIME")));
-	//		session.setMaxInactiveInterval(Duration.ofSeconds(rs.getInt("MAX_INACTIVE_INTERVAL")));
-			//mapSession.setAttribute(attributeName, attributeValue);
+			session = new MapSession(sessionId);
 			
-			if (session != null) {
-				if (session.isExpired()) {
-					delete(id);
-				} else {
-					return new OgmSession(session);
-				}
-			}		
+			String principalName = (String) r.get("principalName");
+			//session.setPrincipalName(principalName);
+			
+			long creationTime = (long) r.get("creationTime");			
+			session.setCreationTime(Instant.ofEpochMilli(creationTime));
+			
+			long lastAccessedTime = (long) r.get("lastAccessedTime");
+			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
+			
+			int maxInactiveInterval = (int) r.get("maxInactiveInterval");
+			session.setMaxInactiveInterval(Duration.ofSeconds(maxInactiveInterval));
 
+			for (Entry<String, Object> entry : r.entrySet()) {			
+				String attributeName = entry.getKey();
+				if (attributeName.startsWith("attribute_")) {					
+					Object serializedValue = entry.getValue();
+					Object attributeValue = deserialize(serializedValue);
+					session.setAttribute(attributeName, attributeValue);;
+				}				
+			}
 		}
 		
+		if (session != null) {
+			if (session.isExpired()) {
+				delete(sessionId);
+			} else {
+				return new OgmSession(session);
+			}
+		}
+
 		return null;
 	}
 
@@ -409,22 +403,10 @@ public class OgmSessionRepository implements
 
 		return bytes;
 	}
-	
-//	private void serialize(PreparedStatement ps, int paramIndex, Object attributeValue)
-//			throws SQLException {
-////		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex,
-////				(byte[]) this.conversionService.convert(attributeValue,
-////						TypeDescriptor.valueOf(Object.class),
-////						TypeDescriptor.valueOf(byte[].class)));
-//	}
 
-	private Object deserialize(ResultSet rs, String columnName)
-			throws SQLException {
-//		return this.conversionService.convert(
-//				this.lobHandler.getBlobAsBytes(rs, columnName),
-//				TypeDescriptor.valueOf(byte[].class),
-//				TypeDescriptor.valueOf(Object.class));
-		return null;
+	private Object deserialize(Object attributeValue) {
+		Object o = this.conversionService.convert(attributeValue, TypeDescriptor.valueOf(byte[].class), TypeDescriptor.valueOf(Object.class));
+		return o;		
 	}
 
 	/**
