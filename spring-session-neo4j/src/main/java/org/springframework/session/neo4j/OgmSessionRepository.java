@@ -251,9 +251,10 @@ public class OgmSessionRepository implements
 			Map<String, Object> delta = session.getDelta();
 			
 			int size = 3 + delta.size();
-			Map<String, Object> parameters = new HashMap<>(1);			
 			Map<String, Object> nodeProperties = new HashMap<>(size);
+			Map<String, Object> parameters = new HashMap<>(2);
 			parameters.put("nodeProperties", nodeProperties);
+			parameters.put("sessionId", session.getId());
 			
 			nodeProperties.put("principalName", session.getPrincipalName());
 			nodeProperties.put("lastAccessTime", session.getLastAccessedTime());
