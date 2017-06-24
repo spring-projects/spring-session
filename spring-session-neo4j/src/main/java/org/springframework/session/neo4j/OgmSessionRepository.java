@@ -76,9 +76,9 @@ public class OgmSessionRepository implements
 	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n order by n.creationTime desc";;
 
 // TODO: Complete the deleteSessionByLastAccessTimeQuery
-//	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
-//			"DELETE FROM %TABLE_NAME% " +
-//					"WHERE MAX_INACTIVE_INTERVAL < (? - LAST_ACCESS_TIME) / 1000";
+	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
+			"DELETE FROM %TABLE_NAME% " +
+					"WHERE MAX_INACTIVE_INTERVAL < (? - LAST_ACCESS_TIME) / 1000";
 	
 	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
 	
@@ -380,14 +380,14 @@ public class OgmSessionRepository implements
 
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
-//		int deletedCount = this.transactionOperations.execute(transactionStatus ->
-//				OgmSessionRepository.this.jdbcOperations.update(
-//						OgmSessionRepository.this.deleteSessionsByLastAccessTimeQuery,
-//						System.currentTimeMillis()));
-//
-//		if (logger.isDebugEnabled()) {
-//			logger.debug("Cleaned up " + deletedCount + " expired sessions");
-//		}
+
+		Map<String, Object> parameters = Collections.emptyMap();
+		Result result = executeCypher(deleteSessionsByLastAccessTimeQuery, parameters);
+		int deletedCount = result.queryStatistics().getNodesDeleted();
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("Cleaned up " + deletedCount + " expired sessions");
+		}
 	}
 
 	private static GenericConversionService createDefaultConversionService() {
@@ -409,10 +409,9 @@ public class OgmSessionRepository implements
 		this.updateSessionQuery = getQuery(UPDATE_SESSION_QUERY);
 		this.deleteSessionQuery = getQuery(DELETE_SESSION_QUERY);
 		this.listSessionsByPrincipalNameQuery =
-				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY);
-// TODO: Complete the deleteSessionByLastAccessTimeQuery		
-//		this.deleteSessionsByLastAccessTimeQuery =
-//				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY);
+				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY);		
+		this.deleteSessionsByLastAccessTimeQuery =
+				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY);
 	}
 	
 	private byte[] serialize(Object attributeValue) {		
