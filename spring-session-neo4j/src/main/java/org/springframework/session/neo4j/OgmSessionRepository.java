@@ -244,9 +244,6 @@ public class OgmSessionRepository implements
 				
 			}
 
-			String CREATE = "create (n:%LABEL%) set {nodeProperties}"; // TODO: Move to a constant and check the cypher syntax
-			String cypher = CREATE.replace("%LABEL%", label);
-			
 			executeCypher(createSessionQuery, parameters);
 			
 		} else {
