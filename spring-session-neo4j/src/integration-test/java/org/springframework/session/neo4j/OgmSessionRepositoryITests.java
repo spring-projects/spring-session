@@ -141,6 +141,15 @@ public class OgmSessionRepositoryITests {
 
 		Optional<String> actualAttributeValue = session.getAttribute(expectedAttributeName);
 		Assert.assertEquals(expectedAttributeValue, actualAttributeValue.get());
+
+		// Update a property
+		toSave.setAttribute(expectedAttributeName, "c");
+		this.repository.save(toSave);
+		toSaveId = toSave.getId();
+		
+		session = this.repository.getSession(toSaveId);
+
+		assertThat(session.getId()).isEqualTo(toSaveId);
 		
 		this.repository.delete(toSaveId);
 
