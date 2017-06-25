@@ -136,9 +136,9 @@ public class OgmSessionRepositoryITests {
 //		assertThat(session.<String>getAttribute(expectedAttributeName))
 //				.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
-//		this.repository.delete(toSaveId);
-//
-//		assertThat(this.repository.getSession(toSaveId)).isNull();
+		this.repository.delete(toSaveId);
+
+		assertThat(this.repository.getSession(toSaveId)).isNull();
 	}
 	
 }
