@@ -394,7 +394,7 @@ public class OgmSessionRepository implements
 
 		Date now = new Date();
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("lastAccessTime", now);
+		parameters.put("lastAccessedTime", now);
 		Result result = executeCypher(deleteSessionsByLastAccessTimeQuery, parameters);
 		int deletedCount = result.queryStatistics().getNodesDeleted();
 		
@@ -579,6 +579,7 @@ public class OgmSessionRepository implements
 			transaction.commit();
 
 		} catch (Exception e) {
+			logger.error(e);
 			transaction.rollback();
 		} finally {
 			transaction.close();
