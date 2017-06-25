@@ -242,7 +242,7 @@ public class OgmSessionRepository implements
 					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
 					String key = "attribute_" + attributeName;
 					byte attributeValueAsBytes[] = serialize(attributeValue.get());
-					nodeProperties.put(key, attributeValueAsBytes.toString());
+					nodeProperties.put(key, attributeValueAsBytes);
 				}
 				
 			}
@@ -315,10 +315,13 @@ public class OgmSessionRepository implements
 			for (Property<String, Object> property : propertyList) {
 				String attributeName = property.getKey();
 				if (attributeName.startsWith("attribute_")) {
+					attributeName = attributeName.substring(10);
 // Determine correct approach to serailize/deserialize					
 //					String serializedAttributeValue = (String) property.getValue();
-//					Object attributeValue = deserialize(serializedAttributeValue.getBytes());
-//					session.setAttribute(attributeName, attributeValue);
+					byte bytes[] = (byte[]) property.getValue();
+					//Object attributeValue = deserialize(serializedAttributeValue.getBytes());
+					Object attributeValue = deserialize(bytes);
+					session.setAttribute(attributeName, attributeValue);
 				}				
 			}			
 		}

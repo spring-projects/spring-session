@@ -18,8 +18,10 @@ package org.springframework.session.neo4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -132,13 +134,18 @@ public class OgmSessionRepositoryITests {
 		Session session = this.repository.getSession(toSaveId);
 
 		assertThat(session.getId()).isEqualTo(toSaveId);
-//		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
-//		assertThat(session.<String>getAttribute(expectedAttributeName))
-//				.isEqualTo(toSave.getAttribute(expectedAttributeName));
+		
+		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
+		assertThat(session.<String>getAttribute(expectedAttributeName))
+				.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
+		Optional<String> actualAttributeValue = session.getAttribute(expectedAttributeName);
+		Assert.assertEquals(expectedAttributeValue, actualAttributeValue.get());
+		
 		this.repository.delete(toSaveId);
 
 		assertThat(this.repository.getSession(toSaveId)).isNull();
+
 	}
 	
 }
