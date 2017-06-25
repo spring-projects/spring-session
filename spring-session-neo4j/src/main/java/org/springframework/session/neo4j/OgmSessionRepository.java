@@ -282,7 +282,10 @@ public class OgmSessionRepository implements
 					stringBuilder.append(key);
 					stringBuilder.append("={");					
 					stringBuilder.append(key);
-					stringBuilder.append("},");
+					stringBuilder.append("}");
+					if (entries.hasNext()) {
+						stringBuilder.append(",");
+					}
 				}				
 			}
 			String suffix = stringBuilder.toString();

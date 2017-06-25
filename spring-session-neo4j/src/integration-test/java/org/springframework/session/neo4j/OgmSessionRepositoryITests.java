@@ -18,6 +18,7 @@ package org.springframework.session.neo4j;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -43,9 +44,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link OgmSessionRepository} using HSQLDB database.
+ * Integration tests for {@link OgmSessionRepository} using a Neo4j database.
  *
- * @author Vedran Pavic
+ * @author Eric Spiegelberg
  */
 @WebAppConfiguration
 @ContextConfiguration
