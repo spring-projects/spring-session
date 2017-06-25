@@ -68,8 +68,6 @@ public class OgmSessionRepository implements
 	
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	//public static final String CYPHER_OBJECT_CREATE = "match (user:User) where user.username={createdBy} create (n:%LABEL%:Latest {properties}) create unique (user)-[r:created_by {created:$created}]->(n)";
-	
 	private static final String CREATE_SESSION_QUERY = "create (n:%LABEL% {nodeProperties})";
 
 	private static final String GET_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} return n order by n.creationTime desc";
