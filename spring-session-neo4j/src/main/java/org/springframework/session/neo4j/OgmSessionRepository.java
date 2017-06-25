@@ -242,11 +242,7 @@ public class OgmSessionRepository implements
 					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
 					String key = ATTRIBUTE_KEY_PREFIX + attributeName;
 					byte attributeValueAsBytes[] = serialize(attributeValue.get());
-					nodeProperties.put(key, attributeValueAsBytes);					
-//					Object value = attributeValue.get();
-//					if (value instanceof Number || value instanceof String) {
-//						nodeProperties.put(key, attributeValue.get());
-//					}
+					nodeProperties.put(key, attributeValueAsBytes);
 				}
 				
 			}
@@ -255,84 +251,25 @@ public class OgmSessionRepository implements
 			
 		} else {
 
-			//Map<String, Object> nodeProperties = new HashMap<>();
-			Map<String, Object> parameters = new HashMap<>(2);
-			//parameters.put("nodeProperties", nodeProperties);
-			parameters.put("sessionId", session.getId());
+			Map<String, Object> delta = session.getDelta();
 			
+			Map<String, Object> parameters = new HashMap<>(4 + delta.size());
+			// TODO: Make these keys as constants
+			parameters.put("sessionId", session.getId());			
 			parameters.put("principalName", session.getPrincipalName());
 			parameters.put("lastAccessedTime", session.getLastAccessedTime().toEpochMilli());
 			parameters.put("maxInactiveInterval", session.getMaxInactiveInterval().toMillis());
-			
-			Map<String, Object> delta = session.getDelta();
 	
 			if (!delta.isEmpty()) {		
 				for (final Map.Entry<String, Object> entry : delta.entrySet()) {
 					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
 					String key = ATTRIBUTE_KEY_PREFIX + entry.getKey();
-					Object value = entry.getValue();
-					
+					Object value = entry.getValue();					
 					byte attributeValueAsBytes[] = serialize(value);
-//					parameters.put(key, attributeValueAsBytes);
-					
-					
-//					if (value instanceof Number || value instanceof String) {
-//						nodeProperties.put(key, value);
-//					}
-				
-					//parameters.put(key, value);
 					parameters.put(key, attributeValueAsBytes);
 				}
 
 			}
-			
-//			// TODO: Make these keys as constants
-//			nodeProperties.put("sessionId", session.getId());
-//			nodeProperties.put("creationTime", session.getCreationTime().toEpochMilli());
-//			nodeProperties.put("principalName", session.getPrincipalName());
-//			nodeProperties.put("lastAccessedTime", session.getLastAccessedTime().toEpochMilli());
-//			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval().toMillis());
-//
-//// TODO: Code and test the update ***
-//			Map<String, Object> delta = session.getDelta();
-//			
-////			if (!delta.isEmpty()) {				
-////				for (final Map.Entry<String, Object> entry : delta.entrySet()) {
-//////					if (entry.getValue() == null) {
-//////						// TODO: Verify a null property is removed from the node						
-//////					} else {
-//////					}				
-////					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
-////					String key = ATTRIBUTE_KEY_PREFIX + entry.getKey();
-////					Object value = entry.getValue();
-////					if (value != null) {
-////						//value = serialize(value).toString();
-////					}
-////					
-////					//nodeProperties.put(key, value);
-////					if (value instanceof Number || value instanceof String) {
-////						nodeProperties.put(key, value);
-////					}
-////				}			
-////			}	
-//			
-//			for (String attributeName : session.getAttributeNames()) {
-//				
-//				Optional<Object> attributeValue = session.getAttribute(attributeName);
-//
-//				if (attributeValue.isPresent()) {
-//					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
-//					String key = ATTRIBUTE_KEY_PREFIX + attributeName;
-////					byte attributeValueAsBytes[] = serialize(attributeValue.get());
-////					nodeProperties.put(key, attributeValueAsBytes);
-//					
-//					Object value = attributeValue.get();
-//					if (value instanceof Number || value instanceof String) {
-//						nodeProperties.put(key, attributeValue.get());
-//					}
-//				}
-//				
-//			}
 
 			StringBuilder stringBuilder = new StringBuilder();
 			for (Entry<String, Object> entry: parameters.entrySet()) {
@@ -348,9 +285,9 @@ public class OgmSessionRepository implements
 			}
 			String suffix = stringBuilder.toString();
 			suffix = suffix.substring(0, suffix.length() - 1);
-			String cypher = updateSessionQuery.replace("%PROPERTIES_TO_UPDATE%", suffix);
+			String updateSessionCypher = updateSessionQuery.replace("%PROPERTIES_TO_UPDATE%", suffix);
 
-			executeCypher(cypher, parameters);
+			executeCypher(updateSessionCypher, parameters);
 		}
 
 		session.clearChangeFlags();
@@ -373,6 +310,7 @@ public class OgmSessionRepository implements
 			Map<String, Object> r = resultIterator.next();			
 			NodeModel nodeModel = (NodeModel) r.get("n");
 
+			// TODO: Figure out what to do with the principal name
 			String principalName = (String) nodeModel.property("principalName");
 			//session.setPrincipalName(principalName);
 			
@@ -393,7 +331,6 @@ public class OgmSessionRepository implements
 					byte bytes[] = (byte[]) property.getValue();
 					Object attributeValue = deserialize(bytes);
 					session.setAttribute(attributeName, attributeValue);
-					//session.setAttribute(attributeName, property.getValue());
 				}				
 			}			
 		}
