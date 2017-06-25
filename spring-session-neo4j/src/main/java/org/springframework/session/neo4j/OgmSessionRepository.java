@@ -61,6 +61,8 @@ import org.springframework.util.StringUtils;
 public class OgmSessionRepository implements
 		FindByIndexNameSessionRepository<OgmSessionRepository.OgmSession> {
 
+	public static final String ATTRIBUTE_KEY_PREFIX = "attribute_";
+	
 	/**
 	 * The default node label used by Spring Session to store sessions.
 	 */
@@ -226,6 +228,7 @@ public class OgmSessionRepository implements
 			Map<String, Object> nodeProperties = new HashMap<>(size);
 			parameters.put("nodeProperties", nodeProperties);
 			
+			// TODO: Make these keys as constants
 			nodeProperties.put("sessionId", session.getId());
 			nodeProperties.put("creationTime", session.getCreationTime().toEpochMilli());
 			nodeProperties.put("principalName", session.getPrincipalName());
@@ -238,7 +241,7 @@ public class OgmSessionRepository implements
 
 				if (attributeValue.isPresent()) {
 					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
-					String key = "attribute_" + attributeName;
+					String key = ATTRIBUTE_KEY_PREFIX + attributeName;
 					byte attributeValueAsBytes[] = serialize(attributeValue.get());
 					nodeProperties.put(key, attributeValueAsBytes);
 				}
@@ -260,7 +263,9 @@ public class OgmSessionRepository implements
 			nodeProperties.put("principalName", session.getPrincipalName());
 			nodeProperties.put("lastAccessTime", session.getLastAccessedTime());
 			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval());
-			
+
+// TODO: Code and test the update ***
+
 			if (!delta.isEmpty()) {				
 				for (final Map.Entry<String, Object> entry : delta.entrySet()) {
 //					if (entry.getValue() == null) {
@@ -268,7 +273,7 @@ public class OgmSessionRepository implements
 //					} else {
 //					}				
 					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
-					String key = "attribute_" + entry.getKey();
+					String key = ATTRIBUTE_KEY_PREFIX + entry.getKey();
 					byte attributeValueAsBytes[] = serialize(entry.getValue());
 					nodeProperties.put(key, attributeValueAsBytes.toString());
 				}			
@@ -312,12 +317,9 @@ public class OgmSessionRepository implements
 			List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
 			for (Property<String, Object> property : propertyList) {
 				String attributeName = property.getKey();
-				if (attributeName.startsWith("attribute_")) {
+				if (attributeName.startsWith(ATTRIBUTE_KEY_PREFIX)) {
 					attributeName = attributeName.substring(10);
-// Determine correct approach to serailize/deserialize					
-//					String serializedAttributeValue = (String) property.getValue();
 					byte bytes[] = (byte[]) property.getValue();
-					//Object attributeValue = deserialize(serializedAttributeValue.getBytes());
 					Object attributeValue = deserialize(bytes);
 					session.setAttribute(attributeName, attributeValue);
 				}				
@@ -373,7 +375,7 @@ public class OgmSessionRepository implements
 //			//List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
 //			for (Entry<String, Object> entry : r.entrySet()) {			
 //				String attributeName = entry.getKey();
-//				if (attributeName.startsWith("attribute_")) {					
+//				if (attributeName.startsWith(ATTRIBUTE_KEY_PREFIX)) {					
 //					Object serializedValue = entry.getValue();
 //					Object attributeValue = deserialize(serializedValue);
 //					session.setAttribute(attributeName, attributeValue);;
