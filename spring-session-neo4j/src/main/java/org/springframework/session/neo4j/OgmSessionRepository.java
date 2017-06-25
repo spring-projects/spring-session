@@ -79,7 +79,7 @@ public class OgmSessionRepository implements
 	
 	private static final String DELETE_SESSION_QUERY = "match (n:%LABEL%) where n.sessionId={sessionId} detach delete n";
 	
-	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n order by n.creationTime desc";;
+	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n order by n.creationTime desc";
 
 // TODO: Complete the deleteSessionByLastAccessTimeQuery and test
 	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY = 
@@ -368,37 +368,46 @@ public class OgmSessionRepository implements
 		Result result = executeCypher(listSessionsByPrincipalNameQuery, parameters);
 		
 		Map<String, OgmSession> sessionMap = new HashMap<>();
+	
+		Iterator<Map<String, Object>> resultIterator = result.iterator();
 		
-//		for (Map<String, Object> r : result.queryResults()) {
-//		
-//			String sessionId = (String) nodeModel.property("sessionId");	
-//			MapSession session = new MapSession(sessionId);
-//			
-//			String principalName = (String) nodeModel.property("principalName");
-//			//session.setPrincipalName(principalName);
-//			
-//			long creationTime = (long) nodeModel.property("creationTime");			
-//			session.setCreationTime(Instant.ofEpochMilli(creationTime));
-//			
-//			long lastAccessedTime = (long) nodeModel.property("lastAccessedTime");
-//			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
-//			
-//			int maxInactiveInterval = (int) nodeModel.property("maxInactiveInterval");
-//			session.setMaxInactiveInterval(Duration.ofSeconds(maxInactiveInterval));
-//
-//			//List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
-//			for (Entry<String, Object> entry : r.entrySet()) {			
-//				String attributeName = entry.getKey();
-//				if (attributeName.startsWith(ATTRIBUTE_KEY_PREFIX)) {					
-//					Object serializedValue = entry.getValue();
-//					Object attributeValue = deserialize(serializedValue);
-//					session.setAttribute(attributeName, attributeValue);;
-//				}				
-//			}
-//			
-//			OgmSession ogmSession = new OgmSession(session);
-//			sessionMap.put(session.getId(), ogmSession);
-//		}
+		// TODO: DRY with getSession()
+		if (resultIterator.hasNext()) {
+			
+			Map<String, Object> r = resultIterator.next();			
+			NodeModel nodeModel = (NodeModel) r.get("n");
+
+			String sessionId = (String) nodeModel.property("sessionId");
+			MapSession session = new MapSession(sessionId);
+			
+			// TODO: Figure out what to do with the principal name
+			String principalName = (String) nodeModel.property("principalName");
+			//session.setPrincipalName(principalName);
+			
+			long creationTime = (long) nodeModel.property("creationTime");			
+			session.setCreationTime(Instant.ofEpochMilli(creationTime));
+			
+			long lastAccessedTime = (long) nodeModel.property("lastAccessedTime");
+			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
+			
+			long maxInactiveInterval = (long) nodeModel.property("maxInactiveInterval");
+			session.setMaxInactiveInterval(Duration.ofMillis(maxInactiveInterval));
+			
+			List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
+			for (Property<String, Object> property : propertyList) {
+				String attributeName = property.getKey();
+				if (attributeName.startsWith(ATTRIBUTE_KEY_PREFIX)) {
+					attributeName = attributeName.substring(10);
+					byte bytes[] = (byte[]) property.getValue();
+					Object attributeValue = deserialize(bytes);
+					session.setAttribute(attributeName, attributeValue);
+				}				
+			}
+			
+			OgmSession ogmSession = new OgmSession(session);
+			sessionMap.put(sessionId, ogmSession);
+			
+		}
 
 		return sessionMap;
 	}

@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -69,9 +68,12 @@ public class OgmSessionRepositoryITests {
 	
 	@Before
 	public void setup() throws Exception {
+		// TODO: Remove use of System.out
+		String username = "username-" + UUID.randomUUID();
+		System.out.println("Setting context's username to '" + username + "'");
 		this.context = SecurityContextHolder.createEmptyContext();
 		this.context.setAuthentication(
-				new UsernamePasswordAuthenticationToken("username-" + UUID.randomUUID(),
+				new UsernamePasswordAuthenticationToken(username,
 						"na", AuthorityUtils.createAuthorityList("ROLE_USER")));
 
 		this.changedContext = SecurityContextHolder.createEmptyContext();
@@ -115,20 +117,25 @@ public class OgmSessionRepositoryITests {
 
 	@Test
 	public void saves() throws InterruptedException {
-		String username = "saves-" + System.currentTimeMillis();
 
 		OgmSessionRepository.OgmSession toSave = this.repository
 				.createSession();
 		String expectedAttributeName = "a";
-		String expectedAttributeValue = "b";
+		String expectedAttributeValue = "b";		
 		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,
-				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
-		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
-		toSaveContext.setAuthentication(toSaveToken);
-		toSave.setAttribute(SPRING_SECURITY_CONTEXT, toSaveContext);
-		toSave.setAttribute(INDEX_NAME, username);
+		
+//		String username = "saves-" + System.currentTimeMillis();
+//		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
+//		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,
+//				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+//		
+//		toSaveContext.setAuthentication(toSaveToken);
+		//toSave.setAttribute(SPRING_SECURITY_CONTEXT, toSaveContext);
+		//toSave.setAttribute(INDEX_NAME, username);
 
+		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
+		toSave.setAttribute(INDEX_NAME, context.getAuthentication().getPrincipal().toString());
+		
 		this.repository.save(toSave);
 
 		String toSaveId = toSave.getId();
@@ -151,6 +158,15 @@ public class OgmSessionRepositoryITests {
 		session = this.repository.getSession(toSaveId);
 
 		assertThat(session.getId()).isEqualTo(toSaveId);
+		
+		
+		Object principal = context.getAuthentication().getPrincipal();
+		String principalString = principal.toString();
+		Map<String, OgmSessionRepository.OgmSession> sessions = this.repository
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						principalString);		
+		Assert.assertEquals(1,  sessions.size());
 		
 		this.repository.delete(toSaveId);
 
