@@ -597,7 +597,6 @@ public class OgmSessionRepository implements
 		}
 		
 		return result;
-
 	}
 	
 }
