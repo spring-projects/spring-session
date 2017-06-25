@@ -229,10 +229,10 @@ public class OgmSessionRepository implements
 			parameters.put("nodeProperties", nodeProperties);
 			
 			nodeProperties.put("sessionId", session.getId());
-			nodeProperties.put("creationTime", session.getCreationTime().getEpochSecond()); // TODO: Convert to a long?
+			nodeProperties.put("creationTime", session.getCreationTime().toEpochMilli());
 			nodeProperties.put("principalName", session.getPrincipalName());
-			nodeProperties.put("lastAccessedTime", session.getLastAccessedTime().getEpochSecond()); // TODO: Convert to a long?
-			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval().getSeconds()); // TODO: Convert to a long?
+			nodeProperties.put("lastAccessedTime", session.getLastAccessedTime().toEpochMilli());
+			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval().toMillis());
 			
 			for (String attributeName : session.getAttributeNames()) {
 				
@@ -298,18 +298,18 @@ public class OgmSessionRepository implements
 			
 			Map<String, Object> r = resultIterator.next();			
 			NodeModel nodeModel = (NodeModel) r.get("n");
-			
+
 			String principalName = (String) nodeModel.property("principalName");
 			//session.setPrincipalName(principalName);
 			
 			long creationTime = (long) nodeModel.property("creationTime");			
 			session.setCreationTime(Instant.ofEpochMilli(creationTime));
 			
-//			long lastAccessedTime = (long) nodeModel.property("lastAccessedTime");
-//			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
-//			
-//			long maxInactiveInterval = (long) nodeModel.property("maxInactiveInterval");
-//			session.setMaxInactiveInterval(Duration.ofSeconds(maxInactiveInterval));
+			long lastAccessedTime = (long) nodeModel.property("lastAccessedTime");
+			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
+			
+			long maxInactiveInterval = (long) nodeModel.property("maxInactiveInterval");
+			session.setMaxInactiveInterval(Duration.ofMillis(maxInactiveInterval));
 			
 			List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
 			for (Property<String, Object> property : propertyList) {
