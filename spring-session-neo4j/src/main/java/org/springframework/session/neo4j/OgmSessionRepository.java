@@ -271,8 +271,10 @@ public class OgmSessionRepository implements
 
 			}
 
-			StringBuilder stringBuilder = new StringBuilder();
-			for (Entry<String, Object> entry: parameters.entrySet()) {
+			StringBuilder stringBuilder = new StringBuilder();			
+			Iterator<Entry<String, Object>> entries = parameters.entrySet().iterator();
+			while (entries.hasNext()) {
+				Entry<String, Object> entry = entries.next();
 				String key = entry.getKey();
 				Object value = entry.getValue();
 				if (value instanceof Number || value instanceof String) {
@@ -284,7 +286,7 @@ public class OgmSessionRepository implements
 				}				
 			}
 			String suffix = stringBuilder.toString();
-			suffix = suffix.substring(0, suffix.length() - 1);
+
 			String updateSessionCypher = updateSessionQuery.replace("%PROPERTIES_TO_UPDATE%", suffix);
 
 			executeCypher(updateSessionCypher, parameters);
