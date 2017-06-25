@@ -77,8 +77,11 @@ public class OgmHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public OgmSessionRepository sessionRepository(
-			@Qualifier("springSessionOgmSessionFactory") SessionFactory sessionFactory) {
+	public OgmSessionRepository sessionRepository( 
+			// TODO: Verify the "springSessionOgmSessionFactory" is correct
+			//@Qualifier("springSessionOgmSessionFactory") SessionFactory sessionFactory) {
+			//@Qualifier("sessionFactory") SessionFactory sessionFactory) {
+			SessionFactory sessionFactory) {
 		
 		OgmSessionRepository sessionRepository = new OgmSessionRepository(sessionFactory);
 		
