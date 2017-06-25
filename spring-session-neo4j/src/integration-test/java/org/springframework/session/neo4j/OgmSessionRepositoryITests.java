@@ -123,16 +123,6 @@ public class OgmSessionRepositoryITests {
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";		
 		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
-		
-//		String username = "saves-" + System.currentTimeMillis();
-//		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
-//		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,
-//				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
-//		
-//		toSaveContext.setAuthentication(toSaveToken);
-		//toSave.setAttribute(SPRING_SECURITY_CONTEXT, toSaveContext);
-		//toSave.setAttribute(INDEX_NAME, username);
-
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, context);
 		toSave.setAttribute(INDEX_NAME, context.getAuthentication().getPrincipal().toString());
 		

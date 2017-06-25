@@ -82,7 +82,7 @@ public class OgmSessionRepository implements
 	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n order by n.creationTime desc";
 
 	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY = 
-			"match (n:%LABEL%) where n.maxInactiveInterval < n.maxInactiveInterval < ({lastAccessedTime} - n.lastAccessedTime) / 1000 detach delete n";
+			"match (n:%LABEL%) where n.maxInactiveInterval < ({now} - n.lastAccessedTime) / 1000 detach delete n";
 
 	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
 	
@@ -417,7 +417,7 @@ public class OgmSessionRepository implements
 
 		Date now = new Date();
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("lastAccessedTime", now);
+		parameters.put("now", now.getTime());
 		Result result = executeCypher(deleteSessionsByLastAccessTimeQuery, parameters);
 		int deletedCount = result.queryStatistics().getNodesDeleted();
 		
