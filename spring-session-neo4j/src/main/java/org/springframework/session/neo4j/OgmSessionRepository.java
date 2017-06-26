@@ -82,7 +82,7 @@ public class OgmSessionRepository implements
 	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "match (n:%LABEL%) where n.principalName={principalName} return n order by n.creationTime desc";
 
 	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY = 
-			"match (n:%LABEL%) where n.maxInactiveInterval < ({now} - n.lastAccessedTime) / 1000 detach delete n";
+			"match (n:%LABEL%) where n.maxInactiveInterval < ({now} - n.lastAccessedTime) detach delete n";
 
 	private static final Log logger = LogFactory.getLog(OgmSessionRepository.class);
 	
@@ -238,7 +238,7 @@ public class OgmSessionRepository implements
 				Optional<Object> attributeValue = session.getAttribute(attributeName);
 
 				if (attributeValue.isPresent()) {
-					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
+					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type
 					String key = ATTRIBUTE_KEY_PREFIX + attributeName;
 					byte attributeValueAsBytes[] = serialize(attributeValue.get());
 					nodeProperties.put(key, attributeValueAsBytes);
@@ -261,7 +261,7 @@ public class OgmSessionRepository implements
 	
 			if (!delta.isEmpty()) {		
 				for (final Map.Entry<String, Object> entry : delta.entrySet()) {
-					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type?
+					// TODO performance: Serialize the attributeValue only if it is not a native Neo4j type
 					String key = ATTRIBUTE_KEY_PREFIX + entry.getKey();
 					Object value = entry.getValue();					
 					byte attributeValueAsBytes[] = serialize(value);
@@ -411,7 +411,6 @@ public class OgmSessionRepository implements
 		return sessionMap;
 	}
 
-	// TODO: Complete the deleteSessionByLastAccessTimeQuery and test
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
 
