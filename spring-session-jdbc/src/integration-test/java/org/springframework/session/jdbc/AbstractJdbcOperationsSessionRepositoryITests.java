@@ -197,7 +197,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 				.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
 		toSave.setLastAccessedTime(Instant.now().minusSeconds(
-				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS+ 1));
+				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 
 		this.repository.save(toSave);
 		this.repository.cleanUpExpiredSessions();
