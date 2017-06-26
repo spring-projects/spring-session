@@ -68,9 +68,7 @@ public class OgmSessionRepositoryITests {
 	
 	@Before
 	public void setup() throws Exception {
-		// TODO: Remove use of System.out
 		String username = "username-" + UUID.randomUUID();
-		System.out.println("Setting context's username to '" + username + "'");
 		this.context = SecurityContextHolder.createEmptyContext();
 		this.context.setAuthentication(
 				new UsernamePasswordAuthenticationToken(username,
