@@ -95,7 +95,7 @@ try {
 					subject: subject,
 					body: details,
 					recipientProviders: RECIPIENTS,
-					to: "$SPRING_SECURITY_TEAM_EMAILS"
+					to: "$SPRING_SESSION_TEAM_EMAILS"
 				)
 			}
 		}
