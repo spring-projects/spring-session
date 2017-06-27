@@ -24,6 +24,7 @@ import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.neo4j.ogm.config.Credentials;
@@ -48,6 +49,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
  *
  * @author Eric Spiegelberg
  */
+@Ignore
 @WebAppConfiguration
 @ContextConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
