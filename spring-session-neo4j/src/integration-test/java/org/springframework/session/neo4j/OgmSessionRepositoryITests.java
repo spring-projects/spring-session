@@ -128,7 +128,7 @@ public class OgmSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		String toSaveId = toSave.getId();
-		Session session = this.repository.getSession(toSaveId);
+		Session session = this.repository.findById(toSaveId);
 
 		assertThat(session.getId()).isEqualTo(toSaveId);
 		
@@ -144,7 +144,7 @@ public class OgmSessionRepositoryITests {
 		this.repository.save(toSave);
 		toSaveId = toSave.getId();
 		
-		session = this.repository.getSession(toSaveId);
+		session = this.repository.findById(toSaveId);
 
 		assertThat(session.getId()).isEqualTo(toSaveId);
 		
@@ -157,9 +157,9 @@ public class OgmSessionRepositoryITests {
 						principalString);		
 		Assert.assertEquals(1,  sessions.size());
 		
-		this.repository.delete(toSaveId);
+		this.repository.deleteById(toSaveId);
 
-		assertThat(this.repository.getSession(toSaveId)).isNull();
+		assertThat(this.repository.findById(toSaveId)).isNull();
 
 	}
 	

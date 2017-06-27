@@ -303,7 +303,8 @@ public class OgmSessionRepository implements
 		session.clearChangeFlags();
 	}
 
-	public OgmSession getSession(final String sessionId) {
+	@Override
+	public OgmSession findById(final String sessionId) {
 
 		Map<String, Object> parameters = new HashMap<>(1);
 		parameters.put(SESSION_ID, sessionId);
@@ -347,7 +348,7 @@ public class OgmSessionRepository implements
 		
 		if (session != null) {
 			if (session.isExpired()) {
-				delete(sessionId);
+				deleteById(sessionId);
 			} else {
 				return new OgmSession(session);
 			}
@@ -356,7 +357,9 @@ public class OgmSessionRepository implements
 		return null;
 	}
 
-	public void delete(final String sessionId) {		
+
+	@Override
+	public void deleteById(final String sessionId) {		
 		Map<String, Object> parameters = new HashMap<>();
 		parameters.put(SESSION_ID, sessionId);		
 		executeCypher(this.deleteSessionQuery, parameters);		
