@@ -62,9 +62,11 @@ import org.springframework.util.StringUtils;
 public class OgmSessionRepository implements
 		FindByIndexNameSessionRepository<OgmSessionRepository.OgmSession> {
 
-	public static final String SESSION_ID = "sessionId";
+	public static final String NOW = "now";
+	public static final String SESSION_ID = "sessionId";	
 	public static final String CREATION_TIME = "creationTime";
 	public static final String PRINCIPAL_NAME = "principalName";
+	public static final String NODE_PROPERTEIS = "nodeProperties";
 	public static final String ATTRIBUTE_KEY_PREFIX = "attribute_";
 	public static final String LAST_ACCESS_TIME = "lastAccessedTime";
 	public static final String MAX_INACTIVE_INTERVAL = "maxInactiveInterval";
@@ -229,7 +231,7 @@ public class OgmSessionRepository implements
 
 			Map<String, Object> nodeProperties = new HashMap<>();
 			Map<String, Object> parameters = new HashMap<>(1);
-			parameters.put("nodeProperties", nodeProperties);
+			parameters.put(NODE_PROPERTEIS, nodeProperties);
 
 			nodeProperties.put(SESSION_ID, session.getId());
 			nodeProperties.put(CREATION_TIME, session.getCreationTime().toEpochMilli());
@@ -273,8 +275,6 @@ public class OgmSessionRepository implements
 
 			}
 
-			//TODO: Handle if empty delta
-			//TODO: move into loop above
 			StringBuilder stringBuilder = new StringBuilder();			
 			Iterator<Entry<String, Object>> entries = parameters.entrySet().iterator();
 			while (entries.hasNext()) {
@@ -290,7 +290,10 @@ public class OgmSessionRepository implements
 					if (entries.hasNext()) {
 						stringBuilder.append(",");
 					}
-				}				
+				} else {
+					//TODO: Handle the case where the value is not a Number or String
+					logger.warn("TODO: Handle the case where the value is not a Number or String");
+				}
 			}
 			String suffix = stringBuilder.toString();
 
@@ -305,7 +308,7 @@ public class OgmSessionRepository implements
 	public OgmSession getSession(final String sessionId) {
 
 		Map<String, Object> parameters = new HashMap<>(1);
-		parameters.put("sessionId", sessionId);
+		parameters.put(SESSION_ID, sessionId);
 		
 		Result result = executeCypher(getSessionQuery, parameters);
 		
@@ -319,17 +322,17 @@ public class OgmSessionRepository implements
 			Map<String, Object> r = resultIterator.next();			
 			NodeModel nodeModel = (NodeModel) r.get("n");
 
-			// TODO: Figure out what to do with the principal name
-			String principalName = (String) nodeModel.property("principalName");
+			// TODO: Decide what to do with the principal name
+			String principalName = (String) nodeModel.property(PRINCIPAL_NAME);
 			//session.setPrincipalName(principalName);
 			
-			long creationTime = (long) nodeModel.property("creationTime");			
+			long creationTime = (long) nodeModel.property(CREATION_TIME);			
 			session.setCreationTime(Instant.ofEpochMilli(creationTime));
 			
-			long lastAccessedTime = (long) nodeModel.property("lastAccessedTime");
+			long lastAccessedTime = (long) nodeModel.property(LAST_ACCESS_TIME);
 			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
 			
-			long maxInactiveInterval = (long) nodeModel.property("maxInactiveInterval");
+			long maxInactiveInterval = (long) nodeModel.property(MAX_INACTIVE_INTERVAL);
 			session.setMaxInactiveInterval(Duration.ofMillis(maxInactiveInterval));
 			
 			List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
@@ -357,7 +360,7 @@ public class OgmSessionRepository implements
 
 	public void delete(final String sessionId) {		
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("sessionId", sessionId);		
+		parameters.put(SESSION_ID, sessionId);		
 		executeCypher(this.deleteSessionQuery, parameters);		
 	}
 
@@ -368,7 +371,7 @@ public class OgmSessionRepository implements
 		}
 
 		Map<String, Object> parameters = new HashMap<String, Object>(1);
-		parameters.put("principalName", indexValue);
+		parameters.put(PRINCIPAL_NAME, indexValue);
 		Result result = executeCypher(listSessionsByPrincipalNameQuery, parameters);
 		
 		Map<String, OgmSession> sessionMap = new HashMap<>();
@@ -421,7 +424,7 @@ public class OgmSessionRepository implements
 
 		Date now = new Date();
 		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("now", now.getTime());
+		parameters.put(NOW, now.getTime());
 		Result result = executeCypher(deleteSessionsByLastAccessTimeQuery, parameters);
 		int deletedCount = result.queryStatistics().getNodesDeleted();
 		
