@@ -51,7 +51,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-// TODO: JavaDoc
+// TODO: Update JavaDoc
 /**
  * A {@link org.springframework.session.SessionRepository} implementation that uses
  * Spring's {@link JdbcOperations} to store sessions in a relational database. This

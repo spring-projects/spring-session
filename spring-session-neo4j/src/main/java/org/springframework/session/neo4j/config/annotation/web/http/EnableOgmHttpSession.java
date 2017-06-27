@@ -28,7 +28,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.neo4j.OgmSessionRepository;
 
-// TODO: JavaDoc
+// TODO: Update JavaDoc
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
  * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by a

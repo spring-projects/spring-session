@@ -43,7 +43,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
-// TODO: JavaDoc
+// TODO: Update JavaDoc
 /**
  * Spring @Configuration class used to configure and initialize a JDBC based HttpSession
  * provider implementation in Spring Session.
