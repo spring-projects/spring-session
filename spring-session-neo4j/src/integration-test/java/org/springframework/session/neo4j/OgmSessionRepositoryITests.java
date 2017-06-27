@@ -29,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.neo4j.ogm.config.Credentials;
 import org.neo4j.ogm.session.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -103,7 +104,7 @@ public class OgmSessionRepositoryITests {
 		}
 		
 		@Bean
-		//@Qualifier("springSessionOgmSessionFactory")
+		@Qualifier("springSessionOgmSessionFactory")
 		public SessionFactory sessionFactory() {	
 			
 			org.neo4j.ogm.config.Configuration configuration = configureOgm();
