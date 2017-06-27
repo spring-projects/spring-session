@@ -62,7 +62,12 @@ import org.springframework.util.StringUtils;
 public class OgmSessionRepository implements
 		FindByIndexNameSessionRepository<OgmSessionRepository.OgmSession> {
 
+	public static final String SESSION_ID = "sessionId";
+	public static final String CREATION_TIME = "creationTime";
+	public static final String PRINCIPAL_NAME = "principalName";
 	public static final String ATTRIBUTE_KEY_PREFIX = "attribute_";
+	public static final String LAST_ACCESS_TIME = "lastAccessedTime";
+	public static final String MAX_INACTIVE_INTERVAL = "maxInactiveInterval";
 	
 	/**
 	 * The default node label used by Spring Session to store sessions.
@@ -225,13 +230,12 @@ public class OgmSessionRepository implements
 			Map<String, Object> nodeProperties = new HashMap<>();
 			Map<String, Object> parameters = new HashMap<>(1);
 			parameters.put("nodeProperties", nodeProperties);
-			
-			// TODO: Make these keys as constants
-			nodeProperties.put("sessionId", session.getId());
-			nodeProperties.put("creationTime", session.getCreationTime().toEpochMilli());
-			nodeProperties.put("principalName", session.getPrincipalName());
-			nodeProperties.put("lastAccessedTime", session.getLastAccessedTime().toEpochMilli());
-			nodeProperties.put("maxInactiveInterval", session.getMaxInactiveInterval().toMillis());
+
+			nodeProperties.put(SESSION_ID, session.getId());
+			nodeProperties.put(CREATION_TIME, session.getCreationTime().toEpochMilli());
+			nodeProperties.put(PRINCIPAL_NAME, session.getPrincipalName());
+			nodeProperties.put(LAST_ACCESS_TIME, session.getLastAccessedTime().toEpochMilli());
+			nodeProperties.put(MAX_INACTIVE_INTERVAL, session.getMaxInactiveInterval().toMillis());
 			
 			for (String attributeName : session.getAttributeNames()) {
 				
@@ -253,11 +257,10 @@ public class OgmSessionRepository implements
 			Map<String, Object> delta = session.getDelta();
 			
 			Map<String, Object> parameters = new HashMap<>(4 + delta.size());
-			// TODO: Make these keys as constants
-			parameters.put("sessionId", session.getId());			
-			parameters.put("principalName", session.getPrincipalName());
-			parameters.put("lastAccessedTime", session.getLastAccessedTime().toEpochMilli());
-			parameters.put("maxInactiveInterval", session.getMaxInactiveInterval().toMillis());
+			parameters.put(SESSION_ID, session.getId());			
+			parameters.put(PRINCIPAL_NAME, session.getPrincipalName());
+			parameters.put(LAST_ACCESS_TIME, session.getLastAccessedTime().toEpochMilli());
+			parameters.put(MAX_INACTIVE_INTERVAL, session.getMaxInactiveInterval().toMillis());
 	
 			if (!delta.isEmpty()) {		
 				for (final Map.Entry<String, Object> entry : delta.entrySet()) {
@@ -270,6 +273,8 @@ public class OgmSessionRepository implements
 
 			}
 
+			//TODO: Handle if empty delta
+			//TODO: move into loop above
 			StringBuilder stringBuilder = new StringBuilder();			
 			Iterator<Entry<String, Object>> entries = parameters.entrySet().iterator();
 			while (entries.hasNext()) {
@@ -376,20 +381,20 @@ public class OgmSessionRepository implements
 			Map<String, Object> r = resultIterator.next();			
 			NodeModel nodeModel = (NodeModel) r.get("n");
 
-			String sessionId = (String) nodeModel.property("sessionId");
+			String sessionId = (String) nodeModel.property(SESSION_ID);
 			MapSession session = new MapSession(sessionId);
 			
 			// TODO: Figure out what to do with the principal name
-			String principalName = (String) nodeModel.property("principalName");
+			String principalName = (String) nodeModel.property(PRINCIPAL_NAME);
 			//session.setPrincipalName(principalName);
 			
-			long creationTime = (long) nodeModel.property("creationTime");			
+			long creationTime = (long) nodeModel.property(CREATION_TIME);			
 			session.setCreationTime(Instant.ofEpochMilli(creationTime));
 			
-			long lastAccessedTime = (long) nodeModel.property("lastAccessedTime");
+			long lastAccessedTime = (long) nodeModel.property(LAST_ACCESS_TIME);
 			session.setLastAccessedTime(Instant.ofEpochMilli(lastAccessedTime));
 			
-			long maxInactiveInterval = (long) nodeModel.property("maxInactiveInterval");
+			long maxInactiveInterval = (long) nodeModel.property(MAX_INACTIVE_INTERVAL);
 			session.setMaxInactiveInterval(Duration.ofMillis(maxInactiveInterval));
 			
 			List<Property<String, Object>> propertyList = nodeModel.getPropertyList();
