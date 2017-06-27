@@ -65,11 +65,11 @@ import org.springframework.session.neo4j.OgmSessionRepository;
  *
  * @see EnableSpringHttpSession
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
 @Documented
-@Import(OgmHttpSessionConfiguration.class)
 @Configuration
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Import(OgmHttpSessionConfiguration.class)
 public @interface EnableOgmHttpSession {
 
 	/**
