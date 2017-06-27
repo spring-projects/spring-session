@@ -588,26 +588,26 @@ public class OgmSessionRepository implements
 
 	protected Result executeCypher(String cypher, Map<String, Object> parameters) {
 
-		Result result = null;
-
 		org.neo4j.ogm.session.Session ogmSession = sessionFactory.openSession();
 
 		Transaction transaction = ogmSession.beginTransaction();
 
 		try {
 
-			result = ogmSession.query(cypher, parameters);
+			Result result = ogmSession.query(cypher, parameters);
 
 			transaction.commit();
 
+			return result;
+			
 		} catch (Exception e) {
 			logger.error(e);
 			transaction.rollback();
+			throw new RuntimeException(e);
 		} finally {
 			transaction.close();
 		}
 		
-		return result;
 	}
 	
 }
