@@ -387,7 +387,7 @@ public class OgmSessionRepository implements
 			String sessionId = (String) nodeModel.property(SESSION_ID);
 			MapSession session = new MapSession(sessionId);
 			
-			// TODO: Figure out what to do with the principal name
+			// TODO: Decide what to do with the principal name
 			String principalName = (String) nodeModel.property(PRINCIPAL_NAME);
 			//session.setPrincipalName(principalName);
 			
