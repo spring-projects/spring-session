@@ -76,7 +76,7 @@ public class SessionRepositoryMessageInterceptorTests {
 		setMessageType(SimpMessageType.MESSAGE);
 		String sessionId = "http-session";
 		setSessionId(sessionId);
-		given(this.sessionRepository.getSession(sessionId)).willReturn(this.session);
+		given(this.sessionRepository.findById(sessionId)).willReturn(this.session);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -147,7 +147,7 @@ public class SessionRepositoryMessageInterceptorTests {
 		assertThat(this.interceptor.preSend(createMessage(), this.channel))
 				.isSameAs(this.createMessage);
 
-		verify(this.sessionRepository).getSession(anyString());
+		verify(this.sessionRepository).findById(anyString());
 		verify(this.sessionRepository).save(this.session);
 	}
 

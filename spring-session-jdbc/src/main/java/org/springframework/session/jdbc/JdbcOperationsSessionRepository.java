@@ -460,7 +460,7 @@ public class JdbcOperationsSessionRepository implements
 		session.clearChangeFlags();
 	}
 
-	public JdbcSession getSession(final String id) {
+	public JdbcSession findById(final String id) {
 		final Session session = this.transactionOperations.execute(status -> {
 			List<Session> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
 					JdbcOperationsSessionRepository.this.getSessionQuery,
@@ -475,7 +475,7 @@ public class JdbcOperationsSessionRepository implements
 
 		if (session != null) {
 			if (session.isExpired()) {
-				delete(id);
+				deleteById(id);
 			}
 			else {
 				return new JdbcSession(session);
@@ -484,7 +484,7 @@ public class JdbcOperationsSessionRepository implements
 		return null;
 	}
 
-	public void delete(final String id) {
+	public void deleteById(final String id) {
 		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
 			protected void doInTransactionWithoutResult(TransactionStatus status) {

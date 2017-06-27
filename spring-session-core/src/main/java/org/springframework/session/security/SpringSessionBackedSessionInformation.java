@@ -91,7 +91,7 @@ class SpringSessionBackedSessionInformation<S extends Session>
 					+ "sessions was exceeded");
 		}
 		super.expireNow();
-		S session = this.sessionRepository.getSession(getSessionId());
+		S session = this.sessionRepository.findById(getSessionId());
 		if (session != null) {
 			session.setAttribute(EXPIRED_ATTR, Boolean.TRUE);
 			this.sessionRepository.save(session);

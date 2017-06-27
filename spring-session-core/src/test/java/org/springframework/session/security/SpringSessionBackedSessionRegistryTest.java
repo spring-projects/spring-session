@@ -69,7 +69,7 @@ public class SpringSessionBackedSessionRegistryTest {
 	@Test
 	public void sessionInformationForExistingSession() {
 		Session session = createSession(SESSION_ID, USER_NAME, NOW);
-		when(this.sessionRepository.getSession(SESSION_ID)).thenReturn(session);
+		when(this.sessionRepository.findById(SESSION_ID)).thenReturn(session);
 
 		SessionInformation sessionInfo = this.sessionRegistry
 				.getSessionInformation(SESSION_ID);
@@ -85,7 +85,7 @@ public class SpringSessionBackedSessionRegistryTest {
 		Session session = createSession(SESSION_ID, USER_NAME, NOW);
 		session.setAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR,
 				Boolean.TRUE);
-		when(this.sessionRepository.getSession(SESSION_ID)).thenReturn(session);
+		when(this.sessionRepository.findById(SESSION_ID)).thenReturn(session);
 
 		SessionInformation sessionInfo = this.sessionRegistry
 				.getSessionInformation(SESSION_ID);
@@ -127,7 +127,7 @@ public class SpringSessionBackedSessionRegistryTest {
 	@Test
 	public void expireNow() {
 		Session session = createSession(SESSION_ID, USER_NAME, NOW);
-		when(this.sessionRepository.getSession(SESSION_ID)).thenReturn(session);
+		when(this.sessionRepository.findById(SESSION_ID)).thenReturn(session);
 
 		SessionInformation sessionInfo = this.sessionRegistry
 				.getSessionInformation(SESSION_ID);

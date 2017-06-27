@@ -62,12 +62,12 @@ public interface SessionRepository<S extends Session> {
 	 * @return the {@link Session} by the {@link Session#getId()} or null if no
 	 * {@link Session} is found.
 	 */
-	S getSession(String id);
+	S findById(String id);
 
 	/**
 	 * Deletes the {@link Session} with the given {@link Session#getId()} or does nothing
 	 * if the {@link Session} is not found.
 	 * @param id the {@link org.springframework.session.Session#getId()} to delete
 	 */
-	void delete(String id);
+	void deleteById(String id);
 }

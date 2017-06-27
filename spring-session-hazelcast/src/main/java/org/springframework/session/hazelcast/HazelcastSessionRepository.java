@@ -210,19 +210,19 @@ public class HazelcastSessionRepository implements
 		}
 	}
 
-	public HazelcastSession getSession(String id) {
+	public HazelcastSession findById(String id) {
 		MapSession saved = this.sessions.get(id);
 		if (saved == null) {
 			return null;
 		}
 		if (saved.isExpired()) {
-			delete(saved.getId());
+			deleteById(saved.getId());
 			return null;
 		}
 		return new HazelcastSession(saved);
 	}
 
-	public void delete(String id) {
+	public void deleteById(String id) {
 		this.sessions.remove(id);
 	}
 

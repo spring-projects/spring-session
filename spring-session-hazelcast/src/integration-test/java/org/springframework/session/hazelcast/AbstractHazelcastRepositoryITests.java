@@ -55,7 +55,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 		assertThat(hazelcastMap.size()).isEqualTo(1);
 		assertThat(hazelcastMap.get(sessionId)).isEqualTo(sessionToSave);
 
-		this.repository.delete(sessionId);
+		this.repository.deleteById(sessionId);
 
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 	}

@@ -243,7 +243,7 @@ public class HazelcastSessionRepositoryTests {
 	public void getSessionNotFound() {
 		String sessionId = "testSessionId";
 
-		HazelcastSession session = this.repository.getSession(sessionId);
+		HazelcastSession session = this.repository.findById(sessionId);
 
 		assertThat(session).isNull();
 		verify(this.sessions, times(1)).get(eq(sessionId));
@@ -256,7 +256,7 @@ public class HazelcastSessionRepositoryTests {
 				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 		given(this.sessions.get(eq(expired.getId()))).willReturn(expired);
 
-		HazelcastSession session = this.repository.getSession(expired.getId());
+		HazelcastSession session = this.repository.findById(expired.getId());
 
 		assertThat(session).isNull();
 		verify(this.sessions, times(1)).get(eq(expired.getId()));
@@ -269,7 +269,7 @@ public class HazelcastSessionRepositoryTests {
 		saved.setAttribute("savedName", "savedValue");
 		given(this.sessions.get(eq(saved.getId()))).willReturn(saved);
 
-		HazelcastSession session = this.repository.getSession(saved.getId());
+		HazelcastSession session = this.repository.findById(saved.getId());
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.<String>getAttribute("savedName").orElse(null)).isEqualTo("savedValue");
@@ -280,7 +280,7 @@ public class HazelcastSessionRepositoryTests {
 	public void delete() {
 		String sessionId = "testSessionId";
 
-		this.repository.delete(sessionId);
+		this.repository.deleteById(sessionId);
 
 		verify(this.sessions, times(1)).remove(eq(sessionId));
 	}

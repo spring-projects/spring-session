@@ -81,7 +81,7 @@ public class RememberMeSecurityConfigurationTests<T extends Session> {
 		Cookie cookie = result.getResponse().getCookie("SESSION");
 		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
 		T session = this.sessions
-				.getSession(new String(Base64.getDecoder().decode(cookie.getValue())));
+				.findById(new String(Base64.getDecoder().decode(cookie.getValue())));
 		assertThat(session.getMaxInactiveInterval())
 				.isEqualTo(Duration.ofDays(30));
 

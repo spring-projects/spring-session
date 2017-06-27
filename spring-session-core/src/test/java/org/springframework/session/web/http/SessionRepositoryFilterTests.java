@@ -422,7 +422,7 @@ public class SessionRepositoryFilterTests {
 	public void doFilterSetsCookieIfChanged() throws Exception {
 		this.sessionRepository = new MapSessionRepository() {
 			@Override
-			public Session getSession(String id) {
+			public Session findById(String id) {
 				return createSession();
 			}
 		};
@@ -539,7 +539,7 @@ public class SessionRepositoryFilterTests {
 		// the old session was removed
 		final String changedSessionId = getSessionCookie().getValue();
 		assertThat(originalSessionId).isNotEqualTo(changedSessionId);
-		assertThat(this.sessionRepository.getSession(originalSessionId)).isNull();
+		assertThat(this.sessionRepository.findById(originalSessionId)).isNull();
 
 		nextRequest();
 
@@ -1051,7 +1051,7 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1066,7 +1066,7 @@ public class SessionRepositoryFilterTests {
 				wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						"Error");
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1080,7 +1080,7 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.sendRedirect("/");
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1094,7 +1094,7 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.flushBuffer();
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1108,7 +1108,7 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getOutputStream().flush();
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1122,7 +1122,7 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getOutputStream().close();
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1136,7 +1136,7 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getWriter().flush();
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1150,7 +1150,7 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getWriter().close();
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.getSession(id)).isNotNull();
+						.findById(id)).isNotNull();
 			}
 		});
 	}
@@ -1187,7 +1187,7 @@ public class SessionRepositoryFilterTests {
 		});
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
-		Session session = this.sessionRepository.getSession(request.getSession().getId());
+		Session session = this.sessionRepository.findById(request.getSession().getId());
 		verify(this.strategy).onNewSession(eq(session), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
@@ -1363,7 +1363,7 @@ public class SessionRepositoryFilterTests {
 				// will not find the session)
 				HttpSession session = wrappedRequest.getSession(false);
 				verify(SessionRepositoryFilterTests.this.sessionRepository, times(1))
-						.getSession(nonExistantSessionId);
+						.findById(nonExistantSessionId);
 				assertThat(session).isNull();
 				assertThat(SessionRepositoryFilterTests.this.request
 						.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR))
@@ -1372,7 +1372,7 @@ public class SessionRepositoryFilterTests {
 				// Second call should not reach the sessionRepository
 				session = wrappedRequest.getSession(false);
 				verify(SessionRepositoryFilterTests.this.sessionRepository, times(1))
-						.getSession(nonExistantSessionId); // still only called once
+						.findById(nonExistantSessionId); // still only called once
 				assertThat(session).isNull();
 				assertThat(SessionRepositoryFilterTests.this.request
 						.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR))

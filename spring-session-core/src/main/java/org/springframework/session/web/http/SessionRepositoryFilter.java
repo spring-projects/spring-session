@@ -284,7 +284,7 @@ public class SessionRepositoryFilter<S extends Session>
 				attrs.put(attrName, value);
 			}
 
-			SessionRepositoryFilter.this.sessionRepository.delete(session.getId());
+			SessionRepositoryFilter.this.sessionRepository.deleteById(session.getId());
 			HttpSessionWrapper original = getCurrentSession();
 			setCurrentSession(null);
 
@@ -324,7 +324,7 @@ public class SessionRepositoryFilter<S extends Session>
 
 		private S getSession(String sessionId) {
 			S session = SessionRepositoryFilter.this.sessionRepository
-					.getSession(sessionId);
+					.findById(sessionId);
 			if (session == null) {
 				return null;
 			}
@@ -413,7 +413,7 @@ public class SessionRepositoryFilter<S extends Session>
 				super.invalidate();
 				SessionRepositoryRequestWrapper.this.requestedSessionInvalidated = true;
 				setCurrentSession(null);
-				SessionRepositoryFilter.this.sessionRepository.delete(getId());
+				SessionRepositoryFilter.this.sessionRepository.deleteById(getId());
 			}
 		}
 	}

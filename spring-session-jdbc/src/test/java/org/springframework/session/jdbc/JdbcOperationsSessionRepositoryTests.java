@@ -404,7 +404,7 @@ public class JdbcOperationsSessionRepositoryTests {
 				.willReturn(Collections.emptyList());
 
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
-				.getSession(sessionId);
+				.findById(sessionId);
 
 		assertThat(session).isNull();
 		assertPropagationRequiresNew();
@@ -422,7 +422,7 @@ public class JdbcOperationsSessionRepositoryTests {
 				.willReturn(Collections.singletonList(expired));
 
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
-				.getSession(expired.getId());
+				.findById(expired.getId());
 
 		assertThat(session).isNull();
 		assertPropagationRequiresNew();
@@ -441,7 +441,7 @@ public class JdbcOperationsSessionRepositoryTests {
 				.willReturn(Collections.singletonList(saved));
 
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
-				.getSession(saved.getId());
+				.findById(saved.getId());
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.isNew()).isFalse();
@@ -455,7 +455,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void delete() {
 		String sessionId = "testSessionId";
 
-		this.repository.delete(sessionId);
+		this.repository.deleteById(sessionId);
 
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), eq(sessionId));

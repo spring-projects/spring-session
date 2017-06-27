@@ -42,7 +42,7 @@ public class MapSessionRepositoryTests {
 		this.session.setLastAccessedTime(Instant.now().minus(5, ChronoUnit.MINUTES));
 		this.repository.save(this.session);
 
-		assertThat(this.repository.getSession(this.session.getId())).isNull();
+		assertThat(this.repository.findById(this.session.getId())).isNull();
 	}
 
 	@Test

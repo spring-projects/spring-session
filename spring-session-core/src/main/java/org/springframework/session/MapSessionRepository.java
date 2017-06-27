@@ -80,19 +80,19 @@ public class MapSessionRepository implements SessionRepository<Session> {
 		this.sessions.put(session.getId(), new MapSession(session));
 	}
 
-	public Session getSession(String id) {
+	public Session findById(String id) {
 		Session saved = this.sessions.get(id);
 		if (saved == null) {
 			return null;
 		}
 		if (saved.isExpired()) {
-			delete(saved.getId());
+			deleteById(saved.getId());
 			return null;
 		}
 		return new MapSession(saved);
 	}
 
-	public void delete(String id) {
+	public void deleteById(String id) {
 		this.sessions.remove(id);
 	}
 
