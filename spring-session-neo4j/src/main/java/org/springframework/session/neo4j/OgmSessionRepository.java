@@ -606,9 +606,10 @@ public class OgmSessionRepository implements
 			return result;
 			
 		} catch (Exception e) {
-			logger.error(e);
+			String message = "Exception while executing cypher: '" + cypher + "'";
+			logger.error(message);
 			transaction.rollback();
-			throw new RuntimeException(e);
+			throw new RuntimeException(message, e);
 		} finally {
 			transaction.close();
 		}
