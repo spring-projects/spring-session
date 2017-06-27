@@ -5,6 +5,7 @@ description = "Spring Session"
 dependencies {
 	compile "org.springframework:spring-jcl"
 
+	optional "io.projectreactor:reactor-core"
 	optional "org.springframework:spring-context"
 	optional "org.springframework:spring-jdbc"
 	optional "org.springframework:spring-messaging"
