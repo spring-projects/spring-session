@@ -12,7 +12,4 @@ dependencies {
 	testCompile "org.springframework.security:spring-security-core"
 	testCompile "org.springframework.security:spring-security-web"
 
-	integrationTestCompile "org.apache.derby:derby"
-	integrationTestCompile "com.h2database:h2"
-	integrationTestCompile "org.hsqldb:hsqldb"
 }
