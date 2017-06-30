@@ -445,7 +445,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.isNew()).isFalse();
-		assertThat(session.<String>getAttribute("savedName").orElse(null)).isEqualTo("savedValue");
+		assertThat(session.<String>getAttribute("savedName")).isEqualTo("savedValue");
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).query(isA(String.class),
 				isA(PreparedStatementSetter.class), isA(ResultSetExtractor.class));

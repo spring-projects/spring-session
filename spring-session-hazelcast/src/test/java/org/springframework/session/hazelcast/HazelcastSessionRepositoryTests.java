@@ -272,7 +272,7 @@ public class HazelcastSessionRepositoryTests {
 		HazelcastSession session = this.repository.findById(saved.getId());
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
-		assertThat(session.<String>getAttribute("savedName").orElse(null)).isEqualTo("savedValue");
+		assertThat(session.<String>getAttribute("savedName")).isEqualTo("savedValue");
 		verify(this.sessions, times(1)).get(eq(saved.getId()));
 	}
 

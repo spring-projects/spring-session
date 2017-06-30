@@ -16,17 +16,8 @@
 
 package org.springframework.session.data.redis;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.Message;
@@ -50,6 +41,13 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
@@ -740,7 +738,7 @@ public class RedisOperationsSessionRepository implements
 			return this.cached.getMaxInactiveInterval();
 		}
 
-		public <T> Optional<T> getAttribute(String attributeName) {
+		public <T> T getAttribute(String attributeName) {
 			return this.cached.getAttribute(attributeName);
 		}
 
@@ -816,15 +814,15 @@ public class RedisOperationsSessionRepository implements
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
-			Optional<String> principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName.isPresent()) {
-				return principalName.get();
+			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+			if (principalName != null) {
+				return principalName;
 			}
-			Optional<Object> authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication.isPresent()) {
+			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication != null) {
 				Expression expression = this.parser
 						.parseExpression("authentication?.name");
-				return expression.getValue(authentication.get(), String.class);
+				return expression.getValue(authentication, String.class);
 			}
 			return null;
 		}

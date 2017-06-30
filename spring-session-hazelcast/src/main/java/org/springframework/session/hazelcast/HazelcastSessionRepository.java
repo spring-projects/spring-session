@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -327,7 +326,7 @@ public class HazelcastSessionRepository implements
 			return this.delegate.getMaxInactiveInterval();
 		}
 
-		public <T> Optional<T> getAttribute(String attributeName) {
+		public <T> T getAttribute(String attributeName) {
 			return this.delegate.getAttribute(attributeName);
 		}
 

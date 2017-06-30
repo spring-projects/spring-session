@@ -16,17 +16,16 @@
 
 package org.springframework.session.web.http;
 
+import org.springframework.session.Session;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionContext;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
-
-import org.springframework.session.Session;
 
 /**
  * Adapts Spring Session's {@link Session} to an {@link HttpSession}.
@@ -87,7 +86,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 
 	public Object getAttribute(String name) {
 		checkState();
-		return this.session.getAttribute(name).orElse(null);
+		return this.session.getAttribute(name);
 	}
 
 	public Object getValue(String name) {

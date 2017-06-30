@@ -18,7 +18,7 @@
 				<th>Information</th>
 				<th>Terminate</th>
 			</tr>
-			<tr th:each="sessionElement : ${sessions}" th:with="details=${sessionElement.getAttribute('SESSION_DETAILS').orElse(null)}">
+			<tr th:each="sessionElement : ${sessions}" th:with="details=${sessionElement.getAttribute('SESSION_DETAILS')}">
 				<td th:text="${sessionElement.id.substring(30)}"></td>
 				<td th:text="${details?.location}"></td>
 				<td th:text="${#temporals.format(sessionElement.creationTime.atZone(T(java.time.ZoneId).systemDefault()),'dd/MMM/yyyy HH:mm:ss')}"></td>

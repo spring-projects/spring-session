@@ -16,19 +16,9 @@
 
 package org.springframework.session.jdbc;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.sql.DataSource;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -46,6 +36,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.sql.DataSource;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -139,8 +136,8 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		Session session = this.repository.findById(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
-		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
-		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
+		assertThat(session.<String>getAttribute("a")).isEqualTo("b");
+		assertThat(session.<String>getAttribute("1")).isEqualTo("2");
 
 		this.repository.deleteById(toSave.getId());
 	}

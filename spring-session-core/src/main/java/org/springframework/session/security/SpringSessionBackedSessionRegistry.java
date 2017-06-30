@@ -69,7 +69,7 @@ public class SpringSessionBackedSessionRegistry<S extends Session>
 		List<SessionInformation> infos = new ArrayList<>();
 		for (S session : sessions) {
 			if (includeExpiredSessions || !Boolean.TRUE.equals(session
-					.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR).orElse(false))) {
+					.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
 				infos.add(new SpringSessionBackedSessionInformation<>(session,
 						this.sessionRepository));
 			}

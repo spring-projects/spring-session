@@ -18,7 +18,6 @@ package org.springframework.session;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -42,12 +41,12 @@ public interface Session {
 	 * Gets the Object associated with the specified name or null if no Object is
 	 * associated to that name.
 	 *
+	 * @param <T> The return type of the attribute
 	 * @param attributeName the name of the attribute to get
 	 * @return the Object associated with the specified name or null if no Object is
 	 * associated to that name
-	 * @param <T> The return type of the attribute
 	 */
-	<T> Optional<T> getAttribute(String attributeName);
+	<T> T getAttribute(String attributeName);
 
 	/**
 	 * Gets the attribute names that have a value associated with it. Each value can be

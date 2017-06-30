@@ -16,11 +16,8 @@
 
 package org.springframework.session.hazelcast;
 
-import java.util.Optional;
-
 import com.hazelcast.query.extractor.ValueCollector;
 import com.hazelcast.query.extractor.ValueExtractor;
-
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -58,16 +55,16 @@ public class PrincipalNameExtractor extends ValueExtractor<MapSession, String> {
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
-			Optional<String> principalName = session.getAttribute(
+			String principalName = session.getAttribute(
 					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName.isPresent()) {
-				return principalName.get();
+			if (principalName != null) {
+				return principalName;
 			}
-			Optional<Object> authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication.isPresent()) {
+			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication != null) {
 				Expression expression = this.parser
 						.parseExpression("authentication?.name");
-				return expression.getValue(authentication.get(), String.class);
+				return expression.getValue(authentication, String.class);
 			}
 			return null;
 		}

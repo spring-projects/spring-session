@@ -16,24 +16,8 @@
 
 package org.springframework.session.jdbc;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -60,6 +44,14 @@ import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import javax.sql.DataSource;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 
 /**
  * A {@link org.springframework.session.SessionRepository} implementation that uses
@@ -395,7 +387,7 @@ public class JdbcOperationsSessionRepository implements
 										String attributeName = attributeNames.get(i);
 										ps.setString(1, session.getId());
 										ps.setString(2, attributeName);
-										serialize(ps, 3, session.getAttribute(attributeName).orElse(null));
+										serialize(ps, 3, session.getAttribute(attributeName));
 									}
 
 									public int getBatchSize() {
@@ -639,7 +631,7 @@ public class JdbcOperationsSessionRepository implements
 			return this.delegate.getId();
 		}
 
-		public <T> Optional<T> getAttribute(String attributeName) {
+		public <T> T getAttribute(String attributeName) {
 			return this.delegate.getAttribute(attributeName);
 		}
 
@@ -699,15 +691,15 @@ public class JdbcOperationsSessionRepository implements
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
-			Optional<String> principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName.isPresent()) {
-				return principalName.get();
+			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+			if (principalName != null) {
+				return principalName;
 			}
-			Optional<Object> authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication.isPresent()) {
+			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication != null) {
 				Expression expression = this.parser
 						.parseExpression("authentication?.name");
-				return expression.getValue(authentication.get(), String.class);
+				return expression.getValue(authentication, String.class);
 			}
 			return null;
 		}

@@ -15,12 +15,7 @@
  */
 package org.springframework.session.data.redis;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
 import org.junit.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +36,9 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
+
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -102,7 +100,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		assertThat(this.registry.getEvent(toSave.getId()).getSession()
 				.<String>getAttribute(expectedAttributeName))
-				.isEqualTo(Optional.of(expectedAttributeValue));
+				.isEqualTo(expectedAttributeValue);
 	}
 
 	@Test
@@ -120,8 +118,8 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 		Session session = this.repository.findById(toSave.getId());
 		assertThat(session.getAttributeNames().size()).isEqualTo(2);
-		assertThat(session.<String>getAttribute("a")).isEqualTo(Optional.of("b"));
-		assertThat(session.<String>getAttribute("1")).isEqualTo(Optional.of("2"));
+		assertThat(session.<String>getAttribute("a")).isEqualTo("b");
+		assertThat(session.<String>getAttribute("1")).isEqualTo("2");
 
 		this.repository.deleteById(toSave.getId());
 	}

@@ -21,7 +21,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -94,8 +93,10 @@ public final class MapSession implements Session, Serializable {
 		this.sessionAttrs = new HashMap<>(
 				session.getAttributeNames().size());
 		for (String attrName : session.getAttributeNames()) {
-			session.getAttribute(attrName)
-					.ifPresent(attrValue -> this.sessionAttrs.put(attrName, attrValue));
+			Object attrValue = session.getAttribute(attrName);
+			if(attrValue != null) {
+				this.sessionAttrs.put(attrName, attrValue);
+			}
 		}
 		this.lastAccessedTime = session.getLastAccessedTime();
 		this.creationTime = session.getCreationTime();
@@ -138,8 +139,8 @@ public final class MapSession implements Session, Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T> Optional<T> getAttribute(String attributeName) {
-		return Optional.ofNullable((T) this.sessionAttrs.get(attributeName));
+	public <T> T getAttribute(String attributeName) {
+		return (T) this.sessionAttrs.get(attributeName);
 	}
 
 	public Set<String> getAttributeNames() {

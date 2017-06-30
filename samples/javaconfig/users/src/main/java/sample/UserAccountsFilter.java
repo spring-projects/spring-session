@@ -16,23 +16,16 @@
 
 package sample;
 
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
+import org.springframework.session.web.http.HttpSessionManager;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
-import org.springframework.session.web.http.HttpSessionManager;
 
 public class UserAccountsFilter implements Filter {
 
@@ -67,15 +60,15 @@ public class UserAccountsFilter implements Filter {
 				continue;
 			}
 
-			Optional<String> username = session.getAttribute("username");
-			if (!username.isPresent()) {
+			String username = session.getAttribute("username");
+			if (username == null) {
 				unauthenticatedAlias = alias;
 				continue;
 			}
 
 			String logoutUrl = sessionManager.encodeURL("./logout", alias);
 			String switchAccountUrl = sessionManager.encodeURL("./", alias);
-			Account account = new Account(username.get(), logoutUrl, switchAccountUrl);
+			Account account = new Account(username, logoutUrl, switchAccountUrl);
 			if (currentSessionAlias.equals(alias)) {
 				currentAccount = account;
 			}

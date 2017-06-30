@@ -16,13 +16,12 @@
 
 package org.springframework.session;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Optional;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -114,8 +113,8 @@ public class MapSessionTests {
 			return Duration.ZERO;
 		}
 
-		public <T> Optional<T> getAttribute(String attributeName) {
-			return Optional.empty();
+		public <T> T getAttribute(String attributeName) {
+			return null;
 		}
 
 		public Set<String> getAttributeNames() {
