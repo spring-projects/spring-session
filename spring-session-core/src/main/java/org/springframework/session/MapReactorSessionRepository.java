@@ -16,15 +16,14 @@
 
 package org.springframework.session;
 
-import org.springframework.session.events.SessionDeletedEvent;
-import org.springframework.session.events.SessionExpiredEvent;
-import reactor.core.publisher.Mono;
-
 import java.time.Duration;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import reactor.core.publisher.Mono;
+
+import org.springframework.session.events.SessionDeletedEvent;
+import org.springframework.session.events.SessionExpiredEvent;
 
 /**
  * A {@link SessionRepository} backed by a {@link Map} and that uses a
@@ -80,7 +79,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Ses
 			throw new IllegalArgumentException("sessions cannot be null");
 		}
 		this.sessions = new ConcurrentHashMap<>();
-		for(Session session : sessions) {
+		for (Session session : sessions) {
 			this.performSave(session);
 		}
 	}
@@ -96,7 +95,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Ses
 			throw new IllegalArgumentException("sessions cannot be null");
 		}
 		this.sessions = new ConcurrentHashMap<>();
-		for(Session session : sessions) {
+		for (Session session : sessions) {
 			this.performSave(session);
 		}
 	}

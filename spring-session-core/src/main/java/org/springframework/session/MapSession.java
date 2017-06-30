@@ -94,7 +94,7 @@ public final class MapSession implements Session, Serializable {
 				session.getAttributeNames().size());
 		for (String attrName : session.getAttributeNames()) {
 			Object attrValue = session.getAttribute(attrName);
-			if(attrValue != null) {
+			if (attrValue != null) {
 				this.sessionAttrs.put(attrName, attrValue);
 			}
 		}

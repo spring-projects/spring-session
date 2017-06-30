@@ -53,6 +53,7 @@ public interface ReactorSessionRepository<S extends Session> {
 	 * </p>
 	 *
 	 * @param session the {@link Session} to save
+	 * @return indicator of operation completion
 	 */
 	Mono<Void> save(S session);
 
@@ -70,6 +71,7 @@ public interface ReactorSessionRepository<S extends Session> {
 	 * Deletes the {@link Session} with the given {@link Session#getId()} or does nothing
 	 * if the {@link Session} is not found.
 	 * @param id the {@link Session#getId()} to delete
+	 * @return indicator of operation completion
 	 */
 	Mono<Void> delete(String id);
 }

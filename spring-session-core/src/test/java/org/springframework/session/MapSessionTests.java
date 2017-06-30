@@ -16,12 +16,12 @@
 
 package org.springframework.session;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

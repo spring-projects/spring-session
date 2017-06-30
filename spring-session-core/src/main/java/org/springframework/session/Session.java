@@ -16,11 +16,11 @@
 
 package org.springframework.session;
 
-import org.springframework.util.Assert;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
+
+import org.springframework.util.Assert;
 
 /**
  * Provides a way to identify a user in an agnostic way. This allows the session to be
