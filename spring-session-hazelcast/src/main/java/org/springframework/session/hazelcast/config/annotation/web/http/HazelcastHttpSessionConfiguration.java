@@ -55,6 +55,10 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
 
+	private boolean optimizeSave = false;
+
+	private boolean optimizeDelete = false;
+
 	@Bean
 	public HazelcastSessionRepository sessionRepository(
 			HazelcastInstance hazelcastInstance,
@@ -67,6 +71,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		sessionRepository.setDefaultMaxInactiveInterval(
 				this.maxInactiveIntervalInSeconds);
 		sessionRepository.setHazelcastFlushMode(this.hazelcastFlushMode);
+		sessionRepository.setOptimizeSave(this.optimizeSave);
+		sessionRepository.setOptimizeDelete(this.optimizeDelete);
 		return sessionRepository;
 	}
 
@@ -79,6 +85,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		setSessionMapName(enableAttrs.getString("sessionMapName"));
 		setHazelcastFlushMode(
 				(HazelcastFlushMode) enableAttrs.getEnum("hazelcastFlushMode"));
+		setOptimizeSave(enableAttrs.getBoolean("optimizeSave"));
+		setOptimizeDelete(enableAttrs.getBoolean("optimizeDelete"));
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -93,4 +101,11 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.hazelcastFlushMode = hazelcastFlushMode;
 	}
 
+	public void setOptimizeSave(boolean optimizeSave) {
+		this.optimizeSave = optimizeSave;
+	}
+
+	public void setOptimizeDelete(boolean optimizeDelete) {
+		this.optimizeDelete = optimizeDelete;
+	}
 }

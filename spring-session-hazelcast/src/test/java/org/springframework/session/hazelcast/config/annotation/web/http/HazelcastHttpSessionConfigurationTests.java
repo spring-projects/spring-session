@@ -89,8 +89,16 @@ public class HazelcastHttpSessionConfigurationTests {
 	public void defaultConfiguration() {
 		registerAndRefresh(DefaultConfiguration.class);
 
-		assertThat(this.context.getBean(HazelcastSessionRepository.class))
-				.isNotNull();
+		HazelcastSessionRepository repository = this.context
+				.getBean(HazelcastSessionRepository.class);
+		HazelcastHttpSessionConfiguration configuration = this.context
+				.getBean(HazelcastHttpSessionConfiguration.class);
+		assertThat(repository).isNotNull();
+
+		assertThat(ReflectionTestUtils.getField(configuration, "optimizeSave"))
+				.isEqualTo(false);
+		assertThat(ReflectionTestUtils.getField(configuration, "optimizeDelete"))
+				.isEqualTo(false);
 	}
 
 	@Test
@@ -166,6 +174,72 @@ public class HazelcastHttpSessionConfigurationTests {
 				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
 	}
 
+	@Test
+	public void customOptimizeSave() {
+		registerAndRefresh(CustomOptimizeSaveConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context
+				.getBean(HazelcastSessionRepository.class);
+		HazelcastHttpSessionConfiguration configuration = this.context
+				.getBean(HazelcastHttpSessionConfiguration.class);
+
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "optimizeSave"))
+				.isEqualTo(true);
+		assertThat(ReflectionTestUtils.getField(repository, "optimizeSave"))
+				.isEqualTo(true);
+	}
+
+	@Test
+	public void setOptimizeSave() {
+		registerAndRefresh(BaseConfiguration.class,
+				CustomOptimizeSaveSetConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context
+				.getBean(HazelcastSessionRepository.class);
+		HazelcastHttpSessionConfiguration configuration = this.context
+				.getBean(HazelcastHttpSessionConfiguration.class);
+
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "optimizeSave"))
+				.isEqualTo(true);
+		assertThat(ReflectionTestUtils.getField(repository, "optimizeSave"))
+				.isEqualTo(true);
+	}
+
+	@Test
+	public void customOptimizeDelete() {
+		registerAndRefresh(CustomOptimizeDeleteConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context
+				.getBean(HazelcastSessionRepository.class);
+		HazelcastHttpSessionConfiguration configuration = this.context
+				.getBean(HazelcastHttpSessionConfiguration.class);
+
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "optimizeDelete"))
+				.isEqualTo(true);
+		assertThat(ReflectionTestUtils.getField(repository, "optimizeDelete"))
+				.isEqualTo(true);
+	}
+
+	@Test
+	public void setOptimizeDelete() {
+		registerAndRefresh(BaseConfiguration.class,
+				CustomOptimizeDeleteSetConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context
+				.getBean(HazelcastSessionRepository.class);
+		HazelcastHttpSessionConfiguration configuration = this.context
+				.getBean(HazelcastHttpSessionConfiguration.class);
+
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "optimizeDelete"))
+				.isEqualTo(true);
+		assertThat(ReflectionTestUtils.getField(repository, "optimizeDelete"))
+				.isEqualTo(true);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -235,6 +309,36 @@ public class HazelcastHttpSessionConfigurationTests {
 	@EnableHazelcastHttpSession(hazelcastFlushMode = HazelcastFlushMode.IMMEDIATE)
 	static class CustomFlushImmediatelyConfiguration
 			extends BaseConfiguration {
+	}
+
+	@Configuration
+	@EnableHazelcastHttpSession(optimizeSave = true)
+	static class CustomOptimizeSaveConfiguration extends BaseConfiguration {
+	}
+
+	@Configuration
+	static class CustomOptimizeSaveSetConfiguration
+			extends HazelcastHttpSessionConfiguration {
+
+		CustomOptimizeSaveSetConfiguration() {
+			setOptimizeSave(true);
+		}
+
+	}
+
+	@Configuration
+	@EnableHazelcastHttpSession(optimizeDelete = true)
+	static class CustomOptimizeDeleteConfiguration extends BaseConfiguration {
+	}
+
+	@Configuration
+	static class CustomOptimizeDeleteSetConfiguration
+			extends HazelcastHttpSessionConfiguration {
+
+		CustomOptimizeDeleteSetConfiguration() {
+			setOptimizeDelete(true);
+		}
+
 	}
 
 }

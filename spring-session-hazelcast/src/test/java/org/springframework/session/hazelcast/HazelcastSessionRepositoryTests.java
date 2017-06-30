@@ -112,6 +112,17 @@ public class HazelcastSessionRepositoryTests {
 	}
 
 	@Test
+	public void saveOptimized() {
+		this.repository.setOptimizeSave(true);
+		HazelcastSession session = this.repository.createSession();
+		verifyZeroInteractions(this.sessions);
+
+		this.repository.save(session);
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
+				isA(Long.class), eq(TimeUnit.SECONDS));
+	}
+
+	@Test
 	public void saveNewFlushModeImmediate() {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
@@ -283,6 +294,16 @@ public class HazelcastSessionRepositoryTests {
 		this.repository.deleteById(sessionId);
 
 		verify(this.sessions, times(1)).remove(eq(sessionId));
+	}
+
+	@Test
+	public void deleteOptimized() {
+		this.repository.setOptimizeDelete(true);
+		String sessionId = "testSessionId";
+
+		this.repository.deleteById(sessionId);
+
+		verify(this.sessions, times(1)).delete(eq(sessionId));
 	}
 
 	@Test

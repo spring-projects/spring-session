@@ -120,6 +120,8 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
 		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionExpiredEvent.class);
+		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToSave.getId()).<Session>getSession())
+				.isNotNull();
 
 		assertThat(this.repository.<Session>findById(sessionToSave.getId())).isNull();
 	}
@@ -140,6 +142,8 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
 		assertThat(this.registry.<SessionDeletedEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionDeletedEvent.class);
+		assertThat(this.registry.<SessionDeletedEvent>getEvent(sessionToSave.getId()).<Session>getSession())
+				.isNotNull();
 
 		assertThat(this.repository.findById(sessionToSave.getId())).isNull();
 	}

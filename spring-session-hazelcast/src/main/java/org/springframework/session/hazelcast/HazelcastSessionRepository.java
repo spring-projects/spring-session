@@ -125,6 +125,10 @@ public class HazelcastSessionRepository implements
 
 	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
 
+	private boolean optimizeSave = false;
+
+	private boolean optimizeDelete = false;
+
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 
 		public void publishEvent(ApplicationEvent event) {
@@ -193,6 +197,30 @@ public class HazelcastSessionRepository implements
 		this.hazelcastFlushMode = hazelcastFlushMode;
 	}
 
+	/**
+	 * Sets optimize save. Default is false.
+	 * If turned on {@link com.hazelcast.core.IMap#set(Object, Object, long, TimeUnit)} is
+	 * used instead of {@link com.hazelcast.core.IMap#put(Object, Object, long, TimeUnit)}.
+	 * Please note that {@link EntryEvent#getOldValue()} will return null, if it is turned on.
+	 * You should be worried about this only if you are directly binding to Hazelcast events.
+	 * @param optimizeSave whether to optimize save
+	 */
+	public void setOptimizeSave(boolean optimizeSave) {
+		this.optimizeSave = optimizeSave;
+	}
+
+	/**
+	 * Sets optimize delete. Default is false.
+	 * If turned on {@link com.hazelcast.core.IMap#delete(Object)} is used
+	 * instead of {@link com.hazelcast.core.IMap#remove(Object)}.
+	 * Please note that {@link EntryEvent#getOldValue()} will return null, if it is turned on.
+	 * Also, {@link SessionDeletedEvent#getSession()} & {@link SessionDestroyedEvent#getSession()} will also return null.
+	 * @param optimizeDelete whether to optimize delete.
+	 */
+	public void setOptimizeDelete(boolean optimizeDelete) {
+		this.optimizeDelete = optimizeDelete;
+	}
+
 	public HazelcastSession createSession() {
 		HazelcastSession result = new HazelcastSession();
 		if (this.defaultMaxInactiveInterval != null) {
@@ -204,8 +232,13 @@ public class HazelcastSessionRepository implements
 
 	public void save(HazelcastSession session) {
 		if (session.isChanged()) {
-			this.sessions.put(session.getId(), session.getDelegate(),
-					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
+			if (optimizeSave) {
+				this.sessions.set(session.getId(), session.getDelegate(),
+						session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
+			} else {
+				this.sessions.put(session.getId(), session.getDelegate(),
+						session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
+			}
 			session.markUnchanged();
 		}
 	}
@@ -223,7 +256,11 @@ public class HazelcastSessionRepository implements
 	}
 
 	public void deleteById(String id) {
-		this.sessions.remove(id);
+		if (optimizeDelete) {
+			this.sessions.delete(id);
+		} else {
+			this.sessions.remove(id);
+		}
 	}
 
 	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(
@@ -250,18 +287,28 @@ public class HazelcastSessionRepository implements
 
 	public void entryEvicted(EntryEvent<String, MapSession> event) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Session expired with id: " + event.getOldValue().getId());
+			logger.debug("Session expired with id: " + event.getKey());
 		}
-		this.eventPublisher
-				.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
+		if (optimizeSave) {
+			this.eventPublisher
+					.publishEvent(new SessionExpiredEvent(this, event.getKey()));
+		} else {
+			this.eventPublisher
+					.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
+		}
 	}
 
 	public void entryRemoved(EntryEvent<String, MapSession> event) {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Session deleted with id: " + event.getOldValue().getId());
+			logger.debug("Session deleted with id: " + event.getKey());
 		}
-		this.eventPublisher
-				.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
+		if (optimizeDelete) {
+			this.eventPublisher
+					.publishEvent(new SessionDeletedEvent(this, event.getKey()));
+		} else {
+			this.eventPublisher
+					.publishEvent(new SessionDeletedEvent(this, event.getOldValue()));
+		}
 	}
 
 	/**

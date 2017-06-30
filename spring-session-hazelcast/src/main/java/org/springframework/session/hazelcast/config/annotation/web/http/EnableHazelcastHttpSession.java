@@ -25,6 +25,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.session.MapSession;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
+import org.springframework.session.events.SessionDeletedEvent;
+import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 
 /**
@@ -89,4 +91,21 @@ public @interface EnableHazelcastHttpSession {
 	 */
 	HazelcastFlushMode hazelcastFlushMode() default HazelcastFlushMode.ON_SAVE;
 
+	/**
+	 * If turned on {@link com.hazelcast.core.IMap#set(Object, Object, long, java.util.concurrent.TimeUnit)} is
+	 * used instead of {@link com.hazelcast.core.IMap#put(Object, Object, long, java.util.concurrent.TimeUnit)}.
+	 * Please note that {@link com.hazelcast.core.EntryEvent#getOldValue()} will return null, if it is turned on.
+	 * You should be worried about this only if you are directly binding to Hazelcast events.
+	 * @return the method to use on {@link com.hazelcast.core.IMap}
+	 */
+	boolean optimizeSave() default false;
+
+	/**
+	 * If turned on {@link com.hazelcast.core.IMap#delete(Object)} is used
+	 * instead of {@link com.hazelcast.core.IMap#remove(Object)}.
+	 * Please note that {@link com.hazelcast.core.EntryEvent#getOldValue()} will return null, if it is turned on.
+	 * Also, {@link SessionDeletedEvent#getSession()} & {@link SessionDestroyedEvent#getSession()} will also return null.
+	 * @return the method to use on {@link com.hazelcast.core.IMap}
+	 */
+	boolean optimizeDelete() default false;
 }
