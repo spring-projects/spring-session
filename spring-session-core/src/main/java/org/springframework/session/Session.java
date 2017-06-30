@@ -16,6 +16,8 @@
 
 package org.springframework.session;
 
+import org.springframework.util.Assert;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
@@ -47,6 +49,33 @@ public interface Session {
 	 * associated to that name
 	 */
 	<T> T getAttribute(String attributeName);
+
+	/**
+	 * Return the session attribute value or if not present raise an
+	 * {@link IllegalArgumentException}.
+	 * @param name the attribute name
+	 * @param <T> the attribute type
+	 * @return the attribute value
+	 */
+	@SuppressWarnings("unchecked")
+	default <T> T getRequiredAttribute(String name) {
+		T result = getAttribute(name);
+		Assert.notNull(result, "Required attribute '" + name + "' is missing.");
+		return result;
+	}
+
+	/**
+	 * Return the session attribute value, or a default, fallback value.
+	 * @param name the attribute name
+	 * @param defaultValue a default value to return instead
+	 * @param <T> the attribute type
+	 * @return the attribute value
+	 */
+	@SuppressWarnings("unchecked")
+	default <T> T getAttributeOrDefault(String name, T defaultValue) {
+		T result = getAttribute(name);
+		return result == null ? defaultValue : result;
+	}
 
 	/**
 	 * Gets the attribute names that have a value associated with it. Each value can be

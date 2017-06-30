@@ -40,6 +40,47 @@ public class MapSessionTests {
 		new MapSession((Session) null);
 	}
 
+	@Test
+	public void getAttributeWhenNullThenNull() {
+		String result = this.session.getAttribute("attrName");
+		assertThat(result).isNull();
+	}
+
+	@Test
+	public void getAttributeOrDefaultWhenNullThenDefaultValue() {
+		String defaultValue = "default";
+		String result = this.session.getAttributeOrDefault("attrName", defaultValue);
+		assertThat(result).isEqualTo(defaultValue);
+	}
+
+	@Test
+	public void getAttributeOrDefaultWhenNotNullThenDefaultValue() {
+		String defaultValue = "default";
+		String attrValue = "value";
+		String attrName = "attrName";
+		this.session.setAttribute(attrName, attrValue);
+
+		String result = this.session.getAttributeOrDefault(attrName, defaultValue);
+
+		assertThat(result).isEqualTo(attrValue);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void getRequiredAttributeWhenNullThenException() {
+		this.session.getRequiredAttribute("attrName");
+	}
+
+	@Test
+	public void getRequiredAttributeWhenNotNullThenReturns() {
+		String attrValue = "value";
+		String attrName = "attrName";
+		this.session.setAttribute(attrName, attrValue);
+
+		String result = this.session.getRequiredAttribute("attrName");
+
+		assertThat(result).isEqualTo(attrValue);
+	}
+
 	/**
 	 * Ensure conforms to the javadoc of {@link Session}
 	 */
