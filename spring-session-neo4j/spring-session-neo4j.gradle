@@ -1,0 +1,15 @@
+apply plugin: 'io.spring.convention.spring-pom'
+
+description = "Spring Session and Spring Neo4j integration"
+
+dependencies {
+	compile project(':spring-session-core')
+	compile "org.springframework:spring-context"
+	compile group: 'org.neo4j', name: 'neo4j-ogm-core', version: '3.0.0-M02'
+	compile group: 'org.neo4j', name: 'neo4j-ogm-bolt-driver', version: '3.0.0-M02'
+
+	testCompile "javax.servlet:javax.servlet-api"
+	testCompile "org.springframework.security:spring-security-core"
+	testCompile "org.springframework.security:spring-security-web"
+
+}
