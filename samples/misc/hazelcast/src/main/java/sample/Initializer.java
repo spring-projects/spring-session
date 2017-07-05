@@ -23,15 +23,11 @@ import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterRegistration.Dynamic;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.hazelcast.config.Config;
-import com.hazelcast.config.MapConfig;
-import com.hazelcast.config.NetworkConfig;
-import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -43,36 +39,36 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 
 @WebListener
 public class Initializer implements ServletContextListener {
+
+	private static final String SESSION_MAP_NAME = "spring:session:sessions";
+
 	private HazelcastInstance instance;
 
 	public void contextInitialized(ServletContextEvent sce) {
-		String sessionMapName = "spring:session:sessions";
-		ServletContext sc = sce.getServletContext();
-
-		Config cfg = new Config();
-		NetworkConfig netConfig = new NetworkConfig();
-		netConfig.setPort(getAvailablePort());
-		cfg.setNetworkConfig(netConfig);
-		SerializerConfig serializer = new SerializerConfig().setTypeClass(Object.class)
-				.setImplementation(new ObjectStreamSerializer());
-		cfg.getSerializationConfig().addSerializerConfig(serializer);
-		MapConfig mc = new MapConfig();
-		mc.setName(sessionMapName);
-		mc.setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
-		cfg.addMapConfig(mc);
-
-		this.instance = Hazelcast.newHazelcastInstance(cfg);
-		Map<String, Session> sessions = this.instance.getMap(sessionMapName);
+		this.instance = createHazelcastInstance();
+		Map<String, Session> sessions = this.instance.getMap(SESSION_MAP_NAME);
 
 		SessionRepository<Session> sessionRepository = new MapSessionRepository(sessions);
 		SessionRepositoryFilter<Session> filter = new SessionRepositoryFilter<>(
 				sessionRepository);
-		Dynamic fr = sc.addFilter("springSessionFilter", filter);
+
+		Dynamic fr = sce.getServletContext().addFilter("springSessionFilter", filter);
 		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
 	}
 
 	public void contextDestroyed(ServletContextEvent sce) {
 		this.instance.shutdown();
+	}
+
+	private HazelcastInstance createHazelcastInstance() {
+		Config config = new Config();
+
+		config.getNetworkConfig().setPort(getAvailablePort());
+
+		config.getMapConfig(SESSION_MAP_NAME)
+				.setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+
+		return Hazelcast.newHazelcastInstance(config);
 	}
 
 	private static int getAvailablePort() {
@@ -92,4 +88,5 @@ public class Initializer implements ServletContextListener {
 			}
 		}
 	}
+
 }
