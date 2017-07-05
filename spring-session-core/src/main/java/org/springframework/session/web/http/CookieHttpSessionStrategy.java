@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.springframework.session.Session;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
-import org.springframework.util.Assert;
 
 /**
  * A {@link HttpSessionStrategy} that uses a cookie to obtain the session from.
@@ -293,7 +292,9 @@ public final class CookieHttpSessionStrategy
 	 * @param cookieSerializer the cookieSerializer to set. Cannot be null.
 	 */
 	public void setCookieSerializer(CookieSerializer cookieSerializer) {
-		Assert.notNull(cookieSerializer, "cookieSerializer cannot be null");
+		if (cookieSerializer == null) {
+			throw new IllegalArgumentException("cookieSerializer cannot be null");
+		}
 		this.cookieSerializer = cookieSerializer;
 	}
 

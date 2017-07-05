@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.session.Session;
-import org.springframework.util.Assert;
 
 /**
  * A {@link HttpSessionStrategy} that uses a header to obtain the session from.
@@ -79,7 +78,9 @@ public class HeaderHttpSessionStrategy implements HttpSessionStrategy {
 	 * @param headerName the name of the header to obtain the session id from.
 	 */
 	public void setHeaderName(String headerName) {
-		Assert.notNull(headerName, "headerName cannot be null");
+		if (headerName == null) {
+			throw new IllegalArgumentException("headerName cannot be null");
+		}
 		this.headerName = headerName;
 	}
 
