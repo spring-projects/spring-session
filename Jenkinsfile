@@ -24,21 +24,6 @@ try {
 			}
 		}
 	},
-	sonar: {
-		stage('Sonar') {
-			node {
-				checkout scm
-				withCredentials([string(credentialsId: 'spring-sonar.login', variable: 'SONAR_LOGIN')]) {
-					try {
-						sh "./gradlew clean sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon"
-					} catch(Exception e) {
-						currentBuild.result = 'FAILED: sonar'
-						throw e
-					}
-				}
-			}
-		}
-	},
 	springio: {
 		stage('Spring IO') {
 			node {
