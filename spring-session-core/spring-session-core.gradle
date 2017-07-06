@@ -6,6 +6,7 @@ dependencies {
 	compile "org.springframework:spring-jcl"
 
 	optional "io.projectreactor:reactor-core"
+	optional "javax.servlet:javax.servlet-api"
 	optional "org.springframework:spring-context"
 	optional "org.springframework:spring-jdbc"
 	optional "org.springframework:spring-messaging"
@@ -13,8 +14,6 @@ dependencies {
 	optional "org.springframework:spring-websocket"
 	optional "org.springframework.security:spring-security-core"
 	optional "org.springframework.security:spring-security-web"
-
-	provided "javax.servlet:javax.servlet-api"
 
 	testCompile "junit:junit"
 	testCompile "org.mockito:mockito-core"
