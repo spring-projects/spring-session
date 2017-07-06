@@ -6,8 +6,8 @@ dependencies {
 	compile "org.springframework:spring-context"
 
 	testCompile "javax.servlet:javax.servlet-api"
-	testCompile "org.springframework.security:spring-security-core"
 	testCompile "org.springframework:spring-web"
+	testCompile "org.springframework.security:spring-security-core"
 
 	integrationTestCompile "com.hazelcast:hazelcast-client"
 }
