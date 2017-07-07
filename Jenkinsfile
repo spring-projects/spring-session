@@ -14,7 +14,7 @@ try {
 			node {
 				checkout scm
 				try {
-					sh "./gradlew clean check  --refresh-dependencies --no-daemon"
+					sh "./gradlew clean check  --refresh-dependencies --no-daemon --debug"
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: check'
 					throw e
@@ -24,12 +24,27 @@ try {
 			}
 		}
 	},
+	sonar: {
+		stage('Sonar') {
+			node {
+				checkout scm
+				withCredentials([string(credentialsId: 'spring-sonar.login', variable: 'SONAR_LOGIN')]) {
+					try {
+						sh "./gradlew clean sonarqube -PexcludeProjects='**/samples/**' -Dsonar.host.url=$SPRING_SONAR_HOST_URL -Dsonar.login=$SONAR_LOGIN --refresh-dependencies --no-daemon --debug"
+					} catch(Exception e) {
+						currentBuild.result = 'FAILED: sonar'
+						throw e
+					}
+				}
+			}
+		}
+	},
 	springio: {
 		stage('Spring IO') {
 			node {
 				checkout scm
 				try {
-					sh "./gradlew clean springIoCheck -PplatformVersion=Cairo-BUILD-SNAPSHOT -PexcludeProjects='**/samples/**' --refresh-dependencies --no-daemon --stacktrace"
+					sh "./gradlew clean springIoCheck -PplatformVersion=Cairo-BUILD-SNAPSHOT -PexcludeProjects='**/samples/**' --refresh-dependencies --no-daemon --stacktrace --debug"
 				} catch(Exception e) {
 					currentBuild.result = 'FAILED: springio'
 					throw e
@@ -46,7 +61,7 @@ try {
 				node {
 					checkout scm
 					withCredentials([usernamePassword(credentialsId: '02bd1690-b54f-4c9f-819d-a77cb7a9822c', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
-						sh "./gradlew artifactoryPublish -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --no-daemon --stacktrace"
+						sh "./gradlew artifactoryPublish -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --no-daemon --stacktrace --debug"
 					}
 				}
 			}
@@ -56,7 +71,7 @@ try {
 				node {
 					checkout scm
 					withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
-						sh "./gradlew deployDocs -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace"
+						sh "./gradlew deployDocs -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME --refresh-dependencies --no-daemon --stacktrace --debug"
 					}
 				}
 			}
