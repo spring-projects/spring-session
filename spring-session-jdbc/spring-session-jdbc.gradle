@@ -1,4 +1,4 @@
-apply plugin: 'io.spring.convention.spring-pom'
+apply plugin: 'io.spring.convention.spring-module'
 
 description = "Spring Session and Spring JDBC integration"
 
