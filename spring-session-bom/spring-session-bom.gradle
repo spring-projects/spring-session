@@ -1,0 +1,14 @@
+import io.spring.gradle.convention.SpringMavenPlugin
+
+apply plugin: 'maven-bom'
+apply plugin: 'io.spring.convention.artifactory'
+
+description = "Spring Session Maven Bill of Materials (BOM)"
+
+sonarqube.skipProject = true
+
+project.rootProject.allprojects.each { p ->
+	p.plugins.withType(SpringMavenPlugin) {
+		project.mavenBom.projects.add(p)
+	}
+}
