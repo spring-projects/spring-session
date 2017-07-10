@@ -397,6 +397,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void getSessionNotFound() {
 		String sessionId = "testSessionId";
 		given(this.jdbcOperations.query(isA(String.class),
@@ -413,6 +414,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void getSessionExpired() {
 		MapSession expired = new MapSession();
 		expired.setLastAccessedTime(Instant.now().minusSeconds(
@@ -433,6 +435,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void getSessionFound() {
 		MapSession saved = new MapSession();
 		saved.setAttribute("savedName", "savedValue");
@@ -473,6 +476,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValuePrincipalIndexNameNotFound() {
 		String principal = "username";
 		given(this.jdbcOperations.query(isA(String.class),
@@ -491,6 +495,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValuePrincipalIndexNameFound() {
 		String principal = "username";
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal,
