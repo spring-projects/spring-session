@@ -122,7 +122,7 @@ import org.springframework.util.Assert;
  * <h3>Optimized Writes</h3>
  *
  * <p>
- * The {@link RedisSession} keeps track of the properties that have changed and only
+ * The {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession} keeps track of the properties that have changed and only
  * updates those. This means if an attribute is written once and read many times we only
  * need to write that attribute once. For example, assume the session attribute
  * "sessionAttr2" from earlier was updated. The following would be executed upon saving:
