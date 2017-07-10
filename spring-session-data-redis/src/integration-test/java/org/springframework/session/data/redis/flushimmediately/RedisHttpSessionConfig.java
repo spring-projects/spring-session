@@ -31,8 +31,6 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 public class RedisHttpSessionConfig {
 	@Bean
 	public JedisConnectionFactory connectionFactory() throws Exception {
-		JedisConnectionFactory factory = new JedisConnectionFactory();
-		factory.setUsePool(false);
-		return factory;
+		return new JedisConnectionFactory();
 	}
 }

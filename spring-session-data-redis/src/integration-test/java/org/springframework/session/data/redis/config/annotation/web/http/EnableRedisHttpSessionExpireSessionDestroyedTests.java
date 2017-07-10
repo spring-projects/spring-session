@@ -113,9 +113,7 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 	static class Config {
 		@Bean
 		public JedisConnectionFactory connectionFactory() throws Exception {
-			JedisConnectionFactory factory = new JedisConnectionFactory();
-			factory.setUsePool(false);
-			return factory;
+			return new JedisConnectionFactory();
 		}
 
 		@Bean

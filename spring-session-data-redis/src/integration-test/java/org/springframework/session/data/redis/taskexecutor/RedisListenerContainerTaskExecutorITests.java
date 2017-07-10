@@ -103,9 +103,7 @@ public class RedisListenerContainerTaskExecutorITests {
 
 		@Bean
 		JedisConnectionFactory connectionFactory() throws Exception {
-			JedisConnectionFactory factory = new JedisConnectionFactory();
-			factory.setUsePool(false);
-			return factory;
+			return new JedisConnectionFactory();
 		}
 
 		@Bean
