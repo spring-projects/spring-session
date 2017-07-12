@@ -128,3 +128,6 @@ Alternatively, you can also delete the explicit key. Enter the following into yo
 	$ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 
 Now visit the application at http://localhost:8080/test/index and observe that we are no longer authenticated.
+
+NOTE: Spring Session will not work with grails flash scope without additional work. +
+See this answer for an explanation: https://stackoverflow.com/a/43311427
