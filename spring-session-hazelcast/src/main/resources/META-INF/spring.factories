@@ -1,0 +1,2 @@
+org.springframework.session.config.annotation.web.http.EnableSpringHttpSession=\
+org.springframework.session.hazelcast.config.annotation.web.http.HazelcastHttpSessionConfiguration
