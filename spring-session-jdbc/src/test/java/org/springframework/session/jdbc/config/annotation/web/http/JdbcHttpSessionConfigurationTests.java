@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.session.jdbc.config.annotation.web.http;
 
+import java.util.List;
+
 import javax.sql.DataSource;
 
 import org.junit.After;
@@ -29,8 +31,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -179,6 +183,14 @@ public class JdbcHttpSessionConfigurationTests {
 		registerAndRefresh(CustomJdbcHttpSessionConfiguration.class);
 		JdbcHttpSessionConfiguration configuration = this.context.getBean(JdbcHttpSessionConfiguration.class);
 		assertThat(ReflectionTestUtils.getField(configuration, "tableName")).isEqualTo("custom_session_table");
+	}
+
+	@Test
+	public void discoverConfigurationClass() {
+		List<String> factoryNames = SpringFactoriesLoader.loadFactoryNames(
+				EnableSpringHttpSession.class, getClass().getClassLoader());
+		assertThat(factoryNames).hasSize(1);
+		assertThat(factoryNames).contains(JdbcHttpSessionConfiguration.class.getName());
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {

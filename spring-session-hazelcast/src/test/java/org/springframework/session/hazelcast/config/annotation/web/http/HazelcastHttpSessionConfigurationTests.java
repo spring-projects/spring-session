@@ -16,6 +16,8 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
+import java.util.List;
+
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.junit.After;
@@ -31,6 +33,8 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -164,6 +168,15 @@ public class HazelcastHttpSessionConfigurationTests {
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode"))
 				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
+	}
+
+	@Test
+	public void discoverConfigurationClass() {
+		List<String> factoryNames = SpringFactoriesLoader.loadFactoryNames(
+				EnableSpringHttpSession.class, getClass().getClassLoader());
+		assertThat(factoryNames).hasSize(1);
+		assertThat(factoryNames)
+				.contains(HazelcastHttpSessionConfiguration.class.getName());
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {

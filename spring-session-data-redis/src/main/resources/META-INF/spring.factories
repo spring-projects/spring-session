@@ -1,0 +1,2 @@
+org.springframework.session.config.annotation.web.http.EnableSpringHttpSession=\
+org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration
