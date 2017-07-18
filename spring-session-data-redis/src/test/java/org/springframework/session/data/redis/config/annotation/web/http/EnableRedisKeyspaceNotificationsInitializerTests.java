@@ -16,7 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import java.util.Arrays;
+import java.util.Properties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -167,7 +167,9 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	private void setConfigNotification(String value) {
+		Properties properties = new Properties();
+		properties.setProperty(CONFIG_NOTIFY_KEYSPACE_EVENTS, value);
 		given(this.connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS))
-				.willReturn(Arrays.asList(CONFIG_NOTIFY_KEYSPACE_EVENTS, value));
+				.willReturn(properties);
 	}
 }

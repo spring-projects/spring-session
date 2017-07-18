@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.util.Properties;
 import java.util.concurrent.Executor;
 
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -41,6 +43,7 @@ import static org.mockito.Mockito.verify;
 
 /**
  * @author Vladimir Tsanev
+ * @author Mark Paluch
  *
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -82,6 +85,7 @@ public class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 			RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 			RedisConnection connection = mock(RedisConnection.class);
 			given(factory.getConnection()).willReturn(connection);
+			given(connection.getConfig(anyString())).willReturn(new Properties());
 
 			return factory;
 		}

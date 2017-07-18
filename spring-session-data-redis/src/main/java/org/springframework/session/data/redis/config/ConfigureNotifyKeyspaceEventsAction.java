@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.springframework.session.data.redis.config;
 
-import java.util.List;
+import java.util.Properties;
 
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -38,6 +38,7 @@ import org.springframework.data.redis.connection.RedisConnection;
  * </p>
  *
  * @author Rob Winch
+ * @author Mark Paluch
  * @since 1.0.1
  */
 public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction {
@@ -71,11 +72,11 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 
 	private String getNotifyOptions(RedisConnection connection) {
 		try {
-			List<String> config = connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS);
-			if (config.size() < 2) {
+			Properties config = connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS);
+			if (config.isEmpty()) {
 				return "";
 			}
-			return config.get(1);
+			return config.getProperty(config.stringPropertyNames().iterator().next());
 		}
 		catch (InvalidDataAccessApiUsageException e) {
 			throw new IllegalStateException(

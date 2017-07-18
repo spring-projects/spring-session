@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package docs.http;
 
+import java.util.Properties;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,11 +33,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
  * @author Rob Winch
+ * @author Mark Paluch
  * @since 1.2
  */
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -63,6 +67,7 @@ public abstract class AbstractHttpSessionListenerTests {
 		RedisConnection connection = mock(RedisConnection.class);
 
 		given(factory.getConnection()).willReturn(connection);
+		given(connection.getConfig(anyString())).willReturn(new Properties());
 		return factory;
 	}
 

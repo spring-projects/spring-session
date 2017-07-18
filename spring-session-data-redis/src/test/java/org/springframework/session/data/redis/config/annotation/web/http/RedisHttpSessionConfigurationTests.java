@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.util.Properties;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,11 +32,13 @@ import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
  * @author Eddú Meléndez
+ * @author Mark Paluch
  */
 public class RedisHttpSessionConfigurationTests {
 
@@ -88,7 +92,9 @@ public class RedisHttpSessionConfigurationTests {
 		@Bean
 		public RedisConnectionFactory redisConnectionFactory() {
 			RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
-			given(connectionFactory.getConnection()).willReturn(mock(RedisConnection.class));
+			RedisConnection connection = mock(RedisConnection.class);
+			given(connectionFactory.getConnection()).willReturn(connection);
+			given(connection.getConfig(anyString())).willReturn(new Properties());
 			return connectionFactory;
 		}
 
