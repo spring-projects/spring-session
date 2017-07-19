@@ -21,8 +21,8 @@
 			<tr th:each="sessionElement : ${sessions}" th:with="details=${sessionElement.getAttribute('SESSION_DETAILS')}">
 				<td th:text="${sessionElement.id.substring(30)}"></td>
 				<td th:text="${details?.location}"></td>
-				<td th:text="${#temporals.format(sessionElement.creationTime.atZone(T(java.time.ZoneId).systemDefault()),'dd/MMM/yyyy HH:mm:ss')}"></td>
-				<td th:text="${#temporals.format(sessionElement.lastAccessedTime.atZone(T(java.time.ZoneId).systemDefault()),'dd/MMM/yyyy HH:mm:ss')}"></td>
+				<td th:text="${#dates.format(new java.util.Date(sessionElement.creationTime),'dd/MMM/yyyy HH:mm:ss')}"></td>
+				<td th:text="${#dates.format(new java.util.Date(sessionElement.lastAccessedTime),'dd/MMM/yyyy HH:mm:ss')}"></td>
 				<td th:text="${details?.accessType}"></td>
 				<td>
 					<form th:action="@{'/sessions/' + ${sessionElement.id}}" th:method="delete">

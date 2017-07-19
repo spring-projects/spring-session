@@ -23,7 +23,7 @@ import sample.websocket.WebSocketDisconnectHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.session.Session;
+import org.springframework.session.ExpiringSession;
 
 /**
  * These handlers are separated from WebSocketConfig because they are specific to this
@@ -32,7 +32,7 @@ import org.springframework.session.Session;
  * @author Rob Winch
  */
 @Configuration
-public class WebSocketHandlersConfig<S extends Session> {
+public class WebSocketHandlersConfig<S extends ExpiringSession> {
 
 	@Bean
 	public WebSocketConnectHandler<S> webSocketConnectHandler(

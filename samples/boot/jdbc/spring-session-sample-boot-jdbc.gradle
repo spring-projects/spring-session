@@ -1,20 +1,17 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-	compile project(':spring-session-jdbc')
+	compile "org.springframework.boot:spring-boot-starter-jdbc"
 	compile "org.springframework.boot:spring-boot-starter-web"
 	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
 	compile "org.springframework.boot:spring-boot-starter-security"
 	compile "org.springframework.boot:spring-boot-devtools"
+	compile "org.springframework.session:spring-session"
 	compile "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
 	compile "org.webjars:bootstrap"
 	compile "org.webjars:html5shiv"
 	compile "org.webjars:webjars-locator"
 	compile "com.h2database:h2"
-
-	compile project(':spring-session-hazelcast')
-	compile project(':spring-session-data-redis')
-	compile "org.springframework.boot:spring-boot-starter-data-redis"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.assertj:assertj-core"

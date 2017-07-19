@@ -1,14 +1,14 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-	compile project(':spring-session-data-redis')
+	compile "org.springframework.boot:spring-boot-starter-data-redis"
 	compile "org.springframework.boot:spring-boot-starter-web"
 	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
 	compile "org.springframework.boot:spring-boot-starter-security"
 	compile "org.springframework.boot:spring-boot-starter-data-jpa"
-	compile "org.springframework.boot:spring-boot-starter-data-redis"
 	compile "org.springframework.boot:spring-boot-starter-websocket"
 	compile "org.springframework.boot:spring-boot-devtools"
+	compile "org.springframework.session:spring-session"
 	compile "org.springframework:spring-websocket"
 	compile "org.springframework.security:spring-security-messaging"
 	compile "org.springframework.security:spring-security-data"
@@ -19,9 +19,8 @@ dependencies {
 	compile "org.webjars:sockjs-client"
 	compile "org.webjars:stomp-websocket"
 	compile "org.webjars:webjars-locator"
+	compile "io.lettuce:lettuce-core"
 	compile "com.h2database:h2"
-
-	compile project(':spring-session-hazelcast')
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.springframework.security:spring-security-test"
