@@ -21,6 +21,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 ====
 For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
 Alternatively, you can update the `LettuceConnectionFactory` to point to a Redis server.
+Another option is to use https://www.docker.com/[Docker] to run Redis on localhost. See https://hub.docker.com/_/redis/[Docker Redis repository] for detailed instructions.
 ====
 
 ----
