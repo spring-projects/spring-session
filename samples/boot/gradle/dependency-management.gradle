@@ -1,0 +1,6 @@
+dependencyManagement {
+	dependencies {
+		dependency 'io.lettuce:lettuce-core:5.0.0.M2'
+	}
+}
+

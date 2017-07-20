@@ -12,7 +12,7 @@ dependencyManagement {
 		dependency 'com.maxmind.geoip2:geoip2:2.3.1'
 		dependency 'commons-codec:commons-codec:1.10'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
-		dependency 'io.lettuce:lettuce-core:5.0.0.M2'
+		dependency 'io.lettuce:lettuce-core:5.0.0.RC1'
 		dependency 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.1'
 		dependency 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.2-b02'
 		dependency 'javax.servlet:javax.servlet-api:3.1.0'
