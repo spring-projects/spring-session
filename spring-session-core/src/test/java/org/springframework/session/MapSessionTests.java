@@ -134,6 +134,10 @@ public class MapSessionTests {
 			return Instant.EPOCH;
 		}
 
+		public String changeSessionId() {
+			throw new UnsupportedOperationException();
+		}
+
 		public String getId() {
 			return "id";
 		}

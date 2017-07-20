@@ -39,7 +39,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  * @author Rob Winch
  * @since 2.0
  */
-public class MapReactorSessionRepository implements ReactorSessionRepository<Session> {
+public class MapReactorSessionRepository implements ReactorSessionRepository<MapSession> {
 	/**
 	 * If non-null, this value is used to override
 	 * {@link Session#setMaxInactiveInterval(Duration)}.
@@ -80,7 +80,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Ses
 		}
 		this.sessions = new ConcurrentHashMap<>();
 		for (Session session : sessions) {
-			this.performSave(session);
+			this.performSave(new MapSession(session));
 		}
 	}
 
@@ -96,7 +96,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Ses
 		}
 		this.sessions = new ConcurrentHashMap<>();
 		for (Session session : sessions) {
-			this.performSave(session);
+			this.performSave(new MapSession(session));
 		}
 	}
 
@@ -110,15 +110,19 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Ses
 		this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);
 	}
 
-	public Mono<Void> save(Session session) {
+	public Mono<Void> save(MapSession session) {
 		return Mono.fromRunnable(() -> performSave(session));
 	}
 
-	private void performSave(Session session) {
+	private void performSave(MapSession session) {
+		if (!session.getId().equals(session.getOriginalId())) {
+			this.sessions.remove(session.getOriginalId());
+			session.setOriginalId(session.getId());
+		}
 		this.sessions.put(session.getId(), new MapSession(session));
 	}
 
-	public Mono<Session> findById(String id) {
+	public Mono<MapSession> findById(String id) {
 		return Mono.defer(() -> {
 			Session saved = this.sessions.get(id);
 			if (saved == null) {
@@ -136,9 +140,9 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Ses
 		return Mono.fromRunnable(() -> this.sessions.remove(id));
 	}
 
-	public Mono<Session> createSession() {
+	public Mono<MapSession> createSession() {
 		return Mono.defer(() -> {
-			Session result = new MapSession();
+			MapSession result = new MapSession();
 			if (this.defaultMaxInactiveInterval != null) {
 				result.setMaxInactiveInterval(
 						Duration.ofSeconds(this.defaultMaxInactiveInterval));

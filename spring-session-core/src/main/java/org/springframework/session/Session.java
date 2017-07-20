@@ -38,6 +38,12 @@ public interface Session {
 	String getId();
 
 	/**
+	 * Changes the session id. After invoking the {@link #getId()} will return a new identifier.
+	 * @return the new session id which {@link #getId()} will now return
+	 */
+	String changeSessionId();
+
+	/**
 	 * Gets the Object associated with the specified name or null if no Object is
 	 * associated to that name.
 	 *

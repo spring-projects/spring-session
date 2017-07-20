@@ -34,7 +34,6 @@ import com.hazelcast.core.HazelcastInstance;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 @WebListener
@@ -48,8 +47,8 @@ public class Initializer implements ServletContextListener {
 		this.instance = createHazelcastInstance();
 		Map<String, Session> sessions = this.instance.getMap(SESSION_MAP_NAME);
 
-		SessionRepository<Session> sessionRepository = new MapSessionRepository(sessions);
-		SessionRepositoryFilter<Session> filter = new SessionRepositoryFilter<>(
+		MapSessionRepository sessionRepository = new MapSessionRepository(sessions);
+		SessionRepositoryFilter<? extends Session> filter = new SessionRepositoryFilter<>(
 				sessionRepository);
 
 		Dynamic fr = sce.getServletContext().addFilter("springSessionFilter", filter);

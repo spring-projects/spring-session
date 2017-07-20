@@ -50,7 +50,7 @@ public class IndexDocTests {
 
 	@Test
 	public void repositoryDemo() {
-		RepositoryDemo<Session> demo = new RepositoryDemo<>();
+		RepositoryDemo<MapSession> demo = new RepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();
@@ -82,7 +82,7 @@ public class IndexDocTests {
 
 	@Test
 	public void expireRepositoryDemo() {
-		ExpiringRepositoryDemo<Session> demo = new ExpiringRepositoryDemo<>();
+		ExpiringRepositoryDemo<MapSession> demo = new ExpiringRepositoryDemo<>();
 		demo.repository = new MapSessionRepository();
 
 		demo.demo();

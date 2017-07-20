@@ -42,6 +42,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -357,7 +358,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveUpdatedAttributes() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
 				new MapSession());
 		session.setAttribute("testName", "testValue");
 
@@ -372,7 +373,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveUpdatedLastAccessedTime() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
 				new MapSession());
 		session.setLastAccessedTime(Instant.now());
 
@@ -387,7 +388,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveUnchanged() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
 				new MapSession());
 
 		this.repository.save(session);
@@ -416,7 +417,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void getSessionExpired() {
-		MapSession expired = new MapSession();
+		Session expired = this.repository.new JdbcSession();
 		expired.setLastAccessedTime(Instant.now().minusSeconds(
 				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 		given(this.jdbcOperations.query(isA(String.class),
@@ -437,7 +438,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	public void getSessionFound() {
-		MapSession saved = new MapSession();
+		Session saved = this.repository.new JdbcSession("primaryKey", new MapSession());
 		saved.setAttribute("savedName", "savedValue");
 		given(this.jdbcOperations.query(isA(String.class),
 				isA(PreparedStatementSetter.class), isA(ResultSetExtractor.class)))
@@ -500,11 +501,11 @@ public class JdbcOperationsSessionRepositoryTests {
 		String principal = "username";
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal,
 				"notused", AuthorityUtils.createAuthorityList("ROLE_USER"));
-		List<MapSession> saved = new ArrayList<>(2);
-		MapSession saved1 = new MapSession();
+		List<Session> saved = new ArrayList<>(2);
+		Session saved1 = this.repository.new JdbcSession();
 		saved1.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved1);
-		MapSession saved2 = new MapSession();
+		Session saved2 = this.repository.new JdbcSession();
 		saved2.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved2);
 		given(this.jdbcOperations.query(isA(String.class),

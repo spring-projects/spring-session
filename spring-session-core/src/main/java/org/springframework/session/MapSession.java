@@ -52,6 +52,7 @@ public final class MapSession implements Session, Serializable {
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
 	private String id;
+	private String originalId;
 	private Map<String, Object> sessionAttrs = new HashMap<>();
 	private Instant creationTime = Instant.now();
 	private Instant lastAccessedTime = this.creationTime;
@@ -65,8 +66,9 @@ public final class MapSession implements Session, Serializable {
 	 * Creates a new instance with a secure randomly generated identifier.
 	 */
 	public MapSession() {
-		this(UUID.randomUUID().toString());
+		this(generateId());
 	}
+
 
 	/**
 	 * Creates a new instance with the specified id. This is preferred to the default
@@ -77,6 +79,7 @@ public final class MapSession implements Session, Serializable {
 	 */
 	public MapSession(String id) {
 		this.id = id;
+		this.originalId = id;
 	}
 
 	/**
@@ -90,6 +93,7 @@ public final class MapSession implements Session, Serializable {
 			throw new IllegalArgumentException("session cannot be null");
 		}
 		this.id = session.getId();
+		this.originalId = this.id;
 		this.sessionAttrs = new HashMap<>(
 				session.getAttributeNames().size());
 		for (String attrName : session.getAttributeNames()) {
@@ -113,6 +117,20 @@ public final class MapSession implements Session, Serializable {
 
 	public String getId() {
 		return this.id;
+	}
+
+	String getOriginalId() {
+		return this.originalId;
+	}
+
+	void setOriginalId(String originalId) {
+		this.originalId = originalId;
+	}
+
+	public String changeSessionId() {
+		String changedId = generateId();
+		setId(changedId);
+		return changedId;
 	}
 
 	public Instant getLastAccessedTime() {
@@ -186,6 +204,10 @@ public final class MapSession implements Session, Serializable {
 
 	public int hashCode() {
 		return this.id.hashCode();
+	}
+
+	private static String generateId() {
+		return UUID.randomUUID().toString();
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;

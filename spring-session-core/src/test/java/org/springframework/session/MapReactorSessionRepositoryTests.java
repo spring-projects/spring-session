@@ -145,4 +145,32 @@ public class MapReactorSessionRepositoryTests {
 		assertThat(session.getMaxInactiveInterval())
 				.isEqualTo(expectedMaxInterval);
 	}
+
+	@Test
+	public void changeSessionIdWhenNotYetSaved() {
+		MapSession createSession = this.repository.createSession().block();
+
+		String originalId = createSession.getId();
+		createSession.changeSessionId();
+
+		this.repository.save(createSession).block();
+
+		assertThat(this.repository.findById(originalId).block()).isNull();
+		assertThat(this.repository.findById(createSession.getId()).block()).isNotNull();
+	}
+
+	@Test
+	public void changeSessionIdWhenSaved() {
+		MapSession createSession = this.repository.createSession().block();
+
+		this.repository.save(createSession).block();
+
+		String originalId = createSession.getId();
+		createSession.changeSessionId();
+
+		this.repository.save(createSession).block();
+
+		assertThat(this.repository.findById(originalId).block()).isNull();
+		assertThat(this.repository.findById(createSession.getId()).block()).isNotNull();
+	}
 }

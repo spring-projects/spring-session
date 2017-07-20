@@ -202,6 +202,10 @@ public class HazelcastSessionRepository implements
 	}
 
 	public void save(HazelcastSession session) {
+		if (!session.getId().equals(session.originalId)) {
+			this.sessions.remove(session.originalId);
+			session.originalId = session.getId();
+		}
 		if (session.isChanged()) {
 			this.sessions.put(session.getId(), session.getDelegate(),
 					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
@@ -273,6 +277,7 @@ public class HazelcastSessionRepository implements
 
 		private final MapSession delegate;
 		private boolean changed;
+		private String originalId;
 
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be
@@ -292,6 +297,7 @@ public class HazelcastSessionRepository implements
 		HazelcastSession(MapSession cached) {
 			Assert.notNull(cached, "MapSession cannot be null");
 			this.delegate = cached;
+			this.originalId = cached.getId();
 		}
 
 		public void setLastAccessedTime(Instant lastAccessedTime) {
@@ -310,6 +316,12 @@ public class HazelcastSessionRepository implements
 
 		public String getId() {
 			return this.delegate.getId();
+		}
+
+		public String changeSessionId() {
+			this.changed = true;
+			String result = this.delegate.changeSessionId();
+			return result;
 		}
 
 		public Instant getLastAccessedTime() {

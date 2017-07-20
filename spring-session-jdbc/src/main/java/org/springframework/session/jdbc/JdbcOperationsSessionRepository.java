@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -95,25 +96,26 @@ import org.springframework.util.StringUtils;
  *
  * <pre class="code">
  * CREATE TABLE SPRING_SESSION (
+ *   PRIMARY_ID CHAR(36) NOT NULL,
  *   SESSION_ID CHAR(36),
  *   CREATION_TIME BIGINT NOT NULL,
  *   LAST_ACCESS_TIME BIGINT NOT NULL,
  *   MAX_INACTIVE_INTERVAL INT NOT NULL,
  *   PRINCIPAL_NAME VARCHAR(100),
- *   CONSTRAINT SPRING_SESSION_PK PRIMARY KEY (SESSION_ID)
+ *   CONSTRAINT SPRING_SESSION_PK PRIMARY KEY (PRIMARY_ID)
  * );
  *
  * CREATE INDEX SPRING_SESSION_IX1 ON SPRING_SESSION (LAST_ACCESS_TIME);
  *
  * CREATE TABLE SPRING_SESSION_ATTRIBUTES (
- *  SESSION_ID CHAR(36),
+ *  SESSION_PRIMARY_ID CHAR(36) NOT NULL,
  *  ATTRIBUTE_NAME VARCHAR(200),
  *  ATTRIBUTE_BYTES BYTEA,
- *  CONSTRAINT SPRING_SESSION_ATTRIBUTES_PK PRIMARY KEY (SESSION_ID, ATTRIBUTE_NAME),
- *  CONSTRAINT SPRING_SESSION_ATTRIBUTES_FK FOREIGN KEY (SESSION_ID) REFERENCES SPRING_SESSION(SESSION_ID) ON DELETE CASCADE
+ *  CONSTRAINT SPRING_SESSION_ATTRIBUTES_PK PRIMARY KEY (SESSION_PRIMARY_ID, ATTRIBUTE_NAME),
+ *  CONSTRAINT SPRING_SESSION_ATTRIBUTES_FK FOREIGN KEY (SESSION_PRIMARY_ID) REFERENCES SPRING_SESSION(PRIMARY_ID) ON DELETE CASCADE
  * );
  *
- * CREATE INDEX SPRING_SESSION_ATTRIBUTES_IX1 ON SPRING_SESSION_ATTRIBUTES (SESSION_ID);
+ * CREATE INDEX SPRING_SESSION_ATTRIBUTES_IX1 ON SPRING_SESSION_ATTRIBUTES (SESSION_PRIMARY_ID);
  * </pre>
  *
  * Due to the differences between the various database vendors, especially when it comes
@@ -136,31 +138,31 @@ public class JdbcOperationsSessionRepository implements
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final String CREATE_SESSION_QUERY =
-			"INSERT INTO %TABLE_NAME%(SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, PRINCIPAL_NAME) " +
-					"VALUES (?, ?, ?, ?, ?)";
+			"INSERT INTO %TABLE_NAME%(PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, PRINCIPAL_NAME) " +
+					"VALUES (?, ?, ?, ?, ?, ?)";
 
 	private static final String CREATE_SESSION_ATTRIBUTE_QUERY =
-			"INSERT INTO %TABLE_NAME%_ATTRIBUTES(SESSION_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) " +
+			"INSERT INTO %TABLE_NAME%_ATTRIBUTES(SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) " +
 					"VALUES (?, ?, ?)";
 
 	private static final String GET_SESSION_QUERY =
-			"SELECT S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES " +
+			"SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES " +
 					"FROM %TABLE_NAME% S " +
-					"LEFT OUTER JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.SESSION_ID = SA.SESSION_ID " +
+					"LEFT OUTER JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID " +
 					"WHERE S.SESSION_ID = ?";
 
 	private static final String UPDATE_SESSION_QUERY =
-			"UPDATE %TABLE_NAME% SET LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, PRINCIPAL_NAME = ? " +
-					"WHERE SESSION_ID = ?";
+			"UPDATE %TABLE_NAME% SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, PRINCIPAL_NAME = ? " +
+					"WHERE PRIMARY_ID = ?";
 
 	private static final String UPDATE_SESSION_ATTRIBUTE_QUERY =
 			"UPDATE %TABLE_NAME%_ATTRIBUTES SET ATTRIBUTE_BYTES = ? " +
-					"WHERE SESSION_ID = ? " +
+					"WHERE SESSION_PRIMARY_ID = ? " +
 					"AND ATTRIBUTE_NAME = ?";
 
 	private static final String DELETE_SESSION_ATTRIBUTE_QUERY =
 			"DELETE FROM %TABLE_NAME%_ATTRIBUTES " +
-					"WHERE SESSION_ID = ? " +
+					"WHERE SESSION_PRIMARY_ID = ? " +
 					"AND ATTRIBUTE_NAME = ?";
 
 	private static final String DELETE_SESSION_QUERY =
@@ -168,9 +170,9 @@ public class JdbcOperationsSessionRepository implements
 					"WHERE SESSION_ID = ?";
 
 	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY =
-			"SELECT S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES " +
+			"SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES " +
 					"FROM %TABLE_NAME% S " +
-					"LEFT OUTER JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.SESSION_ID = SA.SESSION_ID " +
+					"LEFT OUTER JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID " +
 					"WHERE S.PRINCIPAL_NAME = ?";
 
 	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
@@ -186,7 +188,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private final TransactionOperations transactionOperations;
 
-	private final ResultSetExtractor<List<Session>> extractor = new SessionResultSetExtractor();
+	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -378,11 +380,12 @@ public class JdbcOperationsSessionRepository implements
 					JdbcOperationsSessionRepository.this.jdbcOperations.update(
 							JdbcOperationsSessionRepository.this.createSessionQuery,
 							ps -> {
-								ps.setString(1, session.getId());
-								ps.setLong(2, session.getCreationTime().toEpochMilli());
-								ps.setLong(3, session.getLastAccessedTime().toEpochMilli());
-								ps.setInt(4, (int) session.getMaxInactiveInterval().getSeconds());
-								ps.setString(5, session.getPrincipalName());
+								ps.setString(1, session.primaryKey);
+								ps.setString(2, session.getId());
+								ps.setLong(3, session.getCreationTime().toEpochMilli());
+								ps.setLong(4, session.getLastAccessedTime().toEpochMilli());
+								ps.setInt(5, (int) session.getMaxInactiveInterval().getSeconds());
+								ps.setString(6, session.getPrincipalName());
 							});
 					if (!session.getAttributeNames().isEmpty()) {
 						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
@@ -392,7 +395,7 @@ public class JdbcOperationsSessionRepository implements
 
 									public void setValues(PreparedStatement ps, int i) throws SQLException {
 										String attributeName = attributeNames.get(i);
-										ps.setString(1, session.getId());
+										ps.setString(1, session.primaryKey);
 										ps.setString(2, attributeName);
 										serialize(ps, 3, session.getAttribute(attributeName));
 									}
@@ -415,10 +418,11 @@ public class JdbcOperationsSessionRepository implements
 						JdbcOperationsSessionRepository.this.jdbcOperations.update(
 								JdbcOperationsSessionRepository.this.updateSessionQuery,
 								ps -> {
-									ps.setLong(1, session.getLastAccessedTime().toEpochMilli());
-									ps.setInt(2, (int) session.getMaxInactiveInterval().getSeconds());
-									ps.setString(3, session.getPrincipalName());
-									ps.setString(4, session.getId());
+									ps.setString(1, session.getId());
+									ps.setLong(2, session.getLastAccessedTime().toEpochMilli());
+									ps.setInt(3, (int) session.getMaxInactiveInterval().getSeconds());
+									ps.setString(4, session.getPrincipalName());
+									ps.setString(5, session.primaryKey);
 								});
 					}
 					Map<String, Object> delta = session.getDelta();
@@ -428,7 +432,7 @@ public class JdbcOperationsSessionRepository implements
 								JdbcOperationsSessionRepository.this.jdbcOperations.update(
 										JdbcOperationsSessionRepository.this.deleteSessionAttributeQuery,
 										ps -> {
-											ps.setString(1, session.getId());
+											ps.setString(1, session.primaryKey);
 											ps.setString(2, entry.getKey());
 										});
 							}
@@ -437,14 +441,14 @@ public class JdbcOperationsSessionRepository implements
 										JdbcOperationsSessionRepository.this.updateSessionAttributeQuery,
 										ps -> {
 											serialize(ps, 1, entry.getValue());
-											ps.setString(2, session.getId());
+											ps.setString(2, session.primaryKey);
 											ps.setString(3, entry.getKey());
 										});
 								if (updatedCount == 0) {
 									JdbcOperationsSessionRepository.this.jdbcOperations.update(
 											JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
 											ps -> {
-												ps.setString(1, session.getId());
+												ps.setString(1, session.primaryKey);
 												ps.setString(2, entry.getKey());
 												serialize(ps, 3, entry.getValue());
 											});
@@ -460,8 +464,8 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	public JdbcSession findById(final String id) {
-		final Session session = this.transactionOperations.execute(status -> {
-			List<Session> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
+		final JdbcSession session = this.transactionOperations.execute(status -> {
+			List<JdbcSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
 					JdbcOperationsSessionRepository.this.getSessionQuery,
 					ps -> ps.setString(1, id),
 					JdbcOperationsSessionRepository.this.extractor
@@ -477,7 +481,7 @@ public class JdbcOperationsSessionRepository implements
 				deleteById(id);
 			}
 			else {
-				return new JdbcSession(session);
+				return session;
 			}
 		}
 		return null;
@@ -500,7 +504,7 @@ public class JdbcOperationsSessionRepository implements
 			return Collections.emptyMap();
 		}
 
-		List<Session> sessions = this.transactionOperations.execute(status ->
+		List<JdbcSession> sessions = this.transactionOperations.execute(status ->
 				JdbcOperationsSessionRepository.this.jdbcOperations.query(
 						JdbcOperationsSessionRepository.this.listSessionsByPrincipalNameQuery,
 						ps -> ps.setString(1, indexValue),
@@ -509,8 +513,8 @@ public class JdbcOperationsSessionRepository implements
 		Map<String, JdbcSession> sessionMap = new HashMap<>(
 				sessions.size());
 
-		for (Session session : sessions) {
-			sessionMap.put(session.getId(), new JdbcSession(session));
+		for (JdbcSession session : sessions) {
+			sessionMap.put(session.getId(), session);
 		}
 
 		return sessionMap;
@@ -596,6 +600,8 @@ public class JdbcOperationsSessionRepository implements
 
 		private final Session delegate;
 
+		private final String primaryKey;
+
 		private boolean isNew;
 
 		private boolean changed;
@@ -605,10 +611,13 @@ public class JdbcOperationsSessionRepository implements
 		JdbcSession() {
 			this.delegate = new MapSession();
 			this.isNew = true;
+			this.primaryKey = UUID.randomUUID().toString();
 		}
 
-		JdbcSession(Session delegate) {
+		JdbcSession(String primaryKey, Session delegate) {
+			Assert.notNull(primaryKey, "primaryKey cannot be null");
 			Assert.notNull(delegate, "Session cannot be null");
+			this.primaryKey = primaryKey;
 			this.delegate = delegate;
 		}
 
@@ -636,6 +645,11 @@ public class JdbcOperationsSessionRepository implements
 
 		public String getId() {
 			return this.delegate.getId();
+		}
+
+		public String changeSessionId() {
+			this.changed = true;
+			return this.delegate.changeSessionId();
 		}
 
 		public <T> T getAttribute(String attributeName) {
@@ -713,21 +727,23 @@ public class JdbcOperationsSessionRepository implements
 
 	}
 
-	private class SessionResultSetExtractor implements ResultSetExtractor<List<Session>> {
+	private class SessionResultSetExtractor implements ResultSetExtractor<List<JdbcSession>> {
 
-		public List<Session> extractData(ResultSet rs) throws SQLException, DataAccessException {
-			List<Session> sessions = new ArrayList<>();
+		public List<JdbcSession> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			List<JdbcSession> sessions = new ArrayList<>();
 			while (rs.next()) {
 				String id = rs.getString("SESSION_ID");
-				MapSession session;
+				JdbcSession session;
 				if (sessions.size() > 0 && getLast(sessions).getId().equals(id)) {
-					session = (MapSession) getLast(sessions);
+					session = getLast(sessions);
 				}
 				else {
-					session = new MapSession(id);
-					session.setCreationTime(Instant.ofEpochMilli(rs.getLong("CREATION_TIME")));
-					session.setLastAccessedTime(Instant.ofEpochMilli(rs.getLong("LAST_ACCESS_TIME")));
-					session.setMaxInactiveInterval(Duration.ofSeconds(rs.getInt("MAX_INACTIVE_INTERVAL")));
+					MapSession delegate = new MapSession(id);
+					String primaryKey = rs.getString("PRIMARY_ID");
+					delegate.setCreationTime(Instant.ofEpochMilli(rs.getLong("CREATION_TIME")));
+					delegate.setLastAccessedTime(Instant.ofEpochMilli(rs.getLong("LAST_ACCESS_TIME")));
+					delegate.setMaxInactiveInterval(Duration.ofSeconds(rs.getInt("MAX_INACTIVE_INTERVAL")));
+					session = new JdbcSession(primaryKey, delegate);
 				}
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {
@@ -738,7 +754,7 @@ public class JdbcOperationsSessionRepository implements
 			return sessions;
 		}
 
-		private Session getLast(List<Session> sessions) {
+		private JdbcSession getLast(List<JdbcSession> sessions) {
 			return sessions.get(sessions.size() - 1);
 		}
 

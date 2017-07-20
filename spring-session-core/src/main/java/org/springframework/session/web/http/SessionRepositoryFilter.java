@@ -18,9 +18,6 @@ package org.springframework.session.web.http;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -274,30 +271,7 @@ public class SessionRepositoryFilter<S extends Session>
 						"Cannot change session ID. There is no session associated with this request.");
 			}
 
-			// eagerly get session attributes in case implementation lazily loads them
-			Map<String, Object> attrs = new HashMap<>();
-			Enumeration<String> iAttrNames = session.getAttributeNames();
-			while (iAttrNames.hasMoreElements()) {
-				String attrName = iAttrNames.nextElement();
-				Object value = session.getAttribute(attrName);
-
-				attrs.put(attrName, value);
-			}
-
-			SessionRepositoryFilter.this.sessionRepository.deleteById(session.getId());
-			HttpSessionWrapper original = getCurrentSession();
-			setCurrentSession(null);
-
-			HttpSessionWrapper newSession = getSession();
-			original.setSession(newSession.getSession());
-
-			newSession.setMaxInactiveInterval(session.getMaxInactiveInterval());
-			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
-				String attrName = attr.getKey();
-				Object attrValue = attr.getValue();
-				newSession.setAttribute(attrName, attrValue);
-			}
-			return newSession.getId();
+			return getCurrentSession().getSession().changeSessionId();
 		}
 
 		@Override

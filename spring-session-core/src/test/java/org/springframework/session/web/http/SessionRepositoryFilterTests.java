@@ -76,9 +76,9 @@ public class SessionRepositoryFilterTests {
 
 	private Map<String, Session> sessions;
 
-	private SessionRepository<Session> sessionRepository;
+	private SessionRepository<MapSession> sessionRepository;
 
-	private SessionRepositoryFilter<Session> filter;
+	private SessionRepositoryFilter<MapSession> filter;
 
 	private MockHttpServletRequest request;
 
@@ -422,7 +422,7 @@ public class SessionRepositoryFilterTests {
 	public void doFilterSetsCookieIfChanged() throws Exception {
 		this.sessionRepository = new MapSessionRepository() {
 			@Override
-			public Session findById(String id) {
+			public MapSession findById(String id) {
 				return createSession();
 			}
 		};
@@ -1256,7 +1256,7 @@ public class SessionRepositoryFilterTests {
 	@SuppressWarnings("unchecked")
 	public void doFilterRequestSessionNoRequestSessionNoSessionRepositoryInteractions()
 			throws Exception {
-		SessionRepository<Session> sessionRepository = spy(new MapSessionRepository());
+		SessionRepository<MapSession> sessionRepository = spy(new MapSessionRepository());
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
@@ -1283,7 +1283,7 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterLazySessionCreation() throws Exception {
-		SessionRepository<Session> sessionRepository = spy(new MapSessionRepository());
+		SessionRepository<MapSession> sessionRepository = spy(new MapSessionRepository());
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
@@ -1299,9 +1299,9 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterLazySessionUpdates() throws Exception {
-		Session session = this.sessionRepository.createSession();
+		MapSession session = this.sessionRepository.createSession();
 		this.sessionRepository.save(session);
-		SessionRepository<Session> sessionRepository = spy(this.sessionRepository);
+		SessionRepository<MapSession> sessionRepository = spy(this.sessionRepository);
 		setSessionCookie(session.getId());
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);

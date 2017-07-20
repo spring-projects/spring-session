@@ -60,4 +60,93 @@ public abstract class AbstractHazelcastRepositoryITests {
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 	}
 
+	@Test
+	public void changeSessionIdWhenOnlyChangeId() throws Exception {
+		String attrName = "changeSessionId";
+		String attrValue = "changeSessionId-value";
+		HazelcastSession toSave = this.repository.createSession();
+		toSave.setAttribute(attrName, attrValue);
+
+		this.repository.save(toSave);
+
+		HazelcastSession findById = this.repository.findById(toSave.getId());
+
+		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
+
+		String originalFindById = findById.getId();
+		String changeSessionId = findById.changeSessionId();
+
+		this.repository.save(findById);
+
+		assertThat(this.repository.findById(originalFindById)).isNull();
+
+		HazelcastSession findByChangeSessionId = this.repository.findById(changeSessionId);
+
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
+
+		this.repository.deleteById(changeSessionId);
+	}
+
+	@Test
+	public void changeSessionIdWhenChangeTwice() throws Exception {
+		HazelcastSession toSave = this.repository.createSession();
+
+		this.repository.save(toSave);
+
+		String originalId = toSave.getId();
+		String changeId1 = toSave.changeSessionId();
+		String changeId2 = toSave.changeSessionId();
+
+		this.repository.save(toSave);
+
+		assertThat(this.repository.findById(originalId)).isNull();
+		assertThat(this.repository.findById(changeId1)).isNull();
+		assertThat(this.repository.findById(changeId2)).isNotNull();
+
+		this.repository.deleteById(changeId2);
+	}
+
+	@Test
+	public void changeSessionIdWhenSetAttributeOnChangedSession() throws Exception {
+		String attrName = "changeSessionId";
+		String attrValue = "changeSessionId-value";
+
+		HazelcastSession toSave = this.repository.createSession();
+
+		this.repository.save(toSave);
+
+		HazelcastSession findById = this.repository.findById(toSave.getId());
+
+		findById.setAttribute(attrName, attrValue);
+
+		String originalFindById = findById.getId();
+		String changeSessionId = findById.changeSessionId();
+
+		this.repository.save(findById);
+
+		assertThat(this.repository.findById(originalFindById)).isNull();
+
+		HazelcastSession findByChangeSessionId = this.repository.findById(changeSessionId);
+
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
+
+		this.repository.deleteById(changeSessionId);
+	}
+
+	@Test
+	public void changeSessionIdWhenHasNotSaved() throws Exception {
+		String attrName = "changeSessionId";
+		String attrValue = "changeSessionId-value";
+
+		HazelcastSession toSave = this.repository.createSession();
+		String originalId = toSave.getId();
+		toSave.changeSessionId();
+
+		this.repository.save(toSave);
+
+		assertThat(this.repository.findById(toSave.getId())).isNotNull();
+		assertThat(this.repository.findById(originalId)).isNull();
+
+		this.repository.deleteById(toSave.getId());
+	}
 }

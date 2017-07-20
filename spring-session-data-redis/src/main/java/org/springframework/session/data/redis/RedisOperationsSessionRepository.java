@@ -675,6 +675,7 @@ public class RedisOperationsSessionRepository implements
 		private Map<String, Object> delta = new HashMap<>();
 		private boolean isNew;
 		private String originalPrincipalName;
+		private String originalSessionId;
 
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be
@@ -699,6 +700,7 @@ public class RedisOperationsSessionRepository implements
 			Assert.notNull(cached, "MapSession cannot be null");
 			this.cached = cached;
 			this.originalPrincipalName = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
+			this.originalSessionId = cached.getId();
 		}
 
 		public void setNew(boolean isNew) {
@@ -724,6 +726,10 @@ public class RedisOperationsSessionRepository implements
 
 		public String getId() {
 			return this.cached.getId();
+		}
+
+		public String changeSessionId() {
+			return this.cached.changeSessionId();
 		}
 
 		public Instant getLastAccessedTime() {
@@ -773,10 +779,11 @@ public class RedisOperationsSessionRepository implements
 		 * session.
 		 */
 		private void saveDelta() {
+			String sessionId = getId();
+			saveChangeSessionId(sessionId);
 			if (this.delta.isEmpty()) {
 				return;
 			}
-			String sessionId = getId();
 			getSessionBoundHashOperations(sessionId).putAll(this.delta);
 			String principalSessionKey = getSessionAttrNameKey(
 					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
@@ -805,6 +812,15 @@ public class RedisOperationsSessionRepository implements
 					: this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli();
 			RedisOperationsSessionRepository.this.expirationPolicy
 					.onExpirationUpdated(originalExpiration, this);
+		}
+
+		private void saveChangeSessionId(String sessionId) {
+			if (!isNew() && !sessionId.equals(this.originalSessionId)) {
+				String originalSessionIdKey = getSessionKey(this.originalSessionId);
+				String sessionIdKey = getSessionKey(sessionId);
+				RedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey, sessionIdKey);
+				this.originalSessionId = sessionId;
+			}
 		}
 	}
 

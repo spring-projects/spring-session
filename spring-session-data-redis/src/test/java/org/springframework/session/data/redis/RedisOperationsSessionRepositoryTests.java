@@ -132,6 +132,16 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	public void changeSessionId() {
+		RedisSession createSession = this.redisRepository.createSession();
+		String originalId = createSession.getId();
+		String changeSessionId = createSession.changeSessionId();
+
+		assertThat(originalId).isNotEqualTo(changeSessionId);
+		assertThat(createSession.getId()).isEqualTo(createSession.getId());
+	}
+
+	@Test
 	public void createSessionDefaultMaxInactiveInterval() throws Exception {
 		Session session = this.redisRepository.createSession();
 		assertThat(session.getMaxInactiveInterval())
