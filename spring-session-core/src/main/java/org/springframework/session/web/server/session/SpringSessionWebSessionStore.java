@@ -16,25 +16,39 @@
 
 package org.springframework.session.web.server.session;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.AbstractCollection;
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.lang.Nullable;
 import org.springframework.session.ReactorSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
 import org.springframework.web.server.WebSession;
 import org.springframework.web.server.session.WebSessionStore;
-import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
 
 /**
+ * The {@link WebSessionStore} implementation that provides the {@link WebSession}
+ * implementation backed by a {@link Session} returned by the
+ * {@link ReactorSessionRepository}.
+ *
+ * @param <S> the {@link Session} type
  * @author Rob Winch
  * @since 2.0
  */
 class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
+
 	private final ReactorSessionRepository<S> sessions;
 
 	SpringSessionWebSessionStore(ReactorSessionRepository<S> sessions) {
@@ -48,6 +62,7 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 	public Mono<WebSession> setLastAccessedTime(WebSession session,
 			Instant lastAccessedTime) {
+		@SuppressWarnings("unchecked")
 		SpringSessionWebSession springSessionWebSession = (SpringSessionWebSession) session;
 		springSessionWebSession.session.setLastAccessedTime(lastAccessedTime);
 		return Mono.just(session);
@@ -80,92 +95,17 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 	@Override
 	public Mono<Void> removeSession(String sessionId) {
-		return sessions.delete(sessionId);
-	}
-
-	private class SpringSessionWebSession implements WebSession {
-		private final S session;
-
-		private final Map<String, Object> attributes;
-
-		private AtomicReference<State> state = new AtomicReference<>();
-
-		private volatile transient Supplier<Mono<Void>> saveOperation = Mono::empty;
-
-		SpringSessionWebSession(S session, State state) {
-			Assert.notNull(session, "session cannot be null");
-			this.session = session;
-			this.attributes = new SpringSessionMap(session);
-			this.state.set(state);
-		}
-
-		@Override
-		public String getId() {
-			return session.getId();
-		}
-
-		@Override
-		public Mono<Void> changeSessionId() {
-			return Mono.defer(() -> {
-				session.changeSessionId();
-				return save();
-			});
-		}
-
-		@Override
-		public Map<String, Object> getAttributes() {
-			return this.attributes;
-		}
-
-		@Override
-		public void start() {
-			this.state.compareAndSet(State.NEW, State.STARTED);
-		}
-
-		@Override
-		public boolean isStarted() {
-			State value = this.state.get();
-			return (State.STARTED.equals(value)
-					|| (State.NEW.equals(value) && !getAttributes().isEmpty()));
-		}
-
-		@Override
-		public Mono<Void> save() {
-			return this.saveOperation.get();
-		}
-
-		@Override
-		public boolean isExpired() {
-			return this.session.isExpired();
-		}
-
-		@Override
-		public Instant getCreationTime() {
-			return this.session.getCreationTime();
-		}
-
-		@Override
-		public Instant getLastAccessTime() {
-			return this.session.getLastAccessedTime();
-		}
-
-		@Override
-		public void setMaxIdleTime(Duration maxIdleTime) {
-			this.session.setMaxInactiveInterval(maxIdleTime);
-		}
-
-		@Override
-		public Duration getMaxIdleTime() {
-			return this.session.getMaxInactiveInterval();
-		}
+		return this.sessions.delete(sessionId);
 	}
 
 	private enum State {
 		NEW, STARTED
 	}
 
-	static class SpringSessionMap implements Map<String, Object> {
+	private static class SpringSessionMap implements Map<String, Object> {
+
 		private final Session session;
+
 		private final Collection<Object> values = new SessionValues();
 
 		SpringSessionMap(Session session) {
@@ -243,7 +183,7 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 		@Override
 		public Collection<Object> values() {
-			return values;
+			return this.values;
 		}
 
 		@Override
@@ -258,21 +198,24 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 		}
 
 		private class SessionValues extends AbstractCollection<Object> {
+
 			public Iterator<Object> iterator() {
 				return new Iterator<Object>() {
+
 					private Iterator<Entry<String, Object>> i = entrySet().iterator();
 
 					public boolean hasNext() {
-						return i.hasNext();
+						return this.i.hasNext();
 					}
 
 					public Object next() {
-						return i.next().getValue();
+						return this.i.next().getValue();
 					}
 
 					public void remove() {
-						i.remove();
+						this.i.remove();
 					}
+
 				};
 			}
 
@@ -291,6 +234,91 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 			public boolean contains(Object v) {
 				return SpringSessionMap.this.containsValue(v);
 			}
+
 		}
+
 	}
+
+	/**
+	 * Adapts Spring Session's {@link Session} to a {@link WebSession}.
+	 */
+	private class SpringSessionWebSession implements WebSession {
+
+		private final S session;
+
+		private final Map<String, Object> attributes;
+
+		private AtomicReference<State> state = new AtomicReference<>();
+
+		private volatile transient Supplier<Mono<Void>> saveOperation = Mono::empty;
+
+		SpringSessionWebSession(S session, State state) {
+			Assert.notNull(session, "session cannot be null");
+			this.session = session;
+			this.attributes = new SpringSessionMap(session);
+			this.state.set(state);
+		}
+
+		@Override
+		public String getId() {
+			return this.session.getId();
+		}
+
+		@Override
+		public Mono<Void> changeSessionId() {
+			return Mono.defer(() -> {
+				this.session.changeSessionId();
+				return save();
+			});
+		}
+
+		@Override
+		public Map<String, Object> getAttributes() {
+			return this.attributes;
+		}
+
+		@Override
+		public void start() {
+			this.state.compareAndSet(State.NEW, State.STARTED);
+		}
+
+		@Override
+		public boolean isStarted() {
+			State value = this.state.get();
+			return (State.STARTED.equals(value)
+					|| (State.NEW.equals(value) && !getAttributes().isEmpty()));
+		}
+
+		@Override
+		public Mono<Void> save() {
+			return this.saveOperation.get();
+		}
+
+		@Override
+		public boolean isExpired() {
+			return this.session.isExpired();
+		}
+
+		@Override
+		public Instant getCreationTime() {
+			return this.session.getCreationTime();
+		}
+
+		@Override
+		public Instant getLastAccessTime() {
+			return this.session.getLastAccessedTime();
+		}
+
+		@Override
+		public Duration getMaxIdleTime() {
+			return this.session.getMaxInactiveInterval();
+		}
+
+		@Override
+		public void setMaxIdleTime(Duration maxIdleTime) {
+			this.session.setMaxInactiveInterval(maxIdleTime);
+		}
+
+	}
+
 }

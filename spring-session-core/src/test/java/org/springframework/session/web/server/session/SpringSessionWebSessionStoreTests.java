@@ -16,51 +16,59 @@
 
 package org.springframework.session.web.server.session;
 
+import java.util.AbstractMap;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import reactor.core.publisher.Mono;
+
 import org.springframework.session.ReactorSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.web.server.WebSession;
-import reactor.core.publisher.Mono;
-
-import java.util.AbstractMap;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
+ * Tests for {@link SpringSessionWebSessionStore}.
+ *
  * @author Rob Winch
  * @since 5.0
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SpringSessionWebSessionStoreTests<S extends Session> {
+
 	@Mock
-	ReactorSessionRepository<S> sessionRepository;
+	private ReactorSessionRepository<S> sessionRepository;
+
 	@Mock
-	S createSession;
+	private S createSession;
+
 	@Mock
-	S findByIdSession;
-	SpringSessionWebSessionStore<S> webSessionStore;
+	private S findByIdSession;
+
+	private SpringSessionWebSessionStore<S> webSessionStore;
 
 	@Before
 	public void setup() {
-		this.webSessionStore = new SpringSessionWebSessionStore<>(sessionRepository);
-		when(this.sessionRepository.findById(any())).thenReturn(Mono.just(findByIdSession));
-		when(this.sessionRepository.createSession()).thenReturn(Mono.just(createSession));
+		this.webSessionStore = new SpringSessionWebSessionStore<>(this.sessionRepository);
+		given(this.sessionRepository.findById(any()))
+				.willReturn(Mono.just(this.findByIdSession));
+		given(this.sessionRepository.createSession())
+				.willReturn(Mono.just(this.createSession));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorWhenNullRepositoryThenThrowsIllegalArgumentException() {
-		new SpringSessionWebSessionStore<S>((ReactorSessionRepository<S>) null);
+		new SpringSessionWebSessionStore<S>(null);
 	}
 
 	@Test
@@ -72,7 +80,8 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenAddAttributeThenStarted() {
-		when(createSession.getAttributeNames()).thenReturn(Collections.singleton("a"));
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton("a"));
 		WebSession createdWebSession = this.webSessionStore.createSession().block();
 
 		assertThat(createdWebSession.isStarted()).isTrue();
@@ -86,7 +95,8 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 		assertThat(attributes.size()).isEqualTo(0);
 
-		when(this.createSession.getAttributeNames()).thenReturn(Collections.singleton("a"));
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton("a"));
 
 		assertThat(attributes.size()).isEqualTo(1);
 	}
@@ -99,7 +109,8 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 		assertThat(attributes.isEmpty()).isTrue();
 
-		when(this.createSession.getAttributeNames()).thenReturn(Collections.singleton("a"));
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton("a"));
 
 		assertThat(attributes.isEmpty()).isFalse();
 	}
@@ -124,7 +135,8 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndContainsKeyAndFoundThenTrue() {
-		when(this.createSession.getAttributeNames()).thenReturn(Collections.singleton("a"));
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton("a"));
 		WebSession createdWebSession = this.webSessionStore.createSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
@@ -139,7 +151,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.put("a", "b");
 
-		verify(createSession).setAttribute("a", "b");
+		verify(this.createSession).setAttribute("a", "b");
 	}
 
 	@Test
@@ -149,7 +161,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.put("a", null);
 
-		verify(createSession).setAttribute("a", null);
+		verify(this.createSession).setAttribute("a", null);
 	}
 
 	@Test
@@ -159,7 +171,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.remove("a");
 
-		verify(createSession).removeAttribute("a");
+		verify(this.createSession).removeAttribute("a");
 	}
 
 	@Test
@@ -167,25 +179,27 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 		WebSession createdWebSession = this.webSessionStore.createSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
-		attributes.putAll(Collections.singletonMap("a","b"));
+		attributes.putAll(Collections.singletonMap("a", "b"));
 
-		verify(createSession).setAttribute("a", "b");
+		verify(this.createSession).setAttribute("a", "b");
 	}
 
 	@Test
 	public void createSessionWhenGetAttributesAndClearThenDelegatesToCreateSession() {
-		when(this.createSession.getAttributeNames()).thenReturn(Collections.singleton("a"));
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton("a"));
 		WebSession createdWebSession = this.webSessionStore.createSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.clear();
 
-		verify(createSession).removeAttribute("a");
+		verify(this.createSession).removeAttribute("a");
 	}
 
 	@Test
 	public void createSessionWhenGetAttributesAndKeySetThenDelegatesToCreateSession() {
-		when(this.createSession.getAttributeNames()).thenReturn(Collections.singleton("a"));
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton("a"));
 		WebSession createdWebSession = this.webSessionStore.createSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
@@ -195,8 +209,9 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndValuesThenDelegatesToCreateSession() {
-		when(this.createSession.getAttributeNames()).thenReturn(Collections.singleton("a"));
-		when(this.createSession.getAttribute("a")).thenReturn("b");
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton("a"));
+		given(this.createSession.getAttribute("a")).willReturn("b");
 		WebSession createdWebSession = this.webSessionStore.createSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
@@ -207,20 +222,22 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	@Test
 	public void createSessionWhenGetAttributesAndEntrySetThenDelegatesToCreateSession() {
 		String attrName = "attrName";
-		when(createSession.getAttributeNames()).thenReturn(Collections.singleton(attrName));
+		given(this.createSession.getAttributeNames())
+				.willReturn(Collections.singleton(attrName));
 		String attrValue = "attrValue";
-		when(createSession.getAttribute(attrName)).thenReturn(attrValue);
+		given(this.createSession.getAttribute(attrName)).willReturn(attrValue);
 		WebSession createdWebSession = this.webSessionStore.createSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		Set<Map.Entry<String, Object>> entries = attributes.entrySet();
 
-		assertThat(entries).containsExactly(new AbstractMap.SimpleEntry<String, Object>(attrName, attrValue));
+		assertThat(entries)
+				.containsExactly(new AbstractMap.SimpleEntry<>(attrName, attrValue));
 	}
 
 	@Test
 	public void storeSessionWhenInvokedThenSessionSaved() {
-		when(this.sessionRepository.save(this.createSession)).thenReturn(Mono.empty());
+		given(this.sessionRepository.save(this.createSession)).willReturn(Mono.empty());
 		WebSession createdSession = this.webSessionStore.createSession().block();
 
 		this.webSessionStore.storeSession(createdSession).block();
@@ -239,10 +256,11 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	@Test
 	public void removeSessionWhenInvokedThenSessionSaved() {
 		String sessionId = "session-id";
-		when(this.sessionRepository.delete(sessionId)).thenReturn(Mono.empty());
+		given(this.sessionRepository.delete(sessionId)).willReturn(Mono.empty());
 
 		this.webSessionStore.removeSession(sessionId).block();
 
 		verify(this.sessionRepository).delete(sessionId);
 	}
+
 }

@@ -7,14 +7,14 @@ dependencies {
 
 	optional "io.projectreactor:reactor-core"
 	optional "javax.servlet:javax.servlet-api"
-	optional "org.springframework.security:spring-security-core"
-	optional "org.springframework.security:spring-security-web"
 	optional "org.springframework:spring-context"
 	optional "org.springframework:spring-jdbc"
 	optional "org.springframework:spring-messaging"
 	optional "org.springframework:spring-web"
 	optional "org.springframework:spring-webflux"
 	optional "org.springframework:spring-websocket"
+	optional "org.springframework.security:spring-security-core"
+	optional "org.springframework.security:spring-security-web"
 
 	testCompile "io.projectreactor:reactor-test"
 	testCompile "junit:junit"
