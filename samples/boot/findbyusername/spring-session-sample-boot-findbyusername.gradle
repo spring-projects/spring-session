@@ -25,9 +25,3 @@ integrationTest {
 		systemProperties['spring.session.redis.namespace'] = project.name
 	}
 }
-
-integrationTest {
-	doFirst {
-		systemProperties['spring.session.redis.namespace'] = project.name
-	}
-}
