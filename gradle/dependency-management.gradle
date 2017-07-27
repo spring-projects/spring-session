@@ -5,11 +5,15 @@ dependencyManagement {
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-BUILD-SNAPSHOT'
 		mavenBom 'org.springframework.security:spring-security-bom:5.0.0.BUILD-SNAPSHOT'
 	}
+
 	dependencies {
-		dependency 'com.fasterxml.jackson.core:jackson-databind:2.9.0.pr3'
-		dependency 'com.h2database:h2:1.4.195'
-		dependency 'com.hazelcast:hazelcast-client:3.8'
-		dependency 'com.hazelcast:hazelcast:3.8'
+		dependencySet(group: 'com.hazelcast', version: '3.8.3') {
+			entry 'hazelcast'
+			entry 'hazelcast-client'
+		}
+
+		dependency 'com.fasterxml.jackson.core:jackson-databind:2.9.0.pr4'
+		dependency 'com.h2database:h2:1.4.196'
 		dependency 'com.maxmind.geoip2:geoip2:2.3.1'
 		dependency 'commons-codec:commons-codec:1.10'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
@@ -21,10 +25,10 @@ dependencyManagement {
 		dependency 'org.apache.derby:derby:10.13.1.1'
 		dependency 'org.apache.httpcomponents:httpclient:4.5.3'
 		dependency 'org.apache.taglibs:taglibs-standard-jstlel:1.2.5'
-		dependency 'org.assertj:assertj-core:3.6.2'
+		dependency 'org.assertj:assertj-core:3.8.0'
 		dependency 'org.hsqldb:hsqldb:2.4.0'
-		dependency 'org.mockito:mockito-core:2.7.22'
-		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.26'
+		dependency 'org.mockito:mockito-core:2.8.47'
+		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.27'
 		dependency 'org.webjars:bootstrap:2.3.2'
 		dependency 'org.webjars:html5shiv:3.7.3'
 		dependency 'org.webjars:jquery:1.9.0'

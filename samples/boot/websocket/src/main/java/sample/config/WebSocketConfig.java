@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package sample.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.session.ExpiringSession;
+import org.springframework.session.Session;
 import org.springframework.session.web.socket.config.annotation.AbstractSessionWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -29,7 +29,7 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 @EnableScheduling
 @EnableWebSocketMessageBroker
 public class WebSocketConfig
-		extends AbstractSessionWebSocketMessageBrokerConfigurer<ExpiringSession> { // <1>
+		extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> { // <1>
 
 	protected void configureStompEndpoints(StompEndpointRegistry registry) { // <2>
 		registry.addEndpoint("/messages").withSockJS();
