@@ -8,6 +8,7 @@ dependencies {
 	compile "org.webjars:webjars-taglib"
 	compile jstlDependencies
 	compile slf4jDependencies
+	compile "org.testcontainers:testcontainers"
 
 	providedCompile "javax.servlet:javax.servlet-api"
 
@@ -15,4 +16,8 @@ dependencies {
 	testCompile "org.assertj:assertj-core"
 
 	integrationTestCompile seleniumDependencies
+}
+
+gretty {
+	jvmArgs = ['-Dspring.profiles.active=embedded-redis']
 }

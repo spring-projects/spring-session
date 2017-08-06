@@ -20,8 +20,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.AbstractRedisITests;
+import org.springframework.session.data.redis.RedisFlushMode;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -29,9 +33,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = RedisHttpSessionConfig.class)
+@ContextConfiguration
 @WebAppConfiguration
-public class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Session> {
+public class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Session>
+		extends AbstractRedisITests {
 
 	@Autowired
 	private SessionRepository<S> sessionRepository;
@@ -44,4 +49,11 @@ public class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Se
 
 		assertThat(getSession).isNotNull();
 	}
+
+	@Configuration
+	@EnableRedisHttpSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
+	static class RedisHttpSessionConfig extends BaseConfig {
+
+	}
+
 }

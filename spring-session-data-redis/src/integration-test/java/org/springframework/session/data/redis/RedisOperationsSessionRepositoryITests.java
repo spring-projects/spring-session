@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.data.redis;
 
 import java.util.Map;
 import java.util.UUID;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.DefaultMessage;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,18 +35,22 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.data.AbstractITests;
 import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
-public class RedisOperationsSessionRepositoryITests extends AbstractITests {
+@WebAppConfiguration
+public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
+
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
@@ -53,7 +59,30 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 	private RedisOperationsSessionRepository repository;
 
 	@Autowired
-	RedisOperations<Object, Object> redis;
+	private SessionEventRegistry registry;
+
+	@Autowired
+	private RedisOperations<Object, Object> redis;
+
+	private SecurityContext context;
+
+	private SecurityContext changedContext;
+
+	@Before
+	public void setup() {
+		if (this.registry != null) {
+			this.registry.clear();
+		}
+		this.context = SecurityContextHolder.createEmptyContext();
+		this.context.setAuthentication(
+				new UsernamePasswordAuthenticationToken("username-" + UUID.randomUUID(),
+						"na", AuthorityUtils.createAuthorityList("ROLE_USER")));
+
+		this.changedContext = SecurityContextHolder.createEmptyContext();
+		this.changedContext.setAuthentication(new UsernamePasswordAuthenticationToken(
+				"changedContext-" + UUID.randomUUID(), "na",
+				AuthorityUtils.createAuthorityList("ROLE_USER")));
+	}
 
 	@Test
 	public void saves() throws InterruptedException {
@@ -547,15 +576,13 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 
 	@Configuration
 	@EnableRedisHttpSession(redisNamespace = "RedisOperationsSessionRepositoryITests")
-	static class Config {
-		@Bean
-		public JedisConnectionFactory connectionFactory() throws Exception {
-			return new JedisConnectionFactory();
-		}
+	static class Config extends BaseConfig {
 
 		@Bean
 		public SessionEventRegistry sessionEventRegistry() {
 			return new SessionEventRegistry();
 		}
+
 	}
+
 }

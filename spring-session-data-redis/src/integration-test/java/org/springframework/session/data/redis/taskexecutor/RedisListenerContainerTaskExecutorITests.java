@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.session.data.redis.AbstractRedisITests;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -44,13 +44,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisListenerContainerTaskExecutorITests {
+public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 
 	@Autowired
-	SessionTaskExecutor executor;
+	private SessionTaskExecutor executor;
 
 	@Autowired
-	RedisOperations<Object, Object> redis;
+	private RedisOperations<Object, Object> redis;
 
 	@Test
 	public void testRedisDelEventsAreDispatchedInSessionTaskExecutor()
@@ -99,21 +99,18 @@ public class RedisListenerContainerTaskExecutorITests {
 
 	@Configuration
 	@EnableRedisHttpSession(redisNamespace = "RedisListenerContainerTaskExecutorITests")
-	static class Config {
+	static class Config extends BaseConfig {
 
 		@Bean
-		JedisConnectionFactory connectionFactory() throws Exception {
-			return new JedisConnectionFactory();
-		}
-
-		@Bean
-		Executor springSessionRedisTaskExecutor() {
+		public Executor springSessionRedisTaskExecutor() {
 			return new SessionTaskExecutor(Executors.newSingleThreadExecutor());
 		}
 
 		@Bean
-		Executor springSessionRedisSubscriptionExecutor() {
+		public Executor springSessionRedisSubscriptionExecutor() {
 			return new SimpleAsyncTaskExecutor();
 		}
+
 	}
+
 }
