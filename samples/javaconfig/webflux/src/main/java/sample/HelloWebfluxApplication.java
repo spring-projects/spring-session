@@ -25,7 +25,6 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.web.reactive.config.EnableWebFlux;
@@ -49,7 +48,6 @@ public class HelloWebfluxApplication {
 		}
 	}
 
-	@Profile("default")
 	@Bean
 	public NettyContext nettyContext(ApplicationContext context) {
 		HttpHandler handler = WebHttpHandlerBuilder.applicationContext(context).build();

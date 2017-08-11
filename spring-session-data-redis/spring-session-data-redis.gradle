@@ -9,6 +9,10 @@ dependencies {
 		exclude group: "org.slf4j", module: 'jcl-over-slf4j'
 	}
 
+	optional "io.projectreactor:reactor-core"
+	optional "org.springframework:spring-web"
+
+	testCompile "io.projectreactor:reactor-test"
 	testCompile "javax.servlet:javax.servlet-api"
 	testCompile "org.springframework:spring-web"
 	testCompile "org.springframework.security:spring-security-core"
