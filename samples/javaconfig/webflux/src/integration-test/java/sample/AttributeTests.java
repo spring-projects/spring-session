@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = HelloWebfluxApplication.class)
-@TestPropertySource(properties = "server.port=0")
+@TestPropertySource(properties = { "spring.profiles.active=embedded-redis", "server.port=0" })
 public class AttributeTests {
 	@Value("#{@nettyContext.address().getPort()}")
 	int port;

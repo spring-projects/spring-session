@@ -1,7 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample'
 
 dependencies {
-	compile project(':spring-session-core')
+	compile project(':spring-session-data-redis')
 	compile 'io.lettuce:lettuce-core'
 	compile 'io.netty:netty-buffer'
 	compile 'io.projectreactor.ipc:reactor-netty'
@@ -14,6 +14,7 @@ dependencies {
 	compile 'org.webjars:webjars-taglib'
 	compile jstlDependencies
 	compile slf4jDependencies
+	compile 'org.testcontainers:testcontainers'
 
 	testCompile 'junit:junit'
 	testCompile 'org.assertj:assertj-core'

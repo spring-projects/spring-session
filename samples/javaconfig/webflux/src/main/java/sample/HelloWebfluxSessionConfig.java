@@ -16,22 +16,19 @@
 
 package sample;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.session.EnableSpringWebSession;
-import org.springframework.session.MapReactorSessionRepository;
+import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.session.data.redis.config.annotation.web.reactor.EnableRedisReactorSession;
 
-
+@Import(EmbeddedRedisConfig.class)
 // tag::class[]
-@Configuration
-@EnableSpringWebSession
+@EnableRedisReactorSession
 public class HelloWebfluxSessionConfig {
 
 	@Bean
-	public MapReactorSessionRepository reactorSessionRepository() {
-		return new MapReactorSessionRepository(new ConcurrentHashMap<>());
+	public LettuceConnectionFactory lettuceConnectionFactory() {
+		return new LettuceConnectionFactory();
 	}
 }
 // end::class[]
