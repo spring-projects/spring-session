@@ -1,0 +1,22 @@
+apply plugin: 'io.spring.convention.spring-sample'
+
+dependencies {
+	compile project(':spring-session-core')
+	compile 'io.lettuce:lettuce-core'
+	compile 'io.netty:netty-buffer'
+	compile 'io.projectreactor.ipc:reactor-netty'
+	compile 'org.springframework:spring-context'
+	compile 'org.springframework:spring-web'
+	compile 'org.springframework:spring-webflux'
+	compile 'org.thymeleaf.extras:thymeleaf-extras-java8time'
+	compile 'org.thymeleaf:thymeleaf-spring5'
+	compile 'org.webjars:bootstrap'
+	compile 'org.webjars:webjars-taglib'
+	compile jstlDependencies
+	compile slf4jDependencies
+
+	testCompile 'junit:junit'
+	testCompile 'org.assertj:assertj-core'
+
+	integrationTestCompile seleniumDependencies
+}

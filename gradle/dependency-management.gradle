@@ -12,6 +12,7 @@ dependencyManagement {
 			entry 'hazelcast-client'
 		}
 
+		dependency 'ch.qos.logback:logback-classic:1.2.3'
 		dependency 'com.fasterxml.jackson.core:jackson-databind:2.9.0.pr4'
 		dependency 'com.h2database:h2:1.4.196'
 		dependency 'com.maxmind.geoip2:geoip2:2.3.1'
@@ -29,6 +30,10 @@ dependencyManagement {
 		dependency 'org.hsqldb:hsqldb:2.4.0'
 		dependency 'org.mockito:mockito-core:2.8.47'
 		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.27'
+		dependency 'org.slf4j:jcl-over-slf4j:1.7.25'
+		dependency 'org.slf4j:log4j-over-slf4j:1.7.25'
+		dependency 'org.thymeleaf.extras:thymeleaf-extras-java8time:3.0.0.RELEASE'
+		dependency 'org.thymeleaf:thymeleaf-spring5:3.0.7.RC1'
 		dependency 'org.webjars:bootstrap:2.3.2'
 		dependency 'org.webjars:html5shiv:3.7.3'
 		dependency 'org.webjars:jquery:1.9.0'
