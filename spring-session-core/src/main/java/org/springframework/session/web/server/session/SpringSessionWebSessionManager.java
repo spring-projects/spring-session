@@ -147,10 +147,6 @@ public class SpringSessionWebSessionManager implements WebSessionManager {
 							+ "before the call to session.save()."));
 		}
 
-		if (!session.isStarted()) {
-			return Mono.empty();
-		}
-
 		// Force explicit start
 		session.start();
 
@@ -167,7 +163,9 @@ public class SpringSessionWebSessionManager implements WebSessionManager {
 	}
 
 	private Mono<WebSession> createSession(ServerWebExchange exchange) {
-		return this.sessionStore.createSession();
+		return this.sessionStore.createSession()
+			.flatMap(webSession -> this.saveSession(exchange, webSession)
+				.then(Mono.just(webSession)));
 	}
 
 }

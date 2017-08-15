@@ -1,0 +1,16 @@
+<configuration>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+	<encoder>
+		<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+	</encoder>
+	</appender>
+
+	<logger name="org.springframework.security" level="DEBUG"/>
+	<logger name="org.springframework.session" level="DEBUG"/>
+	<logger name="reactor.ipc.netty" level="DEBUG" />
+
+	<root level="INFO">
+	<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>

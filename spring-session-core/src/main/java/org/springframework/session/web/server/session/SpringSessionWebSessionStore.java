@@ -18,18 +18,8 @@ package org.springframework.session.web.server.session;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.AbstractCollection;
-import java.util.AbstractMap;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
-
-import reactor.core.publisher.Mono;
 
 import org.springframework.lang.Nullable;
 import org.springframework.session.ReactorSessionRepository;
@@ -37,6 +27,7 @@ import org.springframework.session.Session;
 import org.springframework.util.Assert;
 import org.springframework.web.server.WebSession;
 import org.springframework.web.server.session.WebSessionStore;
+import reactor.core.publisher.Mono;
 
 /**
  * The {@link WebSessionStore} implementation that provides the {@link WebSession}
@@ -86,11 +77,11 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 	}
 
 	private SpringSessionWebSession createSession(S session) {
-		return new SpringSessionWebSession(session, State.NEW);
+		return new SpringSessionWebSession(session, State.NEW, this.sessions);
 	}
 
 	private SpringSessionWebSession existingSession(S session) {
-		return new SpringSessionWebSession(session, State.STARTED);
+		return new SpringSessionWebSession(session, State.STARTED, this.sessions);
 	}
 
 	@Override
@@ -247,15 +238,15 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 		private final S session;
 
 		private final Map<String, Object> attributes;
+		private final ReactorSessionRepository<S> sessionRepository;
 
 		private AtomicReference<State> state = new AtomicReference<>();
 
-		private volatile transient Supplier<Mono<Void>> saveOperation = Mono::empty;
-
-		SpringSessionWebSession(S session, State state) {
+		SpringSessionWebSession(S session, State state, ReactorSessionRepository<S> sessionRepository) {
 			Assert.notNull(session, "session cannot be null");
 			this.session = session;
 			this.attributes = new SpringSessionMap(session);
+			this.sessionRepository = sessionRepository;
 			this.state.set(state);
 		}
 
@@ -291,7 +282,7 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 		@Override
 		public Mono<Void> save() {
-			return this.saveOperation.get();
+			return this.sessionRepository.save(this.session);
 		}
 
 		@Override
