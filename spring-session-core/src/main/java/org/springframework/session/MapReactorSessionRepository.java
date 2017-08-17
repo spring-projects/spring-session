@@ -18,12 +18,14 @@ package org.springframework.session;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import reactor.core.publisher.Mono;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.util.Assert;
 
 /**
  * A {@link SessionRepository} backed by a {@link Map} and that uses a
@@ -62,9 +64,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Map
 	 * @param sessions the {@link Map} to use. Cannot be null.
 	 */
 	public MapReactorSessionRepository(Map<String, Session> sessions) {
-		if (sessions == null) {
-			throw new IllegalArgumentException("sessions cannot be null");
-		}
+		Assert.notNull(sessions, "sessions cannot be null");
 		this.sessions = sessions;
 	}
 
@@ -75,9 +75,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Map
 	 * @param sessions the {@link Map} to use. Cannot be null.
 	 */
 	public MapReactorSessionRepository(Session... sessions) {
-		if (sessions == null) {
-			throw new IllegalArgumentException("sessions cannot be null");
-		}
+		Assert.notNull(sessions, "sessions cannot be null");
 		this.sessions = new ConcurrentHashMap<>();
 		for (Session session : sessions) {
 			this.performSave(new MapSession(session));
@@ -91,9 +89,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Map
 	 * @param sessions the {@link Map} to use. Cannot be null.
 	 */
 	public MapReactorSessionRepository(Iterable<Session> sessions) {
-		if (sessions == null) {
-			throw new IllegalArgumentException("sessions cannot be null");
-		}
+		Assert.notNull(sessions, "sessions cannot be null");
 		this.sessions = new ConcurrentHashMap<>();
 		for (Session session : sessions) {
 			this.performSave(new MapSession(session));
@@ -123,17 +119,12 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Map
 	}
 
 	public Mono<MapSession> findById(String id) {
-		return Mono.defer(() -> {
-			Session saved = this.sessions.get(id);
-			if (saved == null) {
-				return Mono.empty();
-			}
-			if (saved.isExpired()) {
-				delete(saved.getId());
-				return Mono.empty();
-			}
-			return Mono.just(new MapSession(saved));
-		});
+		return Mono.defer(() -> Optional.ofNullable(this.sessions.get(id))
+			.map(saved -> Mono.just(saved)
+				.filter(session -> !session.isExpired())
+				.map(MapSession::new)
+				.switchIfEmpty(delete(id).then(Mono.empty())))
+			.orElse(Mono.empty()));
 	}
 
 	public Mono<Void> delete(String id) {
@@ -147,6 +138,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Map
 				result.setMaxInactiveInterval(
 						Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
+			this.sessions.put(result.getId(), result);
 			return Mono.just(result);
 		});
 	}

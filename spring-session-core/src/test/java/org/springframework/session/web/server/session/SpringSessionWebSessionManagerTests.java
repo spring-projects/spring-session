@@ -74,6 +74,7 @@ public class SpringSessionWebSessionManagerTests<S extends Session> {
 		given(this.findByIdSession.getId()).willReturn("findByIdSession-id");
 		this.createSessionMono = Mono.just(this.createSession);
 		given(this.sessions.createSession()).willReturn(this.createSessionMono);
+		given(this.sessions.save(any())).willReturn(Mono.empty());
 		this.manager = new SpringSessionWebSessionManager(this.sessions);
 		this.manager.setSessionIdResolver(this.resolver);
 	}
