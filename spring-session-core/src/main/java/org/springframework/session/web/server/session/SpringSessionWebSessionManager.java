@@ -109,21 +109,21 @@ public class SpringSessionWebSessionManager implements WebSessionManager {
 	public Mono<WebSession> getSession(ServerWebExchange exchange) {
 		// @formatter:off
 		return Mono.defer(() ->
-				retrieveSession(exchange)
+				retrieveSession(exchange))
 						.flatMap(session -> removeSessionIfExpired(exchange, session))
 						.flatMap(session -> {
 							Instant lastAccessTime = Instant.now(getClock());
 							return this.sessionStore.setLastAccessedTime(session, lastAccessTime);
 						})
 						.switchIfEmpty(createSession(exchange))
-						.doOnNext(session -> exchange.getResponse().beforeCommit(session::save)));
+						.doOnNext(session -> exchange.getResponse().beforeCommit(session::save));
 		// @formatter:on
 	}
 
 	private Mono<WebSession> retrieveSession(ServerWebExchange exchange) {
 		// @formatter:off
 		return Flux.fromIterable(getSessionIdResolver().resolveSessionIds(exchange))
-				.concatMap(this.sessionStore::retrieveSession)
+				.concatMap(sessionId -> this.sessionStore.retrieveSession(sessionId, session -> saveSession(exchange, session)))
 				.cast(WebSession.class)
 				.next();
 		// @formatter:on
@@ -167,7 +167,7 @@ public class SpringSessionWebSessionManager implements WebSessionManager {
 	}
 
 	private Mono<WebSession> createSession(ServerWebExchange exchange) {
-		return this.sessionStore.createSession();
+		return this.sessionStore.createSession(session -> saveSession(exchange, session));
 	}
 
 }

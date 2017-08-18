@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 
@@ -56,8 +56,8 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 		this.sessions = sessions;
 	}
 
-	public Mono<WebSession> createSession() {
-		return this.sessions.createSession().map(this::createSession);
+	public Mono<WebSession> createSession(Function<WebSession, Mono<Void>> saveOperation) {
+		return this.sessions.createSession().map(session -> this.createSession(session, saveOperation));
 	}
 
 	public Mono<WebSession> setLastAccessedTime(WebSession session,
@@ -77,7 +77,11 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 	@Override
 	public Mono<WebSession> retrieveSession(String sessionId) {
-		return this.sessions.findById(sessionId).map(this::existingSession);
+		return Mono.error(new UnsupportedOperationException("This method is not supported. Use retrieveSession(String,Function<WebSession, Mono<Void>>)"));
+	}
+
+	public Mono<WebSession> retrieveSession(String sessionId, Function<WebSession, Mono<Void>> saveOperation) {
+		return this.sessions.findById(sessionId).map(session -> this.existingSession(session, saveOperation));
 	}
 
 	@Override
@@ -85,12 +89,12 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 		return storeSession(webSession);
 	}
 
-	private SpringSessionWebSession createSession(S session) {
-		return new SpringSessionWebSession(session, State.NEW);
+	private SpringSessionWebSession createSession(S session, Function<WebSession, Mono<Void>> saveOperation) {
+		return new SpringSessionWebSession(session, State.NEW, saveOperation);
 	}
 
-	private SpringSessionWebSession existingSession(S session) {
-		return new SpringSessionWebSession(session, State.STARTED);
+	private SpringSessionWebSession existingSession(S session, Function<WebSession, Mono<Void>> saveOperation) {
+		return new SpringSessionWebSession(session, State.STARTED, saveOperation);
 	}
 
 	@Override
@@ -250,13 +254,14 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 		private AtomicReference<State> state = new AtomicReference<>();
 
-		private volatile transient Supplier<Mono<Void>> saveOperation = Mono::empty;
+		private final Function<WebSession, Mono<Void>> saveOperation;
 
-		SpringSessionWebSession(S session, State state) {
+		SpringSessionWebSession(S session, State state, Function<WebSession, Mono<Void>> saveOperation) {
 			Assert.notNull(session, "session cannot be null");
 			this.session = session;
 			this.attributes = new SpringSessionMap(session);
 			this.state.set(state);
+			this.saveOperation = saveOperation;
 		}
 
 		@Override
@@ -291,7 +296,7 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 		@Override
 		public Mono<Void> save() {
-			return this.saveOperation.get();
+			return this.saveOperation.apply(this);
 		}
 
 		@Override

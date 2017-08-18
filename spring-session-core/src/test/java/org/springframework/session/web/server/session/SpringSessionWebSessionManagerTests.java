@@ -29,11 +29,15 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import org.springframework.http.HttpCookie;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.session.MapReactorSessionRepository;
 import org.springframework.session.ReactorSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
+import org.springframework.web.server.i18n.LocaleContextResolver;
 import org.springframework.web.server.session.WebSessionIdResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +59,12 @@ public class SpringSessionWebSessionManagerTests<S extends Session> {
 
 	@Mock
 	private WebSessionIdResolver resolver;
+
+	@Mock
+	private ServerCodecConfigurer serverCodecConfigurer;
+
+	@Mock
+	private LocaleContextResolver localeContextResolver;
 
 	@Mock
 	private S createSession;
@@ -143,4 +153,23 @@ public class SpringSessionWebSessionManagerTests<S extends Session> {
 		verify(this.sessions).findById(findByIdSessionId);
 	}
 
+	@Test
+	public void commitWrites() {
+		MapReactorSessionRepository repository = new MapReactorSessionRepository();
+		this.manager = new SpringSessionWebSessionManager(repository);
+		Mono<Void> getSession = this.manager.getSession(this.exchange)
+				.doOnSuccess(session -> session.getAttributes().put("foo", "bar"))
+				.flatMap(webSession -> this.exchange.getResponse().setComplete());
+		StepVerifier.create(getSession)
+				.expectComplete()
+				.verify();
+
+		ResponseCookie sessionCookie = this.exchange.getResponse().getCookies()
+				.getFirst("SESSION");
+		assertThat(sessionCookie).isNotNull();
+
+		Session session = repository.findById(sessionCookie.getValue()).block();
+		assertThat(session).isNotNull();
+		assertThat(session.<String>getAttribute("foo")).isEqualTo("bar");
+	}
 }
