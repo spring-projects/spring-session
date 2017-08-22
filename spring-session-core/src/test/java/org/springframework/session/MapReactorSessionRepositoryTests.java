@@ -22,6 +22,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 2.0
  */
 public class MapReactorSessionRepositoryTests {
+
 	MapReactorSessionRepository repository;
 
 	MapSession session;
@@ -122,6 +124,19 @@ public class MapReactorSessionRepositoryTests {
 		this.repository = new MapReactorSessionRepository(Arrays.asList(this.session));
 
 		assertThat(this.repository.findById(this.session.getId()).block()).isNull();
+	}
+
+	@Test
+	public void findByIdWhenExpiredRemovesFromSessionMap() {
+		this.session.setMaxInactiveInterval(Duration.ofMinutes(1));
+		this.session.setLastAccessedTime(Instant.now().minus(5, ChronoUnit.MINUTES));
+
+		Map<String, Session> sessions = new ConcurrentHashMap<>();
+		sessions.put("session-id", this.session);
+		this.repository = new MapReactorSessionRepository(sessions);
+
+		assertThat(this.repository.findById(this.session.getId()).block()).isNull();
+		assertThat(sessions).isEmpty();
 	}
 
 	@Test
