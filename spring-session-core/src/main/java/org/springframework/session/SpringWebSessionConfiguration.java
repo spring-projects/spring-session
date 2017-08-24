@@ -23,7 +23,7 @@ import org.springframework.web.server.session.WebSessionManager;
 
 /**
  * Wire up a {@link WebSessionManager} using a Reactive {@link ReactorSessionRepository} from the application context.
- * 
+ *
  * @author Greg Turnquist
  * @since 2.0
  *

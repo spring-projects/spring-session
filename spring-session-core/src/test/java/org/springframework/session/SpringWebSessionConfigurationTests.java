@@ -16,6 +16,7 @@
 package org.springframework.session;
 
 import org.junit.Test;
+
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -27,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Verify various configurations through {@link EnableSpringWebSession}.
- * 
+ *
  * @author Greg Turnquist
  */
 public class SpringWebSessionConfigurationTests {
