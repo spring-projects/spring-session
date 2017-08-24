@@ -18,19 +18,18 @@ package sample;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.EnableSpringWebSession;
 import org.springframework.session.MapReactorSessionRepository;
-import org.springframework.session.web.server.session.SpringSessionWebSessionManager;
-import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
-import org.springframework.web.server.session.WebSessionManager;
 
 
 // tag::class[]
 @Configuration
+@EnableSpringWebSession
 public class Config {
 
-	@Bean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME)
-	public WebSessionManager webSessionManager() {
-		return new SpringSessionWebSessionManager(new MapReactorSessionRepository());
+	@Bean
+	public MapReactorSessionRepository reactorSessionRepository() {
+		return new MapReactorSessionRepository();
 	}
 }
 // end::class[]
