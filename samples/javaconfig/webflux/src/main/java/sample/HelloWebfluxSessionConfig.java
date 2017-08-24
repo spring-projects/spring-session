@@ -25,7 +25,7 @@ import org.springframework.session.MapReactorSessionRepository;
 // tag::class[]
 @Configuration
 @EnableSpringWebSession
-public class Config {
+public class HelloWebfluxSessionConfig {
 
 	@Bean
 	public MapReactorSessionRepository reactorSessionRepository() {
