@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.jdbc.config.annotation.web.http;
 
 import java.util.Map;
@@ -20,6 +21,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.EmbeddedValueResolverAware;
@@ -33,14 +35,11 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
@@ -79,16 +78,16 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public JdbcTemplate springSessionJdbcOperations(DataSource dataSource) {
-		return new JdbcTemplate(dataSource);
-	}
-
-	@Bean
 	public JdbcOperationsSessionRepository sessionRepository(
-			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations,
+			@SpringSessionDataSource ObjectProvider<DataSource> springSessionDataSource,
+			ObjectProvider<DataSource> dataSource,
 			PlatformTransactionManager transactionManager) {
-		JdbcOperationsSessionRepository sessionRepository =
-				new JdbcOperationsSessionRepository(jdbcOperations, transactionManager);
+		DataSource dataSourceToUse = springSessionDataSource.getIfAvailable();
+		if (dataSourceToUse == null) {
+			dataSourceToUse = dataSource.getObject();
+		}
+		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(
+				dataSourceToUse, transactionManager);
 		String tableName = getTableName();
 		if (StringUtils.hasText(tableName)) {
 			sessionRepository.setTableName(tableName);
@@ -104,7 +103,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		else if (this.conversionService != null) {
 			sessionRepository.setConversionService(this.conversionService);
 		}
-		else if (deserializingConverterSupportsCustomClassLoader()) {
+		else {
 			GenericConversionService conversionService = createConversionServiceWithBeanClassLoader();
 			sessionRepository.setConversionService(conversionService);
 		}
@@ -115,7 +114,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	 * This must be a separate method because some ClassLoaders load the entire method
 	 * definition even if an if statement guards against it loading. This means that older
 	 * versions of Spring would cause a NoSuchMethodError if this were defined in
-	 * {@link #sessionRepository(JdbcOperations, PlatformTransactionManager)}.
+	 * {@link #sessionRepository(ObjectProvider, ObjectProvider, PlatformTransactionManager)}.
 	 *
 	 * @return the default {@link ConversionService}
 	 */
@@ -163,10 +162,6 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return this.tableName;
 	}
 
-	private boolean deserializingConverterSupportsCustomClassLoader() {
-		return ClassUtils.hasConstructor(DeserializingConverter.class, ClassLoader.class);
-	}
-
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
 				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
@@ -192,4 +187,5 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 		return new PropertySourcesPlaceholderConfigurer();
 	}
+
 }
