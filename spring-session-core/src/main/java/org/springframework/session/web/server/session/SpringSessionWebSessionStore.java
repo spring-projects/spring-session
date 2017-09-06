@@ -95,6 +95,11 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		return this.sessions.findById(sessionId).map(this::existingSession);
 	}
 
+	@Override
+	public Mono<Void> removeSession(String sessionId) {
+		return this.sessions.delete(sessionId);
+	}
+
 	private SpringSessionWebSession createSession(S session) {
 		return new SpringSessionWebSession(session, State.NEW);
 	}
@@ -103,9 +108,84 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		return new SpringSessionWebSession(session, State.STARTED);
 	}
 
-	@Override
-	public Mono<Void> removeSession(String sessionId) {
-		return this.sessions.delete(sessionId);
+	/**
+	 * Adapts Spring Session's {@link Session} to a {@link WebSession}.
+	 */
+	private class SpringSessionWebSession implements WebSession {
+
+		private final S session;
+
+		private final Map<String, Object> attributes;
+
+		private AtomicReference<State> state = new AtomicReference<>();
+
+		SpringSessionWebSession(S session, State state) {
+			Assert.notNull(session, "session cannot be null");
+			this.session = session;
+			this.attributes = new SpringSessionMap(session);
+			this.state.set(state);
+		}
+
+		@Override
+		public String getId() {
+			return this.session.getId();
+		}
+
+		@Override
+		public Mono<Void> changeSessionId() {
+			return Mono.defer(() -> {
+				this.session
+						.changeSessionId();
+				return save();
+			});
+		}
+
+		@Override
+		public Map<String, Object> getAttributes() {
+			return this.attributes;
+		}
+
+		@Override
+		public void start() {
+			this.state.compareAndSet(State.NEW, State.STARTED);
+		}
+
+		@Override
+		public boolean isStarted() {
+			State value = this.state.get();
+			return (State.STARTED.equals(value)
+					|| (State.NEW.equals(value) && !getAttributes().isEmpty()));
+		}
+
+		@Override
+		public Mono<Void> save() {
+			return SpringSessionWebSessionStore.this.sessions.save(this.session);
+		}
+
+		@Override
+		public boolean isExpired() {
+			return this.session.isExpired();
+		}
+
+		@Override
+		public Instant getCreationTime() {
+			return this.session.getCreationTime();
+		}
+
+		@Override
+		public Instant getLastAccessTime() {
+			return this.session.getLastAccessedTime();
+		}
+
+		@Override
+		public Duration getMaxIdleTime() {
+			return this.session.getMaxInactiveInterval();
+		}
+
+		@Override
+		public void setMaxIdleTime(Duration maxIdleTime) {
+			this.session.setMaxInactiveInterval(maxIdleTime);
+		}
 	}
 
 	private enum State {
@@ -246,88 +326,5 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 			}
 
 		}
-
 	}
-
-	/**
-	 * Adapts Spring Session's {@link Session} to a {@link WebSession}.
-	 */
-	private class SpringSessionWebSession implements WebSession {
-
-		private final S session;
-
-		private final Map<String, Object> attributes;
-
-		private AtomicReference<State> state = new AtomicReference<>();
-
-		SpringSessionWebSession(S session, State state) {
-			Assert.notNull(session, "session cannot be null");
-			this.session = session;
-			this.attributes = new SpringSessionMap(session);
-			this.state.set(state);
-		}
-
-		@Override
-		public String getId() {
-			return this.session.getId();
-		}
-
-		@Override
-		public Mono<Void> changeSessionId() {
-			return Mono.defer(() -> {
-				this.session
-						.changeSessionId();
-				return save();
-			});
-		}
-
-		@Override
-		public Map<String, Object> getAttributes() {
-			return this.attributes;
-		}
-
-		@Override
-		public void start() {
-			this.state.compareAndSet(State.NEW, State.STARTED);
-		}
-
-		@Override
-		public boolean isStarted() {
-			State value = this.state.get();
-			return (State.STARTED.equals(value)
-					|| (State.NEW.equals(value) && !getAttributes().isEmpty()));
-		}
-
-		@Override
-		public Mono<Void> save() {
-			return SpringSessionWebSessionStore.this.sessions.save(this.session);
-		}
-
-		@Override
-		public boolean isExpired() {
-			return this.session.isExpired();
-		}
-
-		@Override
-		public Instant getCreationTime() {
-			return this.session.getCreationTime();
-		}
-
-		@Override
-		public Instant getLastAccessTime() {
-			return this.session.getLastAccessedTime();
-		}
-
-		@Override
-		public Duration getMaxIdleTime() {
-			return this.session.getMaxInactiveInterval();
-		}
-
-		@Override
-		public void setMaxIdleTime(Duration maxIdleTime) {
-			this.session.setMaxInactiveInterval(maxIdleTime);
-		}
-
-	}
-
 }
