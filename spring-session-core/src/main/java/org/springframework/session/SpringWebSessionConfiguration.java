@@ -17,14 +17,16 @@ package org.springframework.session;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.web.server.session.SpringSessionWebSessionManager;
+import org.springframework.session.web.server.session.SpringSessionWebSessionStore;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
+import org.springframework.web.server.session.DefaultWebSessionManager;
 import org.springframework.web.server.session.WebSessionManager;
 
 /**
  * Wire up a {@link WebSessionManager} using a Reactive {@link ReactorSessionRepository} from the application context.
  *
  * @author Greg Turnquist
+ * @author Rob Winch
  * @since 2.0
  *
  * @see EnableSpringWebSession
@@ -39,7 +41,10 @@ public class SpringWebSessionConfiguration {
 	 * @return a configured {@link WebSessionManager} registered with a preconfigured name.
 	 */
 	@Bean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME)
-	public WebSessionManager webSessionManager(ReactorSessionRepository<?> repository) {
-		return new SpringSessionWebSessionManager(repository);
+	public WebSessionManager webSessionManager(ReactorSessionRepository<? extends Session> repository) {
+		SpringSessionWebSessionStore<? extends Session> sessionStore = new SpringSessionWebSessionStore<>(repository);
+		DefaultWebSessionManager manager = new DefaultWebSessionManager();
+		manager.setSessionStore(sessionStore);
+		return manager;
 	}
 }

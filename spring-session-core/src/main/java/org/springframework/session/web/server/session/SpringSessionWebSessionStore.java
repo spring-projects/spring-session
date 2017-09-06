@@ -16,8 +16,10 @@
 
 package org.springframework.session.web.server.session;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.AbstractCollection;
 import java.util.AbstractMap;
 import java.util.Collection;
@@ -27,7 +29,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 
@@ -47,28 +48,42 @@ import org.springframework.web.server.session.WebSessionStore;
  * @author Rob Winch
  * @since 2.0
  */
-class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
+public class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
 
 	private final ReactorSessionRepository<S> sessions;
 
-	SpringSessionWebSessionStore(ReactorSessionRepository<S> sessions) {
-		Assert.notNull(sessions, "sessions cannot be null");
-		this.sessions = sessions;
+	private Clock clock = Clock.system(ZoneOffset.UTC);
+
+	public SpringSessionWebSessionStore(ReactorSessionRepository<S> reactorSessionRepository) {
+		Assert.notNull(reactorSessionRepository, "reactorSessionRepository cannot be null");
+		this.sessions = reactorSessionRepository;
 	}
 
-	public Mono<WebSession> createSession(Function<WebSession, Mono<Void>> saveOperation) {
-		return this.sessions.createSession().map(session -> this.createSession(session, saveOperation));
+	/**
+	 * Configure the {@link Clock} to use to set lastAccessTime on every created
+	 * session and to calculate if it is expired.
+	 * <p>This may be useful to align to different timezone or to set the clock
+	 * back in a test, e.g. {@code Clock.offset(clock, Duration.ofMinutes(-31))}
+	 * in order to simulate session expiration.
+	 * <p>By default this is {@code Clock.system(ZoneId.of("GMT"))}.
+	 * @param clock the clock to use
+	 */
+	public void setClock(Clock clock) {
+		Assert.notNull(clock, "clock cannot be null");
+		this.clock = clock;
 	}
 
-	public Mono<WebSession> setLastAccessedTime(WebSession session,
-			Instant lastAccessedTime) {
+	public Mono<WebSession> createWebSession() {
+		return this.sessions.createSession().map(this::createSession);
+	}
+
+	public Mono<WebSession> updateLastAccessTime(WebSession session) {
 		@SuppressWarnings("unchecked")
 		SpringSessionWebSession springSessionWebSession = (SpringSessionWebSession) session;
-		springSessionWebSession.session.setLastAccessedTime(lastAccessedTime);
+		springSessionWebSession.session.setLastAccessedTime(this.clock.instant());
 		return Mono.just(session);
 	}
 
-	@Override
 	public Mono<Void> storeSession(WebSession session) {
 		@SuppressWarnings("unchecked")
 		SpringSessionWebSession springWebSession = (SpringSessionWebSession) session;
@@ -77,24 +92,15 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 	@Override
 	public Mono<WebSession> retrieveSession(String sessionId) {
-		return Mono.error(new UnsupportedOperationException("This method is not supported. Use retrieveSession(String,Function<WebSession, Mono<Void>>)"));
+		return this.sessions.findById(sessionId).map(this::existingSession);
 	}
 
-	public Mono<WebSession> retrieveSession(String sessionId, Function<WebSession, Mono<Void>> saveOperation) {
-		return this.sessions.findById(sessionId).map(session -> this.existingSession(session, saveOperation));
+	private SpringSessionWebSession createSession(S session) {
+		return new SpringSessionWebSession(session, State.NEW);
 	}
 
-	@Override
-	public Mono<Void> changeSessionId(String s, WebSession webSession) {
-		return storeSession(webSession);
-	}
-
-	private SpringSessionWebSession createSession(S session, Function<WebSession, Mono<Void>> saveOperation) {
-		return new SpringSessionWebSession(session, State.NEW, saveOperation);
-	}
-
-	private SpringSessionWebSession existingSession(S session, Function<WebSession, Mono<Void>> saveOperation) {
-		return new SpringSessionWebSession(session, State.STARTED, saveOperation);
+	private SpringSessionWebSession existingSession(S session) {
+		return new SpringSessionWebSession(session, State.STARTED);
 	}
 
 	@Override
@@ -254,14 +260,11 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 		private AtomicReference<State> state = new AtomicReference<>();
 
-		private final Function<WebSession, Mono<Void>> saveOperation;
-
-		SpringSessionWebSession(S session, State state, Function<WebSession, Mono<Void>> saveOperation) {
+		SpringSessionWebSession(S session, State state) {
 			Assert.notNull(session, "session cannot be null");
 			this.session = session;
 			this.attributes = new SpringSessionMap(session);
 			this.state.set(state);
-			this.saveOperation = saveOperation;
 		}
 
 		@Override
@@ -272,7 +275,8 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 		@Override
 		public Mono<Void> changeSessionId() {
 			return Mono.defer(() -> {
-				this.session.changeSessionId();
+				this.session
+						.changeSessionId();
 				return save();
 			});
 		}
@@ -296,7 +300,7 @@ class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore
 
 		@Override
 		public Mono<Void> save() {
-			return this.saveOperation.apply(this);
+			return SpringSessionWebSessionStore.this.sessions.save(this.session);
 		}
 
 		@Override
