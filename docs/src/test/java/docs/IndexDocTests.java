@@ -17,6 +17,7 @@
 package docs;
 
 import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
@@ -51,7 +52,7 @@ public class IndexDocTests {
 	@Test
 	public void repositoryDemo() {
 		RepositoryDemo<MapSession> demo = new RepositoryDemo<>();
-		demo.repository = new MapSessionRepository();
+		demo.repository = new MapSessionRepository(new ConcurrentHashMap<>());
 
 		demo.demo();
 	}
@@ -83,7 +84,7 @@ public class IndexDocTests {
 	@Test
 	public void expireRepositoryDemo() {
 		ExpiringRepositoryDemo<MapSession> demo = new ExpiringRepositoryDemo<>();
-		demo.repository = new MapSessionRepository();
+		demo.repository = new MapSessionRepository(new ConcurrentHashMap<>());
 
 		demo.demo();
 	}
@@ -121,7 +122,8 @@ public class IndexDocTests {
 	@SuppressWarnings("unused")
 	public void mapRepository() {
 		// tag::new-mapsessionrepository[]
-		SessionRepository<? extends Session> repository = new MapSessionRepository();
+		SessionRepository<? extends Session> repository = new MapSessionRepository(
+				new ConcurrentHashMap<>());
 		// end::new-mapsessionrepository[]
 	}
 

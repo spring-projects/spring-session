@@ -24,5 +24,9 @@
 	</security:user-service>
 
 	<bean class="org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration"/>
-	<bean id="springSessionRepository" class="org.springframework.session.MapSessionRepository"/>
+	<bean id="springSessionRepository" class="org.springframework.session.MapSessionRepository">
+		<constructor-arg>
+			<bean class="java.util.concurrent.ConcurrentHashMap"/>
+		</constructor-arg>
+	</bean>
 </beans>

@@ -18,16 +18,15 @@ package org.springframework.session;
 
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 
 /**
  * A {@link SessionRepository} backed by a {@link java.util.Map} and that uses a
- * {@link MapSession}. By default a {@link java.util.concurrent.ConcurrentHashMap} is
- * used, but a custom {@link java.util.Map} can be injected to use distributed maps
- * provided by NoSQL stores like Redis and Hazelcast.
+ * {@link MapSession}. The injected {@link java.util.Map} can be backed by a distributed
+ * NoSQL store like Hazelcast, for instance. Note that the supplied map itself is
+ * responsible for purging the expired sessions.
  *
  * <p>
  * The implementation does NOT support firing {@link SessionDeletedEvent} or
@@ -38,6 +37,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  * @since 1.0
  */
 public class MapSessionRepository implements SessionRepository<MapSession> {
+
 	/**
 	 * If non-null, this value is used to override
 	 * {@link Session#setMaxInactiveInterval(Duration)}.
@@ -45,13 +45,6 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	private Integer defaultMaxInactiveInterval;
 
 	private final Map<String, Session> sessions;
-
-	/**
-	 * Creates an instance backed by a {@link java.util.concurrent.ConcurrentHashMap}.
-	 */
-	public MapSessionRepository() {
-		this(new ConcurrentHashMap<>());
-	}
 
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
@@ -108,4 +101,5 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		}
 		return result;
 	}
+
 }

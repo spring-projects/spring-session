@@ -19,20 +19,25 @@ package org.springframework.session;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Tests for {@link MapSessionRepository}.
+ */
 public class MapSessionRepositoryTests {
-	MapSessionRepository repository;
 
-	MapSession session;
+	private MapSessionRepository repository;
+
+	private MapSession session;
 
 	@Before
 	public void setup() {
-		this.repository = new MapSessionRepository();
+		this.repository = new MapSessionRepository(new ConcurrentHashMap<>());
 		this.session = new MapSession();
 	}
 
@@ -94,4 +99,5 @@ public class MapSessionRepositoryTests {
 		assertThat(this.repository.findById(originalId)).isNull();
 		assertThat(this.repository.findById(createSession.getId())).isNotNull();
 	}
+
 }

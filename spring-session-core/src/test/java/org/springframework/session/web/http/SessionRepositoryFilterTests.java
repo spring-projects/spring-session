@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.FilterChain;
@@ -68,9 +69,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+/**
+ * Tests for {@link SessionRepositoryFilter}.
+ */
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("deprecation")
 public class SessionRepositoryFilterTests {
+
 	@Mock
 	private HttpSessionStrategy strategy;
 
@@ -420,7 +425,7 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterSetsCookieIfChanged() throws Exception {
-		this.sessionRepository = new MapSessionRepository() {
+		this.sessionRepository = new MapSessionRepository(new ConcurrentHashMap<>()) {
 			@Override
 			public MapSession findById(String id) {
 				return createSession();
@@ -1256,7 +1261,8 @@ public class SessionRepositoryFilterTests {
 	@SuppressWarnings("unchecked")
 	public void doFilterRequestSessionNoRequestSessionNoSessionRepositoryInteractions()
 			throws Exception {
-		SessionRepository<MapSession> sessionRepository = spy(new MapSessionRepository());
+		SessionRepository<MapSession> sessionRepository = spy(
+				new MapSessionRepository(new ConcurrentHashMap<>()));
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
@@ -1283,7 +1289,8 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterLazySessionCreation() throws Exception {
-		SessionRepository<MapSession> sessionRepository = spy(new MapSessionRepository());
+		SessionRepository<MapSession> sessionRepository = spy(
+				new MapSessionRepository(new ConcurrentHashMap<>()));
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 
@@ -1480,4 +1487,5 @@ public class SessionRepositoryFilterTests {
 			return SessionRepositoryFilter.DEFAULT_ORDER;
 		}
 	}
+
 }

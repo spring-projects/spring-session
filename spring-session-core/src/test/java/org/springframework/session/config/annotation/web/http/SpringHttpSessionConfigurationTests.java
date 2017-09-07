@@ -16,6 +16,8 @@
 
 package org.springframework.session.config.annotation.web.http;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.ServletContext;
 
 import org.junit.After;
@@ -134,7 +136,7 @@ public class SpringHttpSessionConfigurationTests {
 
 		@Bean
 		public MapSessionRepository sessionRepository() {
-			return new MapSessionRepository();
+			return new MapSessionRepository(new ConcurrentHashMap<>());
 		}
 
 	}
