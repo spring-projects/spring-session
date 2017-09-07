@@ -16,6 +16,8 @@
 
 package org.springframework.session.config.annotation.web.http;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -43,25 +45,29 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 /**
- * @author Rob Winch
+ * Tests for {@link SpringHttpSessionConfiguration} using a custom
+ * {@link MultiHttpSessionStrategy}.
  *
+ * @author Rob Winch
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class EnableSpringHttpSessionCustomMultiHttpSessionStrategyTests {
-	@Autowired
-	MockHttpServletRequest request;
-	@Autowired
-	MockHttpServletResponse response;
-
-	MockFilterChain chain;
 
 	@Autowired
-	SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
+	private MockHttpServletRequest request;
 
 	@Autowired
-	MultiHttpSessionStrategy strategy;
+	private MockHttpServletResponse response;
+
+	private MockFilterChain chain;
+
+	@Autowired
+	private SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
+
+	@Autowired
+	private MultiHttpSessionStrategy strategy;
 
 	@Before
 	public void setup() {
@@ -86,14 +92,17 @@ public class EnableSpringHttpSessionCustomMultiHttpSessionStrategyTests {
 	@EnableSpringHttpSession
 	@Configuration
 	static class Config {
+
 		@Bean
 		public MapSessionRepository mapSessionRepository() {
-			return new MapSessionRepository();
+			return new MapSessionRepository(new ConcurrentHashMap<>());
 		}
 
 		@Bean
 		public MultiHttpSessionStrategy strategy() {
 			return mock(MultiHttpSessionStrategy.class);
 		}
+
 	}
+
 }
