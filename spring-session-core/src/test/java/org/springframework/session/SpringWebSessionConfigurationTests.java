@@ -21,6 +21,10 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
+import org.springframework.web.server.session.CookieWebSessionIdResolver;
+import org.springframework.web.server.session.DefaultWebSessionManager;
+import org.springframework.web.server.session.HeaderWebSessionIdResolver;
+import org.springframework.web.server.session.WebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +66,28 @@ public class SpringWebSessionConfigurationTests {
 				.withMessageContaining("No qualifying bean of type '" + ReactorSessionRepository.class.getCanonicalName());
 	}
 
+	@Test
+	public void defaultSessionIdResolverShouldBeCookieBased() {
+
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+		ctx.register(GoodConfig.class);
+		ctx.refresh();
+
+		DefaultWebSessionManager manager = ctx.getBean(DefaultWebSessionManager.class);
+		assertThat(manager.getSessionIdResolver().getClass()).isAssignableFrom(CookieWebSessionIdResolver.class);
+	}
+
+	@Test
+	public void providedSessionIdResolverShouldBePickedUpAutomatically() {
+
+		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+		ctx.register(OverrideSessionIdResolver.class);
+		ctx.refresh();
+
+		DefaultWebSessionManager manager = ctx.getBean(DefaultWebSessionManager.class);
+		assertThat(manager.getSessionIdResolver().getClass()).isAssignableFrom(HeaderWebSessionIdResolver.class);
+	}
+
 	/**
 	 * A configuration with all the right parts.
 	 */
@@ -83,5 +109,19 @@ public class SpringWebSessionConfigurationTests {
 	@EnableSpringWebSession
 	static class BadConfig {
 
+	}
+
+	@EnableSpringWebSession
+	static class OverrideSessionIdResolver {
+
+		@Bean
+		ReactorSessionRepository<?> reactorSessionRepository() {
+			return new MapReactorSessionRepository();
+		}
+
+		@Bean
+		WebSessionIdResolver alternateWebSessionIdResolver() {
+			return new HeaderWebSessionIdResolver();
+		}
 	}
 }
