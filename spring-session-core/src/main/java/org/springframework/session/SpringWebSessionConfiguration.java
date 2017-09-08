@@ -40,7 +40,7 @@ public class SpringWebSessionConfiguration {
 	 * Optional override of default {@link WebSessionIdResolver}.
 	 */
 	@Autowired(required = false)
-	WebSessionIdResolver webSessionIdResolver;
+	private WebSessionIdResolver webSessionIdResolver;
 
 	/**
 	 * Configure a {@link WebSessionManager} using a provided {@link ReactorSessionRepository}.
@@ -57,7 +57,7 @@ public class SpringWebSessionConfiguration {
 		if (this.webSessionIdResolver != null) {
 			manager.setSessionIdResolver(this.webSessionIdResolver);
 		}
-		
+
 		return manager;
 	}
 }
