@@ -15,6 +15,7 @@
  */
 package org.springframework.session;
 
+import org.junit.After;
 import org.junit.Test;
 
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
@@ -36,32 +37,40 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Greg Turnquist
  */
 public class SpringWebSessionConfigurationTests {
+	private AnnotationConfigApplicationContext context;
+
+	@After
+	public void cleanup() {
+		if (this.context != null) {
+			this.context.close();
+		}
+	}
 
 	@Test
 	public void enableSpringWebSessionConfiguresThings() {
 
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(GoodConfig.class);
-		ctx.refresh();
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(GoodConfig.class);
+		this.context.refresh();
 
-		WebSessionManager webSessionManagerFoundByType = ctx.getBean(WebSessionManager.class);
-		Object webSessionManagerFoundByName = ctx.getBean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME);
+		WebSessionManager webSessionManagerFoundByType = this.context.getBean(WebSessionManager.class);
+		Object webSessionManagerFoundByName = this.context.getBean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME);
 
 		assertThat(webSessionManagerFoundByType).isNotNull();
 		assertThat(webSessionManagerFoundByName).isNotNull();
 		assertThat(webSessionManagerFoundByType).isEqualTo(webSessionManagerFoundByName);
 
-		assertThat(ctx.getBean(ReactorSessionRepository.class)).isNotNull();
+		assertThat(this.context.getBean(ReactorSessionRepository.class)).isNotNull();
 	}
 
 	@Test
 	public void missingReactorSessionRepositoryBreaksAppContext() {
 
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(BadConfig.class);
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(BadConfig.class);
 
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-				.isThrownBy(ctx::refresh)
+				.isThrownBy(this.context::refresh)
 				.withMessageContaining("Error creating bean with name 'webSessionManager'")
 				.withMessageContaining("No qualifying bean of type '" + ReactorSessionRepository.class.getCanonicalName());
 	}
@@ -69,22 +78,22 @@ public class SpringWebSessionConfigurationTests {
 	@Test
 	public void defaultSessionIdResolverShouldBeCookieBased() {
 
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(GoodConfig.class);
-		ctx.refresh();
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(GoodConfig.class);
+		this.context.refresh();
 
-		DefaultWebSessionManager manager = ctx.getBean(DefaultWebSessionManager.class);
+		DefaultWebSessionManager manager = this.context.getBean(DefaultWebSessionManager.class);
 		assertThat(manager.getSessionIdResolver().getClass()).isAssignableFrom(CookieWebSessionIdResolver.class);
 	}
 
 	@Test
 	public void providedSessionIdResolverShouldBePickedUpAutomatically() {
 
-		AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-		ctx.register(OverrideSessionIdResolver.class);
-		ctx.refresh();
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(OverrideSessionIdResolver.class);
+		this.context.refresh();
 
-		DefaultWebSessionManager manager = ctx.getBean(DefaultWebSessionManager.class);
+		DefaultWebSessionManager manager = this.context.getBean(DefaultWebSessionManager.class);
 		assertThat(manager.getSessionIdResolver().getClass()).isAssignableFrom(HeaderWebSessionIdResolver.class);
 	}
 
