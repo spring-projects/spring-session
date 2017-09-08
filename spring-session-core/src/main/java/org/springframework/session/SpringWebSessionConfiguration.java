@@ -15,11 +15,13 @@
  */
 package org.springframework.session;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.web.server.session.SpringSessionWebSessionStore;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import org.springframework.web.server.session.DefaultWebSessionManager;
+import org.springframework.web.server.session.WebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionManager;
 
 /**
@@ -35,6 +37,12 @@ import org.springframework.web.server.session.WebSessionManager;
 public class SpringWebSessionConfiguration {
 
 	/**
+	 * Optional override of default {@link WebSessionIdResolver}.
+	 */
+	@Autowired(required = false)
+	WebSessionIdResolver webSessionIdResolver;
+
+	/**
 	 * Configure a {@link WebSessionManager} using a provided {@link ReactorSessionRepository}.
 	 *
 	 * @param repository - a bean that implements {@link ReactorSessionRepository}.
@@ -45,6 +53,11 @@ public class SpringWebSessionConfiguration {
 		SpringSessionWebSessionStore<? extends Session> sessionStore = new SpringSessionWebSessionStore<>(repository);
 		DefaultWebSessionManager manager = new DefaultWebSessionManager();
 		manager.setSessionStore(sessionStore);
+
+		if (this.webSessionIdResolver != null) {
+			manager.setSessionIdResolver(this.webSessionIdResolver);
+		}
+		
 		return manager;
 	}
 }
