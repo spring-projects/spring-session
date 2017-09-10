@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session;
+
+import java.util.HashMap;
 
 import org.junit.After;
 import org.junit.Test;
@@ -108,7 +111,7 @@ public class SpringWebSessionConfigurationTests {
 		 */
 		@Bean
 		ReactorSessionRepository<?> reactorSessionRepository() {
-			return new MapReactorSessionRepository();
+			return new MapReactorSessionRepository(new HashMap<>());
 		}
 	}
 
@@ -125,7 +128,7 @@ public class SpringWebSessionConfigurationTests {
 
 		@Bean
 		ReactorSessionRepository<?> reactorSessionRepository() {
-			return new MapReactorSessionRepository();
+			return new MapReactorSessionRepository(new HashMap<>());
 		}
 
 		@Bean
@@ -133,4 +136,5 @@ public class SpringWebSessionConfigurationTests {
 			return new HeaderWebSessionIdResolver();
 		}
 	}
+
 }

@@ -19,7 +19,6 @@ package org.springframework.session;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,49 +29,21 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
+ * Tests for {@link MapReactorSessionRepository}.
+ *
  * @author Rob Winch
  * @since 2.0
  */
 public class MapReactorSessionRepositoryTests {
 
-	MapReactorSessionRepository repository;
+	private MapReactorSessionRepository repository;
 
-	MapSession session;
+	private MapSession session;
 
 	@Before
 	public void setup() {
-		this.repository = new MapReactorSessionRepository();
+		this.repository = new MapReactorSessionRepository(new HashMap<>());
 		this.session = new MapSession("session-id");
-	}
-
-	@Test
-	public void constructorVarargsThenFound() {
-		this.repository = new MapReactorSessionRepository(this.session);
-
-		Session findByIdSession = this.repository.findById(this.session.getId()).block();
-		assertThat(findByIdSession).isNotNull();
-		assertThat(findByIdSession.getId()).isEqualTo(this.session.getId());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorVarargsWhenNullThenThrowsIllegalArgumentException() {
-		Session[] sessions = null;
-		new MapReactorSessionRepository(sessions);
-	}
-
-	@Test
-	public void constructorIterableThenFound() {
-		this.repository = new MapReactorSessionRepository(Arrays.asList(this.session));
-
-		Session findByIdSession = this.repository.findById(this.session.getId()).block();
-		assertThat(findByIdSession).isNotNull();
-		assertThat(findByIdSession.getId()).isEqualTo(this.session.getId());
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void constructorIterableWhenNullThenThrowsIllegalArgumentException() {
-		Iterable<Session> sessions = null;
-		new MapReactorSessionRepository(sessions);
 	}
 
 	@Test
@@ -106,24 +77,6 @@ public class MapReactorSessionRepositoryTests {
 		Session findByIdSession = this.repository.findById(this.session.getId()).block();
 		assertThat(findByIdSession).isNotNull();
 		assertThat(findByIdSession.getId()).isEqualTo(this.session.getId());
-	}
-
-	@Test
-	public void findByIdWhenNotExpiredThenFound() {
-		this.repository = new MapReactorSessionRepository(this.session);
-
-		Session findByIdSession = this.repository.findById(this.session.getId()).block();
-		assertThat(findByIdSession).isNotNull();
-		assertThat(findByIdSession.getId()).isEqualTo(this.session.getId());
-	}
-
-	@Test
-	public void findByIdWhenExpiredThenEmpty() {
-		this.session.setMaxInactiveInterval(Duration.ofSeconds(1));
-		this.session.setLastAccessedTime(Instant.now().minus(5, ChronoUnit.MINUTES));
-		this.repository = new MapReactorSessionRepository(Arrays.asList(this.session));
-
-		assertThat(this.repository.findById(this.session.getId()).block()).isNull();
 	}
 
 	@Test
@@ -188,4 +141,5 @@ public class MapReactorSessionRepositoryTests {
 		assertThat(this.repository.findById(originalId).block()).isNull();
 		assertThat(this.repository.findById(createSession.getId()).block()).isNotNull();
 	}
+
 }
