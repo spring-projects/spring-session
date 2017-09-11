@@ -97,20 +97,22 @@ import org.springframework.util.StringUtils;
  * <pre class="code">
  * CREATE TABLE SPRING_SESSION (
  *   PRIMARY_ID CHAR(36) NOT NULL,
- *   SESSION_ID CHAR(36),
+ *   SESSION_ID CHAR(36) NOT NULL,
  *   CREATION_TIME BIGINT NOT NULL,
  *   LAST_ACCESS_TIME BIGINT NOT NULL,
  *   MAX_INACTIVE_INTERVAL INT NOT NULL,
+ *   EXPIRY_TIME BIGINT NOT NULL,
  *   PRINCIPAL_NAME VARCHAR(100),
  *   CONSTRAINT SPRING_SESSION_PK PRIMARY KEY (PRIMARY_ID)
  * );
  *
- * CREATE INDEX SPRING_SESSION_IX1 ON SPRING_SESSION (LAST_ACCESS_TIME);
+ * CREATE INDEX SPRING_SESSION_IX1 ON SPRING_SESSION (SESSION_ID);
+ * CREATE INDEX SPRING_SESSION_IX1 ON SPRING_SESSION (EXPIRY_TIME);
  *
  * CREATE TABLE SPRING_SESSION_ATTRIBUTES (
  *  SESSION_PRIMARY_ID CHAR(36) NOT NULL,
- *  ATTRIBUTE_NAME VARCHAR(200),
- *  ATTRIBUTE_BYTES BYTEA,
+ *  ATTRIBUTE_NAME VARCHAR(200) NOT NULL,
+ *  ATTRIBUTE_BYTES BYTEA NOT NULL,
  *  CONSTRAINT SPRING_SESSION_ATTRIBUTES_PK PRIMARY KEY (SESSION_PRIMARY_ID, ATTRIBUTE_NAME),
  *  CONSTRAINT SPRING_SESSION_ATTRIBUTES_FK FOREIGN KEY (SESSION_PRIMARY_ID) REFERENCES SPRING_SESSION(PRIMARY_ID) ON DELETE CASCADE
  * );
@@ -138,8 +140,8 @@ public class JdbcOperationsSessionRepository implements
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final String CREATE_SESSION_QUERY =
-			"INSERT INTO %TABLE_NAME%(PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, PRINCIPAL_NAME) " +
-					"VALUES (?, ?, ?, ?, ?, ?)";
+			"INSERT INTO %TABLE_NAME%(PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME) " +
+					"VALUES (?, ?, ?, ?, ?, ?, ?)";
 
 	private static final String CREATE_SESSION_ATTRIBUTE_QUERY =
 			"INSERT INTO %TABLE_NAME%_ATTRIBUTES(SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) " +
@@ -152,7 +154,7 @@ public class JdbcOperationsSessionRepository implements
 					"WHERE S.SESSION_ID = ?";
 
 	private static final String UPDATE_SESSION_QUERY =
-			"UPDATE %TABLE_NAME% SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, PRINCIPAL_NAME = ? " +
+			"UPDATE %TABLE_NAME% SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, EXPIRY_TIME = ?, PRINCIPAL_NAME = ? " +
 					"WHERE PRIMARY_ID = ?";
 
 	private static final String UPDATE_SESSION_ATTRIBUTE_QUERY =
@@ -175,9 +177,9 @@ public class JdbcOperationsSessionRepository implements
 					"LEFT OUTER JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID " +
 					"WHERE S.PRINCIPAL_NAME = ?";
 
-	private static final String DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY =
+	private static final String DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY =
 			"DELETE FROM %TABLE_NAME% " +
-					"WHERE MAX_INACTIVE_INTERVAL < (? - LAST_ACCESS_TIME) / 1000";
+					"WHERE EXPIRY_TIME < ?";
 
 	private static final Log logger = LogFactory
 			.getLog(JdbcOperationsSessionRepository.class);
@@ -211,7 +213,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private String listSessionsByPrincipalNameQuery;
 
-	private String deleteSessionsByLastAccessTimeQuery;
+	private String deleteSessionsByExpiryTimeQuery;
 
 	/**
 	 * If non-null, this value is used to override the default value for
@@ -333,11 +335,11 @@ public class JdbcOperationsSessionRepository implements
 
 	/**
 	 * Set the custom SQL query used to delete the sessions by last access time.
-	 * @param deleteSessionsByLastAccessTimeQuery the SQL query string
+	 * @param deleteSessionsByExpiryTimeQuery the SQL query string
 	 */
-	public void setDeleteSessionsByLastAccessTimeQuery(String deleteSessionsByLastAccessTimeQuery) {
-		Assert.hasText(deleteSessionsByLastAccessTimeQuery, "Query must not be empty");
-		this.deleteSessionsByLastAccessTimeQuery = deleteSessionsByLastAccessTimeQuery;
+	public void setDeleteSessionsByExpiryTimeQuery(String deleteSessionsByExpiryTimeQuery) {
+		Assert.hasText(deleteSessionsByExpiryTimeQuery, "Query must not be empty");
+		this.deleteSessionsByExpiryTimeQuery = deleteSessionsByExpiryTimeQuery;
 	}
 
 	/**
@@ -385,7 +387,8 @@ public class JdbcOperationsSessionRepository implements
 								ps.setLong(3, session.getCreationTime().toEpochMilli());
 								ps.setLong(4, session.getLastAccessedTime().toEpochMilli());
 								ps.setInt(5, (int) session.getMaxInactiveInterval().getSeconds());
-								ps.setString(6, session.getPrincipalName());
+								ps.setLong(6, session.getExpiryTime().toEpochMilli());
+								ps.setString(7, session.getPrincipalName());
 							});
 					if (!session.getAttributeNames().isEmpty()) {
 						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
@@ -421,8 +424,9 @@ public class JdbcOperationsSessionRepository implements
 									ps.setString(1, session.getId());
 									ps.setLong(2, session.getLastAccessedTime().toEpochMilli());
 									ps.setInt(3, (int) session.getMaxInactiveInterval().getSeconds());
-									ps.setString(4, session.getPrincipalName());
-									ps.setString(5, session.primaryKey);
+									ps.setLong(4, session.getExpiryTime().toEpochMilli());
+									ps.setString(5, session.getPrincipalName());
+									ps.setString(6, session.primaryKey);
 								});
 					}
 					Map<String, Object> delta = session.getDelta();
@@ -524,7 +528,7 @@ public class JdbcOperationsSessionRepository implements
 	public void cleanUpExpiredSessions() {
 		int deletedCount = this.transactionOperations.execute(transactionStatus ->
 				JdbcOperationsSessionRepository.this.jdbcOperations.update(
-						JdbcOperationsSessionRepository.this.deleteSessionsByLastAccessTimeQuery,
+						JdbcOperationsSessionRepository.this.deleteSessionsByExpiryTimeQuery,
 						System.currentTimeMillis()));
 
 		if (logger.isDebugEnabled()) {
@@ -571,8 +575,8 @@ public class JdbcOperationsSessionRepository implements
 		this.deleteSessionQuery = getQuery(DELETE_SESSION_QUERY);
 		this.listSessionsByPrincipalNameQuery =
 				getQuery(LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY);
-		this.deleteSessionsByLastAccessTimeQuery =
-				getQuery(DELETE_SESSIONS_BY_LAST_ACCESS_TIME_QUERY);
+		this.deleteSessionsByExpiryTimeQuery =
+				getQuery(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY);
 	}
 
 	private void serialize(PreparedStatement ps, int paramIndex, Object attributeValue)
@@ -641,6 +645,10 @@ public class JdbcOperationsSessionRepository implements
 
 		String getPrincipalName() {
 			return PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
+		}
+
+		Instant getExpiryTime() {
+			return getLastAccessedTime().plus(getMaxInactiveInterval());
 		}
 
 		public String getId() {
