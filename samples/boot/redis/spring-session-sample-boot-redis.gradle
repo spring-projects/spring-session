@@ -1,5 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
+ext['spring-data-releasetrain.version'] = 'Kay-BUILD-SNAPSHOT'
+
 dependencies {
 	compile project(':spring-session-data-redis')
 	compile "org.springframework.boot:spring-boot-starter-web"
