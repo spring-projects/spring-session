@@ -97,7 +97,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 
 	@Override
 	public Mono<Void> removeSession(String sessionId) {
-		return this.sessions.delete(sessionId);
+		return this.sessions.deleteById(sessionId);
 	}
 
 	private SpringSessionWebSession createSession(S session) {

@@ -86,11 +86,11 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Map
 		return Mono.defer(() -> Mono.justOrEmpty(this.sessions.get(id))
 				.filter(session -> !session.isExpired())
 				.map(MapSession::new)
-				.switchIfEmpty(delete(id).then(Mono.empty())));
+				.switchIfEmpty(deleteById(id).then(Mono.empty())));
 		// @formatter:on
 	}
 
-	public Mono<Void> delete(String id) {
+	public Mono<Void> deleteById(String id) {
 		return Mono.fromRunnable(() -> this.sessions.remove(id));
 	}
 

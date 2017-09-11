@@ -73,5 +73,6 @@ public interface ReactorSessionRepository<S extends Session> {
 	 * @param id the {@link Session#getId()} to delete
 	 * @return indicator of operation completion
 	 */
-	Mono<Void> delete(String id);
+	Mono<Void> deleteById(String id);
+
 }

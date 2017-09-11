@@ -273,11 +273,11 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	@Test
 	public void removeSessionWhenInvokedThenSessionSaved() {
 		String sessionId = "session-id";
-		given(this.sessionRepository.delete(sessionId)).willReturn(Mono.empty());
+		given(this.sessionRepository.deleteById(sessionId)).willReturn(Mono.empty());
 
 		this.webSessionStore.removeSession(sessionId).block();
 
-		verify(this.sessionRepository).delete(sessionId);
+		verify(this.sessionRepository).deleteById(sessionId);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
