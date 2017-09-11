@@ -274,7 +274,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("Query must not be empty");
 
-		this.repository.setDeleteSessionsByLastAccessTimeQuery(null);
+		this.repository.setDeleteSessionsByExpiryTimeQuery(null);
 	}
 
 	@Test
@@ -282,7 +282,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		this.thrown.expect(IllegalArgumentException.class);
 		this.thrown.expectMessage("Query must not be empty");
 
-		this.repository.setDeleteSessionsByLastAccessTimeQuery(" ");
+		this.repository.setDeleteSessionsByExpiryTimeQuery(" ");
 	}
 
 	@Test
