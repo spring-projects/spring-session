@@ -1,6 +1,6 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
-ext['spring-data-releasetrain.version'] = 'Kay-BUILD-SNAPSHOT'
+ext['spring-data-releasetrain.version'] = 'Kay-RC3'
 
 dependencies {
 	compile project(':spring-session-data-redis')
