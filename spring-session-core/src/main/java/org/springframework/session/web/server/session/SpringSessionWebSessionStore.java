@@ -158,6 +158,11 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		}
 
 		@Override
+		public Mono<Void> invalidate() {
+			return SpringSessionWebSessionStore.this.sessions.deleteById(this.session.getId());
+		}
+
+		@Override
 		public Mono<Void> save() {
 			return SpringSessionWebSessionStore.this.sessions.save(this.session);
 		}
