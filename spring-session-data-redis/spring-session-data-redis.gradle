@@ -13,7 +13,6 @@ dependencies {
 	testCompile "org.springframework:spring-web"
 	testCompile "org.springframework.security:spring-security-core"
 
-	integrationTestCompile "redis.clients:jedis"
-	integrationTestCompile "org.apache.commons:commons-pool2"
+	integrationTestCompile "io.lettuce:lettuce-core"
 	integrationTestCompile "org.testcontainers:testcontainers"
 }

@@ -21,7 +21,7 @@ import org.testcontainers.containers.GenericContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
 /**
  * Base class for {@link RedisOperationsSessionRepository} integration tests.
@@ -39,11 +39,11 @@ public abstract class AbstractRedisITests {
 	protected static class BaseConfig {
 
 		@Bean
-		public JedisConnectionFactory connectionFactory() {
+		public LettuceConnectionFactory redisConnectionFactory() {
 			RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(
 					redisContainer.getContainerIpAddress(),
 					redisContainer.getFirstMappedPort());
-			return new JedisConnectionFactory(configuration);
+			return new LettuceConnectionFactory(configuration);
 		}
 
 	}

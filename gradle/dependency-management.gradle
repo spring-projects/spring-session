@@ -51,6 +51,5 @@ dependencyManagement {
 		dependency 'org.webjars:sockjs-client:0.3.4'
 		dependency 'org.webjars:stomp-websocket:2.3.0'
 		dependency 'org.webjars:webjars-taglib:0.3'
-		dependency 'redis.clients:jedis:2.9.0'
 	}
 }
