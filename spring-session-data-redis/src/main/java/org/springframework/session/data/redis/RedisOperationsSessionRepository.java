@@ -385,6 +385,10 @@ public class RedisOperationsSessionRepository implements
 		this.redisFlushMode = redisFlushMode;
 	}
 
+	public RedisOperations<Object, Object> getSessionRedisOperations() {
+		return this.sessionRedisOperations;
+	}
+
 	public void save(RedisSession session) {
 		session.saveDelta();
 		if (session.isNew()) {

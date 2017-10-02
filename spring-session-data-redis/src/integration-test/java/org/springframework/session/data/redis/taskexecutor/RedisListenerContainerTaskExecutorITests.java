@@ -32,6 +32,7 @@ import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.data.redis.AbstractRedisITests;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.data.redis.config.annotation.web.http.SpringSessionRedisOperations;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -49,7 +50,7 @@ public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITest
 	@Autowired
 	private SessionTaskExecutor executor;
 
-	@Autowired
+	@SpringSessionRedisOperations
 	private RedisOperations<Object, Object> redis;
 
 	@Test

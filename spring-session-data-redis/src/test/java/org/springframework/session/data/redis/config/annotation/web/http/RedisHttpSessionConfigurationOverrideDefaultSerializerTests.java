@@ -47,7 +47,7 @@ import static org.mockito.Mockito.mock;
 @WebAppConfiguration
 public class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 
-	@Autowired
+	@SpringSessionRedisOperations
 	RedisTemplate<Object, Object> template;
 
 	@Autowired

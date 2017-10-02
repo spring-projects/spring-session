@@ -20,15 +20,21 @@ import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,10 +43,16 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
+ * Tests for {@link RedisHttpSessionConfiguration}.
+ *
  * @author Eddú Meléndez
  * @author Mark Paluch
+ * @author Vedran Pavic
  */
 public class RedisHttpSessionConfigurationTests {
+
+	@Rule
+	public final ExpectedException thrown = ExpectedException.none();
 
 	private AnnotationConfigApplicationContext context;
 
@@ -59,21 +71,114 @@ public class RedisHttpSessionConfigurationTests {
 	@Test
 	public void resolveValue() {
 		registerAndRefresh(RedisConfig.class, CustomRedisHttpSessionConfiguration.class);
-		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
-		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace")).isEqualTo("myRedisNamespace");
+		RedisHttpSessionConfiguration configuration = this.context
+				.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace"))
+				.isEqualTo("myRedisNamespace");
 	}
 
 	@Test
 	public void resolveValueByPlaceholder() {
-		this.context.setEnvironment(new MockEnvironment().withProperty("session.redis.namespace", "customRedisNamespace"));
-		registerAndRefresh(RedisConfig.class, PropertySourceConfiguration.class, CustomRedisHttpSessionConfiguration2.class);
-		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
-		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace")).isEqualTo("customRedisNamespace");
+		this.context.setEnvironment(new MockEnvironment()
+				.withProperty("session.redis.namespace", "customRedisNamespace"));
+		registerAndRefresh(RedisConfig.class, PropertySourceConfiguration.class,
+				CustomRedisHttpSessionConfiguration2.class);
+		RedisHttpSessionConfiguration configuration = this.context
+				.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace"))
+				.isEqualTo("customRedisNamespace");
+	}
+
+	@Test
+	public void qualifiedConnectionFactoryRedisConfig() {
+		registerAndRefresh(RedisConfig.class,
+				QualifiedConnectionFactoryRedisConfig.class);
+
+		RedisOperationsSessionRepository repository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context
+				.getBean("qualifiedRedisConnectionFactory", RedisConnectionFactory.class);
+		assertThat(repository).isNotNull();
+		assertThat(redisConnectionFactory).isNotNull();
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
+				.getField(repository, "sessionRedisOperations");
+		assertThat(redisOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
+				.isEqualTo(redisConnectionFactory);
+	}
+
+	@Test
+	public void primaryConnectionFactoryRedisConfig() {
+		registerAndRefresh(RedisConfig.class, PrimaryConnectionFactoryRedisConfig.class);
+
+		RedisOperationsSessionRepository repository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context
+				.getBean("primaryRedisConnectionFactory", RedisConnectionFactory.class);
+		assertThat(repository).isNotNull();
+		assertThat(redisConnectionFactory).isNotNull();
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
+				.getField(repository, "sessionRedisOperations");
+		assertThat(redisOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
+				.isEqualTo(redisConnectionFactory);
+	}
+
+	@Test
+	public void qualifiedAndPrimaryDataSourceConfiguration() {
+		registerAndRefresh(RedisConfig.class,
+				QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
+
+		RedisOperationsSessionRepository repository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context
+				.getBean("qualifiedRedisConnectionFactory", RedisConnectionFactory.class);
+		assertThat(repository).isNotNull();
+		assertThat(redisConnectionFactory).isNotNull();
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
+				.getField(repository, "sessionRedisOperations");
+		assertThat(redisOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
+				.isEqualTo(redisConnectionFactory);
+	}
+
+	@Test
+	public void namedDataSourceConfiguration() {
+		registerAndRefresh(RedisConfig.class, NamedConnectionFactoryRedisConfig.class);
+
+		RedisOperationsSessionRepository repository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context
+				.getBean("redisConnectionFactory", RedisConnectionFactory.class);
+		assertThat(repository).isNotNull();
+		assertThat(redisConnectionFactory).isNotNull();
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
+				.getField(repository, "sessionRedisOperations");
+		assertThat(redisOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
+				.isEqualTo(redisConnectionFactory);
+	}
+
+	@Test
+	public void multipleDataSourceConfiguration() {
+		this.thrown.expect(BeanCreationException.class);
+		this.thrown.expectMessage(
+				"secondaryRedisConnectionFactory,defaultRedisConnectionFactory");
+
+		registerAndRefresh(MultipleConnectionFactoryRedisConfig.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
+	}
+
+	private static RedisConnectionFactory mockRedisConnectionFactory() {
+		RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
+		RedisConnection connection = mock(RedisConnection.class);
+		given(connectionFactory.getConnection()).willReturn(connection);
+		given(connection.getConfig(anyString())).willReturn(new Properties());
+		return connectionFactory;
 	}
 
 	@Configuration
@@ -90,12 +195,72 @@ public class RedisHttpSessionConfigurationTests {
 	static class RedisConfig {
 
 		@Bean
+		public RedisConnectionFactory defaultRedisConnectionFactory() {
+			return mockRedisConnectionFactory();
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class QualifiedConnectionFactoryRedisConfig extends RedisConfig {
+
+		@Bean
+		@SpringSessionRedisConnectionFactory
+		public RedisConnectionFactory qualifiedRedisConnectionFactory() {
+			return mockRedisConnectionFactory();
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class PrimaryConnectionFactoryRedisConfig extends RedisConfig {
+
+		@Bean
+		@Primary
+		public RedisConnectionFactory primaryRedisConnectionFactory() {
+			return mockRedisConnectionFactory();
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class QualifiedAndPrimaryConnectionFactoryRedisConfig extends RedisConfig {
+
+		@Bean
+		@SpringSessionRedisConnectionFactory
+		public RedisConnectionFactory qualifiedRedisConnectionFactory() {
+			return mockRedisConnectionFactory();
+		}
+
+		@Bean
+		@Primary
+		public RedisConnectionFactory primaryRedisConnectionFactory() {
+			return mockRedisConnectionFactory();
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class NamedConnectionFactoryRedisConfig extends RedisConfig {
+
+		@Bean
 		public RedisConnectionFactory redisConnectionFactory() {
-			RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
-			RedisConnection connection = mock(RedisConnection.class);
-			given(connectionFactory.getConnection()).willReturn(connection);
-			given(connection.getConfig(anyString())).willReturn(new Properties());
-			return connectionFactory;
+			return mockRedisConnectionFactory();
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class MultipleConnectionFactoryRedisConfig extends RedisConfig {
+
+		@Bean
+		public RedisConnectionFactory secondaryRedisConnectionFactory() {
+			return mockRedisConnectionFactory();
 		}
 
 	}

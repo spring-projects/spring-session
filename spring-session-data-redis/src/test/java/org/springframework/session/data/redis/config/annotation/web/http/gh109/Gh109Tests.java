@@ -63,7 +63,6 @@ public class Gh109Tests {
 		 * override sessionRepository construction to set the custom session-timeout
 		 */
 		@Bean
-		@Override
 		public RedisOperationsSessionRepository sessionRepository(
 				RedisOperations<Object, Object> sessionRedisTemplate,
 				ApplicationEventPublisher applicationEventPublisher) {

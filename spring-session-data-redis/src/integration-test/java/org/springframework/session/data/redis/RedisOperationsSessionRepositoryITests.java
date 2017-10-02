@@ -38,6 +38,7 @@ import org.springframework.session.Session;
 import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.data.redis.config.annotation.web.http.SpringSessionRedisOperations;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
@@ -61,7 +62,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 	@Autowired
 	private SessionEventRegistry registry;
 
-	@Autowired
+	@SpringSessionRedisOperations
 	private RedisOperations<Object, Object> redis;
 
 	private SecurityContext context;
