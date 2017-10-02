@@ -17,12 +17,14 @@
 package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationEventPublisher;
@@ -35,7 +37,6 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
@@ -59,6 +60,7 @@ import org.springframework.util.StringValueResolver;
  *
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Vedran Pavic
  * @see EnableRedisHttpSession
  * @since 1.0
  */
@@ -69,11 +71,13 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
-	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
-
 	private String redisNamespace = "";
 
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
+
+	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
+
+	private RedisConnectionFactory redisConnectionFactory;
 
 	private RedisSerializer<Object> defaultRedisSerializer;
 
@@ -84,12 +88,31 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public RedisMessageListenerContainer redisMessageListenerContainer(
-			RedisConnectionFactory connectionFactory,
-			RedisOperationsSessionRepository messageListener) {
+	public RedisOperationsSessionRepository sessionRepository(
+			ApplicationEventPublisher applicationEventPublisher) {
+		RedisTemplate<Object, Object> redisTemplate = createRedisTemplate(
+				this.redisConnectionFactory, this.defaultRedisSerializer);
+		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
+				redisTemplate);
+		sessionRepository.setApplicationEventPublisher(applicationEventPublisher);
+		if (this.defaultRedisSerializer != null) {
+			sessionRepository.setDefaultSerializer(this.defaultRedisSerializer);
+		}
+		sessionRepository
+				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		String redisNamespace = getRedisNamespace();
+		if (StringUtils.hasText(redisNamespace)) {
+			sessionRepository.setRedisKeyNamespace(redisNamespace);
+		}
+		sessionRepository.setRedisFlushMode(this.redisFlushMode);
+		return sessionRepository;
+	}
 
+	@Bean
+	public RedisMessageListenerContainer redisMessageListenerContainer(
+			RedisOperationsSessionRepository messageListener) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-		container.setConnectionFactory(connectionFactory);
+		container.setConnectionFactory(this.redisConnectionFactory);
 		if (this.redisTaskExecutor != null) {
 			container.setTaskExecutor(this.redisTaskExecutor);
 		}
@@ -99,44 +122,25 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		container.addMessageListener(messageListener,
 				Arrays.asList(new PatternTopic("__keyevent@*:del"),
 						new PatternTopic("__keyevent@*:expired")));
-		container.addMessageListener(messageListener, Arrays.asList(new PatternTopic(
-				messageListener.getSessionCreatedChannelPrefix() + "*")));
+		container.addMessageListener(messageListener,
+				Collections.singletonList(new PatternTopic(
+						messageListener.getSessionCreatedChannelPrefix() + "*")));
 		return container;
 	}
 
 	@Bean
-	public RedisTemplate<Object, Object> sessionRedisTemplate(
-			RedisConnectionFactory connectionFactory) {
-		RedisTemplate<Object, Object> template = new RedisTemplate<>();
-		template.setKeySerializer(new StringRedisSerializer());
-		template.setHashKeySerializer(new StringRedisSerializer());
-		if (this.defaultRedisSerializer != null) {
-			template.setDefaultSerializer(this.defaultRedisSerializer);
-		}
-		template.setConnectionFactory(connectionFactory);
-		return template;
+	public InitializingBean enableRedisKeyspaceNotificationsInitializer() {
+		return new EnableRedisKeyspaceNotificationsInitializer(
+				this.redisConnectionFactory, this.configureRedisAction);
 	}
 
+	/**
+	 * Property placeholder to process the @Scheduled annotation.
+	 * @return the {@link PropertySourcesPlaceholderConfigurer} to use
+	 */
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository(
-			@Qualifier("sessionRedisTemplate") RedisOperations<Object, Object> sessionRedisTemplate,
-			ApplicationEventPublisher applicationEventPublisher) {
-		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
-				sessionRedisTemplate);
-		sessionRepository.setApplicationEventPublisher(applicationEventPublisher);
-		sessionRepository
-				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-		if (this.defaultRedisSerializer != null) {
-			sessionRepository.setDefaultSerializer(this.defaultRedisSerializer);
-		}
-
-		String redisNamespace = getRedisNamespace();
-		if (StringUtils.hasText(redisNamespace)) {
-			sessionRepository.setRedisKeyNamespace(redisNamespace);
-		}
-
-		sessionRepository.setRedisFlushMode(this.redisFlushMode);
-		return sessionRepository;
+	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		return new PropertySourcesPlaceholderConfigurer();
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -152,43 +156,27 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.redisFlushMode = redisFlushMode;
 	}
 
-	private String getRedisNamespace() {
-		if (StringUtils.hasText(this.redisNamespace)) {
-			return this.redisNamespace;
-		}
-		return System.getProperty("spring.session.redis.namespace", "");
-	}
-
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-
-		Map<String, Object> enableAttrMap = importMetadata
-				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
-		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		this.maxInactiveIntervalInSeconds = enableAttrs
-				.getNumber("maxInactiveIntervalInSeconds");
-		String redisNamespaceValue = enableAttrs.getString("redisNamespace");
-		if (StringUtils.hasText(redisNamespaceValue)) {
-			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
-		}
-		this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
-	}
-
-	@Bean
-	public InitializingBean enableRedisKeyspaceNotificationsInitializer(
-			RedisConnectionFactory connectionFactory) {
-		return new EnableRedisKeyspaceNotificationsInitializer(connectionFactory,
-				this.configureRedisAction);
-	}
-
 	/**
 	 * Sets the action to perform for configuring Redis.
 	 *
 	 * @param configureRedisAction the configureRedis to set. The default is
-	 *                             {@link ConfigureNotifyKeyspaceEventsAction}.
+	 * {@link ConfigureNotifyKeyspaceEventsAction}.
 	 */
 	@Autowired(required = false)
 	public void setConfigureRedisAction(ConfigureRedisAction configureRedisAction) {
 		this.configureRedisAction = configureRedisAction;
+	}
+
+	@Autowired
+	public void setRedisConnectionFactory(
+			@SpringSessionRedisConnectionFactory ObjectProvider<RedisConnectionFactory> springSessionRedisConnectionFactory,
+			ObjectProvider<RedisConnectionFactory> redisConnectionFactory) {
+		RedisConnectionFactory redisConnectionFactoryToUse = springSessionRedisConnectionFactory
+				.getIfAvailable();
+		if (redisConnectionFactoryToUse == null) {
+			redisConnectionFactoryToUse = redisConnectionFactory.getObject();
+		}
+		this.redisConnectionFactory = redisConnectionFactoryToUse;
 	}
 
 	@Autowired(required = false)
@@ -214,13 +202,39 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.embeddedValueResolver = resolver;
 	}
 
-	/**
-	 * Property placeholder to process the @Scheduled annotation.
-	 * @return the {@link PropertySourcesPlaceholderConfigurer} to use
-	 */
-	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-		return new PropertySourcesPlaceholderConfigurer();
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		Map<String, Object> enableAttrMap = importMetadata
+				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
+		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
+		this.maxInactiveIntervalInSeconds = enableAttrs
+				.getNumber("maxInactiveIntervalInSeconds");
+		String redisNamespaceValue = enableAttrs.getString("redisNamespace");
+		if (StringUtils.hasText(redisNamespaceValue)) {
+			this.redisNamespace = this.embeddedValueResolver
+					.resolveStringValue(redisNamespaceValue);
+		}
+		this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
+	}
+
+	private static RedisTemplate<Object, Object> createRedisTemplate(
+			RedisConnectionFactory redisConnectionFactory,
+			RedisSerializer<Object> defaultRedisSerializer) {
+		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+		if (defaultRedisSerializer != null) {
+			redisTemplate.setDefaultSerializer(defaultRedisSerializer);
+		}
+		redisTemplate.setConnectionFactory(redisConnectionFactory);
+		redisTemplate.afterPropertiesSet();
+		return redisTemplate;
+	}
+
+	private String getRedisNamespace() {
+		if (StringUtils.hasText(this.redisNamespace)) {
+			return this.redisNamespace;
+		}
+		return System.getProperty("spring.session.redis.namespace", "");
 	}
 
 	/**
@@ -231,6 +245,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	 * up.
 	 */
 	static class EnableRedisKeyspaceNotificationsInitializer implements InitializingBean {
+
 		private final RedisConnectionFactory connectionFactory;
 
 		private ConfigureRedisAction configure;
@@ -255,10 +270,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 					connection.close();
 				}
 				catch (Exception e) {
-					LogFactory.getLog(getClass()).error("Error closing RedisConnection", e);
+					LogFactory.getLog(getClass()).error("Error closing RedisConnection",
+							e);
 				}
 			}
 		}
+
 	}
 
 }

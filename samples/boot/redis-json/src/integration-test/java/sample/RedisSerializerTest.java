@@ -21,13 +21,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.GenericContainer;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.session.data.redis.config.annotation.web.http.SpringSessionRedisOperations;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -48,7 +48,7 @@ public class RedisSerializerTest {
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
 			.withExposedPorts(6379);
 
-	@Autowired
+	@SpringSessionRedisOperations
 	private RedisTemplate<Object, Object> sessionRedisTemplate;
 
 	@Test
