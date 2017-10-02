@@ -38,8 +38,8 @@ import org.springframework.session.data.redis.RedisFlushMode;
  * public class RedisHttpSessionConfig {
  *
  *     {@literal @Bean}
- *     public JedisConnectionFactory connectionFactory() throws Exception {
- *         return new JedisConnectionFactory();
+ *     public LettuceConnectionFactory connectionFactory() {
+ *         return new LettuceConnectionFactory();
  *     }
  *
  * }

@@ -64,7 +64,7 @@ import org.springframework.util.Assert;
  * A typical example of how to create a new instance can be seen below:
  *
  * <pre>
- * JedisConnectionFactory factory = new JedisConnectionFactory();
+ * LettuceConnectionFactory factory = new LettuceConnectionFactory();
  *
  * RedisOperationsSessionRepository redisSessionRepository = new RedisOperationsSessionRepository(factory);
  * </pre>
