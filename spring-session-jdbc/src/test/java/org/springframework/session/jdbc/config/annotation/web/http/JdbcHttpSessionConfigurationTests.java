@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import org.springframework.beans.factory.UnsatisfiedDependencyException;
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
@@ -67,10 +69,10 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Test
 	public void noDataSourceConfiguration() {
-		this.thrown.expect(UnsatisfiedDependencyException.class);
-		this.thrown.expectMessage("springSessionJdbcOperations");
+		this.thrown.expect(BeanCreationException.class);
+		this.thrown.expectMessage("sessionRepository");
 
-		registerAndRefresh(EmptyConfiguration.class);
+		registerAndRefresh(NoDataSourceConfiguration.class);
 	}
 
 	@Test
@@ -146,6 +148,78 @@ public class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
+	public void qualifiedDataSourceConfiguration() {
+		registerAndRefresh(QualifiedDataSourceConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		DataSource dataSource = this.context.getBean("qualifiedDataSource", DataSource.class);
+		assertThat(repository).isNotNull();
+		assertThat(dataSource).isNotNull();
+		JdbcOperations jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperations");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+	}
+
+	@Test
+	public void primaryDataSourceConfiguration() {
+		registerAndRefresh(PrimaryDataSourceConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		DataSource dataSource = this.context.getBean("primaryDataSource", DataSource.class);
+		assertThat(repository).isNotNull();
+		assertThat(dataSource).isNotNull();
+		JdbcOperations jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperations");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+	}
+
+	@Test
+	public void qualifiedAndPrimaryDataSourceConfiguration() {
+		registerAndRefresh(QualifiedAndPrimaryDataSourceConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		DataSource dataSource = this.context.getBean("qualifiedDataSource", DataSource.class);
+		assertThat(repository).isNotNull();
+		assertThat(dataSource).isNotNull();
+		JdbcOperations jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperations");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+	}
+
+	@Test
+	public void namedDataSourceConfiguration() {
+		registerAndRefresh(NamedDataSourceConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		DataSource dataSource = this.context.getBean("dataSource", DataSource.class);
+		assertThat(repository).isNotNull();
+		assertThat(dataSource).isNotNull();
+		JdbcOperations jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperations");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+	}
+
+	@Test
+	public void multipleDataSourceConfiguration() {
+		this.thrown.expect(BeanCreationException.class);
+		this.thrown.expectMessage("sessionRepository");
+
+		registerAndRefresh(MultipleDataSourceConfiguration.class);
+	}
+
+	@Test
 	public void customLobHandlerConfiguration() {
 		registerAndRefresh(CustomLobHandlerConfiguration.class);
 
@@ -188,13 +262,13 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableJdbcHttpSession
-	static class EmptyConfiguration {
+	static class NoDataSourceConfiguration {
 	}
 
 	static class BaseConfiguration {
 
 		@Bean
-		public DataSource dataSource() {
+		public DataSource defaultDataSource() {
 			return mock(DataSource.class);
 		}
 
@@ -237,6 +311,70 @@ public class JdbcHttpSessionConfigurationTests {
 	@EnableJdbcHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalInSecondsConfiguration
 			extends BaseConfiguration {
+	}
+
+	@Configuration
+	@EnableJdbcHttpSession
+	static class QualifiedDataSourceConfiguration extends BaseConfiguration {
+
+		@Bean
+		@SpringSessionDataSource
+		public DataSource qualifiedDataSource() {
+			return mock(DataSource.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableJdbcHttpSession
+	static class PrimaryDataSourceConfiguration extends BaseConfiguration {
+
+		@Bean
+		@Primary
+		public DataSource primaryDataSource() {
+			return mock(DataSource.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableJdbcHttpSession
+	static class QualifiedAndPrimaryDataSourceConfiguration extends BaseConfiguration {
+
+		@Bean
+		@SpringSessionDataSource
+		public DataSource qualifiedDataSource() {
+			return mock(DataSource.class);
+		}
+
+		@Bean
+		@Primary
+		public DataSource primaryDataSource() {
+			return mock(DataSource.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableJdbcHttpSession
+	static class NamedDataSourceConfiguration extends BaseConfiguration {
+
+		@Bean
+		public DataSource dataSource() {
+			return mock(DataSource.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableJdbcHttpSession
+	static class MultipleDataSourceConfiguration extends BaseConfiguration {
+
+		@Bean
+		public DataSource secondaryDataSource() {
+			return mock(DataSource.class);
+		}
+
 	}
 
 	@Configuration
