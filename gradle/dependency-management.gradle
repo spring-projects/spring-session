@@ -46,7 +46,7 @@ dependencyManagement {
 		dependency 'org.thymeleaf:thymeleaf-spring5:3.0.7.RC1'
 		dependency 'org.webjars:bootstrap:2.3.2'
 		dependency 'org.webjars:html5shiv:3.7.3'
-		dependency 'org.webjars:jquery:1.9.0'
+		dependency 'org.webjars:jquery:1.12.4'
 		dependency 'org.webjars:knockout:2.3.0'
 		dependency 'org.webjars:sockjs-client:0.3.4'
 		dependency 'org.webjars:stomp-websocket:2.3.0'
