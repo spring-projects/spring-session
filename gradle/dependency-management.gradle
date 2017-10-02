@@ -3,7 +3,7 @@ dependencyManagement {
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.9.1'
 		mavenBom 'io.projectreactor:reactor-bom:Bismuth-RELEASE'
 		mavenBom 'org.springframework:spring-framework-bom:5.0.0.RELEASE'
-		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-BUILD-SNAPSHOT'
+		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-RELEASE'
 		mavenBom 'org.springframework.security:spring-security-bom:5.0.0.BUILD-SNAPSHOT'
 	}
 
@@ -35,7 +35,7 @@ dependencyManagement {
 		dependency 'org.apache.taglibs:taglibs-standard-jstlel:1.2.5'
 		dependency 'org.assertj:assertj-core:3.8.0'
 		dependency 'org.hsqldb:hsqldb:2.4.0'
-		dependency 'org.mariadb.jdbc:mariadb-java-client:2.1.1'
+		dependency 'org.mariadb.jdbc:mariadb-java-client:2.1.2'
 		dependency 'org.mockito:mockito-core:2.10.0'
 		dependency 'org.postgresql:postgresql:42.1.4'
 		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.27'
