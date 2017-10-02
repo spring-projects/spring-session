@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Map;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
+import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
@@ -57,15 +59,21 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	@Bean
 	public HazelcastSessionRepository sessionRepository(
-			HazelcastInstance hazelcastInstance,
+			@SpringSessionHazelcastInstance ObjectProvider<HazelcastInstance> springSessionHazelcastInstance,
+			ObjectProvider<HazelcastInstance> hazelcastInstance,
 			ApplicationEventPublisher eventPublisher) {
-		IMap<String, MapSession> sessions = hazelcastInstance.getMap(
-				this.sessionMapName);
+		HazelcastInstance hazelcastInstanceToUse = springSessionHazelcastInstance
+				.getIfAvailable();
+		if (hazelcastInstanceToUse == null) {
+			hazelcastInstanceToUse = hazelcastInstance.getObject();
+		}
+		IMap<String, MapSession> sessions = hazelcastInstanceToUse
+				.getMap(this.sessionMapName);
 		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(
 				sessions);
 		sessionRepository.setApplicationEventPublisher(eventPublisher);
-		sessionRepository.setDefaultMaxInactiveInterval(
-				this.maxInactiveIntervalInSeconds);
+		sessionRepository
+				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setHazelcastFlushMode(this.hazelcastFlushMode);
 		return sessionRepository;
 	}
