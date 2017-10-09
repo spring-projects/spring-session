@@ -48,7 +48,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 @ContextConfiguration(initializers = BootTests.Initializer.class)
 public class BootTests {
 
-	private static final String DOCKER_IMAGE = "redis:3.2.9";
+	private static final String DOCKER_IMAGE = "redis:4.0.2";
 
 	@ClassRule
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
