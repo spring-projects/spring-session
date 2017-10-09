@@ -33,7 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using PostgreSQL
+ * Integration tests for {@link JdbcOperationsSessionRepository} using PostgreSQL 9.x
  * database.
  *
  * @author Vedran Pavic
@@ -44,7 +44,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class PostgreSQL9JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "postgres:9.6.3";
+	private static final String DOCKER_IMAGE = "postgres:9.6.5";
 
 	@ClassRule
 	public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer(
