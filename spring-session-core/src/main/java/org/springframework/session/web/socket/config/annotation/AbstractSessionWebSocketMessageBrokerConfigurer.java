@@ -86,7 +86,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 
 	@Override
 	public void configureClientInboundChannel(ChannelRegistration registration) {
-		registration.setInterceptors(sessionRepositoryInterceptor());
+		registration.interceptors(sessionRepositoryInterceptor());
 	}
 
 	public final void registerStompEndpoints(StompEndpointRegistry registry) {
