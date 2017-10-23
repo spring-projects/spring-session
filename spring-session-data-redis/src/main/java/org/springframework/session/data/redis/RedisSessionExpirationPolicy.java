@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,14 +52,15 @@ final class RedisSessionExpirationPolicy {
 			.getLog(RedisSessionExpirationPolicy.class);
 
 	private final RedisOperations<Object, Object> redis;
-
-	private final RedisOperationsSessionRepository redisSession;
+	private final Function<Long, String> lookupExpirationKey;
+	private final Function<String, String> lookupSessionKey;
 
 	RedisSessionExpirationPolicy(RedisOperations<Object, Object> sessionRedisOperations,
-			RedisOperationsSessionRepository redisSession) {
+			Function<Long, String> lookupExpirationKey, Function<String, String> lookupSessionKey) {
 		super();
 		this.redis = sessionRedisOperations;
-		this.redisSession = redisSession;
+		this.lookupExpirationKey = lookupExpirationKey;
+		this.lookupSessionKey = lookupSessionKey;
 	}
 
 	public void onDelete(Session session) {
@@ -111,11 +113,11 @@ final class RedisSessionExpirationPolicy {
 	}
 
 	String getExpirationKey(long expires) {
-		return this.redisSession.getExpirationsKey(expires);
+		return this.lookupExpirationKey.apply(expires);
 	}
 
 	String getSessionKey(String sessionId) {
-		return this.redisSession.getSessionKey(sessionId);
+		return this.lookupSessionKey.apply(sessionId);
 	}
 
 	public void cleanExpiredSessions() {

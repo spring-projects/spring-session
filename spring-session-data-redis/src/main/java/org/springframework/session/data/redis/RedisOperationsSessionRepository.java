@@ -334,7 +334,7 @@ public class RedisOperationsSessionRepository implements
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
 		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations,
-				this);
+				this::getExpirationsKey, this::getSessionKey);
 	}
 
 	/**
