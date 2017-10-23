@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.data.redis.config.annotation.web.reactor;
+package org.springframework.session.data.redis.config.annotation.web.server;
 
 import org.junit.After;
 import org.junit.Before;
