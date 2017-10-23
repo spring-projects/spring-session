@@ -23,9 +23,9 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.session.EnableSpringWebSession;
 import org.springframework.session.ReactorSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.redis.RedisFlushMode;
 
 /**

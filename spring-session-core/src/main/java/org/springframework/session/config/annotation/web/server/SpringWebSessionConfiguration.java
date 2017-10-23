@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.session;
+package org.springframework.session.config.annotation.web.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.ReactorSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.session.web.server.session.SpringSessionWebSessionStore;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import org.springframework.web.server.session.DefaultWebSessionManager;
