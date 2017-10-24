@@ -2,7 +2,7 @@ dependencyManagement {
 	imports {
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.9.1'
 		mavenBom 'io.projectreactor:reactor-bom:Bismuth-SR3'
-		mavenBom 'org.springframework:spring-framework-bom:5.0.0.RELEASE'
+		mavenBom 'org.springframework:spring-framework-bom:5.0.1.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-RELEASE'
 		mavenBom 'org.springframework.security:spring-security-bom:5.0.0.M5'
 	}
