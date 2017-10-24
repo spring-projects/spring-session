@@ -44,11 +44,11 @@ import org.springframework.web.server.session.WebSessionManager;
  * Bean.
  *
  * @author Vedran Pavic
- * @see EnableRedisReactorSession
+ * @see EnableRedisWebSession
  * @since 2.0.0
  */
 @Configuration
-public class RedisReactorSessionConfiguration extends SpringWebSessionConfiguration
+public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		implements EmbeddedValueResolverAware, ImportAware {
 
 	private static final RedisSerializer<String> keySerializer = new StringRedisSerializer();
@@ -101,7 +101,7 @@ public class RedisReactorSessionConfiguration extends SpringWebSessionConfigurat
 
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
-				.getAnnotationAttributes(EnableRedisReactorSession.class.getName());
+				.getAnnotationAttributes(EnableRedisWebSession.class.getName());
 		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
 
 		if (enableAttrs != null) {

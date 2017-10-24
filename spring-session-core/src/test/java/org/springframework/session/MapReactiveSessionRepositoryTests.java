@@ -29,20 +29,20 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link MapReactorSessionRepository}.
+ * Tests for {@link MapReactiveSessionRepository}.
  *
  * @author Rob Winch
  * @since 2.0
  */
-public class MapReactorSessionRepositoryTests {
+public class MapReactiveSessionRepositoryTests {
 
-	private MapReactorSessionRepository repository;
+	private MapReactiveSessionRepository repository;
 
 	private MapSession session;
 
 	@Before
 	public void setup() {
-		this.repository = new MapReactorSessionRepository(new HashMap<>());
+		this.repository = new MapReactiveSessionRepository(new HashMap<>());
 		this.session = new MapSession("session-id");
 	}
 
@@ -50,7 +50,7 @@ public class MapReactorSessionRepositoryTests {
 	public void constructorMapThenFound() {
 		Map<String, Session> sessions = new HashMap<>();
 		sessions.put(this.session.getId(), this.session);
-		this.repository = new MapReactorSessionRepository(sessions);
+		this.repository = new MapReactiveSessionRepository(sessions);
 
 		Session findByIdSession = this.repository.findById(this.session.getId()).block();
 		assertThat(findByIdSession).isNotNull();
@@ -60,7 +60,7 @@ public class MapReactorSessionRepositoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorMapWhenNullThenThrowsIllegalArgumentException() {
 		Map<String, Session> sessions = null;
-		new MapReactorSessionRepository(sessions);
+		new MapReactiveSessionRepository(sessions);
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class MapReactorSessionRepositoryTests {
 
 		Map<String, Session> sessions = new ConcurrentHashMap<>();
 		sessions.put("session-id", this.session);
-		this.repository = new MapReactorSessionRepository(sessions);
+		this.repository = new MapReactiveSessionRepository(sessions);
 
 		assertThat(this.repository.findById(this.session.getId()).block()).isNull();
 		assertThat(sessions).isEmpty();

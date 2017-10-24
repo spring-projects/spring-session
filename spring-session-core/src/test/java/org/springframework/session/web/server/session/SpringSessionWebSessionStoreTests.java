@@ -28,7 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import reactor.core.publisher.Mono;
 
-import org.springframework.session.ReactorSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.web.server.WebSession;
 
@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verify;
 public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Mock
-	private ReactorSessionRepository<S> sessionRepository;
+	private ReactiveSessionRepository<S> sessionRepository;
 
 	@Mock
 	private S createSession;

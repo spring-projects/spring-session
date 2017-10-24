@@ -28,19 +28,19 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.MapSession;
-import org.springframework.session.ReactorSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
 
 /**
- * A {@link ReactorSessionRepository} that is implemented using Spring Data's
+ * A {@link ReactiveSessionRepository} that is implemented using Spring Data's
  * {@link ReactiveRedisOperations}.
  *
  * @author Vedran Pavic
  * @since 2.0
  */
 public class ReactiveRedisOperationsSessionRepository implements
-		ReactorSessionRepository<ReactiveRedisOperationsSessionRepository.RedisSession> {
+		ReactiveSessionRepository<ReactiveRedisOperationsSessionRepository.RedisSession> {
 
 	/**
 	 * The default prefix for each key and channel in Redis used by Spring Session.

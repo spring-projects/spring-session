@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
-import org.springframework.session.ReactorSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.redis.RedisFlushMode;
@@ -35,8 +35,8 @@ import org.springframework.session.data.redis.RedisFlushMode;
  * annotation, a single {@link ReactiveRedisConnectionFactory} must be provided. For
  * example: <pre class="code">
  * &#064;Configuration
- * &#064;EnableRedisReactorSession
- * public class RedisReactorSessionConfig {
+ * &#064;EnableRedisWebSession
+ * public class RedisWebSessionConfig {
  *
  *     &#064;Bean
  *     public LettuceConnectionFactory redisConnectionFactory() {
@@ -46,7 +46,7 @@ import org.springframework.session.data.redis.RedisFlushMode;
  * }
  * </pre>
  *
- * More advanced configurations can extend {@link RedisReactorSessionConfiguration}
+ * More advanced configurations can extend {@link RedisWebSessionConfiguration}
  * instead.
  *
  * @author Vedran Pavic
@@ -56,9 +56,9 @@ import org.springframework.session.data.redis.RedisFlushMode;
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Documented
-@Import(RedisReactorSessionConfiguration.class)
+@Import(RedisWebSessionConfiguration.class)
 @Configuration
-public @interface EnableRedisReactorSession {
+public @interface EnableRedisWebSession {
 
 	int maxInactiveIntervalInSeconds() default 1800;
 
@@ -83,7 +83,7 @@ public @interface EnableRedisReactorSession {
 	/**
 	 * <p>
 	 * Sets the flush mode for the Redis sessions. The default is ON_SAVE which only
-	 * updates the backing Redis when {@link ReactorSessionRepository#save(Session)} is
+	 * updates the backing Redis when {@link ReactiveSessionRepository#save(Session)} is
 	 * invoked. In a web environment this happens just before the HTTP response is
 	 * committed.
 	 * </p>

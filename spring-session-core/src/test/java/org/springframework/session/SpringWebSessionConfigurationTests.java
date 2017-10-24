@@ -64,11 +64,11 @@ public class SpringWebSessionConfigurationTests {
 		assertThat(webSessionManagerFoundByName).isNotNull();
 		assertThat(webSessionManagerFoundByType).isEqualTo(webSessionManagerFoundByName);
 
-		assertThat(this.context.getBean(ReactorSessionRepository.class)).isNotNull();
+		assertThat(this.context.getBean(ReactiveSessionRepository.class)).isNotNull();
 	}
 
 	@Test
-	public void missingReactorSessionRepositoryBreaksAppContext() {
+	public void missingReactiveSessionRepositoryBreaksAppContext() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(BadConfig.class);
@@ -76,7 +76,7 @@ public class SpringWebSessionConfigurationTests {
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
 				.isThrownBy(this.context::refresh)
 				.withMessageContaining("Error creating bean with name 'webSessionManager'")
-				.withMessageContaining("No qualifying bean of type '" + ReactorSessionRepository.class.getCanonicalName());
+				.withMessageContaining("No qualifying bean of type '" + ReactiveSessionRepository.class.getCanonicalName());
 	}
 
 	@Test
@@ -108,16 +108,16 @@ public class SpringWebSessionConfigurationTests {
 	static class GoodConfig {
 
 		/**
-		 * Use Reactor-friendly, {@link java.util.Map}-backed {@link ReactorSessionRepository} for test purposes.
+		 * Use Reactor-friendly, {@link java.util.Map}-backed {@link ReactiveSessionRepository} for test purposes.
 		 */
 		@Bean
-		ReactorSessionRepository<?> reactorSessionRepository() {
-			return new MapReactorSessionRepository(new HashMap<>());
+		ReactiveSessionRepository<?> reactiveSessionRepository() {
+			return new MapReactiveSessionRepository(new HashMap<>());
 		}
 	}
 
 	/**
-	 * A configuration where no {@link ReactorSessionRepository} is defined. It's BAD!
+	 * A configuration where no {@link ReactiveSessionRepository} is defined. It's BAD!
 	 */
 	@EnableSpringWebSession
 	static class BadConfig {
@@ -128,8 +128,8 @@ public class SpringWebSessionConfigurationTests {
 	static class OverrideSessionIdResolver {
 
 		@Bean
-		ReactorSessionRepository<?> reactorSessionRepository() {
-			return new MapReactorSessionRepository(new HashMap<>());
+		ReactiveSessionRepository<?> reactiveSessionRepository() {
+			return new MapReactiveSessionRepository(new HashMap<>());
 		}
 
 		@Bean

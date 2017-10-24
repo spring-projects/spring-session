@@ -18,7 +18,7 @@ package org.springframework.session.config.annotation.web.server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.ReactorSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.web.server.session.SpringSessionWebSessionStore;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
@@ -27,7 +27,7 @@ import org.springframework.web.server.session.WebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionManager;
 
 /**
- * Wire up a {@link WebSessionManager} using a Reactive {@link ReactorSessionRepository} from the application context.
+ * Wire up a {@link WebSessionManager} using a Reactive {@link ReactiveSessionRepository} from the application context.
  *
  * @author Greg Turnquist
  * @author Rob Winch
@@ -45,13 +45,13 @@ public class SpringWebSessionConfiguration {
 	private WebSessionIdResolver webSessionIdResolver;
 
 	/**
-	 * Configure a {@link WebSessionManager} using a provided {@link ReactorSessionRepository}.
+	 * Configure a {@link WebSessionManager} using a provided {@link ReactiveSessionRepository}.
 	 *
-	 * @param repository - a bean that implements {@link ReactorSessionRepository}.
+	 * @param repository - a bean that implements {@link ReactiveSessionRepository}.
 	 * @return a configured {@link WebSessionManager} registered with a preconfigured name.
 	 */
 	@Bean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME)
-	public WebSessionManager webSessionManager(ReactorSessionRepository<? extends Session> repository) {
+	public WebSessionManager webSessionManager(ReactiveSessionRepository<? extends Session> repository) {
 		SpringSessionWebSessionStore<? extends Session> sessionStore = new SpringSessionWebSessionStore<>(repository);
 		DefaultWebSessionManager manager = new DefaultWebSessionManager();
 		manager.setSessionStore(sessionStore);

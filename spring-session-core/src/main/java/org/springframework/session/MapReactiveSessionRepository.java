@@ -25,7 +25,7 @@ import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 
 /**
- * A {@link ReactorSessionRepository} backed by a {@link Map} and that uses a
+ * A {@link ReactiveSessionRepository} backed by a {@link Map} and that uses a
  * {@link MapSession}. The injected {@link java.util.Map} can be backed by a distributed
  * NoSQL store like Hazelcast, for instance. Note that the supplied map itself is
  * responsible for purging the expired sessions.
@@ -38,7 +38,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  * @author Rob Winch
  * @since 2.0
  */
-public class MapReactorSessionRepository implements ReactorSessionRepository<MapSession> {
+public class MapReactiveSessionRepository implements ReactiveSessionRepository<MapSession> {
 
 	/**
 	 * If non-null, this value is used to override
@@ -54,7 +54,7 @@ public class MapReactorSessionRepository implements ReactorSessionRepository<Map
 	 *
 	 * @param sessions the {@link Map} to use. Cannot be null.
 	 */
-	public MapReactorSessionRepository(Map<String, Session> sessions) {
+	public MapReactiveSessionRepository(Map<String, Session> sessions) {
 		if (sessions == null) {
 			throw new IllegalArgumentException("sessions cannot be null");
 		}

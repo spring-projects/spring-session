@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import reactor.core.publisher.Mono;
 
 import org.springframework.lang.Nullable;
-import org.springframework.session.ReactorSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
 import org.springframework.web.server.WebSession;
@@ -42,7 +42,7 @@ import org.springframework.web.server.session.WebSessionStore;
 /**
  * The {@link WebSessionStore} implementation that provides the {@link WebSession}
  * implementation backed by a {@link Session} returned by the
- * {@link ReactorSessionRepository}.
+ * {@link ReactiveSessionRepository}.
  *
  * @param <S> the {@link Session} type
  * @author Rob Winch
@@ -50,13 +50,13 @@ import org.springframework.web.server.session.WebSessionStore;
  */
 public class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
 
-	private final ReactorSessionRepository<S> sessions;
+	private final ReactiveSessionRepository<S> sessions;
 
 	private Clock clock = Clock.system(ZoneOffset.UTC);
 
-	public SpringSessionWebSessionStore(ReactorSessionRepository<S> reactorSessionRepository) {
-		Assert.notNull(reactorSessionRepository, "reactorSessionRepository cannot be null");
-		this.sessions = reactorSessionRepository;
+	public SpringSessionWebSessionStore(ReactiveSessionRepository<S> reactiveSessionRepository) {
+		Assert.notNull(reactiveSessionRepository, "reactiveSessionRepository cannot be null");
+		this.sessions = reactiveSessionRepository;
 	}
 
 	/**

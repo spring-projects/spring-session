@@ -25,11 +25,11 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 2.0
  */
-public interface ReactorSessionRepository<S extends Session> {
+public interface ReactiveSessionRepository<S extends Session> {
 
 	/**
 	 * Creates a new {@link Session} that is capable of being persisted by this
-	 * {@link ReactorSessionRepository}.
+	 * {@link ReactiveSessionRepository}.
 	 *
 	 * <p>
 	 * This allows optimizations and customizations in how the {@link Session} is
@@ -38,13 +38,13 @@ public interface ReactorSessionRepository<S extends Session> {
 	 * </p>
 	 *
 	 * @return a new {@link Session} that is capable of being persisted by this
-	 * {@link ReactorSessionRepository}
+	 * {@link ReactiveSessionRepository}
 	 */
 	Mono<S> createSession();
 
 	/**
 	 * Ensures the {@link Session} created by
-	 * {@link ReactorSessionRepository#createSession()} is saved.
+	 * {@link ReactiveSessionRepository#createSession()} is saved.
 	 *
 	 * <p>
 	 * Some implementations may choose to save as the {@link Session} is updated by

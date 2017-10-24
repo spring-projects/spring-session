@@ -32,11 +32,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 /**
- * Tests for {@link RedisReactorSessionConfiguration}.
+ * Tests for {@link RedisWebSessionConfiguration}.
  *
  * @author Vedran Pavic
  */
-public class RedisReactorSessionConfigurationTests {
+public class RedisWebSessionConfigurationTests {
 
 	private static final String REDIS_NAMESPACE = "testNamespace";
 
@@ -115,25 +115,25 @@ public class RedisReactorSessionConfigurationTests {
 	}
 
 	@Configuration
-	@EnableRedisReactorSession
+	@EnableRedisWebSession
 	static class DefaultConfiguration {
 
 	}
 
 	@Configuration
-	@EnableRedisReactorSession(redisNamespace = REDIS_NAMESPACE)
+	@EnableRedisWebSession(redisNamespace = REDIS_NAMESPACE)
 	static class CustomNamespaceConfiguration {
 
 	}
 
 	@Configuration
-	@EnableRedisReactorSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableRedisWebSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalConfiguration {
 
 	}
 
 	@Configuration
-	@EnableRedisReactorSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
+	@EnableRedisWebSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
 	static class CustomFlushModeConfiguration {
 
 	}

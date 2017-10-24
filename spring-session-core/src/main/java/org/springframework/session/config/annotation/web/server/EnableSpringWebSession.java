@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Import;
 
 /**
  * Add this annotation to a {@code @Configuration} class to configure a {@code WebSessionManager} for a WebFlux
- * application. This annotation assumes a {@code ReactorSessionRepository} is defined somewhere in the application
+ * application. This annotation assumes a {@code ReactiveSessionRepository} is defined somewhere in the application
  * context. If not, it will fail with a clear error messages. For example:
  *
  * <pre>
@@ -34,8 +34,8 @@ import org.springframework.context.annotation.Import;
  * public class SpringWebFluxConfig {
  *
  *     {@literal @Bean}
- *     public ReactorSessionRepository sessionRepository() {
- *         return new MapReactorSessionRepository();
+ *     public ReactiveSessionRepository sessionRepository() {
+ *         return new MapReactiveSessionRepository();
  *     }
  *
  * }
