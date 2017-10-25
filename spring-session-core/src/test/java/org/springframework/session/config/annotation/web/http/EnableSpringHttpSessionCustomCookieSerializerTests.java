@@ -17,8 +17,7 @@
 package org.springframework.session.config.annotation.web.http;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Collections;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -35,8 +34,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.session.MapSessionRepository;
+import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -46,6 +46,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -73,6 +74,9 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	private SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
 
 	@Autowired
+	private SessionRepository sessionRepository;
+
+	@Autowired
 	private CookieSerializer cookieSerializer;
 
 	@Before
@@ -84,7 +88,9 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	public void usesReadSessionIds() throws Exception {
 		String sessionId = "sessionId";
 		given(this.cookieSerializer.readCookieValues(any(HttpServletRequest.class)))
-				.willReturn(Arrays.asList(sessionId));
+				.willReturn(Collections.singletonList(sessionId));
+		given(this.sessionRepository.findById(anyString()))
+				.willReturn(new MapSession(sessionId));
 
 		this.sessionRepositoryFilter.doFilter(this.request, this.response, this.chain);
 
@@ -93,6 +99,8 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 
 	@Test
 	public void usesWrite() throws Exception {
+		given(this.sessionRepository.findById(anyString())).willReturn(new MapSession());
+
 		this.sessionRepositoryFilter.doFilter(this.request, this.response,
 				new MockFilterChain() {
 
@@ -116,8 +124,8 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	static class Config {
 
 		@Bean
-		public MapSessionRepository mapSessionRepository() {
-			return new MapSessionRepository(new ConcurrentHashMap<>());
+		public SessionRepository sessionRepository() {
+			return mock(SessionRepository.class);
 		}
 
 		@Bean

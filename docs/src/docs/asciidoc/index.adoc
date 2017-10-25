@@ -18,7 +18,6 @@ Spring Session provides an API and implementations for managing a user's session
 * <<httpsession,HttpSession>> - allows replacing the HttpSession in an application container (i.e. Tomcat) neutral way.
 Additional features include:
 ** **Clustered Sessions** - Spring Session makes it trivial to support <<httpsession-redis,clustered sessions>> without being tied to an application container specific solution.
-** **Multiple Browser Sessions** - Spring Session supports <<httpsession-multi,managing multiple users' sessions>> in a single browser instance (i.e. multiple authenticated accounts similar to Google).
 ** **RESTful APIs** - Spring Session allows providing session ids in headers to work with <<httpsession-rest,RESTful APIs>>
 
 * <<websocket,WebSocket>> - provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
@@ -98,10 +97,6 @@ If you are looking to get started with Spring Session, the best place to start i
 | Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
 | link:guides/java-rest.html[REST Guide]
 
-| {gh-samples-url}javaconfig/users[Multiple Users]
-| Demonstrates how to use Spring Session to manage multiple simultaneous browser sessions (i.e Google Accounts).
-| link:guides/java-users.html[Multiple Users Guide]
-
 |===
 
 .Sample Applications using Spring XML based configuration
@@ -144,7 +139,6 @@ This means that developers can switch the `HttpSession` implementation out with 
 We have already mentioned that Spring Session provides transparent integration with `HttpSession`, but what benefits do we get out of this?
 
 * **Clustered Sessions** - Spring Session makes it trivial to support <<httpsession-redis,clustered sessions>> without being tied to an application container specific solution.
-* **Multiple Browser Sessions** - Spring Session supports <<httpsession-multi,managing multiple users' sessions>> in a single browser instance (i.e. multiple authenticated accounts similar to Google).
 * **RESTful APIs** - Spring Session allows providing session ids in headers to work with <<httpsession-rest,RESTful APIs>>
 
 [[httpsession-redis]]
@@ -283,17 +277,6 @@ public class SessionRepositoryFilter implements Filter {
 
 By passing in a custom `HttpServletRequest` implementation into the `FilterChain` we ensure that anything invoked after our `Filter` uses the custom `HttpSession` implementation.
 This highlights why it is important that Spring Session's `SessionRepositoryFilter` must be placed before anything that interacts with the `HttpSession`.
-
-[[httpsession-multi]]
-=== Multiple HttpSessions in Single Browser
-
-Spring Session has the ability to support multiple sessions in a single browser instance.
-This provides the ability to support authenticating with multiple users in the same browser instance (i.e. Google Accounts).
-
-NOTE: The <<samples,Manage Multiple Users Guide>> provides a complete working example of managing multiple users in the same browser instance.
-You can follow the basic steps for integration below, but you are encouraged to follow along with the detailed Manage Multiple Users Guide when integrating with your own application.
-
-include::guides/java-users.adoc[tags=how-does-it-work,leveloffset=+1]
 
 [[httpsession-rest]]
 === HttpSession & RESTful APIs

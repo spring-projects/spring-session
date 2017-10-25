@@ -60,12 +60,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -95,8 +95,7 @@ public class SessionRepositoryFilterTests {
 	public void setup() throws Exception {
 		this.sessions = new HashMap<>();
 		this.sessionRepository = new MapSessionRepository(this.sessions);
-		this.filter = new SessionRepositoryFilter<>(
-				this.sessionRepository);
+		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);
 		setupRequest();
 	}
 
@@ -134,8 +133,7 @@ public class SessionRepositoryFilterTests {
 		session.setLastAccessedTime(Instant.EPOCH);
 		this.sessionRepository = spy(this.sessionRepository);
 		given(this.sessionRepository.createSession()).willReturn(session);
-		this.filter = new SessionRepositoryFilter<>(
-				this.sessionRepository);
+		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -240,8 +238,7 @@ public class SessionRepositoryFilterTests {
 	@Test
 	public void doFilterServletContextExplicit() throws Exception {
 		final ServletContext expectedContext = new MockServletContext();
-		this.filter = new SessionRepositoryFilter<>(
-				this.sessionRepository);
+		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);
 		this.filter.setServletContext(expectedContext);
 
 		doFilter(new DoInFilter() {
@@ -431,8 +428,7 @@ public class SessionRepositoryFilterTests {
 				return createSession();
 			}
 		};
-		this.filter = new SessionRepositoryFilter<>(
-				this.sessionRepository);
+		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);
 		doFilter(new DoInFilter() {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest) {
@@ -568,7 +564,7 @@ public class SessionRepositoryFilterTests {
 					ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId");
 					fail("Exected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -674,7 +670,7 @@ public class SessionRepositoryFilterTests {
 					sessionContext.getIds().nextElement();
 					fail("Expected Exception");
 				}
-				catch (NoSuchElementException success) {
+				catch (NoSuchElementException ignored) {
 				}
 			}
 		});
@@ -725,7 +721,7 @@ public class SessionRepositoryFilterTests {
 					session.invalidate();
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -742,7 +738,7 @@ public class SessionRepositoryFilterTests {
 					session.getCreationTime();
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -759,7 +755,7 @@ public class SessionRepositoryFilterTests {
 					session.getAttribute("attr");
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -776,7 +772,7 @@ public class SessionRepositoryFilterTests {
 					session.getValue("attr");
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -793,7 +789,7 @@ public class SessionRepositoryFilterTests {
 					session.getAttributeNames();
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -810,7 +806,7 @@ public class SessionRepositoryFilterTests {
 					session.getValueNames();
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -827,7 +823,7 @@ public class SessionRepositoryFilterTests {
 					session.setAttribute("a", "b");
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -844,7 +840,7 @@ public class SessionRepositoryFilterTests {
 					session.putValue("a", "b");
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -861,7 +857,7 @@ public class SessionRepositoryFilterTests {
 					session.removeAttribute("name");
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -878,7 +874,7 @@ public class SessionRepositoryFilterTests {
 					session.removeValue("name");
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -895,7 +891,7 @@ public class SessionRepositoryFilterTests {
 					session.isNew();
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -912,7 +908,7 @@ public class SessionRepositoryFilterTests {
 					session.getLastAccessedTime();
 					fail("Expected Exception");
 				}
-				catch (IllegalStateException success) {
+				catch (IllegalStateException ignored) {
 				}
 			}
 		});
@@ -1055,8 +1051,9 @@ public class SessionRepositoryFilterTests {
 					HttpServletResponse wrappedResponse) throws IOException {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
@@ -1070,8 +1067,9 @@ public class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
 						"Error");
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
@@ -1084,8 +1082,9 @@ public class SessionRepositoryFilterTests {
 					HttpServletResponse wrappedResponse) throws IOException {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.sendRedirect("/");
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
@@ -1098,8 +1097,9 @@ public class SessionRepositoryFilterTests {
 					HttpServletResponse wrappedResponse) throws IOException {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.flushBuffer();
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
@@ -1112,8 +1112,9 @@ public class SessionRepositoryFilterTests {
 					HttpServletResponse wrappedResponse) throws IOException {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getOutputStream().flush();
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
@@ -1126,8 +1127,9 @@ public class SessionRepositoryFilterTests {
 					HttpServletResponse wrappedResponse) throws IOException {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getOutputStream().close();
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
@@ -1140,8 +1142,9 @@ public class SessionRepositoryFilterTests {
 					HttpServletResponse wrappedResponse) throws IOException {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getWriter().flush();
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
@@ -1154,20 +1157,28 @@ public class SessionRepositoryFilterTests {
 					HttpServletResponse wrappedResponse) throws IOException {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getWriter().close();
-				assertThat(SessionRepositoryFilterTests.this.sessionRepository
-						.findById(id)).isNotNull();
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+								.isNotNull();
 			}
 		});
 	}
 
-	// --- MultiHttpSessionStrategyAdapter
+	// --- HttpSessionStrategy
 
 	@Test
 	public void doFilterAdapterGetRequestedSessionId() throws Exception {
+		SessionRepository<MapSession> sessionRepository = spy(
+				new MapSessionRepository(new ConcurrentHashMap<>()));
+
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
 		this.filter.setHttpSessionStrategy(this.strategy);
-		final String expectedId = "MultiHttpSessionStrategyAdapter-requested-id";
-		given(this.strategy.getRequestedSessionId(any(HttpServletRequest.class)))
-				.willReturn(expectedId);
+		final String expectedId = "HttpSessionStrategy-requested-id";
+
+		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+				.willReturn(Collections.singletonList(expectedId));
+		given(sessionRepository.findById(anyString()))
+				.willReturn(new MapSession(expectedId));
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1211,8 +1222,8 @@ public class SessionRepositoryFilterTests {
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
 		String id = request.getSession().getId();
-		given(this.strategy.getRequestedSessionId(any(HttpServletRequest.class)))
-				.willReturn(id);
+		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+				.willReturn(Collections.singletonList(id));
 		setupRequest();
 
 		doFilter(new DoInFilter() {
@@ -1243,8 +1254,8 @@ public class SessionRepositoryFilterTests {
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
 		String id = request.getSession().getId();
-		given(this.strategy.getRequestedSessionId(any(HttpServletRequest.class)))
-				.willReturn(id);
+		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+				.willReturn(Collections.singletonList(id));
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1340,52 +1351,7 @@ public class SessionRepositoryFilterTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setHttpSessionStrategyNull() {
-		this.filter.setHttpSessionStrategy((HttpSessionStrategy) null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void setMultiHttpSessionStrategyNull() {
-		this.filter.setHttpSessionStrategy((MultiHttpSessionStrategy) null);
-	}
-
-	@Test
-	public void getSessionFalseWithInvalidSessionIdShouldOnlyAskRepositoryOnce()
-			throws ServletException, IOException {
-		this.sessionRepository = spy(this.sessionRepository);
-		this.filter = new SessionRepositoryFilter<>(
-				this.sessionRepository);
-
-		final String nonExistantSessionId = "nonExistantSessionId";
-		setSessionCookie(nonExistantSessionId);
-
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				// Before first invocation
-				assertThat(SessionRepositoryFilterTests.this.request
-						.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR))
-								.isNull();
-
-				// First call should go all the way through to the sessioRepository (it
-				// will not find the session)
-				HttpSession session = wrappedRequest.getSession(false);
-				verify(SessionRepositoryFilterTests.this.sessionRepository, times(1))
-						.findById(nonExistantSessionId);
-				assertThat(session).isNull();
-				assertThat(SessionRepositoryFilterTests.this.request
-						.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR))
-								.isNotNull();
-
-				// Second call should not reach the sessionRepository
-				session = wrappedRequest.getSession(false);
-				verify(SessionRepositoryFilterTests.this.sessionRepository, times(1))
-						.findById(nonExistantSessionId); // still only called once
-				assertThat(session).isNull();
-				assertThat(SessionRepositoryFilterTests.this.request
-						.getAttribute(SessionRepositoryFilter.INVALID_SESSION_ID_ATTR))
-								.isNotNull();
-			}
-		});
+		this.filter.setHttpSessionStrategy(null);
 	}
 
 	// --- helper methods
@@ -1435,10 +1401,8 @@ public class SessionRepositoryFilterTests {
 				nameToCookie.put(cookie.getName(), cookie);
 			}
 		}
-		if (this.response.getCookies() != null) {
-			for (Cookie cookie : this.response.getCookies()) {
-				nameToCookie.put(cookie.getName(), cookie);
-			}
+		for (Cookie cookie : this.response.getCookies()) {
+			nameToCookie.put(cookie.getName(), cookie);
 		}
 		Cookie[] nextRequestCookies = new ArrayList<>(nameToCookie.values())
 				.toArray(new Cookie[0]);
@@ -1448,7 +1412,6 @@ public class SessionRepositoryFilterTests {
 		this.request.setCookies(nextRequestCookies);
 	}
 
-	@SuppressWarnings("serial")
 	private void doFilter(final DoInFilter doInFilter)
 			throws ServletException, IOException {
 		this.chain = new MockFilterChain(new HttpServlet() {
@@ -1456,7 +1419,7 @@ public class SessionRepositoryFilterTests {
 			@Override
 			protected void doFilterInternal(HttpServletRequest request,
 					HttpServletResponse response, FilterChain filterChain)
-							throws ServletException, IOException {
+					throws ServletException, IOException {
 				doInFilter.doFilter(request, response);
 			}
 		});
@@ -1471,21 +1434,25 @@ public class SessionRepositoryFilterTests {
 		return new String(Base64.getDecoder().decode(value));
 	}
 
-	abstract class DoInFilter {
+	private static class SessionRepositoryFilterDefaultOrder implements Ordered {
+
+		public int getOrder() {
+			return SessionRepositoryFilter.DEFAULT_ORDER;
+		}
+
+	}
+
+	private abstract class DoInFilter {
+
 		void doFilter(HttpServletRequest wrappedRequest,
 				HttpServletResponse wrappedResponse)
-						throws ServletException, IOException {
+				throws ServletException, IOException {
 			doFilter(wrappedRequest);
 		}
 
 		void doFilter(HttpServletRequest wrappedRequest) {
 		}
-	}
 
-	static class SessionRepositoryFilterDefaultOrder implements Ordered {
-		public int getOrder() {
-			return SessionRepositoryFilter.DEFAULT_ORDER;
-		}
 	}
 
 }

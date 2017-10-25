@@ -16,6 +16,8 @@
 
 package org.springframework.session.web.http;
 
+import java.util.Collections;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,6 +28,9 @@ import org.springframework.session.Session;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Tests for {@link HeaderHttpSessionStrategy}.
+ */
 public class HeaderSessionStrategyTests {
 
 	private MockHttpServletRequest request;
@@ -46,22 +51,22 @@ public class HeaderSessionStrategyTests {
 
 	@Test
 	public void getRequestedSessionIdNull() throws Exception {
-		assertThat(this.strategy.getRequestedSessionId(this.request)).isNull();
+		assertThat(this.strategy.getRequestedSessionIds(this.request)).isEmpty();
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNull() throws Exception {
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request))
-				.isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionIds(this.request))
+				.isEqualTo(Collections.singletonList(this.session.getId()));
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNullCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionId(this.request))
-				.isEqualTo(this.session.getId());
+		assertThat(this.strategy.getRequestedSessionIds(this.request))
+				.isEqualTo(Collections.singletonList(this.session.getId()));
 	}
 
 	@Test
@@ -116,16 +121,16 @@ public class HeaderSessionStrategyTests {
 		this.strategy.setHeaderName(null);
 	}
 
-	public void setHeaderName(String headerName) {
+	private void setHeaderName(String headerName) {
 		this.strategy.setHeaderName(headerName);
 		this.headerName = headerName;
 	}
 
-	public void setSessionId(String id) {
+	private void setSessionId(String id) {
 		this.request.addHeader(this.headerName, id);
 	}
 
-	public String getSessionId() {
+	private String getSessionId() {
 		return this.response.getHeader(this.headerName);
 	}
 

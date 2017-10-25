@@ -16,6 +16,9 @@
 
 package org.springframework.session.web.http;
 
+import java.util.Collections;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,21 +55,27 @@ import org.springframework.session.Session;
  * </pre>
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.0
  */
 public class HeaderHttpSessionStrategy implements HttpSessionStrategy {
 
 	private String headerName = "X-Auth-Token";
 
-	public String getRequestedSessionId(HttpServletRequest request) {
-		return request.getHeader(this.headerName);
+	@Override
+	public List<String> getRequestedSessionIds(HttpServletRequest request) {
+		String headerValue = request.getHeader(this.headerName);
+		return headerValue != null ? Collections.singletonList(headerValue)
+				: Collections.emptyList();
 	}
 
+	@Override
 	public void onNewSession(Session session, HttpServletRequest request,
 			HttpServletResponse response) {
 		response.setHeader(this.headerName, session.getId());
 	}
 
+	@Override
 	public void onInvalidateSession(HttpServletRequest request,
 			HttpServletResponse response) {
 		response.setHeader(this.headerName, "");
