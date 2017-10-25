@@ -1,5 +1,0 @@
-dependencyManagement {
-	dependencies {
-		dependency 'org.webjars:bootstrap:3.3.6'
-	}
-}

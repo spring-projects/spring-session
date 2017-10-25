@@ -42,7 +42,6 @@ import org.springframework.session.web.http.CookieHttpSessionStrategy;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.session.web.http.HttpSessionStrategy;
-import org.springframework.session.web.http.MultiHttpSessionStrategy;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
@@ -127,16 +126,11 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(
 				sessionRepository);
 		sessionRepositoryFilter.setServletContext(this.servletContext);
-		if (this.httpSessionStrategy instanceof MultiHttpSessionStrategy) {
-			sessionRepositoryFilter.setHttpSessionStrategy(
-					(MultiHttpSessionStrategy) this.httpSessionStrategy);
-		}
-		else {
-			sessionRepositoryFilter.setHttpSessionStrategy(this.httpSessionStrategy);
-		}
+		sessionRepositoryFilter.setHttpSessionStrategy(this.httpSessionStrategy);
 		return sessionRepositoryFilter;
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
 		if (ClassUtils.isPresent(

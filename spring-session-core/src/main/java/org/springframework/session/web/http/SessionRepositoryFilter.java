@@ -51,10 +51,10 @@ import org.springframework.session.SessionRepository;
  *
  * <ul>
  * <li>The session id is looked up using
- * {@link HttpSessionStrategy#getRequestedSessionId(javax.servlet.http.HttpServletRequest)}
+ * {@link HttpSessionStrategy#getRequestedSessionIds(javax.servlet.http.HttpServletRequest)}
  * . The default is to look in a cookie named SESSION.</li>
- * <li>The session id of newly created {@link org.springframework.session.Session}
- * is sent to the client using
+ * <li>The session id of newly created {@link org.springframework.session.Session} is sent
+ * to the client using
  * <li>The client is notified that the session id is no longer valid with
  * {@link HttpSessionStrategy#onInvalidateSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}
  * </li>
@@ -69,10 +69,11 @@ import org.springframework.session.SessionRepository;
  * @param <S> the {@link Session} type.
  * @since 1.0
  * @author Rob Winch
+ * @author Vedran Pavic
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
-public class SessionRepositoryFilter<S extends Session>
-		extends OncePerRequestFilter {
+public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFilter {
+
 	private static final String SESSION_LOGGER_NAME = SessionRepositoryFilter.class
 			.getName().concat(".SESSION_LOGGER");
 
@@ -102,7 +103,7 @@ public class SessionRepositoryFilter<S extends Session>
 
 	private ServletContext servletContext;
 
-	private MultiHttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
+	private HttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
 
 	/**
 	 * Creates a new instance.
@@ -126,21 +127,6 @@ public class SessionRepositoryFilter<S extends Session>
 		if (httpSessionStrategy == null) {
 			throw new IllegalArgumentException("httpSessionStrategy cannot be null");
 		}
-		this.httpSessionStrategy = new MultiHttpSessionStrategyAdapter(
-				httpSessionStrategy);
-	}
-
-	/**
-	 * Sets the {@link MultiHttpSessionStrategy} to be used. The default is a
-	 * {@link CookieHttpSessionStrategy}.
-	 *
-	 * @param httpSessionStrategy the {@link MultiHttpSessionStrategy} to use. Cannot be
-	 * null.
-	 */
-	public void setHttpSessionStrategy(MultiHttpSessionStrategy httpSessionStrategy) {
-		if (httpSessionStrategy == null) {
-			throw new IllegalArgumentException("httpSessionStrategy cannot be null");
-		}
 		this.httpSessionStrategy = httpSessionStrategy;
 	}
 
@@ -155,13 +141,8 @@ public class SessionRepositoryFilter<S extends Session>
 		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(
 				wrappedRequest, response);
 
-		HttpServletRequest strategyRequest = this.httpSessionStrategy
-				.wrapRequest(wrappedRequest, wrappedResponse);
-		HttpServletResponse strategyResponse = this.httpSessionStrategy
-				.wrapResponse(wrappedRequest, wrappedResponse);
-
 		try {
-			filterChain.doFilter(strategyRequest, strategyResponse);
+			filterChain.doFilter(wrappedRequest, wrappedResponse);
 		}
 		finally {
 			wrappedRequest.commitSession();
@@ -213,9 +194,13 @@ public class SessionRepositoryFilter<S extends Session>
 	 */
 	private final class SessionRepositoryRequestWrapper
 			extends HttpServletRequestWrapper {
+
 		private Boolean requestedSessionIdValid;
+
 		private boolean requestedSessionInvalidated;
+
 		private final HttpServletResponse response;
+
 		private final ServletContext servletContext;
 
 		private SessionRepositoryRequestWrapper(HttpServletRequest request,
@@ -262,6 +247,7 @@ public class SessionRepositoryFilter<S extends Session>
 			}
 		}
 
+		@Override
 		@SuppressWarnings("unused")
 		public String changeSessionId() {
 			HttpSession session = getSession(false);
@@ -313,25 +299,24 @@ public class SessionRepositoryFilter<S extends Session>
 				return currentSession;
 			}
 			String requestedSessionId = getRequestedSessionId();
-			if (requestedSessionId != null
-					&& getAttribute(INVALID_SESSION_ID_ATTR) == null) {
-				S session = getSession(requestedSessionId);
-				if (session != null) {
+			if (requestedSessionId != null) {
+				if (getAttribute(INVALID_SESSION_ID_ATTR) == null) {
+					S session = getSession(requestedSessionId);
 					this.requestedSessionIdValid = true;
 					currentSession = new HttpSessionWrapper(session, getServletContext());
 					currentSession.setNew(false);
 					setCurrentSession(currentSession);
 					return currentSession;
 				}
-				else {
-					// This is an invalid session id. No need to ask again if
-					// request.getSession is invoked for the duration of this request
-					if (SESSION_LOGGER.isDebugEnabled()) {
-						SESSION_LOGGER.debug(
-								"No session found by id: Caching result for getSession(false) for this HttpServletRequest.");
-					}
-					setAttribute(INVALID_SESSION_ID_ATTR, "true");
+			}
+			else {
+				// This is an invalid session id. No need to ask again if
+				// request.getSession is invoked for the duration of this request
+				if (SESSION_LOGGER.isDebugEnabled()) {
+					SESSION_LOGGER.debug(
+							"No session found by id: Caching result for getSession(false) for this HttpServletRequest.");
 				}
+				setAttribute(INVALID_SESSION_ID_ATTR, "true");
 			}
 			if (!create) {
 				return null;
@@ -367,7 +352,10 @@ public class SessionRepositoryFilter<S extends Session>
 		@Override
 		public String getRequestedSessionId() {
 			return SessionRepositoryFilter.this.httpSessionStrategy
-					.getRequestedSessionId(this);
+					.getRequestedSessionIds(this).stream()
+					.filter(sessionId -> SessionRepositoryFilter.this.sessionRepository
+							.findById(sessionId) != null)
+					.findFirst().orElse(null);
 		}
 
 		/**
@@ -390,44 +378,7 @@ public class SessionRepositoryFilter<S extends Session>
 				SessionRepositoryFilter.this.sessionRepository.deleteById(getId());
 			}
 		}
+
 	}
 
-	/**
-	 * A delegating implementation of {@link MultiHttpSessionStrategy}.
-	 */
-	static class MultiHttpSessionStrategyAdapter implements MultiHttpSessionStrategy {
-		private HttpSessionStrategy delegate;
-
-		/**
-		 * Create a new {@link MultiHttpSessionStrategyAdapter} instance.
-		 * @param delegate the delegate HTTP session strategy
-		 */
-		MultiHttpSessionStrategyAdapter(HttpSessionStrategy delegate) {
-			this.delegate = delegate;
-		}
-
-		public String getRequestedSessionId(HttpServletRequest request) {
-			return this.delegate.getRequestedSessionId(request);
-		}
-
-		public void onNewSession(Session session, HttpServletRequest request,
-				HttpServletResponse response) {
-			this.delegate.onNewSession(session, request, response);
-		}
-
-		public void onInvalidateSession(HttpServletRequest request,
-				HttpServletResponse response) {
-			this.delegate.onInvalidateSession(request, response);
-		}
-
-		public HttpServletRequest wrapRequest(HttpServletRequest request,
-				HttpServletResponse response) {
-			return request;
-		}
-
-		public HttpServletResponse wrapResponse(HttpServletRequest request,
-				HttpServletResponse response) {
-			return response;
-		}
-	}
 }
