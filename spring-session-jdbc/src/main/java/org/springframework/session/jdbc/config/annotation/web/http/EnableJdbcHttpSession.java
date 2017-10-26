@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,8 @@ import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
  * More advanced configurations can extend {@link JdbcHttpSessionConfiguration} instead.
  *
  * For additional information on how to configure data access related concerns, please
- * refer to the
- * <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
+ * refer to the <a href=
+ * "http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
  * Spring Framework Reference Documentation</a>.
  *
  * @author Vedran Pavic
@@ -80,11 +80,16 @@ public @interface EnableJdbcHttpSession {
 	String tableName() default JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
 
 	/**
-	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
-	 * This should be a non-negative integer.
-	 *
+	 * The session timeout in seconds. By default, it is set to 1800 seconds (30
+	 * minutes). This should be a non-negative integer.
 	 * @return the seconds a session can be inactive before expiring
 	 */
 	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+
+	/**
+	 * The cron expression for expired session cleanup job. By default runs every minute.
+	 * @return the session cleanup cron expression
+	 */
+	String cleanupCron() default JdbcHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
 
 }

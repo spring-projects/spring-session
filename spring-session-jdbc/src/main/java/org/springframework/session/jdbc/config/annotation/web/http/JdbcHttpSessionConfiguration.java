@@ -28,7 +28,6 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -37,6 +36,9 @@ import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -59,38 +61,37 @@ import org.springframework.util.StringValueResolver;
 @Configuration
 @EnableScheduling
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements BeanClassLoaderAware, ImportAware, EmbeddedValueResolverAware {
+		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware,
+		SchedulingConfigurer {
 
-	private String tableName;
+	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
-	private Integer maxInactiveIntervalInSeconds;
+	private String tableName = JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
+
+	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+
+	private String cleanupCron = DEFAULT_CLEANUP_CRON;
+
+	private DataSource dataSource;
+
+	private PlatformTransactionManager transactionManager;
 
 	private LobHandler lobHandler;
 
-	@Autowired(required = false)
-	@Qualifier("conversionService")
-	private ConversionService conversionService;
-
 	private ConversionService springSessionConversionService;
+
+	private ConversionService conversionService;
 
 	private ClassLoader classLoader;
 
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public JdbcOperationsSessionRepository sessionRepository(
-			@SpringSessionDataSource ObjectProvider<DataSource> springSessionDataSource,
-			ObjectProvider<DataSource> dataSource,
-			PlatformTransactionManager transactionManager) {
-		DataSource dataSourceToUse = springSessionDataSource.getIfAvailable();
-		if (dataSourceToUse == null) {
-			dataSourceToUse = dataSource.getObject();
-		}
+	public JdbcOperationsSessionRepository sessionRepository() {
 		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(
-				dataSourceToUse, transactionManager);
-		String tableName = getTableName();
-		if (StringUtils.hasText(tableName)) {
-			sessionRepository.setTableName(tableName);
+				this.dataSource, this.transactionManager);
+		if (StringUtils.hasText(this.tableName)) {
+			sessionRepository.setTableName(this.tableName);
 		}
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
@@ -104,35 +105,38 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 			sessionRepository.setConversionService(this.conversionService);
 		}
 		else {
-			GenericConversionService conversionService = createConversionServiceWithBeanClassLoader();
-			sessionRepository.setConversionService(conversionService);
+			sessionRepository
+					.setConversionService(createConversionServiceWithBeanClassLoader());
 		}
 		return sessionRepository;
 	}
 
-	/**
-	 * This must be a separate method because some ClassLoaders load the entire method
-	 * definition even if an if statement guards against it loading. This means that older
-	 * versions of Spring would cause a NoSuchMethodError if this were defined in
-	 * {@link #sessionRepository(ObjectProvider, ObjectProvider, PlatformTransactionManager)}.
-	 *
-	 * @return the default {@link ConversionService}
-	 */
-	private GenericConversionService createConversionServiceWithBeanClassLoader() {
-		GenericConversionService conversionService = new GenericConversionService();
-		conversionService.addConverter(Object.class, byte[].class,
-				new SerializingConverter());
-		conversionService.addConverter(byte[].class, Object.class,
-				new DeserializingConverter(this.classLoader));
-		return conversionService;
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)
-	 */
-	@Override
-	public void setBeanClassLoader(ClassLoader classLoader) {
-		this.classLoader = classLoader;
+	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
+		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	}
+
+	public void setCleanupCron(String cleanupCron) {
+		this.cleanupCron = cleanupCron;
+	}
+
+	@Autowired
+	public void setDataSource(
+			@SpringSessionDataSource ObjectProvider<DataSource> springSessionDataSource,
+			ObjectProvider<DataSource> dataSource) {
+		DataSource dataSourceToUse = springSessionDataSource.getIfAvailable();
+		if (dataSourceToUse == null) {
+			dataSourceToUse = dataSource.getObject();
+		}
+		this.dataSource = dataSourceToUse;
+	}
+
+	@Autowired
+	public void setTransactionManager(PlatformTransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
 	}
 
 	@Autowired(required = false)
@@ -147,34 +151,15 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		this.springSessionConversionService = conversionService;
 	}
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-
-	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
-	}
-
-	private String getTableName() {
-		String systemProperty = System.getProperty("spring.session.jdbc.tableName", "");
-		if (StringUtils.hasText(systemProperty)) {
-			return systemProperty;
-		}
-		return this.tableName;
+	@Autowired(required = false)
+	@Qualifier("conversionService")
+	public void setConversionService(ConversionService conversionService) {
+		this.conversionService = conversionService;
 	}
 
 	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> enableAttrMap = importMetadata
-				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
-		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		String tableNameValue = enableAttrs.getString("tableName");
-		if (StringUtils.hasText(tableNameValue)) {
-			this.tableName = this.embeddedValueResolver
-					.resolveStringValue(tableNameValue);
-		}
-		this.maxInactiveIntervalInSeconds = enableAttrs
-				.getNumber("maxInactiveIntervalInSeconds");
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 
 	@Override
@@ -182,13 +167,37 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		this.embeddedValueResolver = resolver;
 	}
 
-	/**
-	 * Property placeholder to process the @Scheduled annotation.
-	 * @return the {@link PropertySourcesPlaceholderConfigurer} to use
-	 */
-	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-		return new PropertySourcesPlaceholderConfigurer();
+	@Override
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		Map<String, Object> attributeMap = importMetadata
+				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		String tableNameValue = attributes.getString("tableName");
+		if (StringUtils.hasText(tableNameValue)) {
+			this.tableName = this.embeddedValueResolver
+					.resolveStringValue(tableNameValue);
+		}
+		this.maxInactiveIntervalInSeconds = attributes
+				.getNumber("maxInactiveIntervalInSeconds");
+		String cleanupCron = attributes.getString("cleanupCron");
+		if (StringUtils.hasText(cleanupCron)) {
+			this.cleanupCron = this.embeddedValueResolver.resolveStringValue(cleanupCron);
+		}
+	}
+
+	@Override
+	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+		taskRegistrar.addCronTask(() -> sessionRepository().cleanUpExpiredSessions(),
+				this.cleanupCron);
+	}
+
+	private GenericConversionService createConversionServiceWithBeanClassLoader() {
+		GenericConversionService conversionService = new GenericConversionService();
+		conversionService.addConverter(Object.class, byte[].class,
+				new SerializingConverter());
+		conversionService.addConverter(byte[].class, Object.class,
+				new DeserializingConverter(this.classLoader));
+		return conversionService;
 	}
 
 }

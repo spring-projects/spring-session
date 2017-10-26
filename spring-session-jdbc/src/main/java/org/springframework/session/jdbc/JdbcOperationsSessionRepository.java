@@ -48,7 +48,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -535,7 +534,6 @@ public class JdbcOperationsSessionRepository implements
 		return sessionMap;
 	}
 
-	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
 		Integer deletedCount = this.transactionOperations.execute(transactionStatus ->
 				JdbcOperationsSessionRepository.this.jdbcOperations.update(
