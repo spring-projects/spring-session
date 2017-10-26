@@ -22,12 +22,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.session.Session;
-
 /**
- * A {@link HttpSessionStrategy} that uses a header to obtain the session from.
+ * A {@link HttpSessionIdResolver} that uses a header to obtain the session from.
  * Specifically, this implementation will allow specifying a header name using
- * {@link HeaderHttpSessionStrategy#setHeaderName(String)}. The default is "X-Auth-Token".
+ * {@link HeaderHttpSessionIdResolver#setHeaderName(String)}. The default is
+ * "X-Auth-Token".
  *
  * When a session is created, the HTTP response will have a response header of the
  * specified name and the value of the session id. For example:
@@ -58,26 +57,25 @@ import org.springframework.session.Session;
  * @author Vedran Pavic
  * @since 1.0
  */
-public class HeaderHttpSessionStrategy implements HttpSessionStrategy {
+public class HeaderHttpSessionIdResolver implements HttpSessionIdResolver {
 
 	private String headerName = "X-Auth-Token";
 
 	@Override
-	public List<String> getRequestedSessionIds(HttpServletRequest request) {
+	public List<String> resolveSessionIds(HttpServletRequest request) {
 		String headerValue = request.getHeader(this.headerName);
 		return headerValue != null ? Collections.singletonList(headerValue)
 				: Collections.emptyList();
 	}
 
 	@Override
-	public void onNewSession(Session session, HttpServletRequest request,
-			HttpServletResponse response) {
-		response.setHeader(this.headerName, session.getId());
+	public void setSessionId(HttpServletRequest request, HttpServletResponse response,
+			String sessionId) {
+		response.setHeader(this.headerName, sessionId);
 	}
 
 	@Override
-	public void onInvalidateSession(HttpServletRequest request,
-			HttpServletResponse response) {
+	public void expireSession(HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader(this.headerName, "");
 	}
 

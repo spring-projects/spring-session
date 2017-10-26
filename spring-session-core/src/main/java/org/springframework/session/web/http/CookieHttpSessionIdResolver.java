@@ -21,13 +21,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.session.Session;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
 
 /**
- * A {@link HttpSessionStrategy} that uses a cookie to obtain the session from.
+ * A {@link HttpSessionIdResolver} that uses a cookie to obtain the session from.
  * Specifically, this implementation will allow specifying a cookie serialization strategy
- * using {@link CookieHttpSessionStrategy#setCookieSerializer(CookieSerializer)}. The
+ * using {@link CookieHttpSessionIdResolver#setCookieSerializer(CookieSerializer)}. The
  * default is cookie name is "SESSION".
  *
  * When a session is created, the HTTP response will have a cookie with the specified
@@ -62,22 +61,21 @@ import org.springframework.session.web.http.CookieSerializer.CookieValue;
  * @author Vedran Pavic
  * @since 1.0
  */
-public final class CookieHttpSessionStrategy implements HttpSessionStrategy {
+public final class CookieHttpSessionIdResolver implements HttpSessionIdResolver {
 
-	private static final String WRITTEN_SESSION_ID_ATTR = CookieHttpSessionStrategy.class
+	private static final String WRITTEN_SESSION_ID_ATTR = CookieHttpSessionIdResolver.class
 			.getName().concat(".WRITTEN_SESSION_ID_ATTR");
 
 	private CookieSerializer cookieSerializer = new DefaultCookieSerializer();
 
 	@Override
-	public List<String> getRequestedSessionIds(HttpServletRequest request) {
+	public List<String> resolveSessionIds(HttpServletRequest request) {
 		return this.cookieSerializer.readCookieValues(request);
 	}
 
 	@Override
-	public void onNewSession(Session session, HttpServletRequest request,
-			HttpServletResponse response) {
-		String sessionId = session.getId();
+	public void setSessionId(HttpServletRequest request, HttpServletResponse response,
+			String sessionId) {
 		if (sessionId.equals(request.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
 			return;
 		}
@@ -87,8 +85,7 @@ public final class CookieHttpSessionStrategy implements HttpSessionStrategy {
 	}
 
 	@Override
-	public void onInvalidateSession(HttpServletRequest request,
-			HttpServletResponse response) {
+	public void expireSession(HttpServletRequest request, HttpServletResponse response) {
 		this.cookieSerializer.writeCookieValue(new CookieValue(request, response, ""));
 	}
 

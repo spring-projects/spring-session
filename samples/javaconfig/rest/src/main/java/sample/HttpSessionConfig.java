@@ -21,8 +21,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.session.web.http.HeaderHttpSessionStrategy;
-import org.springframework.session.web.http.HttpSessionStrategy;
+import org.springframework.session.web.http.HeaderHttpSessionIdResolver;
+import org.springframework.session.web.http.HttpSessionIdResolver;
 
 @Import(EmbeddedRedisConfig.class)
 // tag::class[]
@@ -36,8 +36,8 @@ public class HttpSessionConfig {
 	}
 
 	@Bean
-	public HttpSessionStrategy httpSessionStrategy() {
-		return new HeaderHttpSessionStrategy(); // <3>
+	public HttpSessionIdResolver httpSessionIdResolver() {
+		return new HeaderHttpSessionIdResolver(); // <3>
 	}
 }
 // end::class[]

@@ -35,7 +35,7 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
-import org.springframework.session.web.http.CookieHttpSessionStrategy;
+import org.springframework.session.web.http.CookieHttpSessionIdResolver;
 import org.springframework.session.web.http.DefaultCookieSerializer;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -93,11 +93,11 @@ public class SpringHttpSessionConfigurationTests {
 		SessionRepositoryFilter sessionRepositoryFilter = this.context
 				.getBean(SessionRepositoryFilter.class);
 		assertThat(sessionRepositoryFilter).isNotNull();
-		CookieHttpSessionStrategy httpSessionStrategy = (CookieHttpSessionStrategy) ReflectionTestUtils
-				.getField(sessionRepositoryFilter, "httpSessionStrategy");
-		assertThat(httpSessionStrategy).isNotNull();
+		CookieHttpSessionIdResolver httpSessionIdResolver = (CookieHttpSessionIdResolver) ReflectionTestUtils
+				.getField(sessionRepositoryFilter, "httpSessionIdResolver");
+		assertThat(httpSessionIdResolver).isNotNull();
 		DefaultCookieSerializer cookieSerializer = (DefaultCookieSerializer) ReflectionTestUtils
-				.getField(httpSessionStrategy, "cookieSerializer");
+				.getField(httpSessionIdResolver, "cookieSerializer");
 		assertThat(cookieSerializer).isNotNull();
 		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookieName"))
 				.isEqualTo("test-name");
@@ -116,11 +116,11 @@ public class SpringHttpSessionConfigurationTests {
 		SessionRepositoryFilter sessionRepositoryFilter = this.context
 				.getBean(SessionRepositoryFilter.class);
 		assertThat(sessionRepositoryFilter).isNotNull();
-		CookieHttpSessionStrategy httpSessionStrategy = (CookieHttpSessionStrategy) ReflectionTestUtils
-				.getField(sessionRepositoryFilter, "httpSessionStrategy");
-		assertThat(httpSessionStrategy).isNotNull();
+		CookieHttpSessionIdResolver httpSessionIdResolver = (CookieHttpSessionIdResolver) ReflectionTestUtils
+				.getField(sessionRepositoryFilter, "httpSessionIdResolver");
+		assertThat(httpSessionIdResolver).isNotNull();
 		DefaultCookieSerializer cookieSerializer = (DefaultCookieSerializer) ReflectionTestUtils
-				.getField(httpSessionStrategy, "cookieSerializer");
+				.getField(httpSessionIdResolver, "cookieSerializer");
 		assertThat(cookieSerializer).isNotNull();
 		assertThat(ReflectionTestUtils.getField(cookieSerializer,
 				"rememberMeRequestAttribute")).isEqualTo(

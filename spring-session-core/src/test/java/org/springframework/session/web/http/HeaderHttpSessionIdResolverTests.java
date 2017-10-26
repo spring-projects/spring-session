@@ -29,14 +29,14 @@ import org.springframework.session.Session;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link HeaderHttpSessionStrategy}.
+ * Tests for {@link HeaderHttpSessionIdResolver}.
  */
-public class HeaderSessionStrategyTests {
+public class HeaderHttpSessionIdResolverTests {
 
 	private MockHttpServletRequest request;
 	private MockHttpServletResponse response;
 
-	private HeaderHttpSessionStrategy strategy;
+	private HeaderHttpSessionIdResolver strategy;
 	private String headerName;
 	private Session session;
 
@@ -46,18 +46,18 @@ public class HeaderSessionStrategyTests {
 		this.session = new MapSession();
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
-		this.strategy = new HeaderHttpSessionStrategy();
+		this.strategy = new HeaderHttpSessionIdResolver();
 	}
 
 	@Test
 	public void getRequestedSessionIdNull() throws Exception {
-		assertThat(this.strategy.getRequestedSessionIds(this.request)).isEmpty();
+		assertThat(this.strategy.resolveSessionIds(this.request)).isEmpty();
 	}
 
 	@Test
 	public void getRequestedSessionIdNotNull() throws Exception {
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionIds(this.request))
+		assertThat(this.strategy.resolveSessionIds(this.request))
 				.isEqualTo(Collections.singletonList(this.session.getId()));
 	}
 
@@ -65,45 +65,48 @@ public class HeaderSessionStrategyTests {
 	public void getRequestedSessionIdNotNullCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
 		setSessionId(this.session.getId());
-		assertThat(this.strategy.getRequestedSessionIds(this.request))
+		assertThat(this.strategy.resolveSessionIds(this.request))
 				.isEqualTo(Collections.singletonList(this.session.getId()));
 	}
 
 	@Test
 	public void onNewSession() throws Exception {
-		this.strategy.onNewSession(this.session, this.request, this.response);
-		assertThat(getSessionId()).isEqualTo(this.session.getId());
+		String sessionId = this.session.getId();
+		this.strategy.setSessionId(this.request, this.response, sessionId);
+		assertThat(getSessionId()).isEqualTo(sessionId);
 	}
 
 	// the header is set as apposed to added
 	@Test
 	public void onNewSessionMulti() throws Exception {
-		this.strategy.onNewSession(this.session, this.request, this.response);
-		this.strategy.onNewSession(this.session, this.request, this.response);
+		String sessionId = this.session.getId();
+		this.strategy.setSessionId(this.request, this.response, sessionId);
+		this.strategy.setSessionId(this.request, this.response, sessionId);
 
 		assertThat(this.response.getHeaders(this.headerName).size()).isEqualTo(1);
 		assertThat(this.response.getHeaders(this.headerName))
-				.containsOnly(this.session.getId());
+				.containsOnly(sessionId);
 	}
 
 	@Test
 	public void onNewSessionCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
-		this.strategy.onNewSession(this.session, this.request, this.response);
-		assertThat(getSessionId()).isEqualTo(this.session.getId());
+		String sessionId = this.session.getId();
+		this.strategy.setSessionId(this.request, this.response, sessionId);
+		assertThat(getSessionId()).isEqualTo(sessionId);
 	}
 
 	@Test
 	public void onDeleteSession() throws Exception {
-		this.strategy.onInvalidateSession(this.request, this.response);
+		this.strategy.expireSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	// the header is set as apposed to added
 	@Test
 	public void onDeleteSessionMulti() throws Exception {
-		this.strategy.onInvalidateSession(this.request, this.response);
-		this.strategy.onInvalidateSession(this.request, this.response);
+		this.strategy.expireSession(this.request, this.response);
+		this.strategy.expireSession(this.request, this.response);
 
 		assertThat(this.response.getHeaders(this.headerName).size()).isEqualTo(1);
 		assertThat(getSessionId()).isEmpty();
@@ -112,7 +115,7 @@ public class HeaderSessionStrategyTests {
 	@Test
 	public void onDeleteSessionCustomHeaderName() throws Exception {
 		setHeaderName("CUSTOM");
-		this.strategy.onInvalidateSession(this.request, this.response);
+		this.strategy.expireSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
