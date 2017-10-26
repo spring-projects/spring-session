@@ -44,19 +44,19 @@ import org.springframework.session.SessionRepository;
  * {@link org.springframework.session.Session} returned by the
  * {@link org.springframework.session.SessionRepository}.
  *
- * The {@link SessionRepositoryFilter} uses a {@link HttpSessionStrategy} (default
- * {@link CookieHttpSessionStrategy} to bridge logic between an
+ * The {@link SessionRepositoryFilter} uses a {@link HttpSessionIdResolver} (default
+ * {@link CookieHttpSessionIdResolver} to bridge logic between an
  * {@link javax.servlet.http.HttpSession} and the
  * {@link org.springframework.session.Session} abstraction. Specifically:
  *
  * <ul>
  * <li>The session id is looked up using
- * {@link HttpSessionStrategy#getRequestedSessionIds(javax.servlet.http.HttpServletRequest)}
+ * {@link HttpSessionIdResolver#resolveSessionIds(javax.servlet.http.HttpServletRequest)}
  * . The default is to look in a cookie named SESSION.</li>
  * <li>The session id of newly created {@link org.springframework.session.Session} is sent
  * to the client using
  * <li>The client is notified that the session id is no longer valid with
- * {@link HttpSessionStrategy#onInvalidateSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}
+ * {@link HttpSessionIdResolver#expireSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}
  * </li>
  * </ul>
  *
@@ -103,7 +103,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 	private ServletContext servletContext;
 
-	private HttpSessionStrategy httpSessionStrategy = new CookieHttpSessionStrategy();
+	private HttpSessionIdResolver httpSessionIdResolver = new CookieHttpSessionIdResolver();
 
 	/**
 	 * Creates a new instance.
@@ -118,16 +118,17 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	}
 
 	/**
-	 * Sets the {@link HttpSessionStrategy} to be used. The default is a
-	 * {@link CookieHttpSessionStrategy}.
+	 * Sets the {@link HttpSessionIdResolver} to be used. The default is a
+	 * {@link CookieHttpSessionIdResolver}.
 	 *
-	 * @param httpSessionStrategy the {@link HttpSessionStrategy} to use. Cannot be null.
+	 * @param httpSessionIdResolver the {@link HttpSessionIdResolver} to use. Cannot be
+	 * null.
 	 */
-	public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
-		if (httpSessionStrategy == null) {
-			throw new IllegalArgumentException("httpSessionStrategy cannot be null");
+	public void setHttpSessionIdResolver(HttpSessionIdResolver httpSessionIdResolver) {
+		if (httpSessionIdResolver == null) {
+			throw new IllegalArgumentException("httpSessionIdResolver cannot be null");
 		}
-		this.httpSessionStrategy = httpSessionStrategy;
+		this.httpSessionIdResolver = httpSessionIdResolver;
 	}
 
 	@Override
@@ -211,24 +212,25 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		}
 
 		/**
-		 * Uses the HttpSessionStrategy to write the session id to the response and
-		 * persist the Session.
+		 * Uses the {@link HttpSessionIdResolver} to write the session id to the response
+		 * and persist the Session.
 		 */
 		private void commitSession() {
 			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if (wrappedSession == null) {
 				if (isInvalidateClientSession()) {
-					SessionRepositoryFilter.this.httpSessionStrategy
-							.onInvalidateSession(this, this.response);
+					SessionRepositoryFilter.this.httpSessionIdResolver.expireSession(this,
+							this.response);
 				}
 			}
 			else {
 				S session = wrappedSession.getSession();
 				SessionRepositoryFilter.this.sessionRepository.save(session);
+				String sessionId = session.getId();
 				if (!isRequestedSessionIdValid()
-						|| !session.getId().equals(getRequestedSessionId())) {
-					SessionRepositoryFilter.this.httpSessionStrategy.onNewSession(session,
-							this, this.response);
+						|| !sessionId.equals(getRequestedSessionId())) {
+					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this,
+							this.response, sessionId);
 				}
 			}
 		}
@@ -351,8 +353,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		@Override
 		public String getRequestedSessionId() {
-			return SessionRepositoryFilter.this.httpSessionStrategy
-					.getRequestedSessionIds(this).stream()
+			return SessionRepositoryFilter.this.httpSessionIdResolver
+					.resolveSessionIds(this).stream()
 					.filter(sessionId -> SessionRepositoryFilter.this.sessionRepository
 							.findById(sessionId) != null)
 					.findFirst().orElse(null);

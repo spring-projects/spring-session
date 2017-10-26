@@ -38,10 +38,10 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
-import org.springframework.session.web.http.CookieHttpSessionStrategy;
+import org.springframework.session.web.http.CookieHttpSessionIdResolver;
 import org.springframework.session.web.http.CookieSerializer;
 import org.springframework.session.web.http.DefaultCookieSerializer;
-import org.springframework.session.web.http.HttpSessionStrategy;
+import org.springframework.session.web.http.HttpSessionIdResolver;
 import org.springframework.session.web.http.SessionEventHttpSessionListenerAdapter;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.ClassUtils;
@@ -96,7 +96,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private CookieHttpSessionStrategy defaultHttpSessionStrategy = new CookieHttpSessionStrategy();
+	private CookieHttpSessionIdResolver defaultHttpSessionIdResolver = new CookieHttpSessionIdResolver();
 
 	private boolean usesSpringSessionRememberMeServices;
 
@@ -104,7 +104,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	private CookieSerializer cookieSerializer;
 
-	private HttpSessionStrategy httpSessionStrategy = this.defaultHttpSessionStrategy;
+	private HttpSessionIdResolver httpSessionIdResolver = this.defaultHttpSessionIdResolver;
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<>();
 
@@ -112,7 +112,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 	public void init() {
 		CookieSerializer cookieSerializer = this.cookieSerializer != null
 				? this.cookieSerializer : createDefaultCookieSerializer();
-		this.defaultHttpSessionStrategy.setCookieSerializer(cookieSerializer);
+		this.defaultHttpSessionIdResolver.setCookieSerializer(cookieSerializer);
 	}
 
 	@Bean
@@ -126,7 +126,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(
 				sessionRepository);
 		sessionRepositoryFilter.setServletContext(this.servletContext);
-		sessionRepositoryFilter.setHttpSessionStrategy(this.httpSessionStrategy);
+		sessionRepositoryFilter.setHttpSessionIdResolver(this.httpSessionIdResolver);
 		return sessionRepositoryFilter;
 	}
 
@@ -153,8 +153,8 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 	}
 
 	@Autowired(required = false)
-	public void setHttpSessionStrategy(HttpSessionStrategy httpSessionStrategy) {
-		this.httpSessionStrategy = httpSessionStrategy;
+	public void setHttpSessionIdResolver(HttpSessionIdResolver httpSessionIdResolver) {
+		this.httpSessionIdResolver = httpSessionIdResolver;
 	}
 
 	@Autowired(required = false)

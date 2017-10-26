@@ -77,7 +77,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 public class SessionRepositoryFilterTests {
 
 	@Mock
-	private HttpSessionStrategy strategy;
+	private HttpSessionIdResolver strategy;
 
 	private Map<String, Session> sessions;
 
@@ -1164,7 +1164,7 @@ public class SessionRepositoryFilterTests {
 		});
 	}
 
-	// --- HttpSessionStrategy
+	// --- HttpSessionIdResolver
 
 	@Test
 	public void doFilterAdapterGetRequestedSessionId() throws Exception {
@@ -1172,10 +1172,10 @@ public class SessionRepositoryFilterTests {
 				new MapSessionRepository(new ConcurrentHashMap<>()));
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
-		this.filter.setHttpSessionStrategy(this.strategy);
-		final String expectedId = "HttpSessionStrategy-requested-id";
+		this.filter.setHttpSessionIdResolver(this.strategy);
+		final String expectedId = "HttpSessionIdResolver-requested-id";
 
-		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+		given(this.strategy.resolveSessionIds(any(HttpServletRequest.class)))
 				.willReturn(Collections.singletonList(expectedId));
 		given(sessionRepository.findById(anyString()))
 				.willReturn(new MapSession(expectedId));
@@ -1192,7 +1192,7 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void doFilterAdapterOnNewSession() throws Exception {
-		this.filter.setHttpSessionStrategy(this.strategy);
+		this.filter.setHttpSessionIdResolver(this.strategy);
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1204,13 +1204,13 @@ public class SessionRepositoryFilterTests {
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
 		Session session = this.sessionRepository.findById(request.getSession().getId());
-		verify(this.strategy).onNewSession(eq(session), any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
+		verify(this.strategy).setSessionId(any(HttpServletRequest.class),
+				any(HttpServletResponse.class), eq(session.getId()));
 	}
 
 	@Test
 	public void doFilterAdapterOnInvalidate() throws Exception {
-		this.filter.setHttpSessionStrategy(this.strategy);
+		this.filter.setHttpSessionIdResolver(this.strategy);
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1222,7 +1222,7 @@ public class SessionRepositoryFilterTests {
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
 		String id = request.getSession().getId();
-		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+		given(this.strategy.resolveSessionIds(any(HttpServletRequest.class)))
 				.willReturn(Collections.singletonList(id));
 		setupRequest();
 
@@ -1234,7 +1234,7 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
-		verify(this.strategy).onInvalidateSession(any(HttpServletRequest.class),
+		verify(this.strategy).expireSession(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
 
@@ -1242,7 +1242,7 @@ public class SessionRepositoryFilterTests {
 	@Test
 	public void doFilterRequestSessionNoRequestSessionDoesNotInvalidate()
 			throws Exception {
-		this.filter.setHttpSessionStrategy(this.strategy);
+		this.filter.setHttpSessionIdResolver(this.strategy);
 
 		doFilter(new DoInFilter() {
 			@Override
@@ -1254,7 +1254,7 @@ public class SessionRepositoryFilterTests {
 
 		HttpServletRequest request = (HttpServletRequest) this.chain.getRequest();
 		String id = request.getSession().getId();
-		given(this.strategy.getRequestedSessionIds(any(HttpServletRequest.class)))
+		given(this.strategy.resolveSessionIds(any(HttpServletRequest.class)))
 				.willReturn(Collections.singletonList(id));
 
 		doFilter(new DoInFilter() {
@@ -1264,7 +1264,7 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
-		verify(this.strategy, never()).onInvalidateSession(any(HttpServletRequest.class),
+		verify(this.strategy, never()).expireSession(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
 
@@ -1350,8 +1350,8 @@ public class SessionRepositoryFilterTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void setHttpSessionStrategyNull() {
-		this.filter.setHttpSessionStrategy(null);
+	public void setHttpSessionIdResolverNull() {
+		this.filter.setHttpSessionIdResolver(null);
 	}
 
 	// --- helper methods

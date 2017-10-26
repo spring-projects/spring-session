@@ -31,8 +31,8 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.session.web.http.HeaderHttpSessionStrategy;
-import org.springframework.session.web.http.HttpSessionStrategy;
+import org.springframework.session.web.http.HeaderHttpSessionIdResolver;
+import org.springframework.session.web.http.HttpSessionIdResolver;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -104,8 +104,8 @@ public class RestMockMvcTests {
 		}
 
 		@Bean
-		public HttpSessionStrategy httpSessionStrategy() {
-			return new HeaderHttpSessionStrategy();
+		public HttpSessionIdResolver httpSessionIdResolver() {
+			return new HeaderHttpSessionIdResolver();
 		}
 
 	}
