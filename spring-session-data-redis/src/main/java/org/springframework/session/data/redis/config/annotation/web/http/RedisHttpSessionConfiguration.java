@@ -32,7 +32,6 @@ import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -43,6 +42,8 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
@@ -68,7 +69,9 @@ import org.springframework.util.StringValueResolver;
 @Configuration
 @EnableScheduling
 public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements EmbeddedValueResolverAware, ImportAware {
+		implements EmbeddedValueResolverAware, ImportAware, SchedulingConfigurer {
+
+	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
 	private Integer maxInactiveIntervalInSeconds = 1800;
 
@@ -76,11 +79,15 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
+	private String cleanupCron = DEFAULT_CLEANUP_CRON;
+
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
 
 	private RedisConnectionFactory redisConnectionFactory;
 
 	private RedisSerializer<Object> defaultRedisSerializer;
+
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private Executor redisTaskExecutor;
 
@@ -89,21 +96,19 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository(
-			ApplicationEventPublisher applicationEventPublisher) {
+	public RedisOperationsSessionRepository sessionRepository() {
 		RedisTemplate<Object, Object> redisTemplate = createRedisTemplate(
 				this.redisConnectionFactory, this.defaultRedisSerializer);
 		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
 				redisTemplate);
-		sessionRepository.setApplicationEventPublisher(applicationEventPublisher);
+		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
 		if (this.defaultRedisSerializer != null) {
 			sessionRepository.setDefaultSerializer(this.defaultRedisSerializer);
 		}
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-		String redisNamespace = getRedisNamespace();
-		if (StringUtils.hasText(redisNamespace)) {
-			sessionRepository.setRedisKeyNamespace(redisNamespace);
+		if (StringUtils.hasText(this.redisNamespace)) {
+			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
 		sessionRepository.setRedisFlushMode(this.redisFlushMode);
 		return sessionRepository;
@@ -135,15 +140,6 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 				this.redisConnectionFactory, this.configureRedisAction);
 	}
 
-	/**
-	 * Property placeholder to process the @Scheduled annotation.
-	 * @return the {@link PropertySourcesPlaceholderConfigurer} to use
-	 */
-	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-		return new PropertySourcesPlaceholderConfigurer();
-	}
-
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
 	}
@@ -155,6 +151,10 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
 		this.redisFlushMode = redisFlushMode;
+	}
+
+	public void setCleanupCron(String cleanupCron) {
+		this.cleanupCron = cleanupCron;
 	}
 
 	/**
@@ -187,6 +187,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.defaultRedisSerializer = defaultRedisSerializer;
 	}
 
+	@Autowired
+	public void setApplicationEventPublisher(
+			ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
 	@Autowired(required = false)
 	@Qualifier("springSessionRedisTaskExecutor")
 	public void setRedisTaskExecutor(Executor redisTaskExecutor) {
@@ -206,17 +212,27 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> enableAttrMap = importMetadata
+		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
-		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		this.maxInactiveIntervalInSeconds = enableAttrs
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		this.maxInactiveIntervalInSeconds = attributes
 				.getNumber("maxInactiveIntervalInSeconds");
-		String redisNamespaceValue = enableAttrs.getString("redisNamespace");
+		String redisNamespaceValue = attributes.getString("redisNamespace");
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			this.redisNamespace = this.embeddedValueResolver
 					.resolveStringValue(redisNamespaceValue);
 		}
-		this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
+		this.redisFlushMode = attributes.getEnum("redisFlushMode");
+		String cleanupCron = attributes.getString("cleanupCron");
+		if (StringUtils.hasText(cleanupCron)) {
+			this.cleanupCron = cleanupCron;
+		}
+	}
+
+	@Override
+	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+		taskRegistrar.addCronTask(() -> sessionRepository().cleanupExpiredSessions(),
+				this.cleanupCron);
 	}
 
 	private static RedisTemplate<Object, Object> createRedisTemplate(
@@ -231,13 +247,6 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		redisTemplate.setConnectionFactory(redisConnectionFactory);
 		redisTemplate.afterPropertiesSet();
 		return redisTemplate;
-	}
-
-	private String getRedisNamespace() {
-		if (StringUtils.hasText(this.redisNamespace)) {
-			return this.redisNamespace;
-		}
-		return System.getProperty("spring.session.redis.namespace", "");
 	}
 
 	/**

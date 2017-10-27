@@ -39,7 +39,6 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -401,7 +400,6 @@ public class RedisOperationsSessionRepository implements
 		}
 	}
 
-	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanupExpiredSessions() {
 		this.expirationPolicy.cleanExpiredSessions();
 	}

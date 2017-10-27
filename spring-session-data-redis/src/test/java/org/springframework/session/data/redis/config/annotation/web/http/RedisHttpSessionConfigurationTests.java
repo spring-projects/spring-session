@@ -52,6 +52,8 @@ import static org.mockito.Mockito.mock;
  */
 public class RedisHttpSessionConfigurationTests {
 
+	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
+
 	@Rule
 	public final ExpectedException thrown = ExpectedException.none();
 
@@ -91,6 +93,30 @@ public class RedisHttpSessionConfigurationTests {
 	}
 
 	@Test
+	public void customCleanupCronAnnotation() {
+		registerAndRefresh(RedisConfig.class,
+				CustomCleanupCronExpressionAnnotationConfiguration.class);
+
+		RedisHttpSessionConfiguration configuration = this.context
+				.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+	}
+
+	@Test
+	public void customCleanupCronSetter() {
+		registerAndRefresh(RedisConfig.class,
+				CustomCleanupCronExpressionSetterConfiguration.class);
+
+		RedisHttpSessionConfiguration configuration = this.context
+				.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+	}
+
+	@Test
 	public void qualifiedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class,
 				QualifiedConnectionFactoryRedisConfig.class);
@@ -126,7 +152,7 @@ public class RedisHttpSessionConfigurationTests {
 	}
 
 	@Test
-	public void qualifiedAndPrimaryDataSourceConfiguration() {
+	public void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class,
 				QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
 
@@ -144,7 +170,7 @@ public class RedisHttpSessionConfigurationTests {
 	}
 
 	@Test
-	public void namedDataSourceConfiguration() {
+	public void namedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, NamedConnectionFactoryRedisConfig.class);
 
 		RedisOperationsSessionRepository repository = this.context
@@ -161,12 +187,11 @@ public class RedisHttpSessionConfigurationTests {
 	}
 
 	@Test
-	public void multipleDataSourceConfiguration() {
+	public void multipleConnectionFactoryRedisConfig() {
 		this.thrown.expect(BeanCreationException.class);
-		this.thrown.expectMessage(
-				"secondaryRedisConnectionFactory,defaultRedisConnectionFactory");
+		this.thrown.expectMessage("expected single matching bean but found 2");
 
-		registerAndRefresh(MultipleConnectionFactoryRedisConfig.class);
+		registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -202,9 +227,24 @@ public class RedisHttpSessionConfigurationTests {
 
 	}
 
+	@EnableRedisHttpSession(cleanupCron = CLEANUP_CRON_EXPRESSION)
+	static class CustomCleanupCronExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class CustomCleanupCronExpressionSetterConfiguration
+			extends RedisHttpSessionConfiguration {
+
+		CustomCleanupCronExpressionSetterConfiguration() {
+			setCleanupCron(CLEANUP_CRON_EXPRESSION);
+		}
+
+	}
+
 	@Configuration
 	@EnableRedisHttpSession
-	static class QualifiedConnectionFactoryRedisConfig extends RedisConfig {
+	static class QualifiedConnectionFactoryRedisConfig {
 
 		@Bean
 		@SpringSessionRedisConnectionFactory
@@ -216,7 +256,7 @@ public class RedisHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableRedisHttpSession
-	static class PrimaryConnectionFactoryRedisConfig extends RedisConfig {
+	static class PrimaryConnectionFactoryRedisConfig {
 
 		@Bean
 		@Primary
@@ -228,7 +268,7 @@ public class RedisHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableRedisHttpSession
-	static class QualifiedAndPrimaryConnectionFactoryRedisConfig extends RedisConfig {
+	static class QualifiedAndPrimaryConnectionFactoryRedisConfig {
 
 		@Bean
 		@SpringSessionRedisConnectionFactory
@@ -246,7 +286,7 @@ public class RedisHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableRedisHttpSession
-	static class NamedConnectionFactoryRedisConfig extends RedisConfig {
+	static class NamedConnectionFactoryRedisConfig {
 
 		@Bean
 		public RedisConnectionFactory redisConnectionFactory() {
@@ -257,7 +297,7 @@ public class RedisHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableRedisHttpSession
-	static class MultipleConnectionFactoryRedisConfig extends RedisConfig {
+	static class MultipleConnectionFactoryRedisConfig {
 
 		@Bean
 		public RedisConnectionFactory secondaryRedisConnectionFactory() {
