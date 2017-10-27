@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.data.redis.config.annotation.web.http;
+package org.springframework.session.data.redis.config.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -22,22 +22,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 
 /**
- * Qualifier annotation for a {@link RedisConnectionFactory} to be injected in
+ * Annotation used to inject the {@link RedisOperations} instance used by Spring Session's
  * {@link RedisOperationsSessionRepository}.
  *
  * @author Vedran Pavic
  * @since 2.0.0
  */
-@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE,
+@Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,
 		ElementType.ANNOTATION_TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Qualifier
-public @interface SpringSessionRedisConnectionFactory {
+@Value("#{sessionRepository.sessionRedisOperations}")
+public @interface SpringSessionRedisOperations {
 
 }
