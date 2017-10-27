@@ -288,6 +288,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	static class AlmostNowMatcher implements ArgumentMatcher<Instant> {
 
+		@Override
 		public boolean matches(Instant argument) {
 			long now = System.currentTimeMillis();
 			long delta = now - argument.toEpochMilli();

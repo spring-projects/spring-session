@@ -295,9 +295,11 @@ public class RedisOperationsSessionRepository implements
 	private final RedisSessionExpirationPolicy expirationPolicy;
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
+		@Override
 		public void publishEvent(ApplicationEvent event) {
 		}
 
+		@Override
 		public void publishEvent(Object event) {
 		}
 	};
@@ -389,6 +391,7 @@ public class RedisOperationsSessionRepository implements
 		return this.sessionRedisOperations;
 	}
 
+	@Override
 	public void save(RedisSession session) {
 		session.saveDelta();
 		if (session.isNew()) {
@@ -403,10 +406,12 @@ public class RedisOperationsSessionRepository implements
 		this.expirationPolicy.cleanExpiredSessions();
 	}
 
+	@Override
 	public RedisSession findById(String id) {
 		return getSession(id, false);
 	}
 
+	@Override
 	public Map<String, RedisSession> findByIndexNameAndIndexValue(String indexName,
 			String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
@@ -468,6 +473,7 @@ public class RedisOperationsSessionRepository implements
 		return loaded;
 	}
 
+	@Override
 	public void deleteById(String sessionId) {
 		RedisSession session = getSession(sessionId, true);
 		if (session == null) {
@@ -484,6 +490,7 @@ public class RedisOperationsSessionRepository implements
 		save(session);
 	}
 
+	@Override
 	public RedisSession createSession() {
 		RedisSession redisSession = new RedisSession();
 		if (this.defaultMaxInactiveInterval != null) {
@@ -493,6 +500,7 @@ public class RedisOperationsSessionRepository implements
 		return redisSession;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void onMessage(Message message, byte[] pattern) {
 		byte[] messageChannel = message.getChannel();
@@ -706,11 +714,13 @@ public class RedisOperationsSessionRepository implements
 			this.isNew = isNew;
 		}
 
+		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
 			this.putAndFlush(LAST_ACCESSED_ATTR, getLastAccessedTime().toEpochMilli());
 		}
 
+		@Override
 		public boolean isExpired() {
 			return this.cached.isExpired();
 		}
@@ -719,44 +729,54 @@ public class RedisOperationsSessionRepository implements
 			return this.isNew;
 		}
 
+		@Override
 		public Instant getCreationTime() {
 			return this.cached.getCreationTime();
 		}
 
+		@Override
 		public String getId() {
 			return this.cached.getId();
 		}
 
+		@Override
 		public String changeSessionId() {
 			return this.cached.changeSessionId();
 		}
 
+		@Override
 		public Instant getLastAccessedTime() {
 			return this.cached.getLastAccessedTime();
 		}
 
+		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
 			this.putAndFlush(MAX_INACTIVE_ATTR, (int) getMaxInactiveInterval().getSeconds());
 		}
 
+		@Override
 		public Duration getMaxInactiveInterval() {
 			return this.cached.getMaxInactiveInterval();
 		}
 
+		@Override
 		public <T> T getAttribute(String attributeName) {
 			return this.cached.getAttribute(attributeName);
 		}
 
+		@Override
 		public Set<String> getAttributeNames() {
 			return this.cached.getAttributeNames();
 		}
 
+		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.cached.setAttribute(attributeName, attributeValue);
 			this.putAndFlush(getSessionAttrNameKey(attributeName), attributeValue);
 		}
 
+		@Override
 		public void removeAttribute(String attributeName) {
 			this.cached.removeAttribute(attributeName);
 			this.putAndFlush(getSessionAttrNameKey(attributeName), null);

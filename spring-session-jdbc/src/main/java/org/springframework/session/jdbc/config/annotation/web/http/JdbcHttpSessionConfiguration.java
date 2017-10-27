@@ -130,6 +130,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	/* (non-Javadoc)
 	 * @see org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang.ClassLoader)
 	 */
+	@Override
 	public void setBeanClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
 	}
@@ -162,6 +163,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return this.tableName;
 	}
 
+	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
 				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
@@ -175,6 +177,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 				.getNumber("maxInactiveIntervalInSeconds");
 	}
 
+	@Override
 	public void setEmbeddedValueResolver(StringValueResolver resolver) {
 		this.embeddedValueResolver = resolver;
 	}

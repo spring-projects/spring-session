@@ -1436,6 +1436,7 @@ public class SessionRepositoryFilterTests {
 
 	private static class SessionRepositoryFilterDefaultOrder implements Ordered {
 
+		@Override
 		public int getOrder() {
 			return SessionRepositoryFilter.DEFAULT_ORDER;
 		}

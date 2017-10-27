@@ -55,6 +55,7 @@ public class SessionEventHttpSessionListenerAdapter
 	 * @see org.springframework.context.ApplicationListener#onApplicationEvent(org.
 	 * springframework.context.ApplicationEvent)
 	 */
+	@Override
 	public void onApplicationEvent(AbstractSessionEvent event) {
 		if (this.listeners.isEmpty()) {
 			return;
@@ -86,6 +87,7 @@ public class SessionEventHttpSessionListenerAdapter
 	 * org.springframework.web.context.ServletContextAware#setServletContext(javax.servlet
 	 * .ServletContext)
 	 */
+	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.context = servletContext;
 	}

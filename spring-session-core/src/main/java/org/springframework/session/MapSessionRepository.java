@@ -69,6 +69,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
+	@Override
 	public void save(MapSession session) {
 		if (!session.getId().equals(session.getOriginalId())) {
 			this.sessions.remove(session.getOriginalId());
@@ -77,6 +78,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		this.sessions.put(session.getId(), new MapSession(session));
 	}
 
+	@Override
 	public MapSession findById(String id) {
 		Session saved = this.sessions.get(id);
 		if (saved == null) {
@@ -89,10 +91,12 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		return new MapSession(saved);
 	}
 
+	@Override
 	public void deleteById(String id) {
 		this.sessions.remove(id);
 	}
 
+	@Override
 	public MapSession createSession() {
 		MapSession result = new MapSession();
 		if (this.defaultMaxInactiveInterval != null) {

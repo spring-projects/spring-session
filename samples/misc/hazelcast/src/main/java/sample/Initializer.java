@@ -43,6 +43,7 @@ public class Initializer implements ServletContextListener {
 
 	private HazelcastInstance instance;
 
+	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		this.instance = createHazelcastInstance();
 		Map<String, Session> sessions = this.instance.getMap(SESSION_MAP_NAME);
@@ -55,6 +56,7 @@ public class Initializer implements ServletContextListener {
 		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
 	}
 
+	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
 		this.instance.shutdown();
 	}

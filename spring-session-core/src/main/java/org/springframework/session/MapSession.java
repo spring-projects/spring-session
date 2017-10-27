@@ -107,14 +107,17 @@ public final class MapSession implements Session, Serializable {
 		this.maxInactiveInterval = session.getMaxInactiveInterval();
 	}
 
+	@Override
 	public void setLastAccessedTime(Instant lastAccessedTime) {
 		this.lastAccessedTime = lastAccessedTime;
 	}
 
+	@Override
 	public Instant getCreationTime() {
 		return this.creationTime;
 	}
 
+	@Override
 	public String getId() {
 		return this.id;
 	}
@@ -127,24 +130,29 @@ public final class MapSession implements Session, Serializable {
 		this.originalId = originalId;
 	}
 
+	@Override
 	public String changeSessionId() {
 		String changedId = generateId();
 		setId(changedId);
 		return changedId;
 	}
 
+	@Override
 	public Instant getLastAccessedTime() {
 		return this.lastAccessedTime;
 	}
 
+	@Override
 	public void setMaxInactiveInterval(Duration interval) {
 		this.maxInactiveInterval = interval;
 	}
 
+	@Override
 	public Duration getMaxInactiveInterval() {
 		return this.maxInactiveInterval;
 	}
 
+	@Override
 	public boolean isExpired() {
 		return isExpired(Instant.now());
 	}
@@ -156,15 +164,18 @@ public final class MapSession implements Session, Serializable {
 		return now.minus(this.maxInactiveInterval).compareTo(this.lastAccessedTime) >= 0;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String attributeName) {
 		return (T) this.sessionAttrs.get(attributeName);
 	}
 
+	@Override
 	public Set<String> getAttributeNames() {
 		return this.sessionAttrs.keySet();
 	}
 
+	@Override
 	public void setAttribute(String attributeName, Object attributeValue) {
 		if (attributeValue == null) {
 			removeAttribute(attributeName);
@@ -174,6 +185,7 @@ public final class MapSession implements Session, Serializable {
 		}
 	}
 
+	@Override
 	public void removeAttribute(String attributeName) {
 		this.sessionAttrs.remove(attributeName);
 	}
@@ -198,10 +210,12 @@ public final class MapSession implements Session, Serializable {
 		this.id = id;
 	}
 
+	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof Session && this.id.equals(((Session) obj).getId());
 	}
 
+	@Override
 	public int hashCode() {
 		return this.id.hashCode();
 	}

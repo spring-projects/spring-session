@@ -28,6 +28,7 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 	private Map<String, AbstractSessionEvent> events = new HashMap<>();
 	private ConcurrentMap<String, Object> locks = new ConcurrentHashMap<>();
 
+	@Override
 	public void onApplicationEvent(AbstractSessionEvent event) {
 		String sessionId = event.getSessionId();
 		this.events.put(sessionId, event);

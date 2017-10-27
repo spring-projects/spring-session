@@ -126,9 +126,11 @@ public class HazelcastSessionRepository implements
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 
+		@Override
 		public void publishEvent(ApplicationEvent event) {
 		}
 
+		@Override
 		public void publishEvent(Object event) {
 		}
 
@@ -192,6 +194,7 @@ public class HazelcastSessionRepository implements
 		this.hazelcastFlushMode = hazelcastFlushMode;
 	}
 
+	@Override
 	public HazelcastSession createSession() {
 		HazelcastSession result = new HazelcastSession();
 		if (this.defaultMaxInactiveInterval != null) {
@@ -201,6 +204,7 @@ public class HazelcastSessionRepository implements
 		return result;
 	}
 
+	@Override
 	public void save(HazelcastSession session) {
 		if (!session.getId().equals(session.originalId)) {
 			this.sessions.remove(session.originalId);
@@ -213,6 +217,7 @@ public class HazelcastSessionRepository implements
 		}
 	}
 
+	@Override
 	public HazelcastSession findById(String id) {
 		MapSession saved = this.sessions.get(id);
 		if (saved == null) {
@@ -225,10 +230,12 @@ public class HazelcastSessionRepository implements
 		return new HazelcastSession(saved);
 	}
 
+	@Override
 	public void deleteById(String id) {
 		this.sessions.remove(id);
 	}
 
+	@Override
 	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(
 			String indexName, String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
@@ -244,6 +251,7 @@ public class HazelcastSessionRepository implements
 		return sessionMap;
 	}
 
+	@Override
 	public void entryAdded(EntryEvent<String, MapSession> event) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Session created with id: " + event.getValue().getId());
@@ -251,6 +259,7 @@ public class HazelcastSessionRepository implements
 		this.eventPublisher.publishEvent(new SessionCreatedEvent(this, event.getValue()));
 	}
 
+	@Override
 	public void entryEvicted(EntryEvent<String, MapSession> event) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Session expired with id: " + event.getOldValue().getId());
@@ -259,6 +268,7 @@ public class HazelcastSessionRepository implements
 				.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
 	}
 
+	@Override
 	public void entryRemoved(EntryEvent<String, MapSession> event) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Session deleted with id: " + event.getOldValue().getId());
@@ -300,57 +310,69 @@ public class HazelcastSessionRepository implements
 			this.originalId = cached.getId();
 		}
 
+		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.delegate.setLastAccessedTime(lastAccessedTime);
 			this.changed = true;
 			flushImmediateIfNecessary();
 		}
 
+		@Override
 		public boolean isExpired() {
 			return this.delegate.isExpired();
 		}
 
+		@Override
 		public Instant getCreationTime() {
 			return this.delegate.getCreationTime();
 		}
 
+		@Override
 		public String getId() {
 			return this.delegate.getId();
 		}
 
+		@Override
 		public String changeSessionId() {
 			this.changed = true;
 			return this.delegate.changeSessionId();
 		}
 
+		@Override
 		public Instant getLastAccessedTime() {
 			return this.delegate.getLastAccessedTime();
 		}
 
+		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.delegate.setMaxInactiveInterval(interval);
 			this.changed = true;
 			flushImmediateIfNecessary();
 		}
 
+		@Override
 		public Duration getMaxInactiveInterval() {
 			return this.delegate.getMaxInactiveInterval();
 		}
 
+		@Override
 		public <T> T getAttribute(String attributeName) {
 			return this.delegate.getAttribute(attributeName);
 		}
 
+		@Override
 		public Set<String> getAttributeNames() {
 			return this.delegate.getAttributeNames();
 		}
 
+		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.delegate.setAttribute(attributeName, attributeValue);
 			this.changed = true;
 			flushImmediateIfNecessary();
 		}
 
+		@Override
 		public void removeAttribute(String attributeName) {
 			this.delegate.removeAttribute(attributeName);
 			this.changed = true;

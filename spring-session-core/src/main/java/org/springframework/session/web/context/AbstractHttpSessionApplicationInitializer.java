@@ -107,6 +107,7 @@ public abstract class AbstractHttpSessionApplicationInitializer
 		this.configurationClasses = configurationClasses;
 	}
 
+	@Override
 	public void onStartup(ServletContext servletContext) throws ServletException {
 		beforeSessionRepositoryFilter(servletContext);
 		if (this.configurationClasses != null) {

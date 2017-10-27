@@ -36,6 +36,7 @@ public class WebSocketDisconnectHandler<S>
 		this.repository = repository;
 	}
 
+	@Override
 	public void onApplicationEvent(SessionDisconnectEvent event) {
 		String id = event.getSessionId();
 		if (id == null) {

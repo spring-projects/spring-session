@@ -31,10 +31,12 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 public class WebSocketConfig
 		extends AbstractSessionWebSocketMessageBrokerConfigurer<Session> { // <1>
 
+	@Override
 	protected void configureStompEndpoints(StompEndpointRegistry registry) { // <2>
 		registry.addEndpoint("/messages").withSockJS();
 	}
 
+	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
 		registry.enableSimpleBroker("/queue/", "/topic/");
 		registry.setApplicationDestinationPrefixes("/app");

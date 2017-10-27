@@ -94,6 +94,7 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 		private boolean receivedEvent;
 		private Object lock;
 
+		@Override
 		public void onApplicationEvent(SessionExpiredEvent event) {
 			synchronized (this.lock) {
 				this.receivedEvent = true;

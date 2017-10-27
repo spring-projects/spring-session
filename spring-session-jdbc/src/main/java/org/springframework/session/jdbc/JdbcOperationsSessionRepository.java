@@ -367,6 +367,7 @@ public class JdbcOperationsSessionRepository implements
 		this.conversionService = conversionService;
 	}
 
+	@Override
 	public JdbcSession createSession() {
 		JdbcSession session = new JdbcSession();
 		if (this.defaultMaxInactiveInterval != null) {
@@ -375,10 +376,12 @@ public class JdbcOperationsSessionRepository implements
 		return session;
 	}
 
+	@Override
 	public void save(final JdbcSession session) {
 		if (session.isNew()) {
 			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
+				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					JdbcOperationsSessionRepository.this.jdbcOperations.update(
 							JdbcOperationsSessionRepository.this.createSessionQuery,
@@ -397,6 +400,7 @@ public class JdbcOperationsSessionRepository implements
 								JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
 								new BatchPreparedStatementSetter() {
 
+									@Override
 									public void setValues(PreparedStatement ps, int i) throws SQLException {
 										String attributeName = attributeNames.get(i);
 										ps.setString(1, session.primaryKey);
@@ -404,6 +408,7 @@ public class JdbcOperationsSessionRepository implements
 										serialize(ps, 3, session.getAttribute(attributeName));
 									}
 
+									@Override
 									public int getBatchSize() {
 										return attributeNames.size();
 									}
@@ -417,6 +422,7 @@ public class JdbcOperationsSessionRepository implements
 		else {
 			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
+				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					if (session.isChanged()) {
 						JdbcOperationsSessionRepository.this.jdbcOperations.update(
@@ -468,6 +474,7 @@ public class JdbcOperationsSessionRepository implements
 		session.clearChangeFlags();
 	}
 
+	@Override
 	public JdbcSession findById(final String id) {
 		final JdbcSession session = this.transactionOperations.execute(status -> {
 			List<JdbcSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
@@ -492,9 +499,11 @@ public class JdbcOperationsSessionRepository implements
 		return null;
 	}
 
+	@Override
 	public void deleteById(final String id) {
 		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
 
+			@Override
 			protected void doInTransactionWithoutResult(TransactionStatus status) {
 				JdbcOperationsSessionRepository.this.jdbcOperations.update(
 						JdbcOperationsSessionRepository.this.deleteSessionQuery, id);
@@ -503,6 +512,7 @@ public class JdbcOperationsSessionRepository implements
 		});
 	}
 
+	@Override
 	public Map<String, JdbcSession> findByIndexNameAndIndexValue(String indexName,
 			final String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
@@ -652,23 +662,28 @@ public class JdbcOperationsSessionRepository implements
 			return getLastAccessedTime().plus(getMaxInactiveInterval());
 		}
 
+		@Override
 		public String getId() {
 			return this.delegate.getId();
 		}
 
+		@Override
 		public String changeSessionId() {
 			this.changed = true;
 			return this.delegate.changeSessionId();
 		}
 
+		@Override
 		public <T> T getAttribute(String attributeName) {
 			return this.delegate.getAttribute(attributeName);
 		}
 
+		@Override
 		public Set<String> getAttributeNames() {
 			return this.delegate.getAttributeNames();
 		}
 
+		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.delegate.setAttribute(attributeName, attributeValue);
 			this.delta.put(attributeName, attributeValue);
@@ -678,33 +693,40 @@ public class JdbcOperationsSessionRepository implements
 			}
 		}
 
+		@Override
 		public void removeAttribute(String attributeName) {
 			this.delegate.removeAttribute(attributeName);
 			this.delta.put(attributeName, null);
 		}
 
+		@Override
 		public Instant getCreationTime() {
 			return this.delegate.getCreationTime();
 		}
 
+		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.delegate.setLastAccessedTime(lastAccessedTime);
 			this.changed = true;
 		}
 
+		@Override
 		public Instant getLastAccessedTime() {
 			return this.delegate.getLastAccessedTime();
 		}
 
+		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.delegate.setMaxInactiveInterval(interval);
 			this.changed = true;
 		}
 
+		@Override
 		public Duration getMaxInactiveInterval() {
 			return this.delegate.getMaxInactiveInterval();
 		}
 
+		@Override
 		public boolean isExpired() {
 			return this.delegate.isExpired();
 		}
@@ -738,6 +760,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private class SessionResultSetExtractor implements ResultSetExtractor<List<JdbcSession>> {
 
+		@Override
 		public List<JdbcSession> extractData(ResultSet rs) throws SQLException, DataAccessException {
 			List<JdbcSession> sessions = new ArrayList<>();
 			while (rs.next()) {

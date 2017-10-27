@@ -52,6 +52,7 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 	 * org.springframework.session.data.redis.config.ConfigureRedisAction#configure(org.
 	 * springframework.data.redis.connection.RedisConnection)
 	 */
+	@Override
 	public void configure(RedisConnection connection) {
 		String notifyOptions = getNotifyOptions(connection);
 		String customizedNotifyOptions = notifyOptions;

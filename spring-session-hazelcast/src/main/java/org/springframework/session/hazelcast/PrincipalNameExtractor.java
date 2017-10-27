@@ -37,6 +37,7 @@ public class PrincipalNameExtractor extends ValueExtractor<MapSession, String> {
 	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER =
 			new PrincipalNameResolver();
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public void extract(MapSession target, String argument,
 			ValueCollector collector) {

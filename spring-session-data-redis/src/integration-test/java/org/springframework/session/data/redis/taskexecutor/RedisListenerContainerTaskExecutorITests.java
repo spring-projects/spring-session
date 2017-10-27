@@ -75,6 +75,7 @@ public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITest
 			this.executor = executor;
 		}
 
+		@Override
 		public void execute(Runnable task) {
 			synchronized (this.lock) {
 				try {

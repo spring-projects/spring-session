@@ -95,10 +95,12 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		this.redisFlushMode = redisFlushMode;
 	}
 
+	@Override
 	public void setEmbeddedValueResolver(StringValueResolver resolver) {
 		this.embeddedValueResolver = resolver;
 	}
 
+	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
 				.getAnnotationAttributes(EnableRedisWebSession.class.getName());

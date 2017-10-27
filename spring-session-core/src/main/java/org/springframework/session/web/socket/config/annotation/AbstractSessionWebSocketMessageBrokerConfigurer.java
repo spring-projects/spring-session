@@ -89,6 +89,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 		registration.interceptors(sessionRepositoryInterceptor());
 	}
 
+	@Override
 	public final void registerStompEndpoints(StompEndpointRegistry registry) {
 		if (registry instanceof WebMvcStompEndpointRegistry) {
 			WebMvcStompEndpointRegistry mvcRegistry = (WebMvcStompEndpointRegistry) registry;
@@ -141,6 +142,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 			this.interceptor = interceptor;
 		}
 
+		@Override
 		public StompWebSocketEndpointRegistration addEndpoint(String... paths) {
 			StompWebSocketEndpointRegistration endpoints = this.registry
 					.addEndpoint(paths);
@@ -148,14 +150,17 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 			return endpoints;
 		}
 
+		@Override
 		public void setOrder(int order) {
 			this.registry.setOrder(order);
 		}
 
+		@Override
 		public void setUrlPathHelper(UrlPathHelper urlPathHelper) {
 			this.registry.setUrlPathHelper(urlPathHelper);
 		}
 
+		@Override
 		public WebMvcStompEndpointRegistry setErrorHandler(
 				StompSubProtocolErrorHandler errorHandler) {
 			return this.registry.setErrorHandler(errorHandler);

@@ -41,6 +41,7 @@ public class WebSocketConnectHandler<S>
 		this.repository = repository;
 	}
 
+	@Override
 	public void onApplicationEvent(SessionConnectEvent event) {
 		MessageHeaders headers = event.getMessage().getHeaders();
 		Principal user = SimpMessageHeaderAccessor.getUser(headers);

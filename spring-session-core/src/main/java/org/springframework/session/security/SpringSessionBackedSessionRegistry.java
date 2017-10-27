@@ -55,12 +55,14 @@ public class SpringSessionBackedSessionRegistry<S extends Session>
 		this.sessionRepository = sessionRepository;
 	}
 
+	@Override
 	public List<Object> getAllPrincipals() {
 		throw new UnsupportedOperationException("SpringSessionBackedSessionRegistry does "
 				+ "not support retrieving all principals, since Spring Session provides "
 				+ "no way to obtain that information");
 	}
 
+	@Override
 	public List<SessionInformation> getAllSessions(Object principal,
 			boolean includeExpiredSessions) {
 		Collection<S> sessions = this.sessionRepository.findByIndexNameAndIndexValue(
@@ -77,6 +79,7 @@ public class SpringSessionBackedSessionRegistry<S extends Session>
 		return infos;
 	}
 
+	@Override
 	public SessionInformation getSessionInformation(String sessionId) {
 		S session = this.sessionRepository.findById(sessionId);
 		if (session != null) {
@@ -89,18 +92,21 @@ public class SpringSessionBackedSessionRegistry<S extends Session>
 	/*
 	 * This is a no-op, as we don't administer sessions ourselves.
 	 */
+	@Override
 	public void refreshLastRequest(String sessionId) {
 	}
 
 	/*
 	 * This is a no-op, as we don't administer sessions ourselves.
 	 */
+	@Override
 	public void registerNewSession(String sessionId, Object principal) {
 	}
 
 	/*
 	 * This is a no-op, as we don't administer sessions ourselves.
 	 */
+	@Override
 	public void removeSessionInformation(String sessionId) {
 	}
 

@@ -130,50 +130,62 @@ public class MapSessionTests {
 
 	static class CustomSession implements Session {
 
+		@Override
 		public Instant getCreationTime() {
 			return Instant.EPOCH;
 		}
 
+		@Override
 		public String changeSessionId() {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public String getId() {
 			return "id";
 		}
 
+		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public Instant getLastAccessedTime() {
 			return Instant.EPOCH;
 		}
 
+		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 
 		}
 
+		@Override
 		public Duration getMaxInactiveInterval() {
 			return Duration.ZERO;
 		}
 
+		@Override
 		public <T> T getAttribute(String attributeName) {
 			return null;
 		}
 
+		@Override
 		public Set<String> getAttributeNames() {
 			return null;
 		}
 
+		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 
 		}
 
+		@Override
 		public void removeAttribute(String attributeName) {
 
 		}
 
+		@Override
 		public boolean isExpired() {
 			return false;
 		}

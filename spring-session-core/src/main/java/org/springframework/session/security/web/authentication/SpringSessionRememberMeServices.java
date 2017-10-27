@@ -60,16 +60,19 @@ public class SpringSessionRememberMeServices
 
 	private String sessionAttrToDeleteOnLoginFail = HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
+	@Override
 	public final Authentication autoLogin(HttpServletRequest request,
 			HttpServletResponse response) {
 		return null;
 	}
 
+	@Override
 	public final void loginFail(HttpServletRequest request,
 			HttpServletResponse response) {
 		logout(request);
 	}
 
+	@Override
 	public final void loginSuccess(HttpServletRequest request,
 			HttpServletResponse response, Authentication successfulAuthentication) {
 		if (!this.alwaysRemember
@@ -126,6 +129,7 @@ public class SpringSessionRememberMeServices
 		this.validitySeconds = validitySeconds;
 	}
 
+	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) {
 		logout(request);

@@ -131,6 +131,7 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 		return super.preSend(message, channel);
 	}
 
+	@Override
 	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
 			WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 		if (request instanceof ServletServerHttpRequest) {
@@ -143,6 +144,7 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 		return true;
 	}
 
+	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
 			WebSocketHandler wsHandler, Exception exception) {
 	}

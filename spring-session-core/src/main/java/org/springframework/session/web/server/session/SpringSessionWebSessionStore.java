@@ -73,10 +73,12 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		this.clock = clock;
 	}
 
+	@Override
 	public Mono<WebSession> createWebSession() {
 		return this.sessions.createSession().map(this::createSession);
 	}
 
+	@Override
 	public Mono<WebSession> updateLastAccessTime(WebSession session) {
 		@SuppressWarnings("unchecked")
 		SpringSessionWebSession springSessionWebSession = (SpringSessionWebSession) session;
@@ -294,19 +296,23 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 
 		private class SessionValues extends AbstractCollection<Object> {
 
+			@Override
 			public Iterator<Object> iterator() {
 				return new Iterator<Object>() {
 
 					private Iterator<Entry<String, Object>> i = entrySet().iterator();
 
+					@Override
 					public boolean hasNext() {
 						return this.i.hasNext();
 					}
 
+					@Override
 					public Object next() {
 						return this.i.next().getValue();
 					}
 
+					@Override
 					public void remove() {
 						this.i.remove();
 					}
@@ -314,18 +320,22 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 				};
 			}
 
+			@Override
 			public int size() {
 				return SpringSessionMap.this.size();
 			}
 
+			@Override
 			public boolean isEmpty() {
 				return SpringSessionMap.this.isEmpty();
 			}
 
+			@Override
 			public void clear() {
 				SpringSessionMap.this.clear();
 			}
 
+			@Override
 			public boolean contains(Object v) {
 				return SpringSessionMap.this.containsValue(v);
 			}

@@ -57,6 +57,7 @@ public final class WebSocketRegistryListener
 
 	private final ConcurrentHashMap<String, Map<String, WebSocketSession>> httpSessionIdToWsSessions = new ConcurrentHashMap<>();
 
+	@Override
 	public void onApplicationEvent(ApplicationEvent event) {
 		if (event instanceof SessionDestroyedEvent) {
 			SessionDestroyedEvent e = (SessionDestroyedEvent) event;

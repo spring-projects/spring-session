@@ -198,10 +198,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.redisSubscriptionExecutor = redisSubscriptionExecutor;
 	}
 
+	@Override
 	public void setEmbeddedValueResolver(StringValueResolver resolver) {
 		this.embeddedValueResolver = resolver;
 	}
 
+	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
 				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
@@ -257,6 +259,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			this.configure = configure;
 		}
 
+		@Override
 		public void afterPropertiesSet() throws Exception {
 			if (this.configure == ConfigureRedisAction.NO_OP) {
 				return;

@@ -70,6 +70,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		return sessionRepository;
 	}
 
+	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> enableAttrMap = importMetadata
 				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
