@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Configuration;
@@ -31,32 +33,40 @@ import org.springframework.session.data.redis.RedisFlushMode;
  * Add this annotation to an {@code @Configuration} class to expose the
  * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by
  * Redis. In order to leverage the annotation, a single {@link RedisConnectionFactory}
- * must be provided. For example: <pre>
- * <code>
- * {@literal @Configuration}
- * {@literal @EnableRedisHttpSession}
+ * must be provided. For example:
+ *
+ * <pre class="code">
+ * &#064;Configuration
+ * &#064;EnableRedisHttpSession
  * public class RedisHttpSessionConfig {
  *
- *     {@literal @Bean}
+ *     &#064;Bean
  *     public LettuceConnectionFactory connectionFactory() {
  *         return new LettuceConnectionFactory();
  *     }
  *
  * }
- * </code> </pre>
+ * </pre>
  *
  * More advanced configurations can extend {@link RedisHttpSessionConfiguration} instead.
  *
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.0
  * @see EnableSpringHttpSession
  */
-@Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target({ java.lang.annotation.ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 @Documented
 @Import(RedisHttpSessionConfiguration.class)
 @Configuration
 public @interface EnableRedisHttpSession {
+
+	/**
+	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
+	 * This should be a non-negative integer.
+	 * @return the seconds a session can be inactive before expiring
+	 */
 	int maxInactiveIntervalInSeconds() default 1800;
 
 	/**
@@ -93,4 +103,11 @@ public @interface EnableRedisHttpSession {
 	 * @since 1.1
 	 */
 	RedisFlushMode redisFlushMode() default RedisFlushMode.ON_SAVE;
+
+	/**
+	 * The cron expression for expired session cleanup job. By default runs every minute.
+	 * @return the session cleanup cron expression
+	 */
+	String cleanupCron() default RedisHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
+
 }

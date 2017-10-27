@@ -20,9 +20,3 @@ dependencies {
 	integrationTestCompile seleniumDependencies
 	integrationTestCompile "org.testcontainers:testcontainers"
 }
-
-integrationTest {
-	doFirst {
-		systemProperties['spring.session.redis.namespace'] = project.name
-	}
-}
