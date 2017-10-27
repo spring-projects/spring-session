@@ -320,8 +320,7 @@ public class HazelcastSessionRepository implements
 
 		public String changeSessionId() {
 			this.changed = true;
-			String result = this.delegate.changeSessionId();
-			return result;
+			return this.delegate.changeSessionId();
 		}
 
 		public Instant getLastAccessedTime() {

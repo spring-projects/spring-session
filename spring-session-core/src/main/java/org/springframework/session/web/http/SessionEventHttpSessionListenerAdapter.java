@@ -76,8 +76,7 @@ public class SessionEventHttpSessionListenerAdapter
 		Session session = event.getSession();
 		HttpSession httpSession = new HttpSessionAdapter<>(session,
 				this.context);
-		HttpSessionEvent httpSessionEvent = new HttpSessionEvent(httpSession);
-		return httpSessionEvent;
+		return new HttpSessionEvent(httpSession);
 	}
 
 	/*

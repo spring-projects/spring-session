@@ -68,7 +68,7 @@ public class MapReactiveSessionRepository implements ReactiveSessionRepository<M
 	 * should be kept alive between client requests.
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
-		this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);
+		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
 	public Mono<Void> save(MapSession session) {

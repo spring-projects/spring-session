@@ -16,14 +16,13 @@
 
 package sample;
 
-/**
- * @author Rob Winch
- */
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
+/**
+ * @author Rob Winch
+ */
 @EnableWebSecurity
 public class SecurityConfig {
 	@Autowired

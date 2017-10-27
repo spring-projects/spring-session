@@ -136,7 +136,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void setMatchingMessageTypesEmpty() {
-		this.interceptor.setMatchingMessageTypes(Collections.<SimpMessageType>emptySet());
+		this.interceptor.setMatchingMessageTypes(Collections.emptySet());
 	}
 
 	@Test

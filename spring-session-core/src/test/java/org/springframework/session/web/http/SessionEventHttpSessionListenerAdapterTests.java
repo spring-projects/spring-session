@@ -75,8 +75,7 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	// none)
 	@Test
 	public void constructorEmptyWorks() {
-		new SessionEventHttpSessionListenerAdapter(
-				Collections.<HttpSessionListener>emptyList());
+		new SessionEventHttpSessionListenerAdapter(Collections.emptyList());
 	}
 
 	/**
@@ -86,7 +85,7 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	@Test
 	public void onApplicationEventEmptyListenersDoesNotUseEvent() {
 		this.listener = new SessionEventHttpSessionListenerAdapter(
-				Collections.<HttpSessionListener>emptyList());
+				Collections.emptyList());
 		this.destroyed = mock(SessionDestroyedEvent.class);
 
 		this.listener.onApplicationEvent(this.destroyed);

@@ -433,7 +433,7 @@ public class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString()))
 				.willReturn(this.boundSetOperations);
 		given(this.boundSetOperations.members())
-				.willReturn(Collections.<Object>singleton(expiredId));
+				.willReturn(Collections.singleton(expiredId));
 		given(this.redisOperations.boundHashOps(getKey(expiredId)))
 				.willReturn(this.boundHashOperations);
 		Map map = map(RedisOperationsSessionRepository.MAX_INACTIVE_ATTR, 1,
@@ -455,7 +455,7 @@ public class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString()))
 				.willReturn(this.boundSetOperations);
 		given(this.boundSetOperations.members())
-				.willReturn(Collections.<Object>singleton(sessionId));
+				.willReturn(Collections.singleton(sessionId));
 		given(this.redisOperations.boundHashOps(getKey(sessionId)))
 				.willReturn(this.boundHashOperations);
 		Map map = map(RedisOperationsSessionRepository.CREATION_TIME_ATTR, createdTime.toEpochMilli(),

@@ -66,7 +66,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	 * should be kept alive between client requests.
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
-		this.defaultMaxInactiveInterval = Integer.valueOf(defaultMaxInactiveInterval);
+		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
 	public void save(MapSession session) {

@@ -20,7 +20,6 @@ import com.maxmind.geoip2.DatabaseReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import sample.config.GeoConfig;
 
 import org.springframework.beans.factory.annotation.Autowired;

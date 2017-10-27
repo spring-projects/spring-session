@@ -497,9 +497,6 @@ public class RedisOperationsSessionRepository implements
 	public void onMessage(Message message, byte[] pattern) {
 		byte[] messageChannel = message.getChannel();
 		byte[] messageBody = message.getBody();
-		if (messageChannel == null || messageBody == null) {
-			return;
-		}
 
 		String channel = new String(messageChannel);
 
@@ -536,8 +533,6 @@ public class RedisOperationsSessionRepository implements
 			else {
 				handleExpired(sessionId, session);
 			}
-
-			return;
 		}
 	}
 

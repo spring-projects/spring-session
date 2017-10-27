@@ -527,7 +527,7 @@ public class JdbcOperationsSessionRepository implements
 
 	@Scheduled(cron = "${spring.session.cleanup.cron.expression:0 * * * * *}")
 	public void cleanUpExpiredSessions() {
-		int deletedCount = this.transactionOperations.execute(transactionStatus ->
+		Integer deletedCount = this.transactionOperations.execute(transactionStatus ->
 				JdbcOperationsSessionRepository.this.jdbcOperations.update(
 						JdbcOperationsSessionRepository.this.deleteSessionsByExpiryTimeQuery,
 						System.currentTimeMillis()));
