@@ -41,6 +41,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;

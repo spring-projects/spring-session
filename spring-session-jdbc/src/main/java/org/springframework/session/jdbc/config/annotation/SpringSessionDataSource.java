@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.jdbc.config.annotation.web.http;
+package org.springframework.session.jdbc.config.annotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
