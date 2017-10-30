@@ -20,7 +20,7 @@
 
 
 	<security:user-service>
-		<security:user name="user" password="password" authorities="ROLE_USER"/>
+		<security:user name="user" password="{noop}password" authorities="ROLE_USER"/>
 	</security:user-service>
 
 	<bean class="org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration"/>

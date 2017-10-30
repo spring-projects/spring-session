@@ -69,7 +69,7 @@ public class RememberMeSecurityConfiguration extends WebSecurityConfigurerAdapte
 	public InMemoryUserDetailsManager userDetailsService() {
 		InMemoryUserDetailsManager uds = new InMemoryUserDetailsManager();
 		uds.createUser(
-				User.withUsername("user").password("password").roles("USER").build());
+				User.withUsername("user").password("{noop}password").roles("USER").build());
 		return uds;
 	}
 
