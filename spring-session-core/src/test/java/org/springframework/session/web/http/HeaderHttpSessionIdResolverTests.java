@@ -17,14 +17,16 @@
 package org.springframework.session.web.http;
 
 import java.util.Collections;
+import java.util.UUID;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.session.MapSession;
-import org.springframework.session.Session;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,108 +35,105 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class HeaderHttpSessionIdResolverTests {
 
+	private static final String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
+
+	@Rule
+	public ExpectedException thrown = ExpectedException.none();
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
 
-	private HeaderHttpSessionIdResolver strategy;
-	private String headerName;
-	private Session session;
+	private HeaderHttpSessionIdResolver resolver;
 
 	@Before
 	public void setup() throws Exception {
-		this.headerName = "X-Auth-Token";
-		this.session = new MapSession();
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
-		this.strategy = new HeaderHttpSessionIdResolver();
+		this.resolver = HeaderHttpSessionIdResolver.xAuthToken();
 	}
 
 	@Test
-	public void getRequestedSessionIdNull() throws Exception {
-		assertThat(this.strategy.resolveSessionIds(this.request)).isEmpty();
+	public void createResolverWithXAuthTokenHeader() {
+		HeaderHttpSessionIdResolver resolver = HeaderHttpSessionIdResolver.xAuthToken();
+		assertThat(ReflectionTestUtils.getField(resolver, "headerName"))
+				.isEqualTo("X-Auth-Token");
 	}
 
 	@Test
-	public void getRequestedSessionIdNotNull() throws Exception {
-		setSessionId(this.session.getId());
-		assertThat(this.strategy.resolveSessionIds(this.request))
-				.isEqualTo(Collections.singletonList(this.session.getId()));
+	public void createResolverWithAuthenticationInfoHeader() {
+		HeaderHttpSessionIdResolver resolver = HeaderHttpSessionIdResolver
+				.authenticationInfo();
+		assertThat(ReflectionTestUtils.getField(resolver, "headerName"))
+				.isEqualTo("Authentication-Info");
 	}
 
 	@Test
-	public void getRequestedSessionIdNotNullCustomHeaderName() throws Exception {
-		setHeaderName("CUSTOM");
-		setSessionId(this.session.getId());
-		assertThat(this.strategy.resolveSessionIds(this.request))
-				.isEqualTo(Collections.singletonList(this.session.getId()));
+	public void createResolverWithCustomHeaderName() {
+		HeaderHttpSessionIdResolver resolver = new HeaderHttpSessionIdResolver(
+				"Custom-Header");
+		assertThat(ReflectionTestUtils.getField(resolver, "headerName"))
+				.isEqualTo("Custom-Header");
 	}
 
 	@Test
-	public void onNewSession() throws Exception {
-		String sessionId = this.session.getId();
-		this.strategy.setSessionId(this.request, this.response, sessionId);
+	public void createResolverWithNullHeaderName() {
+		this.thrown.expect(IllegalArgumentException.class);
+		this.thrown.expectMessage("headerName cannot be null");
+		new HeaderHttpSessionIdResolver(null);
+	}
+
+	@Test
+	public void getRequestedSessionIdNull() {
+		assertThat(this.resolver.resolveSessionIds(this.request)).isEmpty();
+	}
+
+	@Test
+	public void getRequestedSessionIdNotNull() {
+		String sessionId = UUID.randomUUID().toString();
+		setSessionId(sessionId);
+		assertThat(this.resolver.resolveSessionIds(this.request))
+				.isEqualTo(Collections.singletonList(sessionId));
+	}
+
+	@Test
+	public void onNewSession() {
+		String sessionId = UUID.randomUUID().toString();
+		this.resolver.setSessionId(this.request, this.response, sessionId);
 		assertThat(getSessionId()).isEqualTo(sessionId);
+	}
+
+	@Test
+	public void onDeleteSession() {
+		this.resolver.expireSession(this.request, this.response);
+		assertThat(getSessionId()).isEmpty();
 	}
 
 	// the header is set as apposed to added
 	@Test
-	public void onNewSessionMulti() throws Exception {
-		String sessionId = this.session.getId();
-		this.strategy.setSessionId(this.request, this.response, sessionId);
-		this.strategy.setSessionId(this.request, this.response, sessionId);
-
-		assertThat(this.response.getHeaders(this.headerName).size()).isEqualTo(1);
-		assertThat(this.response.getHeaders(this.headerName))
-				.containsOnly(sessionId);
-	}
-
-	@Test
-	public void onNewSessionCustomHeaderName() throws Exception {
-		setHeaderName("CUSTOM");
-		String sessionId = this.session.getId();
-		this.strategy.setSessionId(this.request, this.response, sessionId);
-		assertThat(getSessionId()).isEqualTo(sessionId);
-	}
-
-	@Test
-	public void onDeleteSession() throws Exception {
-		this.strategy.expireSession(this.request, this.response);
-		assertThat(getSessionId()).isEmpty();
+	public void onNewSessionMulti() {
+		String sessionId = UUID.randomUUID().toString();
+		this.resolver.setSessionId(this.request, this.response, sessionId);
+		this.resolver.setSessionId(this.request, this.response, sessionId);
+		assertThat(this.response.getHeaders(HEADER_X_AUTH_TOKEN).size()).isEqualTo(1);
+		assertThat(this.response.getHeaders(HEADER_X_AUTH_TOKEN)).containsOnly(sessionId);
 	}
 
 	// the header is set as apposed to added
 	@Test
-	public void onDeleteSessionMulti() throws Exception {
-		this.strategy.expireSession(this.request, this.response);
-		this.strategy.expireSession(this.request, this.response);
-
-		assertThat(this.response.getHeaders(this.headerName).size()).isEqualTo(1);
+	public void onDeleteSessionMulti() {
+		this.resolver.expireSession(this.request, this.response);
+		this.resolver.expireSession(this.request, this.response);
+		assertThat(this.response.getHeaders(HEADER_X_AUTH_TOKEN).size()).isEqualTo(1);
 		assertThat(getSessionId()).isEmpty();
 	}
 
-	@Test
-	public void onDeleteSessionCustomHeaderName() throws Exception {
-		setHeaderName("CUSTOM");
-		this.strategy.expireSession(this.request, this.response);
-		assertThat(getSessionId()).isEmpty();
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void setHeaderNameNull() throws Exception {
-		this.strategy.setHeaderName(null);
-	}
-
-	private void setHeaderName(String headerName) {
-		this.strategy.setHeaderName(headerName);
-		this.headerName = headerName;
-	}
-
-	private void setSessionId(String id) {
-		this.request.addHeader(this.headerName, id);
+	private void setSessionId(String sessionId) {
+		this.request.addHeader(HEADER_X_AUTH_TOKEN, sessionId);
 	}
 
 	private String getSessionId() {
-		return this.response.getHeader(this.headerName);
+		return this.response.getHeader(HEADER_X_AUTH_TOKEN);
 	}
 
 }

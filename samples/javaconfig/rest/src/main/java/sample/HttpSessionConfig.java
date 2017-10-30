@@ -37,7 +37,7 @@ public class HttpSessionConfig {
 
 	@Bean
 	public HttpSessionIdResolver httpSessionIdResolver() {
-		return new HeaderHttpSessionIdResolver(); // <3>
+		return HeaderHttpSessionIdResolver.xAuthToken(); // <3>
 	}
 }
 // end::class[]

@@ -105,7 +105,7 @@ public class RestMockMvcTests {
 
 		@Bean
 		public HttpSessionIdResolver httpSessionIdResolver() {
-			return new HeaderHttpSessionIdResolver();
+			return HeaderHttpSessionIdResolver.xAuthToken();
 		}
 
 	}

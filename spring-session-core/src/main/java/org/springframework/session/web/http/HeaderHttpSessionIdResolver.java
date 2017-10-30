@@ -23,11 +23,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * A {@link HttpSessionIdResolver} that uses a header to obtain the session from.
+ * A {@link HttpSessionIdResolver} that uses a header to resolve the session id.
  * Specifically, this implementation will allow specifying a header name using
- * {@link HeaderHttpSessionIdResolver#setHeaderName(String)}. The default is
- * "X-Auth-Token".
- *
+ * {@link #HeaderHttpSessionIdResolver(String)}. Convenience factory methods for creating
+ * instances that use common header names, such as "X-Auth-Token" and
+ * "Authentication-Info", are available as well.
+ * <p>
  * When a session is created, the HTTP response will have a response header of the
  * specified name and the value of the session id. For example:
  *
@@ -59,7 +60,40 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class HeaderHttpSessionIdResolver implements HttpSessionIdResolver {
 
-	private String headerName = "X-Auth-Token";
+	private static final String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
+
+	private static final String HEADER_AUTHENTICATION_INFO = "Authentication-Info";
+
+	private final String headerName;
+
+	/**
+	 * Convenience factory to create {@link HeaderHttpSessionIdResolver} that uses
+	 * "X-Auth-Token" header.
+	 * @return the instance configured to use "X-Auth-Token" header
+	 */
+	public static HeaderHttpSessionIdResolver xAuthToken() {
+		return new HeaderHttpSessionIdResolver(HEADER_X_AUTH_TOKEN);
+	}
+
+	/**
+	 * Convenience factory to create {@link HeaderHttpSessionIdResolver} that uses
+	 * "Authentication-Info" header.
+	 * @return the instance configured to use "Authentication-Info" header
+	 */
+	public static HeaderHttpSessionIdResolver authenticationInfo() {
+		return new HeaderHttpSessionIdResolver(HEADER_AUTHENTICATION_INFO);
+	}
+
+	/**
+	 * The name of the header to obtain the session id from.
+	 * @param headerName the name of the header to obtain the session id from.
+	 */
+	public HeaderHttpSessionIdResolver(String headerName) {
+		if (headerName == null) {
+			throw new IllegalArgumentException("headerName cannot be null");
+		}
+		this.headerName = headerName;
+	}
 
 	@Override
 	public List<String> resolveSessionIds(HttpServletRequest request) {
@@ -77,18 +111,6 @@ public class HeaderHttpSessionIdResolver implements HttpSessionIdResolver {
 	@Override
 	public void expireSession(HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader(this.headerName, "");
-	}
-
-	/**
-	 * The name of the header to obtain the session id from. Default is "X-Auth-Token".
-	 *
-	 * @param headerName the name of the header to obtain the session id from.
-	 */
-	public void setHeaderName(String headerName) {
-		if (headerName == null) {
-			throw new IllegalArgumentException("headerName cannot be null");
-		}
-		this.headerName = headerName;
 	}
 
 }
