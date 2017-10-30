@@ -46,7 +46,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class MariaDB5JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "mariadb:5.5.57";
+	private static final String DOCKER_IMAGE = "mariadb:5.5.58";
 
 	@ClassRule
 	public static MariaDBContainer mariaDBContainer = new MariaDBContainer(DOCKER_IMAGE);

@@ -43,7 +43,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class MySQL5JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "mysql:5.7.19";
+	private static final String DOCKER_IMAGE = "mysql:5.7.20";
 
 	@ClassRule
 	public static MySQLContainer mySQLContainer = new MySQLContainer(DOCKER_IMAGE);
