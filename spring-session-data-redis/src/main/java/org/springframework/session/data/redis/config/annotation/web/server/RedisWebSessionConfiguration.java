@@ -32,6 +32,7 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.RedisFlushMode;
@@ -58,9 +59,9 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	private static final RedisSerializer<Object> valueSerializer = new JdkSerializationRedisSerializer();
 
-	private Integer maxInactiveIntervalInSeconds = 1800;
+	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-	private String redisNamespace = "";
+	private String redisNamespace = ReactiveRedisOperationsSessionRepository.DEFAULT_NAMESPACE;
 
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
@@ -74,13 +75,10 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 				createDefaultTemplate(this.redisConnectionFactory));
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-
 		if (StringUtils.hasText(this.redisNamespace)) {
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
-
 		sessionRepository.setRedisFlushMode(this.redisFlushMode);
-
 		return sessionRepository;
 	}
 
@@ -116,20 +114,17 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> enableAttrMap = importMetadata
+		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableRedisWebSession.class.getName());
-		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-
-		if (enableAttrs != null) {
-			this.maxInactiveIntervalInSeconds = enableAttrs
-					.getNumber("maxInactiveIntervalInSeconds");
-			String redisNamespaceValue = enableAttrs.getString("redisNamespace");
-			if (StringUtils.hasText(redisNamespaceValue)) {
-				this.redisNamespace = this.embeddedValueResolver
-						.resolveStringValue(redisNamespaceValue);
-			}
-			this.redisFlushMode = enableAttrs.getEnum("redisFlushMode");
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		this.maxInactiveIntervalInSeconds = attributes
+				.getNumber("maxInactiveIntervalInSeconds");
+		String redisNamespaceValue = attributes.getString("redisNamespace");
+		if (StringUtils.hasText(redisNamespaceValue)) {
+			this.redisNamespace = this.embeddedValueResolver
+					.resolveStringValue(redisNamespaceValue);
 		}
+		this.redisFlushMode = attributes.getEnum("redisFlushMode");
 	}
 
 	private static ReactiveRedisTemplate<String, Object> createDefaultTemplate(
@@ -137,7 +132,6 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
 				.<String, Object>newSerializationContext(valueSerializer)
 				.key(keySerializer).hashKey(keySerializer).build();
-
 		return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
 	}
 

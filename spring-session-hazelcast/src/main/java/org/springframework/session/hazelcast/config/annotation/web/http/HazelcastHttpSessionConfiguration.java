@@ -22,6 +22,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,10 +35,11 @@ import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
 import org.springframework.session.web.http.SessionRepositoryFilter;
+import org.springframework.util.StringUtils;
 
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
- * "springSessionRepositoryFilter". In order to use this a single
+ * {@code springSessionRepositoryFilter}. In order to use this a single
  * {@link HazelcastInstance} must be exposed as a Bean.
  *
  * @author Tommy Ludwig
@@ -57,36 +59,21 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
 
+	private HazelcastInstance hazelcastInstance;
+
+	private ApplicationEventPublisher applicationEventPublisher;
+
 	@Bean
-	public HazelcastSessionRepository sessionRepository(
-			@SpringSessionHazelcastInstance ObjectProvider<HazelcastInstance> springSessionHazelcastInstance,
-			ObjectProvider<HazelcastInstance> hazelcastInstance,
-			ApplicationEventPublisher eventPublisher) {
-		HazelcastInstance hazelcastInstanceToUse = springSessionHazelcastInstance
-				.getIfAvailable();
-		if (hazelcastInstanceToUse == null) {
-			hazelcastInstanceToUse = hazelcastInstance.getObject();
-		}
-		IMap<String, MapSession> sessions = hazelcastInstanceToUse
+	public HazelcastSessionRepository sessionRepository() {
+		IMap<String, MapSession> sessions = this.hazelcastInstance
 				.getMap(this.sessionMapName);
 		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(
 				sessions);
-		sessionRepository.setApplicationEventPublisher(eventPublisher);
+		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setHazelcastFlushMode(this.hazelcastFlushMode);
 		return sessionRepository;
-	}
-
-	@Override
-	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> enableAttrMap = importMetadata
-				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
-		AnnotationAttributes enableAttrs = AnnotationAttributes.fromMap(enableAttrMap);
-		setMaxInactiveIntervalInSeconds(
-				enableAttrs.getNumber("maxInactiveIntervalInSeconds"));
-		setSessionMapName(enableAttrs.getString("sessionMapName"));
-		setHazelcastFlushMode(enableAttrs.getEnum("hazelcastFlushMode"));
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -99,6 +86,38 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
 		this.hazelcastFlushMode = hazelcastFlushMode;
+	}
+
+	@Autowired
+	public void setHazelcastInstance(
+			@SpringSessionHazelcastInstance ObjectProvider<HazelcastInstance> springSessionHazelcastInstance,
+			ObjectProvider<HazelcastInstance> hazelcastInstance) {
+		HazelcastInstance hazelcastInstanceToUse = springSessionHazelcastInstance
+				.getIfAvailable();
+		if (hazelcastInstanceToUse == null) {
+			hazelcastInstanceToUse = hazelcastInstance.getObject();
+		}
+		this.hazelcastInstance = hazelcastInstanceToUse;
+	}
+
+	@Autowired
+	public void setApplicationEventPublisher(
+			ApplicationEventPublisher applicationEventPublisher) {
+		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
+	@Override
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		Map<String, Object> attributeMap = importMetadata
+				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
+		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		this.maxInactiveIntervalInSeconds =
+				attributes.getNumber("maxInactiveIntervalInSeconds");
+		String sessionMapNameValue = attributes.getString("sessionMapName");
+		if (StringUtils.hasText(sessionMapNameValue)) {
+			this.sessionMapName = sessionMapNameValue;
+		}
+		this.hazelcastFlushMode = attributes.getEnum("hazelcastFlushMode");
 	}
 
 }

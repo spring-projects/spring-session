@@ -44,6 +44,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
@@ -57,7 +58,7 @@ import org.springframework.util.StringValueResolver;
 
 /**
  * Exposes the {@link SessionRepositoryFilter} as a bean named
- * "springSessionRepositoryFilter". In order to use this a single
+ * {@code springSessionRepositoryFilter}. In order to use this a single
  * {@link RedisConnectionFactory} must be exposed as a Bean.
  *
  * @author Rob Winch
@@ -73,9 +74,9 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
-	private Integer maxInactiveIntervalInSeconds = 1800;
+	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-	private String redisNamespace = "";
+	private String redisNamespace = RedisOperationsSessionRepository.DEFAULT_NAMESPACE;
 
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
@@ -115,8 +116,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	@Bean
-	public RedisMessageListenerContainer redisMessageListenerContainer(
-			RedisOperationsSessionRepository messageListener) {
+	public RedisMessageListenerContainer redisMessageListenerContainer() {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(this.redisConnectionFactory);
 		if (this.redisTaskExecutor != null) {
@@ -125,12 +125,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		if (this.redisSubscriptionExecutor != null) {
 			container.setSubscriptionExecutor(this.redisSubscriptionExecutor);
 		}
-		container.addMessageListener(messageListener,
+		container.addMessageListener(sessionRepository(),
 				Arrays.asList(new PatternTopic("__keyevent@*:del"),
 						new PatternTopic("__keyevent@*:expired")));
-		container.addMessageListener(messageListener,
+		container.addMessageListener(sessionRepository(),
 				Collections.singletonList(new PatternTopic(
-						messageListener.getSessionCreatedChannelPrefix() + "*")));
+						sessionRepository().getSessionCreatedChannelPrefix() + "*")));
 		return container;
 	}
 

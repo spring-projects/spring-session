@@ -204,14 +204,14 @@ public class HazelcastHttpSessionConfigurationTests {
 				HazelcastInstance.class);
 		assertThat(repository).isNotNull();
 		assertThat(hazelcastInstance).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "sessions")).isEqualTo(
-				NamedHazelcastInstanceConfiguration.hazelcastInstanceSessions);
+		assertThat(ReflectionTestUtils.getField(repository, "sessions"))
+				.isEqualTo(NamedHazelcastInstanceConfiguration.hazelcastInstanceSessions);
 	}
 
 	@Test
 	public void multipleDataSourceConfiguration() {
 		this.thrown.expect(BeanCreationException.class);
-		this.thrown.expectMessage("sessionRepository");
+		this.thrown.expectMessage("expected single matching bean but found 2");
 
 		registerAndRefresh(MultipleHazelcastInstanceConfiguration.class);
 	}

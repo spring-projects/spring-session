@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,34 +17,41 @@
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.hazelcast.core.HazelcastInstance;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
- * Add this annotation to a {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by
- * Hazelcast. In order to leverage the annotation, a single HazelcastInstance must be
- * provided. For example: <pre>
- * <code>
- * {@literal @Configuration}
- * {@literal @EnableHazelcastHttpSession}
+ * Add this annotation to an {@code @Configuration} class to expose the
+ * {@link SessionRepositoryFilter} as a bean named {@code springSessionRepositoryFilter}
+ * and backed by Hazelcast. In order to leverage the annotation, a single
+ * {@link HazelcastInstance} must be provided. For example:
+ *
+ * <pre class="code">
+ * &#064;Configuration
+ * &#064;EnableHazelcastHttpSession
  * public class HazelcastHttpSessionConfig {
  *
- *     {@literal @Bean}
+ *     &#064;Bean
  *     public HazelcastInstance embeddedHazelcast() {
  *         Config hazelcastConfig = new Config();
  *         return Hazelcast.newHazelcastInstance(hazelcastConfig);
  *     }
  *
  * }
- * </code> </pre>
+ * </pre>
  *
  * More advanced configurations can extend {@link HazelcastHttpSessionConfiguration}
  * instead.
@@ -54,33 +61,33 @@ import org.springframework.session.hazelcast.HazelcastFlushMode;
  * @since 1.1
  * @see EnableSpringHttpSession
  */
-@Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target({ java.lang.annotation.ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 @Documented
 @Import(HazelcastHttpSessionConfiguration.class)
 @Configuration
 public @interface EnableHazelcastHttpSession {
 
 	/**
-	 * This is the session timeout in seconds. By default, it is set to 1800 seconds (30
-	 * minutes). This should be a non-negative integer.
-	 *
+	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
+	 * This should be a non-negative integer.
 	 * @return the seconds a session can be inactive before expiring
 	 */
 	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	/**
 	 * This is the name of the Map that will be used in Hazelcast to store the session
-	 * data. Default is {@link HazelcastHttpSessionConfiguration#DEFAULT_SESSION_MAP_NAME}.
+	 * data. Default is
+	 * {@link HazelcastHttpSessionConfiguration#DEFAULT_SESSION_MAP_NAME}.
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
 	String sessionMapName() default HazelcastHttpSessionConfiguration.DEFAULT_SESSION_MAP_NAME;
 
 	/**
 	 * Flush mode for the Hazelcast sessions. The default is {@code ON_SAVE} which only
-	 * updates the backing Hazelcast when
-	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
-	 * a web environment this happens just before the HTTP response is committed.
+	 * updates the backing Hazelcast when {@link SessionRepository#save(Session)} is
+	 * invoked. In a web environment this happens just before the HTTP response is
+	 * committed.
 	 * <p>
 	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
 	 * Session are immediately written to the Hazelcast instance.

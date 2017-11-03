@@ -42,17 +42,18 @@ import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
 /**
- * Spring @Configuration class used to configure and initialize a JDBC based HttpSession
- * provider implementation in Spring Session.
+ * Spring {@code @Configuration} class used to configure and initialize a JDBC based
+ * {@code HttpSession} provider implementation in Spring Session.
  * <p>
- * Exposes the {@link org.springframework.session.web.http.SessionRepositoryFilter} as a
- * bean named "springSessionRepositoryFilter". In order to use this a single
- * {@link DataSource} must be exposed as a Bean.
+ * Exposes the {@link SessionRepositoryFilter} as a bean named
+ * {@code springSessionRepositoryFilter}. In order to use this a single {@link DataSource}
+ * must be exposed as a Bean.
  *
  * @author Vedran Pavic
  * @author Eddú Meléndez
@@ -67,9 +68,9 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
-	private String tableName = JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
-
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+
+	private String tableName = JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
 
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
@@ -112,12 +113,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return sessionRepository;
 	}
 
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
-
 	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
 		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	}
+
+	public void setTableName(String tableName) {
+		this.tableName = tableName;
 	}
 
 	public void setCleanupCron(String cleanupCron) {
@@ -173,16 +174,16 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		this.maxInactiveIntervalInSeconds = attributes
+				.getNumber("maxInactiveIntervalInSeconds");
 		String tableNameValue = attributes.getString("tableName");
 		if (StringUtils.hasText(tableNameValue)) {
 			this.tableName = this.embeddedValueResolver
 					.resolveStringValue(tableNameValue);
 		}
-		this.maxInactiveIntervalInSeconds = attributes
-				.getNumber("maxInactiveIntervalInSeconds");
 		String cleanupCron = attributes.getString("cleanupCron");
 		if (StringUtils.hasText(cleanupCron)) {
-			this.cleanupCron = this.embeddedValueResolver.resolveStringValue(cleanupCron);
+			this.cleanupCron = cleanupCron;
 		}
 	}
 

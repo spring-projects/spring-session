@@ -22,17 +22,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import javax.sql.DataSource;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
- * SessionRepositoryFilter as a bean named "springSessionRepositoryFilter" and backed by a
- * relational database. In order to leverage the annotation, a single
- * {@link javax.sql.DataSource} must be provided. For example:
+ * {@link SessionRepositoryFilter} as a bean named {@code springSessionRepositoryFilter}
+ * and backed by a relational database. In order to leverage the annotation, a single
+ * {@link DataSource} must be provided. For example:
  *
  * <pre class="code">
  * &#064;Configuration
@@ -74,21 +77,22 @@ import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 public @interface EnableJdbcHttpSession {
 
 	/**
+	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
+	 * This should be a non-negative integer.
+	 * @return the seconds a session can be inactive before expiring
+	 */
+	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+
+	/**
 	 * The name of database table used by Spring Session to store sessions.
 	 * @return the database table name
 	 */
 	String tableName() default JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
 
 	/**
-	 * The session timeout in seconds. By default, it is set to 1800 seconds (30
-	 * minutes). This should be a non-negative integer.
-	 * @return the seconds a session can be inactive before expiring
-	 */
-	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
-
-	/**
 	 * The cron expression for expired session cleanup job. By default runs every minute.
 	 * @return the session cleanup cron expression
+	 * @since 2.0.0
 	 */
 	String cleanupCron() default JdbcHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
 
