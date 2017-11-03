@@ -93,7 +93,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	public void setRedisKeyNamespace(String namespace) {
 		Assert.hasText(namespace, "namespace cannot be null or empty");
-		this.keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX + namespace.trim() + ":";
+		this.keyPrefix = namespace.trim() + ":";
 	}
 
 	/**

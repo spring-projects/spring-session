@@ -85,9 +85,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	public void customRedisKeyNamespace() {
 		this.repository.setRedisKeyNamespace("test");
 
-		assertThat(ReflectionTestUtils.getField(this.repository, "keyPrefix")).isEqualTo(
-				ReactiveRedisOperationsSessionRepository.DEFAULT_SPRING_SESSION_REDIS_PREFIX
-						+ "test:");
+		assertThat(ReflectionTestUtils.getField(this.repository, "keyPrefix")).isEqualTo("test:");
 	}
 
 	@Test
