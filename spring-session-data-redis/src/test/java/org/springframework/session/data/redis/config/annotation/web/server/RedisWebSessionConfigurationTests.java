@@ -82,7 +82,7 @@ public class RedisWebSessionConfigurationTests {
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "keyPrefix"))
-				.isEqualTo("spring:session:" + REDIS_NAMESPACE + ":");
+				.isEqualTo(REDIS_NAMESPACE + ":");
 	}
 
 	@Test
