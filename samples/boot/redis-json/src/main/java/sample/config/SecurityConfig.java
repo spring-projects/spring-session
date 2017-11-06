@@ -38,8 +38,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	public UserDetailsService userDetailsService() {
 		InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-		manager.createUser(
-				User.withUsername("user").password("password").roles("USER").build());
+		manager.createUser(User.withUsername("user").password("{noop}password")
+				.roles("USER").build());
 		return manager;
 	}
 
