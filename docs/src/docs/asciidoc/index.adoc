@@ -545,7 +545,7 @@ Complete example usage can be found in the <<samples>>
 You can use the following attributes to customize the configuration:
 
 * **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds
-* **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel ids will start with the prefix of `spring:session:<redisNamespace>:`.
+* **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel ids will start with the prefix of `<redisNamespace>:`.
 * **redisFlushMode** - allows specifying when data will be written to Redis. The default is only when `save` is invoked on `SessionRepository`.
 A value of `RedisFlushMode.IMMEDIATE` will write to Redis as soon as possible.
 

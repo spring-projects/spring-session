@@ -43,9 +43,9 @@ public class ReactiveRedisOperationsSessionRepository implements
 		ReactiveSessionRepository<ReactiveRedisOperationsSessionRepository.RedisSession> {
 
 	/**
-	 * The default prefix for each key and channel in Redis used by Spring Session.
+	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
-	static final String DEFAULT_SPRING_SESSION_REDIS_PREFIX = "spring:session:";
+	public static final String DEFAULT_NAMESPACE = "spring:session:";
 
 	/**
 	 * The key in the Hash representing {@link Session#getCreationTime()}.
@@ -73,9 +73,9 @@ public class ReactiveRedisOperationsSessionRepository implements
 	private final ReactiveRedisOperations<String, Object> sessionRedisOperations;
 
 	/**
-	 * The prefix for every key used by Spring Session in Redis.
+	 * The namespace for every key used by Spring Session in Redis.
 	 */
-	private String keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX;
+	private String namespace = DEFAULT_NAMESPACE;
 
 	/**
 	 * If non-null, this value is used to override the default value for
@@ -93,7 +93,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	public void setRedisKeyNamespace(String namespace) {
 		Assert.hasText(namespace, "namespace cannot be null or empty");
-		this.keyPrefix = namespace.trim() + ":";
+		this.namespace = namespace.trim() + ":";
 	}
 
 	/**
@@ -167,7 +167,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 	}
 
 	private String getSessionKey(String sessionId) {
-		return this.keyPrefix + "sessions:" + sessionId;
+		return this.namespace + "sessions:" + sessionId;
 	}
 
 	/**

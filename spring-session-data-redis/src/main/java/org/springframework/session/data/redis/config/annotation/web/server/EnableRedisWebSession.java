@@ -26,6 +26,7 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
+import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.RedisFlushMode;
 
 /**
@@ -65,9 +66,8 @@ public @interface EnableRedisWebSession {
 	/**
 	 * <p>
 	 * Defines a unique namespace for keys. The value is used to isolate sessions by
-	 * changing the prefix from {@code spring:session:} to
-	 * {@code spring:session:<redisNamespace>:}. The default is "" such that all Redis
-	 * keys begin with {@code spring:session:}.
+	 * changing the prefix from default {@code spring:session:} to
+	 * {@code <redisNamespace>:}.
 	 * </p>
 	 *
 	 * <p>
@@ -78,7 +78,7 @@ public @interface EnableRedisWebSession {
 	 *
 	 * @return the unique namespace for keys
 	 */
-	String redisNamespace() default "";
+	String redisNamespace() default ReactiveRedisOperationsSessionRepository.DEFAULT_NAMESPACE;
 
 	/**
 	 * <p>

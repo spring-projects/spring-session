@@ -28,6 +28,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.data.redis.RedisFlushMode;
+import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
@@ -72,9 +73,8 @@ public @interface EnableRedisHttpSession {
 	/**
 	 * <p>
 	 * Defines a unique namespace for keys. The value is used to isolate sessions by
-	 * changing the prefix from "spring:session:" to
-	 * "spring:session:&lt;redisNamespace&gt;:". The default is "" such that all Redis
-	 * keys begin with "spring:session".
+	 * changing the prefix from default {@code spring:session:} to
+	 * {@code <redisNamespace>:}.
 	 * </p>
 	 *
 	 * <p>
@@ -85,7 +85,7 @@ public @interface EnableRedisHttpSession {
 	 *
 	 * @return the unique namespace for keys
 	 */
-	String redisNamespace() default "";
+	String redisNamespace() default RedisOperationsSessionRepository.DEFAULT_NAMESPACE;
 
 	/**
 	 * <p>

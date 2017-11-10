@@ -253,9 +253,9 @@ public class RedisOperationsSessionRepository implements
 	static PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
 	/**
-	 * The default prefix for each key and channel in Redis used by Spring Session.
+	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
-	static final String DEFAULT_SPRING_SESSION_REDIS_PREFIX = "spring:session:";
+	public static final String DEFAULT_NAMESPACE = "spring:session:";
 
 	/**
 	 * The key in the Hash representing
@@ -285,9 +285,9 @@ public class RedisOperationsSessionRepository implements
 	static final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
 	/**
-	 * The prefix for every key used by Spring Session in Redis.
+	 * The namespace for every key used by Spring Session in Redis.
 	 */
-	private String keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX;
+	private String namespace = DEFAULT_NAMESPACE;
 
 	private final RedisOperations<Object, Object> sessionRedisOperations;
 
@@ -589,7 +589,7 @@ public class RedisOperationsSessionRepository implements
 
 	public void setRedisKeyNamespace(String namespace) {
 		Assert.hasText(namespace, "namespace cannot be null or empty");
-		this.keyPrefix = namespace.trim() + ":";
+		this.namespace = namespace.trim() + ":";
 	}
 
 	/**
@@ -599,17 +599,17 @@ public class RedisOperationsSessionRepository implements
 	 * @return the Hash key for this session by prefixing it appropriately.
 	 */
 	String getSessionKey(String sessionId) {
-		return this.keyPrefix + "sessions:" + sessionId;
+		return this.namespace + "sessions:" + sessionId;
 	}
 
 	String getPrincipalKey(String principalName) {
-		return this.keyPrefix + "index:"
+		return this.namespace + "index:"
 				+ FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME + ":"
 				+ principalName;
 	}
 
 	String getExpirationsKey(long expiration) {
-		return this.keyPrefix + "expirations:" + expiration;
+		return this.namespace + "expirations:" + expiration;
 	}
 
 	private String getExpiredKey(String sessionId) {
@@ -621,7 +621,7 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	private String getExpiredKeyPrefix() {
-		return this.keyPrefix + "sessions:" + "expires:";
+		return this.namespace + "sessions:" + "expires:";
 	}
 
 	/**
@@ -631,7 +631,7 @@ public class RedisOperationsSessionRepository implements
 	 * @return the prefix for the channel that SessionCreatedEvent are published to
 	 */
 	public String getSessionCreatedChannelPrefix() {
-		return this.keyPrefix + "event:created:";
+		return this.namespace + "event:created:";
 	}
 
 	/**

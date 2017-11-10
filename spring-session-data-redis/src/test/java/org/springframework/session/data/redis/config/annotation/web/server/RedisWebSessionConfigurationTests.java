@@ -81,7 +81,7 @@ public class RedisWebSessionConfigurationTests {
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "keyPrefix"))
+		assertThat(ReflectionTestUtils.getField(repository, "namespace"))
 				.isEqualTo(REDIS_NAMESPACE + ":");
 	}
 

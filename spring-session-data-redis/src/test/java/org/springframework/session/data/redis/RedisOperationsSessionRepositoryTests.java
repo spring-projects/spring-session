@@ -16,7 +16,6 @@
 
 package org.springframework.session.data.redis;
 
-import java.text.MessageFormat;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -710,26 +709,8 @@ public class RedisOperationsSessionRepositoryTests {
 		this.redisRepository.setRedisFlushMode(null);
 	}
 
-
 	@Test
-	public void testDefaultRedisNamespace() {
-		RedisSession session = this.redisRepository.new RedisSession(new MapSession());
-		session.setMaxInactiveInterval(Duration.ZERO);
-		given(this.redisOperations.boundHashOps(anyString()))
-				.willReturn(this.boundHashOperations);
-		given(this.redisOperations.boundSetOps(anyString()))
-				.willReturn(this.boundSetOperations);
-
-		this.redisRepository.save(session);
-
-		String id = session.getId();
-		verify(this.redisOperations, atLeastOnce())
-				.delete(getKey("expires:" + id));
-		verify(this.redisOperations, never()).boundValueOps(getKey("expires:" + id));
-	}
-
-	@Test
-	public void testRedisNamespaceChange() {
+	public void changeRedisNamespace() {
 		String namespace = "foo:bar";
 		this.redisRepository.setRedisKeyNamespace(namespace);
 		RedisSession session = this.redisRepository.new RedisSession(new MapSession());
@@ -743,29 +724,23 @@ public class RedisOperationsSessionRepositoryTests {
 
 		String id = session.getId();
 		verify(this.redisOperations, atLeastOnce())
-				.delete(getKeyWithinNamespace(namespace, "expires:" + id));
-		verify(this.redisOperations, never()).boundValueOps(getKeyWithinNamespace(namespace, "expires:" + id));
+				.delete(namespace + ":sessions:expires:" + id);
+		verify(this.redisOperations, never())
+				.boundValueOps(namespace + ":sessions:expires:" + id);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testLaunchExceptionOnNullNamespace() {
+	public void setRedisKeyNamespaceNullNamespace() {
 		this.redisRepository.setRedisKeyNamespace(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void testLaunchExceptionOnEmptyNamespace() {
-		this.redisRepository.setRedisKeyNamespace("");
+	public void setRedisKeyNamespaceEmptyNamespace() {
+		this.redisRepository.setRedisKeyNamespace(" ");
 	}
 
 	private String getKey(String id) {
-		return getKeyWithinNamespace("spring:session", id);
-	}
-
-	private String getKeyWithinNamespace(String prefix, String id) {
-		if (prefix.endsWith(":")) {
-			prefix = prefix.substring(0, prefix.length());
-		}
-		return MessageFormat.format("{0}:sessions:{1}", prefix, id);
+		return "spring:session:sessions:" + id;
 	}
 
 	private Map map(Object... objects) {
