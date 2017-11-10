@@ -4,7 +4,6 @@
 <suppressions>
 	<suppress files=".+Application\.java" checks="HideUtilityClassConstructor"/>
 	<suppress files=".+Configuration\.java" checks="HideUtilityClassConstructor"/>
-	<suppress files=".+SSEFluxWebConfig\.java" checks="RegexpHeader"/>
 
 	<suppress files="[\\/]src[\\/]test[\\/]java[\\/]" checks="Javadoc"/>
 	<suppress files="[\\/]src[\\/]integration-test[\\/]java[\\/]" checks="Javadoc"/>

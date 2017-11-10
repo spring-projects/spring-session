@@ -16,19 +16,17 @@
 
 package sample;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@Import(EmbeddedRedisConfig.class)
-// tag::class[]
-@EnableRedisWebSession
-public class HelloWebfluxSessionConfig {
+/**
+ * @author Rob Winch
+ */
+@SpringBootApplication
+public class HelloWebFluxApplication {
 
-	@Bean
-	public LettuceConnectionFactory lettuceConnectionFactory() {
-		return new LettuceConnectionFactory();
+	public static void main(String[] args) {
+		SpringApplication.run(HelloWebFluxApplication.class, args);
 	}
+
 }
-// end::class[]
