@@ -1,0 +1,15 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+	compile project(':spring-session-data-redis')
+	compile "org.springframework.boot:spring-boot-starter-webflux"
+	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
+	compile "org.springframework.boot:spring-boot-starter-data-redis"
+	compile "org.springframework.boot:spring-boot-devtools"
+	compile 'org.webjars:bootstrap'
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+
+	integrationTestCompile seleniumDependencies
+	integrationTestCompile "org.testcontainers:testcontainers"
+}
