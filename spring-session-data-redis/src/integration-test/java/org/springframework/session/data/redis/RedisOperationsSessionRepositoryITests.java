@@ -89,7 +89,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 	public void saves() throws InterruptedException {
 		String username = "saves-" + System.currentTimeMillis();
 
-		String usernameSessionKey = "spring:session:RedisOperationsSessionRepositoryITests:index:"
+		String usernameSessionKey = "RedisOperationsSessionRepositoryITests:index:"
 				+ INDEX_NAME + ":" + username;
 
 		RedisSession toSave = this.repository.createSession();
@@ -188,7 +188,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 
 		this.repository.save(toSave);
 
-		String body = "spring:session:RedisOperationsSessionRepositoryITests:sessions:expires:"
+		String body = "RedisOperationsSessionRepositoryITests:sessions:expires:"
 				+ toSave.getId();
 		String channel = ":expired";
 		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"),
@@ -356,7 +356,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 
 		this.repository.save(toSave);
 
-		String body = "spring:session:RedisOperationsSessionRepositoryITests:sessions:expires:"
+		String body = "RedisOperationsSessionRepositoryITests:sessions:expires:"
 				+ toSave.getId();
 		String channel = ":expired";
 		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"),

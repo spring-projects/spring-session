@@ -588,7 +588,8 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	public void setRedisKeyNamespace(String namespace) {
-		this.keyPrefix = DEFAULT_SPRING_SESSION_REDIS_PREFIX + namespace + ":";
+		Assert.hasText(namespace, "namespace cannot be null or empty");
+		this.keyPrefix = namespace.trim() + ":";
 	}
 
 	/**
