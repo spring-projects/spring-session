@@ -16,21 +16,26 @@
 
 package sample;
 
-
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.testcontainers.containers.GenericContainer;
 import sample.pages.HomePage;
 import sample.pages.HomePage.Attribute;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,11 +45,18 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  */
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = HelloWebfluxApplication.class)
-@TestPropertySource(properties = { "spring.profiles.active=embedded-redis", "server.port=0" })
+@SpringBootTest(classes = HelloWebFluxApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@ContextConfiguration(initializers = AttributeTests.Initializer.class)
 public class AttributeTests {
-	@Value("#{@nettyContext.address().getPort()}")
-	int port;
+
+	private static final String DOCKER_IMAGE = "redis:4.0.2";
+
+	@ClassRule
+	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+			.withExposedPorts(6379);
+
+	@LocalServerPort
+	private int port;
 
 	private WebDriver driver;
 
@@ -85,6 +97,20 @@ public class AttributeTests {
 		Attribute row = attributes.get(0);
 		assertThat(row.getAttributeName()).isEqualTo("a");
 		assertThat(row.getAttributeValue()).isEqualTo("b");
+	}
+
+	static class Initializer
+			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+		@Override
+		public void initialize(
+				ConfigurableApplicationContext configurableApplicationContext) {
+			TestPropertyValues
+					.of("spring.redis.host=" + redisContainer.getContainerIpAddress(),
+							"spring.redis.port=" + redisContainer.getFirstMappedPort())
+					.applyTo(configurableApplicationContext.getEnvironment());
+		}
+
 	}
 
 }
