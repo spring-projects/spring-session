@@ -29,20 +29,20 @@ import org.junit.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link MapReactiveSessionRepository}.
+ * Tests for {@link ReactiveMapSessionRepository}.
  *
  * @author Rob Winch
  * @since 2.0
  */
-public class MapReactiveSessionRepositoryTests {
+public class ReactiveMapSessionRepositoryTests {
 
-	private MapReactiveSessionRepository repository;
+	private ReactiveMapSessionRepository repository;
 
 	private MapSession session;
 
 	@Before
 	public void setup() {
-		this.repository = new MapReactiveSessionRepository(new HashMap<>());
+		this.repository = new ReactiveMapSessionRepository(new HashMap<>());
 		this.session = new MapSession("session-id");
 	}
 
@@ -50,7 +50,7 @@ public class MapReactiveSessionRepositoryTests {
 	public void constructorMapThenFound() {
 		Map<String, Session> sessions = new HashMap<>();
 		sessions.put(this.session.getId(), this.session);
-		this.repository = new MapReactiveSessionRepository(sessions);
+		this.repository = new ReactiveMapSessionRepository(sessions);
 
 		Session findByIdSession = this.repository.findById(this.session.getId()).block();
 		assertThat(findByIdSession).isNotNull();
@@ -60,7 +60,7 @@ public class MapReactiveSessionRepositoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void constructorMapWhenNullThenThrowsIllegalArgumentException() {
 		Map<String, Session> sessions = null;
-		new MapReactiveSessionRepository(sessions);
+		new ReactiveMapSessionRepository(sessions);
 	}
 
 	@Test
@@ -86,7 +86,7 @@ public class MapReactiveSessionRepositoryTests {
 
 		Map<String, Session> sessions = new ConcurrentHashMap<>();
 		sessions.put("session-id", this.session);
-		this.repository = new MapReactiveSessionRepository(sessions);
+		this.repository = new ReactiveMapSessionRepository(sessions);
 
 		assertThat(this.repository.findById(this.session.getId()).block()).isNull();
 		assertThat(sessions).isEmpty();

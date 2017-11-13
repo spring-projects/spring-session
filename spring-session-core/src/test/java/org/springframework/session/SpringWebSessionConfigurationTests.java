@@ -112,7 +112,7 @@ public class SpringWebSessionConfigurationTests {
 		 */
 		@Bean
 		ReactiveSessionRepository<?> reactiveSessionRepository() {
-			return new MapReactiveSessionRepository(new HashMap<>());
+			return new ReactiveMapSessionRepository(new HashMap<>());
 		}
 	}
 
@@ -129,7 +129,7 @@ public class SpringWebSessionConfigurationTests {
 
 		@Bean
 		ReactiveSessionRepository<?> reactiveSessionRepository() {
-			return new MapReactiveSessionRepository(new HashMap<>());
+			return new ReactiveMapSessionRepository(new HashMap<>());
 		}
 
 		@Bean

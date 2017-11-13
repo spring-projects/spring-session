@@ -38,7 +38,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  * @author Rob Winch
  * @since 2.0
  */
-public class MapReactiveSessionRepository implements ReactiveSessionRepository<MapSession> {
+public class ReactiveMapSessionRepository implements ReactiveSessionRepository<MapSession> {
 
 	/**
 	 * If non-null, this value is used to override
@@ -54,7 +54,7 @@ public class MapReactiveSessionRepository implements ReactiveSessionRepository<M
 	 *
 	 * @param sessions the {@link Map} to use. Cannot be null.
 	 */
-	public MapReactiveSessionRepository(Map<String, Session> sessions) {
+	public ReactiveMapSessionRepository(Map<String, Session> sessions) {
 		if (sessions == null) {
 			throw new IllegalArgumentException("sessions cannot be null");
 		}

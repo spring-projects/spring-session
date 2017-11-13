@@ -35,7 +35,7 @@ import org.springframework.context.annotation.Import;
  *
  *     {@literal @Bean}
  *     public ReactiveSessionRepository sessionRepository() {
- *         return new MapReactiveSessionRepository();
+ *         return new ReactiveMapSessionRepository();
  *     }
  *
  * }
