@@ -45,7 +45,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 	/**
 	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
-	public static final String DEFAULT_NAMESPACE = "spring:session:";
+	public static final String DEFAULT_NAMESPACE = "spring:session";
 
 	/**
 	 * The key in the Hash representing {@link Session#getCreationTime()}.
@@ -68,14 +68,14 @@ public class ReactiveRedisOperationsSessionRepository implements
 	 * attributeName, then there would be an entry in the hash named
 	 * sessionAttr:attributeName that mapped to its value.
 	 */
-	static final String ATTRIBUTE_PREFIX = "attribute:";
+	static final String ATTRIBUTE_PREFIX = "sessionAttr:";
 
 	private final ReactiveRedisOperations<String, Object> sessionRedisOperations;
 
 	/**
 	 * The namespace for every key used by Spring Session in Redis.
 	 */
-	private String namespace = DEFAULT_NAMESPACE;
+	private String namespace = DEFAULT_NAMESPACE + ":";
 
 	/**
 	 * If non-null, this value is used to override the default value for

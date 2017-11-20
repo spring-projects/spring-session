@@ -255,7 +255,7 @@ public class RedisOperationsSessionRepository implements
 	/**
 	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
-	public static final String DEFAULT_NAMESPACE = "spring:session:";
+	public static final String DEFAULT_NAMESPACE = "spring:session";
 
 	/**
 	 * The key in the Hash representing
@@ -287,7 +287,7 @@ public class RedisOperationsSessionRepository implements
 	/**
 	 * The namespace for every key used by Spring Session in Redis.
 	 */
-	private String namespace = DEFAULT_NAMESPACE;
+	private String namespace = DEFAULT_NAMESPACE + ":";
 
 	private final RedisOperations<Object, Object> sessionRedisOperations;
 
