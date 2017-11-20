@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 
-	@RunWith(SpringJUnit4ClassRunner.class)
+	@RunWith(SpringRunner.class)
 	@ContextConfiguration
 	@WebAppConfiguration
 	public static class CustomXmlMapNameTest<S extends Session> {
@@ -84,7 +84,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 		}
 	}
 
-	@RunWith(SpringJUnit4ClassRunner.class)
+	@RunWith(SpringRunner.class)
 	@ContextConfiguration
 	@WebAppConfiguration
 	public static class CustomXmlMapNameAndIdleTest<S extends Session> {

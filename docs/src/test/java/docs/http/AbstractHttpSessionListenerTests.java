@@ -29,7 +29,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,7 +42,7 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  * @since 1.2
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @WebAppConfiguration
 public abstract class AbstractHttpSessionListenerTests {
 	@Autowired

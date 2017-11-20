@@ -30,7 +30,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.scheduling.SchedulingAwareRunnable;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verify;
  * @author Vladimir Tsanev
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class RedisHttpSessionConfigurationOverrideSessionTaskExecutor {

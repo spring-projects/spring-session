@@ -30,7 +30,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.mockito.ArgumentMatchers.anyString;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  * @since 1.0.2
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class Gh109Tests {

@@ -41,7 +41,7 @@ import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.hazelcast.HazelcastITestUtils;
 import org.springframework.session.hazelcast.SessionEventRegistry;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Tommy Ludwig
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@RunWith(SpringRunner.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
