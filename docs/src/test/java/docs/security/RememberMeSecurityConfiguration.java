@@ -67,10 +67,8 @@ public class RememberMeSecurityConfiguration extends WebSecurityConfigurerAdapte
 	@Override
 	@Bean
 	public InMemoryUserDetailsManager userDetailsService() {
-		InMemoryUserDetailsManager uds = new InMemoryUserDetailsManager();
-		uds.createUser(
-				User.withUsername("user").password("{noop}password").roles("USER").build());
-		return uds;
+		return new InMemoryUserDetailsManager(User.withDefaultPasswordEncoder()
+				.username("user").password("password").roles("USER").build());
 	}
 
 	@Bean
