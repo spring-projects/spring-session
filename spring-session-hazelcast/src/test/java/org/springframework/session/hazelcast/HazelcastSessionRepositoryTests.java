@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.query.impl.predicates.EqualPredicate;
 import org.junit.Before;
 import org.junit.Rule;
@@ -41,6 +42,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
@@ -107,7 +109,7 @@ public class HazelcastSessionRepositoryTests {
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
@@ -116,7 +118,7 @@ public class HazelcastSessionRepositoryTests {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
@@ -127,7 +129,7 @@ public class HazelcastSessionRepositoryTests {
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
@@ -137,8 +139,10 @@ public class HazelcastSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue");
-		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
+				any(EntryProcessor.class));
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -151,7 +155,7 @@ public class HazelcastSessionRepositoryTests {
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
@@ -161,8 +165,10 @@ public class HazelcastSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.removeAttribute("testName");
-		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
+				any(EntryProcessor.class));
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -175,7 +181,7 @@ public class HazelcastSessionRepositoryTests {
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
@@ -185,8 +191,10 @@ public class HazelcastSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.setLastAccessedTime(Instant.now());
-		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
+				any(EntryProcessor.class));
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -199,7 +207,7 @@ public class HazelcastSessionRepositoryTests {
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 	}
 
@@ -209,8 +217,10 @@ public class HazelcastSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
-		verify(this.sessions, times(2)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
+				any(EntryProcessor.class));
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -220,7 +230,7 @@ public class HazelcastSessionRepositoryTests {
 	public void saveUnchangedFlushModeOnSave() {
 		HazelcastSession session = this.repository.createSession();
 		this.repository.save(session);
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 
 		this.repository.save(session);
@@ -232,7 +242,7 @@ public class HazelcastSessionRepositoryTests {
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
-		verify(this.sessions, times(1)).put(eq(session.getId()), eq(session.getDelegate()),
+		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
 				isA(Long.class), eq(TimeUnit.SECONDS));
 
 		this.repository.save(session);

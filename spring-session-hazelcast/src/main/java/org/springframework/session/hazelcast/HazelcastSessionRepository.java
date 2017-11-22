@@ -30,6 +30,8 @@ import javax.annotation.PreDestroy;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.AbstractEntryProcessor;
+import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
@@ -210,11 +212,15 @@ public class HazelcastSessionRepository implements
 			this.sessions.remove(session.originalId);
 			session.originalId = session.getId();
 		}
-		if (session.isChanged()) {
-			this.sessions.put(session.getId(), session.getDelegate(),
+		if (session.isNew) {
+			this.sessions.set(session.getId(), session.getDelegate(),
 					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
-			session.markUnchanged();
 		}
+		else if (session.changed) {
+			this.sessions.executeOnKey(session.getId(),
+					new SessionUpdateEntryProcessor(session.getDelegate(), session.delta));
+		}
+		session.clearFlags();
 	}
 
 	@Override
@@ -286,8 +292,14 @@ public class HazelcastSessionRepository implements
 	final class HazelcastSession implements Session {
 
 		private final MapSession delegate;
+
+		private boolean isNew;
+
 		private boolean changed;
+
 		private String originalId;
+
+		private Map<String, Object> delta = new HashMap<>();
 
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be
@@ -295,7 +307,7 @@ public class HazelcastSessionRepository implements
 		 */
 		HazelcastSession() {
 			this(new MapSession());
-			this.changed = true;
+			this.isNew = true;
 			flushImmediateIfNecessary();
 		}
 
@@ -334,7 +346,7 @@ public class HazelcastSessionRepository implements
 
 		@Override
 		public String changeSessionId() {
-			this.changed = true;
+			this.isNew = true;
 			return this.delegate.changeSessionId();
 		}
 
@@ -368,6 +380,7 @@ public class HazelcastSessionRepository implements
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.delegate.setAttribute(attributeName, attributeValue);
+			this.delta.put(attributeName, attributeValue);
 			this.changed = true;
 			flushImmediateIfNecessary();
 		}
@@ -375,26 +388,62 @@ public class HazelcastSessionRepository implements
 		@Override
 		public void removeAttribute(String attributeName) {
 			this.delegate.removeAttribute(attributeName);
+			this.delta.put(attributeName, null);
 			this.changed = true;
 			flushImmediateIfNecessary();
-		}
-
-		boolean isChanged() {
-			return this.changed;
-		}
-
-		void markUnchanged() {
-			this.changed = false;
 		}
 
 		MapSession getDelegate() {
 			return this.delegate;
 		}
 
+		void clearFlags() {
+			this.isNew = false;
+			this.changed = false;
+			this.delta.clear();
+		}
+
 		private void flushImmediateIfNecessary() {
 			if (HazelcastSessionRepository.this.hazelcastFlushMode == HazelcastFlushMode.IMMEDIATE) {
 				HazelcastSessionRepository.this.save(this);
 			}
+		}
+
+	}
+
+	/**
+	 * Hazelcast {@link EntryProcessor} responsible for handling updates to session.
+	 *
+	 * @since 2.0.0
+	 * @see #save(HazelcastSession)
+	 */
+	private static final class SessionUpdateEntryProcessor
+			extends AbstractEntryProcessor<String, MapSession> {
+
+		private final MapSession session;
+
+		private final Map<String, Object> delta;
+
+		SessionUpdateEntryProcessor(MapSession session, Map<String, Object> delta) {
+			this.session = session;
+			this.delta = delta;
+		}
+
+		@Override
+		public Object process(Map.Entry<String, MapSession> entry) {
+			MapSession value = entry.getValue();
+			value.setLastAccessedTime(this.session.getLastAccessedTime());
+			value.setMaxInactiveInterval(this.session.getMaxInactiveInterval());
+			for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
+				if (attribute.getValue() != null) {
+					value.setAttribute(attribute.getKey(), attribute.getValue());
+				}
+				else {
+					value.removeAttribute(attribute.getKey());
+				}
+			}
+			entry.setValue(value);
+			return value;
 		}
 
 	}
