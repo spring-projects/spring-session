@@ -44,7 +44,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class PostgreSQL9JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "postgres:9.6.5";
+	private static final String DOCKER_IMAGE = "postgres:9.6.6";
 
 	@ClassRule
 	public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer(
