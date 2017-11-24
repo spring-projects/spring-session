@@ -31,6 +31,7 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
+import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
@@ -58,6 +59,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  *
  * @author Tommy Ludwig
  * @author Aleksandar Stojsavljevic
+ * @author Vedran Pavic
  * @since 1.1
  * @see EnableSpringHttpSession
  */
@@ -78,10 +80,10 @@ public @interface EnableHazelcastHttpSession {
 	/**
 	 * This is the name of the Map that will be used in Hazelcast to store the session
 	 * data. Default is
-	 * {@link HazelcastHttpSessionConfiguration#DEFAULT_SESSION_MAP_NAME}.
+	 * {@link HazelcastSessionRepository#DEFAULT_SESSION_MAP_NAME}.
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
-	String sessionMapName() default HazelcastHttpSessionConfiguration.DEFAULT_SESSION_MAP_NAME;
+	String sessionMapName() default HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME;
 
 	/**
 	 * Flush mode for the Hazelcast sessions. The default is {@code ON_SAVE} which only

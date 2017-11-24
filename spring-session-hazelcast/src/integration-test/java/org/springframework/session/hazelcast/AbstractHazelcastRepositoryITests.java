@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ public abstract class AbstractHazelcastRepositoryITests {
 		HazelcastSession sessionToSave = this.repository.createSession();
 		String sessionId = sessionToSave.getId();
 
-		IMap<String, MapSession> hazelcastMap = this.hazelcast.getMap(
-				"spring:session:sessions");
+		IMap<String, MapSession> hazelcastMap = this.hazelcast
+				.getMap(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME);
 
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 
@@ -80,9 +80,11 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 		assertThat(this.repository.findById(originalFindById)).isNull();
 
-		HazelcastSession findByChangeSessionId = this.repository.findById(changeSessionId);
+		HazelcastSession findByChangeSessionId = this.repository
+				.findById(changeSessionId);
 
-		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName))
+				.isEqualTo(attrValue);
 
 		this.repository.deleteById(changeSessionId);
 	}
@@ -126,9 +128,11 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 		assertThat(this.repository.findById(originalFindById)).isNull();
 
-		HazelcastSession findByChangeSessionId = this.repository.findById(changeSessionId);
+		HazelcastSession findByChangeSessionId = this.repository
+				.findById(changeSessionId);
 
-		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName))
+				.isEqualTo(attrValue);
 
 		this.repository.deleteById(changeSessionId);
 	}
