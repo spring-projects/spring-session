@@ -19,7 +19,6 @@ package org.springframework.session.hazelcast.config.annotation.web.http;
 import java.util.Map;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,11 +50,9 @@ import org.springframework.util.StringUtils;
 public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements ImportAware {
 
-	static final String DEFAULT_SESSION_MAP_NAME = "spring:session:sessions";
+	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-	private Integer maxInactiveIntervalInSeconds;
-
-	private String sessionMapName = DEFAULT_SESSION_MAP_NAME;
+	private String sessionMapName = HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME;
 
 	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
 
@@ -65,11 +62,12 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	@Bean
 	public HazelcastSessionRepository sessionRepository() {
-		IMap<String, MapSession> sessions = this.hazelcastInstance
-				.getMap(this.sessionMapName);
 		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(
-				sessions);
+				this.hazelcastInstance);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
+		if (StringUtils.hasText(this.sessionMapName)) {
+			sessionRepository.setSessionMapName(this.sessionMapName);
+		}
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setHazelcastFlushMode(this.hazelcastFlushMode);
