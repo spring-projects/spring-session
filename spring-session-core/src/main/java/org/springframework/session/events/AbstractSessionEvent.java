@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,15 +29,10 @@ import org.springframework.session.SessionRepository;
  */
 @SuppressWarnings("serial")
 public abstract class AbstractSessionEvent extends ApplicationEvent {
+
 	private final String sessionId;
 
 	private final Session session;
-
-	protected AbstractSessionEvent(Object source, String sessionId) {
-		super(source);
-		this.sessionId = sessionId;
-		this.session = null;
-	}
 
 	AbstractSessionEvent(Object source, Session session) {
 		super(source);
@@ -62,4 +57,5 @@ public abstract class AbstractSessionEvent extends ApplicationEvent {
 	public String getSessionId() {
 		return this.sessionId;
 	}
+
 }

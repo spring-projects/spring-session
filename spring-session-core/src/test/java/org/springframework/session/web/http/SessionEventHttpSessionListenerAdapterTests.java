@@ -31,6 +31,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -42,28 +43,37 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
+ * Tests for {@link SessionEventHttpSessionListenerAdapter}.
+ *
  * @author Rob Winch
  * @since 1.1
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SessionEventHttpSessionListenerAdapterTests {
-	@Mock
-	HttpSessionListener listener1;
-	@Mock
-	HttpSessionListener listener2;
-	@Mock
-	ServletContext servletContext;
-	@Captor
-	ArgumentCaptor<HttpSessionEvent> sessionEvent;
 
-	SessionDestroyedEvent destroyed;
-	SessionCreatedEvent created;
-	SessionEventHttpSessionListenerAdapter listener;
+	@Mock
+	private HttpSessionListener listener1;
+
+	@Mock
+	private HttpSessionListener listener2;
+
+	@Mock
+	private ServletContext servletContext;
+
+	@Captor
+	private ArgumentCaptor<HttpSessionEvent> sessionEvent;
+
+	private SessionDestroyedEvent destroyed;
+
+	private SessionCreatedEvent created;
+
+	private SessionEventHttpSessionListenerAdapter listener;
 
 	@Before
 	public void setup() {
 		this.listener = new SessionEventHttpSessionListenerAdapter(
 				Arrays.asList(this.listener1, this.listener2));
+		this.listener.setServletContext(new MockServletContext());
 
 		Session session = new MapSession();
 		this.destroyed = new SessionDestroyedEvent(this, session);
@@ -114,4 +124,5 @@ public class SessionEventHttpSessionListenerAdapterTests {
 		assertThat(this.sessionEvent.getValue().getSession().getId())
 				.isEqualTo(this.created.getSessionId());
 	}
+
 }
