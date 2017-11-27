@@ -30,13 +30,10 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -63,9 +60,12 @@ import org.springframework.util.Assert;
  * A typical example of how to create a new instance can be seen below:
  *
  * <pre>
- * LettuceConnectionFactory factory = new LettuceConnectionFactory();
+ * RedisTemplate&lt;Object, Object&gt; redisTemplate = new RedisTemplate();
  *
- * RedisOperationsSessionRepository redisSessionRepository = new RedisOperationsSessionRepository(factory);
+ * // ... configure redisTemplate ...
+ *
+ * RedisOperationsSessionRepository redisSessionRepository =
+ *         new RedisOperationsSessionRepository(redisTemplate);
  * </pre>
  *
  * <p>
@@ -312,17 +312,6 @@ public class RedisOperationsSessionRepository implements
 	private RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer();
 
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
-
-	/**
-	 * Allows creating an instance and uses a default {@link RedisOperations} for both
-	 * managing the session and the expirations.
-	 *
-	 * @param redisConnectionFactory the {@link RedisConnectionFactory} to use.
-	 */
-	public RedisOperationsSessionRepository(
-			RedisConnectionFactory redisConnectionFactory) {
-		this(createDefaultTemplate(redisConnectionFactory));
-	}
 
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
@@ -646,17 +635,6 @@ public class RedisOperationsSessionRepository implements
 	 */
 	static String getSessionAttrNameKey(String attributeName) {
 		return SESSION_ATTR_PREFIX + attributeName;
-	}
-
-	private static RedisTemplate<Object, Object> createDefaultTemplate(
-			RedisConnectionFactory connectionFactory) {
-		Assert.notNull(connectionFactory, "connectionFactory cannot be null");
-		RedisTemplate<Object, Object> template = new RedisTemplate<>();
-		template.setKeySerializer(new StringRedisSerializer());
-		template.setHashKeySerializer(new StringRedisSerializer());
-		template.setConnectionFactory(connectionFactory);
-		template.afterPropertiesSet();
-		return template;
 	}
 
 	/**

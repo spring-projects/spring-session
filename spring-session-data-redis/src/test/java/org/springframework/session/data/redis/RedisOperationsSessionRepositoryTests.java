@@ -111,24 +111,8 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void constructorNullConnectionFactory() {
-		new RedisOperationsSessionRepository((RedisConnectionFactory) null);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void setApplicationEventPublisherNull() {
 		this.redisRepository.setApplicationEventPublisher(null);
-	}
-
-	// gh-61
-	@Test
-	public void constructorConnectionFactory() {
-		this.redisRepository = new RedisOperationsSessionRepository(this.factory);
-		RedisSession session = this.redisRepository.createSession();
-
-		given(this.factory.getConnection()).willReturn(this.connection);
-
-		this.redisRepository.save(session);
 	}
 
 	@Test
