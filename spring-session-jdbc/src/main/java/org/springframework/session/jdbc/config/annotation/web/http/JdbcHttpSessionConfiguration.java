@@ -34,6 +34,7 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -90,8 +91,9 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository() {
+		JdbcTemplate jdbcTemplate = createJdbcTemplate(this.dataSource);
 		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(
-				this.dataSource, this.transactionManager);
+				jdbcTemplate, this.transactionManager);
 		if (StringUtils.hasText(this.tableName)) {
 			sessionRepository.setTableName(this.tableName);
 		}
@@ -191,6 +193,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
 		taskRegistrar.addCronTask(() -> sessionRepository().cleanUpExpiredSessions(),
 				this.cleanupCron);
+	}
+
+	private static JdbcTemplate createJdbcTemplate(DataSource dataSource) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+		jdbcTemplate.afterPropertiesSet();
+		return jdbcTemplate;
 	}
 
 	private GenericConversionService createConversionServiceWithBeanClassLoader() {
