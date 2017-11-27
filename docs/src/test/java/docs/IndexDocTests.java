@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import org.junit.Test;
 
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -155,11 +154,8 @@ public class IndexDocTests {
 
 		HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
 
-		IMap<String, MapSession> sessions = hazelcastInstance
-				.getMap("spring:session:sessions");
-
 		HazelcastSessionRepository repository =
-				new HazelcastSessionRepository(sessions);
+				new HazelcastSessionRepository(hazelcastInstance);
 		// end::new-hazelcastsessionrepository[]
 	}
 

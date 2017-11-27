@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class SessionConfig {
 				.setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
 				.setExtractor(PrincipalNameExtractor.class.getName());
 
-		config.getMapConfig("spring:session:sessions")
+		config.getMapConfig(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME)
 				.addMapAttributeConfig(attributeConfig)
 				.addMapIndexConfig(new MapIndexConfig(
 						HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));

@@ -23,8 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.impl.predicates.EqualPredicate;
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,6 +45,8 @@ import org.springframework.session.hazelcast.HazelcastSessionRepository.Hazelcas
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
@@ -65,25 +69,34 @@ public class HazelcastSessionRepositoryTests {
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Mock
+	private HazelcastInstance hazelcastInstance;
+
+	@Mock
 	private IMap<String, MapSession> sessions;
 
 	private HazelcastSessionRepository repository;
 
 	@Before
 	public void setUp() {
-		this.repository = new HazelcastSessionRepository(this.sessions);
+		given(this.hazelcastInstance.<String, MapSession>getMap(anyString()))
+				.willReturn(this.sessions);
+		this.repository = new HazelcastSessionRepository(this.hazelcastInstance);
+		this.repository.init();
 	}
 
 	@Test
 	public void constructorNullHazelcastInstance() {
 		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Sessions IMap must not be null");
+		this.thrown.expectMessage("HazelcastInstance must not be null");
 
 		new HazelcastSessionRepository(null);
 	}
 
 	@Test
 	public void createSessionDefaultMaxInactiveInterval() throws Exception {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		HazelcastSession session = this.repository.createSession();
 
 		assertThat(session.getMaxInactiveInterval())
@@ -93,6 +106,9 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void createSessionCustomMaxInactiveInterval() throws Exception {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		int interval = 1;
 		this.repository.setDefaultMaxInactiveInterval(interval);
 
@@ -105,42 +121,57 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void saveNewFlushModeOnSave() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		HazelcastSession session = this.repository.createSession();
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void saveNewFlushModeImmediate() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void saveUpdatedAttributeFlushModeOnSave() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		HazelcastSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue");
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void saveUpdatedAttributeFlushModeImmediate() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue");
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
 		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
 				any(EntryProcessor.class));
 
@@ -150,23 +181,30 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void removeAttributeFlushModeOnSave() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		HazelcastSession session = this.repository.createSession();
 		session.removeAttribute("testName");
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void removeAttributeFlushModeImmediate() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		session.removeAttribute("testName");
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
 		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
 				any(EntryProcessor.class));
 
@@ -176,23 +214,30 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void saveUpdatedLastAccessedTimeFlushModeOnSave() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		HazelcastSession session = this.repository.createSession();
 		session.setLastAccessedTime(Instant.now());
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void saveUpdatedLastAccessedTimeFlushModeImmediate() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		session.setLastAccessedTime(Instant.now());
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
 		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
 				any(EntryProcessor.class));
 
@@ -202,23 +247,30 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void saveUpdatedMaxInactiveIntervalInSecondsFlushModeOnSave() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		HazelcastSession session = this.repository.createSession();
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
 		verifyZeroInteractions(this.sessions);
 
 		this.repository.save(session);
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void saveUpdatedMaxInactiveIntervalInSecondsFlushModeImmediate() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
 		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()),
 				any(EntryProcessor.class));
 
@@ -228,10 +280,13 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void saveUnchangedFlushModeOnSave() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		HazelcastSession session = this.repository.createSession();
 		this.repository.save(session);
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -239,11 +294,14 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void saveUnchangedFlushModeImmediate() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
-		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()),
-				isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(session.getId()),
+				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
 
 		this.repository.save(session);
 		verifyZeroInteractions(this.sessions);
@@ -251,19 +309,26 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void getSessionNotFound() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		String sessionId = "testSessionId";
 
 		HazelcastSession session = this.repository.findById(sessionId);
 
 		assertThat(session).isNull();
 		verify(this.sessions, times(1)).get(eq(sessionId));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void getSessionExpired() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		MapSession expired = new MapSession();
-		expired.setLastAccessedTime(Instant.now().minusSeconds(
-				MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
+		expired.setLastAccessedTime(Instant.now()
+				.minusSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 		given(this.sessions.get(eq(expired.getId()))).willReturn(expired);
 
 		HazelcastSession session = this.repository.findById(expired.getId());
@@ -271,10 +336,14 @@ public class HazelcastSessionRepositoryTests {
 		assertThat(session).isNull();
 		verify(this.sessions, times(1)).get(eq(expired.getId()));
 		verify(this.sessions, times(1)).remove(eq(expired.getId()));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void getSessionFound() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		MapSession saved = new MapSession();
 		saved.setAttribute("savedName", "savedValue");
 		given(this.sessions.get(eq(saved.getId()))).willReturn(saved);
@@ -284,23 +353,31 @@ public class HazelcastSessionRepositoryTests {
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.<String>getAttribute("savedName")).isEqualTo("savedValue");
 		verify(this.sessions, times(1)).get(eq(saved.getId()));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void delete() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		String sessionId = "testSessionId";
 
 		this.repository.deleteById(sessionId);
 
 		verify(this.sessions, times(1)).remove(eq(sessionId));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void findByIndexNameAndIndexValueUnknownIndexName() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		String indexValue = "testIndexValue";
 
-		Map<String, HazelcastSession> sessions = this.repository.findByIndexNameAndIndexValue(
-				"testIndexName", indexValue);
+		Map<String, HazelcastSession> sessions = this.repository
+				.findByIndexNameAndIndexValue("testIndexName", indexValue);
 
 		assertThat(sessions).isEmpty();
 		verifyZeroInteractions(this.sessions);
@@ -308,17 +385,26 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void findByIndexNameAndIndexValuePrincipalIndexNameNotFound() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		String principal = "username";
 
-		Map<String, HazelcastSession> sessions = this.repository.findByIndexNameAndIndexValue(
-				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+		Map<String, HazelcastSession> sessions = this.repository
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						principal);
 
 		assertThat(sessions).isEmpty();
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
+		verifyZeroInteractions(this.sessions);
 	}
 
 	@Test
 	public void findByIndexNameAndIndexValuePrincipalIndexNameFound() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
+				anyBoolean());
+
 		String principal = "username";
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal,
 				"notused", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -331,11 +417,14 @@ public class HazelcastSessionRepositoryTests {
 		saved.add(saved2);
 		given(this.sessions.values(isA(EqualPredicate.class))).willReturn(saved);
 
-		Map<String, HazelcastSession> sessions = this.repository.findByIndexNameAndIndexValue(
-				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+		Map<String, HazelcastSession> sessions = this.repository
+				.findByIndexNameAndIndexValue(
+						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+						principal);
 
 		assertThat(sessions).hasSize(2);
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
+		verifyZeroInteractions(this.sessions);
 	}
 
 }
