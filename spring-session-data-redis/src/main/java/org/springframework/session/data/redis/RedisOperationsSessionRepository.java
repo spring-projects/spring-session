@@ -527,6 +527,12 @@ public class RedisOperationsSessionRepository implements
 
 			RedisSession session = getSession(sessionId, true);
 
+			if (session == null) {
+				logger.warn("Unable to publish SessionDestroyedEvent for session "
+						+ sessionId);
+				return;
+			}
+
 			if (logger.isDebugEnabled()) {
 				logger.debug("Publishing SessionDestroyedEvent for session " + sessionId);
 			}
@@ -534,18 +540,15 @@ public class RedisOperationsSessionRepository implements
 			cleanupPrincipalIndex(session);
 
 			if (isDeleted) {
-				handleDeleted(sessionId, session);
+				handleDeleted(session);
 			}
 			else {
-				handleExpired(sessionId, session);
+				handleExpired(session);
 			}
 		}
 	}
 
 	private void cleanupPrincipalIndex(RedisSession session) {
-		if (session == null) {
-			return;
-		}
 		String sessionId = session.getId();
 		String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
 		if (principal != null) {
@@ -554,28 +557,18 @@ public class RedisOperationsSessionRepository implements
 		}
 	}
 
-	public void handleCreated(Map<Object, Object> loaded, String channel) {
+	private void handleCreated(Map<Object, Object> loaded, String channel) {
 		String id = channel.substring(channel.lastIndexOf(":") + 1);
 		Session session = loadSession(id, loaded);
 		publishEvent(new SessionCreatedEvent(this, session));
 	}
 
-	private void handleDeleted(String sessionId, RedisSession session) {
-		if (session == null) {
-			publishEvent(new SessionDeletedEvent(this, sessionId));
-		}
-		else {
-			publishEvent(new SessionDeletedEvent(this, session));
-		}
+	private void handleDeleted(RedisSession session) {
+		publishEvent(new SessionDeletedEvent(this, session));
 	}
 
-	private void handleExpired(String sessionId, RedisSession session) {
-		if (session == null) {
-			publishEvent(new SessionExpiredEvent(this, sessionId));
-		}
-		else {
-			publishEvent(new SessionExpiredEvent(this, session));
-		}
+	private void handleExpired(RedisSession session) {
+		publishEvent(new SessionExpiredEvent(this, session));
 	}
 
 	private void publishEvent(ApplicationEvent event) {

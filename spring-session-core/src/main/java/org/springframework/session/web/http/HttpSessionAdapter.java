@@ -37,12 +37,22 @@ import org.springframework.session.Session;
  */
 @SuppressWarnings("deprecation")
 class HttpSessionAdapter<S extends Session> implements HttpSession {
+
 	private S session;
+
 	private final ServletContext servletContext;
+
 	private boolean invalidated;
+
 	private boolean old;
 
 	HttpSessionAdapter(S session, ServletContext servletContext) {
+		if (session == null) {
+			throw new IllegalArgumentException("session cannot be null");
+		}
+		if (servletContext == null) {
+			throw new IllegalArgumentException("servletContext cannot be null");
+		}
 		this.session = session;
 		this.servletContext = servletContext;
 	}
@@ -162,6 +172,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	}
 
 	private static final HttpSessionContext NOOP_SESSION_CONTEXT = new HttpSessionContext() {
+
 		@Override
 		public HttpSession getSession(String sessionId) {
 			return null;
@@ -171,9 +182,11 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 		public Enumeration<String> getIds() {
 			return EMPTY_ENUMERATION;
 		}
+
 	};
 
 	private static final Enumeration<String> EMPTY_ENUMERATION = new Enumeration<String>() {
+
 		@Override
 		public boolean hasMoreElements() {
 			return false;
@@ -183,5 +196,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 		public String nextElement() {
 			throw new NoSuchElementException("a");
 		}
+
 	};
+
 }

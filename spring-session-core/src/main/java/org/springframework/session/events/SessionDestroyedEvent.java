@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,21 +23,17 @@ import org.springframework.session.Session;
  *
  * @author Rob Winch
  * @since 1.0
- *
  */
 @SuppressWarnings("serial")
 public class SessionDestroyedEvent extends AbstractSessionEvent {
 
-	public SessionDestroyedEvent(Object source, String sessionId) {
-		super(source, sessionId);
-	}
-
 	/**
 	 * Create a new {@link SessionDestroyedEvent}.
-	 * @param source The Source of the SessionDestoryedEvent
-	 * @param session the Session that was created
+	 * @param source the source of the event
+	 * @param session the session that was created
 	 */
 	public SessionDestroyedEvent(Object source, Session session) {
 		super(source, session);
 	}
+
 }

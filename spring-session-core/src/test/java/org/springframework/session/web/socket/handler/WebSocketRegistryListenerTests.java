@@ -29,6 +29,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.session.MapSession;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.socket.events.SessionConnectEvent;
@@ -46,36 +47,40 @@ import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WebSocketRegistryListenerTests {
+
 	@Mock
-	WebSocketSession wsSession;
+	private WebSocketSession wsSession;
+
 	@Mock
-	WebSocketSession wsSession2;
+	private WebSocketSession wsSession2;
+
 	@Mock
-	Message<byte[]> message;
+	private Message<byte[]> message;
+
 	@Mock
-	Principal principal;
+	private Principal principal;
 
-	SessionConnectEvent connect;
+	private SessionConnectEvent connect;
 
-	SessionConnectEvent connect2;
+	private SessionConnectEvent connect2;
 
-	SessionDisconnectEvent disconnect;
+	private SessionDisconnectEvent disconnect;
 
-	SessionDeletedEvent deleted;
+	private SessionDeletedEvent deleted;
 
-	SessionExpiredEvent expired;
+	private SessionExpiredEvent expired;
 
-	Map<String, Object> attributes;
+	private Map<String, Object> attributes;
 
-	String sessionId;
-
-	WebSocketRegistryListener listener;
+	private WebSocketRegistryListener listener;
 
 	@Before
 	public void setup() {
-		this.sessionId = "session-id";
+		String sessionId = "session-id";
+		MapSession session = new MapSession(sessionId);
+
 		this.attributes = new HashMap<>();
-		SessionRepositoryMessageInterceptor.setSessionId(this.attributes, this.sessionId);
+		SessionRepositoryMessageInterceptor.setSessionId(this.attributes, sessionId);
 
 		given(this.wsSession.getAttributes()).willReturn(this.attributes);
 		given(this.wsSession.getPrincipal()).willReturn(this.principal);
@@ -94,8 +99,8 @@ public class WebSocketRegistryListenerTests {
 		this.connect2 = new SessionConnectEvent(this.listener, this.wsSession2);
 		this.disconnect = new SessionDisconnectEvent(this.listener, this.message,
 				this.wsSession.getId(), CloseStatus.NORMAL);
-		this.deleted = new SessionDeletedEvent(this.listener, this.sessionId);
-		this.expired = new SessionExpiredEvent(this.listener, this.sessionId);
+		this.deleted = new SessionDeletedEvent(this.listener, session);
+		this.expired = new SessionExpiredEvent(this.listener, session);
 	}
 
 	@Test
@@ -170,4 +175,5 @@ public class WebSocketRegistryListenerTests {
 		verify(this.wsSession2).close(WebSocketRegistryListener.SESSION_EXPIRED_STATUS);
 		verify(this.wsSession, times(0)).close(any(CloseStatus.class));
 	}
+
 }
