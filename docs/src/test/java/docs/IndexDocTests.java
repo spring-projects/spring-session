@@ -25,7 +25,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.junit.Test;
 
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
@@ -112,9 +112,12 @@ public class IndexDocTests {
 	@SuppressWarnings("unused")
 	public void newRedisOperationsSessionRepository() {
 		// tag::new-redisoperationssessionrepository[]
-		LettuceConnectionFactory factory = new LettuceConnectionFactory();
-		SessionRepository<? extends Session> repository = new RedisOperationsSessionRepository(
-				factory);
+		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
+
+		// ... configure redisTemplate ...
+
+		SessionRepository<? extends Session> repository =
+				new RedisOperationsSessionRepository(redisTemplate);
 		// end::new-redisoperationssessionrepository[]
 	}
 
