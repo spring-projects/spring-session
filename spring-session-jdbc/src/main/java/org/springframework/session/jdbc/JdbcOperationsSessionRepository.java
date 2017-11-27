@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -224,17 +222,6 @@ public class JdbcOperationsSessionRepository implements
 	private ConversionService conversionService;
 
 	private LobHandler lobHandler = new DefaultLobHandler();
-
-	/**
-	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
-	 * default {@link JdbcOperations} to manage sessions.
-	 * @param dataSource the {@link DataSource} to use
-	 * @param transactionManager the {@link PlatformTransactionManager} to use
-	 */
-	public JdbcOperationsSessionRepository(DataSource dataSource,
-			PlatformTransactionManager transactionManager) {
-		this(createDefaultJdbcTemplate(dataSource), transactionManager);
-	}
 
 	/**
 	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
@@ -543,12 +530,6 @@ public class JdbcOperationsSessionRepository implements
 		if (logger.isDebugEnabled()) {
 			logger.debug("Cleaned up " + deletedCount + " expired sessions");
 		}
-	}
-
-	private static JdbcTemplate createDefaultJdbcTemplate(DataSource dataSource) {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-		jdbcTemplate.afterPropertiesSet();
-		return jdbcTemplate;
 	}
 
 	private static TransactionTemplate createTransactionTemplate(

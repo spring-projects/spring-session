@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.session.jdbc;
 
 import java.time.Duration;
@@ -21,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.DataSource;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -43,7 +42,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 
@@ -76,9 +74,6 @@ public class JdbcOperationsSessionRepositoryTests {
 	public ExpectedException thrown = ExpectedException.none();
 
 	@Mock
-	private DataSource dataSource;
-
-	@Mock
 	private JdbcOperations jdbcOperations;
 
 	@Mock
@@ -90,23 +85,6 @@ public class JdbcOperationsSessionRepositoryTests {
 	public void setUp() {
 		this.repository = new JdbcOperationsSessionRepository(
 				this.jdbcOperations, this.transactionManager);
-	}
-
-	@Test
-	public void constructorDataSource() {
-		JdbcOperationsSessionRepository repository = new JdbcOperationsSessionRepository(
-				this.dataSource, this.transactionManager);
-
-		assertThat(ReflectionTestUtils.getField(repository, "jdbcOperations"))
-				.isNotNull();
-	}
-
-	@Test
-	public void constructorNullDataSource() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Property 'dataSource' is required");
-
-		new JdbcOperationsSessionRepository((DataSource) null, this.transactionManager);
 	}
 
 	@Test
