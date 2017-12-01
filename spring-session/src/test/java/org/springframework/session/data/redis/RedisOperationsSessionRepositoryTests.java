@@ -16,14 +16,6 @@
 
 package org.springframework.session.data.redis;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +23,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.DefaultMessage;
 import org.springframework.data.redis.connection.RedisConnection;
@@ -54,17 +45,16 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.P
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
 
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -704,6 +694,25 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test(expected = IllegalArgumentException.class)
 	public void setRedisFlushModeNull() {
 		this.redisRepository.setRedisFlushMode(null);
+	}
+
+	@Test
+	public void testWithExpiryCondition() {
+		//set up the session
+		RedisSession session = this.redisRepository.createSession();
+		session.setLastAccessedTime(999L);
+
+		//prevent any further updates with a condition
+		this.redisRepository.setCondition(new ExpireCondition() {
+			public boolean shouldUpdateLastAccess() {
+				return false;
+			}
+		});
+
+		session.setLastAccessedTime(100L);
+
+		//session should not be updated
+		assertEquals(999L, session.getLastAccessedTime());
 	}
 
 	private String getKey(String id) {

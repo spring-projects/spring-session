@@ -16,15 +16,8 @@
 
 package org.springframework.session.data.redis;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.Message;
@@ -49,6 +42,12 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -292,6 +291,8 @@ public class RedisOperationsSessionRepository implements
 	private final RedisOperations<Object, Object> sessionRedisOperations;
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
+
+	private ExpireCondition condition;
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 		public void publishEvent(ApplicationEvent event) {
@@ -627,6 +628,14 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	/**
+	 * Allow an end user to define specific rules around when sessions should expire
+	 * @param condition
+	 */
+	public void setCondition(final ExpireCondition condition) {
+		this.condition = condition;
+	}
+
+	/**
 	 * Gets the {@link BoundHashOperations} to operate on a {@link Session}.
 	 * @param sessionId the id of the {@link Session} to work with
 	 * @return the {@link BoundHashOperations} to operate on a {@link Session}
@@ -704,8 +713,15 @@ public class RedisOperationsSessionRepository implements
 		}
 
 		public void setLastAccessedTime(long lastAccessedTime) {
-			this.cached.setLastAccessedTime(lastAccessedTime);
-			this.putAndFlush(LAST_ACCESSED_ATTR, getLastAccessedTime());
+			if (condition == null || condition.shouldUpdateLastAccess()) {
+				if (logger.isTraceEnabled()) {
+					logger.trace("Updating last access time to session to " + lastAccessedTime + " for session id: " + this.cached.getId() + " Previous last access was: " + this.cached.getLastAccessedTime());
+				}
+				this.cached.setLastAccessedTime(lastAccessedTime);
+				this.putAndFlush(LAST_ACCESSED_ATTR, getLastAccessedTime());
+			} else {
+				logger.trace("Skipping last access time update as condition was null or evaluated to false for session id: " + this.cached.getId() + " Last access remains " + this.cached.getLastAccessedTime());
+			}
 		}
 
 		public boolean isExpired() {
