@@ -233,8 +233,9 @@ public class HazelcastSessionRepository implements
 					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 		}
 		else if (session.changed) {
-			this.sessions.executeOnKey(session.getId(), new SessionUpdateEntryProcessor(
-					session.getDelegate(), session.delta));
+			this.sessions.executeOnKey(session.getId(),
+					new SessionUpdateEntryProcessor(session.getLastAccessedTime(),
+							session.getMaxInactiveInterval(), session.delta));
 		}
 		session.clearFlags();
 	}
@@ -435,20 +436,24 @@ public class HazelcastSessionRepository implements
 	private static final class SessionUpdateEntryProcessor
 			extends AbstractEntryProcessor<String, MapSession> {
 
-		private final MapSession session;
+		private final Instant lastAccessedTime;
+
+		private final Duration maxInactiveInterval;
 
 		private final Map<String, Object> delta;
 
-		SessionUpdateEntryProcessor(MapSession session, Map<String, Object> delta) {
-			this.session = session;
+		SessionUpdateEntryProcessor(Instant lastAccessedTime,
+				Duration maxInactiveInterval, Map<String, Object> delta) {
+			this.lastAccessedTime = lastAccessedTime;
+			this.maxInactiveInterval = maxInactiveInterval;
 			this.delta = delta;
 		}
 
 		@Override
 		public Object process(Map.Entry<String, MapSession> entry) {
 			MapSession value = entry.getValue();
-			value.setLastAccessedTime(this.session.getLastAccessedTime());
-			value.setMaxInactiveInterval(this.session.getMaxInactiveInterval());
+			value.setLastAccessedTime(this.lastAccessedTime);
+			value.setMaxInactiveInterval(this.maxInactiveInterval);
 			for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
 				if (attribute.getValue() != null) {
 					value.setAttribute(attribute.getKey(), attribute.getValue());
