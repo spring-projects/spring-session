@@ -12,12 +12,14 @@ dependencies {
 	testCompile "org.springframework.security:spring-security-core"
 
 	integrationTestCompile "com.h2database:h2"
+	integrationTestCompile "com.microsoft.sqlserver:mssql-jdbc"
 	integrationTestCompile "mysql:mysql-connector-java"
 	integrationTestCompile "org.apache.derby:derby"
 	integrationTestCompile "org.hsqldb:hsqldb"
 	integrationTestCompile "org.mariadb.jdbc:mariadb-java-client"
 	integrationTestCompile "org.postgresql:postgresql"
 	integrationTestCompile "org.testcontainers:mariadb"
+	integrationTestCompile "org.testcontainers:mssqlserver"
 	integrationTestCompile "org.testcontainers:mysql"
 	integrationTestCompile "org.testcontainers:postgresql"
 }
