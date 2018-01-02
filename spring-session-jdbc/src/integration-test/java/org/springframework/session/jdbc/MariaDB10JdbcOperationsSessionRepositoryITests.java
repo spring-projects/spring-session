@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class MariaDB10JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "mariadb:10.2.10";
+	private static final String DOCKER_IMAGE = "mariadb:10.2.11";
 
 	@ClassRule
 	public static MariaDBContainer mariaDBContainer = new MariaDBContainer(DOCKER_IMAGE);

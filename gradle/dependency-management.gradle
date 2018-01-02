@@ -13,11 +13,14 @@ dependencyManagement {
 			entry 'hazelcast-client'
 		}
 
-		dependencySet(group: 'org.testcontainers', version: '1.4.3') {
-			entry 'mariadb'
+		dependencySet(group: 'org.testcontainers', version: '1.5.1') {
 			entry 'mysql'
 			entry 'postgresql'
 			entry 'testcontainers'
+		}
+
+		dependencySet(group: 'org.testcontainers', version: '1.4.3') {
+			entry 'mariadb'
 		}
 
 		dependency 'com.h2database:h2:1.4.196'
