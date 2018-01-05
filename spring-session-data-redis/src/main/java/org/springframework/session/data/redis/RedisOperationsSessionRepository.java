@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -804,10 +804,12 @@ public class RedisOperationsSessionRepository implements
 		}
 
 		private void saveChangeSessionId(String sessionId) {
-			if (!isNew() && !sessionId.equals(this.originalSessionId)) {
-				String originalSessionIdKey = getSessionKey(this.originalSessionId);
-				String sessionIdKey = getSessionKey(sessionId);
-				RedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey, sessionIdKey);
+			if (!sessionId.equals(this.originalSessionId)) {
+				if (!isNew()) {
+					String originalSessionIdKey = getSessionKey(this.originalSessionId);
+					String sessionIdKey = getSessionKey(sessionId);
+					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey, sessionIdKey);
+				}
 				this.originalSessionId = sessionId;
 			}
 		}

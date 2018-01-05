@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -561,6 +561,20 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 		String originalId = toSave.getId();
 		toSave.changeSessionId();
 
+		this.repository.save(toSave);
+
+		assertThat(this.repository.findById(toSave.getId())).isNotNull();
+		assertThat(this.repository.findById(originalId)).isNull();
+	}
+
+	// gh-962
+	@Test
+	public void changeSessionIdSaveTwice() {
+		RedisSession toSave = this.repository.createSession();
+		String originalId = toSave.getId();
+		toSave.changeSessionId();
+
+		this.repository.save(toSave);
 		this.repository.save(toSave);
 
 		assertThat(this.repository.findById(toSave.getId())).isNotNull();
