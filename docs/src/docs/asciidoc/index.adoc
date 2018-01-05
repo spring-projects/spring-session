@@ -1,6 +1,5 @@
-
 = Spring Session
-Rob Winch, Vedran Pavić, Jakub Kubrynski
+Rob Winch, Vedran Pavić
 :doctype: book
 :indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
@@ -13,29 +12,31 @@ Spring Session provides an API and implementations for managing a user's session
 [[introduction]]
 == Introduction
 
-Spring Session provides an API and implementations for managing a user's session information. It also provides transparent integration with:
+Spring Session provides an API and implementations for managing a user's session information, while also making it trivial to support clustered sessions without being tied to an application container specific solution.
+It also provides transparent integration with:
 
-* <<httpsession,HttpSession>> - allows replacing the HttpSession in an application container (i.e. Tomcat) neutral way.
-Additional features include:
-** **Clustered Sessions** - Spring Session makes it trivial to support <<httpsession-redis,clustered sessions>> without being tied to an application container specific solution.
-** **RESTful APIs** - Spring Session allows providing session ids in headers to work with <<httpsession-rest,RESTful APIs>>
-
+* <<httpsession,HttpSession>> - allows replacing the `HttpSession` in an application container (i.e. Tomcat) neutral way, with support for providing session IDs in headers to work with RESTful APIs.
 * <<websocket,WebSocket>> - provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
+* <<websession,WebSession>> - allows replacing the Spring WebFlux's `WebSession` in an application container neutral way.
 
-== What's New in 1.3
+== What's New in 2.0
 
-Below are the highlights of what is new in Spring Session 1.3. You can find a complete list of what's new by referring to the changelogs of
-https://github.com/spring-projects/spring-session/milestone/6?closed=1[1.3.0.M1],
-https://github.com/spring-projects/spring-session/milestone/18?closed=1[1.3.0.M2],
-https://github.com/spring-projects/spring-session/milestone/16?closed=1[1.3.0.RC1], and
-https://github.com/spring-projects/spring-session/milestone/19?closed=1[1.3.0.RELEASE].
+Below are the highlights of what is new in Spring Session 2.0. You can find a complete list of what's new by referring to the changelogs of
+https://github.com/spring-projects/spring-session/milestone/17?closed=1[2.0.0.M1],
+https://github.com/spring-projects/spring-session/milestone/22?closed=1[2.0.0.M2],
+https://github.com/spring-projects/spring-session/milestone/23?closed=1[2.0.0.M3],
+https://github.com/spring-projects/spring-session/milestone/24?closed=1[2.0.0.M4],
+https://github.com/spring-projects/spring-session/milestone/25?closed=1[2.0.0.M5],
+https://github.com/spring-projects/spring-session/milestone/26?closed=1[2.0.0.RC1],
+https://github.com/spring-projects/spring-session/milestone/27?closed=1[2.0.0.RC2], and
+https://github.com/spring-projects/spring-session/milestone/30?closed=1[2.0.0.RELEASE].
 
-* First class support for http://docs.spring.io/spring-session/docs/1.3.0.RELEASE/reference/html5/#httpsession-hazelcast[Hazelcast]
-* First class support for http://docs.spring.io/spring-session/docs/1.3.0.RELEASE/reference/html5/#spring-security-concurrent-sessions-how[Spring Security's concurrent session management]
-* Added https://github.com/maseev/spring-session-orientdb[OrientDB Community Extension]
-* https://github.com/spring-projects/spring-session/tree/1.3.0.RELEASE/samples/httpsession-redis-json[GenericJackson2JsonRedisSerializer sample] with Spring Security's new Jackson Support
-* Guides now https://github.com/spring-projects/spring-session/pull/652[use Lettuce]
-* `spring.session.cleanup.cron.expression` can be used to override the cleanup task’s cron expression
+* Upgraded to Java 8 and Spring Framework 5 as baseline
+* https://github.com/spring-projects/spring-session/issues/683[Added support for managing Spring WebFlux's `WebSession`] with https://github.com/spring-projects/spring-session/issues/816[Redis `ReactiveSessionRepository`]
+* https://github.com/spring-projects/spring-session/issues/768[Extracted `SessionRepository` implementations to separate modules]
+* Improved https://github.com/spring-projects/spring-session/issues/682[`Session`] and https://github.com/spring-projects/spring-session/issues/809[`SessionRepository`] APIs
+* Improved and harmonized configuration support for all supported session stores
+* https://github.com/spring-projects/spring-session/pull/713[Added support for configuring default `CookieSerializer` using `SessionCookieConfig`]
 * Lots of performance improvements and bug fixes
 
 [[samples]]
@@ -62,6 +63,10 @@ If you are looking to get started with Spring Session, the best place to start i
 | {gh-samples-url}boot/websocket[WebSockets]
 | Demonstrates how to use Spring Session with WebSockets.
 | link:guides/boot-websocket.html[WebSockets Guide]
+
+| {gh-samples-url}boot/webflux[WebFlux]
+| Demonstrates how to use Spring Session to replace the Spring WebFlux's `WebSession` with Redis.
+| TBD
 
 | {gh-samples-url}boot/redis-json[HttpSession with Redis JSON serialization]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.
@@ -127,6 +132,27 @@ If you are looking to get started with Spring Session, the best place to start i
 
 |===
 
+[[modules]]
+== Spring Session Modules
+
+In Spring Session 1.x all of the Spring Session's `SessionRepository` implementations were available within the `spring-session` artifact.
+While convenient, this approach wasn't sustainable long-term as more features and `SessionRepository` implementations were added to the project.
+
+Starting with Spring Session 2.0, the project has been split up to Spring Session Core module, and several other modules that carry `SessionRepository` implementations and functionality related to the specific data store.
+The users of Spring Data will find this arrangement familiar, with Spring Session Core module taking a role equivalent to Spring Data Commons and providing core functionalities and APIs with other modules containing data store specific implementations.
+As a part of this split, the Spring Session Data MongoDB and Spring Session Data GemFire modules were moved to separate repositories so the situation with project's repositories/modules is a follows:
+
+* https://github.com/spring-projects/spring-session[`spring-session` repository]
+** Hosts Spring Session Core, Spring Session Data Redis, Spring Session JDBC and Spring Session Hazelcast modules
+* https://github.com/spring-projects/spring-session-data-mongodb[`spring-session-data-mongodb` repository]
+** Hosts Spring Session Data MongoDB module
+* https://github.com/spring-projects/spring-session-data-geode[`spring-session-data-geode` repository]
+** Hosts Spring Session Data Geode/GemFire module
+
+Going forward, the plan is to externalize each of the `SessionRepository` implementations into a dedicated repository and provide a Maven BOM (as in "bill of materials") module in order to help users with version management concerns.
+
+Modules maintained by the members of Spring Team will be hosted within the https://github.com/spring-projects[`spring-projects` organization], while the community maintained modules will continue to be promoted via <<community-extensions,Community Extensions>> section of this manual.
+
 [[httpsession]]
 == HttpSession Integration
 
@@ -139,7 +165,7 @@ This means that developers can switch the `HttpSession` implementation out with 
 We have already mentioned that Spring Session provides transparent integration with `HttpSession`, but what benefits do we get out of this?
 
 * **Clustered Sessions** - Spring Session makes it trivial to support <<httpsession-redis,clustered sessions>> without being tied to an application container specific solution.
-* **RESTful APIs** - Spring Session allows providing session ids in headers to work with <<httpsession-rest,RESTful APIs>>
+* **RESTful APIs** - Spring Session allows providing session IDs in headers to work with <<httpsession-rest,RESTful APIs>>
 
 [[httpsession-redis]]
 === HttpSession with Redis
@@ -348,6 +374,116 @@ Before using WebSocket integration, you should be sure that you have <<httpsessi
 
 include::guides/boot-websocket.adoc[tags=config,leveloffset=+2]
 
+[[websession]]
+== WebSession Integration
+
+Spring Session provides transparent integration with Spring WebFlux's `WebSession`.
+This means that developers can switch the `WebSession` implementation out with an implementation that is backed by Spring Session.
+
+[[websession-why]]
+=== Why Spring Session & WebSession?
+
+We have already mentioned that Spring Session provides transparent integration with Spring WebFlux's `WebSession`, but what benefits do we get out of this?
+As with `HttpSession`, Spring Session makes it trivial to support <<websession-redis,clustered sessions>> without being tied to an application container specific solution.
+
+[[websession-redis]]
+=== WebSession with Redis
+
+Using Spring Session with `WebSession` is enabled by simply registering a `WebSessionManager` implementation backed by Spring Session's `ReactiveSessionRepository`.
+The Spring configuration is responsible for creating a `WebSessionManager` that replaces the `WebSession` implementation with an implementation backed by Spring Session.
+Add the following Spring Configuration:
+
+[source, java]
+----
+@EnableRedisWebSession // <1>
+public class SessionConfiguration {
+
+	@Bean
+	public LettuceConnectionFactory redisConnectionFactory() {
+		return new LettuceConnectionFactory(); // <2>
+	}
+
+}
+----
+
+<1> The `@EnableRedisWebSession` annotation creates a Spring Bean with the name of `webSessionManager` that implements the `WebSessionManager`.
+This is what is in charge of replacing the `WebSession` implementation to be backed by Spring Session.
+In this instance Spring Session is backed by Redis.
+<2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
+We configure the connection to connect to localhost on the default port (6379)
+For more information on configuring Spring Data Redis, refer to the https://docs.spring.io/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
+
+[[websession-how]]
+=== How WebSession Integration Works
+
+With Spring WebFlux and it's `WebSession` things are considerably simpler for Spring Session to integrate with, compared to Servlet API and it's `HttpSession`.
+Spring WebFlux provides `WebSessionStore` API which presents a strategy for persisting `WebSession`.
+
+NOTE: This section describes how Spring Session provides transparent integration with `WebSession`. The intent is so that user's can understand what is happening under the covers. This functionality is already integrated and you do NOT need to implement this logic yourself.
+
+First we create a custom `SpringSessionWebSession` that delegates to Spring Session's `Session`.
+It looks something like the following:
+
+[source, java]
+----
+public class SpringSessionWebSession implements WebSession {
+
+	enum State {
+		NEW, STARTED
+	}
+
+	private final S session;
+
+	private AtomicReference<State> state = new AtomicReference<>();
+
+	SpringSessionWebSession(S session, State state) {
+		this.session = session;
+		this.state.set(state);
+	}
+
+	@Override
+	public void start() {
+		this.state.compareAndSet(State.NEW, State.STARTED);
+	}
+
+	@Override
+	public boolean isStarted() {
+		State value = this.state.get();
+		return (State.STARTED.equals(value)
+				|| (State.NEW.equals(value) && !this.session.getAttributes().isEmpty()));
+	}
+
+	@Override
+	public Mono<Void> changeSessionId() {
+		return Mono.defer(() -> {
+			this.session.changeSessionId();
+			return save();
+		});
+	}
+
+	// ... other methods delegate to the original Session
+}
+----
+
+Next, we create a custom `WebSessionStore` that delegates to the `ReactiveSessionRepository` and wraps `Session` into custom `WebSession` implementation:
+
+[source, java]
+----
+public class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
+
+	private final ReactiveSessionRepository<S> sessions;
+
+	public SpringSessionWebSessionStore(ReactiveSessionRepository<S> reactiveSessionRepository) {
+		this.sessions = reactiveSessionRepository;
+	}
+
+	// ...
+}
+----
+
+In order to be detected by Spring WebFlux, this custom `WebSessionStore` needs to be registered with `ApplicationContext` as bean named `webSessionManager`.
+For additional information on Spring WebFlux, refer to the https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/web-reactive.html[Spring Framework Reference Documentation].
+
 [[spring-security]]
 == Spring Security Integration
 
@@ -356,7 +492,7 @@ Spring Session provides integration with Spring Security.
 [[spring-security-rememberme]]
 === Spring Security Remember-Me Support
 
-Spring Session provides integration with http://docs.spring.io/spring-security/site/docs/4.2.x/reference/htmlsingle/#remember-me[Spring Security's Remember-Me Authentication].
+Spring Session provides integration with https://docs.spring.io/spring-security/site/docs/{spring-security-version}/reference/htmlsingle/#remember-me[Spring Security's Remember-Me Authentication].
 The support will:
 
 * Change the session expiration length
@@ -502,6 +638,14 @@ Once the session is indexed, it can be found using the following:
 include::{docs-test-dir}docs/FindByIndexNameSessionRepositoryTests.java[tags=findby-username]
 ----
 
+[[api-reactivesessionrepository]]
+=== ReactiveSessionRepository
+
+A `ReactiveSessionRepository` is in charge of creating, retrieving, and persisting `Session` instances in a non-blocking and reactive manner.
+
+If possible, developers should not interact directly with a `ReactiveSessionRepository` or a `Session`.
+Instead, developers should prefer interacting with `ReactiveSessionRepository` and `Session` indirectly through the <<websession,WebSession>> integration.
+
 [[api-enablespringhttpsession]]
 === EnableSpringHttpSession
 
@@ -512,6 +656,22 @@ For example:
 [source,java,indent=0]
 ----
 include::{docs-test-dir}docs/SpringHttpSessionConfig.java[tags=class]
+----
+
+It is important to note that no infrastructure for session expirations is configured for you out of the box.
+This is because things like session expiration are highly implementation dependent.
+This means if you require cleaning up expired sessions, you are responsible for cleaning up the expired sessions.
+
+[[api-enablespringwebsession]]
+=== EnableSpringWebSession
+
+The `@EnableSpringWebSession` annotation can be added to an `@Configuration` class to expose the `WebSessionManager` as a bean named "webSessionManager".
+In order to leverage the annotation, a single `ReactiveSessionRepository` bean must be provided.
+For example:
+
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/SpringWebSessionConfig.java[tags=class]
 ----
 
 It is important to note that no infrastructure for session expirations is configured for you out of the box.
@@ -545,7 +705,7 @@ Complete example usage can be found in the <<samples>>
 You can use the following attributes to customize the configuration:
 
 * **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds
-* **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel ids will start with the prefix of `<redisNamespace>:`.
+* **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel IDs will start with the prefix of `<redisNamespace>:`.
 * **redisFlushMode** - allows specifying when data will be written to Redis. The default is only when `save` is invoked on `SessionRepository`.
 A value of `RedisFlushMode.IMMEDIATE` will write to Redis as soon as possible.
 
@@ -557,7 +717,7 @@ You can customize the serialization by creating a Bean named `springSessionDefau
 
 `RedisOperationsSessionRepository` is subscribed to receive events from redis using a `RedisMessageListenerContainer`.
 You can customize the way those events are dispatched, by creating a Bean named `springSessionRedisTaskExecutor` and/or a Bean `springSessionRedisSubscriptionExecutor`.
-More details on configuring redis task executors can be found http://docs.spring.io/spring-data-redis/docs/current/reference/html/#redis:pubsub:subscribe:containers[here].
+More details on configuring redis task executors can be found https://docs.spring.io/spring-data-redis/docs/{spring-data-redis-version}/reference/html/#redis:pubsub:subscribe:containers[here].
 
 [[api-redisoperationssessionrepository-storage]]
 ==== Storage Details
@@ -596,7 +756,7 @@ HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe creationTime 
 
 In this example, the session following statements are true about the session:
 
-* The session id is 33fdd1b6-b496-4b33-9f7d-df96679d32fe
+* The session ID is 33fdd1b6-b496-4b33-9f7d-df96679d32fe
 * The session was created at 1404360000000 in milliseconds since midnight of 1/1/1970 GMT.
 * The session expires in 1800 seconds (30 minutes).
 * The session was last accessed at 1404360000000 in milliseconds since midnight of 1/1/1970 GMT.
@@ -636,7 +796,7 @@ The `SessionRepository.findById(String)` method ensures that no expired sessions
 This means there is no need to check the expiration before using a session.
 ====
 
-Spring Session relies on the delete and expired http://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionDeletedEvent>> and <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionExpiredEvent>> respectively.
+Spring Session relies on the delete and expired https://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionDeletedEvent>> and <<api-redisoperationssessionrepository-sessiondestroyedevent,SessionExpiredEvent>> respectively.
 It is the `SessionDeletedEvent` or `SessionExpiredEvent` that ensures resources associated with the Session are cleaned up.
 For example, when using Spring Session's WebSocket support the Redis expired or delete event is what triggers any WebSocket connections associated with the session to be closed.
 
@@ -651,7 +811,7 @@ When a session expires key is deleted or expires, the keyspace notification trig
 
 One problem with relying on Redis expiration exclusively is that Redis makes no guarantee of when the expired event will be fired if the key has not been accessed.
 Specifically the background task that Redis uses to clean up expired keys is a low priority task and may not trigger the key expiration.
-For additional details see http://redis.io/topics/notifications[Timing of expired events] section in the Redis documentation.
+For additional details see https://redis.io/topics/notifications[Timing of expired events] section in the Redis documentation.
 
 To circumvent the fact that expired events are not guaranteed to happen we can ensure that each key is accessed when it is expected to expire.
 This means that if the TTL is expired on the key, Redis will remove the key and fire the expired event when we try to access the key.
@@ -686,7 +846,7 @@ This is necessary to ensure resources associated with the `Session` are properly
 
 For example, when integrating with WebSockets the `SessionDestroyedEvent` is in charge of closing any active WebSocket connections.
 
-Firing `SessionDeletedEvent` or `SessionExpiredEvent` is made available through the `SessionMessageListener` which listens to http://redis.io/topics/notifications[Redis Keyspace events].
+Firing `SessionDeletedEvent` or `SessionExpiredEvent` is made available through the `SessionMessageListener` which listens to https://redis.io/topics/notifications[Redis Keyspace events].
 In order for this to work, Redis Keyspace events for Generic commands and Expired events needs to be enabled.
 For example:
 
@@ -718,14 +878,14 @@ include::{docs-test-resources-dir}docs/HttpSessionConfigurationNoOpConfigureRedi
 ==== SessionCreatedEvent
 
 When a session is created an event is sent to Redis with the channel of `spring:session:channel:created:33fdd1b6-b496-4b33-9f7d-df96679d32fe`
-such that `33fdd1b6-b496-4b33-9f7d-df96679d32fe` is the session id. The body of the event will be the session that was created.
+such that `33fdd1b6-b496-4b33-9f7d-df96679d32fe` is the session ID. The body of the event will be the session that was created.
 
 If registered as a MessageListener (default), then `RedisOperationsSessionRepository` will then translate the Redis message into a `SessionCreatedEvent`.
 
 [[api-redisoperationssessionrepository-cli]]
 ==== Viewing the Session in Redis
 
-After http://redis.io/topics/quickstart[installing redis-cli], you can inspect the values in Redis http://redis.io/commands#hash[using the redis-cli].
+After https://redis.io/topics/quickstart[installing redis-cli], you can inspect the values in Redis https://redis.io/commands#hash[using the redis-cli].
 For example, enter the following into a terminal:
 
 [source,bash]
@@ -737,7 +897,70 @@ redis 127.0.0.1:6379> keys *
 ----
 
 <1> The suffix of this key is the session identifier of the Spring Session.
-<2> This key contains all the session ids that should be deleted at the time `1418772300000`.
+<2> This key contains all the session IDs that should be deleted at the time `1418772300000`.
+
+You can also view the attributes of each session.
+
+[source,bash]
+----
+redis 127.0.0.1:6379> hkeys spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021
+1) "lastAccessedTime"
+2) "creationTime"
+3) "maxInactiveInterval"
+4) "sessionAttr:username"
+redis 127.0.0.1:6379> hget spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021 sessionAttr:username
+"\xac\xed\x00\x05t\x00\x03rob"
+----
+
+[[api-reactiveredisoperationssessionrepository]]
+=== ReactiveRedisOperationsSessionRepository
+
+`ReactiveRedisOperationsSessionRepository` is a `ReactiveSessionRepository` that is implemented using Spring Data's `ReactiveRedisOperations`.
+In a web environment, this is typically used in combination with `WebSessionStore`.
+
+[[api-reactiveredisoperationssessionrepository-new]]
+==== Instantiating a ReactiveRedisOperationsSessionRepository
+
+A typical example of how to create a new instance can be seen below:
+
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=new-reactiveredisoperationssessionrepository]
+----
+
+For additional information on how to create a `ReactiveRedisConnectionFactory`, refer to the Spring Data Redis Reference.
+
+[[api-reactiveredisoperationssessionrepository-config]]
+==== EnableRedisWebSession
+
+In a web environment, the simplest way to create a new `ReactiveRedisOperationsSessionRepository` is to use `@EnableRedisWebSession`.
+You can use the following attributes to customize the configuration:
+
+* **maxInactiveIntervalInSeconds** - the amount of time before the session will expire in seconds
+* **redisNamespace** - allows configuring an application specific namespace for the sessions. Redis keys and channel IDs will start with the prefix of `<redisNamespace>:`.
+* **redisFlushMode** - allows specifying when data will be written to Redis. The default is only when `save` is invoked on `ReactiveSessionRepository`.
+A value of `RedisFlushMode.IMMEDIATE` will write to Redis as soon as possible.
+
+[[api-reactiveredisoperationssessionrepository-writes]]
+===== Optimized Writes
+
+The `Session` instances managed by `ReactiveRedisOperationsSessionRepository` keeps track of the properties that have changed and only updates those.
+This means if an attribute is written once and read many times we only need to write that attribute once.
+
+[[api-reactiveredisoperationssessionrepository-cli]]
+==== Viewing the Session in Redis
+
+After https://redis.io/topics/quickstart[installing redis-cli], you can inspect the values in Redis https://redis.io/commands#hash[using the redis-cli].
+For example, enter the following into a terminal:
+
+[source,bash]
+----
+$ redis-cli
+redis 127.0.0.1:6379> keys *
+1) "spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021" <1>
+----
+
+<1> The suffix of this key is the session identifier of the Spring Session.
 
 You can also view the attributes of each session.
 
@@ -755,7 +978,7 @@ redis 127.0.0.1:6379> hget spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed
 [[api-mapsessionrepository]]
 === MapSessionRepository
 
-The `MapSessionRepository` allows for persisting `Session` in a `Map` with the key being the `Session` id and the value being the `Session`.
+The `MapSessionRepository` allows for persisting `Session` in a `Map` with the key being the `Session` ID and the value being the `Session`.
 The implementation can be used with a `ConcurrentHashMap` as a testing or convenience mechanism.
 Alternatively, it can be used with distributed `Map` implementations. For example, it can be used with Hazelcast.
 
@@ -786,6 +1009,13 @@ To run it use the following:
 
 	./gradlew :samples:hazelcast-spring:tomcatRun
 
+[[api-reactivemapsessionrepository]]
+=== ReactiveMapSessionRepository
+
+The `ReactiveMapSessionRepository` allows for persisting `Session` in a `Map` with the key being the `Session` ID and the value being the `Session`.
+The implementation can be used with a `ConcurrentHashMap` as a testing or convenience mechanism.
+Alternatively, it can be used with distributed `Map` implementations with the requirement that the supplied `Map` must be a non-blocking.
+
 [[api-jdbcoperationssessionrepository]]
 === JdbcOperationsSessionRepository
 
@@ -803,7 +1033,7 @@ A typical example of how to create a new instance can be seen below:
 include::{indexdoc-tests}[tags=new-jdbcoperationssessionrepository]
 ----
 
-For additional information on how to create and configure `JdbcTemplate` and `PlatformTransactionManager`, refer to the http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
+For additional information on how to create and configure `JdbcTemplate` and `PlatformTransactionManager`, refer to the https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
 
 [[api-jdbcoperationssessionrepository-config]]
 ==== EnableJdbcHttpSession
@@ -870,12 +1100,12 @@ A typical example of how to create a new instance can be seen below:
 include::{indexdoc-tests}[tags=new-hazelcastsessionrepository]
 ----
 
-For additional information on how to create and configure Hazelcast instance, refer to the http://docs.hazelcast.org/docs/latest/manual/html-single/index.html#hazelcast-configuration[Hazelcast documentation].
+For additional information on how to create and configure Hazelcast instance, refer to the http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[Hazelcast documentation].
 
 [[api-enablehazelcasthttpsession]]
 ==== EnableHazelcastHttpSession
 
-If you wish to use http://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, then the `@EnableHazelcastHttpSession` annotation
+If you wish to use https://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, then the `@EnableHazelcastHttpSession` annotation
 can be added to an `@Configuration` class. This extends the functionality provided by the `@EnableSpringHttpSession` annotation but makes the `SessionRepository` for you in Hazelcast.
 You must provide a single `HazelcastInstance` bean for the configuration to work.
 Complete configuration example can be found in the <<samples>>
@@ -907,6 +1137,70 @@ Note that if you use Hazelcast's `MapStore` to persist your sessions `IMap` ther
 * reload triggers `EntryAddedListener` which results in `SessionCreatedEvent` being re-published
 * reload uses default TTL for a given `IMap` which results in sessions losing their original TTL
 
+[[custom-sessionrepository]]
+== Custom SessionRepository
+
+Implementing a custom <<api-sessionrepository,`SessionRepository`>> API should be a fairly straightforward task.
+Coupling the custom implementation with <<api-enablespringhttpsession,`@EnableSpringHttpSession`>> support allow to easily reuse existing Spring Session configuration facilities and infrastructure.
+There are however a couple of aspects that deserve a closer consideration.
+
+During a lifecycle of an HTTP request, the `HttpSession` is typically is persisted to `SessionRepository` twice.
+First to ensure that the session is available to the clients as soon as the client has access to the session ID, and it is also necessary to write after the session is committed because further modifications to the session might be made.
+Having this in mind, it is generally recommended for a `SessionRepository` implementation to keep track of changes to ensure that only deltas are saved.
+This is in particular very important in highly concurrent environments, where multiple requests operate on the same `HttpSession` and therefore cause race conditions, with requests overriding each others changes to session attributes.
+All of the `SessionRepository` implementations provided by Spring Session use the described approach to persisting session changes and can be used for guidance while implementing custom `SessionRepository`.
+
+Note that the same recommendations apply for implementing a custom <<api-reactivesessionrepository,`ReactiveSessionRepository`>> as well.
+Of course, in this case the <<api-enablespringwebsession,`@EnableSpringWebSession`>> should be used.
+
+[[upgrading-2.0]]
+== Upgrading to 2.x
+
+With the new major release version, the Spring Session team took the opportunity to make some non-passive changes.
+The focus of these changes is to improve and harmonize Spring Session's APIs, as well as remove the deprecated components.
+
+=== Baseline update
+
+Spring Session 2.0 requires Java 8 and Spring Framework 5.0 as a baseline, since its entire codebase is now based on Java 8 source code.
+Refer to guide for https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-5.x[Upgrading to Spring Framework 5.x] for reference on upgrading Spring Framework.
+
+=== Replaced and Removed Modules
+
+As a part of the project's split the modules, the existing `spring-session` has been replaced with `spring-session-core` module.
+The `spring-session-core` module holds only the common set of APIs and components while other modules contain the implementation of appropriate `SessionRepository` and functionality related to that data store.
+This applies to several existing that were previously a simple dependency aggregator helper modules but with new module arrangement actually carry the implementation:
+
+* Spring Session Data Redis
+* Spring Session JDBC
+* Spring Session Hazelcast
+
+Also the following modules were removed from the main project repository:
+
+* Spring Session Data MongoDB
+* Spring Session Data GemFire
+
+Note that these two have moved to separate repositories, and will continue to be available albeit under a changed artifact names:
+
+* https://github.com/spring-projects/spring-session-data-mongodb[`spring-session-data-mongodb`]
+* https://github.com/spring-projects/spring-session-data-geode[`spring-session-data-geode`]
+
+=== Replaced and Removed Packages, Classes and Methods
+
+* `ExpiringSession` API has been merged into `Session` API
+* `Session` API has been enhanced to make full use of Java 8
+* `Session` API has been extended with `changeSessionId` support
+* `SessionRepository` API has been updated to better align with Spring Data method naming conventions
+* `AbstractSessionEvent` and its subclasses are no longer constructable without an underlying `Session` object
+* Redis namespace used by `RedisOperationsSessionRepository` is now fully configurable, instead of being partial configurable
+* Redis configuration support has been updated to avoid registering a Spring Session specific `RedisTemplate` bean
+* JDBC configuration support has been updated to avoid registering a Spring Session specific `JdbcTemplate` bean
+* Previously deprecated classes and methods have been removed across the codebase
+
+=== Dropped Support
+
+As a part of the changes to `HttpSessionStrategy` and it's alignment to the counterpart from the reactive world, the support for managing multiple users' sessions in a single browser instance has been removed.
+This introduction of new API to replace this functionality in consideration for future releases.
+
 [[community]]
 == Spring Session Community
 
@@ -916,18 +1210,18 @@ Please find additional information below.
 [[community-support]]
 === Support
 
-You can get help by asking questions on http://stackoverflow.com/questions/tagged/spring-session[StackOverflow with the tag spring-session].
+You can get help by asking questions on https://stackoverflow.com/questions/tagged/spring-session[StackOverflow with the tag spring-session].
 Similarly we encourage helping others by answering questions on StackOverflow.
 
 [[community-source]]
 === Source Code
 
-Our source code can be found on github at https://github.com/spring-projects/spring-session/
+Our source code can be found on GitHub at https://github.com/spring-projects/spring-session/
 
 [[community-issues]]
 === Issue Tracking
 
-We track issues in github issues at https://github.com/spring-projects/spring-session/issues
+We track issues in GitHub issues at https://github.com/spring-projects/spring-session/issues
 
 [[community-contributing]]
 === Contributing
@@ -937,7 +1231,7 @@ We appreciate https://help.github.com/articles/using-pull-requests/[Pull Request
 [[community-license]]
 === License
 
-Spring Session is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+Spring Session is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0[Apache 2.0 license].
 
 [[community-extensions]]
 === Community Extensions

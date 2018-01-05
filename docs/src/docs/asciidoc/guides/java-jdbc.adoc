@@ -26,7 +26,7 @@ If you are using Maven, ensure to add the following dependencies:
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-web</artifactId>
-		<version>{spring-version}</version>
+		<version>{spring-framework-version}</version>
 	</dependency>
 </dependencies>
 ----
@@ -85,7 +85,7 @@ In this instance Spring Session is backed by a relational database.
 We configure the H2 database to create database tables using the SQL script which is included in Spring Session.
 <3> We create a `transactionManager` that manages transactions for previously configured `dataSource`.
 
-For additional information on how to configure data access related concerns, please refer to the http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
+For additional information on how to configure data access related concerns, please refer to the https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
 
 == Java Servlet Container Initialization
 
@@ -145,7 +145,7 @@ include::{samples-dir}javaconfig/jdbc/src/main/java/sample/SessionServlet.java[t
 
 Instead of using Tomcat's `HttpSession`, we are actually persisting the values in H2 database.
 Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
-Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+Go ahead and view the cookies (click for help with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
 
 If you like, you can easily remove the session using H2 web console available at: http://localhost:8080/h2-console/ (use `jdbc:h2:mem:testdb` for JDBC URL)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,20 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.junit.Test;
 
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
@@ -118,6 +124,26 @@ public class IndexDocTests {
 		SessionRepository<? extends Session> repository =
 				new RedisOperationsSessionRepository(redisTemplate);
 		// end::new-redisoperationssessionrepository[]
+	}
+
+	@Test
+	@SuppressWarnings("unused")
+	public void newReactiveRedisOperationsSessionRepository() {
+		LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory();
+		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
+				.<String, Object>newSerializationContext(
+						new JdkSerializationRedisSerializer())
+				.build();
+
+		// tag::new-reactiveredisoperationssessionrepository[]
+		// ... create and configure connectionFactory and serializationContext ...
+
+		ReactiveRedisTemplate<String, Object> redisTemplate = new ReactiveRedisTemplate<>(
+				connectionFactory, serializationContext);
+
+		ReactiveSessionRepository<? extends Session> repository =
+				new ReactiveRedisOperationsSessionRepository(redisTemplate);
+		// end::new-reactiveredisoperationssessionrepository[]
 	}
 
 	@Test

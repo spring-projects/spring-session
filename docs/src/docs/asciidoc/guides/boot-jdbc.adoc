@@ -54,7 +54,7 @@ spring.session.jdbc.schema=classpath:org/springframework/session/jdbc/schema-@@p
 spring.session.jdbc.table-name=SPRING_SESSION # Name of database table used to store sessions.
 ----
 
-For more information, refer to http://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
+For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
 
 [[httpsession-jdbc-boot-configuration]]
 == Configuring the DataSource
@@ -70,7 +70,7 @@ spring.datasource.username=myapp
 spring.datasource.password=secret
 ----
 
-For more information, refer to http://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
+For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
 
 [[httpsession-jdbc-boot-servlet-configuration]]
 == Servlet Container Initialization
@@ -120,7 +120,7 @@ Spring Session replaces the `HttpSession` with an implementation that is backed 
 When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into H2 database.
 
 When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
-Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+Go ahead and view the cookies (click for help with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
 
 If you like, you can easily remove the session using H2 web console available at: http://localhost:8080/h2-console/ (use `jdbc:h2:mem:testdb` for JDBC URL)
 
