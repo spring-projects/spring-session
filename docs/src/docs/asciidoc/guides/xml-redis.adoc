@@ -31,7 +31,7 @@ If you are using Maven, ensure to add the following dependencies:
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-web</artifactId>
-		<version>{spring-version}</version>
+		<version>{spring-framework-version}</version>
 	</dependency>
 </dependencies>
 ----
@@ -90,7 +90,7 @@ The filter is what is in charge of replacing the `HttpSession` implementation to
 In this instance Spring Session is backed by Redis.
 <2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
 We configure the connection to connect to localhost on the default port (6379)
-For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
+For more information on configuring Spring Data Redis, refer to the https://docs.spring.io/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
 
 == XML Servlet Container Initialization
 
@@ -108,7 +108,7 @@ include::{samples-dir}xml/redis/src/main/webapp/WEB-INF/web.xml[tags=context-par
 include::{samples-dir}xml/redis/src/main/webapp/WEB-INF/web.xml[tags=listeners]
 ----
 
-The http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener] reads the contextConfigLocation and picks up our session.xml configuration.
+The https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/core.html#context-create[ContextLoaderListener] reads the contextConfigLocation and picks up our session.xml configuration.
 
 Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
 The following snippet performs this last step for us:
@@ -119,7 +119,7 @@ The following snippet performs this last step for us:
 include::{samples-dir}xml/redis/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
 ----
 
-The http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy] will look up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
+The https://docs.spring.io/spring-framework/docs/{spring-framework-version}/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy] will look up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
 For every request that `DelegatingFilterProxy` is invoked, the `springSessionRepositoryFilter` will be invoked.
 
 // end::config[]
@@ -133,7 +133,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 
 [NOTE]
 ====
-For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
 Alternatively, you can update the `RedisConnectionFactory` to point to a Redis server.
 Another option is to use https://www.docker.com/[Docker] to run Redis on localhost. See https://hub.docker.com/_/redis/[Docker Redis repository] for detailed instructions.
 ====
@@ -165,13 +165,13 @@ include::{samples-dir}xml/redis/src/main/java/sample/SessionServlet.java[tags=cl
 
 Instead of using Tomcat's `HttpSession`, we are actually persisting the values in Redis.
 Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
-Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+Go ahead and view the cookies (click for help with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
 
 If you like, you can easily remove the session using redis-cli. For example, on a Linux based system you can type:
 
 	$ redis-cli keys '*' | xargs redis-cli del
 
-TIP: The Redis documentation has instructions for http://redis.io/topics/quickstart[installing redis-cli].
+TIP: The Redis documentation has instructions for https://redis.io/topics/quickstart[installing redis-cli].
 
 Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
 

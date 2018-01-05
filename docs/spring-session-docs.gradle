@@ -6,20 +6,20 @@ dependencies {
 	testCompile project(':spring-session-data-redis')
 	testCompile project(':spring-session-hazelcast')
 	testCompile project(':spring-session-jdbc')
-	testCompile "org.springframework:spring-jdbc"
-	testCompile "org.springframework:spring-messaging"
-	testCompile "org.springframework:spring-webmvc"
-	testCompile "org.springframework:spring-websocket"
-	testCompile "org.springframework.security:spring-security-config"
-	testCompile "org.springframework.security:spring-security-web"
-	testCompile "org.springframework.security:spring-security-test"
-	testCompile "junit:junit"
-	testCompile "org.mockito:mockito-core"
-	testCompile "org.springframework:spring-test"
-	testCompile "org.assertj:assertj-core"
-	testCompile "com.hazelcast:hazelcast"
-	testCompile "io.lettuce:lettuce-core"
-	testCompile "javax.servlet:javax.servlet-api"
+	testCompile 'org.springframework:spring-jdbc'
+	testCompile 'org.springframework:spring-messaging'
+	testCompile 'org.springframework:spring-webmvc'
+	testCompile 'org.springframework:spring-websocket'
+	testCompile 'org.springframework.security:spring-security-config'
+	testCompile 'org.springframework.security:spring-security-web'
+	testCompile 'org.springframework.security:spring-security-test'
+	testCompile 'junit:junit'
+	testCompile 'org.mockito:mockito-core'
+	testCompile 'org.springframework:spring-test'
+	testCompile 'org.assertj:assertj-core'
+	testCompile 'com.hazelcast:hazelcast'
+	testCompile 'io.lettuce:lettuce-core'
+	testCompile 'javax.servlet:javax.servlet-api'
 }
 
 def versions = dependencyManagement.managedVersions
@@ -27,19 +27,22 @@ def versions = dependencyManagement.managedVersions
 asciidoctor {
 	def ghTag = snapshotBuild ? 'master' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
-	attributes	'version-snapshot': snapshotBuild,
+
+	attributes 'docs-itest-dir': "$rootProject.projectDir.path/docs/src/integration-test/java/",
+			'docs-test-dir': "$rootProject.projectDir.path/docs/src/test/java/",
+			'docs-test-resources-dir': "$rootProject.projectDir.path/docs/src/test/resources/",
+			'download-url': "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
+			'gh-samples-url': "$ghUrl/samples/",
+			'gh-url': ghUrl,
+			'hazelcast-version': versions['com.hazelcast:hazelcast'],
+			'lettuce-version': versions['io.lettuce:lettuce-core'],
+			'samples-dir': "$rootProject.projectDir.path/samples/",
+			'session-jdbc-main-resources-dir': "${project(':spring-session-jdbc').projectDir.path}/src/main/resources/",
+			'spring-data-redis-version': versions['org.springframework.data:spring-data-redis'],
+			'spring-framework-version': versions['org.springframework:spring-core'],
+			'spring-security-version': versions['org.springframework.security:spring-security-core'],
+			'spring-session-version': project.version,
 			'version-milestone': milestoneBuild,
 			'version-release': releaseBuild,
-			'gh-url': ghUrl,
-			'gh-samples-url': "$ghUrl/samples/",
-			'download-url' : "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
-			'spring-session-version' : version,
-			'spring-version' : versions['org.springframework:spring-core'],
-			'lettuce-version' : versions['io.lettuce:lettuce-core'],
-			'hazelcast-version' : versions['com.hazelcast:hazelcast'],
-			'docs-itest-dir' : rootProject.projectDir.path + '/docs/src/integration-test/java/',
-			'docs-test-dir' : rootProject.projectDir.path + '/docs/src/test/java/',
-			'docs-test-resources-dir' : rootProject.projectDir.path + '/docs/src/test/resources/',
-			'samples-dir' : rootProject.projectDir.path + '/samples/',
-			'session-jdbc-main-resources-dir' : project(':spring-session-jdbc').projectDir.path + '/src/main/resources/'
+			'version-snapshot': snapshotBuild
 }

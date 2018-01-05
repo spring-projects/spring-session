@@ -51,7 +51,7 @@ spring.session.redis.flush-mode= # Sessions flush mode.
 spring.session.redis.namespace= # Namespace for keys used to store sessions.
 ----
 
-For more information, refer to http://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
+For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
 
 [[boot-redis-configuration]]
 == Configuring the Redis Connection
@@ -67,7 +67,7 @@ spring.redis.password=secret
 spring.redis.port=6379
 ----
 
-For more information, refer to http://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
+For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
 
 [[boot-servlet-configuration]]
 == Servlet Container Initialization
@@ -91,7 +91,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 
 [NOTE]
 ====
-For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
 Alternatively, you can update the `RedisConnectionFactory` to point to a Redis server.
 Another option is to use https://www.docker.com/[Docker] to run Redis on localhost. See https://hub.docker.com/_/redis/[Docker Redis repository] for detailed instructions.
 ====
@@ -122,13 +122,13 @@ Spring Session replaces the `HttpSession` with an implementation that is backed 
 When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into Redis.
 
 When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
-Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+Go ahead and view the cookies (click for help with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
 
 If you like, you can easily remove the session using redis-cli. For example, on a Linux based system you can type:
 
 	$ redis-cli keys '*' | xargs redis-cli del
 
-TIP: The Redis documentation has instructions for http://redis.io/topics/quickstart[installing redis-cli].
+TIP: The Redis documentation has instructions for https://redis.io/topics/quickstart[installing redis-cli].
 
 Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
 
