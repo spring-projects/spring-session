@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -319,18 +320,25 @@ public class ReactiveRedisOperationsSessionRepository implements
 		}
 
 		private Mono<Void> saveChangeSessionId(String sessionId) {
-			if (isNew() || sessionId.equals(this.originalSessionId)) {
+			if (sessionId.equals(this.originalSessionId)) {
 				return Mono.empty();
 			}
 
-			String originalSessionKey = getSessionKey(this.originalSessionId);
-			String sessionKey = getSessionKey(sessionId);
+			Publisher<Void> replaceSessionId = s -> {
+				this.originalSessionId = sessionId;
+				s.onComplete();
+			};
 
-			return ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
-					.rename(originalSessionKey, sessionKey).and(s -> {
-						this.originalSessionId = sessionId;
-						s.onComplete();
-					});
+			if (isNew()) {
+				return Mono.from(replaceSessionId);
+			}
+			else {
+				String originalSessionKey = getSessionKey(this.originalSessionId);
+				String sessionKey = getSessionKey(sessionId);
+
+				return ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
+						.rename(originalSessionKey, sessionKey).and(replaceSessionId);
+			}
 		}
 
 	}
