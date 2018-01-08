@@ -60,7 +60,7 @@ import org.springframework.util.Assert;
  * A typical example of how to create a new instance can be seen below:
  *
  * <pre>
- * RedisTemplate&lt;Object, Object&gt; redisTemplate = new RedisTemplate();
+ * RedisTemplate&lt;Object, Object&gt; redisTemplate = new RedisTemplate&lt;&gt;();
  *
  * // ... configure redisTemplate ...
  *
@@ -277,7 +277,7 @@ public class RedisOperationsSessionRepository implements
 	static final String LAST_ACCESSED_ATTR = "lastAccessedTime";
 
 	/**
-	 * The prefix of the key for used for session attributes. The suffix is the name of
+	 * The prefix of the key used for session attributes. The suffix is the name of
 	 * the session attribute. For example, if the session contained an attribute named
 	 * attributeName, then there would be an entry in the hash named
 	 * sessionAttr:attributeName that mapped to its value.

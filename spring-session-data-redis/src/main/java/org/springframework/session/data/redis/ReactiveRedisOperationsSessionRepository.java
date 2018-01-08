@@ -64,7 +64,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 	static final String MAX_INACTIVE_INTERVAL_KEY = "maxInactiveInterval";
 
 	/**
-	 * The prefix of the key for used for session attributes. The suffix is the name of
+	 * The prefix of the key used for session attributes. The suffix is the name of
 	 * the session attribute. For example, if the session contained an attribute named
 	 * attributeName, then there would be an entry in the hash named
 	 * sessionAttr:attributeName that mapped to its value.

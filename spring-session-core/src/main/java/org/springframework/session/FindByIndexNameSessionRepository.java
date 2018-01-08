@@ -52,7 +52,7 @@ public interface FindByIndexNameSessionRepository<S extends Session>
 	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME} and the value of
 	 * the specified principal name.
 	 *
-	 * @param indexName the name if the index (i.e.
+	 * @param indexName the name of the index (i.e.
 	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME})
 	 * @param indexValue the value of the index to search for.
 	 * @return a Map (never null) of the session id to the {@link Session} of all sessions
