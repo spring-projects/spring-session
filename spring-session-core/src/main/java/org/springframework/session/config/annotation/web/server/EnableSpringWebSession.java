@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Import;
 /**
  * Add this annotation to a {@code @Configuration} class to configure a {@code WebSessionManager} for a WebFlux
  * application. This annotation assumes a {@code ReactiveSessionRepository} is defined somewhere in the application
- * context. If not, it will fail with a clear error messages. For example:
+ * context. If not, it will fail with a clear error message. For example:
  *
  * <pre>
  * <code>
