@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session;
+package org.springframework.session.config.annotation.web.server;
 
 import java.util.HashMap;
 
@@ -24,7 +24,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
+import org.springframework.session.ReactiveMapSessionRepository;
+import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import org.springframework.web.server.session.CookieWebSessionIdResolver;
 import org.springframework.web.server.session.DefaultWebSessionManager;

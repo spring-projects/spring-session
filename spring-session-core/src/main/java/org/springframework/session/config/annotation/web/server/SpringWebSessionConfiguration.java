@@ -47,7 +47,7 @@ public class SpringWebSessionConfiguration {
 	/**
 	 * Configure a {@link WebSessionManager} using a provided {@link ReactiveSessionRepository}.
 	 *
-	 * @param repository - a bean that implements {@link ReactiveSessionRepository}.
+	 * @param repository a bean that implements {@link ReactiveSessionRepository}.
 	 * @return a configured {@link WebSessionManager} registered with a preconfigured name.
 	 */
 	@Bean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME)

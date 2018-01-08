@@ -195,7 +195,7 @@ public class HazelcastHttpSessionConfigurationTests {
 	}
 
 	@Test
-	public void namedDataSourceConfiguration() {
+	public void namedHazelcastInstanceConfiguration() {
 		registerAndRefresh(NamedHazelcastInstanceConfiguration.class);
 
 		HazelcastSessionRepository repository = this.context
@@ -209,7 +209,7 @@ public class HazelcastHttpSessionConfigurationTests {
 	}
 
 	@Test
-	public void multipleDataSourceConfiguration() {
+	public void multipleHazelcastInstanceConfiguration() {
 		this.thrown.expect(BeanCreationException.class);
 		this.thrown.expectMessage("expected single matching bean but found 2");
 
