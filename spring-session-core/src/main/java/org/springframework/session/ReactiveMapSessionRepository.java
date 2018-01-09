@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import org.springframework.session.events.SessionExpiredEvent;
 /**
  * A {@link ReactiveSessionRepository} backed by a {@link Map} and that uses a
  * {@link MapSession}. The injected {@link java.util.Map} can be backed by a distributed
- * NoSQL store like Hazelcast, for instance. Note that the supplied map itself is
- * responsible for purging the expired sessions.
+ * NoSQL store like Hazelcast, for instance. Note that the supplied map must be a
+ * non-blocking map, and is itself responsible for purging the expired sessions.
  *
  * <p>
  * The implementation does NOT support firing {@link SessionDeletedEvent} or
