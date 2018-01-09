@@ -1,26 +1,32 @@
-image:https://badges.gitter.im/spring-projects/spring-session.svg[link="https://gitter.im/spring-projects/spring-session?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
-
-image:https://travis-ci.org/spring-projects/spring-session.svg?branch=master["Build Status", link="https://travis-ci.org/spring-projects/spring-session"]
-
 = Spring Session
-Rob Winch
 
-Spring Session aims to provide a common infrastructure for managing sessions. This provides many benefits including:
+image:https://travis-ci.org/spring-projects/spring-session.svg?branch=master["Build Status", link="https://travis-ci.org/spring-projects/spring-session"] image:https://badges.gitter.im/spring-projects/spring-session.svg[link="https://gitter.im/spring-projects/spring-session?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
-* Accessing a session from any environment (i.e. web, messaging infrastructure, etc)
-* In a web environment
-** Support for clustering in a vendor neutral way
-** Pluggable strategy for determining the session id
-** Easily keep the HttpSession alive when a WebSocket is active
+Spring Session provides an API and implementations for managing a user's session information, while also making it trivial to support clustered sessions without being tied to an application container specific solution.
+It also provides transparent integration with:
+
+* `HttpSession` - allows replacing the `HttpSession` in an application container (i.e. Tomcat) neutral way, with support for providing session IDs in headers to work with RESTful APIs.
+* `WebSocket` - provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
+* `WebSession` - allows replacing the Spring WebFlux's `WebSession` in an application container neutral way.
+
+== Modules
+
+Spring Session consists of the following modules:
+
+* Spring Session Core - provides core Spring Session functionalities and APIs
+* Spring Session Data Redis - provides `SessionRepository` and `ReactiveSessionRepository` implementation backed by Redis and configuration support
+* Spring Session JDBC - provides `SessionRepository` implementation backed by a relational database and configuration support
+* Spring Session Hazelcast - provides `SessionRepository` implementation backed by Hazelcast and configuration support
 
 == Code of Conduct
+
 This project adheres to the Contributor Covenant link:CODE_OF_CONDUCT.adoc[code of conduct].
 By participating, you  are expected to uphold this code. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
 
-= Spring Session Project Site
+== Spring Session Project Site
 
 You can find the documentation, issue management, support, samples, and guides for using Spring Session at http://projects.spring.io/spring-session/
 
-= License
+== License
 
 Spring Session is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
