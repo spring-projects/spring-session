@@ -17,16 +17,16 @@ badges:
       url:  https://github.com/spring-projects/spring-session/issues
       icon: tracking
 
-    - name: CI (Bamboo)
-      url:  https://build.spring.io/browse/SESSION
+    - name: CI (Travis CI)
+      url:  https://travis-ci.org/spring-projects/spring-session
       icon: ci
 
     - name: StackOverflow
-      url:  http://stackoverflow.com/questions/tagged/spring-session
+      url:  https://stackoverflow.com/questions/tagged/spring-session
       icon: stackoverflow
 
     - name: Metrics (SonarQube)
-      url:  https://sonar.spring.io/dashboard/index?id=org.springframework.session%3Aspring-session-build
+      url:  https://sonar.spring.io/dashboard?id=org.springframework.session%3Aspring-session-build
       icon: metrics
 
 ---
@@ -46,15 +46,20 @@ Spring Session provides an API and implementations for managing a user’s sessi
 
 ## Features
 
-Spring Session provides the following features:
+Spring Session makes it trivial to support clustered sessions without being tied to an application container specific solution. It also provides transparent integration with:
 
-* API and implementations for managing a user's session
-* **HttpSession** - allows replacing the HttpSession in an application container (i.e. Tomcat) neutral way
- * **Clustered Sessions** - Spring Session makes it trivial to support clustered sessions without being tied to an application container specific solution.
- * **Multiple Browser Sessions** - Spring Session supports managing multiple users' sessions in a single browser instance (i.e. multiple authenticated accounts similar to Google).
- * **RESTful APIs** - Spring Session allows providing session ids in headers to work with RESTful APIs
-* **WebSocket** - provides the ability to keep the HttpSession alive when receiving WebSocket messages
+* **HttpSession** - allows replacing the `HttpSession` in an application container (i.e. Tomcat) neutral way, with support for providing session IDs in headers to work with RESTful APIs
+* **WebSocket** - provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
+* **WebSession** - allows replacing the Spring WebFlux’s `WebSession` in an application container neutral way
 
+## Modules
+
+Spring Session consists of the following modules:
+
+* **Spring Session Core** - provides core Spring Session functionalities and APIs
+* **Spring Session Data Redis** - provides `SessionRepository` and `ReactiveSessionRepository` implementation backed by Redis and configuration support
+* **Spring Session JDBC** - provides `SessionRepository` implementation backed by a relational database and configuration support
+* **Spring Session Hazelcast** - provides `SessionRepository` implementation backed by Hazelcast and configuration support
 
 <span id="quick-start"></span>
 ## Quick Start
@@ -69,12 +74,11 @@ Refer to the [Samples](http://docs.spring.io/spring-session/docs/current/referen
 
 ## Guides
 
-* [HttpSession & Redis](http://docs.spring.io/spring-session/docs/current/reference/html5/guides/httpsession.html)
-* [Spring Boot Integration](http://docs.spring.io/spring-session/docs/current/reference/html5/guides/boot.html)
-* [Spring Security Integration](http://docs.spring.io/spring-session/docs/current/reference/html5/guides/security.html)
-* [RESTful APIs](http://docs.spring.io/spring-session/docs/current/reference/html5/guides/rest.html)
-* [Multiple User Accounts](http://docs.spring.io/spring-session/docs/current/reference/html5/guides/users.html)
-* [WebSocket Integration](http://docs.spring.io/spring-session/docs/current/reference/html5/guides/websocket.html)
+* [HttpSession & Redis](https://docs.spring.io/spring-session/docs/current/reference/html5/guides/java-redis.html)
+* [Spring Boot Integration](https://docs.spring.io/spring-session/docs/current/reference/html5/guides/boot-redis.html)
+* [Spring Security Integration](https://docs.spring.io/spring-session/docs/current/reference/html5/guides/java-security.html)
+* [RESTful APIs](https://docs.spring.io/spring-session/docs/current/reference/html5/guides/java-rest.html)
+* [WebSocket Integration](https://docs.spring.io/spring-session/docs/current/reference/html5/guides/boot-websocket.html)
 
 {% endcapture %}
 
