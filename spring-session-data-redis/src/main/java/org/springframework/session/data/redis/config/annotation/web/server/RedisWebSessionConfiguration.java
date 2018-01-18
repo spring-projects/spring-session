@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.session.data.redis.config.annotation.web.server;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EmbeddedValueResolverAware;
@@ -53,11 +54,7 @@ import org.springframework.web.server.session.WebSessionManager;
  */
 @Configuration
 public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
-		implements EmbeddedValueResolverAware, ImportAware {
-
-	private static final RedisSerializer<String> keySerializer = new StringRedisSerializer();
-
-	private static final RedisSerializer<Object> valueSerializer = new JdkSerializationRedisSerializer();
+		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
@@ -67,12 +64,15 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	private ReactiveRedisConnectionFactory redisConnectionFactory;
 
+	private ClassLoader classLoader;
+
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
 	public ReactiveRedisOperationsSessionRepository sessionRepository() {
+		ReactiveRedisTemplate<String, Object> reactiveRedisTemplate = createReactiveRedisTemplate();
 		ReactiveRedisOperationsSessionRepository sessionRepository = new ReactiveRedisOperationsSessionRepository(
-				createDefaultTemplate(this.redisConnectionFactory));
+				reactiveRedisTemplate);
 		sessionRepository
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		if (StringUtils.hasText(this.redisNamespace)) {
@@ -108,6 +108,11 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 	}
 
 	@Override
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+
+	@Override
 	public void setEmbeddedValueResolver(StringValueResolver resolver) {
 		this.embeddedValueResolver = resolver;
 	}
@@ -127,12 +132,15 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		this.redisFlushMode = attributes.getEnum("redisFlushMode");
 	}
 
-	private static ReactiveRedisTemplate<String, Object> createDefaultTemplate(
-			ReactiveRedisConnectionFactory connectionFactory) {
+	private ReactiveRedisTemplate<String, Object> createReactiveRedisTemplate() {
+		RedisSerializer<String> keySerializer = new StringRedisSerializer();
+		RedisSerializer<Object> valueSerializer = new JdkSerializationRedisSerializer(
+				this.classLoader);
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
 				.<String, Object>newSerializationContext(valueSerializer)
 				.key(keySerializer).hashKey(keySerializer).build();
-		return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+		return new ReactiveRedisTemplate<>(this.redisConnectionFactory,
+				serializationContext);
 	}
 
 }

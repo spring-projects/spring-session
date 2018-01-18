@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.concurrent.Executor;
 
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +71,8 @@ import org.springframework.util.StringValueResolver;
 @Configuration
 @EnableScheduling
 public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements EmbeddedValueResolverAware, ImportAware, SchedulingConfigurer {
+		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware,
+		SchedulingConfigurer {
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
@@ -94,12 +96,13 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private Executor redisSubscriptionExecutor;
 
+	private ClassLoader classLoader;
+
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
 	public RedisOperationsSessionRepository sessionRepository() {
-		RedisTemplate<Object, Object> redisTemplate = createRedisTemplate(
-				this.redisConnectionFactory, this.defaultRedisSerializer);
+		RedisTemplate<Object, Object> redisTemplate = createRedisTemplate();
 		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
 				redisTemplate);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
@@ -206,6 +209,11 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	@Override
+	public void setBeanClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
+
+	@Override
 	public void setEmbeddedValueResolver(StringValueResolver resolver) {
 		this.embeddedValueResolver = resolver;
 	}
@@ -235,16 +243,15 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 				this.cleanupCron);
 	}
 
-	private static RedisTemplate<Object, Object> createRedisTemplate(
-			RedisConnectionFactory redisConnectionFactory,
-			RedisSerializer<Object> defaultRedisSerializer) {
+	private RedisTemplate<Object, Object> createRedisTemplate() {
 		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-		if (defaultRedisSerializer != null) {
-			redisTemplate.setDefaultSerializer(defaultRedisSerializer);
+		if (this.defaultRedisSerializer != null) {
+			redisTemplate.setDefaultSerializer(this.defaultRedisSerializer);
 		}
-		redisTemplate.setConnectionFactory(redisConnectionFactory);
+		redisTemplate.setConnectionFactory(this.redisConnectionFactory);
+		redisTemplate.setBeanClassLoader(this.classLoader);
 		redisTemplate.afterPropertiesSet();
 		return redisTemplate;
 	}
