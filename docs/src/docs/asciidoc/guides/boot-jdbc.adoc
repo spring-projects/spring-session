@@ -95,7 +95,7 @@ The httpsession-jdbc-boot Sample Application demonstrates how to use Spring Sess
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
 ----
-$ ./gradlew :samples:httpsession-jdbc-boot:bootRun
+$ ./gradlew :spring-session-sample-boot-jdbc:bootRun
 ----
 
 You should now be able to access the application at http://localhost:8080/

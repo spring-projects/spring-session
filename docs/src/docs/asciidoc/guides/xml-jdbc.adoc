@@ -129,7 +129,7 @@ For every request that `DelegatingFilterProxy` is invoked, the `springSessionRep
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
 ----
-$ ./gradlew :samples:httpsession-jdbc-xml:tomcatRun
+$ ./gradlew :spring-session-sample-xml-jdbc:tomcatRun
 ----
 
 You should now be able to access the application at http://localhost:8080/

@@ -119,7 +119,7 @@ This ensures that the Spring Bean by the name `springSessionRepositoryFilter` is
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
 ----
-$ ./gradlew :samples:httpsession-jdbc:tomcatRun
+$ ./gradlew :spring-session-sample-javaconfig-jdbc:tomcatRun
 ----
 
 You should now be able to access the application at http://localhost:8080/

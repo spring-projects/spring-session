@@ -134,7 +134,7 @@ http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html
 ====
 
 ----
-$ ./gradlew :samples:hazelcast-spring:tomcatRun
+$ ./gradlew :spring-session-sample-javaconfig-hazelcast:tomcatRun
 ----
 
 You should now be able to access the application at http://localhost:8080/

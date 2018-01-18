@@ -114,7 +114,7 @@ Another option is to use https://www.docker.com/[Docker] to run Redis on localho
 ====
 
 ----
-$ ./gradlew :samples:findbyusername:tomcatRun
+$ ./gradlew :spring-session-sample-boot-findbyusername:bootRun
 ----
 
 You should now be able to access the application at http://localhost:8080/
