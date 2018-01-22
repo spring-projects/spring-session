@@ -20,7 +20,6 @@ import javax.sql.DataSource;
 
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.MSSQLServerContainer;
 
@@ -39,14 +38,13 @@ import org.springframework.test.context.web.WebAppConfiguration;
  *
  * @author Vedran Pavic
  */
-@Ignore
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
 public class SQLServerJdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "microsoft/mssql-server-linux:2017-CU2";
+	private static final String DOCKER_IMAGE = "microsoft/mssql-server-linux:2017-CU3";
 
 	@ClassRule
 	public static MSSQLServerContainer container = new MSSQLServerContainer(DOCKER_IMAGE);

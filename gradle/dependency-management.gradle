@@ -14,14 +14,11 @@ dependencyManagement {
 		}
 
 		dependencySet(group: 'org.testcontainers', version: '1.5.1') {
+			entry 'mariadb'
+			entry 'mssqlserver'
 			entry 'mysql'
 			entry 'postgresql'
 			entry 'testcontainers'
-		}
-
-		dependencySet(group: 'org.testcontainers', version: '1.4.3') {
-			entry 'mariadb'
-			entry 'mssqlserver'
 		}
 
 		dependency 'com.h2database:h2:1.4.196'
