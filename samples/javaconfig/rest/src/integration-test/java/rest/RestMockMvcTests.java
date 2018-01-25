@@ -55,7 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class RestMockMvcTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.6";
+	private static final String DOCKER_IMAGE = "redis:4.0.7";
 
 	@ClassRule
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)

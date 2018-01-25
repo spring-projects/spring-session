@@ -30,7 +30,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
  */
 public abstract class AbstractRedisITests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.6";
+	private static final String DOCKER_IMAGE = "redis:4.0.7";
 
 	@ClassRule
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)

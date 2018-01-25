@@ -49,7 +49,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 @ContextConfiguration(initializers = FindByUsernameTests.Initializer.class)
 public class FindByUsernameTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.6";
+	private static final String DOCKER_IMAGE = "redis:4.0.7";
 
 	@ClassRule
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)

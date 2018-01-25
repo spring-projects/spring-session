@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(initializers = HttpRedisJsonTest.Initializer.class)
 public class HttpRedisJsonTest {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.6";
+	private static final String DOCKER_IMAGE = "redis:4.0.7";
 
 	@ClassRule
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
