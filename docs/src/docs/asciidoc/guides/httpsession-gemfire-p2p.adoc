@@ -104,7 +104,7 @@ and GemFire out-of-the-box using the following attributes:
 * `maxInactiveIntervalInSeconds` - controls HttpSession idle-timeout expiration (defaults to **30 minutes**).
 * `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "_ClusteredSpringSessions_").
 * `serverRegionShort` - specifies GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policies]
-with a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
+with a GemFire https://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
 (default is `PARTITION`).
 
 NOTE: `clientRegionShort` is ignored in a peer cache configuration and only applies when a client-server topology,
@@ -175,7 +175,7 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
-see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+see https://gemfire.docs.pivotal.io/gemfire/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
 If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
 at the command-line:

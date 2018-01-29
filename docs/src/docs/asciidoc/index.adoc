@@ -192,7 +192,7 @@ The two most common topologies to manage Spring Sessions using GemFire include:
 * <<httpsession-gemfire-clientserver,Client-Server>>
 * <<httpsession-gemfire-p2p,Peer-To-Peer (P2P)>>
 
-Additionally, GemFire supports site-to-site replication using https://gemfire.docs.pivotal.io/geode/topologies_and_comm/multi_site_configuration/chapter_overview.html[WAN functionality].
+Additionally, GemFire supports site-to-site replication using http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/multi_site_configuration/chapter_overview.html[WAN functionality].
 The ability to configure and use GemFire's WAN support is independent of Spring Session, and is beyond the scope
 of this document. More details on GemFire WAN functionality can be found http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/#bootstrap:gateway[here].
 

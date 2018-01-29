@@ -176,7 +176,7 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
-see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+see http://gemfire.docs.pivotal.io/gemfire/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
 If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
 at the command-line:

@@ -95,7 +95,7 @@ and managed by GemFire.  As well, we have specified an arbitrary expiration attr
 for when the Session will timeout, which is triggered by a GemFire Region entry expiration event that also invalidates
 the Session object in the Region.
 <2> Next, we define a few `Properties` that allow us to configure certain aspects of the GemFire Server using
-http://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
+http://gemfire.docs.pivotal.io/docs-gemfire/latest/reference/topics/gemfire_properties.html[GemFire's System properties].
 <3> Then, we create an instance of the GemFire `Cache` using our defined `Properties`.
 <4> Finally, we configure and start a `CacheServer` running in the GemFire Server to listen for connections
 from cache clients.  The `CacheServer's` `Socket` will be used to connect our GemFire cache client,
@@ -159,7 +159,7 @@ and GemFire out-of-the-box using the following attributes:
 * `maxInactiveIntervalInSeconds` - controls _HttpSession_ idle-timeout expiration (defaults to **30 minutes**).
 * `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "*ClusteredSpringSessions*").
 * `clientRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
-with a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
+with a GemFire http://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
 (default is `PROXY`).  This attribute is only used when configuring client Region.
 * `poolName` - name of the dedicated GemFire Pool used to connect a client to the cluster of servers.  The attribute
 is only used when the application is a GemFire cache client.  Defaults to `gemfirePool`.
@@ -230,7 +230,7 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
-see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+see http://gemfire.docs.pivotal.io/docs-gemfire/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
 NOTE: In order to run the following, you must uncomment the lines in the `GemFireServer` class, `gemfireProperties` bean
 for the following GemFire System properties: `jmx-manager` and `jmx-manager-start`.

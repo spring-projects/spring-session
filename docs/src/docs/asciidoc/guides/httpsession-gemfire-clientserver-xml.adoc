@@ -92,7 +92,7 @@ bean to replace placeholders in the Spring XML configuration meta-data with the 
 at the designated host/port is running and listening for client connections, blocking client startup until
 the server is available and ready.
 <4> Next, we include a `Properties` bean to configure certain aspects of the GemFire client cache using
-http://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System Properties].
+http://gemfire.docs.pivotal.io/docs-gemfire/latest/reference/topics/gemfire_properties.html[GemFire's System Properties].
 In this case, we are just setting GemFire's `log-level` from a application-specific System property, defaulting
 to `warning` if unspecified.
 <5> Then we create a instance of a GemFire `ClientCache` initialized with our `gemfireProperties`.
@@ -234,7 +234,7 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
-see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+see https://gemfire.docs.pivotal.io/gemfire/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
 If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
 at the command-line:
