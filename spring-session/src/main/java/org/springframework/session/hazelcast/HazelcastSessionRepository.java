@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ import javax.annotation.PreDestroy;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.IMap;
+import com.hazelcast.map.AbstractEntryProcessor;
+import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
@@ -108,8 +110,7 @@ import org.springframework.util.Assert;
  */
 public class HazelcastSessionRepository implements
 		FindByIndexNameSessionRepository<HazelcastSessionRepository.HazelcastSession>,
-		EntryAddedListener<String, MapSession>,
-		EntryEvictedListener<String, MapSession>,
+		EntryAddedListener<String, MapSession>, EntryEvictedListener<String, MapSession>,
 		EntryRemovedListener<String, MapSession> {
 
 	/**
@@ -200,11 +201,16 @@ public class HazelcastSessionRepository implements
 	}
 
 	public void save(HazelcastSession session) {
-		if (session.isChanged()) {
-			this.sessions.put(session.getId(), session.getDelegate(),
+		if (session.isNew) {
+			this.sessions.set(session.getId(), session.getDelegate(),
 					session.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
-			session.markUnchanged();
 		}
+		else if (session.changed) {
+			this.sessions.executeOnKey(session.getId(),
+					new SessionUpdateEntryProcessor(session.getLastAccessedTime(),
+							session.getMaxInactiveIntervalInSeconds(), session.delta));
+		}
+		session.clearFlags();
 	}
 
 	public HazelcastSession getSession(String id) {
@@ -223,13 +229,13 @@ public class HazelcastSessionRepository implements
 		this.sessions.remove(id);
 	}
 
-	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(
-			String indexName, String indexValue) {
+	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(String indexName,
+			String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
 		}
-		Collection<MapSession> sessions = this.sessions.values(
-				Predicates.equal(PRINCIPAL_NAME_ATTRIBUTE, indexValue));
+		Collection<MapSession> sessions = this.sessions
+				.values(Predicates.equal(PRINCIPAL_NAME_ATTRIBUTE, indexValue));
 		Map<String, HazelcastSession> sessionMap = new HashMap<String, HazelcastSession>(
 				sessions.size());
 		for (MapSession session : sessions) {
@@ -270,7 +276,12 @@ public class HazelcastSessionRepository implements
 	final class HazelcastSession implements ExpiringSession {
 
 		private final MapSession delegate;
+
+		private boolean isNew;
+
 		private boolean changed;
+
+		private Map<String, Object> delta = new HashMap<String, Object>();
 
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be
@@ -278,7 +289,7 @@ public class HazelcastSessionRepository implements
 		 */
 		HazelcastSession() {
 			this(new MapSession());
-			this.changed = true;
+			this.isNew = true;
 			flushImmediateIfNecessary();
 		}
 
@@ -334,32 +345,72 @@ public class HazelcastSessionRepository implements
 
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.delegate.setAttribute(attributeName, attributeValue);
+			this.delta.put(attributeName, attributeValue);
 			this.changed = true;
 			flushImmediateIfNecessary();
 		}
 
 		public void removeAttribute(String attributeName) {
 			this.delegate.removeAttribute(attributeName);
+			this.delta.put(attributeName, null);
 			this.changed = true;
 			flushImmediateIfNecessary();
-		}
-
-		boolean isChanged() {
-			return this.changed;
-		}
-
-		void markUnchanged() {
-			this.changed = false;
 		}
 
 		MapSession getDelegate() {
 			return this.delegate;
 		}
 
+		void clearFlags() {
+			this.isNew = false;
+			this.changed = false;
+			this.delta.clear();
+		}
+
 		private void flushImmediateIfNecessary() {
 			if (HazelcastSessionRepository.this.hazelcastFlushMode == HazelcastFlushMode.IMMEDIATE) {
 				HazelcastSessionRepository.this.save(this);
 			}
+		}
+
+	}
+
+	/**
+	 * Hazelcast {@link EntryProcessor} responsible for handling updates to session.
+	 *
+	 * @since 1.3.2
+	 * @see #save(HazelcastSession)
+	 */
+	private static final class SessionUpdateEntryProcessor
+			extends AbstractEntryProcessor<String, MapSession> {
+
+		private final long lastAccessedTime;
+
+		private final int maxInactiveIntervalInSeconds;
+
+		private final Map<String, Object> delta;
+
+		SessionUpdateEntryProcessor(long lastAccessedTime,
+				int maxInactiveIntervalInSeconds, Map<String, Object> delta) {
+			this.lastAccessedTime = lastAccessedTime;
+			this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+			this.delta = delta;
+		}
+
+		public Object process(Map.Entry<String, MapSession> entry) {
+			MapSession value = entry.getValue();
+			value.setLastAccessedTime(this.lastAccessedTime);
+			value.setMaxInactiveIntervalInSeconds(this.maxInactiveIntervalInSeconds);
+			for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
+				if (attribute.getValue() != null) {
+					value.setAttribute(attribute.getKey(), attribute.getValue());
+				}
+				else {
+					value.removeAttribute(attribute.getKey());
+				}
+			}
+			entry.setValue(value);
+			return value;
 		}
 
 	}
