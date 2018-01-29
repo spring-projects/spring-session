@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -518,6 +518,11 @@ public class RedisOperationsSessionRepository implements
 
 			RedisSession session = getSession(sessionId, true);
 
+			if (session == null) {
+				logger.warn("Unable to publish SessionDestroyedEvent for session "
+						+ sessionId);
+			}
+
 			if (logger.isDebugEnabled()) {
 				logger.debug("Publishing SessionDestroyedEvent for session " + sessionId);
 			}
@@ -525,10 +530,10 @@ public class RedisOperationsSessionRepository implements
 			cleanupPrincipalIndex(session);
 
 			if (isDeleted) {
-				handleDeleted(sessionId, session);
+				handleDeleted(session);
 			}
 			else {
-				handleExpired(sessionId, session);
+				handleExpired(session);
 			}
 
 			return;
@@ -536,9 +541,6 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	private void cleanupPrincipalIndex(RedisSession session) {
-		if (session == null) {
-			return;
-		}
 		String sessionId = session.getId();
 		String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
 		if (principal != null) {
@@ -553,22 +555,12 @@ public class RedisOperationsSessionRepository implements
 		publishEvent(new SessionCreatedEvent(this, session));
 	}
 
-	private void handleDeleted(String sessionId, RedisSession session) {
-		if (session == null) {
-			publishEvent(new SessionDeletedEvent(this, sessionId));
-		}
-		else {
-			publishEvent(new SessionDeletedEvent(this, session));
-		}
+	private void handleDeleted(RedisSession session) {
+		publishEvent(new SessionDeletedEvent(this, session));
 	}
 
-	private void handleExpired(String sessionId, RedisSession session) {
-		if (session == null) {
-			publishEvent(new SessionExpiredEvent(this, sessionId));
-		}
-		else {
-			publishEvent(new SessionExpiredEvent(this, session));
-		}
+	private void handleExpired(RedisSession session) {
+		publishEvent(new SessionExpiredEvent(this, session));
 	}
 
 	private void publishEvent(ApplicationEvent event) {
