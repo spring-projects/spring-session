@@ -25,7 +25,7 @@ If you are using Maven, ensure to add the following dependencies:
 	</dependency>
 	<dependency>
 		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-redis</artifactId>
+		<artifactId>spring-boot-starter-data-redis</artifactId>
 	</dependency>
 </dependencies>
 ----
