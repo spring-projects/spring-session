@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -564,6 +564,27 @@ public class SessionRepositoryFilterTests {
 				}
 				catch (IllegalStateException success) {
 				}
+			}
+		});
+	}
+
+	// gh-951
+	@Test
+	public void doFilterChangeSessionIdCopyAttributes() throws Exception {
+		// change the session id
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setMaxInactiveInterval(300);
+				String originalSessionId = session.getId();
+				int originalMaxInactiveInterval = session.getMaxInactiveInterval();
+
+				String changeSessionId = ReflectionTestUtils.invokeMethod(wrappedRequest,
+						"changeSessionId");
+				assertThat(changeSessionId).isNotEqualTo(originalSessionId);
+				assertThat(session.getMaxInactiveInterval())
+						.isEqualTo(originalMaxInactiveInterval);
 			}
 		});
 	}

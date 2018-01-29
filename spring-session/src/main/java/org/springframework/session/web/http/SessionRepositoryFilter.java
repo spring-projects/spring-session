@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -289,9 +289,10 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 			setCurrentSession(null);
 
 			HttpSessionWrapper newSession = getSession();
+			int originalMaxInactiveInterval = session.getMaxInactiveInterval();
 			original.setSession(newSession.getSession());
 
-			newSession.setMaxInactiveInterval(session.getMaxInactiveInterval());
+			newSession.setMaxInactiveInterval(originalMaxInactiveInterval);
 			for (Map.Entry<String, Object> attr : attrs.entrySet()) {
 				String attrName = attr.getKey();
 				Object attrValue = attr.getValue();
