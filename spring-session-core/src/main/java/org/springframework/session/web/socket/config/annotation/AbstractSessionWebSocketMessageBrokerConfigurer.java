@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,10 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.web.socket.handler.WebSocketConnectHandlerDecoratorFactory;
 import org.springframework.session.web.socket.handler.WebSocketRegistryListener;
 import org.springframework.session.web.socket.server.SessionRepositoryMessageInterceptor;
-import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.StompWebSocketEndpointRegistration;
 import org.springframework.web.socket.config.annotation.WebMvcStompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 import org.springframework.web.socket.messaging.StompSubProtocolErrorHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
@@ -75,7 +75,7 @@ import org.springframework.web.util.UrlPathHelper;
  * @since 1.0
  */
 public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends Session>
-		extends AbstractWebSocketMessageBrokerConfigurer {
+		implements WebSocketMessageBrokerConfigurer {
 
 	@Autowired
 	@SuppressWarnings("rawtypes")

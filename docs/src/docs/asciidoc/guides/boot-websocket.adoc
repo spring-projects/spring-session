@@ -24,7 +24,7 @@ Please make sure you have already integrated Spring Session with the HttpSession
 [[websocket-spring-configuration]]
 == Spring Configuration
 
-In a typical Spring WebSocket application users would extend `AbstractWebSocketMessageBrokerConfigurer`.
+In a typical Spring WebSocket application users would implement `WebSocketMessageBrokerConfigurer`.
 For example, the configuration might look something like the following:
 
 [source,java]
@@ -43,7 +43,7 @@ include::{samples-dir}boot/websocket/src/main/java/sample/config/WebSocketConfig
 
 To hook in the Spring Session support we only need to change two things:
 
-<1> Instead of extending `AbstractWebSocketMessageBrokerConfigurer` we extend `AbstractSessionWebSocketMessageBrokerConfigurer`
+<1> Instead of implementing `WebSocketMessageBrokerConfigurer` we extend `AbstractSessionWebSocketMessageBrokerConfigurer`
 <2> We rename the `registerStompEndpoints` method to `configureStompEndpoints`
 
 What does `AbstractSessionWebSocketMessageBrokerConfigurer` do behind the scenes?
