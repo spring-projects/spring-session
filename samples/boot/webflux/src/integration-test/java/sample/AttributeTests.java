@@ -49,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(initializers = AttributeTests.Initializer.class)
 public class AttributeTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.7";
+	private static final String DOCKER_IMAGE = "redis:4.0.8";
 
 	@ClassRule
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)

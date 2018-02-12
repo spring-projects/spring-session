@@ -55,7 +55,7 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 @ContextConfiguration(initializers = ApplicationTests.Initializer.class)
 public class ApplicationTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.7";
+	private static final String DOCKER_IMAGE = "redis:4.0.8";
 
 	@ClassRule
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)

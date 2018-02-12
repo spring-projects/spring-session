@@ -13,7 +13,7 @@ dependencyManagement {
 			entry 'hazelcast-client'
 		}
 
-		dependencySet(group: 'org.testcontainers', version: '1.5.1') {
+		dependencySet(group: 'org.testcontainers', version: '1.6.0') {
 			entry 'mariadb'
 			entry 'mssqlserver'
 			entry 'mysql'

@@ -30,7 +30,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Profile("embedded-redis")
 public class EmbeddedRedisConfig {
 
-	private static final String REDIS_DOCKER_IMAGE = "redis:4.0.7";
+	private static final String REDIS_DOCKER_IMAGE = "redis:4.0.8";
 
 	@Bean(initMethod = "start")
 	public GenericContainer redisContainer() {
