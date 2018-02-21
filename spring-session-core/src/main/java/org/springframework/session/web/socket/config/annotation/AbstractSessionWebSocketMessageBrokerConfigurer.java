@@ -19,6 +19,7 @@ package org.springframework.session.web.socket.config.annotation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -78,6 +79,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 		implements WebSocketMessageBrokerConfigurer {
 
 	@Autowired
+	@Lazy
 	@SuppressWarnings("rawtypes")
 	private SessionRepository sessionRepository;
 
