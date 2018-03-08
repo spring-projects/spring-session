@@ -18,7 +18,7 @@ dependencies {
 	compile "org.webjars:knockout"
 	compile "org.webjars:sockjs-client"
 	compile "org.webjars:stomp-websocket"
-	compile "org.webjars:webjars-locator"
+	compile "org.webjars:webjars-locator-core"
 	compile "com.h2database:h2"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"

@@ -10,7 +10,7 @@ dependencies {
 	compile "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
 	compile "org.webjars:bootstrap"
 	compile "org.webjars:html5shiv"
-	compile "org.webjars:webjars-locator"
+	compile "org.webjars:webjars-locator-core"
 	compile "com.maxmind.geoip2:geoip2"
 	compile "org.apache.httpcomponents:httpclient"
 
