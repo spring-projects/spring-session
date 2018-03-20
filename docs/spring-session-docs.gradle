@@ -38,6 +38,7 @@ asciidoctor {
 			'lettuce-version': versions['io.lettuce:lettuce-core'],
 			'samples-dir': "$rootProject.projectDir.path/samples/",
 			'session-jdbc-main-resources-dir': "${project(':spring-session-jdbc').projectDir.path}/src/main/resources/",
+			'spring-boot-version': project.springBootVersion,
 			'spring-data-redis-version': versions['org.springframework.data:spring-data-redis'],
 			'spring-framework-version': versions['org.springframework:spring-core'],
 			'spring-security-version': versions['org.springframework.security:spring-security-core'],
