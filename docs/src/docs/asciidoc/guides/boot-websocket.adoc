@@ -77,7 +77,7 @@ For the purposes of testing session expiration, you may want to change the sessi
 
 .src/main/resources/application.properties
 ----
-server.session.timeout=60
+server.servlet.session.timeout=1m # Session timeout. If a duration suffix is not specified, seconds will be used.
 ----
 ====
 

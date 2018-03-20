@@ -35,7 +35,7 @@ Thanks to first-class auto configuration support, setting up Spring Session back
 
 .src/main/resources/application.properties
 ----
-spring.session.store-type=redis
+spring.session.store-type=redis # Session store type.
 ----
 
 Under the hood, Spring Boot will apply configuration that is equivalent to manually adding `@EnableRedisHttpSession` annotation.
@@ -46,9 +46,9 @@ Further customization is possible using `application.properties`:
 
 .src/main/resources/application.properties
 ----
-server.session.timeout= # Session timeout in seconds.
-spring.session.redis.flush-mode= # Sessions flush mode.
-spring.session.redis.namespace= # Namespace for keys used to store sessions.
+server.servlet.session.timeout= # Session timeout. If a duration suffix is not specified, seconds will be used.
+spring.session.redis.flush-mode=on-save # Sessions flush mode.
+spring.session.redis.namespace=spring:session # Namespace for keys used to store sessions.
 ----
 
 For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
@@ -62,9 +62,9 @@ For example, you can include the following in your *application.properties*
 
 .src/main/resources/application.properties
 ----
-spring.redis.host=localhost
-spring.redis.password=secret
-spring.redis.port=6379
+spring.redis.host=localhost # Redis server host.
+spring.redis.password= # Login password of the redis server.
+spring.redis.port=6379 # Redis server port.
 ----
 
 For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.

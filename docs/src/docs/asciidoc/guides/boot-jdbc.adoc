@@ -37,7 +37,7 @@ Thanks to first-class auto configuration support, setting up Spring Session back
 
 .src/main/resources/application.properties
 ----
-spring.session.store-type=jdbc
+spring.session.store-type=jdbc # Session store type.
 ----
 
 Under the hood, Spring Boot will apply configuration that is equivalent to manually adding `@EnableJdbcHttpSession` annotation.
@@ -48,10 +48,10 @@ Further customization is possible using `application.properties`:
 
 .src/main/resources/application.properties
 ----
-server.session.timeout= # Session timeout in seconds.
-spring.session.jdbc.initializer.enabled= # Create the required session tables on startup if necessary. Enabled automatically if the default table name is set or a custom schema is configured.
+server.servlet.session.timeout= # Session timeout. If a duration suffix is not specified, seconds will be used.
+spring.session.jdbc.initialize-schema=embedded # Database schema initialization mode.
 spring.session.jdbc.schema=classpath:org/springframework/session/jdbc/schema-@@platform@@.sql # Path to the SQL file to use to initialize the database schema.
-spring.session.jdbc.table-name=SPRING_SESSION # Name of database table used to store sessions.
+spring.session.jdbc.table-name=SPRING_SESSION # Name of the database table used to store sessions.
 ----
 
 For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
@@ -65,9 +65,9 @@ For example, you can include the following in your *application.properties*
 
 .src/main/resources/application.properties
 ----
-spring.datasource.url=jdbc:postgresql://localhost:5432/myapp
-spring.datasource.username=myapp
-spring.datasource.password=secret
+spring.datasource.url= # JDBC URL of the database.
+spring.datasource.username= # Login username of the database.
+spring.datasource.password= # Login password of the database.
 ----
 
 For more information, refer to https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
