@@ -10,6 +10,6 @@ target
 out
 .springBeans
 *.rdb
-!eclispe/.checkstyle
 .checkstyle
+!etc/eclipse/.checkstyle
 !**/src/**/build
