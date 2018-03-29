@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,7 @@ import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -39,6 +37,7 @@ import org.springframework.session.data.redis.config.annotation.SpringSessionRed
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -53,9 +52,6 @@ import static org.mockito.Mockito.mock;
 public class RedisHttpSessionConfigurationTests {
 
 	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
-
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
 
 	private AnnotationConfigApplicationContext context;
 
@@ -188,10 +184,10 @@ public class RedisHttpSessionConfigurationTests {
 
 	@Test
 	public void multipleConnectionFactoryRedisConfig() {
-		this.thrown.expect(BeanCreationException.class);
-		this.thrown.expectMessage("expected single matching bean but found 2");
-
-		registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class);
+		assertThatThrownBy(() -> registerAndRefresh(RedisConfig.class,
+				MultipleConnectionFactoryRedisConfig.class))
+						.isInstanceOf(BeanCreationException.class)
+						.hasMessageContaining("expected single matching bean but found 2");
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {

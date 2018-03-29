@@ -19,9 +19,7 @@ package org.springframework.session.hazelcast.config.annotation.web.http;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -34,6 +32,7 @@ import org.springframework.session.hazelcast.config.annotation.SpringSessionHaze
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -52,9 +51,6 @@ public class HazelcastHttpSessionConfigurationTests {
 
 	private static final HazelcastFlushMode HAZELCAST_FLUSH_MODE = HazelcastFlushMode.IMMEDIATE;
 
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
-
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@After
@@ -66,10 +62,10 @@ public class HazelcastHttpSessionConfigurationTests {
 
 	@Test
 	public void noHazelcastInstanceConfiguration() {
-		this.thrown.expect(BeanCreationException.class);
-		this.thrown.expectMessage("HazelcastInstance");
-
-		registerAndRefresh(NoHazelcastInstanceConfiguration.class);
+		assertThatThrownBy(
+				() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class))
+						.isInstanceOf(BeanCreationException.class)
+						.hasMessageContaining("HazelcastInstance");
 	}
 
 	@Test
@@ -210,10 +206,10 @@ public class HazelcastHttpSessionConfigurationTests {
 
 	@Test
 	public void multipleHazelcastInstanceConfiguration() {
-		this.thrown.expect(BeanCreationException.class);
-		this.thrown.expectMessage("expected single matching bean but found 2");
-
-		registerAndRefresh(MultipleHazelcastInstanceConfiguration.class);
+		assertThatThrownBy(
+				() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
+						.isInstanceOf(BeanCreationException.class)
+						.hasMessageContaining("expected single matching bean but found 2");
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {

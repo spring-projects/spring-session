@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,7 @@ package org.springframework.session.jdbc.config.annotation.web.http;
 import javax.sql.DataSource;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -39,6 +37,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -56,9 +55,6 @@ public class JdbcHttpSessionConfigurationTests {
 
 	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
 
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
-
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@After
@@ -70,11 +66,9 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Test
 	public void noDataSourceConfiguration() {
-		this.thrown.expect(BeanCreationException.class);
-		this.thrown.expectMessage(
-				"expected at least 1 bean which qualifies as autowire candidate");
-
-		registerAndRefresh(NoDataSourceConfiguration.class);
+		assertThatThrownBy(() -> registerAndRefresh(NoDataSourceConfiguration.class))
+				.isInstanceOf(BeanCreationException.class).hasMessageContaining(
+						"expected at least 1 bean which qualifies as autowire candidate");
 	}
 
 	@Test
@@ -230,11 +224,10 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Test
 	public void multipleDataSourceConfiguration() {
-		this.thrown.expect(BeanCreationException.class);
-		this.thrown.expectMessage("expected single matching bean but found 2");
-
-		registerAndRefresh(DataSourceConfiguration.class,
-				MultipleDataSourceConfiguration.class);
+		assertThatThrownBy(() -> registerAndRefresh(DataSourceConfiguration.class,
+				MultipleDataSourceConfiguration.class))
+						.isInstanceOf(BeanCreationException.class)
+						.hasMessageContaining("expected single matching bean but found 2");
 	}
 
 	@Test

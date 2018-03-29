@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,7 @@ import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.impl.predicates.EqualPredicate;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -44,12 +39,14 @@ import org.springframework.session.MapSession;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -60,19 +57,14 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Vedran Pavic
  * @author Aleksandar Stojsavljevic
  */
-@RunWith(MockitoJUnitRunner.class)
 public class HazelcastSessionRepositoryTests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+	private HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 
-	@Mock
-	private HazelcastInstance hazelcastInstance;
-
-	@Mock
-	private IMap<String, MapSession> sessions;
+	@SuppressWarnings("unchecked")
+	private IMap<String, MapSession> sessions = mock(IMap.class);
 
 	private HazelcastSessionRepository repository;
 
@@ -86,14 +78,13 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void constructorNullHazelcastInstance() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("HazelcastInstance must not be null");
-
-		new HazelcastSessionRepository(null);
+		assertThatThrownBy(() -> new HazelcastSessionRepository(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("HazelcastInstance must not be null");
 	}
 
 	@Test
-	public void createSessionDefaultMaxInactiveInterval() throws Exception {
+	public void createSessionDefaultMaxInactiveInterval() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
 				anyBoolean());
 
@@ -105,7 +96,7 @@ public class HazelcastSessionRepositoryTests {
 	}
 
 	@Test
-	public void createSessionCustomMaxInactiveInterval() throws Exception {
+	public void createSessionCustomMaxInactiveInterval() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class),
 				anyBoolean());
 

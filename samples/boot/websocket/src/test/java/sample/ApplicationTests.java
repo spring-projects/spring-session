@@ -21,9 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.GenericContainer;
 
@@ -46,6 +44,8 @@ import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 /**
  * @author Rob Winch
  * @author Vedran Pavic
@@ -61,9 +61,6 @@ public class ApplicationTests {
 	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
 			.withExposedPorts(6379);
 
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
-
 	@Value("${local.server.port}")
 	private String port;
 
@@ -71,7 +68,7 @@ public class ApplicationTests {
 	private WebSocketHandler webSocketHandler;
 
 	@Test
-	public void run() throws Exception {
+	public void run() {
 		List<Transport> transports = new ArrayList<>(2);
 		transports.add(new WebSocketTransport(new StandardWebSocketClient()));
 		transports.add(new RestTemplateXhrTransport());
@@ -80,8 +77,8 @@ public class ApplicationTests {
 		ListenableFuture<WebSocketSession> wsSession = sockJsClient.doHandshake(
 				this.webSocketHandler, "ws://localhost:" + this.port + "/sockjs");
 
-		this.thrown.expect(ExecutionException.class);
-		wsSession.get().sendMessage(new TextMessage("a"));
+		assertThatThrownBy(() -> wsSession.get().sendMessage(new TextMessage("a")))
+				.isInstanceOf(ExecutionException.class);
 	}
 
 	static class Initializer

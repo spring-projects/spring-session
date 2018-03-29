@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,11 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.servlet.ServletContext;
 
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -42,17 +38,14 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link SpringHttpSessionConfiguration}.
  *
  * @author Vedran Pavic
  */
-@RunWith(MockitoJUnitRunner.class)
 public class SpringHttpSessionConfigurationTests {
-
-	@Rule
-	public final ExpectedException thrown = ExpectedException.none();
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
@@ -70,10 +63,9 @@ public class SpringHttpSessionConfigurationTests {
 
 	@Test
 	public void noSessionRepositoryConfiguration() {
-		this.thrown.expect(UnsatisfiedDependencyException.class);
-		this.thrown.expectMessage("org.springframework.session.SessionRepository");
-
-		registerAndRefresh(EmptyConfiguration.class);
+		assertThatThrownBy(() -> registerAndRefresh(EmptyConfiguration.class))
+				.isInstanceOf(UnsatisfiedDependencyException.class)
+				.hasMessageContaining("org.springframework.session.SessionRepository");
 	}
 
 	@Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,14 @@ import java.util.Collections;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link HeaderHttpSessionIdResolver}.
@@ -37,9 +36,6 @@ public class HeaderHttpSessionIdResolverTests {
 
 	private static final String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	private MockHttpServletRequest request;
 
 	private MockHttpServletResponse response;
@@ -47,7 +43,7 @@ public class HeaderHttpSessionIdResolverTests {
 	private HeaderHttpSessionIdResolver resolver;
 
 	@Before
-	public void setup() throws Exception {
+	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.resolver = HeaderHttpSessionIdResolver.xAuthToken();
@@ -78,9 +74,9 @@ public class HeaderHttpSessionIdResolverTests {
 
 	@Test
 	public void createResolverWithNullHeaderName() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("headerName cannot be null");
-		new HeaderHttpSessionIdResolver(null);
+		assertThatThrownBy(() -> new HeaderHttpSessionIdResolver(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("headerName cannot be null");
 	}
 
 	@Test

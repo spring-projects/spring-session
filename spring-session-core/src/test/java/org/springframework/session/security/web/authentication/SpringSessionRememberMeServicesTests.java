@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -42,9 +41,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Vedran Pavic
  */
 public class SpringSessionRememberMeServicesTests {
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	private SpringSessionRememberMeServices rememberMeServices;
 
@@ -71,10 +67,10 @@ public class SpringSessionRememberMeServicesTests {
 
 	@Test
 	public void createWithNullParameter() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("rememberMeParameterName cannot be empty or null");
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		this.rememberMeServices.setRememberMeParameterName(null);
+		assertThatThrownBy(() -> this.rememberMeServices.setRememberMeParameterName(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("rememberMeParameterName cannot be empty or null");
 	}
 
 	@Test
@@ -114,7 +110,8 @@ public class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.loginFail(request, response);
 		verify(request, times(1)).getSession(eq(false));
-		verify(session, times(1)).removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+		verify(session, times(1)).removeAttribute(
+				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
 		verifyZeroInteractions(request, response, session);
 	}
 

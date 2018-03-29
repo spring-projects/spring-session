@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -46,6 +41,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalMatchers.and;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.contains;
@@ -54,6 +50,7 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -65,222 +62,194 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Vedran Pavic
  * @since 1.2.0
  */
-@RunWith(MockitoJUnitRunner.class)
 public class JdbcOperationsSessionRepositoryTests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+	private JdbcOperations jdbcOperations = mock(JdbcOperations.class);
 
-	@Mock
-	private JdbcOperations jdbcOperations;
-
-	@Mock
-	private PlatformTransactionManager transactionManager;
+	private PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
 
 	private JdbcOperationsSessionRepository repository;
 
 	@Before
 	public void setUp() {
-		this.repository = new JdbcOperationsSessionRepository(
-				this.jdbcOperations, this.transactionManager);
+		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations, this.transactionManager);
 	}
 
 	@Test
 	public void constructorNullJdbcOperations() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("JdbcOperations must not be null");
-
-		new JdbcOperationsSessionRepository((JdbcOperations) null, this.transactionManager);
+		assertThatThrownBy(
+				() -> new JdbcOperationsSessionRepository(null, this.transactionManager))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessage("JdbcOperations must not be null");
 	}
 
 	@Test
 	public void constructorNullTransactionManager() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Property 'transactionManager' is required");
-
-		new JdbcOperationsSessionRepository(this.jdbcOperations, null);
+		assertThatThrownBy(
+				() -> new JdbcOperationsSessionRepository(this.jdbcOperations, null))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessage("Property 'transactionManager' is required");
 	}
 
 	@Test
 	public void setTableNameNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Table name must not be empty");
-
-		this.repository.setTableName(null);
+		assertThatThrownBy(() -> this.repository.setTableName(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Table name must not be empty");
 	}
 
 	@Test
 	public void setTableNameEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Table name must not be empty");
-
-		this.repository.setTableName(" ");
+		assertThatThrownBy(() -> this.repository.setTableName(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Table name must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setCreateSessionQuery(null);
+		assertThatThrownBy(() -> this.repository.setCreateSessionQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setCreateSessionQuery(" ");
+		assertThatThrownBy(() -> this.repository.setCreateSessionQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionAttributeQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setCreateSessionAttributeQuery(null);
+		assertThatThrownBy(() -> this.repository.setCreateSessionAttributeQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionAttributeQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setCreateSessionAttributeQuery(" ");
+		assertThatThrownBy(() -> this.repository.setCreateSessionAttributeQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setGetSessionQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setGetSessionQuery(null);
+		assertThatThrownBy(() -> this.repository.setGetSessionQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setGetSessionQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setGetSessionQuery(" ");
+		assertThatThrownBy(() -> this.repository.setGetSessionQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setUpdateSessionQuery(null);
+		assertThatThrownBy(() -> this.repository.setUpdateSessionQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setUpdateSessionQuery(" ");
+		assertThatThrownBy(() -> this.repository.setUpdateSessionQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionAttributeQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setUpdateSessionAttributeQuery(null);
+		assertThatThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionAttributeQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setUpdateSessionAttributeQuery(" ");
+		assertThatThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionAttributeQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setDeleteSessionAttributeQuery(null);
+		assertThatThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionAttributeQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setDeleteSessionAttributeQuery(" ");
+		assertThatThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setDeleteSessionQuery(null);
+		assertThatThrownBy(() -> this.repository.setDeleteSessionQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setDeleteSessionQuery(" ");
+		assertThatThrownBy(() -> this.repository.setDeleteSessionQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setListSessionsByPrincipalNameQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setListSessionsByPrincipalNameQuery(null);
+		assertThatThrownBy(
+				() -> this.repository.setListSessionsByPrincipalNameQuery(null))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setListSessionsByPrincipalNameQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setListSessionsByPrincipalNameQuery(" ");
+		assertThatThrownBy(() -> this.repository.setListSessionsByPrincipalNameQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionsByLastAccessTimeQueryNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setDeleteSessionsByExpiryTimeQuery(null);
+		assertThatThrownBy(() -> this.repository.setDeleteSessionsByExpiryTimeQuery(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionsByLastAccessTimeQueryEmpty() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("Query must not be empty");
-
-		this.repository.setDeleteSessionsByExpiryTimeQuery(" ");
+		assertThatThrownBy(() -> this.repository.setDeleteSessionsByExpiryTimeQuery(" "))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setLobHandlerNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("LobHandler must not be null");
-
-		this.repository.setLobHandler(null);
+		assertThatThrownBy(() -> this.repository.setLobHandler(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("LobHandler must not be null");
 	}
 
 	@Test
 	public void setConversionServiceNull() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("conversionService must not be null");
-
-		this.repository.setConversionService(null);
+		assertThatThrownBy(() -> this.repository.setConversionService(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("conversionService must not be null");
 	}
 
 	@Test
-	public void createSessionDefaultMaxInactiveInterval() throws Exception {
+	public void createSessionDefaultMaxInactiveInterval() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
 				.createSession();
 
@@ -291,7 +260,7 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void createSessionCustomMaxInactiveInterval() throws Exception {
+	public void createSessionCustomMaxInactiveInterval() {
 		int interval = 1;
 		this.repository.setDefaultMaxInactiveInterval(interval);
 

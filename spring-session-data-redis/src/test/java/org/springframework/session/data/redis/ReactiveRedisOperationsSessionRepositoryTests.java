@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -37,6 +35,7 @@ import org.springframework.session.MapSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -49,9 +48,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Vedran Pavic
  */
 public class ReactiveRedisOperationsSessionRepositoryTests {
-
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
 
 	@SuppressWarnings("unchecked")
 	private ReactiveRedisOperations<String, Object> redisOperations = mock(
@@ -68,17 +64,16 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	private ReactiveRedisOperationsSessionRepository repository;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() {
 		this.repository = new ReactiveRedisOperationsSessionRepository(
 				this.redisOperations);
 	}
 
 	@Test
 	public void constructorWithNullReactiveRedisOperations() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("sessionRedisOperations cannot be null");
-
-		new ReactiveRedisOperationsSessionRepository(null);
+		assertThatThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("sessionRedisOperations cannot be null");
 	}
 
 	@Test
@@ -91,18 +86,16 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void nullRedisKeyNamespace() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("namespace cannot be null or empty");
-
-		this.repository.setRedisKeyNamespace(null);
+		assertThatThrownBy(() -> this.repository.setRedisKeyNamespace(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("namespace cannot be null or empty");
 	}
 
 	@Test
 	public void emptyRedisKeyNamespace() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("namespace cannot be null or empty");
-
-		this.repository.setRedisKeyNamespace("");
+		assertThatThrownBy(() -> this.repository.setRedisKeyNamespace(""))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("namespace cannot be null or empty");
 	}
 
 	@Test
@@ -123,10 +116,9 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void nullRedisFlushMode() {
-		this.thrown.expect(IllegalArgumentException.class);
-		this.thrown.expectMessage("redisFlushMode cannot be null");
-
-		this.repository.setRedisFlushMode(null);
+		assertThatThrownBy(() -> this.repository.setRedisFlushMode(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("redisFlushMode cannot be null");
 	}
 
 	@Test
