@@ -186,7 +186,11 @@ public class JdbcOperationsSessionRepository implements
 
 	private final JdbcOperations jdbcOperations;
 
+	private final JdbcOperations jdbcOperationsReadOnly;
+
 	private final TransactionOperations transactionOperations;
+
+	private final TransactionOperations transactionOperationsReadOnly;
 
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
 
@@ -233,7 +237,31 @@ public class JdbcOperationsSessionRepository implements
 			PlatformTransactionManager transactionManager) {
 		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
 		this.jdbcOperations = jdbcOperations;
+		this.jdbcOperationsReadOnly = jdbcOperations;
 		this.transactionOperations = createTransactionTemplate(transactionManager);
+		this.transactionOperationsReadOnly = createTransactionTemplate(transactionManager);
+		this.conversionService = createDefaultConversionService();
+		prepareQueries();
+	}
+
+	/**
+	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
+	 * provided {@link JdbcOperations} to manage sessions.
+	 * @param jdbcOperations the {@link JdbcOperations} to use
+ 	 * @param jdbcOperationsReadOnly the {@link JdbcOperations} to use for read only queries
+	 * @param transactionManager the {@link PlatformTransactionManager} to use
+	 * @param transactionManagerReadOnly the {@link PlatformTransactionManager} to use for read only queries
+	 */
+	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations,
+			JdbcOperations jdbcOperationsReadOnly,
+			PlatformTransactionManager transactionManager,
+			PlatformTransactionManager transactionManagerReadOnly) {
+		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
+		Assert.notNull(jdbcOperationsReadOnly, "JdbcOperationsReadOnly must not be null");
+		this.jdbcOperations = jdbcOperations;
+		this.jdbcOperationsReadOnly = jdbcOperationsReadOnly;
+		this.transactionOperations = createTransactionTemplate(transactionManager);
+		this.transactionOperationsReadOnly = createTransactionTemplate(transactionManagerReadOnly);
 		this.conversionService = createDefaultConversionService();
 		prepareQueries();
 	}
@@ -462,8 +490,8 @@ public class JdbcOperationsSessionRepository implements
 
 	@Override
 	public JdbcSession findById(final String id) {
-		final JdbcSession session = this.transactionOperations.execute(status -> {
-			List<JdbcSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
+		final JdbcSession session = this.transactionOperationsReadOnly.execute(status -> {
+			List<JdbcSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperationsReadOnly.query(
 					JdbcOperationsSessionRepository.this.getSessionQuery,
 					ps -> ps.setString(1, id),
 					JdbcOperationsSessionRepository.this.extractor
@@ -505,8 +533,8 @@ public class JdbcOperationsSessionRepository implements
 			return Collections.emptyMap();
 		}
 
-		List<JdbcSession> sessions = this.transactionOperations.execute(status ->
-				JdbcOperationsSessionRepository.this.jdbcOperations.query(
+		List<JdbcSession> sessions = this.transactionOperationsReadOnly.execute(status ->
+				JdbcOperationsSessionRepository.this.jdbcOperationsReadOnly.query(
 						JdbcOperationsSessionRepository.this.listSessionsByPrincipalNameQuery,
 						ps -> ps.setString(1, indexValue),
 						JdbcOperationsSessionRepository.this.extractor));

@@ -43,6 +43,9 @@ import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
+import org.springframework.session.jdbc.config.annotation.SpringSessionDataSourceReadOnly;
+import org.springframework.session.jdbc.config.annotation.SpringSessionPlatformTransactionManager;
+import org.springframework.session.jdbc.config.annotation.SpringSessionPlatformTransactionManagerReadOnly;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.StringUtils;
@@ -77,7 +80,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private DataSource dataSource;
 
+	private DataSource dataSourceReadOnly;
+
 	private PlatformTransactionManager transactionManager;
+
+	private PlatformTransactionManager transactionManagerReadOnly;
 
 	private LobHandler lobHandler;
 
@@ -92,8 +99,16 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository() {
 		JdbcTemplate jdbcTemplate = createJdbcTemplate(this.dataSource);
-		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(
-				jdbcTemplate, this.transactionManager);
+		JdbcOperationsSessionRepository sessionRepository;
+		if (this.dataSourceReadOnly != null && this.transactionManagerReadOnly != null) {
+			JdbcTemplate jdbcTemplateReadOnly = createJdbcTemplate(this.dataSourceReadOnly);
+			sessionRepository = new JdbcOperationsSessionRepository(
+					jdbcTemplate, jdbcTemplateReadOnly, this.transactionManager, this.transactionManagerReadOnly);
+		}
+		else {
+			sessionRepository = new JdbcOperationsSessionRepository(
+					jdbcTemplate, this.transactionManager);
+		}
 		if (StringUtils.hasText(this.tableName)) {
 			sessionRepository.setTableName(this.tableName);
 		}
@@ -139,8 +154,26 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	}
 
 	@Autowired
-	public void setTransactionManager(PlatformTransactionManager transactionManager) {
-		this.transactionManager = transactionManager;
+	public void setDataSourceReadOnly(
+			@SpringSessionDataSourceReadOnly ObjectProvider<DataSource> springSessionDataSourceReadOnly) {
+		this.dataSourceReadOnly = springSessionDataSourceReadOnly.getIfAvailable();
+	}
+
+	@Autowired
+	public void setTransactionManager(
+			@SpringSessionPlatformTransactionManager ObjectProvider<PlatformTransactionManager> springSessionTransactionManager,
+			ObjectProvider<PlatformTransactionManager> transactionManager) {
+		PlatformTransactionManager platformTransactionManager = springSessionTransactionManager.getIfAvailable();
+		if (platformTransactionManager == null) {
+			platformTransactionManager = transactionManager.getObject();
+		}
+		this.transactionManager = platformTransactionManager;
+	}
+
+	@Autowired
+	public void setTransactionManagerReadOnly(
+			@SpringSessionPlatformTransactionManagerReadOnly ObjectProvider<PlatformTransactionManager> transactionManagerReadOnly) {
+		this.transactionManagerReadOnly = transactionManagerReadOnly.getIfAvailable();
 	}
 
 	@Autowired(required = false)

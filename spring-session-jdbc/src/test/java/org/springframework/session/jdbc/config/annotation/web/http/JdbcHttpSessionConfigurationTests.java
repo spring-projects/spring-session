@@ -35,8 +35,12 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
+import org.springframework.session.jdbc.config.annotation.SpringSessionDataSourceReadOnly;
+import org.springframework.session.jdbc.config.annotation.SpringSessionPlatformTransactionManager;
+import org.springframework.session.jdbc.config.annotation.SpringSessionPlatformTransactionManagerReadOnly;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -158,6 +162,68 @@ public class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
+	public void qualifiedPlatformTransactionManagerConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				QualifiedTransactionManagerConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		PlatformTransactionManager platformTransactionManager = this.context
+				.getBean("qualifiedPlatformTransactionManager",
+				PlatformTransactionManager.class);
+		assertThat(repository).isNotNull();
+		assertThat(platformTransactionManager).isNotNull();
+		TransactionTemplate transactionTemplate = (TransactionTemplate) ReflectionTestUtils
+				.getField(repository, "transactionOperations");
+		assertThat(transactionTemplate).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isEqualTo(platformTransactionManager);
+	}
+
+	@Test
+	public void primaryPlatformTransactionManagerConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				PrimaryTransactionManagerConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		PlatformTransactionManager platformTransactionManager = this.context
+				.getBean("primaryPlatformTransactionManager",
+						PlatformTransactionManager.class);
+		assertThat(repository).isNotNull();
+		assertThat(platformTransactionManager).isNotNull();
+		TransactionTemplate transactionTemplate = (TransactionTemplate) ReflectionTestUtils
+				.getField(repository, "transactionOperations");
+		assertThat(transactionTemplate).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isEqualTo(platformTransactionManager);
+	}
+
+	@Test
+	public void qualifiedAndPrimaryPlatformTransactionManagerConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				QualifiedAndPrimaryTransactionManagerConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		PlatformTransactionManager platformTransactionManager = this.context
+				.getBean("qualifiedPlatformTransactionManager",
+						PlatformTransactionManager.class);
+		assertThat(repository).isNotNull();
+		assertThat(platformTransactionManager).isNotNull();
+		TransactionTemplate transactionTemplate = (TransactionTemplate) ReflectionTestUtils
+				.getField(repository, "transactionOperations");
+		assertThat(transactionTemplate).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isEqualTo(platformTransactionManager);
+		transactionTemplate = (TransactionTemplate) ReflectionTestUtils
+				.getField(repository, "transactionOperationsReadOnly");
+		assertThat(transactionTemplate).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isEqualTo(platformTransactionManager);
+	}
+
+	@Test
 	public void qualifiedDataSourceConfiguration() {
 		registerAndRefresh(DataSourceConfiguration.class,
 				QualifiedDataSourceConfiguration.class);
@@ -200,15 +266,116 @@ public class JdbcHttpSessionConfigurationTests {
 
 		JdbcOperationsSessionRepository repository = this.context
 				.getBean(JdbcOperationsSessionRepository.class);
+		assertThat(repository).isNotNull();
 		DataSource dataSource = this.context.getBean("qualifiedDataSource",
 				DataSource.class);
-		assertThat(repository).isNotNull();
 		assertThat(dataSource).isNotNull();
 		JdbcOperations jdbcOperations = (JdbcOperations) ReflectionTestUtils
 				.getField(repository, "jdbcOperations");
 		assertThat(jdbcOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
 				.isEqualTo(dataSource);
+		jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperationsReadOnly");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+	}
+
+	@Test
+	public void miassingPlatformTransactionManagerReadOnlyConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				MiassingPlatformTransactionManagerReadOnlyConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		DataSource dataSource = this.context.getBean("qualifiedDataSource",
+				DataSource.class);
+		assertThat(dataSource).isNotNull();
+		JdbcOperations jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperations");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+		jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperationsReadOnly");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+
+		dataSource = this.context.getBean("qualifiedDataSourceReadOnly",
+				DataSource.class);
+		assertThat(dataSource).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isNotEqualTo(dataSource);
+	}
+
+	@Test
+	public void missingDataSourceReadOnlyConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				MissingDataSourceReadOnlyConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		PlatformTransactionManager platformTransactionManager = this.context
+				.getBean("transactionManager",
+						PlatformTransactionManager.class);
+		assertThat(repository).isNotNull();
+		assertThat(platformTransactionManager).isNotNull();
+		TransactionTemplate transactionTemplate = (TransactionTemplate) ReflectionTestUtils
+				.getField(repository, "transactionOperations");
+		assertThat(transactionTemplate).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isEqualTo(platformTransactionManager);
+		transactionTemplate = (TransactionTemplate) ReflectionTestUtils
+				.getField(repository, "transactionOperationsReadOnly");
+		assertThat(transactionTemplate).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isEqualTo(platformTransactionManager);
+
+		platformTransactionManager = this.context
+				.getBean("qualifiedPlatformTransactionManagerReadOnly",
+						PlatformTransactionManager.class);
+		assertThat(platformTransactionManager).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isNotEqualTo(platformTransactionManager);
+	}
+
+	@Test
+	public void qualifiedDataSourceAndTransactionManagerReadOnlyConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				QualifiedDataSourceAndTransactionManagerReadOnlyConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context
+				.getBean(JdbcOperationsSessionRepository.class);
+		assertThat(repository).isNotNull();
+		DataSource dataSource = this.context.getBean("qualifiedDataSource",
+				DataSource.class);
+		assertThat(dataSource).isNotNull();
+		JdbcOperations jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperations");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSource);
+
+		DataSource dataSourceReadOnly = this.context.getBean("qualifiedDataSourceReadOnly",
+				DataSource.class);
+		assertThat(dataSourceReadOnly).isNotNull();
+		jdbcOperations = (JdbcOperations) ReflectionTestUtils
+				.getField(repository, "jdbcOperationsReadOnly");
+		assertThat(jdbcOperations).isNotNull();
+		assertThat(ReflectionTestUtils.getField(jdbcOperations, "dataSource"))
+				.isEqualTo(dataSourceReadOnly);
+
+		PlatformTransactionManager platformTransactionManagerReadOnly = this.context
+				.getBean("qualifiedPlatformTransactionManagerReadOnly",
+				PlatformTransactionManager.class);
+		assertThat(dataSourceReadOnly).isNotNull();
+		TransactionTemplate transactionTemplate = (TransactionTemplate) ReflectionTestUtils
+				.getField(repository, "transactionOperationsReadOnly");
+		assertThat(transactionTemplate).isNotNull();
+		assertThat(ReflectionTestUtils.getField(transactionTemplate, "transactionManager"))
+				.isEqualTo(platformTransactionManagerReadOnly);
 	}
 
 	@Test
@@ -354,6 +521,56 @@ public class JdbcHttpSessionConfigurationTests {
 	}
 
 	@EnableJdbcHttpSession
+	static class QualifiedTransactionManagerConfiguration {
+
+		@Bean
+		@SpringSessionPlatformTransactionManager
+		public PlatformTransactionManager qualifiedPlatformTransactionManager() {
+			return mock(PlatformTransactionManager.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class QualifiedTransactionManagerReadOnlyConfiguration {
+
+		@Bean
+		@SpringSessionPlatformTransactionManagerReadOnly
+		public PlatformTransactionManager qualifiedPlatformTransactionReadOnlyManager() {
+			return mock(PlatformTransactionManager.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class PrimaryTransactionManagerConfiguration {
+
+		@Bean
+		@Primary
+		public PlatformTransactionManager primaryPlatformTransactionManager() {
+			return mock(PlatformTransactionManager.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class QualifiedAndPrimaryTransactionManagerConfiguration {
+
+		@Bean
+		@SpringSessionPlatformTransactionManager
+		public PlatformTransactionManager qualifiedPlatformTransactionManager() {
+			return mock(PlatformTransactionManager.class);
+		}
+
+		@Bean
+		@Primary
+		public PlatformTransactionManager primaryPlatformTransactionManager() {
+			return mock(PlatformTransactionManager.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
 	static class QualifiedDataSourceConfiguration {
 
 		@Bean
@@ -388,6 +605,63 @@ public class JdbcHttpSessionConfigurationTests {
 		@Primary
 		public DataSource primaryDataSource() {
 			return mock(DataSource.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class MiassingPlatformTransactionManagerReadOnlyConfiguration {
+
+		@Bean
+		@SpringSessionDataSource
+		public DataSource qualifiedDataSource() {
+			return mock(DataSource.class);
+		}
+
+		@Bean
+		@SpringSessionDataSourceReadOnly
+		public DataSource qualifiedDataSourceReadOnly() {
+			return mock(DataSource.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class MissingDataSourceReadOnlyConfiguration {
+
+		@Bean
+		@SpringSessionDataSource
+		public DataSource qualifiedDataSource() {
+			return mock(DataSource.class);
+		}
+
+		@Bean
+		@SpringSessionPlatformTransactionManagerReadOnly
+		public PlatformTransactionManager qualifiedPlatformTransactionManagerReadOnly() {
+			return mock(PlatformTransactionManager.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class QualifiedDataSourceAndTransactionManagerReadOnlyConfiguration {
+
+		@Bean
+		@SpringSessionDataSource
+		public DataSource qualifiedDataSource() {
+			return mock(DataSource.class);
+		}
+
+		@Bean
+		@SpringSessionDataSourceReadOnly
+		public DataSource qualifiedDataSourceReadOnly() {
+			return mock(DataSource.class);
+		}
+
+		@Bean
+		@SpringSessionPlatformTransactionManagerReadOnly
+		public PlatformTransactionManager qualifiedPlatformTransactionManagerReadOnly() {
+			return mock(PlatformTransactionManager.class);
 		}
 
 	}
