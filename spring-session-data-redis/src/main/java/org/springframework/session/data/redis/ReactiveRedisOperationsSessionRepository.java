@@ -220,7 +220,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 			Assert.notNull(mapSession, "mapSession cannot be null");
 			this.cached = mapSession;
 			Instant now = Instant.now();
-			if (cached.getLastAccessedTime().plusSeconds(defaultMinInactiveInterval).compareTo(now) < 0) {
+			if (this.cached.getLastAccessedTime().plusSeconds(
+					ReactiveRedisOperationsSessionRepository.this.defaultMinInactiveInterval).compareTo(now) < 0) {
 				this.delta.put(LAST_ACCESSED_TIME_KEY, now.toEpochMilli());
 			}
 			this.originalSessionId = mapSession.getId();
@@ -325,13 +326,13 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 			String sessionKey = getSessionKey(sessionId);
 
-			if (!removes.isEmpty()) {
+			if (!this.removes.isEmpty()) {
 				Mono<Long> remove = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
 						.opsForHash().remove(sessionKey, this.removes.toArray());
 				actions = actions.and(remove);
 			}
 
-			if (!delta.isEmpty()) {
+			if (!this.delta.isEmpty()) {
 				Mono<Boolean> update = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
 						.opsForHash().putAll(sessionKey, this.delta);
 				actions = actions.and(update);
