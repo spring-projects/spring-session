@@ -78,7 +78,7 @@ task integrationTest(type: Test, dependsOn: jar) {
 check.dependsOn integrationTest
 
 checkstyle {
-	configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+	configFile = rootProject.file('etc/checkstyle/checkstyle.xml')
 	configProperties.configDir = configFile.parentFile
 	toolVersion = '6.16.1'
 }
