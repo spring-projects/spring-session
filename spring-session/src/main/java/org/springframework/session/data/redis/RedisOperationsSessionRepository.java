@@ -521,6 +521,7 @@ public class RedisOperationsSessionRepository implements
 			if (session == null) {
 				logger.warn("Unable to publish SessionDestroyedEvent for session "
 						+ sessionId);
+				return;
 			}
 
 			if (logger.isDebugEnabled()) {
@@ -535,8 +536,6 @@ public class RedisOperationsSessionRepository implements
 			else {
 				handleExpired(session);
 			}
-
-			return;
 		}
 	}
 
