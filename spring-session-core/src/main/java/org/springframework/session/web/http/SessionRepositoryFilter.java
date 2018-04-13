@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.session.web.http;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -196,13 +197,17 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	private final class SessionRepositoryRequestWrapper
 			extends HttpServletRequestWrapper {
 
-		private Boolean requestedSessionIdValid;
-
-		private boolean requestedSessionInvalidated;
-
 		private final HttpServletResponse response;
 
 		private final ServletContext servletContext;
+
+		private S requestedSession;
+
+		private boolean requestedSessionCached;
+
+		private Boolean requestedSessionIdValid;
+
+		private boolean requestedSessionInvalidated;
 
 		private SessionRepositoryRequestWrapper(HttpServletRequest request,
 				HttpServletResponse response, ServletContext servletContext) {
@@ -225,7 +230,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 			else {
 				S session = wrappedSession.getSession();
-				SessionRepositoryFilter.this.sessionRepository.save(session);
+				saveSession(session);
 				String sessionId = session.getId();
 				if (!isRequestedSessionIdValid()
 						|| !sessionId.equals(getRequestedSessionId())) {
@@ -265,9 +270,11 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		@Override
 		public boolean isRequestedSessionIdValid() {
 			if (this.requestedSessionIdValid == null) {
-				String sessionId = getRequestedSessionId();
-				S session = sessionId == null ? null : getSession(sessionId);
-				return isRequestedSessionIdValid(session);
+				S requestedSession = getRequestedSession();
+				if (requestedSession != null) {
+					requestedSession.setLastAccessedTime(Instant.now());
+				}
+				return isRequestedSessionIdValid(requestedSession);
 			}
 
 			return this.requestedSessionIdValid;
@@ -284,28 +291,18 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			return getCurrentSession() == null && this.requestedSessionInvalidated;
 		}
 
-		private S getSession(String sessionId) {
-			S session = SessionRepositoryFilter.this.sessionRepository
-					.findById(sessionId);
-			if (session == null) {
-				return null;
-			}
-			session.setLastAccessedTime(Instant.now());
-			return session;
-		}
-
 		@Override
 		public HttpSessionWrapper getSession(boolean create) {
 			HttpSessionWrapper currentSession = getCurrentSession();
 			if (currentSession != null) {
 				return currentSession;
 			}
-			String requestedSessionId = getRequestedSessionId();
-			if (requestedSessionId != null) {
+			S requestedSession = getRequestedSession();
+			if (requestedSession != null) {
 				if (getAttribute(INVALID_SESSION_ID_ATTR) == null) {
-					S session = getSession(requestedSessionId);
+					requestedSession.setLastAccessedTime(Instant.now());
 					this.requestedSessionIdValid = true;
-					currentSession = new HttpSessionWrapper(session, getServletContext());
+					currentSession = new HttpSessionWrapper(requestedSession, getServletContext());
 					currentSession.setNew(false);
 					setCurrentSession(currentSession);
 					return currentSession;
@@ -353,11 +350,31 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		@Override
 		public String getRequestedSessionId() {
-			return SessionRepositoryFilter.this.httpSessionIdResolver
-					.resolveSessionIds(this).stream()
-					.filter(sessionId -> SessionRepositoryFilter.this.sessionRepository
-							.findById(sessionId) != null)
-					.findFirst().orElse(null);
+			S requestedSession = getRequestedSession();
+			return (requestedSession != null ? requestedSession.getId() : null);
+		}
+
+		private S getRequestedSession() {
+			if (!this.requestedSessionCached) {
+				List<String> sessionIds = SessionRepositoryFilter.this.httpSessionIdResolver
+						.resolveSessionIds(this);
+				for (String sessionId : sessionIds) {
+					S session = SessionRepositoryFilter.this.sessionRepository
+							.findById(sessionId);
+					if (session != null) {
+						this.requestedSession = session;
+						break;
+					}
+				}
+				this.requestedSessionCached = true;
+			}
+			return this.requestedSession;
+		}
+
+		private void saveSession(S session) {
+			this.requestedSessionCached = false;
+			this.requestedSession = null;
+			SessionRepositoryFilter.this.sessionRepository.save(session);
 		}
 
 		/**
