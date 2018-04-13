@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -82,6 +83,9 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	@Before
 	public void setup() {
 		this.chain = new MockFilterChain();
+
+		reset(this.sessionRepository);
+		reset(this.cookieSerializer);
 	}
 
 	@Test
@@ -99,7 +103,7 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 
 	@Test
 	public void usesWrite() throws Exception {
-		given(this.sessionRepository.findById(anyString())).willReturn(new MapSession());
+		given(this.sessionRepository.createSession()).willReturn(new MapSession());
 
 		this.sessionRepositoryFilter.doFilter(this.request, this.response,
 				new MockFilterChain() {
