@@ -188,8 +188,7 @@ public class JdbcOperationsSessionRepository implements
 
 	private final TransactionOperations transactionOperations;
 
-	private final ResultSetExtractor<List<ExpiringSession>> extractor =
-			new ExpiringSessionResultSetExtractor();
+	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -484,10 +483,10 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	public JdbcSession getSession(final String id) {
-		final ExpiringSession session = this.transactionOperations.execute(new TransactionCallback<ExpiringSession>() {
+		final JdbcSession session = this.transactionOperations.execute(new TransactionCallback<JdbcSession>() {
 
-			public ExpiringSession doInTransaction(TransactionStatus status) {
-				List<ExpiringSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
+			public JdbcSession doInTransaction(TransactionStatus status) {
+				List<JdbcSession> sessions = JdbcOperationsSessionRepository.this.jdbcOperations.query(
 						JdbcOperationsSessionRepository.this.getSessionQuery,
 						new PreparedStatementSetter() {
 
@@ -511,7 +510,7 @@ public class JdbcOperationsSessionRepository implements
 				delete(id);
 			}
 			else {
-				return new JdbcSession(session);
+				return session;
 			}
 		}
 		return null;
@@ -534,9 +533,9 @@ public class JdbcOperationsSessionRepository implements
 			return Collections.emptyMap();
 		}
 
-		List<ExpiringSession> sessions = this.transactionOperations.execute(new TransactionCallback<List<ExpiringSession>>() {
+		List<JdbcSession> sessions = this.transactionOperations.execute(new TransactionCallback<List<JdbcSession>>() {
 
-			public List<ExpiringSession> doInTransaction(TransactionStatus status) {
+			public List<JdbcSession> doInTransaction(TransactionStatus status) {
 				return JdbcOperationsSessionRepository.this.jdbcOperations.query(
 						JdbcOperationsSessionRepository.this.listSessionsByPrincipalNameQuery,
 						new PreparedStatementSetter() {
@@ -555,8 +554,8 @@ public class JdbcOperationsSessionRepository implements
 		Map<String, JdbcSession> sessionMap = new HashMap<String, JdbcSession>(
 				sessions.size());
 
-		for (ExpiringSession session : sessions) {
-			sessionMap.put(session.getId(), new JdbcSession(session));
+		for (JdbcSession session : sessions) {
+			sessionMap.put(session.getId(), session);
 		}
 
 		return sessionMap;
@@ -764,33 +763,33 @@ public class JdbcOperationsSessionRepository implements
 
 	}
 
-	private class ExpiringSessionResultSetExtractor
-			implements ResultSetExtractor<List<ExpiringSession>> {
+	private class SessionResultSetExtractor implements ResultSetExtractor<List<JdbcSession>> {
 
-		public List<ExpiringSession> extractData(ResultSet rs) throws SQLException, DataAccessException {
-			List<ExpiringSession> sessions = new ArrayList<ExpiringSession>();
+		public List<JdbcSession> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			List<JdbcSession> sessions = new ArrayList<JdbcSession>();
 			while (rs.next()) {
 				String id = rs.getString("SESSION_ID");
-				MapSession session;
+				JdbcSession session;
 				if (sessions.size() > 0 && getLast(sessions).getId().equals(id)) {
-					session = (MapSession) getLast(sessions);
+					session = getLast(sessions);
 				}
 				else {
-					session = new MapSession(id);
-					session.setCreationTime(rs.getLong("CREATION_TIME"));
-					session.setLastAccessedTime(rs.getLong("LAST_ACCESS_TIME"));
-					session.setMaxInactiveIntervalInSeconds(rs.getInt("MAX_INACTIVE_INTERVAL"));
+					MapSession delegate = new MapSession(id);
+					delegate.setCreationTime(rs.getLong("CREATION_TIME"));
+					delegate.setLastAccessedTime(rs.getLong("LAST_ACCESS_TIME"));
+					delegate.setMaxInactiveIntervalInSeconds(rs.getInt("MAX_INACTIVE_INTERVAL"));
+					session = new JdbcSession(delegate);
 				}
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {
-					session.setAttribute(attributeName, deserialize(rs, "ATTRIBUTE_BYTES"));
+					session.delegate.setAttribute(attributeName, deserialize(rs, "ATTRIBUTE_BYTES"));
 				}
 				sessions.add(session);
 			}
 			return sessions;
 		}
 
-		private ExpiringSession getLast(List<ExpiringSession> sessions) {
+		private JdbcSession getLast(List<JdbcSession> sessions) {
 			return sessions.get(sessions.size() - 1);
 		}
 

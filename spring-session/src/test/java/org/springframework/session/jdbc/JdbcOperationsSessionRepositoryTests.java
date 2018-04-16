@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -412,7 +412,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void getSessionExpired() {
-		MapSession expired = new MapSession();
+		JdbcOperationsSessionRepository.JdbcSession expired = this.repository.new JdbcSession();
 		expired.setLastAccessedTime(System.currentTimeMillis() -
 				(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS * 1000 + 1000));
 		given(this.jdbcOperations.query(isA(String.class),
@@ -432,7 +432,8 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void getSessionFound() {
-		MapSession saved = new MapSession();
+		JdbcOperationsSessionRepository.JdbcSession saved = this.repository.new JdbcSession(
+				new MapSession());
 		saved.setAttribute("savedName", "savedValue");
 		given(this.jdbcOperations.query(isA(String.class),
 				isA(PreparedStatementSetter.class), isA(ResultSetExtractor.class)))
@@ -493,11 +494,12 @@ public class JdbcOperationsSessionRepositoryTests {
 		String principal = "username";
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal,
 				"notused", AuthorityUtils.createAuthorityList("ROLE_USER"));
-		List<MapSession> saved = new ArrayList<MapSession>(2);
-		MapSession saved1 = new MapSession();
+		List<JdbcOperationsSessionRepository.JdbcSession> saved =
+				new ArrayList<JdbcOperationsSessionRepository.JdbcSession>(2);
+		JdbcOperationsSessionRepository.JdbcSession saved1 = this.repository.new JdbcSession();
 		saved1.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved1);
-		MapSession saved2 = new MapSession();
+		JdbcOperationsSessionRepository.JdbcSession saved2 = this.repository.new JdbcSession();
 		saved2.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved2);
 		given(this.jdbcOperations.query(isA(String.class),
