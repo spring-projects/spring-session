@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -382,24 +383,7 @@ public class JdbcOperationsSessionRepository implements
 							});
 					if (!session.getAttributeNames().isEmpty()) {
 						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
-						JdbcOperationsSessionRepository.this.jdbcOperations.batchUpdate(
-								JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
-								new BatchPreparedStatementSetter() {
-
-									@Override
-									public void setValues(PreparedStatement ps, int i) throws SQLException {
-										String attributeName = attributeNames.get(i);
-										ps.setString(1, session.primaryKey);
-										ps.setString(2, attributeName);
-										serialize(ps, 3, session.getAttribute(attributeName));
-									}
-
-									@Override
-									public int getBatchSize() {
-										return attributeNames.size();
-									}
-
-								});
+						insertSessionAttributes(session, attributeNames);
 					}
 				}
 
@@ -422,37 +406,21 @@ public class JdbcOperationsSessionRepository implements
 									ps.setString(6, session.primaryKey);
 								});
 					}
-					Map<String, Object> delta = session.getDelta();
-					if (!delta.isEmpty()) {
-						for (final Map.Entry<String, Object> entry : delta.entrySet()) {
-							if (entry.getValue() == null) {
-								JdbcOperationsSessionRepository.this.jdbcOperations.update(
-										JdbcOperationsSessionRepository.this.deleteSessionAttributeQuery,
-										ps -> {
-											ps.setString(1, session.primaryKey);
-											ps.setString(2, entry.getKey());
-										});
-							}
-							else {
-								int updatedCount = JdbcOperationsSessionRepository.this.jdbcOperations.update(
-										JdbcOperationsSessionRepository.this.updateSessionAttributeQuery,
-										ps -> {
-											serialize(ps, 1, entry.getValue());
-											ps.setString(2, session.primaryKey);
-											ps.setString(3, entry.getKey());
-										});
-								if (updatedCount == 0) {
-									JdbcOperationsSessionRepository.this.jdbcOperations.update(
-											JdbcOperationsSessionRepository.this.createSessionAttributeQuery,
-											ps -> {
-												ps.setString(1, session.primaryKey);
-												ps.setString(2, entry.getKey());
-												serialize(ps, 3, entry.getValue());
-											});
-								}
-							}
-						}
-					}
+					List<String> addedAttributeNames = session.delta.entrySet().stream()
+							.filter(entry -> entry.getValue() == DeltaValue.ADDED)
+							.map(Map.Entry::getKey)
+							.collect(Collectors.toList());
+					insertSessionAttributes(session, addedAttributeNames);
+					List<String> updatedAttributeNames = session.delta.entrySet().stream()
+							.filter(entry -> entry.getValue() == DeltaValue.UPDATED)
+							.map(Map.Entry::getKey)
+							.collect(Collectors.toList());
+					updateSessionAttributes(session, updatedAttributeNames);
+					List<String> removedAttributeNames = session.delta.entrySet().stream()
+							.filter(entry -> entry.getValue() == DeltaValue.REMOVED)
+							.map(Map.Entry::getKey)
+							.collect(Collectors.toList());
+					deleteSessionAttributes(session, removedAttributeNames);
 				}
 
 			});
@@ -521,6 +489,100 @@ public class JdbcOperationsSessionRepository implements
 		return sessionMap;
 	}
 
+	private void insertSessionAttributes(JdbcSession session, List<String> attributeNames) {
+		if (attributeNames == null || attributeNames.isEmpty()) {
+			return;
+		}
+		if (attributeNames.size() > 1) {
+			this.jdbcOperations.batchUpdate(this.createSessionAttributeQuery, new BatchPreparedStatementSetter() {
+
+						@Override
+						public void setValues(PreparedStatement ps, int i) throws SQLException {
+							String attributeName = attributeNames.get(i);
+							ps.setString(1, session.primaryKey);
+							ps.setString(2, attributeName);
+							serialize(ps, 3, session.getAttribute(attributeName));
+						}
+
+						@Override
+						public int getBatchSize() {
+							return attributeNames.size();
+						}
+
+			});
+		}
+		else {
+			this.jdbcOperations.update(this.createSessionAttributeQuery, ps -> {
+				String attributeName = attributeNames.get(0);
+				ps.setString(1, session.primaryKey);
+				ps.setString(2, attributeName);
+				serialize(ps, 3, session.getAttribute(attributeName));
+			});
+		}
+	}
+
+	private void updateSessionAttributes(JdbcSession session, List<String> attributeNames) {
+		if (attributeNames == null || attributeNames.isEmpty()) {
+			return;
+		}
+		if (attributeNames.size() > 1) {
+			this.jdbcOperations.batchUpdate(this.updateSessionAttributeQuery, new BatchPreparedStatementSetter() {
+
+						@Override
+						public void setValues(PreparedStatement ps, int i) throws SQLException {
+							String attributeName = attributeNames.get(i);
+							serialize(ps, 1, session.getAttribute(attributeName));
+							ps.setString(2, session.primaryKey);
+							ps.setString(3, attributeName);
+						}
+
+						@Override
+						public int getBatchSize() {
+							return attributeNames.size();
+						}
+
+			});
+		}
+		else {
+			this.jdbcOperations.update(this.updateSessionAttributeQuery, ps -> {
+				String attributeName = attributeNames.get(0);
+				serialize(ps, 1, session.getAttribute(attributeName));
+				ps.setString(2, session.primaryKey);
+				ps.setString(3, attributeName);
+			});
+		}
+	}
+
+	private void deleteSessionAttributes(JdbcSession session, List<String> attributeNames) {
+		if (attributeNames == null || attributeNames.isEmpty()) {
+			return;
+		}
+		if (attributeNames.size() > 1) {
+			this.jdbcOperations.batchUpdate(this.deleteSessionAttributeQuery, new BatchPreparedStatementSetter() {
+
+						@Override
+						public void setValues(PreparedStatement ps, int i) throws SQLException {
+							String attributeName = attributeNames.get(i);
+							ps.setString(1, session.primaryKey);
+							ps.setString(2, attributeName);
+						}
+
+						@Override
+						public int getBatchSize() {
+							return attributeNames.size();
+						}
+
+			});
+		}
+		else {
+			this.jdbcOperations.update(this.deleteSessionAttributeQuery, ps -> {
+				String attributeName = attributeNames.get(0);
+				ps.setString(1, session.primaryKey);
+				ps.setString(2, attributeName);
+			});
+		}
+	}
+
 	public void cleanUpExpiredSessions() {
 		Integer deletedCount = this.transactionOperations.execute(transactionStatus ->
 				JdbcOperationsSessionRepository.this.jdbcOperations.update(
@@ -585,6 +647,12 @@ public class JdbcOperationsSessionRepository implements
 				TypeDescriptor.valueOf(Object.class));
 	}
 
+	private enum DeltaValue {
+
+		ADDED, UPDATED, REMOVED
+
+	}
+
 	/**
 	 * The {@link Session} to use for {@link JdbcOperationsSessionRepository}.
 	 *
@@ -600,7 +668,7 @@ public class JdbcOperationsSessionRepository implements
 
 		private boolean changed;
 
-		private Map<String, Object> delta = new HashMap<>();
+		private Map<String, DeltaValue> delta = new HashMap<>();
 
 		JdbcSession() {
 			this.delegate = new MapSession();
@@ -623,7 +691,7 @@ public class JdbcOperationsSessionRepository implements
 			return this.changed;
 		}
 
-		Map<String, Object> getDelta() {
+		Map<String, DeltaValue> getDelta() {
 			return this.delta;
 		}
 
@@ -664,8 +732,16 @@ public class JdbcOperationsSessionRepository implements
 
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
+			if (attributeValue == null) {
+				this.delta.put(attributeName, DeltaValue.REMOVED);
+			}
+			else if (this.delegate.getAttribute(attributeName) != null) {
+				this.delta.put(attributeName, DeltaValue.UPDATED);
+			}
+			else {
+				this.delta.put(attributeName, DeltaValue.ADDED);
+			}
 			this.delegate.setAttribute(attributeName, attributeValue);
-			this.delta.put(attributeName, attributeValue);
 			if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) ||
 					SPRING_SECURITY_CONTEXT.equals(attributeName)) {
 				this.changed = true;
@@ -674,8 +750,7 @@ public class JdbcOperationsSessionRepository implements
 
 		@Override
 		public void removeAttribute(String attributeName) {
-			this.delegate.removeAttribute(attributeName);
-			this.delta.put(attributeName, null);
+			setAttribute(attributeName, null);
 		}
 
 		@Override

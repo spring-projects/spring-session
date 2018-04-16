@@ -42,9 +42,7 @@ import org.springframework.transaction.TransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.AdditionalMatchers.and;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
@@ -53,7 +51,6 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -283,11 +280,11 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT"),
 				isA(PreparedStatementSetter.class));
-		verifyNoMoreInteractions(this.jdbcOperations);
+		verifyZeroInteractions(this.jdbcOperations);
 	}
 
 	@Test
-	public void saveNewWithAttributes() {
+	public void saveNewWithSingleAttribute() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository
 				.createSession();
 		session.setAttribute("testName", "testValue");
@@ -296,15 +293,37 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertThat(session.isNew()).isFalse();
 		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT"),
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("INSERT INTO SPRING_SESSION("),
 				isA(PreparedStatementSetter.class));
-		verify(this.jdbcOperations, times(1)).batchUpdate(
-				and(startsWith("INSERT"), contains("ATTRIBUTE_BYTES")),
-				isA(BatchPreparedStatementSetter.class));
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
 	}
 
 	@Test
-	public void saveUpdatedAttributes() {
+	public void saveNewWithMultipleAttributes() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
+		session.setAttribute("testName1", "testValue1");
+		session.setAttribute("testName2", "testValue2");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("INSERT INTO SPRING_SESSION("),
+				isA(PreparedStatementSetter.class));
+		verify(this.jdbcOperations, times(1)).batchUpdate(
+				startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+				isA(BatchPreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedAddSingleAttribute() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
 				new MapSession());
 		session.setAttribute("testName", "testValue");
@@ -314,8 +333,102 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertThat(session.isNew()).isFalse();
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(
-				and(startsWith("UPDATE"), contains("ATTRIBUTE_BYTES")),
+				startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
 				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedAddMultipleAttributes() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName1", "testValue1");
+		session.setAttribute("testName2", "testValue2");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).batchUpdate(
+				startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+				isA(BatchPreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedModifySingleAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName", "testValue");
+		session.clearChangeFlags();
+		session.setAttribute("testName", "testValue");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedModifyMultipleAttributes() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName1", "testValue1");
+		session.setAttribute("testName2", "testValue2");
+		session.clearChangeFlags();
+		session.setAttribute("testName1", "testValue1");
+		session.setAttribute("testName2", "testValue2");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).batchUpdate(
+				startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+				isA(BatchPreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedRemoveSingleAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName", "testValue");
+		session.clearChangeFlags();
+		session.removeAttribute("testName");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedRemoveMultipleAttributes() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName1", "testValue1");
+		session.setAttribute("testName2", "testValue2");
+		session.clearChangeFlags();
+		session.removeAttribute("testName1");
+		session.removeAttribute("testName2");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).batchUpdate(
+				startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
+				isA(BatchPreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
 	}
 
 	@Test
@@ -329,8 +442,9 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertThat(session.isNew()).isFalse();
 		assertPropagationRequiresNew();
 		verify(this.jdbcOperations, times(1)).update(
-				and(startsWith("UPDATE"), contains("LAST_ACCESS_TIME")),
+				startsWith("UPDATE SPRING_SESSION SET"),
 				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
 	}
 
 	@Test
