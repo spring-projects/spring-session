@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
@@ -515,6 +516,104 @@ public class RedisOperationsSessionRepositoryTests {
 		verify(this.publisher).publishEvent(this.event.capture());
 		assertThat(this.event.getValue().getSessionId()).isEqualTo(session.getId());
 		verify(this.defaultSerializer).deserialize(body);
+	}
+
+	@Test
+	public void onMessageDeletedSessionFound() throws Exception {
+		String deletedId = "deleted-id";
+		given(this.redisOperations.boundHashOps(getKey(deletedId)))
+				.willReturn(this.boundHashOperations);
+		Map map = map(RedisOperationsSessionRepository.MAX_INACTIVE_ATTR, 0,
+				RedisOperationsSessionRepository.LAST_ACCESSED_ATTR,
+				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		given(this.boundHashOperations.entries()).willReturn(map);
+
+		String channel = "__keyevent@0__:del";
+		String body = "spring:session:sessions:expires:" + deletedId;
+		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+
+		this.redisRepository.setApplicationEventPublisher(this.publisher);
+		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+
+		verify(this.redisOperations).boundHashOps(eq(getKey(deletedId)));
+		verify(this.boundHashOperations).entries();
+		verify(this.publisher).publishEvent(this.event.capture());
+		assertThat(this.event.getValue().getSessionId()).isEqualTo(deletedId);
+		verifyZeroInteractions(this.defaultSerializer);
+		verifyZeroInteractions(this.publisher);
+		verifyZeroInteractions(this.redisOperations);
+		verifyZeroInteractions(this.boundHashOperations);
+	}
+
+	@Test
+	public void onMessageDeletedSessionNotFound() throws Exception {
+		String deletedId = "deleted-id";
+		given(this.redisOperations.boundHashOps(getKey(deletedId)))
+				.willReturn(this.boundHashOperations);
+		given(this.boundHashOperations.entries()).willReturn(map());
+
+		String channel = "__keyevent@0__:del";
+		String body = "spring:session:sessions:expires:" + deletedId;
+		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+
+		this.redisRepository.setApplicationEventPublisher(this.publisher);
+		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+
+		verify(this.redisOperations).boundHashOps(eq(getKey(deletedId)));
+		verify(this.boundHashOperations).entries();
+		verifyZeroInteractions(this.defaultSerializer);
+		verifyZeroInteractions(this.publisher);
+		verifyZeroInteractions(this.redisOperations);
+		verifyZeroInteractions(this.boundHashOperations);
+	}
+
+	@Test
+	public void onMessageExpiredSessionFound() throws Exception {
+		String expiredId = "expired-id";
+		given(this.redisOperations.boundHashOps(getKey(expiredId)))
+				.willReturn(this.boundHashOperations);
+		Map map = map(RedisOperationsSessionRepository.MAX_INACTIVE_ATTR, 1,
+				RedisOperationsSessionRepository.LAST_ACCESSED_ATTR,
+				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		given(this.boundHashOperations.entries()).willReturn(map);
+
+		String channel = "__keyevent@0__:expired";
+		String body = "spring:session:sessions:expires:" + expiredId;
+		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+
+		this.redisRepository.setApplicationEventPublisher(this.publisher);
+		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+
+		verify(this.redisOperations).boundHashOps(eq(getKey(expiredId)));
+		verify(this.boundHashOperations).entries();
+		verify(this.publisher).publishEvent(this.event.capture());
+		assertThat(this.event.getValue().getSessionId()).isEqualTo(expiredId);
+		verifyZeroInteractions(this.defaultSerializer);
+		verifyZeroInteractions(this.publisher);
+		verifyZeroInteractions(this.redisOperations);
+		verifyZeroInteractions(this.boundHashOperations);
+	}
+
+	@Test
+	public void onMessageExpiredSessionNotFound() throws Exception {
+		String expiredId = "expired-id";
+		given(this.redisOperations.boundHashOps(getKey(expiredId)))
+				.willReturn(this.boundHashOperations);
+		given(this.boundHashOperations.entries()).willReturn(map());
+
+		String channel = "__keyevent@0__:expired";
+		String body = "spring:session:sessions:expires:" + expiredId;
+		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+
+		this.redisRepository.setApplicationEventPublisher(this.publisher);
+		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+
+		verify(this.redisOperations).boundHashOps(eq(getKey(expiredId)));
+		verify(this.boundHashOperations).entries();
+		verifyZeroInteractions(this.defaultSerializer);
+		verifyZeroInteractions(this.publisher);
+		verifyZeroInteractions(this.redisOperations);
+		verifyZeroInteractions(this.boundHashOperations);
 	}
 
 	@Test
