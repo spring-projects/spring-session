@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.session.Session;
 import org.springframework.web.server.WebSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -41,7 +42,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link SpringSessionWebSessionStore}.
  *
  * @author Rob Winch
- * @since 5.0
+ * @author Vedran Pavic
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SpringSessionWebSessionStoreTests<S extends Session> {
@@ -66,9 +67,11 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 				.willReturn(Mono.just(this.createSession));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNullRepositoryThenThrowsIllegalArgumentException() {
-		new SpringSessionWebSessionStore<S>(null);
+		assertThatThrownBy(() -> new SpringSessionWebSessionStore<S>(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("reactiveSessionRepository cannot be null");
 	}
 
 	@Test
@@ -268,6 +271,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 				.retrieveSession(id).block();
 
 		assertThat(retrievedWebSession.isStarted()).isTrue();
+		verify(this.findByIdSession).setLastAccessedTime(any());
 	}
 
 	@Test
@@ -280,8 +284,11 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 		verify(this.sessionRepository).deleteById(sessionId);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setClockWhenNullThenException() {
-		this.webSessionStore.setClock(null);
+		assertThatThrownBy(() -> this.webSessionStore.setClock(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("clock cannot be null");
 	}
+
 }
