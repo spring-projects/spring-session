@@ -19,6 +19,7 @@ package org.springframework.session.data.redis;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -84,6 +85,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 	 */
 	private Integer defaultMaxInactiveInterval;
 
+	private Integer defaultMinInactiveInterval = 30;
+
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
 	public ReactiveRedisOperationsSessionRepository(
@@ -107,6 +110,10 @@ public class ReactiveRedisOperationsSessionRepository implements
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
+	}
+
+	public void setDefaultMinInactiveInterval(Integer defaultMinInactiveInterval) {
+		this.defaultMinInactiveInterval = defaultMinInactiveInterval;
 	}
 
 	/**
@@ -183,6 +190,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 		private final Map<String, Object> delta = new HashMap<>();
 
+		private final Set<String> removes = new HashSet<>();
+
 		private boolean isNew;
 
 		private String originalSessionId;
@@ -210,6 +219,11 @@ public class ReactiveRedisOperationsSessionRepository implements
 		RedisSession(MapSession mapSession) {
 			Assert.notNull(mapSession, "mapSession cannot be null");
 			this.cached = mapSession;
+			Instant now = Instant.now();
+			if (this.cached.getLastAccessedTime().plusSeconds(
+					ReactiveRedisOperationsSessionRepository.this.defaultMinInactiveInterval).compareTo(now) < 0) {
+				this.delta.put(LAST_ACCESSED_TIME_KEY, now.toEpochMilli());
+			}
 			this.originalSessionId = mapSession.getId();
 		}
 
@@ -293,28 +307,43 @@ public class ReactiveRedisOperationsSessionRepository implements
 		}
 
 		private void putAndFlush(String a, Object v) {
-			this.delta.put(a, v);
+			if (v != null) {
+				this.delta.put(a, v);
+			}
+			else {
+				this.removes.add(a);
+			}
 			flushImmediateIfNecessary();
 		}
 
 		private Mono<Void> saveDelta() {
 			String sessionId = getId();
-			Mono<Void> changeSessionId = saveChangeSessionId(sessionId);
+			Mono<Void> actions = saveChangeSessionId(sessionId);
 
-			if (this.delta.isEmpty()) {
-				return changeSessionId.and(Mono.empty());
+			if (this.delta.isEmpty() && this.removes.isEmpty()) {
+				return actions.and(Mono.empty());
 			}
 
 			String sessionKey = getSessionKey(sessionId);
 
-			Mono<Boolean> update = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
-					.opsForHash().putAll(sessionKey, this.delta);
+			if (!this.removes.isEmpty()) {
+				Mono<Long> remove = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
+						.opsForHash().remove(sessionKey, this.removes.toArray());
+				actions = actions.and(remove);
+			}
+
+			if (!this.delta.isEmpty()) {
+				Mono<Boolean> update = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
+						.opsForHash().putAll(sessionKey, this.delta);
+				actions = actions.and(update);
+			}
 
 			Mono<Boolean> setTtl = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
 					.expire(sessionKey, getMaxInactiveInterval());
 
-			return changeSessionId.and(update).and(setTtl).and(s -> {
+			return actions.and(setTtl).and(s -> {
 				this.delta.clear();
+				this.removes.clear();
 				s.onComplete();
 			}).then();
 		}
