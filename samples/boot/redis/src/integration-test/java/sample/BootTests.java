@@ -17,8 +17,9 @@
 package sample;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
@@ -48,11 +49,20 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 @ContextConfiguration(initializers = BootTests.Initializer.class)
 public class BootTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.8";
+	private static final String DOCKER_IMAGE = "redis:4.0.9";
 
-	@ClassRule
-	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+	private static GenericContainer container = new GenericContainer(DOCKER_IMAGE)
 			.withExposedPorts(6379);
+
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -99,8 +109,8 @@ public class BootTests {
 		public void initialize(
 				ConfigurableApplicationContext configurableApplicationContext) {
 			TestPropertyValues
-					.of("spring.redis.host=" + redisContainer.getContainerIpAddress(),
-							"spring.redis.port=" + redisContainer.getFirstMappedPort())
+					.of("spring.redis.host=" + container.getContainerIpAddress(),
+							"spring.redis.port=" + container.getFirstMappedPort())
 					.applyTo(configurableApplicationContext.getEnvironment());
 		}
 

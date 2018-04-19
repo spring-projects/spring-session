@@ -20,7 +20,8 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.junit.ClassRule;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.mariadb.jdbc.MariaDbDataSource;
 import org.testcontainers.containers.MariaDBContainer;
@@ -43,23 +44,29 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class MariaDB10JdbcOperationsSessionRepositoryITests
+public class MariaDb10JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "mariadb:10.2.13";
+	private static MariaDBContainer container = new MariaDb10Container();
 
-	@ClassRule
-	public static MariaDBContainer mariaDBContainer = new MariaDBContainer(DOCKER_IMAGE);
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@Configuration
 	static class Config extends BaseConfig {
 
 		@Bean
 		public DataSource dataSource() throws SQLException {
-			MariaDbDataSource dataSource = new MariaDbDataSource(
-					mariaDBContainer.getJdbcUrl());
-			dataSource.setUserName(mariaDBContainer.getUsername());
-			dataSource.setPassword(mariaDBContainer.getPassword());
+			MariaDbDataSource dataSource = new MariaDbDataSource(container.getJdbcUrl());
+			dataSource.setUserName(container.getUsername());
+			dataSource.setPassword(container.getPassword());
 			return dataSource;
 		}
 
@@ -72,6 +79,21 @@ public class MariaDB10JdbcOperationsSessionRepositoryITests
 					new ResourceDatabasePopulator(resourceLoader.getResource(
 							"classpath:org/springframework/session/jdbc/schema-mysql.sql")));
 			return initializer;
+		}
+
+	}
+
+	private static class MariaDb10Container extends MariaDBContainer {
+
+		MariaDb10Container() {
+			super("mariadb:10.2.14");
+		}
+
+		@Override
+		protected void configure() {
+			super.configure();
+			setCommand("mysqld", "--character-set-server=utf8mb4",
+					"--collation-server=utf8mb4_unicode_ci");
 		}
 
 	}

@@ -18,10 +18,12 @@ package org.springframework.session.jdbc;
 
 import javax.sql.DataSource;
 
-import org.junit.ClassRule;
+import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
-import org.postgresql.ds.PGSimpleDataSource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.MSSQLServerContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,32 +35,39 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using PostgreSQL 9.x
- * database.
+ * Integration tests for {@link JdbcOperationsSessionRepository} using Microsoft SQL
+ * Server 2017 database.
  *
  * @author Vedran Pavic
  */
+@Ignore
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class PostgreSQL9JdbcOperationsSessionRepositoryITests
+public class SqlServerJdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "postgres:9.6.7";
+	private static MSSQLServerContainer container = new SqlServer2007Container();
 
-	@ClassRule
-	public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer(
-			DOCKER_IMAGE);
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@Configuration
 	static class Config extends BaseConfig {
 
 		@Bean
 		public DataSource dataSource() {
-			PGSimpleDataSource dataSource = new PGSimpleDataSource();
-			dataSource.setUrl(postgreSQLContainer.getJdbcUrl());
-			dataSource.setUser(postgreSQLContainer.getUsername());
-			dataSource.setPassword(postgreSQLContainer.getPassword());
+			SQLServerDataSource dataSource = new SQLServerDataSource();
+			dataSource.setURL(container.getJdbcUrl());
+			dataSource.setUser(container.getUsername());
+			dataSource.setPassword(container.getPassword());
 			return dataSource;
 		}
 
@@ -69,8 +78,16 @@ public class PostgreSQL9JdbcOperationsSessionRepositoryITests
 			initializer.setDataSource(dataSource);
 			initializer.setDatabasePopulator(
 					new ResourceDatabasePopulator(resourceLoader.getResource(
-							"classpath:org/springframework/session/jdbc/schema-postgresql.sql")));
+							"classpath:org/springframework/session/jdbc/schema-sqlserver.sql")));
 			return initializer;
+		}
+
+	}
+
+	private static class SqlServer2007Container extends MSSQLServerContainer {
+
+		SqlServer2007Container() {
+			super("microsoft/mssql-server-linux:2017-CU6");
 		}
 
 	}

@@ -16,8 +16,9 @@
 
 package rest;
 
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.GenericContainer;
@@ -55,11 +56,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class RestMockMvcTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.8";
+	private static final String DOCKER_IMAGE = "redis:4.0.9";
 
-	@ClassRule
-	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+	private static GenericContainer container = new GenericContainer(DOCKER_IMAGE)
 			.withExposedPorts(6379);
+
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@Autowired
 	private SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
@@ -99,8 +109,8 @@ public class RestMockMvcTests {
 
 		@Bean
 		public LettuceConnectionFactory redisConnectionFactory() {
-			return new LettuceConnectionFactory(redisContainer.getContainerIpAddress(),
-					redisContainer.getFirstMappedPort());
+			return new LettuceConnectionFactory(container.getContainerIpAddress(),
+					container.getFirstMappedPort());
 		}
 
 		@Bean

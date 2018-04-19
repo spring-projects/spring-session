@@ -18,11 +18,12 @@ package org.springframework.session.jdbc;
 
 import javax.sql.DataSource;
 
-import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
-import org.junit.ClassRule;
+import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.runner.RunWith;
-import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.containers.MySQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,8 +35,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using Microsoft SQL
- * Server 2017 database.
+ * Integration tests for {@link JdbcOperationsSessionRepository} using MySQL 8.x database.
  *
  * @author Vedran Pavic
  */
@@ -43,21 +43,28 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class SQLServerJdbcOperationsSessionRepositoryITests
+public class MySql8JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "microsoft/mssql-server-linux:2017-CU3";
+	private static MySQLContainer container = new MySql8Container();
 
-	@ClassRule
-	public static MSSQLServerContainer container = new MSSQLServerContainer(DOCKER_IMAGE);
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@Configuration
 	static class Config extends BaseConfig {
 
 		@Bean
 		public DataSource dataSource() {
-			SQLServerDataSource dataSource = new SQLServerDataSource();
-			dataSource.setURL(container.getJdbcUrl());
+			MysqlDataSource dataSource = new MysqlDataSource();
+			dataSource.setUrl(container.getJdbcUrl());
 			dataSource.setUser(container.getUsername());
 			dataSource.setPassword(container.getPassword());
 			return dataSource;
@@ -70,8 +77,23 @@ public class SQLServerJdbcOperationsSessionRepositoryITests
 			initializer.setDataSource(dataSource);
 			initializer.setDatabasePopulator(
 					new ResourceDatabasePopulator(resourceLoader.getResource(
-							"classpath:org/springframework/session/jdbc/schema-sqlserver.sql")));
+							"classpath:org/springframework/session/jdbc/schema-mysql.sql")));
 			return initializer;
+		}
+
+	}
+
+	private static class MySql8Container extends MySQLContainer {
+
+		MySql8Container() {
+			super("mysql:8.0.11");
+		}
+
+		@Override
+		protected void configure() {
+			super.configure();
+			setCommand("mysqld", "--character-set-server=utf8mb4",
+					"--collation-server=utf8mb4_unicode_ci");
 		}
 
 	}

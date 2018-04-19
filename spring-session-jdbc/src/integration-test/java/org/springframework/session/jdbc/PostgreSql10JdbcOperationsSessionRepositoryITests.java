@@ -18,7 +18,8 @@ package org.springframework.session.jdbc;
 
 import javax.sql.DataSource;
 
-import org.junit.ClassRule;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -41,14 +42,20 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class PostgreSQL10JdbcOperationsSessionRepositoryITests
+public class PostgreSql10JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "postgres:10.2";
+	private static PostgreSQLContainer container = new PostgreSql10Container();
 
-	@ClassRule
-	public static PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer(
-			DOCKER_IMAGE);
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@Configuration
 	static class Config extends BaseConfig {
@@ -56,9 +63,9 @@ public class PostgreSQL10JdbcOperationsSessionRepositoryITests
 		@Bean
 		public DataSource dataSource() {
 			PGSimpleDataSource dataSource = new PGSimpleDataSource();
-			dataSource.setUrl(postgreSQLContainer.getJdbcUrl());
-			dataSource.setUser(postgreSQLContainer.getUsername());
-			dataSource.setPassword(postgreSQLContainer.getPassword());
+			dataSource.setUrl(container.getJdbcUrl());
+			dataSource.setUser(container.getUsername());
+			dataSource.setPassword(container.getPassword());
 			return dataSource;
 		}
 
@@ -71,6 +78,14 @@ public class PostgreSQL10JdbcOperationsSessionRepositoryITests
 					new ResourceDatabasePopulator(resourceLoader.getResource(
 							"classpath:org/springframework/session/jdbc/schema-postgresql.sql")));
 			return initializer;
+		}
+
+	}
+
+	private static class PostgreSql10Container extends PostgreSQLContainer {
+
+		PostgreSql10Container() {
+			super("postgres:10.3");
 		}
 
 	}

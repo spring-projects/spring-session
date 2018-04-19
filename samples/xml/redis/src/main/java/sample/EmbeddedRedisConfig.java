@@ -16,8 +16,6 @@
 
 package sample;
 
-import java.io.IOException;
-
 import org.testcontainers.containers.GenericContainer;
 
 import org.springframework.context.annotation.Bean;
@@ -30,23 +28,11 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Profile("embedded-redis")
 public class EmbeddedRedisConfig {
 
-	private static final String REDIS_DOCKER_IMAGE = "redis:4.0.8";
+	private static final String REDIS_DOCKER_IMAGE = "redis:4.0.9";
 
 	@Bean(initMethod = "start")
 	public GenericContainer redisContainer() {
-		return new GenericContainer(REDIS_DOCKER_IMAGE) {
-
-			@Override
-			public void close() {
-				super.close();
-				try {
-					this.dockerClient.close();
-				}
-				catch (IOException ignored) {
-				}
-			}
-
-		}.withExposedPorts(6379);
+		return new GenericContainer(REDIS_DOCKER_IMAGE).withExposedPorts(6379);
 	}
 
 	@Bean

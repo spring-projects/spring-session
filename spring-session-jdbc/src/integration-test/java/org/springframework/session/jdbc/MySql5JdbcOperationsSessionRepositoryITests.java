@@ -19,7 +19,8 @@ package org.springframework.session.jdbc;
 import javax.sql.DataSource;
 
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
-import org.junit.ClassRule;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.MySQLContainer;
 
@@ -40,13 +41,20 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class MySQL5JdbcOperationsSessionRepositoryITests
+public class MySql5JdbcOperationsSessionRepositoryITests
 		extends AbstractJdbcOperationsSessionRepositoryITests {
 
-	private static final String DOCKER_IMAGE = "mysql:5.7.21";
+	private static MySQLContainer container = new MySql5Container();
 
-	@ClassRule
-	public static MySQLContainer mySQLContainer = new MySQLContainer(DOCKER_IMAGE);
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@Configuration
 	static class Config extends BaseConfig {
@@ -54,9 +62,9 @@ public class MySQL5JdbcOperationsSessionRepositoryITests
 		@Bean
 		public DataSource dataSource() {
 			MysqlDataSource dataSource = new MysqlDataSource();
-			dataSource.setUrl(mySQLContainer.getJdbcUrl());
-			dataSource.setUser(mySQLContainer.getUsername());
-			dataSource.setPassword(mySQLContainer.getPassword());
+			dataSource.setUrl(container.getJdbcUrl());
+			dataSource.setUser(container.getUsername());
+			dataSource.setPassword(container.getPassword());
 			return dataSource;
 		}
 
@@ -69,6 +77,21 @@ public class MySQL5JdbcOperationsSessionRepositoryITests
 					new ResourceDatabasePopulator(resourceLoader.getResource(
 							"classpath:org/springframework/session/jdbc/schema-mysql.sql")));
 			return initializer;
+		}
+
+	}
+
+	private static class MySql5Container extends MySQLContainer {
+
+		MySql5Container() {
+			super("mysql:5.7.22");
+		}
+
+		@Override
+		protected void configure() {
+			super.configure();
+			setCommand("mysqld", "--character-set-server=utf8mb4",
+					"--collation-server=utf8mb4_unicode_ci");
 		}
 
 	}

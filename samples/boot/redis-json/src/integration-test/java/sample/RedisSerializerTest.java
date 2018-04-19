@@ -16,7 +16,8 @@
 
 package sample;
 
-import org.junit.ClassRule;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.GenericContainer;
@@ -42,11 +43,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(initializers = RedisSerializerTest.Initializer.class)
 public class RedisSerializerTest {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.8";
+	private static final String DOCKER_IMAGE = "redis:4.0.9";
 
-	@ClassRule
-	public static GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+	private static GenericContainer container = new GenericContainer(DOCKER_IMAGE)
 			.withExposedPorts(6379);
+
+	@BeforeClass
+	public static void setUpClass() {
+		container.start();
+	}
+
+	@AfterClass
+	public static void tearDownClass() {
+		container.stop();
+	}
 
 	@SpringSessionRedisOperations
 	private RedisTemplate<Object, Object> sessionRedisTemplate;
@@ -66,8 +76,8 @@ public class RedisSerializerTest {
 		public void initialize(
 				ConfigurableApplicationContext configurableApplicationContext) {
 			TestPropertyValues
-					.of("spring.redis.host=" + redisContainer.getContainerIpAddress(),
-							"spring.redis.port=" + redisContainer.getFirstMappedPort())
+					.of("spring.redis.host=" + container.getContainerIpAddress(),
+							"spring.redis.port=" + container.getFirstMappedPort())
 					.applyTo(configurableApplicationContext.getEnvironment());
 		}
 

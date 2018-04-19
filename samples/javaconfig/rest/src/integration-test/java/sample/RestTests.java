@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package sample;
 
 import java.util.Arrays;
+import java.util.Base64;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -122,6 +122,6 @@ public class RestTests {
 
 	private String getAuth(String user, String password) {
 		String auth = user + ":" + password;
-		return new String(Base64.encodeBase64(auth.getBytes()));
+		return Base64.getEncoder().encodeToString(auth.getBytes());
 	}
 }

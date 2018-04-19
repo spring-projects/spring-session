@@ -5,20 +5,13 @@ dependencyManagement {
 		mavenBom 'org.springframework:spring-framework-bom:5.0.4.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-SR4'
 		mavenBom 'org.springframework.security:spring-security-bom:5.0.2.RELEASE'
+		mavenBom 'org.testcontainers:testcontainers-bom:1.7.1'
 	}
 
 	dependencies {
 		dependencySet(group: 'com.hazelcast', version: '3.9.3') {
 			entry 'hazelcast'
 			entry 'hazelcast-client'
-		}
-
-		dependencySet(group: 'org.testcontainers', version: '1.6.0') {
-			entry 'mariadb'
-			entry 'mssqlserver'
-			entry 'mysql'
-			entry 'postgresql'
-			entry 'testcontainers'
 		}
 
 		dependency 'com.h2database:h2:1.4.196'
