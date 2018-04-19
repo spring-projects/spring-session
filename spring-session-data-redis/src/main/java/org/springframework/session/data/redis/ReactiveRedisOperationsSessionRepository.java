@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -149,8 +148,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 		String sessionKey = getSessionKey(id);
 
 		return this.sessionRedisOperations.opsForHash().entries(sessionKey)
-				.collect(
-						Collectors.toMap(e -> e.getKey().toString(), Map.Entry::getValue))
+				.collectMap(e -> e.getKey().toString(), Map.Entry::getValue)
 				.filter(map -> !map.isEmpty()).map(new SessionMapper(id))
 				.filter(session -> !session.isExpired()).map(RedisSession::new)
 				.switchIfEmpty(Mono.defer(() -> deleteById(id).then(Mono.empty())));

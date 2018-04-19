@@ -370,14 +370,18 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void getSessionFound() {
-		String attrName = "attrName";
+		String attribute1 = "attribute1";
+		String attribute2 = "attribute2";
 		MapSession expected = new MapSession();
 		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
-		expected.setAttribute(attrName, "attrValue");
+		expected.setAttribute(attribute1, "test");
+		expected.setAttribute(attribute2, null);
 		given(this.redisOperations.boundHashOps(getKey(expected.getId())))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName),
-				expected.getAttribute(attrName),
+		Map map = map(RedisOperationsSessionRepository.getSessionAttrNameKey(attribute1),
+				expected.getAttribute(attribute1),
+				RedisOperationsSessionRepository.getSessionAttrNameKey(attribute2),
+				expected.getAttribute(attribute2),
 				RedisOperationsSessionRepository.CREATION_TIME_ATTR,
 				expected.getCreationTime().toEpochMilli(),
 				RedisOperationsSessionRepository.MAX_INACTIVE_ATTR,
@@ -389,8 +393,10 @@ public class RedisOperationsSessionRepositoryTests {
 		RedisSession session = this.redisRepository.findById(expected.getId());
 		assertThat(session.getId()).isEqualTo(expected.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(expected.getAttributeNames());
-		assertThat(session.<String>getAttribute(attrName))
-				.isEqualTo(expected.getAttribute(attrName));
+		assertThat(session.<String>getAttribute(attribute1))
+				.isEqualTo(expected.getAttribute(attribute1));
+		assertThat(session.<String>getAttribute(attribute2))
+				.isEqualTo(expected.getAttribute(attribute2));
 		assertThat(session.getCreationTime()).isEqualTo(expected.getCreationTime());
 		assertThat(session.getMaxInactiveInterval())
 				.isEqualTo(expected.getMaxInactiveInterval());
