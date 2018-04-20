@@ -808,7 +808,12 @@ public class RedisOperationsSessionRepository implements
 				if (!isNew()) {
 					String originalSessionIdKey = getSessionKey(this.originalSessionId);
 					String sessionIdKey = getSessionKey(sessionId);
-					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey, sessionIdKey);
+					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(
+							originalSessionIdKey, sessionIdKey);
+					String originalExpiredKey = getExpiredKey(this.originalSessionId);
+					String expiredKey = getExpiredKey(sessionId);
+					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(
+							originalExpiredKey, expiredKey);
 				}
 				this.originalSessionId = sessionId;
 			}

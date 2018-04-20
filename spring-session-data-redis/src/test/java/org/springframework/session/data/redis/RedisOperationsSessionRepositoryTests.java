@@ -117,13 +117,44 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void changeSessionId() {
+	public void changeSessionIdWhenNotSaved() {
+		given(this.redisOperations.boundHashOps(anyString()))
+				.willReturn(this.boundHashOperations);
+		given(this.redisOperations.boundSetOps(anyString()))
+				.willReturn(this.boundSetOperations);
+		given(this.redisOperations.boundValueOps(anyString()))
+				.willReturn(this.boundValueOperations);
+
 		RedisSession createSession = this.redisRepository.createSession();
 		String originalId = createSession.getId();
 		String changeSessionId = createSession.changeSessionId();
+		this.redisRepository.save(createSession);
+
+		verify(this.redisOperations, never()).rename(anyString(), anyString());
 
 		assertThat(originalId).isNotEqualTo(changeSessionId);
 		assertThat(createSession.getId()).isEqualTo(createSession.getId());
+	}
+
+	@Test
+	public void changeSessionIdWhenSaved() {
+		given(this.redisOperations.boundHashOps(anyString()))
+				.willReturn(this.boundHashOperations);
+		given(this.redisOperations.boundSetOps(anyString()))
+				.willReturn(this.boundSetOperations);
+		given(this.redisOperations.boundValueOps(anyString()))
+				.willReturn(this.boundValueOperations);
+
+		RedisSession session = this.redisRepository.new RedisSession(this.cached);
+		session.setLastAccessedTime(session.getLastAccessedTime());
+		String originalId = session.getId();
+		String changeSessionId = session.changeSessionId();
+		this.redisRepository.save(session);
+
+		verify(this.redisOperations, times(2)).rename(anyString(), anyString());
+
+		assertThat(originalId).isNotEqualTo(changeSessionId);
+		assertThat(session.getId()).isEqualTo(session.getId());
 	}
 
 	@Test
