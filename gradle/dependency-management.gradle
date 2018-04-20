@@ -14,19 +14,19 @@ dependencyManagement {
 			entry 'hazelcast-client'
 		}
 
-		dependency 'com.h2database:h2:1.4.196'
+		dependency 'com.h2database:h2:1.4.197'
 		dependency 'com.microsoft.sqlserver:mssql-jdbc:6.2.2.jre8'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
-		dependency 'io.lettuce:lettuce-core:5.0.2.RELEASE'
+		dependency 'io.lettuce:lettuce-core:5.0.3.RELEASE'
 		dependency 'javax.servlet:javax.servlet-api:3.1.0'
 		dependency 'junit:junit:4.12'
-		dependency 'mysql:mysql-connector-java:5.1.45'
+		dependency 'mysql:mysql-connector-java:5.1.46'
 		dependency 'org.apache.derby:derby:10.14.1.0'
-		dependency 'org.assertj:assertj-core:3.9.0'
+		dependency 'org.assertj:assertj-core:3.9.1'
 		dependency 'org.hsqldb:hsqldb:2.4.0'
-		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.1'
+		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.3'
 		dependency 'org.mockito:mockito-core:2.15.0'
-		dependency 'org.postgresql:postgresql:42.2.1'
-		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.29.2'
+		dependency 'org.postgresql:postgresql:42.2.2'
+		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.29.3'
 	}
 }
