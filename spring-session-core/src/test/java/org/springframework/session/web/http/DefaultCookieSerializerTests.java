@@ -32,6 +32,7 @@ import org.springframework.session.web.http.CookieSerializer.CookieValue;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Tests for {@link DefaultCookieSerializer}.
@@ -209,10 +210,12 @@ public class DefaultCookieSerializerTests {
 		assertThat(getCookie().getDomain()).isEqualTo(domainName);
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void setDomainNameAndDomainNamePatternThrows() {
 		this.serializer.setDomainName("example.com");
-		this.serializer.setDomainNamePattern(".*");
+		assertThatThrownBy(() -> this.serializer.setDomainNamePattern(".*"))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Cannot set both domainName and domainNamePattern");
 	}
 
 	// --- domainNamePattern ---
@@ -241,10 +244,12 @@ public class DefaultCookieSerializerTests {
 		}
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void setDomainNamePatternAndDomainNameThrows() {
 		this.serializer.setDomainNamePattern(".*");
-		this.serializer.setDomainName("example.com");
+		assertThatThrownBy(() -> this.serializer.setDomainName("example.com"))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessage("Cannot set both domainName and domainNamePattern");
 	}
 
 	// --- cookieName ---
@@ -266,9 +271,11 @@ public class DefaultCookieSerializerTests {
 		assertThat(getCookie().getName()).isEqualTo(cookieName);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setCookieNameNullThrows() {
-		this.serializer.setCookieName(null);
+		assertThatThrownBy(() -> this.serializer.setCookieName(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("cookieName cannot be null");
 	}
 
 	// --- cookiePath ---

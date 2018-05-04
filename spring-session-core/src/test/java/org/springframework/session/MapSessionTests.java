@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MapSessionTests {
 
@@ -35,9 +36,11 @@ public class MapSessionTests {
 		this.session.setLastAccessedTime(Instant.ofEpochMilli(1413258262962L));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullSession() {
-		new MapSession((Session) null);
+		assertThatThrownBy(() -> new MapSession((Session) null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("session cannot be null");
 	}
 
 	@Test
@@ -65,9 +68,11 @@ public class MapSessionTests {
 		assertThat(result).isEqualTo(attrValue);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getRequiredAttributeWhenNullThenException() {
-		this.session.getRequiredAttribute("attrName");
+		assertThatThrownBy(() -> this.session.getRequiredAttribute("attrName"))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Required attribute 'attrName' is missing.");
 	}
 
 	@Test

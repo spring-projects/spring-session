@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -79,9 +80,11 @@ public class SessionRepositoryMessageInterceptorTests {
 		given(this.sessionRepository.findById(sessionId)).willReturn(this.session);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void preSendconstructorNullRepository() {
-		new SessionRepositoryMessageInterceptor<>(null);
+		assertThatThrownBy(() -> new SessionRepositoryMessageInterceptor<>(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("sessionRepository cannot be null");
 	}
 
 	@Test
@@ -129,14 +132,19 @@ public class SessionRepositoryMessageInterceptorTests {
 		verifyZeroInteractions(this.sessionRepository);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setMatchingMessageTypesNull() {
-		this.interceptor.setMatchingMessageTypes(null);
+		assertThatThrownBy(() -> this.interceptor.setMatchingMessageTypes(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("matchingMessageTypes cannot be null or empty");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setMatchingMessageTypesEmpty() {
-		this.interceptor.setMatchingMessageTypes(Collections.emptySet());
+		assertThatThrownBy(
+				() -> this.interceptor.setMatchingMessageTypes(Collections.emptySet()))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessage("matchingMessageTypes cannot be null or empty");
 	}
 
 	@Test

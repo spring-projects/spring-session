@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,7 @@ import org.springframework.session.SessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -1343,15 +1344,19 @@ public class SessionRepositoryFilterTests {
 	}
 
 	// We want the filter to work without any dependencies on Spring
-	@Test(expected = ClassCastException.class)
+	@Test
 	@SuppressWarnings("unused")
 	public void doesNotImplementOrdered() {
-		Ordered o = (Ordered) this.filter;
+		assertThatThrownBy(() -> {
+			Ordered o = (Ordered) this.filter;
+		}).isInstanceOf(ClassCastException.class);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setHttpSessionIdResolverNull() {
-		this.filter.setHttpSessionIdResolver(null);
+		assertThatThrownBy(() -> this.filter.setHttpSessionIdResolver(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("httpSessionIdResolver cannot be null");
 	}
 
 	// --- helper methods
