@@ -82,7 +82,8 @@ public class PostgreSql10JdbcOperationsSessionRepositoryITests
 
 	}
 
-	private static class PostgreSql10Container extends PostgreSQLContainer {
+	private static class PostgreSql10Container
+			extends PostgreSQLContainer<PostgreSql10Container> {
 
 		PostgreSql10Container() {
 			super("postgres:10.3");

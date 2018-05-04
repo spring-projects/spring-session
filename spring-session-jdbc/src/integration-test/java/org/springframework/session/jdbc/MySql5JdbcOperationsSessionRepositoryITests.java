@@ -81,7 +81,7 @@ public class MySql5JdbcOperationsSessionRepositoryITests
 
 	}
 
-	private static class MySql5Container extends MySQLContainer {
+	private static class MySql5Container extends MySQLContainer<MySql5Container> {
 
 		MySql5Container() {
 			super("mysql:5.7.22");

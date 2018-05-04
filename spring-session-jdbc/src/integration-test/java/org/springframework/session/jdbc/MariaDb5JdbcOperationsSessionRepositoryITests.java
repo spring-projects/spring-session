@@ -83,7 +83,7 @@ public class MariaDb5JdbcOperationsSessionRepositoryITests
 
 	}
 
-	private static class MariaDb5Container extends MariaDBContainer {
+	private static class MariaDb5Container extends MariaDBContainer<MariaDb5Container> {
 
 		MariaDb5Container() {
 			super("mariadb:5.5.59");

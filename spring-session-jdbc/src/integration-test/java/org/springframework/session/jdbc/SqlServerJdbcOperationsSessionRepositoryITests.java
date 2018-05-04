@@ -84,7 +84,8 @@ public class SqlServerJdbcOperationsSessionRepositoryITests
 
 	}
 
-	private static class SqlServer2007Container extends MSSQLServerContainer {
+	private static class SqlServer2007Container
+			extends MSSQLServerContainer<SqlServer2007Container> {
 
 		SqlServer2007Container() {
 			super("microsoft/mssql-server-linux:2017-CU6");

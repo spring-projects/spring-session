@@ -82,7 +82,8 @@ public class PostgreSql9JdbcOperationsSessionRepositoryITests
 
 	}
 
-	private static class PostgreSql9Container extends PostgreSQLContainer {
+	private static class PostgreSql9Container
+			extends PostgreSQLContainer<PostgreSql9Container> {
 
 		PostgreSql9Container() {
 			super("postgres:9.6.8");
