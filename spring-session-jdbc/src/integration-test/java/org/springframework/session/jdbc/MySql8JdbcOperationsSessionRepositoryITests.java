@@ -18,7 +18,7 @@ package org.springframework.session.jdbc;
 
 import javax.sql.DataSource;
 
-import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
