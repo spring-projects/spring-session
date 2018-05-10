@@ -735,7 +735,7 @@ public class JdbcOperationsSessionRepository implements
 			if (attributeValue == null) {
 				this.delta.put(attributeName, DeltaValue.REMOVED);
 			}
-			else if (this.delegate.getAttribute(attributeName) != null) {
+			else if (this.delta.get(attributeName) != DeltaValue.ADDED && this.delegate.getAttribute(attributeName) != null) {
 				this.delta.put(attributeName, DeltaValue.UPDATED);
 			}
 			else {

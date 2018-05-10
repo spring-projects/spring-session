@@ -339,6 +339,23 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	public void saveUpdatedAddSingleAttributeSetTwice() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName", "testValue");
+		session.setAttribute("testName", "testValue");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
 	public void saveUpdatedAddMultipleAttributes() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
 				new MapSession());
