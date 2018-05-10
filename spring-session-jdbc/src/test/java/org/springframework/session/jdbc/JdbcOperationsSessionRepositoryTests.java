@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -362,7 +363,7 @@ public class JdbcOperationsSessionRepositoryTests {
 				new MapSession());
 		session.setAttribute("testName", "testValue");
 		session.clearChangeFlags();
-		session.setAttribute("testName", "testValue");
+		session.setAttribute("testName", "testValueModified");
 
 		this.repository.save(session);
 
@@ -375,7 +376,45 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	public void saveUpdatedNotModifySingleAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName", "testValue");
+		session.clearChangeFlags();
+		session.setAttribute("testName", "testValue");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, never()).update(
+				startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
 	public void saveUpdatedModifyMultipleAttributes() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName1", "testValue1");
+		session.setAttribute("testName2", "testValue2");
+		session.clearChangeFlags();
+		session.setAttribute("testName1", "testValue1Modified");
+		session.setAttribute("testName2", "testValue2Modified");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).batchUpdate(
+				startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+				isA(BatchPreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedNotModifyMultipleAttributes() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
 				new MapSession());
 		session.setAttribute("testName1", "testValue1");
@@ -388,7 +427,7 @@ public class JdbcOperationsSessionRepositoryTests {
 
 		assertThat(session.isNew()).isFalse();
 		assertPropagationRequiresNew();
-		verify(this.jdbcOperations, times(1)).batchUpdate(
+		verify(this.jdbcOperations, never()).batchUpdate(
 				startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
 				isA(BatchPreparedStatementSetter.class));
 		verifyZeroInteractions(this.jdbcOperations);
