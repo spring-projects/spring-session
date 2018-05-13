@@ -468,6 +468,25 @@ public class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	public void saveUpdatedRemoveThenModifySingleAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName", "testValue");
+		session.clearChangeFlags();
+		session.removeAttribute("testName");
+		session.setAttribute("testName", "testValueModifed");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
 	public void saveUpdatedLastAccessedTime() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
 				new MapSession());
