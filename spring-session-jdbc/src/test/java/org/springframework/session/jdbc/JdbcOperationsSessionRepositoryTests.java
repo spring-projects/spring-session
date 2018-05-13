@@ -43,12 +43,14 @@ import org.springframework.transaction.TransactionDefinition;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -445,6 +447,23 @@ public class JdbcOperationsSessionRepositoryTests {
 		verify(this.jdbcOperations, times(1)).batchUpdate(
 				startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
 				isA(BatchPreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	public void saveUpdatedAddThenRemoveSingleAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession("primaryKey",
+				new MapSession());
+		session.setAttribute("testName", "testValue");
+		session.removeAttribute("testName");
+
+		this.repository.save(session);
+
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations, never()).update(
+				anyString(),
+				isA(PreparedStatementSetter.class));
 		verifyZeroInteractions(this.jdbcOperations);
 	}
 
