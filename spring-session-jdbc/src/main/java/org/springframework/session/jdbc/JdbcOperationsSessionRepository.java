@@ -733,13 +733,23 @@ public class JdbcOperationsSessionRepository implements
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			if (attributeValue == null) {
-				this.delta.put(attributeName, DeltaValue.REMOVED);
+				if (this.delta.get(attributeName) == DeltaValue.ADDED) {
+					this.delta.remove(attributeName);
+				}
+				else {
+					this.delta.put(attributeName, DeltaValue.REMOVED);
+				}
 			}
-			else if (this.delegate.getAttribute(attributeName) != null) {
+			else if (this.delta.get(attributeName) != DeltaValue.ADDED && this.delegate.getAttribute(attributeName) != null) {
 				this.delta.put(attributeName, DeltaValue.UPDATED);
 			}
 			else {
-				this.delta.put(attributeName, DeltaValue.ADDED);
+				if (this.delta.get(attributeName) == DeltaValue.REMOVED) {
+					this.delta.put(attributeName, DeltaValue.UPDATED);
+				}
+				else {
+					this.delta.put(attributeName, DeltaValue.ADDED);
+				}
 			}
 			this.delegate.setAttribute(attributeName, attributeValue);
 			if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) ||
