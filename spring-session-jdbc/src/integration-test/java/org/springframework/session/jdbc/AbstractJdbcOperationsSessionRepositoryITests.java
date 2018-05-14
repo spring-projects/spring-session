@@ -689,6 +689,60 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(this.repository.findById(originalId)).isNull();
 	}
 
+	@Test // gh-1070
+	public void saveUpdatedAddAndModifyAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+		session.setAttribute("testName", "testValue1");
+		session.setAttribute("testName", "testValue2");
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+
+		assertThat(session.<String>getAttribute("testName")).isEqualTo("testValue2");
+	}
+
+	@Test // gh-1070
+	public void saveUpdatedAddAndRemoveAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+		session.setAttribute("testName", "testValue");
+		session.removeAttribute("testName");
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+
+		assertThat(session.<String>getAttribute("testName")).isNull();
+	}
+
+	@Test // gh-1070
+	public void saveUpdatedModifyAndRemoveAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		session.setAttribute("testName", "testValue1");
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+		session.setAttribute("testName", "testValue2");
+		session.removeAttribute("testName");
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+
+		assertThat(session.<String>getAttribute("testName")).isNull();
+	}
+
+	@Test // gh-1070
+	public void saveUpdatedRemoveAndAddAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		session.setAttribute("testName", "testValue1");
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+		session.removeAttribute("testName");
+		session.setAttribute("testName", "testValue2");
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+
+		assertThat(session.<String>getAttribute("testName")).isEqualTo("testValue2");
+	}
+
 	private String getSecurityName() {
 		return this.context.getAuthentication().getName();
 	}

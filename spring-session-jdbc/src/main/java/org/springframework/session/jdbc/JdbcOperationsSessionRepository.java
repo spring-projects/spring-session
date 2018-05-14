@@ -732,24 +732,30 @@ public class JdbcOperationsSessionRepository implements
 
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
-			if (attributeValue == null) {
-				if (this.delta.get(attributeName) == DeltaValue.ADDED) {
-					this.delta.remove(attributeName);
+			boolean attributeExists = (this.delegate.getAttribute(attributeName) != null);
+			boolean attributeRemoved = (attributeValue == null);
+			if (!attributeExists && attributeRemoved) {
+				return;
+			}
+			if (attributeExists) {
+				if (attributeRemoved) {
+					this.delta.merge(attributeName, DeltaValue.REMOVED,
+							(oldDeltaValue, deltaValue) -> oldDeltaValue == DeltaValue.ADDED
+									? null
+									: deltaValue);
 				}
 				else {
-					this.delta.put(attributeName, DeltaValue.REMOVED);
+					this.delta.merge(attributeName, DeltaValue.UPDATED,
+							(oldDeltaValue, deltaValue) -> oldDeltaValue == DeltaValue.ADDED
+									? oldDeltaValue
+									: deltaValue);
 				}
-			}
-			else if (this.delta.get(attributeName) != DeltaValue.ADDED && this.delegate.getAttribute(attributeName) != null) {
-				this.delta.put(attributeName, DeltaValue.UPDATED);
 			}
 			else {
-				if (this.delta.get(attributeName) == DeltaValue.REMOVED) {
-					this.delta.put(attributeName, DeltaValue.UPDATED);
-				}
-				else {
-					this.delta.put(attributeName, DeltaValue.ADDED);
-				}
+				this.delta.merge(attributeName, DeltaValue.ADDED,
+						(oldDeltaValue, deltaValue) -> oldDeltaValue == DeltaValue.ADDED
+								? oldDeltaValue
+								: DeltaValue.UPDATED);
 			}
 			this.delegate.setAttribute(attributeName, attributeValue);
 			if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) ||
