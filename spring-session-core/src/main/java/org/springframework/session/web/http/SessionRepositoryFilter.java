@@ -230,7 +230,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 			else {
 				S session = wrappedSession.getSession();
-				saveSession(session);
+				clearRequestedSessionCache();
+				SessionRepositoryFilter.this.sessionRepository.save(session);
 				String sessionId = session.getId();
 				if (!isRequestedSessionIdValid()
 						|| !sessionId.equals(getRequestedSessionId())) {
@@ -371,10 +372,9 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			return this.requestedSession;
 		}
 
-		private void saveSession(S session) {
+		private void clearRequestedSessionCache() {
 			this.requestedSessionCached = false;
 			this.requestedSession = null;
-			SessionRepositoryFilter.this.sessionRepository.save(session);
 		}
 
 		/**
@@ -394,6 +394,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				super.invalidate();
 				SessionRepositoryRequestWrapper.this.requestedSessionInvalidated = true;
 				setCurrentSession(null);
+				clearRequestedSessionCache();
 				SessionRepositoryFilter.this.sessionRepository.deleteById(getId());
 			}
 		}

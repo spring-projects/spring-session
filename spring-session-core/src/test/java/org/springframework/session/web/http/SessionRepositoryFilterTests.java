@@ -67,6 +67,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -1332,6 +1333,32 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
+		verifyZeroInteractions(sessionRepository);
+	}
+
+	@Test
+	public void doFilterSessionRetrievalIsCached() throws Exception {
+		MapSession session = this.sessionRepository.createSession();
+		this.sessionRepository.save(session);
+		SessionRepository<MapSession> sessionRepository = spy(this.sessionRepository);
+		setSessionCookie(session.getId());
+
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest,
+					HttpServletResponse wrappedResponse) {
+				wrappedRequest.getSession().invalidate();
+				wrappedRequest.getSession();
+			}
+		});
+
+		// 3 invocations expected: initial resolution, after invalidation, after commit
+		verify(sessionRepository, times(3)).findById(eq(session.getId()));
+		verify(sessionRepository).deleteById(eq(session.getId()));
+		verify(sessionRepository).createSession();
+		verify(sessionRepository).save(any());
 		verifyZeroInteractions(sessionRepository);
 	}
 
