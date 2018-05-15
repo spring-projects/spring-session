@@ -399,6 +399,9 @@ public class HazelcastSessionRepository implements
 
 		public Object process(Map.Entry<String, MapSession> entry) {
 			MapSession value = entry.getValue();
+			if (value == null) {
+				return Boolean.FALSE;
+			}
 			value.setLastAccessedTime(this.lastAccessedTime);
 			value.setMaxInactiveIntervalInSeconds(this.maxInactiveIntervalInSeconds);
 			for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
@@ -410,7 +413,7 @@ public class HazelcastSessionRepository implements
 				}
 			}
 			entry.setValue(value);
-			return value;
+			return Boolean.TRUE;
 		}
 
 	}
