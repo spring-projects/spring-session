@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,4 +153,18 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 		this.repository.deleteById(toSave.getId());
 	}
+
+	@Test // gh-1076
+	public void attemptToUpdateSessionAfterDelete() {
+		HazelcastSession session = this.repository.createSession();
+		String sessionId = session.getId();
+		this.repository.save(session);
+		session = this.repository.findById(sessionId);
+		session.setAttribute("attributeName", "attributeValue");
+		this.repository.deleteById(sessionId);
+		this.repository.save(session);
+
+		assertThat(this.repository.findById(sessionId)).isNull();
+	}
+
 }
