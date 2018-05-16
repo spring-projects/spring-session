@@ -205,12 +205,20 @@ public class HazelcastSessionRepository implements
 			this.sessions.set(session.getId(), session.getDelegate(),
 					session.getMaxInactiveIntervalInSeconds(), TimeUnit.SECONDS);
 		}
-		else if (session.changed) {
-			this.sessions.executeOnKey(session.getId(),
-					new SessionUpdateEntryProcessor(session.getLastAccessedTime(),
-							session.getMaxInactiveIntervalInSeconds(), session.delta));
+		else if (session.hasChanges()) {
+			SessionUpdateEntryProcessor entryProcessor = new SessionUpdateEntryProcessor();
+			if (session.lastAccessedTimeChanged) {
+				entryProcessor.setLastAccessedTime(session.getLastAccessedTime());
+			}
+			if (session.maxInactiveIntervalChanged) {
+				entryProcessor.setMaxInactiveInterval(session.getMaxInactiveIntervalInSeconds());
+			}
+			if (!session.delta.isEmpty()) {
+				entryProcessor.setDelta(session.delta);
+			}
+			this.sessions.executeOnKey(session.getId(), entryProcessor);
 		}
-		session.clearFlags();
+		session.clearChangeFlags();
 	}
 
 	public HazelcastSession getSession(String id) {
@@ -279,7 +287,11 @@ public class HazelcastSessionRepository implements
 
 		private boolean isNew;
 
-		private boolean changed;
+		private boolean sessionIdChanged;
+
+		private boolean lastAccessedTimeChanged;
+
+		private boolean maxInactiveIntervalChanged;
 
 		private Map<String, Object> delta = new HashMap<String, Object>();
 
@@ -305,7 +317,7 @@ public class HazelcastSessionRepository implements
 
 		public void setLastAccessedTime(long lastAccessedTime) {
 			this.delegate.setLastAccessedTime(lastAccessedTime);
-			this.changed = true;
+			this.lastAccessedTimeChanged = true;
 			flushImmediateIfNecessary();
 		}
 
@@ -327,7 +339,7 @@ public class HazelcastSessionRepository implements
 
 		public void setMaxInactiveIntervalInSeconds(int interval) {
 			this.delegate.setMaxInactiveIntervalInSeconds(interval);
-			this.changed = true;
+			this.maxInactiveIntervalChanged = true;
 			flushImmediateIfNecessary();
 		}
 
@@ -346,14 +358,12 @@ public class HazelcastSessionRepository implements
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.delegate.setAttribute(attributeName, attributeValue);
 			this.delta.put(attributeName, attributeValue);
-			this.changed = true;
 			flushImmediateIfNecessary();
 		}
 
 		public void removeAttribute(String attributeName) {
 			this.delegate.removeAttribute(attributeName);
 			this.delta.put(attributeName, null);
-			this.changed = true;
 			flushImmediateIfNecessary();
 		}
 
@@ -361,9 +371,16 @@ public class HazelcastSessionRepository implements
 			return this.delegate;
 		}
 
-		void clearFlags() {
+		boolean hasChanges() {
+			return (this.lastAccessedTimeChanged || this.maxInactiveIntervalChanged
+					|| !this.delta.isEmpty());
+		}
+
+		void clearChangeFlags() {
 			this.isNew = false;
-			this.changed = false;
+			this.lastAccessedTimeChanged = false;
+			this.sessionIdChanged = false;
+			this.maxInactiveIntervalChanged = false;
 			this.delta.clear();
 		}
 
@@ -384,36 +401,47 @@ public class HazelcastSessionRepository implements
 	private static final class SessionUpdateEntryProcessor
 			extends AbstractEntryProcessor<String, MapSession> {
 
-		private final long lastAccessedTime;
+		private long lastAccessedTime;
 
-		private final int maxInactiveIntervalInSeconds;
+		private int maxInactiveInterval;
 
-		private final Map<String, Object> delta;
-
-		SessionUpdateEntryProcessor(long lastAccessedTime,
-				int maxInactiveIntervalInSeconds, Map<String, Object> delta) {
-			this.lastAccessedTime = lastAccessedTime;
-			this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
-			this.delta = delta;
-		}
+		private Map<String, Object> delta;
 
 		public Object process(Map.Entry<String, MapSession> entry) {
 			MapSession value = entry.getValue();
 			if (value == null) {
 				return Boolean.FALSE;
 			}
-			value.setLastAccessedTime(this.lastAccessedTime);
-			value.setMaxInactiveIntervalInSeconds(this.maxInactiveIntervalInSeconds);
-			for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
-				if (attribute.getValue() != null) {
-					value.setAttribute(attribute.getKey(), attribute.getValue());
-				}
-				else {
-					value.removeAttribute(attribute.getKey());
+			if (this.lastAccessedTime > 0) {
+				value.setLastAccessedTime(this.lastAccessedTime);
+			}
+			if (this.maxInactiveInterval > 0) {
+				value.setMaxInactiveIntervalInSeconds(this.maxInactiveInterval);
+			}
+			if (this.delta != null) {
+				for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
+					if (attribute.getValue() != null) {
+						value.setAttribute(attribute.getKey(), attribute.getValue());
+					}
+					else {
+						value.removeAttribute(attribute.getKey());
+					}
 				}
 			}
 			entry.setValue(value);
 			return Boolean.TRUE;
+		}
+
+		public void setLastAccessedTime(long lastAccessedTime) {
+			this.lastAccessedTime = lastAccessedTime;
+		}
+
+		public void setMaxInactiveInterval(int maxInactiveInterval) {
+			this.maxInactiveInterval = maxInactiveInterval;
+		}
+
+		public void setDelta(Map<String, Object> delta) {
+			this.delta = delta;
 		}
 
 	}
