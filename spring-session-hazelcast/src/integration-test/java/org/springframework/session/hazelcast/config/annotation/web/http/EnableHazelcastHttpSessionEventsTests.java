@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * expected after each SessionEvent.
  *
  * @author Tommy Ludwig
+ * @author Vedran Pavic
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration
@@ -166,6 +167,24 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		}
 
 		assertThat(this.repository.findById(sessionToUpdate.getId())).isNotNull();
+	}
+
+	@Test // gh-1077
+	public void changeSessionIdNoEventTest() throws InterruptedException {
+		S sessionToSave = this.repository.createSession();
+		sessionToSave.setMaxInactiveInterval(Duration.ofMinutes(30));
+
+		this.repository.save(sessionToSave);
+
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.<SessionCreatedEvent>getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionCreatedEvent.class);
+		this.registry.clear();
+
+		sessionToSave.changeSessionId();
+		this.repository.save(sessionToSave);
+
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isFalse();
 	}
 
 	@Configuration

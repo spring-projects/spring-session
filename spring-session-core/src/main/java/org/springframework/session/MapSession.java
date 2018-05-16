@@ -122,7 +122,12 @@ public final class MapSession implements Session, Serializable {
 		return this.id;
 	}
 
-	String getOriginalId() {
+	/**
+	 * Get the original session id.
+	 * @return the original session id
+	 * @see #changeSessionId()
+	 */
+	public String getOriginalId() {
 		return this.originalId;
 	}
 
