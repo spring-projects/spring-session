@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,7 +40,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private Boolean useSecureCookie;
 
-	private boolean useHttpOnlyCookie = isServlet3();
+	private boolean useHttpOnlyCookie = true;
 
 	private String cookiePath;
 
@@ -168,16 +167,11 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/**
-	 * Sets if a Cookie marked as HTTP Only should be used. The default is true in Servlet
-	 * 3+ environments, else false.
+	 * Sets if a Cookie marked as HTTP Only should be used. The default is true.
 	 *
 	 * @param useHttpOnlyCookie determines if the cookie should be marked as HTTP Only.
 	 */
 	public void setUseHttpOnlyCookie(boolean useHttpOnlyCookie) {
-		if (useHttpOnlyCookie && !isServlet3()) {
-			throw new IllegalArgumentException(
-					"You cannot set useHttpOnlyCookie to true in pre Servlet 3 environment");
-		}
 		this.useHttpOnlyCookie = useHttpOnlyCookie;
 	}
 
@@ -335,21 +329,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			return request.getContextPath() + "/";
 		}
 		return this.cookiePath;
-	}
-
-	/**
-	 * Returns true if the Servlet 3 APIs are detected.
-	 *
-	 * @return whether the Servlet 3 APIs are detected
-	 */
-	private boolean isServlet3() {
-		try {
-			ServletRequest.class.getMethod("startAsync");
-			return true;
-		}
-		catch (NoSuchMethodException e) {
-		}
-		return false;
 	}
 
 }
