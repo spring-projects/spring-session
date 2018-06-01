@@ -19,9 +19,7 @@ package sample;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
@@ -34,10 +32,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.util.TestPropertyValues;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
@@ -49,25 +46,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Vedran Pavic
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.MOCK)
+@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ContextConfiguration(initializers = HttpRedisJsonTest.Initializer.class)
 public class HttpRedisJsonTest {
 
 	private static final String DOCKER_IMAGE = "redis:4.0.9";
-
-	private static GenericContainer container = new GenericContainer(DOCKER_IMAGE)
-			.withExposedPorts(6379);
-
-	@BeforeClass
-	public static void setUpClass() {
-		container.start();
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		container.stop();
-	}
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -120,16 +103,21 @@ public class HttpRedisJsonTest {
 		assertThat(attributes).extracting("attributeValue").contains("Demo Value");
 	}
 
-	static class Initializer
-			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+	@TestConfiguration
+	static class Config {
 
-		@Override
-		public void initialize(
-				ConfigurableApplicationContext configurableApplicationContext) {
-			TestPropertyValues
-					.of("spring.redis.host=" + container.getContainerIpAddress(),
-							"spring.redis.port=" + container.getFirstMappedPort())
-					.applyTo(configurableApplicationContext.getEnvironment());
+		@Bean
+		public GenericContainer redisContainer() {
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+					.withExposedPorts(6379);
+			redisContainer.start();
+			return redisContainer;
+		}
+
+		@Bean
+		public LettuceConnectionFactory redisConnectionFactory() {
+			return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
+					redisContainer().getFirstMappedPort());
 		}
 
 	}

@@ -28,11 +28,14 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Profile("embedded-redis")
 public class EmbeddedRedisConfig {
 
-	private static final String REDIS_DOCKER_IMAGE = "redis:4.0.9";
+	private static final String DOCKER_IMAGE = "redis:4.0.9";
 
-	@Bean(initMethod = "start")
+	@Bean
 	public GenericContainer redisContainer() {
-		return new GenericContainer(REDIS_DOCKER_IMAGE).withExposedPorts(6379);
+		GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+				.withExposedPorts(6379);
+		redisContainer.start();
+		return redisContainer;
 	}
 
 	@Bean

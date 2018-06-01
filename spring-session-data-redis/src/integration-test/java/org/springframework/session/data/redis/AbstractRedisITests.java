@@ -16,8 +16,6 @@
 
 package org.springframework.session.data.redis;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.testcontainers.containers.GenericContainer;
 
 import org.springframework.context.annotation.Bean;
@@ -33,25 +31,21 @@ public abstract class AbstractRedisITests {
 
 	private static final String DOCKER_IMAGE = "redis:4.0.9";
 
-	private static GenericContainer container = new GenericContainer(DOCKER_IMAGE)
-			.withExposedPorts(6379);
-
-	@BeforeClass
-	public static void setUpClass() {
-		container.start();
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		container.stop();
-	}
-
 	protected static class BaseConfig {
+
+		@Bean
+		public GenericContainer redisContainer() {
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+					.withExposedPorts(6379);
+			redisContainer.start();
+			return redisContainer;
+		}
 
 		@Bean
 		public LettuceConnectionFactory redisConnectionFactory() {
 			RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(
-					container.getContainerIpAddress(), container.getFirstMappedPort());
+					redisContainer().getContainerIpAddress(),
+					redisContainer().getFirstMappedPort());
 			return new LettuceConnectionFactory(configuration);
 		}
 

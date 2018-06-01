@@ -16,9 +16,7 @@
 
 package rest;
 
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.GenericContainer;
@@ -58,19 +56,6 @@ public class RestMockMvcTests {
 
 	private static final String DOCKER_IMAGE = "redis:4.0.9";
 
-	private static GenericContainer container = new GenericContainer(DOCKER_IMAGE)
-			.withExposedPorts(6379);
-
-	@BeforeClass
-	public static void setUpClass() {
-		container.start();
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		container.stop();
-	}
-
 	@Autowired
 	private SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;
 
@@ -108,9 +93,17 @@ public class RestMockMvcTests {
 	static class Config {
 
 		@Bean
+		public GenericContainer redisContainer() {
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+					.withExposedPorts(6379);
+			redisContainer.start();
+			return redisContainer;
+		}
+
+		@Bean
 		public LettuceConnectionFactory redisConnectionFactory() {
-			return new LettuceConnectionFactory(container.getContainerIpAddress(),
-					container.getFirstMappedPort());
+			return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
+					redisContainer().getFirstMappedPort());
 		}
 
 		@Bean

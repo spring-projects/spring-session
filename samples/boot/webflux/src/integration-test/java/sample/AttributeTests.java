@@ -19,9 +19,7 @@ package sample;
 import java.util.List;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
@@ -32,11 +30,10 @@ import sample.pages.HomePage.Attribute;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,26 +41,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Eddú Meléndez
  * @author Rob Winch
+ * @author Vedran Pavic
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = HelloWebFluxApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = AttributeTests.Initializer.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class AttributeTests {
 
 	private static final String DOCKER_IMAGE = "redis:4.0.9";
-
-	private static GenericContainer container = new GenericContainer(DOCKER_IMAGE)
-			.withExposedPorts(6379);
-
-	@BeforeClass
-	public static void setUpClass() {
-		container.start();
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		container.stop();
-	}
 
 	@LocalServerPort
 	private int port;
@@ -109,16 +93,21 @@ public class AttributeTests {
 		assertThat(row.getAttributeValue()).isEqualTo("b");
 	}
 
-	static class Initializer
-			implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+	@TestConfiguration
+	static class Config {
 
-		@Override
-		public void initialize(
-				ConfigurableApplicationContext configurableApplicationContext) {
-			TestPropertyValues
-					.of("spring.redis.host=" + container.getContainerIpAddress(),
-							"spring.redis.port=" + container.getFirstMappedPort())
-					.applyTo(configurableApplicationContext.getEnvironment());
+		@Bean
+		public GenericContainer redisContainer() {
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
+					.withExposedPorts(6379);
+			redisContainer.start();
+			return redisContainer;
+		}
+
+		@Bean
+		public LettuceConnectionFactory redisConnectionFactory() {
+			return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
+					redisContainer().getFirstMappedPort());
 		}
 
 	}
