@@ -18,6 +18,7 @@ package org.springframework.session.jdbc;
 
 import javax.sql.DataSource;
 
+import com.mysql.cj.jdbc.Driver;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -92,6 +93,11 @@ public class MySql5JdbcOperationsSessionRepositoryITests
 			super.configure();
 			setCommand("mysqld", "--character-set-server=utf8mb4",
 					"--collation-server=utf8mb4_unicode_ci");
+		}
+
+		@Override
+		public String getDriverClassName() {
+			return Driver.class.getName();
 		}
 
 	}

@@ -18,10 +18,10 @@ package org.springframework.session.jdbc;
 
 import javax.sql.DataSource;
 
+import com.mysql.cj.jdbc.Driver;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.MySQLContainer;
 
@@ -39,7 +39,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
  *
  * @author Vedran Pavic
  */
-@Ignore
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
@@ -92,8 +91,12 @@ public class MySql8JdbcOperationsSessionRepositoryITests
 		@Override
 		protected void configure() {
 			super.configure();
-			setCommand("mysqld", "--character-set-server=utf8mb4",
-					"--collation-server=utf8mb4_unicode_ci");
+			setCommand("mysqld", "--default-authentication-plugin=mysql_native_password");
+		}
+
+		@Override
+		public String getDriverClassName() {
+			return Driver.class.getName();
 		}
 
 	}

@@ -5,7 +5,7 @@ dependencyManagement {
 		mavenBom 'org.springframework:spring-framework-bom:5.0.6.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Kay-SR7'
 		mavenBom 'org.springframework.security:spring-security-bom:5.0.5.RELEASE'
-		mavenBom 'org.testcontainers:testcontainers-bom:1.7.2'
+		mavenBom 'org.testcontainers:testcontainers-bom:1.7.3'
 	}
 
 	dependencies {
@@ -23,8 +23,8 @@ dependencyManagement {
 		dependency 'mysql:mysql-connector-java:8.0.11'
 		dependency 'org.apache.derby:derby:10.14.2.0'
 		dependency 'org.assertj:assertj-core:3.9.1'
-		dependency 'org.hsqldb:hsqldb:2.4.0'
-		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.3'
+		dependency 'org.hsqldb:hsqldb:2.4.1'
+		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.5'
 		dependency 'org.mockito:mockito-core:2.18.3'
 		dependency 'org.postgresql:postgresql:42.2.2'
 	}

@@ -86,7 +86,7 @@ public class PostgreSql10JdbcOperationsSessionRepositoryITests
 			extends PostgreSQLContainer<PostgreSql10Container> {
 
 		PostgreSql10Container() {
-			super("postgres:10.3");
+			super("postgres:10.4");
 		}
 
 	}
