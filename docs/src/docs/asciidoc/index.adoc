@@ -147,11 +147,12 @@ As a part of this split, the Spring Session Data MongoDB and Spring Session Data
 * https://github.com/spring-projects/spring-session-data-mongodb[`spring-session-data-mongodb` repository]
 ** Hosts Spring Session Data MongoDB module
 * https://github.com/spring-projects/spring-session-data-geode[`spring-session-data-geode` repository]
-** Hosts Spring Session Data Geode/GemFire module
+** Hosts Spring Session Data Geode and Spring Session Data Geode modules
 
-Going forward, the plan is to externalize each of the `SessionRepository` implementations into a dedicated repository and provide a Maven BOM (as in "bill of materials") module in order to help users with version management concerns.
+Finally, Spring Session now also provides a Maven BOM (as in "bill of materials") module in order to help users with version management concerns:
 
-Modules maintained by the members of Spring Team will be hosted within the https://github.com/spring-projects[`spring-projects` organization], while the community maintained modules will continue to be promoted via <<community-extensions,Community Extensions>> section of this manual.
+* https://github.com/spring-projects/spring-session-bom[`spring-session-bom` repository]
+** Hosts Spring Session BOM module
 
 [[httpsession]]
 == HttpSession Integration
