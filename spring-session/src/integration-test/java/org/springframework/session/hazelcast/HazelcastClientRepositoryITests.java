@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,12 +49,12 @@ public class HazelcastClientRepositoryITests extends AbstractHazelcastRepository
 	private static HazelcastInstance hazelcastInstance;
 
 	@BeforeClass
-	public static void setup() {
+	public static void setUpClass() {
 		hazelcastInstance = HazelcastITestUtils.embeddedHazelcastServer(PORT);
 	}
 
 	@AfterClass
-	public static void teardown() {
+	public static void tearDownClass() {
 		if (hazelcastInstance != null) {
 			hazelcastInstance.shutdown();
 		}
@@ -65,7 +65,7 @@ public class HazelcastClientRepositoryITests extends AbstractHazelcastRepository
 	static class HazelcastSessionConfig {
 
 		@Bean
-		public HazelcastInstance embeddedHazelcastClient() {
+		public HazelcastInstance hazelcastInstance() {
 			ClientConfig clientConfig = new ClientConfig();
 			clientConfig.getNetworkConfig().addAddress("127.0.0.1:" + PORT);
 			return HazelcastClient.newHazelcastClient(clientConfig);
