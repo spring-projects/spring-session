@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <hazelcast xmlns="http://www.hazelcast.com/schema/config"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.8.xsd">
+		xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.9.xsd">
 
 	<group>
 		<name>spring-session-it-test-idle-time-map-name</name>
@@ -14,16 +14,7 @@
 			<ports>0</ports>
 		</outbound-ports>
 		<join>
-			<multicast enabled="false">
-			</multicast>
-			<tcp-ip enabled="true">
-				<interface>127.0.0.1</interface>
-				<member-list>
-					<member>127.0.0.1</member>
-				</member-list>
-			</tcp-ip>
-			<aws enabled="false">
-			</aws>
+			<multicast enabled="false"/>
 		</join>
 	</network>
 
