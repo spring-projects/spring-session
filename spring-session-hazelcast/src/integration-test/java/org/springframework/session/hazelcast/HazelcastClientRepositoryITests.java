@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +22,17 @@ import com.hazelcast.core.HazelcastInstance;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
+import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.GenericContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.SocketUtils;
 
 /**
  * Integration tests that check the underlying data source - in this case Hazelcast
@@ -44,20 +47,23 @@ import org.springframework.util.SocketUtils;
 @WebAppConfiguration
 public class HazelcastClientRepositoryITests extends AbstractHazelcastRepositoryITests {
 
-	private static final int PORT = SocketUtils.findAvailableTcpPort();
-
-	private static HazelcastInstance hazelcastInstance;
+	private static GenericContainer container = new GenericContainer<>(
+			"hazelcast/hazelcast:3.9.4")
+					.withExposedPorts(5701)
+					.withEnv("JAVA_OPTS",
+							"-Dhazelcast.config=/opt/hazelcast/config_ext/hazelcast.xml")
+					.withClasspathResourceMapping("/hazelcast-server.xml",
+							"/opt/hazelcast/config_ext/hazelcast.xml",
+							BindMode.READ_ONLY);
 
 	@BeforeClass
-	public static void setup() {
-		hazelcastInstance = HazelcastITestUtils.embeddedHazelcastServer(PORT);
+	public static void setUpClass() {
+		container.start();
 	}
 
 	@AfterClass
-	public static void teardown() {
-		if (hazelcastInstance != null) {
-			hazelcastInstance.shutdown();
-		}
+	public static void tearDownClass() {
+		container.stop();
 	}
 
 	@Configuration
@@ -65,9 +71,13 @@ public class HazelcastClientRepositoryITests extends AbstractHazelcastRepository
 	static class HazelcastSessionConfig {
 
 		@Bean
-		public HazelcastInstance embeddedHazelcastClient() {
+		public HazelcastInstance hazelcastInstance() {
 			ClientConfig clientConfig = new ClientConfig();
-			clientConfig.getNetworkConfig().addAddress("127.0.0.1:" + PORT);
+			clientConfig.getNetworkConfig().addAddress(container.getContainerIpAddress()
+					+ ":" + container.getFirstMappedPort());
+			clientConfig.getUserCodeDeploymentConfig().setEnabled(true)
+					.addClass(Session.class).addClass(MapSession.class)
+					.addClass(SessionUpdateEntryProcessor.class);
 			return HazelcastClient.newHazelcastClient(clientConfig);
 		}
 

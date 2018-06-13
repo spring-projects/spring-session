@@ -10,4 +10,5 @@ dependencies {
 	testCompile "org.springframework.security:spring-security-core"
 
 	integrationTestCompile "com.hazelcast:hazelcast-client"
+	integrationTestCompile "org.testcontainers:testcontainers"
 }

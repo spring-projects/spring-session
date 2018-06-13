@@ -31,8 +31,6 @@ import javax.annotation.PreDestroy;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.AbstractEntryProcessor;
-import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
@@ -448,61 +446,6 @@ public class HazelcastSessionRepository implements
 			if (HazelcastSessionRepository.this.hazelcastFlushMode == HazelcastFlushMode.IMMEDIATE) {
 				HazelcastSessionRepository.this.save(this);
 			}
-		}
-
-	}
-
-	/**
-	 * Hazelcast {@link EntryProcessor} responsible for handling updates to session.
-	 *
-	 * @since 2.0.0
-	 * @see #save(HazelcastSession)
-	 */
-	private static final class SessionUpdateEntryProcessor
-			extends AbstractEntryProcessor<String, MapSession> {
-
-		private Instant lastAccessedTime;
-
-		private Duration maxInactiveInterval;
-
-		private Map<String, Object> delta;
-
-		@Override
-		public Object process(Map.Entry<String, MapSession> entry) {
-			MapSession value = entry.getValue();
-			if (value == null) {
-				return Boolean.FALSE;
-			}
-			if (this.lastAccessedTime != null) {
-				value.setLastAccessedTime(this.lastAccessedTime);
-			}
-			if (this.maxInactiveInterval != null) {
-				value.setMaxInactiveInterval(this.maxInactiveInterval);
-			}
-			if (this.delta != null) {
-				for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
-					if (attribute.getValue() != null) {
-						value.setAttribute(attribute.getKey(), attribute.getValue());
-					}
-					else {
-						value.removeAttribute(attribute.getKey());
-					}
-				}
-			}
-			entry.setValue(value);
-			return Boolean.TRUE;
-		}
-
-		public void setLastAccessedTime(Instant lastAccessedTime) {
-			this.lastAccessedTime = lastAccessedTime;
-		}
-
-		public void setMaxInactiveInterval(Duration maxInactiveInterval) {
-			this.maxInactiveInterval = maxInactiveInterval;
-		}
-
-		public void setDelta(Map<String, Object> delta) {
-			this.delta = delta;
 		}
 
 	}
