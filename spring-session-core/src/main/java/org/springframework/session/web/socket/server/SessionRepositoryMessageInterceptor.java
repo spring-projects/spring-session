@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.ChannelInterceptor;
-import org.springframework.messaging.support.ChannelInterceptorAdapter;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.Assert;
@@ -63,7 +62,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  * @since 1.0
  */
 public final class SessionRepositoryMessageInterceptor<S extends Session>
-		extends ChannelInterceptorAdapter implements HandshakeInterceptor {
+		implements ChannelInterceptor, HandshakeInterceptor {
 
 	private static final String SPRING_SESSION_ID_ATTR_NAME = "SPRING.SESSION.ID";
 
@@ -114,7 +113,7 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 		SimpMessageType messageType = SimpMessageHeaderAccessor
 				.getMessageType(message.getHeaders());
 		if (!this.matchingMessageTypes.contains(messageType)) {
-			return super.preSend(message, channel);
+			return message;
 		}
 		Map<String, Object> sessionHeaders = SimpMessageHeaderAccessor
 				.getSessionAttributes(message.getHeaders());
@@ -128,7 +127,7 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 				this.sessionRepository.save(session);
 			}
 		}
-		return super.preSend(message, channel);
+		return message;
 	}
 
 	@Override
