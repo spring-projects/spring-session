@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.session.hazelcast;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapAttributeConfig;
 import com.hazelcast.config.MapIndexConfig;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -46,8 +47,12 @@ public final class HazelcastITestUtils {
 
 		Config config = new Config();
 
-		config.getNetworkConfig()
-				.setPort(port);
+		NetworkConfig networkConfig = config.getNetworkConfig();
+
+		networkConfig.setPort(port);
+
+		networkConfig.getJoin()
+				.getMulticastConfig().setEnabled(false);
 
 		config.getMapConfig("spring:session:sessions")
 				.addMapAttributeConfig(attributeConfig)

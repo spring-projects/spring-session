@@ -4,7 +4,7 @@
 		xsi:schemaLocation="http://www.hazelcast.com/schema/config hazelcast-config-3.6.xsd">
 
 	<group>
-		<name>spring-session-it-test-idle-time-map-name</name>
+		<name>spring-session-it-test-map-name</name>
 		<password>test-pass</password>
 	</group>
 
@@ -14,25 +14,16 @@
 			<ports>0</ports>
 		</outbound-ports>
 		<join>
-			<multicast enabled="false">
-			</multicast>
-			<tcp-ip enabled="true">
-				<interface>127.0.0.1</interface>
-				<member-list>
-					<member>127.0.0.1</member>
-				</member-list>
-			</tcp-ip>
-			<aws enabled="false">
-			</aws>
+			<multicast enabled="false"/>
 		</join>
 	</network>
 
-	<map name="test-sessions">
+	<map name="my-sessions">
 		<in-memory-format>BINARY</in-memory-format>
 		<backup-count>1</backup-count>
 		<async-backup-count>0</async-backup-count>
 		<time-to-live-seconds>0</time-to-live-seconds>
-		<max-idle-seconds>300</max-idle-seconds>
+		<max-idle-seconds>0</max-idle-seconds>
 		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy</merge-policy>
 		<attributes>
 			<attribute extractor="org.springframework.session.hazelcast.PrincipalNameExtractor">principalName</attribute>
