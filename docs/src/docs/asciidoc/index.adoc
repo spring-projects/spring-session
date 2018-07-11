@@ -1200,7 +1200,7 @@ Note that these two have moved to separate repositories, and will continue to be
 === Dropped Support
 
 As a part of the changes to `HttpSessionStrategy` and it's alignment to the counterpart from the reactive world, the support for managing multiple users' sessions in a single browser instance has been removed.
-This introduction of new API to replace this functionality in consideration for future releases.
+The introduction of a new API to replace this functionality is under consideration for future releases.
 
 [[community]]
 == Spring Session Community
