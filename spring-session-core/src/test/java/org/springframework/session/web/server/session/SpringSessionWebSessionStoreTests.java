@@ -291,4 +291,21 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 				.hasMessage("clock cannot be null");
 	}
 
+	@Test // gh-1114
+	public void createSessionThenSessionIsNotExpired() {
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
+
+		assertThat(createdWebSession.isExpired()).isFalse();
+	}
+
+	@Test // gh-1114
+	public void invalidateSessionThenSessionIsExpired() {
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
+		given(createdWebSession.invalidate()).willReturn(Mono.empty());
+
+		createdWebSession.invalidate().block();
+
+		assertThat(createdWebSession.isExpired()).isTrue();
+	}
+
 }

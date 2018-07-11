@@ -164,6 +164,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 
 		@Override
 		public Mono<Void> invalidate() {
+			this.state.set(State.EXPIRED);
 			return SpringSessionWebSessionStore.this.sessions.deleteById(this.session.getId());
 		}
 
@@ -174,7 +175,14 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 
 		@Override
 		public boolean isExpired() {
-			return this.session.isExpired();
+			if (this.state.get().equals(State.EXPIRED)) {
+				return true;
+			}
+			if (this.session.isExpired()) {
+				this.state.set(State.EXPIRED);
+				return true;
+			}
+			return false;
 		}
 
 		@Override
@@ -199,7 +207,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 	}
 
 	private enum State {
-		NEW, STARTED
+		NEW, STARTED, EXPIRED
 	}
 
 	private static class SpringSessionMap implements Map<String, Object> {
