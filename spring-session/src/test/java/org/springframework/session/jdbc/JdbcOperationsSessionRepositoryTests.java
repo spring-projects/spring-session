@@ -525,6 +525,19 @@ public class JdbcOperationsSessionRepositoryTests {
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), anyLong());
 	}
 
+	@Test // gh-1129
+	public void getAttributeNamesAndRemove() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		session.setAttribute("attribute1", "value1");
+		session.setAttribute("attribute2", "value2");
+
+		for (String attributeName : session.getAttributeNames()) {
+			session.removeAttribute(attributeName);
+		}
+
+		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
 	private void assertPropagationRequiresNew() {
 		ArgumentCaptor<TransactionDefinition> argument =
 				ArgumentCaptor.forClass(TransactionDefinition.class);

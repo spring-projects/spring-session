@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.session;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -141,7 +142,7 @@ public final class MapSession implements ExpiringSession, Serializable {
 	}
 
 	public Set<String> getAttributeNames() {
-		return this.sessionAttrs.keySet();
+		return new HashSet<String>(this.sessionAttrs.keySet());
 	}
 
 	public void setAttribute(String attributeName, Object attributeValue) {

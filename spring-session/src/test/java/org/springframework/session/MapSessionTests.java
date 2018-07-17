@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,18 @@ public class MapSessionTests {
 	public void isExpiredOneMsAfter() {
 		long now = 1413260062963L;
 		assertThat(this.session.isExpired(now)).isTrue();
+	}
+
+	@Test // gh-1129
+	public void getAttributeNamesAndRemove() {
+		this.session.setAttribute("attribute1", "value1");
+		this.session.setAttribute("attribute2", "value2");
+
+		for (String attributeName : this.session.getAttributeNames()) {
+			this.session.removeAttribute(attributeName);
+		}
+
+		assertThat(this.session.getAttributeNames()).isEmpty();
 	}
 
 	static class CustomSession implements ExpiringSession {

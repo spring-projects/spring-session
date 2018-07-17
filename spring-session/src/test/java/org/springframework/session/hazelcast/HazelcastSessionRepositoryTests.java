@@ -339,4 +339,17 @@ public class HazelcastSessionRepositoryTests {
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
 	}
 
+	@Test // gh-1129
+	public void getAttributeNamesAndRemove() {
+		HazelcastSession session = this.repository.createSession();
+		session.setAttribute("attribute1", "value1");
+		session.setAttribute("attribute2", "value2");
+
+		for (String attributeName : session.getAttributeNames()) {
+			session.removeAttribute(attributeName);
+		}
+
+		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
 }
