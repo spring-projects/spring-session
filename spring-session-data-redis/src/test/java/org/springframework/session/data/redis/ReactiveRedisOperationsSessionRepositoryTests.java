@@ -367,6 +367,19 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.hashOperations);
 	}
 
+	@Test // gh-1120
+	public void getAttributeNamesAndRemove() {
+		RedisSession session = this.repository.new RedisSession(this.cached);
+		session.setAttribute("attribute1", "value1");
+		session.setAttribute("attribute2", "value2");
+
+		for (String attributeName : session.getAttributeNames()) {
+			session.removeAttribute(attributeName);
+		}
+
+		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
 	private Map<String, Object> map(Object... objects) {
 		Map<String, Object> result = new HashMap<>();
 		if (objects == null) {

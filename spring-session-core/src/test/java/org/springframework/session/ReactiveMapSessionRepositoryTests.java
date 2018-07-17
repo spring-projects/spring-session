@@ -144,4 +144,17 @@ public class ReactiveMapSessionRepositoryTests {
 		assertThat(this.repository.findById(createSession.getId()).block()).isNotNull();
 	}
 
+	@Test // gh-1120
+	public void getAttributeNamesAndRemove() {
+		MapSession session = this.repository.createSession().block();
+		session.setAttribute("attribute1", "value1");
+		session.setAttribute("attribute2", "value2");
+
+		for (String attributeName : session.getAttributeNames()) {
+			session.removeAttribute(attributeName);
+		}
+
+		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
 }

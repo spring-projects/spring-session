@@ -868,6 +868,19 @@ public class RedisOperationsSessionRepositoryTests {
 				.hasMessage("namespace cannot be null or empty");
 	}
 
+	@Test // gh-1120
+	public void getAttributeNamesAndRemove() {
+		RedisSession session = this.redisRepository.new RedisSession(this.cached);
+		session.setAttribute("attribute1", "value1");
+		session.setAttribute("attribute2", "value2");
+
+		for (String attributeName : session.getAttributeNames()) {
+			session.removeAttribute(attributeName);
+		}
+
+		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
 	private String getKey(String id) {
 		return "spring:session:sessions:" + id;
 	}

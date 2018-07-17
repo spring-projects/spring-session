@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,6 +98,19 @@ public class MapSessionRepositoryTests {
 
 		assertThat(this.repository.findById(originalId)).isNull();
 		assertThat(this.repository.findById(createSession.getId())).isNotNull();
+	}
+
+	@Test // gh-1120
+	public void getAttributeNamesAndRemove() {
+		MapSession session = this.repository.createSession();
+		session.setAttribute("attribute1", "value1");
+		session.setAttribute("attribute2", "value2");
+
+		for (String attributeName : session.getAttributeNames()) {
+			session.removeAttribute(attributeName);
+		}
+
+		assertThat(session.getAttributeNames()).isEmpty();
 	}
 
 }
