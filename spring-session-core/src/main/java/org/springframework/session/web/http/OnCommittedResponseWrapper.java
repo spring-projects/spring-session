@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,11 +174,11 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	private void trackContentLength(byte[] content) {
-		checkContentLength(content == null ? 0 : content.length);
+		checkContentLength(content != null ? content.length : 0);
 	}
 
 	private void trackContentLength(char[] content) {
-		checkContentLength(content == null ? 0 : content.length);
+		checkContentLength(content != null ? content.length : 0);
 	}
 
 	private void trackContentLength(int content) {

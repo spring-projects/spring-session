@@ -59,7 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 
-	private final static int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
+	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 
 	@Autowired
 	private SessionRepository<S> repository;

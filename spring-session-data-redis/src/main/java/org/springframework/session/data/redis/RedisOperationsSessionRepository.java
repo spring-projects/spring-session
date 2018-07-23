@@ -316,7 +316,7 @@ public class RedisOperationsSessionRepository implements
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
 	 *
-	 * @param sessionRedisOperations The {@link RedisOperations} to use for managing the
+	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
 	 * sessions. Cannot be null.
 	 */
 	public RedisOperationsSessionRepository(
@@ -797,8 +797,9 @@ public class RedisOperationsSessionRepository implements
 
 			this.delta = new HashMap<>(this.delta.size());
 
-			Long originalExpiration = this.originalLastAccessTime == null ? null
-					: this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli();
+			Long originalExpiration = (this.originalLastAccessTime != null
+					? this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli()
+					: null);
 			RedisOperationsSessionRepository.this.expirationPolicy
 					.onExpirationUpdated(originalExpiration, this);
 		}

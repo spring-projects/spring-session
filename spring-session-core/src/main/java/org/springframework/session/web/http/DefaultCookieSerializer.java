@@ -69,8 +69,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (this.cookieName.equals(cookie.getName())) {
-					String sessionId = this.useBase64Encoding
-							? base64Decode(cookie.getValue()) : cookie.getValue();
+					String sessionId = (this.useBase64Encoding
+							? base64Decode(cookie.getValue()) : cookie.getValue());
 					if (sessionId == null) {
 						continue;
 					}
@@ -97,8 +97,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		HttpServletResponse response = cookieValue.getResponse();
 
 		String requestedCookieValue = cookieValue.getCookieValue();
-		String actualCookieValue = this.jvmRoute == null ? requestedCookieValue
-				: requestedCookieValue + this.jvmRoute;
+		String actualCookieValue = (this.jvmRoute != null
+				? requestedCookieValue + this.jvmRoute : requestedCookieValue);
 
 		Cookie sessionCookie = new Cookie(this.cookieName, this.useBase64Encoding
 				? base64Encode(actualCookieValue) : actualCookieValue);
@@ -140,7 +140,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			byte[] decodedCookieBytes = Base64.getDecoder().decode(base64Value);
 			return new String(decodedCookieBytes);
 		}
-		catch (Exception e) {
+		catch (Exception ex) {
 			return null;
 		}
 	}

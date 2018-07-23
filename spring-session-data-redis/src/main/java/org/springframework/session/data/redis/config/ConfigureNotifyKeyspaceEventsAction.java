@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,10 +79,10 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 			}
 			return config.getProperty(config.stringPropertyNames().iterator().next());
 		}
-		catch (InvalidDataAccessApiUsageException e) {
+		catch (InvalidDataAccessApiUsageException ex) {
 			throw new IllegalStateException(
 					"Unable to configure Redis to keyspace notifications. See http://docs.spring.io/spring-session/docs/current/reference/html5/#api-redisoperationssessionrepository-sessiondestroyedevent",
-					e);
+					ex);
 		}
 	}
 

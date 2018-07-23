@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public interface Session {
 	 * Gets the Object associated with the specified name or null if no Object is
 	 * associated to that name.
 	 *
-	 * @param <T> The return type of the attribute
+	 * @param <T> the return type of the attribute
 	 * @param attributeName the name of the attribute to get
 	 * @return the Object associated with the specified name or null if no Object is
 	 * associated to that name
@@ -81,7 +81,7 @@ public interface Session {
 	@SuppressWarnings("unchecked")
 	default <T> T getAttributeOrDefault(String name, T defaultValue) {
 		T result = getAttribute(name);
-		return result == null ? defaultValue : result;
+		return (result != null ? result : defaultValue);
 	}
 
 	/**

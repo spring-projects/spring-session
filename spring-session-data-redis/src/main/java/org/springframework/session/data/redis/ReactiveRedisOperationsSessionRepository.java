@@ -134,7 +134,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	@Override
 	public Mono<Void> save(RedisSession session) {
-		return session.saveDelta().and(s -> {
+		return session.saveDelta().and((s) -> {
 			if (session.isNew) {
 				session.setNew(false);
 			}
@@ -148,9 +148,9 @@ public class ReactiveRedisOperationsSessionRepository implements
 		String sessionKey = getSessionKey(id);
 
 		return this.sessionRedisOperations.opsForHash().entries(sessionKey)
-				.collectMap(e -> e.getKey().toString(), Map.Entry::getValue)
-				.filter(map -> !map.isEmpty()).map(new SessionMapper(id))
-				.filter(session -> !session.isExpired()).map(RedisSession::new)
+				.collectMap((e) -> e.getKey().toString(), Map.Entry::getValue)
+				.filter((map) -> !map.isEmpty()).map(new SessionMapper(id))
+				.filter((session) -> !session.isExpired()).map(RedisSession::new)
 				.switchIfEmpty(Mono.defer(() -> deleteById(id).then(Mono.empty())));
 	}
 
@@ -311,7 +311,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 			Mono<Boolean> setTtl = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
 					.expire(sessionKey, getMaxInactiveInterval());
 
-			return changeSessionId.and(update).and(setTtl).and(s -> {
+			return changeSessionId.and(update).and(setTtl).and((s) -> {
 				this.delta.clear();
 				s.onComplete();
 			}).then();
@@ -322,7 +322,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 				return Mono.empty();
 			}
 
-			Publisher<Void> replaceSessionId = s -> {
+			Publisher<Void> replaceSessionId = (s) -> {
 				this.originalSessionId = sessionId;
 				s.onComplete();
 			};

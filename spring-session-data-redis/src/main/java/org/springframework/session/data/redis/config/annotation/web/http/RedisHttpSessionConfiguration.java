@@ -289,9 +289,9 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 				try {
 					connection.close();
 				}
-				catch (Exception e) {
+				catch (Exception ex) {
 					LogFactory.getLog(getClass()).error("Error closing RedisConnection",
-							e);
+							ex);
 				}
 			}
 		}

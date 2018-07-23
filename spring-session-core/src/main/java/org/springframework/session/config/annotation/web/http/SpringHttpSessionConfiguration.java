@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,8 +110,8 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	@PostConstruct
 	public void init() {
-		CookieSerializer cookieSerializer = this.cookieSerializer != null
-				? this.cookieSerializer : createDefaultCookieSerializer();
+		CookieSerializer cookieSerializer = (this.cookieSerializer != null
+				? this.cookieSerializer : createDefaultCookieSerializer());
 		this.defaultHttpSessionIdResolver.setCookieSerializer(cookieSerializer);
 	}
 
@@ -169,9 +169,9 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 			try {
 				sessionCookieConfig = this.servletContext.getSessionCookieConfig();
 			}
-			catch (UnsupportedOperationException e) {
+			catch (UnsupportedOperationException ex) {
 				this.logger
-						.warn("Unable to obtain SessionCookieConfig: " + e.getMessage());
+						.warn("Unable to obtain SessionCookieConfig: " + ex.getMessage());
 			}
 			if (sessionCookieConfig != null) {
 				if (sessionCookieConfig.getName() != null) {

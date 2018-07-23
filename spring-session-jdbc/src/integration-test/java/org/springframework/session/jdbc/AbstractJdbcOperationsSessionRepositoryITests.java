@@ -237,7 +237,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});
@@ -263,7 +263,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});
@@ -309,7 +309,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});
@@ -360,7 +360,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});
@@ -423,7 +423,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});
@@ -448,7 +448,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});
@@ -491,7 +491,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});
@@ -539,7 +539,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
-		findByPrincipalName.values().forEach(session -> {
+		findByPrincipalName.values().forEach((session) -> {
 			assertThat(session.isChanged()).isFalse();
 			assertThat(session.getDelta()).isEmpty();
 		});

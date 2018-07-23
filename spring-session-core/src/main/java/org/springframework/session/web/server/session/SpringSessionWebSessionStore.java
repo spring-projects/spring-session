@@ -96,7 +96,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 	@Override
 	public Mono<WebSession> retrieveSession(String sessionId) {
 		return this.sessions.findById(sessionId)
-				.doOnNext(session -> session.setLastAccessedTime(this.clock.instant()))
+				.doOnNext((session) -> session.setLastAccessedTime(this.clock.instant()))
 				.map(this::existingSession);
 	}
 
@@ -239,7 +239,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		@Override
 		public boolean containsValue(Object value) {
 			return this.session.getAttributeNames().stream()
-					.anyMatch(attrName -> this.session.getAttribute(attrName) != null);
+					.anyMatch((attrName) -> this.session.getAttribute(attrName) != null);
 		}
 
 		@Override

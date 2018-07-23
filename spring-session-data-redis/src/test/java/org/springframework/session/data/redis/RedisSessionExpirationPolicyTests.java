@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,10 +43,10 @@ import static org.mockito.Mockito.verify;
 @RunWith(MockitoJUnitRunner.class)
 public class RedisSessionExpirationPolicyTests {
 	// Wed Apr 15 10:28:32 CDT 2015
-	final static Long NOW = 1429111712346L;
+	static final Long NOW = 1429111712346L;
 
 	// Wed Apr 15 10:27:32 CDT 2015
-	final static Long ONE_MINUTE_AGO = 1429111652346L;
+	static final Long ONE_MINUTE_AGO = 1429111652346L;
 
 	@Mock
 	RedisOperations<Object, Object> sessionRedisOperations;

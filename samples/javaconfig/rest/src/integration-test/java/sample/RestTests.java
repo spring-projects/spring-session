@@ -59,7 +59,7 @@ public class RestTests {
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		assertThatThrownBy(() -> getForUser(this.baseUrl + "/", headers, String.class))
 				.isInstanceOf(HttpClientErrorException.class)
-				.satisfies(e -> assertThat(((HttpClientErrorException) e).getStatusCode())
+				.satisfies((e) -> assertThat(((HttpClientErrorException) e).getStatusCode())
 						.isEqualTo(HttpStatus.UNAUTHORIZED));
 	}
 

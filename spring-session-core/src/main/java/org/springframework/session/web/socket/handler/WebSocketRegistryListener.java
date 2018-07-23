@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,8 +71,9 @@ public final class WebSocketRegistryListener
 			SessionDisconnectEvent e = (SessionDisconnectEvent) event;
 			Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor
 					.getSessionAttributes(e.getMessage().getHeaders());
-			String httpSessionId = sessionAttributes == null ? null
-					: SessionRepositoryMessageInterceptor.getSessionId(sessionAttributes);
+			String httpSessionId = (sessionAttributes != null
+					? SessionRepositoryMessageInterceptor.getSessionId(sessionAttributes)
+					: null);
 			afterConnectionClosed(httpSessionId, e.getSessionId());
 		}
 	}
@@ -140,10 +141,10 @@ public final class WebSocketRegistryListener
 			try {
 				toClose.close(SESSION_EXPIRED_STATUS);
 			}
-			catch (IOException e) {
+			catch (IOException ex) {
 				logger.debug(
 						"Failed to close WebSocketSession (this is nothing to worry about but for debugging only)",
-						e);
+						ex);
 			}
 		}
 	}

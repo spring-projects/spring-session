@@ -2,17 +2,15 @@
 <!DOCTYPE suppressions PUBLIC "-//Puppy Crawl//DTD Suppressions 1.1//EN"
 		"http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 <suppressions>
-	<suppress files=".+Application\.java" checks="HideUtilityClassConstructor"/>
-	<suppress files=".+Configuration\.java" checks="HideUtilityClassConstructor"/>
+	<!-- global -->
+	<suppress files="[\\/]src[\\/]integration-test[\\/]java[\\/]" checks="Javadoc*"/>
 
-	<suppress files="[\\/]src[\\/]test[\\/]java[\\/]" checks="Javadoc"/>
-	<suppress files="[\\/]src[\\/]integration-test[\\/]java[\\/]" checks="Javadoc"/>
-
-	<suppress files="[\\/]docs[\\/]" checks="Javadoc"/>
-	<suppress files="[\\/]docs[\\/]" checks="CommentsIndentation"/>
+	<!-- docs -->
+	<suppress files="[\\/]docs[\\/]" checks="Javadoc*"/>
+	<suppress files="[\\/]docs[\\/]" checks="AvoidStaticImport"/>
 	<suppress files="[\\/]docs[\\/]" checks="InnerTypeLast"/>
 
-	<suppress files="[\\/]samples[\\/]" checks="Javadoc"/>
-	<suppress files="[\\/]samples[\\/]" checks="CommentsIndentation"/>
-	<suppress files="[\\/]samples[\\/]" checks="InnerTypeLast"/>
+	<!-- samples -->
+	<suppress files="[\\/]samples[\\/]" checks="Javadoc*"/>
+	<suppress files="[\\/]samples[\\/].+Application\.java" checks="HideUtilityClassConstructor"/>
 </suppressions>
