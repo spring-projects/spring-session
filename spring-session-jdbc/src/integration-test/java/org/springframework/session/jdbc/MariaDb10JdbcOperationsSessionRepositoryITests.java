@@ -86,7 +86,7 @@ public class MariaDb10JdbcOperationsSessionRepositoryITests
 	private static class MariaDb10Container extends MariaDBContainer<MariaDb10Container> {
 
 		MariaDb10Container() {
-			super("mariadb:10.3.7");
+			super("mariadb:10.3.8");
 		}
 
 		@Override

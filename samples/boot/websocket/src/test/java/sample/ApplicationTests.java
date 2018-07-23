@@ -52,7 +52,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class ApplicationTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.9";
+	private static final String DOCKER_IMAGE = "redis:4.0.10";
 
 	@Value("${local.server.port}")
 	private String port;

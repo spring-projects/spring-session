@@ -54,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class RestMockMvcTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.9";
+	private static final String DOCKER_IMAGE = "redis:4.0.10";
 
 	@Autowired
 	private SessionRepositoryFilter<? extends Session> sessionRepositoryFilter;

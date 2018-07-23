@@ -21,7 +21,6 @@ import javax.sql.DataSource;
 import com.microsoft.sqlserver.jdbc.SQLServerDataSource;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.MSSQLServerContainer;
 
@@ -40,7 +39,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
  *
  * @author Vedran Pavic
  */
-@Ignore
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @ContextConfiguration
@@ -88,12 +86,9 @@ public class SqlServerJdbcOperationsSessionRepositoryITests
 			extends MSSQLServerContainer<SqlServer2007Container> {
 
 		SqlServer2007Container() {
-			super("microsoft/mssql-server-linux:2017-CU7");
-		}
-
-		@Override
-		protected int getStartupTimeoutSeconds() {
-			return 240;
+			super("microsoft/mssql-server-linux:2017-CU8");
+			withStartupTimeoutSeconds(240);
+			withConnectTimeoutSeconds(240);
 		}
 
 	}
