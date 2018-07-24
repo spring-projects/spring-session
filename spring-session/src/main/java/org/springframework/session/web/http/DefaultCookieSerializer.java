@@ -26,6 +26,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * The default implementation of {@link CookieSerializer}.
  *
@@ -34,6 +37,8 @@ import javax.servlet.http.HttpServletResponse;
  * @since 1.1
  */
 public class DefaultCookieSerializer implements CookieSerializer {
+
+	private static final Log logger = LogFactory.getLog(DefaultCookieSerializer.class);
 
 	private String cookieName = "SESSION";
 
@@ -138,6 +143,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			return new String(decodedCookieBytes);
 		}
 		catch (Exception e) {
+			logger.debug("Unable to Base64 decode value: " + base64Value);
 			return null;
 		}
 	}
