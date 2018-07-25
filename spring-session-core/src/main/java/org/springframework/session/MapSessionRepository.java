@@ -73,7 +73,6 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	public void save(MapSession session) {
 		if (!session.getId().equals(session.getOriginalId())) {
 			this.sessions.remove(session.getOriginalId());
-			session.setOriginalId(session.getId());
 		}
 		this.sessions.put(session.getId(), new MapSession(session));
 	}

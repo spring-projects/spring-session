@@ -132,10 +132,6 @@ public final class MapSession implements Session, Serializable {
 		return this.originalId;
 	}
 
-	void setOriginalId(String originalId) {
-		this.originalId = originalId;
-	}
-
 	@Override
 	public String changeSessionId() {
 		String changedId = generateId();

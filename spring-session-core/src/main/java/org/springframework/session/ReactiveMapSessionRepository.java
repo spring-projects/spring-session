@@ -76,7 +76,6 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		return Mono.fromRunnable(() -> {
 			if (!session.getId().equals(session.getOriginalId())) {
 				this.sessions.remove(session.getOriginalId());
-				session.setOriginalId(session.getId());
 			}
 			this.sessions.put(session.getId(), new MapSession(session));
 		});
