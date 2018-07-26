@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,18 @@
 
 package docs.security;
 
+import java.net.HttpCookie;
 import java.time.Duration;
 import java.util.Base64;
 
-import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -43,6 +45,7 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 
 /**
  * @author rwinch
+ * @author Vedran Pavic
  */
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = RememberMeSecurityConfiguration.class)
@@ -78,7 +81,7 @@ public class RememberMeSecurityConfigurationTests<T extends Session> {
 			.andReturn();
 		// @formatter:on
 
-		Cookie cookie = result.getResponse().getCookie("SESSION");
+		HttpCookie cookie = getSessionCookie(result.getResponse());
 		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
 		T session = this.sessions
 				.findById(new String(Base64.getDecoder().decode(cookie.getValue())));
@@ -86,5 +89,15 @@ public class RememberMeSecurityConfigurationTests<T extends Session> {
 				.isEqualTo(Duration.ofDays(30));
 
 	}
+
+	private HttpCookie getSessionCookie(HttpServletResponse response) {
+		for (HttpCookie cookie : HttpCookie.parse(response.getHeader(HttpHeaders.SET_COOKIE))) {
+			if ("SESSION".equals(cookie.getName())) {
+				return cookie;
+			}
+		}
+		return null;
+	}
+
 }
 // end::class[]

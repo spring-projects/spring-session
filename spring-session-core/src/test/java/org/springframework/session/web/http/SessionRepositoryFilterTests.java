@@ -51,6 +51,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+import org.springframework.http.ResponseCookie;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -423,7 +424,7 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
-		assertThat(this.response.getCookie("SESSION")).isNull();
+		assertThat(getSessionCookie()).isNull();
 	}
 
 	@Test
@@ -441,7 +442,7 @@ public class SessionRepositoryFilterTests {
 				wrappedRequest.getSession();
 			}
 		});
-		assertThat(this.response.getCookie("SESSION")).isNotNull();
+		assertThat(getSessionCookie()).isNotNull();
 
 		nextRequest();
 
@@ -453,7 +454,7 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
-		assertThat(this.response.getCookie("SESSION")).isNotNull();
+		assertThat(getSessionCookie()).isNotNull();
 	}
 
 	@Test
@@ -653,10 +654,10 @@ public class SessionRepositoryFilterTests {
 			}
 		});
 
-		Cookie session = getSessionCookie();
+		ResponseCookie session = getSessionCookie();
 		assertThat(session.isHttpOnly()).describedAs("Session Cookie should be HttpOnly")
 				.isTrue();
-		assertThat(session.getSecure())
+		assertThat(session.isSecure())
 				.describedAs("Session Cookie should be marked as Secure").isTrue();
 	}
 
@@ -1509,13 +1510,13 @@ public class SessionRepositoryFilterTests {
 	// --- helper methods
 
 	private void assertNewSession() {
-		Cookie cookie = getSessionCookie();
+		ResponseCookie cookie = getSessionCookie();
 		assertThat(cookie).isNotNull();
-		assertThat(cookie.getMaxAge()).isEqualTo(-1);
+		assertThat(cookie.getMaxAge().getSeconds()).isEqualTo(-1);
 		assertThat(cookie.getValue()).isNotEqualTo("INVALID");
 		assertThat(cookie.isHttpOnly()).describedAs("Cookie is expected to be HTTP Only")
 				.isTrue();
-		assertThat(cookie.getSecure())
+		assertThat(cookie.isSecure())
 				.describedAs(
 						"Cookie secured is expected to be " + this.request.isSecure())
 				.isEqualTo(this.request.isSecure());
@@ -1525,15 +1526,15 @@ public class SessionRepositoryFilterTests {
 	}
 
 	private void assertNoSession() {
-		Cookie cookie = getSessionCookie();
+		ResponseCookie cookie = getSessionCookie();
 		assertThat(cookie).isNull();
 		assertThat(this.request.getSession(false))
 				.describedAs("The original HttpServletRequest HttpSession should be null")
 				.isNull();
 	}
 
-	private Cookie getSessionCookie() {
-		return this.response.getCookie("SESSION");
+	private ResponseCookie getSessionCookie() {
+		return ResponseCookieParser.parse(this.response, "SESSION");
 	}
 
 	private void setSessionCookie(String sessionId) {
@@ -1556,6 +1557,9 @@ public class SessionRepositoryFilterTests {
 		for (Cookie cookie : this.response.getCookies()) {
 			nameToCookie.put(cookie.getName(), cookie);
 		}
+		ResponseCookieParser.parse(this.response)
+				.forEach((responseCookie) -> nameToCookie.put(responseCookie.getName(),
+						toServletCookie(responseCookie)));
 		Cookie[] nextRequestCookies = new ArrayList<>(nameToCookie.values())
 				.toArray(new Cookie[0]);
 
@@ -1584,6 +1588,19 @@ public class SessionRepositoryFilterTests {
 
 	private static String base64Decode(String value) {
 		return new String(Base64.getDecoder().decode(value));
+	}
+
+	private static Cookie toServletCookie(ResponseCookie responseCookie) {
+		Cookie cookie = new Cookie(responseCookie.getName(), responseCookie.getValue());
+		String domain = responseCookie.getDomain();
+		if (domain != null) {
+			cookie.setDomain(domain);
+		}
+		cookie.setMaxAge((int) responseCookie.getMaxAge().getSeconds());
+		cookie.setPath(responseCookie.getPath());
+		cookie.setSecure(responseCookie.isSecure());
+		cookie.setHttpOnly(responseCookie.isHttpOnly());
+		return cookie;
 	}
 
 	private static class SessionRepositoryFilterDefaultOrder implements Ordered {
