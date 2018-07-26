@@ -18,6 +18,7 @@ package sample;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
@@ -69,6 +70,7 @@ public class BootTests {
 	}
 
 	@Test
+	@Ignore // TODO fix gh-1005
 	public void login() {
 		LoginPage login = HomePage.go(this.driver);
 		HomePage home = login.form().login(HomePage.class);
@@ -78,6 +80,7 @@ public class BootTests {
 	}
 
 	@Test
+	@Ignore // TODO fix gh-1005
 	public void logout() {
 		LoginPage login = HomePage.go(this.driver);
 		HomePage home = login.form().login(HomePage.class);

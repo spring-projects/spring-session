@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ package docs.security;
 import java.time.Duration;
 import java.util.Base64;
 
-import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -78,13 +79,18 @@ public class RememberMeSecurityConfigurationTests<T extends Session> {
 			.andReturn();
 		// @formatter:on
 
-		Cookie cookie = result.getResponse().getCookie("SESSION");
-		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
+		ResponseCookie cookie = getSessionCookie(result.getResponse());
+		assertThat(cookie.getMaxAge().getSeconds()).isEqualTo(Integer.MAX_VALUE);
 		T session = this.sessions
 				.findById(new String(Base64.getDecoder().decode(cookie.getValue())));
 		assertThat(session.getMaxInactiveInterval())
 				.isEqualTo(Duration.ofDays(30));
 
 	}
+
+	private ResponseCookie getSessionCookie(HttpServletResponse response) {
+		return ResponseCookieParser.parse(response, "SESSION");
+	}
+
 }
 // end::class[]
