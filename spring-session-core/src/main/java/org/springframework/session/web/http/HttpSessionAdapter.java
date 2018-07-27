@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,12 @@ import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.session.Session;
 
@@ -33,10 +38,13 @@ import org.springframework.session.Session;
  *
  * @param <S> the {@link Session} type
  * @author Rob Winch
+ * @author Vedran Pavic
  * @since 1.1
  */
 @SuppressWarnings("deprecation")
 class HttpSessionAdapter<S extends Session> implements HttpSession {
+
+	private static final Log logger = LogFactory.getLog(HttpSessionAdapter.class);
 
 	private S session;
 
@@ -129,7 +137,28 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	@Override
 	public void setAttribute(String name, Object value) {
 		checkState();
+		Object oldValue = this.session.getAttribute(name);
 		this.session.setAttribute(name, value);
+		if (value != oldValue) {
+			if (oldValue instanceof HttpSessionBindingListener) {
+				try {
+					((HttpSessionBindingListener) oldValue).valueUnbound(
+							new HttpSessionBindingEvent(this, name, oldValue));
+				}
+				catch (Throwable th) {
+					logger.error("Error invoking session binding event listener", th);
+				}
+			}
+			if (value instanceof HttpSessionBindingListener) {
+				try {
+					((HttpSessionBindingListener) value)
+							.valueBound(new HttpSessionBindingEvent(this, name, value));
+				}
+				catch (Throwable th) {
+					logger.error("Error invoking session binding event listener", th);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -140,7 +169,17 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	@Override
 	public void removeAttribute(String name) {
 		checkState();
+		Object oldValue = this.session.getAttribute(name);
 		this.session.removeAttribute(name);
+		if (oldValue instanceof HttpSessionBindingListener) {
+			try {
+				((HttpSessionBindingListener) oldValue)
+						.valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
+			}
+			catch (Throwable th) {
+				logger.error("Error invoking session binding event listener", th);
+			}
+		}
 	}
 
 	@Override

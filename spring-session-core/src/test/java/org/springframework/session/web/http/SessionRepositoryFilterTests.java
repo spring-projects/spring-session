@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -36,6 +38,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
 
 import org.assertj.core.data.Offset;
@@ -1386,6 +1390,122 @@ public class SessionRepositoryFilterTests {
 				.hasMessage("httpSessionIdResolver cannot be null");
 	}
 
+	@Test
+	public void bindingListenerBindListener() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute(bindingListenerName, bindingListener);
+			}
+
+		});
+
+		assertThat(bindingListener.getCounter()).isEqualTo(1);
+	}
+
+	@Test
+	public void bindingListenerBindListenerThenUnbind() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute(bindingListenerName, bindingListener);
+				session.removeAttribute(bindingListenerName);
+			}
+
+		});
+
+		assertThat(bindingListener.getCounter()).isEqualTo(0);
+	}
+
+	@Test
+	public void bindingListenerBindSameListenerTwice() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute(bindingListenerName, bindingListener);
+				session.setAttribute(bindingListenerName, bindingListener);
+			}
+
+		});
+
+		assertThat(bindingListener.getCounter()).isEqualTo(1);
+	}
+
+	@Test
+	public void bindingListenerBindListenerOverwrite() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener1 = new CountingHttpSessionBindingListener();
+		CountingHttpSessionBindingListener bindingListener2 = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute(bindingListenerName, bindingListener1);
+				session.setAttribute(bindingListenerName, bindingListener2);
+			}
+
+		});
+
+		assertThat(bindingListener1.getCounter()).isEqualTo(0);
+		assertThat(bindingListener2.getCounter()).isEqualTo(1);
+	}
+
+	@Test
+	public void bindingListenerBindThrowsException() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				bindingListener.setThrowException();
+				session.setAttribute(bindingListenerName, bindingListener);
+			}
+
+		});
+
+		assertThat(bindingListener.getCounter()).isEqualTo(0);
+	}
+
+	@Test
+	public void bindingListenerBindListenerThenUnbindThrowsException() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute(bindingListenerName, bindingListener);
+				bindingListener.setThrowException();
+				session.removeAttribute(bindingListenerName);
+			}
+
+		});
+
+		assertThat(bindingListener.getCounter()).isEqualTo(1);
+	}
+
 	// --- helper methods
 
 	private void assertNewSession() {
@@ -1484,6 +1604,41 @@ public class SessionRepositoryFilterTests {
 		}
 
 		void doFilter(HttpServletRequest wrappedRequest) {
+		}
+
+	}
+
+	private static class CountingHttpSessionBindingListener
+			implements HttpSessionBindingListener {
+
+		private final AtomicInteger counter = new AtomicInteger(0);
+
+		private final AtomicBoolean throwException = new AtomicBoolean(false);
+
+		@Override
+		public void valueBound(HttpSessionBindingEvent event) {
+			if (this.throwException.get()) {
+				this.throwException.compareAndSet(true, false);
+				throw new RuntimeException("bind exception");
+			}
+			this.counter.incrementAndGet();
+		}
+
+		@Override
+		public void valueUnbound(HttpSessionBindingEvent event) {
+			if (this.throwException.get()) {
+				this.throwException.compareAndSet(true, false);
+				throw new RuntimeException("unbind exception");
+			}
+			this.counter.decrementAndGet();
+		}
+
+		int getCounter() {
+			return this.counter.get();
+		}
+
+		void setThrowException() {
+			this.throwException.compareAndSet(false, true);
 		}
 
 	}
