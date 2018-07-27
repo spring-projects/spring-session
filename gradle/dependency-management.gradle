@@ -24,8 +24,8 @@ dependencyManagement {
 		dependency 'org.apache.derby:derby:10.14.2.0'
 		dependency 'org.assertj:assertj-core:3.10.0'
 		dependency 'org.hsqldb:hsqldb:2.4.1'
-		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.5'
-		dependency 'org.mockito:mockito-core:2.18.3'
-		dependency 'org.postgresql:postgresql:42.2.2'
+		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.6'
+		dependency 'org.mockito:mockito-core:2.20.1'
+		dependency 'org.postgresql:postgresql:42.2.4'
 	}
 }
