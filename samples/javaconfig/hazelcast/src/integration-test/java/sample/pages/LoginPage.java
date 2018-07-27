@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class LoginPage extends BasePage {
 	}
 
 	public void assertAt() {
-		assertThat(getDriver().getTitle()).isEqualTo("Login Page");
+		assertThat(getDriver().getTitle()).isEqualTo("Please sign in");
 	}
 
 	public Form form() {
@@ -51,7 +51,7 @@ public class LoginPage extends BasePage {
 		@FindBy(name = "password")
 		private WebElement password;
 
-		@FindBy(name = "submit")
+		@FindBy(tagName = "button")
 		private WebElement button;
 
 		public Form(SearchContext context) {
