@@ -9,7 +9,7 @@ dependencyManagement {
 	}
 
 	dependencies {
-		dependencySet(group: 'com.hazelcast', version: '3.9.4') {
+		dependencySet(group: 'com.hazelcast', version: '3.10.3') {
 			entry 'hazelcast'
 			entry 'hazelcast-client'
 		}
@@ -17,15 +17,15 @@ dependencyManagement {
 		dependency 'com.h2database:h2:1.4.197'
 		dependency 'com.microsoft.sqlserver:mssql-jdbc:6.4.0.jre8'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
-		dependency 'io.lettuce:lettuce-core:5.0.4.RELEASE'
+		dependency 'io.lettuce:lettuce-core:5.1.0.M1'
 		dependency 'javax.servlet:javax.servlet-api:3.1.0'
 		dependency 'junit:junit:4.12'
 		dependency 'mysql:mysql-connector-java:8.0.11'
 		dependency 'org.apache.derby:derby:10.14.2.0'
 		dependency 'org.assertj:assertj-core:3.10.0'
 		dependency 'org.hsqldb:hsqldb:2.4.1'
-		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.5'
-		dependency 'org.mockito:mockito-core:2.18.3'
-		dependency 'org.postgresql:postgresql:42.2.2'
+		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.6'
+		dependency 'org.mockito:mockito-core:2.20.1'
+		dependency 'org.postgresql:postgresql:42.2.4'
 	}
 }
