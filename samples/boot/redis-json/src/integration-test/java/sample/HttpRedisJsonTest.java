@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
@@ -80,6 +81,7 @@ public class HttpRedisJsonTest {
 	}
 
 	@Test
+	@Ignore // TODO fix gh-1005
 	public void login() {
 		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		HomePage home = login.form().login(HomePage.class);
@@ -88,6 +90,7 @@ public class HttpRedisJsonTest {
 	}
 
 	@Test
+	@Ignore // TODO fix gh-1005
 	public void createAttribute() {
 		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		HomePage home = login.form().login(HomePage.class);

@@ -16,8 +16,13 @@
 
 package org.springframework.session.web.http;
 
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.BitSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,6 +46,22 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private static final Log logger = LogFactory.getLog(DefaultCookieSerializer.class);
 
+	private static final BitSet domainValid = new BitSet(128);
+
+	static {
+		for (char c = '0'; c <= '9'; c++) {
+			domainValid.set(c);
+		}
+		for (char c = 'a'; c <= 'z'; c++) {
+			domainValid.set(c);
+		}
+		for (char c = 'A'; c <= 'Z'; c++) {
+			domainValid.set(c);
+		}
+		domainValid.set('.');
+		domainValid.set('-');
+	}
+
 	private String cookieName = "SESSION";
 
 	private Boolean useSecureCookie;
@@ -61,6 +82,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private String rememberMeRequestAttribute;
 
+	private String sameSite = "Lax";
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -75,7 +98,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			for (Cookie cookie : cookies) {
 				if (this.cookieName.equals(cookie.getName())) {
 					String sessionId = (this.useBase64Encoding
-							? base64Decode(cookie.getValue()) : cookie.getValue());
+							? base64Decode(cookie.getValue())
+							: cookie.getValue());
 					if (sessionId == null) {
 						continue;
 					}
@@ -101,37 +125,43 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		HttpServletRequest request = cookieValue.getRequest();
 		HttpServletResponse response = cookieValue.getResponse();
 
-		String requestedCookieValue = cookieValue.getCookieValue();
-		String actualCookieValue = (this.jvmRoute != null
-				? requestedCookieValue + this.jvmRoute : requestedCookieValue);
-
-		Cookie sessionCookie = new Cookie(this.cookieName, this.useBase64Encoding
-				? base64Encode(actualCookieValue) : actualCookieValue);
-		sessionCookie.setSecure(isSecureCookie(request));
-		sessionCookie.setPath(getCookiePath(request));
-		String domainName = getDomainName(request);
-		if (domainName != null) {
-			sessionCookie.setDomain(domainName);
+		StringBuilder sb = new StringBuilder();
+		sb.append(this.cookieName).append('=');
+		String value = getValue(cookieValue);
+		if (value != null && value.length() > 0) {
+			validateValue(value);
+			sb.append(value);
 		}
-
+		int maxAge = getMaxAge(cookieValue);
+		if (maxAge > -1) {
+			sb.append("; Max-Age=").append(cookieValue.getCookieMaxAge());
+			OffsetDateTime expires = (maxAge != 0
+					? OffsetDateTime.now().plusSeconds(maxAge)
+					: Instant.EPOCH.atOffset(ZoneOffset.UTC));
+			sb.append("; Expires=")
+					.append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+		}
+		String domain = getDomainName(request);
+		if (domain != null && domain.length() > 0) {
+			validateDomain(domain);
+			sb.append("; Domain=").append(domain);
+		}
+		String path = getCookiePath(request);
+		if (path != null && path.length() > 0) {
+			validatePath(path);
+			sb.append("; Path=").append(path);
+		}
+		if (isSecureCookie(request)) {
+			sb.append("; Secure");
+		}
 		if (this.useHttpOnlyCookie) {
-			sessionCookie.setHttpOnly(true);
+			sb.append("; HttpOnly");
+		}
+		if (this.sameSite != null) {
+			sb.append("; SameSite=").append(this.sameSite);
 		}
 
-		if (cookieValue.getCookieMaxAge() < 0) {
-			if (this.rememberMeRequestAttribute != null
-					&& request.getAttribute(this.rememberMeRequestAttribute) != null) {
-				// the cookie is only written at time of session creation, so we rely on
-				// session expiration rather than cookie expiration if remember me is enabled
-				cookieValue.setCookieMaxAge(Integer.MAX_VALUE);
-			}
-			else if (this.cookieMaxAge != null) {
-				cookieValue.setCookieMaxAge(this.cookieMaxAge);
-			}
-		}
-		sessionCookie.setMaxAge(cookieValue.getCookieMaxAge());
-
-		response.addCookie(sessionCookie);
+		response.addHeader("Set-Cookie", sb.toString());
 	}
 
 	/**
@@ -160,6 +190,81 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	private String base64Encode(String value) {
 		byte[] encodedCookieBytes = Base64.getEncoder().encode(value.getBytes());
 		return new String(encodedCookieBytes);
+	}
+
+	private String getValue(CookieValue cookieValue) {
+		String requestedCookieValue = cookieValue.getCookieValue();
+		String actualCookieValue = requestedCookieValue;
+		if (this.jvmRoute != null) {
+			actualCookieValue = requestedCookieValue + this.jvmRoute;
+		}
+		if (this.useBase64Encoding) {
+			actualCookieValue = base64Encode(actualCookieValue);
+		}
+		return actualCookieValue;
+	}
+
+	private void validateValue(String value) {
+		int start = 0;
+		int end = value.length();
+		if ((end > 1) && (value.charAt(0) == '"') && (value.charAt(end - 1) == '"')) {
+			start = 1;
+			end--;
+		}
+		char[] chars = value.toCharArray();
+		for (int i = start; i < end; i++) {
+			char c = chars[i];
+			if (c < 0x21 || c == 0x22 || c == 0x2c || c == 0x3b || c == 0x5c
+					|| c == 0x7f) {
+				throw new IllegalArgumentException(
+						"Invalid character in cookie value: " + Integer.toString(c));
+			}
+		}
+	}
+
+	private int getMaxAge(CookieValue cookieValue) {
+		int maxAge = cookieValue.getCookieMaxAge();
+		if (maxAge < 0) {
+			if (this.rememberMeRequestAttribute != null && cookieValue.getRequest()
+					.getAttribute(this.rememberMeRequestAttribute) != null) {
+				// the cookie is only written at time of session creation, so we rely on
+				// session expiration rather than cookie expiration if remember me is
+				// enabled
+				cookieValue.setCookieMaxAge(Integer.MAX_VALUE);
+			}
+			else if (this.cookieMaxAge != null) {
+				cookieValue.setCookieMaxAge(this.cookieMaxAge);
+			}
+		}
+		return cookieValue.getCookieMaxAge();
+	}
+
+	private void validateDomain(String domain) {
+		int i = 0;
+		int cur = -1;
+		int prev;
+		char[] chars = domain.toCharArray();
+		while (i < chars.length) {
+			prev = cur;
+			cur = chars[i];
+			if (!domainValid.get(cur)
+					|| ((prev == '.' || prev == -1) && (cur == '.' || cur == '-'))
+					|| (prev == '-' && cur == '.')) {
+				throw new IllegalArgumentException("Invalid cookie domain: " + domain);
+			}
+			i++;
+		}
+		if (cur == '.' || cur == '-') {
+			throw new IllegalArgumentException("Invalid cookie domain: " + domain);
+		}
+	}
+
+	private void validatePath(String path) {
+		for (char ch : path.toCharArray()) {
+			if (ch < 0x20 || ch > 0x7E || ch == ';') {
+				throw new IllegalArgumentException("Invalid cookie path: " + path);
+			}
+		}
 	}
 
 	/**
@@ -315,6 +420,16 @@ public class DefaultCookieSerializer implements CookieSerializer {
 					"rememberMeRequestAttribute cannot be null");
 		}
 		this.rememberMeRequestAttribute = rememberMeRequestAttribute;
+	}
+
+	/**
+	 * Set the value for the {@code SameSite} cookie directive. The default value is
+	 * {@code Lax}.
+	 * @param sameSite the SameSite directive value
+	 * @since 2.1.0
+	 */
+	public void setSameSite(String sameSite) {
+		this.sameSite = sameSite;
 	}
 
 	private String getDomainName(HttpServletRequest request) {
