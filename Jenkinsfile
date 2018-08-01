@@ -33,7 +33,7 @@ try {
 			node {
 				checkout scm
 				try {
-					sh './gradlew clean springIoCheck --stacktrace --no-daemon --refresh-dependencies -PplatformVersion=Cairo-BUILD-SNAPSHOT -PexcludeProjects='**/samples/**'
+					sh "./gradlew clean springIoCheck --stacktrace --no-daemon --refresh-dependencies -PplatformVersion=Cairo-BUILD-SNAPSHOT -PexcludeProjects='**/samples/**'"
 				}
 				catch(e) {
 					currentBuild.result = 'FAILED: springio'
