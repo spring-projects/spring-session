@@ -53,7 +53,7 @@ public final class MapSession implements Session, Serializable {
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
 	private String id;
-	private String originalId;
+	private final String originalId;
 	private Map<String, Object> sessionAttrs = new HashMap<>();
 	private Instant creationTime = Instant.now();
 	private Instant lastAccessedTime = this.creationTime;
