@@ -18,14 +18,12 @@ package org.springframework.session.web.http;
 
 import java.util.Base64;
 import java.util.Collections;
-import java.util.List;
 
 import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.http.ResponseCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.MapSession;
@@ -85,7 +83,7 @@ public class CookieHttpSessionIdResolverTests {
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 
-		assertThat(this.response.getHeaders("Set-Cookie")).hasSize(1);
+		assertThat(this.response.getCookies()).hasSize(1);
 	}
 
 	@Test
@@ -95,12 +93,11 @@ public class CookieHttpSessionIdResolverTests {
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		this.strategy.setSessionId(this.request, this.response, newSession.getId());
 
-		List<ResponseCookie> cookies = ResponseCookieParser.parse(this.response);
+		Cookie[] cookies = this.response.getCookies();
 		assertThat(cookies).hasSize(2);
 
-		assertThat(base64Decode(cookies.get(0).getValue()))
-				.isEqualTo(this.session.getId());
-		assertThat(base64Decode(cookies.get(1).getValue())).isEqualTo(newSession.getId());
+		assertThat(base64Decode(cookies[0].getValue())).isEqualTo(this.session.getId());
+		assertThat(base64Decode(cookies[1].getValue())).isEqualTo(newSession.getId());
 	}
 
 	@Test
@@ -108,7 +105,7 @@ public class CookieHttpSessionIdResolverTests {
 		this.request.setContextPath("/somethingunique");
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 
-		ResponseCookie sessionCookie = getCookie();
+		Cookie sessionCookie = this.response.getCookie(this.cookieName);
 		assertThat(sessionCookie.getPath())
 				.isEqualTo(this.request.getContextPath() + "/");
 	}
@@ -131,7 +128,7 @@ public class CookieHttpSessionIdResolverTests {
 		this.request.setContextPath("/somethingunique");
 		this.strategy.expireSession(this.request, this.response);
 
-		ResponseCookie sessionCookie = getCookie();
+		Cookie sessionCookie = this.response.getCookie(this.cookieName);
 		assertThat(sessionCookie.getPath())
 				.isEqualTo(this.request.getContextPath() + "/");
 	}
@@ -176,12 +173,8 @@ public class CookieHttpSessionIdResolverTests {
 		this.request.setCookies(new Cookie(this.cookieName, base64Encode(value)));
 	}
 
-	private ResponseCookie getCookie() {
-		return ResponseCookieParser.parse(this.response, this.cookieName);
-	}
-
 	private String getSessionId() {
-		return base64Decode(getCookie().getValue());
+		return base64Decode(this.response.getCookie(this.cookieName).getValue());
 	}
 
 	private static String base64Encode(String value) {

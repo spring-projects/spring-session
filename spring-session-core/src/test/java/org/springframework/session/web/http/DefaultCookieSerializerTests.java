@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import org.springframework.http.ResponseCookie;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.web.http.CookieSerializer.CookieValue;
@@ -325,7 +325,7 @@ public class DefaultCookieSerializerTests {
 	public void writeCookieCookieMaxAgeDefault() {
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().getMaxAge().getSeconds()).isEqualTo(-1);
+		assertThat(getCookie().getMaxAge()).isEqualTo(-1);
 	}
 
 	@Test
@@ -334,7 +334,7 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().getMaxAge().getSeconds()).isEqualTo(100);
+		assertThat(getCookie().getMaxAge()).isEqualTo(100);
 	}
 
 	@Test
@@ -343,7 +343,7 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue(""));
 
-		assertThat(getCookie().getMaxAge().getSeconds()).isEqualTo(0);
+		assertThat(getCookie().getMaxAge()).isEqualTo(0);
 	}
 
 	@Test
@@ -353,7 +353,7 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue);
 
-		assertThat(getCookie().getMaxAge().getSeconds()).isEqualTo(100);
+		assertThat(getCookie().getMaxAge()).isEqualTo(100);
 	}
 
 	// --- secure ---
@@ -362,7 +362,7 @@ public class DefaultCookieSerializerTests {
 	public void writeCookieDefaultInsecureRequest() {
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().isSecure()).isFalse();
+		assertThat(getCookie().getSecure()).isFalse();
 	}
 
 	@Test
@@ -372,7 +372,7 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().isSecure()).isTrue();
+		assertThat(getCookie().getSecure()).isTrue();
 	}
 
 	@Test
@@ -381,7 +381,7 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().isSecure()).isTrue();
+		assertThat(getCookie().getSecure()).isTrue();
 	}
 
 	@Test
@@ -391,7 +391,7 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().isSecure()).isFalse();
+		assertThat(getCookie().getSecure()).isFalse();
 	}
 
 	@Test
@@ -400,7 +400,7 @@ public class DefaultCookieSerializerTests {
 
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().isSecure()).isFalse();
+		assertThat(getCookie().getSecure()).isFalse();
 	}
 
 	// --- jvmRoute ---
@@ -453,7 +453,7 @@ public class DefaultCookieSerializerTests {
 		this.serializer.setRememberMeRequestAttribute("rememberMe");
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
-		assertThat(getCookie().getMaxAge().getSeconds()).isEqualTo(Integer.MAX_VALUE);
+		assertThat(getCookie().getMaxAge()).isEqualTo(Integer.MAX_VALUE);
 	}
 
 	@Test
@@ -464,7 +464,7 @@ public class DefaultCookieSerializerTests {
 		cookieValue.setCookieMaxAge(100);
 		this.serializer.writeCookieValue(cookieValue);
 
-		assertThat(getCookie().getMaxAge().getSeconds()).isEqualTo(100);
+		assertThat(getCookie().getMaxAge()).isEqualTo(100);
 	}
 
 	// --- sameSite ---
@@ -512,14 +512,17 @@ public class DefaultCookieSerializerTests {
 		return new Cookie(name, value);
 	}
 
-	private ResponseCookie getCookie() {
-		return ResponseCookieParser.parse(this.response, this.cookieName);
+	private MockCookie getCookie() {
+		return (MockCookie) this.response.getCookie(this.cookieName);
 	}
 
 	private String getCookieValue() {
 		String value = getCookie().getValue();
 		if (!this.useBase64Encoding) {
 			return value;
+		}
+		if (value == null) {
+			return null;
 		}
 		return new String(Base64.getDecoder().decode(value));
 	}

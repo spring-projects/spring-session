@@ -16,18 +16,16 @@
 
 package docs.security;
 
-import java.net.HttpCookie;
 import java.time.Duration;
 import java.util.Base64;
 
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Cookie;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -81,22 +79,13 @@ public class RememberMeSecurityConfigurationXmlTests<T extends Session> {
 			.andReturn();
 		// @formatter:on
 
-		HttpCookie cookie = getSessionCookie(result.getResponse());
+		Cookie cookie = result.getResponse().getCookie("SESSION");
 		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
 		T session = this.sessions
 				.findById(new String(Base64.getDecoder().decode(cookie.getValue())));
 		assertThat(session.getMaxInactiveInterval())
 				.isEqualTo(Duration.ofDays(30));
 
-	}
-
-	private HttpCookie getSessionCookie(HttpServletResponse response) {
-		for (HttpCookie cookie : HttpCookie.parse(response.getHeader(HttpHeaders.SET_COOKIE))) {
-			if ("SESSION".equals(cookie.getName())) {
-				return cookie;
-			}
-		}
-		return null;
 	}
 
 }
