@@ -87,12 +87,6 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		return Mono.just(session);
 	}
 
-	public Mono<Void> storeSession(WebSession session) {
-		@SuppressWarnings("unchecked")
-		SpringSessionWebSession springWebSession = (SpringSessionWebSession) session;
-		return this.sessions.save(springWebSession.session);
-	}
-
 	@Override
 	public Mono<WebSession> retrieveSession(String sessionId) {
 		return this.sessions.findById(sessionId)

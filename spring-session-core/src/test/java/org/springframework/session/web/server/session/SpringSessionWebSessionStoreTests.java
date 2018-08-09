@@ -254,17 +254,6 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	}
 
 	@Test
-	public void storeSessionWhenInvokedThenSessionSaved() {
-		given(this.sessionRepository.save(this.createSession)).willReturn(Mono.empty());
-		WebSession createdSession = this.webSessionStore.createWebSession()
-				.block();
-
-		this.webSessionStore.storeSession(createdSession).block();
-
-		verify(this.sessionRepository).save(this.createSession);
-	}
-
-	@Test
 	public void retrieveSessionThenStarted() {
 		String id = "id";
 		WebSession retrievedWebSession = this.webSessionStore
