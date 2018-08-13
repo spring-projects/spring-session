@@ -383,9 +383,9 @@ public class JdbcOperationsSessionRepository implements
 								ps.setLong(6, session.getExpiryTime().toEpochMilli());
 								ps.setString(7, session.getPrincipalName());
 							});
-					if (!session.getAttributeNames().isEmpty()) {
-						final List<String> attributeNames = new ArrayList<>(session.getAttributeNames());
-						insertSessionAttributes(session, attributeNames);
+					Set<String> attributeNames = session.getAttributeNames();
+					if (!attributeNames.isEmpty()) {
+						insertSessionAttributes(session, new ArrayList<>(attributeNames));
 					}
 				}
 
@@ -412,17 +412,23 @@ public class JdbcOperationsSessionRepository implements
 							.filter((entry) -> entry.getValue() == DeltaValue.ADDED)
 							.map(Map.Entry::getKey)
 							.collect(Collectors.toList());
-					insertSessionAttributes(session, addedAttributeNames);
+					if (!addedAttributeNames.isEmpty()) {
+						insertSessionAttributes(session, addedAttributeNames);
+					}
 					List<String> updatedAttributeNames = session.delta.entrySet().stream()
 							.filter((entry) -> entry.getValue() == DeltaValue.UPDATED)
 							.map(Map.Entry::getKey)
 							.collect(Collectors.toList());
-					updateSessionAttributes(session, updatedAttributeNames);
+					if (!updatedAttributeNames.isEmpty()) {
+						updateSessionAttributes(session, updatedAttributeNames);
+					}
 					List<String> removedAttributeNames = session.delta.entrySet().stream()
 							.filter((entry) -> entry.getValue() == DeltaValue.REMOVED)
 							.map(Map.Entry::getKey)
 							.collect(Collectors.toList());
-					deleteSessionAttributes(session, removedAttributeNames);
+					if (!removedAttributeNames.isEmpty()) {
+						deleteSessionAttributes(session, removedAttributeNames);
+					}
 				}
 
 			});
@@ -492,9 +498,7 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	private void insertSessionAttributes(JdbcSession session, List<String> attributeNames) {
-		if (attributeNames == null || attributeNames.isEmpty()) {
-			return;
-		}
+		Assert.notEmpty(attributeNames, "attributeNames must not be null or empty");
 		if (attributeNames.size() > 1) {
 			this.jdbcOperations.batchUpdate(this.createSessionAttributeQuery, new BatchPreparedStatementSetter() {
 
@@ -524,9 +528,7 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	private void updateSessionAttributes(JdbcSession session, List<String> attributeNames) {
-		if (attributeNames == null || attributeNames.isEmpty()) {
-			return;
-		}
+		Assert.notEmpty(attributeNames, "attributeNames must not be null or empty");
 		if (attributeNames.size() > 1) {
 			this.jdbcOperations.batchUpdate(this.updateSessionAttributeQuery, new BatchPreparedStatementSetter() {
 
@@ -556,9 +558,7 @@ public class JdbcOperationsSessionRepository implements
 	}
 
 	private void deleteSessionAttributes(JdbcSession session, List<String> attributeNames) {
-		if (attributeNames == null || attributeNames.isEmpty()) {
-			return;
-		}
+		Assert.notEmpty(attributeNames, "attributeNames must not be null or empty");
 		if (attributeNames.size() > 1) {
 			this.jdbcOperations.batchUpdate(this.deleteSessionAttributeQuery, new BatchPreparedStatementSetter() {
 
