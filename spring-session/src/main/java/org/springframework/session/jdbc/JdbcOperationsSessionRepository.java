@@ -143,7 +143,9 @@ public class JdbcOperationsSessionRepository implements
 
 	private static final String CREATE_SESSION_ATTRIBUTE_QUERY =
 			"INSERT INTO %TABLE_NAME%_ATTRIBUTES(SESSION_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) " +
-					"VALUES (?, ?, ?)";
+					"SELECT SESSION_ID, ?, ? " +
+					"FROM %TABLE_NAME% " +
+					"WHERE SESSION_ID = ?";
 
 	private static final String GET_SESSION_QUERY =
 			"SELECT S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES " +
@@ -398,9 +400,9 @@ public class JdbcOperationsSessionRepository implements
 
 									public void setValues(PreparedStatement ps, int i) throws SQLException {
 										String attributeName = attributeNames.get(i);
-										ps.setString(1, session.getId());
-										ps.setString(2, attributeName);
-										serialize(ps, 3, session.getAttribute(attributeName));
+										ps.setString(1, attributeName);
+										serialize(ps, 2, session.getAttribute(attributeName));
+										ps.setString(3, session.getId());
 									}
 
 									public int getBatchSize() {
@@ -465,9 +467,9 @@ public class JdbcOperationsSessionRepository implements
 											new PreparedStatementSetter() {
 
 												public void setValues(PreparedStatement ps) throws SQLException {
-													ps.setString(1, session.getId());
-													ps.setString(2, entry.getKey());
-													serialize(ps, 3, entry.getValue());
+													ps.setString(1, entry.getKey());
+													serialize(ps, 2, entry.getValue());
+													ps.setString(3, session.getId());
 												}
 
 											});
