@@ -743,6 +743,31 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(session.<String>getAttribute("testName")).isEqualTo("testValue2");
 	}
 
+	@Test // gh-1151
+	public void saveDeleted() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+		this.repository.deleteById(session.getId());
+		session.setLastAccessedTime(Instant.now());
+		this.repository.save(session);
+
+		assertThat(this.repository.findById(session.getId())).isNull();
+	}
+
+	@Test // gh-1151
+	public void saveDeletedAddAttribute() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+		this.repository.deleteById(session.getId());
+		session.setLastAccessedTime(Instant.now());
+		session.setAttribute("testName", "testValue1");
+		this.repository.save(session);
+
+		assertThat(this.repository.findById(session.getId())).isNull();
+	}
+
 	private String getSecurityName() {
 		return this.context.getAuthentication().getName();
 	}

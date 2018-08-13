@@ -144,7 +144,9 @@ public class JdbcOperationsSessionRepository implements
 
 	private static final String CREATE_SESSION_ATTRIBUTE_QUERY =
 			"INSERT INTO %TABLE_NAME%_ATTRIBUTES(SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) " +
-					"VALUES (?, ?, ?)";
+					"SELECT PRIMARY_ID, ?, ? " +
+					"FROM %TABLE_NAME% " +
+					"WHERE SESSION_ID = ?";
 
 	private static final String GET_SESSION_QUERY =
 			"SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES " +
@@ -499,9 +501,9 @@ public class JdbcOperationsSessionRepository implements
 						@Override
 						public void setValues(PreparedStatement ps, int i) throws SQLException {
 							String attributeName = attributeNames.get(i);
-							ps.setString(1, session.primaryKey);
-							ps.setString(2, attributeName);
-							serialize(ps, 3, session.getAttribute(attributeName));
+							ps.setString(1, attributeName);
+							serialize(ps, 2, session.getAttribute(attributeName));
+							ps.setString(3, session.getId());
 						}
 
 						@Override
@@ -514,9 +516,9 @@ public class JdbcOperationsSessionRepository implements
 		else {
 			this.jdbcOperations.update(this.createSessionAttributeQuery, (ps) -> {
 				String attributeName = attributeNames.get(0);
-				ps.setString(1, session.primaryKey);
-				ps.setString(2, attributeName);
-				serialize(ps, 3, session.getAttribute(attributeName));
+				ps.setString(1, attributeName);
+				serialize(ps, 2, session.getAttribute(attributeName));
+				ps.setString(3, session.getId());
 			});
 		}
 	}
