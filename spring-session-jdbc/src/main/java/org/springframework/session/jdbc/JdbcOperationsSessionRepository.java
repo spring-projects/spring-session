@@ -16,6 +16,8 @@
 
 package org.springframework.session.jdbc;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,6 +59,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -734,7 +737,8 @@ public class JdbcOperationsSessionRepository implements
 
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
-			boolean attributeExists = (this.delegate.getAttribute(attributeName) != null);
+			final Object existingAttributeValue = this.delegate.getAttribute(attributeName);
+			boolean attributeExists = (existingAttributeValue != null);
 			boolean attributeRemoved = (attributeValue == null);
 			if (!attributeExists && attributeRemoved) {
 				return;
@@ -746,7 +750,7 @@ public class JdbcOperationsSessionRepository implements
 									? null
 									: deltaValue));
 				}
-				else {
+				else if (existingAttributeValue.getClass() != attributeValue.getClass() || !isImmutable(existingAttributeValue.getClass()) || !attributeValue.equals(existingAttributeValue)) {
 					this.delta.merge(attributeName, DeltaValue.UPDATED,
 							(oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED
 									? oldDeltaValue
@@ -764,6 +768,10 @@ public class JdbcOperationsSessionRepository implements
 					SPRING_SECURITY_CONTEXT.equals(attributeName)) {
 				this.changed = true;
 			}
+		}
+
+		private boolean isImmutable(Class<?> clazz) {
+			return ClassUtils.isPrimitiveOrWrapper(clazz) || clazz == BigDecimal.class || clazz == BigInteger.class || clazz == String.class || clazz == Class.class;
 		}
 
 		@Override
