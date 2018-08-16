@@ -19,27 +19,22 @@ package org.springframework.session;
 import java.util.Map;
 
 /**
- * Extends a basic {@link SessionRepository} to allow finding a session id by the
- * principal name. The principal name is defined by the {@link Session} attribute with the
- * name {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME}.
+ * Extends a basic {@link SessionRepository} to allow finding sessions by the specified
+ * index name and index value.
  *
  * @param <S> the type of Session being managed by this
  * {@link FindByIndexNameSessionRepository}
  * @author Rob Winch
+ * @author Vedran Pavic
  */
 public interface FindByIndexNameSessionRepository<S extends Session>
 		extends SessionRepository<S> {
 
 	/**
+	 * A session index that contains the current principal name (i.e. username).
 	 * <p>
-	 * A common session attribute that contains the current principal name (i.e.
-	 * username).
-	 * </p>
-	 *
-	 * <p>
-	 * It is the responsibility of the developer to ensure the attribute is populated
-	 * since Spring Session is not aware of the authentication mechanism being used.
-	 * </p>
+	 * It is the responsibility of the developer to ensure the index is populated since
+	 * Spring Session is not aware of the authentication mechanism being used.
 	 *
 	 * @since 1.1
 	 */
@@ -47,17 +42,34 @@ public interface FindByIndexNameSessionRepository<S extends Session>
 			.concat(".PRINCIPAL_NAME_INDEX_NAME");
 
 	/**
-	 * Find a Map of the session id to the {@link Session} of all sessions that contain
-	 * the session attribute with the name
-	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME} and the value of
-	 * the specified principal name.
+	 * Find a {@link Map} of the session id to the {@link Session} of all sessions that
+	 * contain the specified index name index value.
 	 *
 	 * @param indexName the name of the index (i.e.
 	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME})
 	 * @param indexValue the value of the index to search for.
-	 * @return a Map (never null) of the session id to the {@link Session} of all sessions
-	 * that contain the session specified index name and the value of the specified index
-	 * name. If no results are found, an empty Map is returned.
+	 * @return a {@code Map} (never {@code null}) of the session id to the {@code Session}
+	 * of all sessions that contain the specified index name and index value. If no
+	 * results are found, an empty {@code Map} is returned.
 	 */
 	Map<String, S> findByIndexNameAndIndexValue(String indexName, String indexValue);
+
+	/**
+	 * Find a {@link Map} of the session id to the {@link Session} of all sessions that
+	 * contain the index with the name
+	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME} and the
+	 * specified principal name.
+	 *
+	 * @param principalName the principal name
+	 * @return a {@code Map} (never {@code null}) of the session id to the {@code Session}
+	 * of all sessions that contain the specified principal name. If no results are found,
+	 * an empty {@code Map} is returned.
+	 * @since 2.1.0
+	 */
+	default Map<String, S> findByPrincipalName(String principalName) {
+
+		return findByIndexNameAndIndexValue(PRINCIPAL_NAME_INDEX_NAME, principalName);
+
+	}
+
 }

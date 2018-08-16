@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,10 +44,7 @@ public class IndexController {
 	@RequestMapping("/")
 	public String index(Principal principal, Model model) {
 		Collection<? extends Session> usersSessions = this.sessions
-				.findByIndexNameAndIndexValue(
-						FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
-						principal.getName())
-				.values();
+				.findByPrincipalName(principal.getName()).values();
 		model.addAttribute("sessions", usersSessions);
 		return "index";
 	}
@@ -56,9 +53,8 @@ public class IndexController {
 	@RequestMapping(value = "/sessions/{sessionIdToDelete}", method = RequestMethod.DELETE)
 	public String removeSession(Principal principal,
 			@PathVariable String sessionIdToDelete) {
-		Set<String> usersSessionIds = this.sessions.findByIndexNameAndIndexValue(
-				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
-				principal.getName()).keySet();
+		Set<String> usersSessionIds = this.sessions
+				.findByPrincipalName(principal.getName()).keySet();
 		if (usersSessionIds.contains(sessionIdToDelete)) {
 			this.sessions.deleteById(sessionIdToDelete);
 		}
