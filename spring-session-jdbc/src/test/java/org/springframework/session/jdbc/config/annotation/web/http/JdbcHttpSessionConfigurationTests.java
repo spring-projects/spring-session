@@ -290,15 +290,18 @@ public class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
-	public void resolveTableNameByPropertyPlaceholder() {
+	public void resolveValuesByPropertyPlaceholder() {
 		this.context.setEnvironment(new MockEnvironment()
-				.withProperty("session.jdbc.tableName", "custom_session_table"));
+				.withProperty("session.jdbc.tableName", "custom_session_table")
+				.withProperty("session.jdbc.cleanupCron", CLEANUP_CRON_EXPRESSION));
 		registerAndRefresh(DataSourceConfiguration.class,
 				CustomJdbcHttpSessionConfiguration.class);
 		JdbcHttpSessionConfiguration configuration = this.context
 				.getBean(JdbcHttpSessionConfiguration.class);
 		assertThat(ReflectionTestUtils.getField(configuration, "tableName"))
 				.isEqualTo("custom_session_table");
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -469,7 +472,7 @@ public class JdbcHttpSessionConfigurationTests {
 
 	}
 
-	@EnableJdbcHttpSession(tableName = "${session.jdbc.tableName}")
+	@EnableJdbcHttpSession(tableName = "${session.jdbc.tableName}", cleanupCron = "${session.jdbc.cleanupCron}")
 	static class CustomJdbcHttpSessionConfiguration {
 
 		@Bean

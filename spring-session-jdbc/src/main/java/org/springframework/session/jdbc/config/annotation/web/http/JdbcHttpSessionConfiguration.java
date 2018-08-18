@@ -191,7 +191,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		}
 		String cleanupCron = attributes.getString("cleanupCron");
 		if (StringUtils.hasText(cleanupCron)) {
-			this.cleanupCron = cleanupCron;
+			this.cleanupCron = this.embeddedValueResolver
+					.resolveStringValue(cleanupCron);
 		}
 	}
 

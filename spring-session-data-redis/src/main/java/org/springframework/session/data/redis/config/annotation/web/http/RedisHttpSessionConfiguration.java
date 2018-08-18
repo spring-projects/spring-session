@@ -239,7 +239,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.redisFlushMode = attributes.getEnum("redisFlushMode");
 		String cleanupCron = attributes.getString("cleanupCron");
 		if (StringUtils.hasText(cleanupCron)) {
-			this.cleanupCron = cleanupCron;
+			this.cleanupCron = this.embeddedValueResolver
+					.resolveStringValue(cleanupCron);
 		}
 	}
 

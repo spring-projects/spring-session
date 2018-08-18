@@ -74,18 +74,23 @@ public class RedisHttpSessionConfigurationTests {
 				.getBean(RedisHttpSessionConfiguration.class);
 		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace"))
 				.isEqualTo("myRedisNamespace");
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	@Test
 	public void resolveValueByPlaceholder() {
 		this.context.setEnvironment(new MockEnvironment()
-				.withProperty("session.redis.namespace", "customRedisNamespace"));
+				.withProperty("session.redis.namespace", "customRedisNamespace")
+				.withProperty("session.redis.cleanupCron", CLEANUP_CRON_EXPRESSION));
 		registerAndRefresh(RedisConfig.class, PropertySourceConfiguration.class,
 				CustomRedisHttpSessionConfiguration2.class);
 		RedisHttpSessionConfiguration configuration = this.context
 				.getBean(RedisHttpSessionConfiguration.class);
 		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace"))
 				.isEqualTo("customRedisNamespace");
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	@Test
@@ -346,13 +351,13 @@ public class RedisHttpSessionConfigurationTests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisNamespace = "myRedisNamespace")
+	@EnableRedisHttpSession(redisNamespace = "myRedisNamespace", cleanupCron = CLEANUP_CRON_EXPRESSION)
 	static class CustomRedisHttpSessionConfiguration {
 
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisNamespace = "${session.redis.namespace}")
+	@EnableRedisHttpSession(redisNamespace = "${session.redis.namespace}", cleanupCron = "${session.redis.cleanupCron}")
 	static class CustomRedisHttpSessionConfiguration2 {
 
 	}
