@@ -76,6 +76,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
+	/**
+	 * Special {@link #setCleanupCron} value to disable session cleanup job.
+	 * @since 2.1.0
+	 */
+	public static final String DISABLED_CLEANUP_CRON = "disabled";
+
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	private String redisNamespace = RedisOperationsSessionRepository.DEFAULT_NAMESPACE;
@@ -239,8 +245,14 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	@Override
 	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-		taskRegistrar.addCronTask(() -> sessionRepository().cleanupExpiredSessions(),
-				this.cleanupCron);
+		if (this.isCleanupCronEnabled()) {
+			taskRegistrar.addCronTask(() -> sessionRepository().cleanupExpiredSessions(),
+					this.cleanupCron);
+		}
+	}
+
+	protected boolean isCleanupCronEnabled() {
+		return !(DISABLED_CLEANUP_CRON.equalsIgnoreCase(this.cleanupCron));
 	}
 
 	private RedisTemplate<Object, Object> createRedisTemplate() {

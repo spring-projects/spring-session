@@ -69,6 +69,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
+	/**
+	 * Special {@link #setCleanupCron} value to disable session cleanup job.
+	 * @since 2.1.0
+	 */
+	public static final String DISABLED_CLEANUP_CRON = "disabled";
+
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	private String tableName = JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
@@ -191,8 +197,14 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Override
 	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-		taskRegistrar.addCronTask(() -> sessionRepository().cleanUpExpiredSessions(),
-				this.cleanupCron);
+		if (this.isCleanupCronEnabled()) {
+			taskRegistrar.addCronTask(() -> sessionRepository().cleanUpExpiredSessions(),
+					this.cleanupCron);
+		}
+	}
+
+	protected boolean isCleanupCronEnabled() {
+		return !(DISABLED_CLEANUP_CRON.equalsIgnoreCase(this.cleanupCron));
 	}
 
 	private static JdbcTemplate createJdbcTemplate(DataSource dataSource) {

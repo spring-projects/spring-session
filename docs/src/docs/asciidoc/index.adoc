@@ -837,7 +837,6 @@ Short of using distributed locks (which would kill our performance) there is no 
 By simply accessing the key, we ensure that the key is only removed if the TTL on that key is expired.
 ====
 
-
 [[api-redisoperationssessionrepository-sessiondestroyedevent]]
 ==== SessionDeletedEvent and SessionExpiredEvent
 
@@ -875,6 +874,18 @@ XML Configuration can use the following:
 ----
 include::{docs-test-resources-dir}docs/HttpSessionConfigurationNoOpConfigureRedisActionXmlTests-context.xml[tags=configure-redis-action]
 ----
+
+[[api-redisoperationssessionrepository-disablebackgroundtask]]
+==== Disable background task
+
+When you have many web servers, multiple background task will be fired at same time.
+If you want to stop it, set `cleanupCron` as `DISABLED_CLEANUP_CRON`.
+
+[NOTE]
+====
+If you disable `cleanupCron`, neither `SessionDeletedEvent` nor `SessionExpiredEvent` may not be fired.
+For example, your WebSocket connection belong to expired session may not be automatically closed.
+====
 
 [[api-redisoperationssessionrepository-sessioncreatedevent]]
 ==== SessionCreatedEvent

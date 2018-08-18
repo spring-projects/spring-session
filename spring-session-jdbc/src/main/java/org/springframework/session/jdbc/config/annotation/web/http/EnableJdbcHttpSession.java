@@ -91,9 +91,15 @@ public @interface EnableJdbcHttpSession {
 
 	/**
 	 * The cron expression for expired session cleanup job. By default runs every minute.
+	 * To disable cleanup job, set {@link #DISABLED_CLEANUP_CRON}.
 	 * @return the session cleanup cron expression
 	 * @since 2.0.0
 	 */
 	String cleanupCron() default JdbcHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
 
+	/**
+	 * Special {@link #cleanupCron} value to disable session cleanup job.
+	 * @since 2.1.0
+	 */
+	String DISABLED_CLEANUP_CRON = JdbcHttpSessionConfiguration.DISABLED_CLEANUP_CRON;
 }

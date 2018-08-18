@@ -137,6 +137,7 @@ public class JdbcHttpSessionConfigurationTests {
 		assertThat(configuration).isNotNull();
 		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
 				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+		assertThat(configuration.isCleanupCronEnabled()).isTrue();
 	}
 
 	@Test
@@ -149,6 +150,34 @@ public class JdbcHttpSessionConfigurationTests {
 		assertThat(configuration).isNotNull();
 		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
 				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+		assertThat(configuration.isCleanupCronEnabled()).isTrue();
+	}
+
+
+	@Test
+	public void disabledCleanupCronAnnotation() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				DisabledCleanupCronExpressionAnnotationConfiguration.class);
+
+		JdbcHttpSessionConfiguration configuration = this.context
+				.getBean(JdbcHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(JdbcHttpSessionConfiguration.DISABLED_CLEANUP_CRON);
+		assertThat(configuration.isCleanupCronEnabled()).isFalse();
+	}
+
+	@Test
+	public void disabledCleanupCronSetter() {
+		registerAndRefresh(DataSourceConfiguration.class,
+				DisabledCleanupCronExpressionSetterConfiguration.class);
+
+		JdbcHttpSessionConfiguration configuration = this.context
+				.getBean(JdbcHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(JdbcHttpSessionConfiguration.DISABLED_CLEANUP_CRON);
+		assertThat(configuration.isCleanupCronEnabled()).isFalse();
 	}
 
 	@Test
@@ -342,6 +371,21 @@ public class JdbcHttpSessionConfigurationTests {
 
 		CustomCleanupCronExpressionSetterConfiguration() {
 			setCleanupCron(CLEANUP_CRON_EXPRESSION);
+		}
+
+	}
+
+	@EnableJdbcHttpSession(cleanupCron = EnableJdbcHttpSession.DISABLED_CLEANUP_CRON)
+	static class DisabledCleanupCronExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class DisabledCleanupCronExpressionSetterConfiguration
+			extends JdbcHttpSessionConfiguration {
+
+		DisabledCleanupCronExpressionSetterConfiguration() {
+			setCleanupCron(DISABLED_CLEANUP_CRON);
 		}
 
 	}

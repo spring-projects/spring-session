@@ -98,6 +98,7 @@ public class RedisHttpSessionConfigurationTests {
 		assertThat(configuration).isNotNull();
 		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
 				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+		assertThat(configuration.isCleanupCronEnabled()).isTrue();
 	}
 
 	@Test
@@ -110,6 +111,33 @@ public class RedisHttpSessionConfigurationTests {
 		assertThat(configuration).isNotNull();
 		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
 				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+		assertThat(configuration.isCleanupCronEnabled()).isTrue();
+	}
+
+	@Test
+	public void disabledCleanupCronAnnotation() {
+		registerAndRefresh(RedisConfig.class,
+				DisabledCleanupCronExpressionAnnotationConfiguration.class);
+
+		RedisHttpSessionConfiguration configuration = this.context
+				.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(RedisHttpSessionConfiguration.DISABLED_CLEANUP_CRON);
+		assertThat(configuration.isCleanupCronEnabled()).isFalse();
+	}
+
+	@Test
+	public void disabledCleanupCronSetter() {
+		registerAndRefresh(RedisConfig.class,
+				DisabledCleanupCronExpressionSetterConfiguration.class);
+
+		RedisHttpSessionConfiguration configuration = this.context
+				.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
+				.isEqualTo(RedisHttpSessionConfiguration.DISABLED_CLEANUP_CRON);
+		assertThat(configuration.isCleanupCronEnabled()).isFalse();
 	}
 
 	@Test
@@ -234,6 +262,21 @@ public class RedisHttpSessionConfigurationTests {
 
 		CustomCleanupCronExpressionSetterConfiguration() {
 			setCleanupCron(CLEANUP_CRON_EXPRESSION);
+		}
+
+	}
+
+	@EnableRedisHttpSession(cleanupCron = EnableRedisHttpSession.DISABLED_CLEANUP_CRON)
+	static class DisabledCleanupCronExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class DisabledCleanupCronExpressionSetterConfiguration
+			extends RedisHttpSessionConfiguration {
+
+		DisabledCleanupCronExpressionSetterConfiguration() {
+			setCleanupCron(DISABLED_CLEANUP_CRON);
 		}
 
 	}
