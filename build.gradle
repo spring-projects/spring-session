@@ -7,14 +7,20 @@ buildscript {
 		maven { url 'https://repo.spring.io/plugins-release' }
 	}
 }
+
 apply plugin: 'io.spring.convention.root'
 
 group = 'org.springframework.session'
 description = 'Spring Session'
 
+repositories {
+	maven { url "https://repo.spring.io/libs-milestone" }
+}
+
+ext['groovy.version'] = "2.4.15"
+ext['reactor-bom.version'] = "Californium-M2"
+ext['spring.version'] = "5.1.0.RC2"
 
 ext.releaseBuild = version.endsWith('RELEASE')
 ext.snapshotBuild = version.endsWith('SNAPSHOT')
 ext.milestoneBuild = !(releaseBuild || snapshotBuild)
-
-
