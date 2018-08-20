@@ -118,6 +118,10 @@ public class ReactiveRedisOperationsSessionRepository implements
 		this.redisFlushMode = redisFlushMode;
 	}
 
+	public ReactiveRedisOperations<String, Object> getSessionRedisOperations() {
+		return this.sessionRedisOperations;
+	}
+
 	@Override
 	public Mono<RedisSession> createSession() {
 		return Mono.defer(() -> {

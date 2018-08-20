@@ -32,6 +32,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
+import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -70,6 +71,22 @@ public class RedisWebSessionConfigurationTests {
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
+	}
+
+	@Test
+	public void springSessionRedisOperationsResolvingConfiguration() {
+		registerAndRefresh(RedisConfig.class,
+				SpringSessionRedisOperationsResolvingConfig.class);
+
+		ReactiveRedisOperationsSessionRepository repository = this.context
+				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		assertThat(repository).isNotNull();
+		ReactiveRedisOperations<String, Object> springSessionRedisOperations = this.context
+				.getBean(SpringSessionRedisOperationsResolvingConfig.class)
+				.getSpringSessionRedisOperations();
+		assertThat(springSessionRedisOperations).isNotNull();
+		assertThat((ReactiveRedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations")).isEqualTo(springSessionRedisOperations);
 	}
 
 	@Test
@@ -230,6 +247,18 @@ public class RedisWebSessionConfigurationTests {
 
 	@EnableRedisWebSession
 	static class DefaultConfig {
+
+	}
+
+	@EnableRedisWebSession
+	static class SpringSessionRedisOperationsResolvingConfig {
+
+		@SpringSessionRedisOperations
+		private ReactiveRedisOperations<String, Object> springSessionRedisOperations;
+
+		public ReactiveRedisOperations<String, Object> getSpringSessionRedisOperations() {
+			return this.springSessionRedisOperations;
+		}
 
 	}
 
