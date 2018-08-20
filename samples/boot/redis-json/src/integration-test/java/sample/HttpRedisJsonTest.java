@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureMockMvc
 public class HttpRedisJsonTest {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.10";
+	private static final String DOCKER_IMAGE = "redis:4.0.11";
 
 	@Autowired
 	private MockMvc mockMvc;
