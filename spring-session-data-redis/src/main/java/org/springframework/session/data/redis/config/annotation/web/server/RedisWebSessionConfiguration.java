@@ -21,6 +21,7 @@ import java.util.Map;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -63,6 +64,8 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
 	private ReactiveRedisConnectionFactory redisConnectionFactory;
+
+	private RedisSerializer<Object> defaultRedisSerializer;
 
 	private ClassLoader classLoader;
 
@@ -107,6 +110,13 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		this.redisConnectionFactory = redisConnectionFactoryToUse;
 	}
 
+	@Autowired(required = false)
+	@Qualifier("springSessionDefaultRedisSerializer")
+	public void setDefaultRedisSerializer(
+			RedisSerializer<Object> defaultRedisSerializer) {
+		this.defaultRedisSerializer = defaultRedisSerializer;
+	}
+
 	@Override
 	public void setBeanClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;
@@ -134,10 +144,11 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	private ReactiveRedisTemplate<String, Object> createReactiveRedisTemplate() {
 		RedisSerializer<String> keySerializer = new StringRedisSerializer();
-		RedisSerializer<Object> valueSerializer = new JdkSerializationRedisSerializer(
-				this.classLoader);
+		RedisSerializer<Object> defaultSerializer = (this.defaultRedisSerializer != null
+				? this.defaultRedisSerializer
+				: new JdkSerializationRedisSerializer(this.classLoader));
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-				.<String, Object>newSerializationContext(valueSerializer)
+				.<String, Object>newSerializationContext(defaultSerializer)
 				.key(keySerializer).hashKey(keySerializer).build();
 		return new ReactiveRedisTemplate<>(this.redisConnectionFactory,
 				serializationContext);
