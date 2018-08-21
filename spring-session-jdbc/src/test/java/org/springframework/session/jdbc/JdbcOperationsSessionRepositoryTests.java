@@ -42,7 +42,10 @@ import org.springframework.transaction.TransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
@@ -88,7 +91,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		assertThatThrownBy(
 				() -> new JdbcOperationsSessionRepository(this.jdbcOperations, null))
 						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("Property 'transactionManager' is required");
+						.hasMessage("TransactionManager must not be null");
 	}
 
 	@Test
@@ -686,6 +689,89 @@ public class JdbcOperationsSessionRepositoryTests {
 		}
 
 		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
+	@Test
+	public void saveNewWithoutTransaction() {
+		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations);
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
+
+		this.repository.save(session);
+
+		verify(this.jdbcOperations, times(1)).update(
+				startsWith("INSERT INTO SPRING_SESSION"),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+		verifyZeroInteractions(this.transactionManager);
+	}
+
+	@Test
+	public void saveUpdatedWithoutTransaction() {
+		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations);
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(
+				"primaryKey", new MapSession());
+		session.setLastAccessedTime(Instant.now());
+
+		this.repository.save(session);
+
+		verify(this.jdbcOperations, times(1)).update(startsWith("UPDATE SPRING_SESSION"),
+				isA(PreparedStatementSetter.class));
+		verifyZeroInteractions(this.jdbcOperations);
+		verifyZeroInteractions(this.transactionManager);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void findByIdWithoutTransaction() {
+		given(this.jdbcOperations.query(anyString(), any(PreparedStatementSetter.class),
+				any(ResultSetExtractor.class))).willReturn(Collections.emptyList());
+		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations);
+		this.repository.findById("testSessionId");
+
+		verify(this.jdbcOperations, times(1)).query(endsWith("WHERE S.SESSION_ID = ?"),
+				isA(PreparedStatementSetter.class), isA(ResultSetExtractor.class));
+		verifyZeroInteractions(this.jdbcOperations);
+		verifyZeroInteractions(this.transactionManager);
+	}
+
+	@Test
+	public void deleteByIdWithoutTransaction() {
+		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations);
+		this.repository.deleteById("testSessionId");
+
+		verify(this.jdbcOperations, times(1)).update(
+				eq("DELETE FROM SPRING_SESSION WHERE SESSION_ID = ?"), anyString());
+		verifyZeroInteractions(this.jdbcOperations);
+		verifyZeroInteractions(this.transactionManager);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	public void findByIndexNameAndIndexValueWithoutTransaction() {
+		given(this.jdbcOperations.query(anyString(), any(PreparedStatementSetter.class),
+				any(ResultSetExtractor.class))).willReturn(Collections.emptyList());
+		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations);
+		this.repository.findByIndexNameAndIndexValue(
+				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				"testIndexValue");
+
+		verify(this.jdbcOperations, times(1)).query(
+				endsWith("WHERE S.PRINCIPAL_NAME = ?"),
+				isA(PreparedStatementSetter.class), isA(ResultSetExtractor.class));
+		verifyZeroInteractions(this.jdbcOperations);
+		verifyZeroInteractions(this.transactionManager);
+	}
+
+	@Test
+	public void cleanUpExpiredSessionsWithoutTransaction() {
+		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations);
+		this.repository.cleanUpExpiredSessions();
+
+		verify(this.jdbcOperations, times(1)).update(
+				eq("DELETE FROM SPRING_SESSION WHERE EXPIRY_TIME < ?"), anyLong());
+		verifyZeroInteractions(this.jdbcOperations);
+		verifyZeroInteractions(this.transactionManager);
 	}
 
 	private void assertPropagationRequiresNew() {

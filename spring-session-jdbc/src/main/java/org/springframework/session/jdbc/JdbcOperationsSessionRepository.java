@@ -52,7 +52,9 @@ import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -189,9 +191,16 @@ public class JdbcOperationsSessionRepository implements
 
 	private final JdbcOperations jdbcOperations;
 
-	private final TransactionOperations transactionOperations;
-
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
+
+	private TransactionOperations transactionOperations = new TransactionOperations() {
+
+		@Override
+		public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+			return action.doInTransaction(null);
+		}
+
+	};
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -229,14 +238,29 @@ public class JdbcOperationsSessionRepository implements
 	/**
 	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
 	 * provided {@link JdbcOperations} to manage sessions.
+	 * <p>
+	 * The created instance will execute all data access operations in a transaction with
+	 * propagation level of {@link TransactionDefinition#PROPAGATION_REQUIRES_NEW}.
 	 * @param jdbcOperations the {@link JdbcOperations} to use
 	 * @param transactionManager the {@link PlatformTransactionManager} to use
 	 */
 	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations,
 			PlatformTransactionManager transactionManager) {
+		this(jdbcOperations);
+		Assert.notNull(transactionManager, "TransactionManager must not be null");
+		this.transactionOperations = createTransactionTemplate(transactionManager);
+	}
+
+	/**
+	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
+	 * provided {@link JdbcOperations} to manage sessions.
+	 * <p>
+	 * The created instance will not execute data access operations in a transaction.
+	 * @param jdbcOperations the {@link JdbcOperations} to use
+	 */
+	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations) {
 		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
 		this.jdbcOperations = jdbcOperations;
-		this.transactionOperations = createTransactionTemplate(transactionManager);
 		this.conversionService = createDefaultConversionService();
 		prepareQueries();
 	}
