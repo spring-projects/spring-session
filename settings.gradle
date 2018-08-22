@@ -10,7 +10,7 @@ String rootDirPath = rootDir.absolutePath + File.separator
 buildFiles.each { File buildFile ->
 	if (buildFile.name == 'build.gradle') {
 		String buildFilePath = buildFile.parentFile.absolutePath
-		String projectPath = buildFilePath.replace(rootDirPath, '').replaceAll(File.separator, ':')
+		String projectPath = buildFilePath.replace(rootDirPath, '').replace(File.separator, ':')
 		include projectPath
 	}
 	else {
