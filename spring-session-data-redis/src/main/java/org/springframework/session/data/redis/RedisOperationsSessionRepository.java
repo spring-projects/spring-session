@@ -797,9 +797,10 @@ public class RedisOperationsSessionRepository implements
 
 			this.delta = new HashMap<>(this.delta.size());
 
-			Long originalExpiration = (this.originalLastAccessTime != null
-					? this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli()
-					: null);
+			Long originalExpiration = (this.originalLastAccessTime != null)
+					? this.originalLastAccessTime.plus(getMaxInactiveInterval())
+							.toEpochMilli()
+					: null;
 			RedisOperationsSessionRepository.this.expirationPolicy
 					.onExpirationUpdated(originalExpiration, this);
 		}

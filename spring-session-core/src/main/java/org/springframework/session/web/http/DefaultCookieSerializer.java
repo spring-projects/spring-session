@@ -102,8 +102,9 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		HttpServletResponse response = cookieValue.getResponse();
 
 		String requestedCookieValue = cookieValue.getCookieValue();
-		String actualCookieValue = (this.jvmRoute != null
-				? requestedCookieValue + this.jvmRoute : requestedCookieValue);
+		String actualCookieValue = (this.jvmRoute != null)
+				? requestedCookieValue + this.jvmRoute
+				: requestedCookieValue;
 
 		Cookie sessionCookie = new Cookie(this.cookieName, this.useBase64Encoding
 				? base64Encode(actualCookieValue) : actualCookieValue);

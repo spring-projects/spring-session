@@ -71,9 +71,9 @@ public final class WebSocketRegistryListener
 			SessionDisconnectEvent e = (SessionDisconnectEvent) event;
 			Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor
 					.getSessionAttributes(e.getMessage().getHeaders());
-			String httpSessionId = (sessionAttributes != null
+			String httpSessionId = (sessionAttributes != null)
 					? SessionRepositoryMessageInterceptor.getSessionId(sessionAttributes)
-					: null);
+					: null;
 			afterConnectionClosed(httpSessionId, e.getSessionId());
 		}
 	}

@@ -352,7 +352,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		@Override
 		public String getRequestedSessionId() {
 			S requestedSession = getRequestedSession();
-			return (requestedSession != null ? requestedSession.getId() : null);
+			return (requestedSession != null) ? requestedSession.getId() : null;
 		}
 
 		private S getRequestedSession() {

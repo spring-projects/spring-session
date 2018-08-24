@@ -174,11 +174,11 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	private void trackContentLength(byte[] content) {
-		checkContentLength(content != null ? content.length : 0);
+		checkContentLength((content != null) ? content.length : 0);
 	}
 
 	private void trackContentLength(char[] content) {
-		checkContentLength(content != null ? content.length : 0);
+		checkContentLength((content != null) ? content.length : 0);
 	}
 
 	private void trackContentLength(int content) {
@@ -257,13 +257,13 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 		}
 
 		@Override
-		public int hashCode() {
-			return this.delegate.hashCode();
+		public boolean equals(Object obj) {
+			return this.delegate.equals(obj);
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
+		public int hashCode() {
+			return this.delegate.hashCode();
 		}
 
 		@Override
@@ -502,13 +502,13 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 		}
 
 		@Override
-		public int hashCode() {
-			return this.delegate.hashCode();
+		public boolean equals(Object obj) {
+			return this.delegate.equals(obj);
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
+		public int hashCode() {
+			return this.delegate.hashCode();
 		}
 
 		@Override

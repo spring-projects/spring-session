@@ -95,7 +95,7 @@ public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITest
 			synchronized (this.lock) {
 				this.lock.wait(TimeUnit.SECONDS.toMillis(1));
 			}
-			return (this.taskDispatched != null ? this.taskDispatched : Boolean.FALSE);
+			return (this.taskDispatched != null) ? this.taskDispatched : Boolean.FALSE;
 		}
 	}
 
