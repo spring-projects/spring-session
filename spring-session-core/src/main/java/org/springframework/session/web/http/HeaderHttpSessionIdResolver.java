@@ -98,8 +98,8 @@ public class HeaderHttpSessionIdResolver implements HttpSessionIdResolver {
 	@Override
 	public List<String> resolveSessionIds(HttpServletRequest request) {
 		String headerValue = request.getHeader(this.headerName);
-		return (headerValue != null ? Collections.singletonList(headerValue)
-				: Collections.emptyList());
+		return (headerValue != null) ? Collections.singletonList(headerValue)
+				: Collections.emptyList();
 	}
 
 	@Override

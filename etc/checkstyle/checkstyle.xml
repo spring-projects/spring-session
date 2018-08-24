@@ -4,7 +4,7 @@
 <module name="Checker">
 	<!-- Supressions -->
 	<module name="SuppressionFilter">
-		<property name="file" value="${configDir}/suppressions.xml"/>
+		<property name="file" value="${config_loc}/suppressions.xml"/>
 	</module>
 
 	<!-- Root Checks -->

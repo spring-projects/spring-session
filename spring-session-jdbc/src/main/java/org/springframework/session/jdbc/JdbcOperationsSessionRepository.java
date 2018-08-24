@@ -765,23 +765,23 @@ public class JdbcOperationsSessionRepository implements
 			}
 			if (attributeExists) {
 				if (attributeRemoved) {
-					this.delta.merge(attributeName, DeltaValue.REMOVED,
-							(oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED
-									? null
-									: deltaValue));
+					this.delta.merge(attributeName, DeltaValue.REMOVED, (oldDeltaValue,
+							deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? null
+									: deltaValue);
 				}
 				else {
 					this.delta.merge(attributeName, DeltaValue.UPDATED,
-							(oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED
-									? oldDeltaValue
-									: deltaValue));
+							(oldDeltaValue,
+									deltaValue) -> (oldDeltaValue == DeltaValue.ADDED)
+											? oldDeltaValue
+											: deltaValue);
 				}
 			}
 			else {
 				this.delta.merge(attributeName, DeltaValue.ADDED,
-						(oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED
+						(oldDeltaValue, deltaValue) -> (oldDeltaValue == DeltaValue.ADDED)
 								? oldDeltaValue
-								: DeltaValue.UPDATED));
+								: DeltaValue.UPDATED);
 			}
 			this.delegate.setAttribute(attributeName, attributeValue);
 			if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) ||

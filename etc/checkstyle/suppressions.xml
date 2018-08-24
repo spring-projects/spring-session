@@ -7,7 +7,6 @@
 
 	<!-- docs -->
 	<suppress files="[\\/]docs[\\/]" checks="Javadoc*"/>
-	<suppress files="[\\/]docs[\\/]" checks="AvoidStaticImport"/>
 	<suppress files="[\\/]docs[\\/]" checks="InnerTypeLast"/>
 
 	<!-- samples -->

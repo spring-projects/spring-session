@@ -110,8 +110,9 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	@PostConstruct
 	public void init() {
-		CookieSerializer cookieSerializer = (this.cookieSerializer != null
-				? this.cookieSerializer : createDefaultCookieSerializer());
+		CookieSerializer cookieSerializer = (this.cookieSerializer != null)
+				? this.cookieSerializer
+				: createDefaultCookieSerializer();
 		this.defaultHttpSessionIdResolver.setCookieSerializer(cookieSerializer);
 	}
 

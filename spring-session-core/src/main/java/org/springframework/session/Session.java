@@ -81,7 +81,7 @@ public interface Session {
 	@SuppressWarnings("unchecked")
 	default <T> T getAttributeOrDefault(String name, T defaultValue) {
 		T result = getAttribute(name);
-		return (result != null ? result : defaultValue);
+		return (result != null) ? result : defaultValue;
 	}
 
 	/**

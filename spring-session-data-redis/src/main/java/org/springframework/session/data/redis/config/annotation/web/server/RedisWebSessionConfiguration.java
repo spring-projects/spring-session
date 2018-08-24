@@ -144,9 +144,9 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	private ReactiveRedisTemplate<String, Object> createReactiveRedisTemplate() {
 		RedisSerializer<String> keySerializer = new StringRedisSerializer();
-		RedisSerializer<Object> defaultSerializer = (this.defaultRedisSerializer != null
+		RedisSerializer<Object> defaultSerializer = (this.defaultRedisSerializer != null)
 				? this.defaultRedisSerializer
-				: new JdkSerializationRedisSerializer(this.classLoader));
+				: new JdkSerializationRedisSerializer(this.classLoader);
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
 				.<String, Object>newSerializationContext(defaultSerializer)
 				.key(keySerializer).hashKey(keySerializer).build();

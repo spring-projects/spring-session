@@ -135,9 +135,9 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		int maxAge = getMaxAge(cookieValue);
 		if (maxAge > -1) {
 			sb.append("; Max-Age=").append(cookieValue.getCookieMaxAge());
-			OffsetDateTime expires = (maxAge != 0
+			OffsetDateTime expires = (maxAge != 0)
 					? OffsetDateTime.now().plusSeconds(maxAge)
-					: Instant.EPOCH.atOffset(ZoneOffset.UTC));
+					: Instant.EPOCH.atOffset(ZoneOffset.UTC);
 			sb.append("; Expires=")
 					.append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		}
