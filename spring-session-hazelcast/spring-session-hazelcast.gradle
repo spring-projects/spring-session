@@ -1,6 +1,9 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
+
+  	optional "io.projectreactor:reactor-core"
+
 	compile project(':spring-session-core')
 	compile "com.hazelcast:hazelcast"
 	compile "org.springframework:spring-context"
