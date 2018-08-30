@@ -24,16 +24,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 
-import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.ExecutionCallback;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICompletableFuture;
 import com.hazelcast.core.IMap;
-import com.hazelcast.map.listener.EntryAddedListener;
-import com.hazelcast.map.listener.EntryEvictedListener;
-import com.hazelcast.map.listener.EntryRemovedListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import reactor.core.CoreSubscriber;
@@ -44,15 +39,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
 
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.events.AbstractSessionEvent;
-import org.springframework.session.events.SessionCreatedEvent;
-import org.springframework.session.events.SessionDeletedEvent;
-import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
 
 /**
@@ -73,10 +62,6 @@ import org.springframework.util.Assert;
  *         new HazelcastSessionRepository(hazelcastInstance);
  * </pre>
  *
- * In order to support finding sessions by principal name using
- * {@link #findByIndexNameAndIndexValue(String, String)} method, custom configuration of
- * {@code IMap} supplied to this implementation is required.
- *
  * The following snippet demonstrates how to define required configuration using
  * programmatic Hazelcast Configuration:
  *
@@ -95,16 +80,6 @@ import org.springframework.util.Assert;
  * Hazelcast.newHazelcastInstance(config);
  * </pre>
  *
- * This implementation listens for events on the Hazelcast-backed SessionRepository and
- * translates those events into the corresponding Spring Session events. Publish the
- * Spring Session events with the given {@link ApplicationEventPublisher}.
- *
- * <ul>
- * <li>entryAdded - {@link SessionCreatedEvent}</li>
- * <li>entryEvicted - {@link SessionExpiredEvent}</li>
- * <li>entryRemoved - {@link SessionDeletedEvent}</li>
- * </ul>
- *
  * @author Vedran Pavic
  * @author Tommy Ludwig
  * @author Mark Anderson
@@ -112,9 +87,7 @@ import org.springframework.util.Assert;
  * @since 1.3.0
  */
 public class HazelcastReactiveSessionRepository implements
-        ReactiveSessionRepository<HazelcastReactiveSessionRepository.HazelcastSession>,
-		EntryAddedListener<String, MapSession>, EntryEvictedListener<String, MapSession>,
-		EntryRemovedListener<String, MapSession> {
+        ReactiveSessionRepository<HazelcastReactiveSessionRepository.HazelcastSession> {
 
 	/**
 	 * The default name of map used by Spring Session to store sessions.
@@ -124,18 +97,6 @@ public class HazelcastReactiveSessionRepository implements
 	private static final Log logger = LogFactory.getLog(HazelcastReactiveSessionRepository.class);
 
 	private final HazelcastInstance hazelcastInstance;
-
-	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
-
-		@Override
-		public void publishEvent(ApplicationEvent event) {
-		}
-
-		@Override
-		public void publishEvent(Object event) {
-		}
-
-	};
 
 	/**
 	 * If non-null, this value is used to override
@@ -149,8 +110,6 @@ public class HazelcastReactiveSessionRepository implements
 
 	private IMap<String, MapSession> sessions;
 
-	private String sessionListenerId;
-
 	public HazelcastReactiveSessionRepository(HazelcastInstance hazelcastInstance) {
 		Assert.notNull(hazelcastInstance, "HazelcastInstance must not be null");
 		this.hazelcastInstance = hazelcastInstance;
@@ -159,27 +118,6 @@ public class HazelcastReactiveSessionRepository implements
 	@PostConstruct
 	public void init() {
 		this.sessions = this.hazelcastInstance.getMap(this.sessionMapName);
-		this.sessionListenerId = this.sessions.addEntryListener(this, true);
-	}
-
-	@PreDestroy
-	public void close() {
-		this.sessions.removeEntryListener(this.sessionListenerId);
-	}
-
-	/**
-	 * Sets the {@link ApplicationEventPublisher} that is used to publish
-	 * {@link AbstractSessionEvent session events}. The default is to not publish session
-	 * events.
-	 *
-	 * @param applicationEventPublisher the {@link ApplicationEventPublisher} that is used
-	 * to publish session events. Cannot be null.
-	 */
-	public void setApplicationEventPublisher(
-			ApplicationEventPublisher applicationEventPublisher) {
-		Assert.notNull(applicationEventPublisher,
-				"ApplicationEventPublisher cannot be null");
-		this.eventPublisher = applicationEventPublisher;
 	}
 
 	/**
@@ -269,37 +207,6 @@ public class HazelcastReactiveSessionRepository implements
 	public Mono<Void> deleteById(String id) {
 		return new MonoICompletableFuture<>(this.sessions.removeAsync(id))
 			.then();
-	}
-
-	@Override
-	public void entryAdded(EntryEvent<String, MapSession> event) {
-		MapSession session = event.getValue();
-		if (session.getId().equals(session.getOriginalId())) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Session created with id: " + session.getId());
-			}
-			this.eventPublisher.publishEvent(new SessionCreatedEvent(this, session));
-		}
-	}
-
-	@Override
-	public void entryEvicted(EntryEvent<String, MapSession> event) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("Session expired with id: " + event.getOldValue().getId());
-		}
-		this.eventPublisher
-				.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
-	}
-
-	@Override
-	public void entryRemoved(EntryEvent<String, MapSession> event) {
-		MapSession session = event.getOldValue();
-		if (session != null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Session deleted with id: " + session.getId());
-			}
-			this.eventPublisher.publishEvent(new SessionDeletedEvent(this, session));
-		}
 	}
 
 	/**
