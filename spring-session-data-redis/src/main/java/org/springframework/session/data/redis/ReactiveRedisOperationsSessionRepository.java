@@ -119,9 +119,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 	}
 
 	/**
-	 * Returns {@link ReactiveRedisOperations} for sessions.
-	 *
-	 * @return {@link ReactiveRedisOperations} for sessions
+	 * Returns the {@link ReactiveRedisOperations} used for sessions.
+	 * @return the {@link ReactiveRedisOperations} used for sessions
 	 * @since 2.1.0
 	 */
 	public ReactiveRedisOperations<String, Object> getSessionRedisOperations() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 
 /**
- * Annotation used to inject the {@link RedisOperations} instance used by Spring Session's
- * {@link RedisOperationsSessionRepository}.
+ * Annotation used to inject the Redis accessor used by Spring Session's Redis session
+ * repository.
  *
  * @author Vedran Pavic
+ * @see org.springframework.session.data.redis.RedisOperationsSessionRepository#getSessionRedisOperations()
+ * @see org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository#getSessionRedisOperations()
  * @since 2.0.0
  */
 @Target({ ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER,
