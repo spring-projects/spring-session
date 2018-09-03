@@ -375,6 +375,11 @@ public class RedisOperationsSessionRepository implements
 		this.redisFlushMode = redisFlushMode;
 	}
 
+	/**
+	 * Returns the {@link RedisOperations} used for sessions.
+	 * @return the {@link RedisOperations} used for sessions
+	 * @since 2.0.0
+	 */
 	public RedisOperations<Object, Object> getSessionRedisOperations() {
 		return this.sessionRedisOperations;
 	}
