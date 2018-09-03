@@ -581,6 +581,22 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 		assertThat(this.repository.findById(originalId)).isNull();
 	}
 
+	// gh-1137
+	@Test
+	public void changeSessionIdWhenSessionIsDeleted() {
+		RedisSession toSave = this.repository.createSession();
+		String sessionId = toSave.getId();
+		this.repository.save(toSave);
+
+		this.repository.deleteById(sessionId);
+
+		toSave.changeSessionId();
+		this.repository.save(toSave);
+
+		assertThat(this.repository.findById(toSave.getId())).isNull();
+		assertThat(this.repository.findById(sessionId)).isNull();
+	}
+
 	private String getSecurityName() {
 		return this.context.getAuthentication().getName();
 	}
