@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.core.NestedExceptionUtils;
+import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.BoundHashOperations;
@@ -819,8 +821,16 @@ public class RedisOperationsSessionRepository implements
 							originalSessionIdKey, sessionIdKey);
 					String originalExpiredKey = getExpiredKey(this.originalSessionId);
 					String expiredKey = getExpiredKey(sessionId);
-					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(
-							originalExpiredKey, expiredKey);
+					try {
+						RedisOperationsSessionRepository.this.sessionRedisOperations.rename(
+								originalExpiredKey, expiredKey);
+					}
+					catch (NonTransientDataAccessException ex) {
+						if (!"ERR no such key".equals(NestedExceptionUtils
+								.getMostSpecificCause(ex).getMessage())) {
+							throw ex;
+						}
+					}
 				}
 				this.originalSessionId = sessionId;
 			}
