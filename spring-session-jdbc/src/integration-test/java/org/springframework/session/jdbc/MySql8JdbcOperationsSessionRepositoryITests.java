@@ -85,7 +85,7 @@ public class MySql8JdbcOperationsSessionRepositoryITests
 	private static class MySql8Container extends MySQLContainer<MySql8Container> {
 
 		MySql8Container() {
-			super("mysql:8.0.11");
+			super("mysql:8.0.12");
 		}
 
 		@Override
