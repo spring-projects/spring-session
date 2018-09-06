@@ -23,10 +23,10 @@ dependencyManagement {
 		dependency 'junit:junit:4.12'
 		dependency 'mysql:mysql-connector-java:8.0.12'
 		dependency 'org.apache.derby:derby:10.14.2.0'
-		dependency 'org.assertj:assertj-core:3.11.0'
+		dependency 'org.assertj:assertj-core:3.11.1'
 		dependency 'org.hsqldb:hsqldb:2.4.1'
 		dependency 'org.mariadb.jdbc:mariadb-java-client:2.2.6'
 		dependency 'org.mockito:mockito-core:2.21.0'
-		dependency 'org.postgresql:postgresql:42.2.4'
+		dependency 'org.postgresql:postgresql:42.2.5'
 	}
 }
