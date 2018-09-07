@@ -183,6 +183,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveSessionNothingChanged() {
+		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any()))
 				.willReturn(Mono.just(true));
 
@@ -191,12 +192,14 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 		StepVerifier.create(this.repository.save(session)).verifyComplete();
 
+		verify(this.redisOperations).hasKey(anyString());
 		verifyZeroInteractions(this.redisOperations);
 		verifyZeroInteractions(this.hashOperations);
 	}
 
 	@Test
 	public void saveLastAccessChanged() {
+		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any()))
@@ -206,6 +209,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		session.setLastAccessedTime(Instant.ofEpochMilli(12345678L));
 		Mono.just(session).subscribe(this.repository::save);
 
+		verify(this.redisOperations).hasKey(anyString());
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
@@ -219,6 +223,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveSetAttribute() {
+		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any()))
@@ -229,6 +234,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		session.setAttribute(attrName, "attrValue");
 		Mono.just(session).subscribe(this.repository::save);
 
+		verify(this.redisOperations).hasKey(anyString());
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
@@ -242,6 +248,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void saveRemoveAttribute() {
+		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any()))
@@ -252,6 +259,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		session.removeAttribute(attrName);
 		Mono.just(session).subscribe(this.repository::save);
 
+		verify(this.redisOperations).hasKey(anyString());
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
