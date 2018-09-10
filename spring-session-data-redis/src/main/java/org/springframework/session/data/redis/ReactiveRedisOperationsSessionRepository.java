@@ -142,13 +142,10 @@ public class ReactiveRedisOperationsSessionRepository implements
 		if (session.isNew) {
 			return result;
 		}
-		else if (session.hasChangedSessionId()) {
-			String sessionKey = getSessionKey(session.originalSessionId);
-			return this.sessionRedisOperations.hasKey(sessionKey)
-					.flatMap((exists) -> exists ? result : Mono.empty());
-		}
 		else {
-			String sessionKey = getSessionKey(session.getId());
+			String sessionKey = getSessionKey(
+					session.hasChangedSessionId() ? session.originalSessionId
+							: session.getId());
 			return this.sessionRedisOperations.hasKey(sessionKey)
 					.flatMap((exists) -> exists ? result : Mono.empty());
 		}
