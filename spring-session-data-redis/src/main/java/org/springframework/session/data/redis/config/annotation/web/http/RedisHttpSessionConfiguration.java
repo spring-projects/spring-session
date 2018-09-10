@@ -37,7 +37,10 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -54,6 +57,7 @@ import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
@@ -115,6 +119,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
 		sessionRepository.setRedisFlushMode(this.redisFlushMode);
+		int database = resolveDatabase();
+		sessionRepository.setDatabase(database);
 		return sessionRepository;
 	}
 
@@ -128,9 +134,9 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		if (this.redisSubscriptionExecutor != null) {
 			container.setSubscriptionExecutor(this.redisSubscriptionExecutor);
 		}
-		container.addMessageListener(sessionRepository(),
-				Arrays.asList(new PatternTopic("__keyevent@*:del"),
-						new PatternTopic("__keyevent@*:expired")));
+		container.addMessageListener(sessionRepository(), Arrays.asList(
+				new ChannelTopic(sessionRepository().getSessionDeletedChannel()),
+				new ChannelTopic(sessionRepository().getSessionExpiredChannel())));
 		container.addMessageListener(sessionRepository(),
 				Collections.singletonList(new PatternTopic(
 						sessionRepository().getSessionCreatedChannelPrefix() + "*")));
@@ -254,6 +260,18 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		redisTemplate.setBeanClassLoader(this.classLoader);
 		redisTemplate.afterPropertiesSet();
 		return redisTemplate;
+	}
+
+	private int resolveDatabase() {
+		if (ClassUtils.isPresent("io.lettuce.core.RedisClient", null)
+				&& this.redisConnectionFactory instanceof LettuceConnectionFactory) {
+			return ((LettuceConnectionFactory) this.redisConnectionFactory).getDatabase();
+		}
+		if (ClassUtils.isPresent("redis.clients.jedis.Jedis", null)
+				&& this.redisConnectionFactory instanceof JedisConnectionFactory) {
+			return ((JedisConnectionFactory) this.redisConnectionFactory).getDatabase();
+		}
+		return RedisOperationsSessionRepository.DEFAULT_DATABASE;
 	}
 
 	/**

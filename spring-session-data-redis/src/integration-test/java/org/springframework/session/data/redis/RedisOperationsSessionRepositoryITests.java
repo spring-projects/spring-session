@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
@@ -190,9 +191,10 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 
 		String body = "RedisOperationsSessionRepositoryITests:sessions:expires:"
 				+ toSave.getId();
-		String channel = ":expired";
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"),
-				body.getBytes("UTF-8"));
+		String channel = "__keyevent@0__:expired";
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
 		byte[] pattern = new byte[] {};
 		this.repository.onMessage(message, pattern);
 
@@ -358,9 +360,10 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 
 		String body = "RedisOperationsSessionRepositoryITests:sessions:expires:"
 				+ toSave.getId();
-		String channel = ":expired";
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"),
-				body.getBytes("UTF-8"));
+		String channel = "__keyevent@0__:expired";
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
 		byte[] pattern = new byte[] {};
 		this.repository.onMessage(message, pattern);
 
