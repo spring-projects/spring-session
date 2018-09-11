@@ -17,8 +17,6 @@ dependencies {
 	testCompile "org.springframework.security:spring-security-test"
 	testCompile "org.assertj:assertj-core"
 	testCompile "org.springframework:spring-test"
-
-	integrationTestCompile "org.testcontainers:testcontainers"
 }
 
 gretty {
