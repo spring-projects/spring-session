@@ -12,7 +12,7 @@ try {
 	parallel check: {
 		stage('Check') {
 			timeout(time: 30, unit: 'MINUTES') {
-				node {
+				node('ubuntu1804') {
 					checkout scm
 					try {
 						sh './gradlew clean check --no-daemon --refresh-dependencies'
