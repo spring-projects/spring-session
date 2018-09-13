@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -522,14 +523,15 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void onMessageCreated() throws Exception {
+	public void onMessageCreated() {
 		MapSession session = this.cached;
-		byte[] pattern = "".getBytes("UTF-8");
-		String channel = "spring:session:event:created:" + session.getId();
+		byte[] pattern = "".getBytes(StandardCharsets.UTF_8);
+		String channel = "spring:session:event:0:created:" + session.getId();
 		JdkSerializationRedisSerializer defaultSerailizer = new JdkSerializationRedisSerializer();
 		this.redisRepository.setDefaultSerializer(defaultSerailizer);
 		byte[] body = defaultSerailizer.serialize(new HashMap());
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body);
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8), body);
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
 
@@ -539,16 +541,16 @@ public class RedisOperationsSessionRepositoryTests {
 		assertThat(this.event.getValue().getSessionId()).isEqualTo(session.getId());
 	}
 
-	// gh-309
-	@Test
-	public void onMessageCreatedCustomSerializer() throws Exception {
+	@Test // gh-309
+	public void onMessageCreatedCustomSerializer() {
 		MapSession session = this.cached;
-		byte[] pattern = "".getBytes("UTF-8");
+		byte[] pattern = "".getBytes(StandardCharsets.UTF_8);
 		byte[] body = new byte[0];
-		String channel = "spring:session:event:created:" + session.getId();
+		String channel = "spring:session:event:0:created:" + session.getId();
 		given(this.defaultSerializer.deserialize(body))
 				.willReturn(new HashMap<String, Object>());
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body);
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8), body);
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
 
 		this.redisRepository.onMessage(message, pattern);
@@ -559,7 +561,7 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void onMessageDeletedSessionFound() throws Exception {
+	public void onMessageDeletedSessionFound() {
 		String deletedId = "deleted-id";
 		given(this.redisOperations.boundHashOps(getKey(deletedId)))
 				.willReturn(this.boundHashOperations);
@@ -570,10 +572,12 @@ public class RedisOperationsSessionRepositoryTests {
 
 		String channel = "__keyevent@0__:del";
 		String body = "spring:session:sessions:expires:" + deletedId;
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
-		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
 		verify(this.redisOperations).boundHashOps(eq(getKey(deletedId)));
 		verify(this.boundHashOperations).entries();
@@ -586,7 +590,7 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void onMessageDeletedSessionNotFound() throws Exception {
+	public void onMessageDeletedSessionNotFound() {
 		String deletedId = "deleted-id";
 		given(this.redisOperations.boundHashOps(getKey(deletedId)))
 				.willReturn(this.boundHashOperations);
@@ -594,10 +598,12 @@ public class RedisOperationsSessionRepositoryTests {
 
 		String channel = "__keyevent@0__:del";
 		String body = "spring:session:sessions:expires:" + deletedId;
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
-		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
 		verify(this.redisOperations).boundHashOps(eq(getKey(deletedId)));
 		verify(this.boundHashOperations).entries();
@@ -608,7 +614,7 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void onMessageExpiredSessionFound() throws Exception {
+	public void onMessageExpiredSessionFound() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.boundHashOps(getKey(expiredId)))
 				.willReturn(this.boundHashOperations);
@@ -619,10 +625,12 @@ public class RedisOperationsSessionRepositoryTests {
 
 		String channel = "__keyevent@0__:expired";
 		String body = "spring:session:sessions:expires:" + expiredId;
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
-		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
 		verify(this.redisOperations).boundHashOps(eq(getKey(expiredId)));
 		verify(this.boundHashOperations).entries();
@@ -635,7 +643,7 @@ public class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void onMessageExpiredSessionNotFound() throws Exception {
+	public void onMessageExpiredSessionNotFound() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.boundHashOps(getKey(expiredId)))
 				.willReturn(this.boundHashOperations);
@@ -643,10 +651,12 @@ public class RedisOperationsSessionRepositoryTests {
 
 		String channel = "__keyevent@0__:expired";
 		String body = "spring:session:sessions:expires:" + expiredId;
-		DefaultMessage message = new DefaultMessage(channel.getBytes("UTF-8"), body.getBytes("UTF-8"));
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
-		this.redisRepository.onMessage(message, "".getBytes("UTF-8"));
+		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
 		verify(this.redisOperations).boundHashOps(eq(getKey(expiredId)));
 		verify(this.boundHashOperations).entries();
@@ -879,6 +889,62 @@ public class RedisOperationsSessionRepositoryTests {
 		}
 
 		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
+	@Test
+	public void onMessageCreatedInOtherDatabase() {
+		JdkSerializationRedisSerializer serializer = new JdkSerializationRedisSerializer();
+		this.redisRepository.setApplicationEventPublisher(this.publisher);
+		this.redisRepository.setDefaultSerializer(serializer);
+
+		MapSession session = this.cached;
+		String channel = "spring:session:event:created:1:" + session.getId();
+		byte[] body = serializer.serialize(new HashMap());
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8), body);
+
+		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
+
+		assertThat(this.event.getAllValues()).isEmpty();
+		verifyZeroInteractions(this.publisher);
+	}
+
+	@Test
+	public void onMessageDeletedInOtherDatabase() {
+		JdkSerializationRedisSerializer serializer = new JdkSerializationRedisSerializer();
+		this.redisRepository.setApplicationEventPublisher(this.publisher);
+		this.redisRepository.setDefaultSerializer(serializer);
+
+		MapSession session = this.cached;
+		String channel = "__keyevent@1__:del";
+		String body = "spring:session:sessions:expires:" + session.getId();
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
+
+		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
+
+		assertThat(this.event.getAllValues()).isEmpty();
+		verifyZeroInteractions(this.publisher);
+	}
+
+	@Test
+	public void onMessageExpiredInOtherDatabase() {
+		JdkSerializationRedisSerializer serializer = new JdkSerializationRedisSerializer();
+		this.redisRepository.setApplicationEventPublisher(this.publisher);
+		this.redisRepository.setDefaultSerializer(serializer);
+
+		MapSession session = this.cached;
+		String channel = "__keyevent@1__:expired";
+		String body = "spring:session:sessions:expires:" + session.getId();
+		DefaultMessage message = new DefaultMessage(
+				channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
+
+		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
+
+		assertThat(this.event.getAllValues()).isEmpty();
+		verifyZeroInteractions(this.publisher);
 	}
 
 	private String getKey(String id) {

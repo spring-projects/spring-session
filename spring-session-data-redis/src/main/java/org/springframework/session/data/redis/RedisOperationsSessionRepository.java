@@ -255,6 +255,11 @@ public class RedisOperationsSessionRepository implements
 	static PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
 
 	/**
+	 * The default Redis database used by Spring Session.
+	 */
+	public static final int DEFAULT_DATABASE = 0;
+
+	/**
 	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
@@ -286,10 +291,18 @@ public class RedisOperationsSessionRepository implements
 	 */
 	static final String SESSION_ATTR_PREFIX = "sessionAttr:";
 
+	private int database = RedisOperationsSessionRepository.DEFAULT_DATABASE;
+
 	/**
 	 * The namespace for every key used by Spring Session in Redis.
 	 */
 	private String namespace = DEFAULT_NAMESPACE + ":";
+
+	private String sessionCreatedChannelPrefix;
+
+	private String sessionDeletedChannel;
+
+	private String sessionExpiredChannel;
 
 	private final RedisOperations<Object, Object> sessionRedisOperations;
 
@@ -327,6 +340,7 @@ public class RedisOperationsSessionRepository implements
 		this.sessionRedisOperations = sessionRedisOperations;
 		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations,
 				this::getExpirationsKey, this::getSessionKey);
+		configureSessionChannels();
 	}
 
 	/**
@@ -377,6 +391,27 @@ public class RedisOperationsSessionRepository implements
 		this.redisFlushMode = redisFlushMode;
 	}
 
+	/**
+	 * Sets the database index to use. Defaults to {@link #DEFAULT_DATABASE}.
+	 * @param database the database index to use
+	 */
+	public void setDatabase(int database) {
+		this.database = database;
+		configureSessionChannels();
+	}
+
+	private void configureSessionChannels() {
+		this.sessionCreatedChannelPrefix = this.namespace + "event:" + this.database
+				+ ":created:";
+		this.sessionDeletedChannel = "__keyevent@" + this.database + "__:del";
+		this.sessionExpiredChannel = "__keyevent@" + this.database + "__:expired";
+	}
+
+	/**
+	 * Returns the {@link RedisOperations} used for sessions.
+	 * @return the {@link RedisOperations} used for sessions
+	 * @since 2.0.0
+	 */
 	public RedisOperations<Object, Object> getSessionRedisOperations() {
 		return this.sessionRedisOperations;
 	}
@@ -497,7 +532,7 @@ public class RedisOperationsSessionRepository implements
 
 		String channel = new String(messageChannel);
 
-		if (channel.startsWith(getSessionCreatedChannelPrefix())) {
+		if (channel.startsWith(this.sessionCreatedChannelPrefix)) {
 			// TODO: is this thread safe?
 			Map<Object, Object> loaded = (Map<Object, Object>) this.defaultSerializer
 					.deserialize(message.getBody());
@@ -510,8 +545,8 @@ public class RedisOperationsSessionRepository implements
 			return;
 		}
 
-		boolean isDeleted = channel.endsWith(":del");
-		if (isDeleted || channel.endsWith(":expired")) {
+		boolean isDeleted = channel.equals(this.sessionDeletedChannel);
+		if (isDeleted || channel.equals(this.sessionExpiredChannel)) {
 			int beginIndex = body.lastIndexOf(":") + 1;
 			int endIndex = body.length();
 			String sessionId = body.substring(beginIndex, endIndex);
@@ -574,6 +609,7 @@ public class RedisOperationsSessionRepository implements
 	public void setRedisKeyNamespace(String namespace) {
 		Assert.hasText(namespace, "namespace cannot be null or empty");
 		this.namespace = namespace.trim() + ":";
+		configureSessionChannels();
 	}
 
 	/**
@@ -605,17 +641,33 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	private String getExpiredKeyPrefix() {
-		return this.namespace + "sessions:" + "expires:";
+		return this.namespace + "sessions:expires:";
 	}
 
 	/**
-	 * Gets the prefix for the channel that SessionCreatedEvent are published to. The
-	 * suffix is the session id of the session that was created.
-	 *
-	 * @return the prefix for the channel that SessionCreatedEvent are published to
+	 * Gets the prefix for the channel that {@link SessionCreatedEvent}s are published to.
+	 * The suffix is the session id of the session that was created.
+	 * @return the prefix for the channel that {@link SessionCreatedEvent}s are published
+	 * to
 	 */
 	public String getSessionCreatedChannelPrefix() {
-		return this.namespace + "event:created:";
+		return this.sessionCreatedChannelPrefix;
+	}
+
+	/**
+	 * Gets the name of the channel that {@link SessionDeletedEvent}s are published to.
+	 * @return the name for the channel that {@link SessionDeletedEvent}s are published to
+	 */
+	public String getSessionDeletedChannel() {
+		return this.sessionDeletedChannel;
+	}
+
+	/**
+	 * Gets the name of the channel that {@link SessionExpiredEvent}s are published to.
+	 * @return the name for the channel that {@link SessionExpiredEvent}s are published to
+	 */
+	public String getSessionExpiredChannel() {
+		return this.sessionExpiredChannel;
 	}
 
 	/**
