@@ -391,6 +391,10 @@ public class RedisOperationsSessionRepository implements
 		this.redisFlushMode = redisFlushMode;
 	}
 
+	/**
+	 * Sets the database index to use. Defaults to {@link #DEFAULT_DATABASE}.
+	 * @param database the database index to use
+	 */
 	public void setDatabase(int database) {
 		this.database = database;
 		configureSessionChannels();
@@ -541,8 +545,8 @@ public class RedisOperationsSessionRepository implements
 			return;
 		}
 
-		boolean isDeleted = (this.sessionDeletedChannel).equals(channel);
-		if (isDeleted || (this.sessionExpiredChannel).equals(channel)) {
+		boolean isDeleted = channel.equals(this.sessionDeletedChannel);
+		if (isDeleted || channel.equals(this.sessionExpiredChannel)) {
 			int beginIndex = body.lastIndexOf(":") + 1;
 			int endIndex = body.length();
 			String sessionId = body.substring(beginIndex, endIndex);
