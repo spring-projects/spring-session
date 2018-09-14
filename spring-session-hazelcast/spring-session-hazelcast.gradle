@@ -3,6 +3,7 @@ apply plugin: 'io.spring.convention.spring-module'
 dependencies {
 	compile project(':spring-session-core')
 	compile "com.hazelcast:hazelcast"
+	compile "javax.annotation:javax.annotation-api"
 	compile "org.springframework:spring-context"
 
 	testCompile "javax.servlet:javax.servlet-api"

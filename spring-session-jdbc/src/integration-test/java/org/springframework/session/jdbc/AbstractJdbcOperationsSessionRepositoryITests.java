@@ -172,7 +172,8 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(session.isChanged()).isFalse();
 		assertThat(session.getDelta()).isEmpty();
 		assertThat(session.isExpired()).isFalse();
-		assertThat(session.getLastAccessedTime()).isEqualTo(lastAccessedTime);
+		assertThat(session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
+				.isEqualTo(lastAccessedTime.truncatedTo(ChronoUnit.MILLIS));
 	}
 
 	@Test

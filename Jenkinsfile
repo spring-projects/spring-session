@@ -27,6 +27,24 @@ try {
 				}
 			}
 		}
+	},
+	jdk10: {
+		stage('JDK 10') {
+			timeout(time: 30, unit: 'MINUTES') {
+				node('ubuntu1804') {
+					checkout scm
+					try {
+						withEnv(["JAVA_HOME=${tool 'jdk10'}"]) {
+							sh './gradlew clean test --no-daemon --refresh-dependencies'
+						}
+					}
+					catch (e) {
+						currentBuild.result = 'FAILED: jdk10'
+						throw e
+					}
+				}
+			}
+		}
 	}
 
 	if (currentBuild.result == 'SUCCESS') {

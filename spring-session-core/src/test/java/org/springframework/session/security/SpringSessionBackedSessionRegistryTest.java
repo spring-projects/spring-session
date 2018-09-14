@@ -17,6 +17,7 @@
 package org.springframework.session.security;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,7 +75,9 @@ public class SpringSessionBackedSessionRegistryTest {
 				.getSessionInformation(SESSION_ID);
 
 		assertThat(sessionInfo.getSessionId()).isEqualTo(SESSION_ID);
-		assertThat(sessionInfo.getLastRequest().toInstant()).isEqualTo(NOW);
+		assertThat(
+				sessionInfo.getLastRequest().toInstant().truncatedTo(ChronoUnit.MILLIS))
+						.isEqualTo(NOW.truncatedTo(ChronoUnit.MILLIS));
 		assertThat(sessionInfo.getPrincipal()).isEqualTo(USER_NAME);
 		assertThat(sessionInfo.isExpired()).isFalse();
 	}
@@ -90,7 +93,9 @@ public class SpringSessionBackedSessionRegistryTest {
 				.getSessionInformation(SESSION_ID);
 
 		assertThat(sessionInfo.getSessionId()).isEqualTo(SESSION_ID);
-		assertThat(sessionInfo.getLastRequest().toInstant()).isEqualTo(NOW);
+		assertThat(
+				sessionInfo.getLastRequest().toInstant().truncatedTo(ChronoUnit.MILLIS))
+				.isEqualTo(NOW.truncatedTo(ChronoUnit.MILLIS));
 		assertThat(sessionInfo.getPrincipal()).isEqualTo(USER_NAME);
 		assertThat(sessionInfo.isExpired()).isTrue();
 	}

@@ -346,12 +346,16 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 					.isEqualTo(expected.getAttribute(attribute1));
 			assertThat(session.<String>getAttribute(attribute2))
 					.isEqualTo(expected.getAttribute(attribute2));
-			assertThat(session.getCreationTime()).isEqualTo(expected.getCreationTime());
-			assertThat(session.getMaxInactiveInterval())
+					assertThat(session.getCreationTime().truncatedTo(ChronoUnit.MILLIS))
+							.isEqualTo(expected.getCreationTime()
+									.truncatedTo(ChronoUnit.MILLIS));
+					assertThat(session.getMaxInactiveInterval())
 					.isEqualTo(expected.getMaxInactiveInterval());
-			assertThat(session.getLastAccessedTime())
-					.isEqualTo(expected.getLastAccessedTime());
-		}).verifyComplete();
+					assertThat(
+							session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
+									.isEqualTo(expected.getLastAccessedTime()
+											.truncatedTo(ChronoUnit.MILLIS));
+				}).verifyComplete();
 	}
 
 	@Test

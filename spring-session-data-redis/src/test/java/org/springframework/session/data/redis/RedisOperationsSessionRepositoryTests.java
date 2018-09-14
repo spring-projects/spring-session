@@ -432,12 +432,12 @@ public class RedisOperationsSessionRepositoryTests {
 				.isEqualTo(expected.getAttribute(attribute1));
 		assertThat(session.<String>getAttribute(attribute2))
 				.isEqualTo(expected.getAttribute(attribute2));
-		assertThat(session.getCreationTime()).isEqualTo(expected.getCreationTime());
+		assertThat(session.getCreationTime().truncatedTo(ChronoUnit.MILLIS))
+				.isEqualTo(expected.getCreationTime().truncatedTo(ChronoUnit.MILLIS));
 		assertThat(session.getMaxInactiveInterval())
 				.isEqualTo(expected.getMaxInactiveInterval());
-		assertThat(session.getLastAccessedTime())
-				.isEqualTo(expected.getLastAccessedTime());
-
+		assertThat(session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
+				.isEqualTo(expected.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS));
 	}
 
 	@Test
@@ -498,9 +498,11 @@ public class RedisOperationsSessionRepositoryTests {
 		RedisSession session = sessionIdToSessions.get(sessionId);
 		assertThat(session).isNotNull();
 		assertThat(session.getId()).isEqualTo(sessionId);
-		assertThat(session.getLastAccessedTime()).isEqualTo(lastAccessed);
+		assertThat(session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
+				.isEqualTo(lastAccessed.truncatedTo(ChronoUnit.MILLIS));
 		assertThat(session.getMaxInactiveInterval()).isEqualTo(maxInactive);
-		assertThat(session.getCreationTime()).isEqualTo(createdTime);
+		assertThat(session.getCreationTime().truncatedTo(ChronoUnit.MILLIS))
+				.isEqualTo(createdTime.truncatedTo(ChronoUnit.MILLIS));
 	}
 
 	@Test
