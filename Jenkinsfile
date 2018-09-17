@@ -31,7 +31,7 @@ try {
 	jdk10: {
 		stage('JDK 10') {
 			timeout(time: 30, unit: 'MINUTES') {
-				node('ubuntu1804') {
+				node {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk10'}"]) {
