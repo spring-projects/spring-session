@@ -31,11 +31,11 @@ try {
 	jdk10: {
 		stage('JDK 10') {
 			timeout(time: 30, unit: 'MINUTES') {
-				node {
+				node('ubuntu1804') {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk10'}"]) {
-							sh './gradlew clean test --no-daemon --refresh-dependencies'
+							sh './gradlew clean test integrationTest --no-daemon --refresh-dependencies'
 						}
 					}
 					catch (e) {
@@ -49,11 +49,11 @@ try {
 	jdk11: {
 		stage('JDK 11') {
 			timeout(time: 30, unit: 'MINUTES') {
-				node {
+				node('ubuntu1804') {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk11'}"]) {
-							sh './gradlew clean test --no-daemon --refresh-dependencies'
+							sh './gradlew clean test integrationTest --no-daemon --refresh-dependencies'
 						}
 					}
 					catch (e) {
