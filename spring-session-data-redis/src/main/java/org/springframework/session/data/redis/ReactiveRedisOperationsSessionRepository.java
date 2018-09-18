@@ -156,7 +156,9 @@ public class ReactiveRedisOperationsSessionRepository implements
 					session.hasChangedSessionId() ? session.originalSessionId
 							: session.getId());
 			return this.sessionRedisOperations.hasKey(sessionKey)
-					.flatMap((exists) -> exists ? result : Mono.empty());
+					.flatMap((exists) -> exists ? result
+							: Mono.error(new IllegalStateException(
+									"Session was invalidated")));
 		}
 	}
 
