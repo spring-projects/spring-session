@@ -11,7 +11,7 @@ currentBuild.result = SUCCESS
 try {
 	parallel check: {
 		stage('Check') {
-			timeout(time: 30, unit: 'MINUTES') {
+			timeout(time: 45, unit: 'MINUTES') {
 				node('ubuntu1804') {
 					checkout scm
 					try {
@@ -30,7 +30,7 @@ try {
 	},
 	jdk10: {
 		stage('JDK 10') {
-			timeout(time: 30, unit: 'MINUTES') {
+			timeout(time: 45, unit: 'MINUTES') {
 				node('ubuntu1804') {
 					checkout scm
 					try {
@@ -48,7 +48,7 @@ try {
 	},
 	jdk11: {
 		stage('JDK 11') {
-			timeout(time: 30, unit: 'MINUTES') {
+			timeout(time: 45, unit: 'MINUTES') {
 				node('ubuntu1804') {
 					checkout scm
 					try {
