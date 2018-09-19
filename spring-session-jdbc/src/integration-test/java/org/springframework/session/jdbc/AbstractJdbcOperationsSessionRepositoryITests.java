@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
@@ -38,6 +39,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -769,6 +771,31 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(this.repository.findById(session.getId())).isNull();
 	}
 
+	@Test // gh-1133
+	public void sessionFromStoreResolvesAttributesLazily() {
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
+		session.setAttribute("attribute1", "value1");
+		session.setAttribute("attribute2", "value2");
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+		MapSession delegate = (MapSession) ReflectionTestUtils.getField(session,
+				"delegate");
+
+		assertThat((String) session.getAttribute("attribute1")).isEqualTo("value1");
+		assertThat(delegate).isNotNull();
+		assertThat(ReflectionTestUtils
+				.getField((Supplier) delegate.getAttribute("attribute1"), "value"))
+						.isEqualTo("value1");
+		assertThat(ReflectionTestUtils
+				.getField((Supplier) delegate.getAttribute("attribute2"), "value"))
+						.isNull();
+		assertThat((String) session.getAttribute("attribute2")).isEqualTo("value2");
+		assertThat(ReflectionTestUtils
+				.getField((Supplier) delegate.getAttribute("attribute2"), "value"))
+						.isEqualTo("value2");
+	}
+
 	private String getSecurityName() {
 		return this.context.getAuthentication().getName();
 	}
@@ -786,4 +813,5 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		}
 
 	}
+
 }

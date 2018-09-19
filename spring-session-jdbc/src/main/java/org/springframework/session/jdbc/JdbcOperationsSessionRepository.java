@@ -129,6 +129,7 @@ import org.springframework.util.StringUtils;
  * target database type.
  *
  * @author Vedran Pavic
+ * @author Craig Andrews
  * @since 1.2.0
  */
 public class JdbcOperationsSessionRepository implements
@@ -531,7 +532,7 @@ public class JdbcOperationsSessionRepository implements
 						public void setValues(PreparedStatement ps, int i) throws SQLException {
 							String attributeName = attributeNames.get(i);
 							ps.setString(1, attributeName);
-							bytesToLob(ps, 2, serialize(session.getAttribute(attributeName)));
+							setObjectAsBlob(ps, 2, session.getAttribute(attributeName));
 							ps.setString(3, session.getId());
 						}
 
@@ -546,7 +547,7 @@ public class JdbcOperationsSessionRepository implements
 			this.jdbcOperations.update(this.createSessionAttributeQuery, (ps) -> {
 				String attributeName = attributeNames.get(0);
 				ps.setString(1, attributeName);
-				bytesToLob(ps, 2, serialize(session.getAttribute(attributeName)));
+				setObjectAsBlob(ps, 2, session.getAttribute(attributeName));
 				ps.setString(3, session.getId());
 			});
 		}
@@ -560,7 +561,7 @@ public class JdbcOperationsSessionRepository implements
 						@Override
 						public void setValues(PreparedStatement ps, int i) throws SQLException {
 							String attributeName = attributeNames.get(i);
-							bytesToLob(ps, 1, serialize(session.getAttribute(attributeName)));
+							setObjectAsBlob(ps, 1, session.getAttribute(attributeName));
 							ps.setString(2, session.primaryKey);
 							ps.setString(3, attributeName);
 						}
@@ -575,7 +576,7 @@ public class JdbcOperationsSessionRepository implements
 		else {
 			this.jdbcOperations.update(this.updateSessionAttributeQuery, (ps) -> {
 				String attributeName = attributeNames.get(0);
-				bytesToLob(ps, 1, serialize(session.getAttribute(attributeName)));
+				setObjectAsBlob(ps, 1, session.getAttribute(attributeName));
 				ps.setString(2, session.primaryKey);
 				ps.setString(3, attributeName);
 			});
@@ -658,27 +659,17 @@ public class JdbcOperationsSessionRepository implements
 				getQuery(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY);
 	}
 
-	private void bytesToLob(PreparedStatement ps, int paramIndex, byte[] bytes)
+	private void setObjectAsBlob(PreparedStatement ps, int paramIndex, Object object)
 			throws SQLException {
-		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex,
-				bytes);
+		byte[] bytes = (byte[]) this.conversionService.convert(object,
+				TypeDescriptor.valueOf(Object.class),
+				TypeDescriptor.valueOf(byte[].class));
+		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex, bytes);
 	}
 
-	private byte[] serialize(Object attributeValue) {
-		return (byte[]) this.conversionService.convert(attributeValue,
-						TypeDescriptor.valueOf(Object.class),
-						TypeDescriptor.valueOf(byte[].class));
-	}
-
-	private byte[] lobToBytes(ResultSet rs, String columnName)
-			throws SQLException {
-		return this.lobHandler.getBlobAsBytes(rs, columnName);
-	}
-
-	private Object deserialize(byte[] bytes) {
-		return this.conversionService.convert(
-				bytes,
-				TypeDescriptor.valueOf(byte[].class),
+	private Object getBlobAsObject(ResultSet rs, String columnName) throws SQLException {
+		byte[] bytes = this.lobHandler.getBlobAsBytes(rs, columnName);
+		return this.conversionService.convert(bytes, TypeDescriptor.valueOf(byte[].class),
 				TypeDescriptor.valueOf(Object.class));
 	}
 
@@ -688,32 +679,26 @@ public class JdbcOperationsSessionRepository implements
 
 	}
 
-	static final <Z> Supplier<Z> constantSupplier(Z value) {
-		if (value == null) {
-			return null;
-		}
-		else {
-			return () -> value;
-		}
+	private static <T> Supplier<T> value(T value) {
+		return (value != null) ? () -> value : null;
 	}
 
-	static final <Z> Supplier<Z> lazily(Supplier<Z> supplier) {
-		if (supplier == null) {
-			return null;
-		}
-		else {
-			return new Supplier<Z>() {
-				private Z value;
+	private static <T> Supplier<T> lazily(Supplier<T> supplier) {
+		Supplier<T> lazySupplier = new Supplier<T>() {
 
-				@Override
-				public Z get() {
-					if (this.value == null) {
-						this.value = supplier.get();
-					}
-					return this.value;
+			private T value;
+
+			@Override
+			public T get() {
+				if (this.value == null) {
+					this.value = supplier.get();
 				}
-			};
-		}
+				return this.value;
+			}
+
+		};
+
+		return (supplier != null) ? lazySupplier : null;
 	}
 
 	/**
@@ -786,12 +771,7 @@ public class JdbcOperationsSessionRepository implements
 		@Override
 		public <T> T getAttribute(String attributeName) {
 			Supplier<T> supplier = this.delegate.getAttribute(attributeName);
-			if (supplier == null) {
-				return null;
-			}
-			else {
-				return supplier.get();
-			}
+			return (supplier != null) ? supplier.get() : null;
 		}
 
 		@Override
@@ -826,7 +806,7 @@ public class JdbcOperationsSessionRepository implements
 								? oldDeltaValue
 								: DeltaValue.UPDATED);
 			}
-			this.delegate.setAttribute(attributeName, constantSupplier(attributeValue));
+			this.delegate.setAttribute(attributeName, value(attributeValue));
 			if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) ||
 					SPRING_SECURITY_CONTEXT.equals(attributeName)) {
 				this.changed = true;
@@ -918,8 +898,8 @@ public class JdbcOperationsSessionRepository implements
 				}
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {
-					byte[] bytes = lobToBytes(rs, "ATTRIBUTE_BYTES");
-					session.delegate.setAttribute(attributeName, lazily(() -> deserialize(bytes)));
+					Object attributeValue = getBlobAsObject(rs, "ATTRIBUTE_BYTES");
+					session.delegate.setAttribute(attributeName, lazily(() -> attributeValue));
 				}
 				sessions.add(session);
 			}
