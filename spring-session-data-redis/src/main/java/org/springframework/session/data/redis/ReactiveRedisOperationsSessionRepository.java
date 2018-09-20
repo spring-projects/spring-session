@@ -24,6 +24,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.ReactiveFindByIndexNameSessionRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -31,16 +34,19 @@ import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 /**
  * A {@link ReactiveSessionRepository} that is implemented using Spring Data's
  * {@link ReactiveRedisOperations}.
  *
  * @author Vedran Pavic
+ * @author Artsiom Yudovin
  * @since 2.0
  */
 public class ReactiveRedisOperationsSessionRepository implements
-		ReactiveSessionRepository<ReactiveRedisOperationsSessionRepository.RedisSession> {
+		ReactiveFindByIndexNameSessionRepository<ReactiveRedisOperationsSessionRepository.RedisSession> {
 
 	/**
 	 * The default namespace for each key and channel in Redis used by Spring Session.
@@ -190,6 +196,24 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	private String getSessionKey(String sessionId) {
 		return this.namespace + "sessions:" + sessionId;
+	}
+
+	private String getPrincipalKey(String principalName) {
+		return this.namespace + "index:"
+				+ FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME + ":"
+				+ principalName;
+	}
+
+	@Override
+	public Flux<Tuple2<String, RedisSession>> findByIndexNameAndIndexValue(String indexName, String indexValue) {
+		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
+			return Flux.empty();
+		}
+		String principalKey = getPrincipalKey(indexValue);
+		return this.sessionRedisOperations.opsForSet()
+				.scan(principalKey)
+		        .cast(String.class)
+		        .flatMap(id -> findById(id).map(session -> Tuples.of(id, session)));
 	}
 
 	/**
