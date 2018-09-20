@@ -398,6 +398,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void findByIndexNameAndIndexValue() {
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		String attribute1 = "attribute1";
