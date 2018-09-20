@@ -86,7 +86,7 @@ public class SqlServerJdbcOperationsSessionRepositoryITests
 			extends MSSQLServerContainer<SqlServer2007Container> {
 
 		SqlServer2007Container() {
-			super("microsoft/mssql-server-linux:2017-CU9");
+			super("microsoft/mssql-server-linux:2017-CU10");
 			withStartupTimeoutSeconds(240);
 			withConnectTimeoutSeconds(240);
 		}
