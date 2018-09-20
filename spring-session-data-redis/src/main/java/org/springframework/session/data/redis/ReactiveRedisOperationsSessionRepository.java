@@ -18,8 +18,8 @@ package org.springframework.session.data.redis;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.function.Function;
 
