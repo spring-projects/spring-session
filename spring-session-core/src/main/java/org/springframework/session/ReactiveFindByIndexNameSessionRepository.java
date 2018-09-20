@@ -16,10 +16,10 @@
 
 package org.springframework.session;
 
+import java.util.Map;
+
 import reactor.core.publisher.Flux;
 import reactor.util.function.Tuple2;
-
-import java.util.Map;
 
 /**
  * Extends a basic {@link SessionRepository} to allow finding sessions by the specified
