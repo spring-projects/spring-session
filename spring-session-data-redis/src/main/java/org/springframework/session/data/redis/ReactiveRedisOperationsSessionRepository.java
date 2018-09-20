@@ -18,24 +18,24 @@ package org.springframework.session.data.redis;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
-import org.springframework.session.FindByIndexNameSessionRepository;
-import org.springframework.session.ReactiveFindByIndexNameSessionRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.ReactiveFindByIndexNameSessionRepository;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
-import reactor.util.function.Tuple2;
-import reactor.util.function.Tuples;
 
 /**
  * A {@link ReactiveSessionRepository} that is implemented using Spring Data's
@@ -212,8 +212,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 		String principalKey = getPrincipalKey(indexValue);
 		return this.sessionRedisOperations.opsForSet()
 				.scan(principalKey)
-		        .cast(String.class)
-		        .flatMap(id -> this.findById(id).map(session -> Tuples.of(id, session)));
+				.cast(String.class)
+				.flatMap((id) -> this.findById(id).map((session) -> Tuples.of(id, session)));
 	}
 
 	/**
