@@ -213,7 +213,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 		return this.sessionRedisOperations.opsForSet()
 				.scan(principalKey)
 		        .cast(String.class)
-		        .flatMap(id -> findById(id).map(session -> Tuples.of(id, session)));
+		        .flatMap(id -> this.findById(id).map(session -> Tuples.of(id, session)));
 	}
 
 	/**

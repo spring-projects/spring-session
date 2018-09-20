@@ -25,6 +25,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.data.redis.core.ReactiveSetOperations;
+import org.springframework.session.ReactiveFindByIndexNameSessionRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -40,14 +42,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link ReactiveRedisOperationsSessionRepository}.
  *
  * @author Vedran Pavic
+ * @author Artsiom Yudovin
  */
 public class ReactiveRedisOperationsSessionRepositoryTests {
 
@@ -58,6 +59,10 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	@SuppressWarnings("unchecked")
 	private ReactiveHashOperations<String, Object, Object> hashOperations = mock(
 			ReactiveHashOperations.class);
+
+	@SuppressWarnings("unchecked")
+	private ReactiveSetOperations<String, Object> setOperations = mock(
+			ReactiveSetOperations.class);
 
 	@SuppressWarnings("unchecked")
 	private ArgumentCaptor<Map<String, Object>> delta = ArgumentCaptor
@@ -390,6 +395,50 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		}
 
 		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
+	@Test
+	public void findByIndexNameAndIndexValue() {
+		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
+		String attribute1 = "attribute1";
+		String attribute2 = "attribute2";
+		MapSession expected = new MapSession("test");
+		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
+		expected.setAttribute(attribute1, "test");
+		expected.setAttribute(attribute2, null);
+		Map map = map(
+				ReactiveRedisOperationsSessionRepository.ATTRIBUTE_PREFIX + attribute1,
+				expected.getAttribute(attribute1),
+				ReactiveRedisOperationsSessionRepository.ATTRIBUTE_PREFIX + attribute2,
+				expected.getAttribute(attribute2),
+				ReactiveRedisOperationsSessionRepository.CREATION_TIME_KEY,
+				expected.getCreationTime().toEpochMilli(),
+				ReactiveRedisOperationsSessionRepository.MAX_INACTIVE_INTERVAL_KEY,
+				(int) expected.getMaxInactiveInterval().getSeconds(),
+				ReactiveRedisOperationsSessionRepository.LAST_ACCESSED_TIME_KEY,
+				expected.getLastAccessedTime().toEpochMilli());
+		given(this.hashOperations.entries(anyString()))
+				.willReturn(Flux.fromIterable(map.entrySet()));
+
+		Flux<Object> ids = Flux.just("id");
+		given(this.setOperations.scan(anyString())).willReturn(ids);
+		given(this.redisOperations.opsForSet()).willReturn(this.setOperations);
+
+		StepVerifier
+				.create(this.repository
+						.findByIndexNameAndIndexValue(
+								ReactiveFindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+								"attribute2"))
+				.consumeNextWith(tuple -> {
+					assertThat(tuple.getT1()).isEqualTo("id");
+					assertThat(tuple.getT2())
+							.isInstanceOf(RedisSession.class);
+				}).verifyComplete();
+
+		verify(this.redisOperations).opsForHash();
+		verify(this.hashOperations).entries(anyString());
+		verify(this.redisOperations).opsForSet();
+		verify(this.setOperations).scan(anyString());
 	}
 
 	private Map<String, Object> map(Object... objects) {
