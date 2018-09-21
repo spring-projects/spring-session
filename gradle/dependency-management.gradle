@@ -2,7 +2,7 @@ dependencyManagement {
 	imports {
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.9.6'
 		mavenBom 'io.projectreactor:reactor-bom:Californium-RELEASE'
-		mavenBom 'org.springframework:spring-framework-bom:5.1.0.RC3'
+		mavenBom 'org.springframework:spring-framework-bom:5.1.0.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Lovelace-RC2'
 		mavenBom 'org.springframework.security:spring-security-bom:5.1.0.RC2'
 		mavenBom 'org.testcontainers:testcontainers-bom:1.9.0-rc1'
