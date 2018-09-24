@@ -16,18 +16,11 @@
 
 package org.springframework.session.jdbc;
 
-import javax.sql.DataSource;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.postgresql.ds.PGSimpleDataSource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -43,50 +36,21 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 @ContextConfiguration
 public class PostgreSql9JdbcOperationsSessionRepositoryITests
-		extends AbstractJdbcOperationsSessionRepositoryITests {
-
-	private static PostgreSQLContainer container = new PostgreSql9Container();
-
-	@BeforeClass
-	public static void setUpClass() {
-		container.start();
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		container.stop();
-	}
+		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
-	static class Config extends BaseConfig {
+	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public DataSource dataSource() {
-			PGSimpleDataSource dataSource = new PGSimpleDataSource();
-			dataSource.setUrl(container.getJdbcUrl());
-			dataSource.setUser(container.getUsername());
-			dataSource.setPassword(container.getPassword());
-			return dataSource;
+		public PostgreSQLContainer databaseContainer() {
+			PostgreSQLContainer databaseContainer = DatabaseContainers.postgreSql9();
+			databaseContainer.start();
+			return databaseContainer;
 		}
 
 		@Bean
-		public DataSourceInitializer initializer(DataSource dataSource,
-				ResourceLoader resourceLoader) {
-			DataSourceInitializer initializer = new DataSourceInitializer();
-			initializer.setDataSource(dataSource);
-			initializer.setDatabasePopulator(
-					new ResourceDatabasePopulator(resourceLoader.getResource(
-							"classpath:org/springframework/session/jdbc/schema-postgresql.sql")));
-			return initializer;
-		}
-
-	}
-
-	private static class PostgreSql9Container
-			extends PostgreSQLContainer<PostgreSql9Container> {
-
-		PostgreSql9Container() {
-			super("postgres:9.6.10");
+		public ResourceDatabasePopulator databasePopulator() {
+			return DatabasePopulators.postgreSql();
 		}
 
 	}

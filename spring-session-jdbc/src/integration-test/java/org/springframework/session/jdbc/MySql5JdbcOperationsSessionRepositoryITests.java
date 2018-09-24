@@ -16,19 +16,11 @@
 
 package org.springframework.session.jdbc;
 
-import javax.sql.DataSource;
-
-import com.mysql.cj.jdbc.Driver;
-import com.mysql.cj.jdbc.MysqlDataSource;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.testcontainers.containers.MySQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -43,61 +35,21 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 @ContextConfiguration
 public class MySql5JdbcOperationsSessionRepositoryITests
-		extends AbstractJdbcOperationsSessionRepositoryITests {
-
-	private static MySQLContainer container = new MySql5Container();
-
-	@BeforeClass
-	public static void setUpClass() {
-		container.start();
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		container.stop();
-	}
+		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
-	static class Config extends BaseConfig {
+	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public DataSource dataSource() {
-			MysqlDataSource dataSource = new MysqlDataSource();
-			dataSource.setUrl(container.getJdbcUrl());
-			dataSource.setUser(container.getUsername());
-			dataSource.setPassword(container.getPassword());
-			return dataSource;
+		public MySQLContainer databaseContainer() {
+			MySQLContainer databaseContainer = DatabaseContainers.mySql5();
+			databaseContainer.start();
+			return databaseContainer;
 		}
 
 		@Bean
-		public DataSourceInitializer initializer(DataSource dataSource,
-				ResourceLoader resourceLoader) {
-			DataSourceInitializer initializer = new DataSourceInitializer();
-			initializer.setDataSource(dataSource);
-			initializer.setDatabasePopulator(
-					new ResourceDatabasePopulator(resourceLoader.getResource(
-							"classpath:org/springframework/session/jdbc/schema-mysql.sql")));
-			return initializer;
-		}
-
-	}
-
-	private static class MySql5Container extends MySQLContainer<MySql5Container> {
-
-		MySql5Container() {
-			super("mysql:5.7.23");
-		}
-
-		@Override
-		protected void configure() {
-			super.configure();
-			setCommand("mysqld", "--character-set-server=utf8mb4",
-					"--collation-server=utf8mb4_unicode_ci");
-		}
-
-		@Override
-		public String getDriverClassName() {
-			return Driver.class.getName();
+		public ResourceDatabasePopulator databasePopulator() {
+			return DatabasePopulators.mySql();
 		}
 
 	}

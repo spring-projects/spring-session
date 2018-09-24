@@ -13,6 +13,7 @@ dependencies {
 
 	integrationTestCompile "com.h2database:h2"
 	integrationTestCompile "com.microsoft.sqlserver:mssql-jdbc"
+	integrationTestCompile "com.zaxxer:HikariCP"
 	integrationTestCompile "mysql:mysql-connector-java"
 	integrationTestCompile "org.apache.derby:derby"
 	integrationTestCompile "org.hsqldb:hsqldb"

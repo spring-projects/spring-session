@@ -16,20 +16,11 @@
 
 package org.springframework.session.jdbc;
 
-import java.sql.SQLException;
-
-import javax.sql.DataSource;
-
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.mariadb.jdbc.MariaDbDataSource;
 import org.testcontainers.containers.MariaDBContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -45,55 +36,21 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 @ContextConfiguration
 public class MariaDb10JdbcOperationsSessionRepositoryITests
-		extends AbstractJdbcOperationsSessionRepositoryITests {
-
-	private static MariaDBContainer container = new MariaDb10Container();
-
-	@BeforeClass
-	public static void setUpClass() {
-		container.start();
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		container.stop();
-	}
+		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
-	static class Config extends BaseConfig {
+	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public DataSource dataSource() throws SQLException {
-			MariaDbDataSource dataSource = new MariaDbDataSource(container.getJdbcUrl());
-			dataSource.setUserName(container.getUsername());
-			dataSource.setPassword(container.getPassword());
-			return dataSource;
+		public MariaDBContainer databaseContainer() {
+			MariaDBContainer databaseContainer = DatabaseContainers.mariaDb10();
+			databaseContainer.start();
+			return databaseContainer;
 		}
 
 		@Bean
-		public DataSourceInitializer initializer(DataSource dataSource,
-				ResourceLoader resourceLoader) {
-			DataSourceInitializer initializer = new DataSourceInitializer();
-			initializer.setDataSource(dataSource);
-			initializer.setDatabasePopulator(
-					new ResourceDatabasePopulator(resourceLoader.getResource(
-							"classpath:org/springframework/session/jdbc/schema-mysql.sql")));
-			return initializer;
-		}
-
-	}
-
-	private static class MariaDb10Container extends MariaDBContainer<MariaDb10Container> {
-
-		MariaDb10Container() {
-			super("mariadb:10.3.9");
-		}
-
-		@Override
-		protected void configure() {
-			super.configure();
-			setCommand("mysqld", "--character-set-server=utf8mb4",
-					"--collation-server=utf8mb4_unicode_ci");
+		public ResourceDatabasePopulator databasePopulator() {
+			return DatabasePopulators.mySql();
 		}
 
 	}
