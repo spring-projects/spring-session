@@ -768,6 +768,21 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(this.repository.findById(session.getId())).isNull();
 	}
 
+	@Test // gh-1203
+	public void saveWithLargeAttribute() {
+		String attributeName = "largeAttribute";
+		int arraySize = 4000;
+
+		JdbcOperationsSessionRepository.JdbcSession session = this.repository
+				.createSession();
+		session.setAttribute(attributeName, new byte[arraySize]);
+		this.repository.save(session);
+		session = this.repository.findById(session.getId());
+
+		assertThat(session).isNotNull();
+		assertThat((byte[]) session.getAttribute(attributeName)).hasSize(arraySize);
+	}
+
 	private String getSecurityName() {
 		return this.context.getAuthentication().getName();
 	}
