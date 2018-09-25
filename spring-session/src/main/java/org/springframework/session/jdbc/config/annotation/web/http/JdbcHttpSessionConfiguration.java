@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,10 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
-import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.MetaDataAccessException;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
@@ -85,7 +87,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository(
-			@Qualifier("springSessionJdbcOperations") JdbcOperations jdbcOperations,
+			@Qualifier("springSessionJdbcOperations") JdbcTemplate jdbcOperations,
 			PlatformTransactionManager transactionManager) {
 		JdbcOperationsSessionRepository sessionRepository =
 				new JdbcOperationsSessionRepository(jdbcOperations, transactionManager);
@@ -97,6 +99,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
+		}
+		else if (requiresTemporaryLob(jdbcOperations.getDataSource())) {
+			DefaultLobHandler lobHandler = new DefaultLobHandler();
+			lobHandler.setCreateTemporaryLob(true);
+			sessionRepository.setLobHandler(lobHandler);
 		}
 		if (this.springSessionConversionService != null) {
 			sessionRepository.setConversionService(this.springSessionConversionService);
@@ -111,11 +118,22 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return sessionRepository;
 	}
 
+	private static boolean requiresTemporaryLob(DataSource dataSource) {
+		try {
+			String productName = (String) JdbcUtils.extractDatabaseMetaData(dataSource,
+					"getDatabaseProductName");
+			return "Oracle".equalsIgnoreCase(JdbcUtils.commonDatabaseName(productName));
+		}
+		catch (MetaDataAccessException ex) {
+			return false;
+		}
+	}
+
 	/**
 	 * This must be a separate method because some ClassLoaders load the entire method
 	 * definition even if an if statement guards against it loading. This means that older
 	 * versions of Spring would cause a NoSuchMethodError if this were defined in
-	 * {@link #sessionRepository(JdbcOperations, PlatformTransactionManager)}.
+	 * {@link #sessionRepository(JdbcTemplate, PlatformTransactionManager)}.
 	 *
 	 * @return the default {@link ConversionService}
 	 */
