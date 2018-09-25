@@ -35,6 +35,9 @@ import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.JdbcUtils;
+import org.springframework.jdbc.support.MetaDataAccessException;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
@@ -102,6 +105,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
 		}
+		else if (requiresTemporaryLob(this.dataSource)) {
+			DefaultLobHandler lobHandler = new DefaultLobHandler();
+			lobHandler.setCreateTemporaryLob(true);
+			sessionRepository.setLobHandler(lobHandler);
+		}
 		if (this.springSessionConversionService != null) {
 			sessionRepository.setConversionService(this.springSessionConversionService);
 		}
@@ -113,6 +121,17 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 					.setConversionService(createConversionServiceWithBeanClassLoader());
 		}
 		return sessionRepository;
+	}
+
+	private static boolean requiresTemporaryLob(DataSource dataSource) {
+		try {
+			String productName = JdbcUtils.extractDatabaseMetaData(dataSource,
+					"getDatabaseProductName");
+			return "Oracle".equalsIgnoreCase(JdbcUtils.commonDatabaseName(productName));
+		}
+		catch (MetaDataAccessException ex) {
+			return false;
+		}
 	}
 
 	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
