@@ -22,5 +22,6 @@ dependencies {
 	integrationTestCompile "org.testcontainers:mariadb"
 	integrationTestCompile "org.testcontainers:mssqlserver"
 	integrationTestCompile "org.testcontainers:mysql"
+	integrationTestCompile "org.testcontainers:oracle-xe"
 	integrationTestCompile "org.testcontainers:postgresql"
 }

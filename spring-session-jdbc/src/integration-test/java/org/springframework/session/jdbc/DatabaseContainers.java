@@ -20,6 +20,7 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 /**
@@ -46,6 +47,10 @@ final class DatabaseContainers {
 
 	static MySQLContainer mySql8() {
 		return new MySql8Container();
+	}
+
+	static OracleContainer oracle() {
+		return new OracleContainer();
 	}
 
 	static PostgreSQLContainer postgreSql9() {
