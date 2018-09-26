@@ -29,14 +29,14 @@ dependencies {
 			"org.springframework.security:spring-security-web:$springSecurityVersion"
 	provided "javax.servlet:javax.servlet-api:$servletApiVersion"
 	integrationTestCompile "redis.clients:jedis:$jedisVersion",
-			"org.apache.commons:commons-pool2:2.2",
+			"org.apache.commons:commons-pool2:$commonsPoolVersion",
 			"com.hazelcast:hazelcast-client:$hazelcastVersion",
 			"com.h2database:h2:$h2Version",
 			"org.hsqldb:hsqldb:2.3.3",
 			"org.apache.derby:derby:10.12.1.1",
-			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.2"
+			"de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.50.5"
 
-	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	integrationTestRuntime "org.springframework.shell:spring-shell:$springShellVersion"
 
 	testCompile "junit:junit:$junitVersion",
 			"org.mockito:mockito-core:$mockitoVersion",

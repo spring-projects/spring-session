@@ -15,7 +15,6 @@ apply from: SAMPLE_GRADLE
 group = 'samples'
 ext {
     jsonassertVersion="1.3.0"
-    assertjVersion = "2.4.0"
 }
 
 ext['spring-security.version'] = springSecurityVersion

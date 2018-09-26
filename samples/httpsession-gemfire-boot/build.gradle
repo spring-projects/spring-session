@@ -12,6 +12,8 @@ apply plugin: "application"
 apply plugin: 'org.springframework.boot'
 apply from: SAMPLE_GRADLE
 
+ext['spring-security.version'] = springSecurityVersion
+
 dependencies {
 	compile project(':spring-session-data-gemfire'),
 		"org.springframework.boot:spring-boot-starter-thymeleaf",
@@ -19,14 +21,14 @@ dependencies {
 		"org.webjars:bootstrap:$bootstrapVersion",
 		"org.webjars:webjars-locator"
 
-	runtime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	runtime "org.springframework.shell:spring-shell:$springShellVersion"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 
 	integrationTestCompile gebDependencies,
 		"org.spockframework:spock-spring:$spockVersion"
 
-	integrationTestRuntime "org.springframework.shell:spring-shell:1.0.0.RELEASE"
+	integrationTestRuntime "org.springframework.shell:spring-shell:$springShellVersion"
 }
 
 run {

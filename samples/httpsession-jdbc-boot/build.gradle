@@ -14,6 +14,8 @@ apply from: SAMPLE_GRADLE
 
 group = 'samples'
 
+ext['spring-security.version'] = springSecurityVersion
+
 dependencies {
 	compile project(':spring-session-jdbc'),
 			"org.springframework.boot:spring-boot-starter-jdbc",

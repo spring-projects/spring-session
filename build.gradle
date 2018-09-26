@@ -19,7 +19,7 @@ plugins {
 
 group = 'org.springframework.session'
 
-ext.springBootVersion = '1.4.2.RELEASE'
+ext.springBootVersion = '1.4.7.RELEASE'
 ext.IDE_GRADLE = "$rootDir/gradle/ide.gradle"
 ext.JAVA_GRADLE = "$rootDir/gradle/java.gradle"
 ext.SPRING3_GRADLE = "$rootDir/gradle/spring3.gradle"
