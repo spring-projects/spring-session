@@ -64,7 +64,9 @@ public class Initializer implements ServletContextListener {
 	private HazelcastInstance createHazelcastInstance() {
 		Config config = new Config();
 
-		config.getNetworkConfig().setPort(getAvailablePort());
+		config.getNetworkConfig()
+				.setPort(getAvailablePort())
+				.getJoin().getMulticastConfig().setEnabled(false);
 
 		config.getMapConfig(SESSION_MAP_NAME)
 				.setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
