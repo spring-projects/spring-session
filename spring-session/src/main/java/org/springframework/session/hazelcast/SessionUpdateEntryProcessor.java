@@ -34,7 +34,11 @@ class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSess
 
 	private long lastAccessedTime;
 
+	private boolean lastAccessedTimeSet;
+
 	private int maxInactiveInterval;
+
+	private boolean maxInactiveIntervalSet;
 
 	private Map<String, Object> delta;
 
@@ -43,10 +47,10 @@ class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSess
 		if (value == null) {
 			return Boolean.FALSE;
 		}
-		if (this.lastAccessedTime > 0) {
+		if (this.lastAccessedTimeSet) {
 			value.setLastAccessedTime(this.lastAccessedTime);
 		}
-		if (this.maxInactiveInterval > 0) {
+		if (this.maxInactiveIntervalSet) {
 			value.setMaxInactiveIntervalInSeconds(this.maxInactiveInterval);
 		}
 		if (this.delta != null) {
@@ -65,10 +69,12 @@ class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSess
 
 	void setLastAccessedTime(long lastAccessedTime) {
 		this.lastAccessedTime = lastAccessedTime;
+		this.lastAccessedTimeSet = true;
 	}
 
 	void setMaxInactiveInterval(int maxInactiveInterval) {
 		this.maxInactiveInterval = maxInactiveInterval;
+		this.maxInactiveIntervalSet = true;
 	}
 
 	void setDelta(Map<String, Object> delta) {
