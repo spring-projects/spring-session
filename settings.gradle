@@ -1,4 +1,4 @@
-rootProject.name = 'spring-session'
+rootProject.name = 'spring-session-build'
 
 FileTree buildFiles = fileTree(rootDir) {
 	include '**/*.gradle'
