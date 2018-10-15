@@ -9,7 +9,7 @@ dependencyManagement {
 	}
 
 	dependencies {
-		dependencySet(group: 'com.hazelcast', version: '3.10.5') {
+		dependencySet(group: 'com.hazelcast', version: '3.10.6') {
 			entry 'hazelcast'
 			entry 'hazelcast-client'
 		}
