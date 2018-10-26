@@ -205,6 +205,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean requestedSessionCached;
 
+		private String requestedSessionId;
+
 		private Boolean requestedSessionIdValid;
 
 		private boolean requestedSessionInvalidated;
@@ -277,7 +279,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				}
 				return isRequestedSessionIdValid(requestedSession);
 			}
-
 			return this.requestedSessionIdValid;
 		}
 
@@ -351,8 +352,10 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		@Override
 		public String getRequestedSessionId() {
-			S requestedSession = getRequestedSession();
-			return (requestedSession != null) ? requestedSession.getId() : null;
+			if (this.requestedSessionId == null) {
+				getRequestedSession();
+			}
+			return this.requestedSessionId;
 		}
 
 		private S getRequestedSession() {
@@ -360,10 +363,14 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				List<String> sessionIds = SessionRepositoryFilter.this.httpSessionIdResolver
 						.resolveSessionIds(this);
 				for (String sessionId : sessionIds) {
+					if (this.requestedSessionId == null) {
+						this.requestedSessionId = sessionId;
+					}
 					S session = SessionRepositoryFilter.this.sessionRepository
 							.findById(sessionId);
 					if (session != null) {
 						this.requestedSession = session;
+						this.requestedSessionId = sessionId;
 						break;
 					}
 				}
@@ -375,6 +382,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		private void clearRequestedSessionCache() {
 			this.requestedSessionCached = false;
 			this.requestedSession = null;
+			this.requestedSessionId = null;
 		}
 
 		/**

@@ -1192,6 +1192,29 @@ public class SessionRepositoryFilterTests {
 		});
 	}
 
+	@Test // gh-1229
+	public void doFilterAdapterGetRequestedSessionIdForInvalidSession() throws Exception {
+		SessionRepository<MapSession> sessionRepository = new MapSessionRepository(
+				new HashMap<>());
+
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
+		this.filter.setHttpSessionIdResolver(this.strategy);
+		final String expectedId = "HttpSessionIdResolver-requested-id1";
+		final String otherId = "HttpSessionIdResolver-requested-id2";
+
+		given(this.strategy.resolveSessionIds(any(HttpServletRequest.class)))
+				.willReturn(Arrays.asList(expectedId, otherId));
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest,
+					HttpServletResponse wrappedResponse) {
+				assertThat(wrappedRequest.getRequestedSessionId()).isEqualTo(expectedId);
+				assertThat(wrappedRequest.isRequestedSessionIdValid()).isFalse();
+			}
+		});
+	}
+
 	@Test
 	public void doFilterAdapterOnNewSession() throws Exception {
 		this.filter.setHttpSessionIdResolver(this.strategy);
