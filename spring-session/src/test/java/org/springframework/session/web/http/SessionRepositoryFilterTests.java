@@ -1175,17 +1175,18 @@ public class SessionRepositoryFilterTests {
 		});
 	}
 
-	@Test
+	@Test // gh-1243
 	public void doFilterInclude() throws Exception {
 		doFilter(new DoInFilter() {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest,
-					HttpServletResponse wrappedResponse) throws IOException, ServletException {
+					HttpServletResponse wrappedResponse)
+					throws IOException, ServletException {
 				String id = wrappedRequest.getSession().getId();
-				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
-				assertThat(
-						SessionRepositoryFilterTests.this.sessionRepository.getSession(id))
-						.isNotNull();
+				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest,
+						wrappedResponse);
+				assertThat(SessionRepositoryFilterTests.this.sessionRepository
+						.getSession(id)).isNotNull();
 			}
 		});
 	}

@@ -75,6 +75,7 @@ import org.springframework.session.SessionRepository;
  * @param <S> the {@link ExpiringSession} type.
  * @since 1.0
  * @author Rob Winch
+ * @author Josh Cummings
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends ExpiringSession>
@@ -427,21 +428,31 @@ public class SessionRepositoryFilter<S extends ExpiringSession>
 			}
 		}
 
-		private final class SessionCommittingRequestDispatcher implements RequestDispatcher {
+		/**
+		 * Ensures session is committed before issuing an include.
+		 *
+		 * @since 1.3.4
+		 */
+		private final class SessionCommittingRequestDispatcher
+				implements RequestDispatcher {
+
 			private final RequestDispatcher delegate;
 
 			SessionCommittingRequestDispatcher(RequestDispatcher delegate) {
 				this.delegate = delegate;
 			}
 
-			public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			public void forward(ServletRequest request, ServletResponse response)
+					throws ServletException, IOException {
 				this.delegate.forward(request, response);
 			}
 
-			public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			public void include(ServletRequest request, ServletResponse response)
+					throws ServletException, IOException {
 				SessionRepositoryRequestWrapper.this.commitSession();
 				this.delegate.include(request, response);
 			}
+
 		}
 
 	}
