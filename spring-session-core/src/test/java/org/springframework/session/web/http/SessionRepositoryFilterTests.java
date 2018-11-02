@@ -1170,6 +1170,21 @@ public class SessionRepositoryFilterTests {
 		});
 	}
 
+	@Test
+	public void doFilterInclude() throws Exception {
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest,
+					HttpServletResponse wrappedResponse) throws IOException, ServletException {
+				String id = wrappedRequest.getSession().getId();
+				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
+				assertThat(
+						SessionRepositoryFilterTests.this.sessionRepository.findById(id))
+						.isNotNull();
+			}
+		});
+	}
+
 	// --- HttpSessionIdResolver
 
 	@Test
