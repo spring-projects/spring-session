@@ -21,8 +21,11 @@ import java.time.Instant;
 import java.util.List;
 
 import javax.servlet.FilterChain;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -358,6 +361,12 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			return this.requestedSessionId;
 		}
 
+		@Override
+		public RequestDispatcher getRequestDispatcher(String path) {
+			RequestDispatcher requestDispatcher = super.getRequestDispatcher(path);
+			return new SessionCommittingRequestDispatcher(requestDispatcher);
+		}
+
 		private S getRequestedSession() {
 			if (!this.requestedSessionCached) {
 				List<String> sessionIds = SessionRepositoryFilter.this.httpSessionIdResolver
@@ -404,6 +413,25 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				setCurrentSession(null);
 				clearRequestedSessionCache();
 				SessionRepositoryFilter.this.sessionRepository.deleteById(getId());
+			}
+		}
+
+		private final class SessionCommittingRequestDispatcher implements RequestDispatcher {
+			private final RequestDispatcher delegate;
+
+			SessionCommittingRequestDispatcher(RequestDispatcher delegate) {
+				this.delegate = delegate;
+			}
+
+			@Override
+			public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+				this.delegate.forward(request, response);
+			}
+
+			@Override
+			public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+				SessionRepositoryRequestWrapper.this.commitSession();
+				this.delegate.include(request, response);
 			}
 		}
 
