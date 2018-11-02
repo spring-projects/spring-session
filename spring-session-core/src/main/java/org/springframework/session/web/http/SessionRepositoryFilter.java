@@ -74,6 +74,7 @@ import org.springframework.session.SessionRepository;
  * @since 1.0
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Josh Cummings
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFilter {
@@ -416,7 +417,14 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 		}
 
-		private final class SessionCommittingRequestDispatcher implements RequestDispatcher {
+		/**
+		 * Ensures session is committed before issuing an include.
+		 *
+		 * @since 2.0.8
+		 */
+		private final class SessionCommittingRequestDispatcher
+				implements RequestDispatcher {
+
 			private final RequestDispatcher delegate;
 
 			SessionCommittingRequestDispatcher(RequestDispatcher delegate) {
@@ -424,15 +432,18 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 
 			@Override
-			public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			public void forward(ServletRequest request, ServletResponse response)
+					throws ServletException, IOException {
 				this.delegate.forward(request, response);
 			}
 
 			@Override
-			public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
+			public void include(ServletRequest request, ServletResponse response)
+					throws ServletException, IOException {
 				SessionRepositoryRequestWrapper.this.commitSession();
 				this.delegate.include(request, response);
 			}
+
 		}
 
 	}
