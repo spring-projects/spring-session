@@ -339,7 +339,7 @@ public class HazelcastSessionRepositoryTests {
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
 	}
 
-	@Test // gh-1129
+	@Test // gh-1120
 	public void getAttributeNamesAndRemove() {
 		HazelcastSession session = this.repository.createSession();
 		session.setAttribute("attribute1", "value1");

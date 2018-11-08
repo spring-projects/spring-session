@@ -608,7 +608,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(this.repository.getSession(session.getId())).isNull();
 	}
 
-	@Test // gh-1153
+	@Test // gh-1031
 	public void saveDeleted() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
 		this.repository.save(session);
@@ -620,7 +620,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		assertThat(this.repository.getSession(session.getId())).isNull();
 	}
 
-	@Test // gh-1153
+	@Test // gh-1031
 	public void saveDeletedAddAttribute() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
 		this.repository.save(session);

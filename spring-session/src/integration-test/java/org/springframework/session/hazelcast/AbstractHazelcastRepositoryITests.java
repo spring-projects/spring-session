@@ -70,7 +70,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 	}
 
-	@Test // gh-1106
+	@Test // gh-1076
 	public void attemptToUpdateSessionAfterDelete() {
 		HazelcastSession session = this.repository.createSession();
 		String sessionId = session.getId();

@@ -805,7 +805,7 @@ public class RedisOperationsSessionRepositoryTests {
 		this.redisRepository.setRedisFlushMode(null);
 	}
 
-	@Test // gh-1129
+	@Test // gh-1120
 	public void getAttributeNamesAndRemove() {
 		RedisSession session = this.redisRepository.new RedisSession(this.cached);
 		session.setAttribute("attribute1", "value1");

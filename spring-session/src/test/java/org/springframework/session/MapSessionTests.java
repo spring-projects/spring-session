@@ -85,7 +85,7 @@ public class MapSessionTests {
 		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
-	@Test // gh-1129
+	@Test // gh-1120
 	public void getAttributeNamesAndRemove() {
 		this.session.setAttribute("attribute1", "value1");
 		this.session.setAttribute("attribute2", "value2");

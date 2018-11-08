@@ -525,7 +525,7 @@ public class JdbcOperationsSessionRepositoryTests {
 		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE"), anyLong());
 	}
 
-	@Test // gh-1129
+	@Test // gh-1120
 	public void getAttributeNamesAndRemove() {
 		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
 		session.setAttribute("attribute1", "value1");

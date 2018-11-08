@@ -65,7 +65,7 @@ public class MapSessionRepositoryTests {
 				.isEqualTo(expectedMaxInterval);
 	}
 
-	@Test // gh-1129
+	@Test // gh-1120
 	public void getAttributeNamesAndRemove() {
 		ExpiringSession session = this.repository.createSession();
 		session.setAttribute("attribute1", "value1");
