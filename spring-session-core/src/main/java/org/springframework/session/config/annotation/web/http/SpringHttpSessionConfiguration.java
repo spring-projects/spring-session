@@ -187,6 +187,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 				if (sessionCookieConfig.getMaxAge() != -1) {
 					cookieSerializer.setCookieMaxAge(sessionCookieConfig.getMaxAge());
 				}
+				cookieSerializer.setUseHttpOnlyCookie(sessionCookieConfig.isHttpOnly());
 			}
 		}
 		if (this.usesSpringSessionRememberMeServices) {
