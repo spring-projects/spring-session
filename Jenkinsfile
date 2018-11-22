@@ -28,14 +28,32 @@ try {
 			}
 		}
 	},
+	jdk9: {
+		stage('JDK 9') {
+			timeout(time: 45, unit: 'MINUTES') {
+				node {
+					checkout scm
+					try {
+						withEnv(["JAVA_HOME=${tool 'jdk9'}"]) {
+							sh './gradlew clean test --no-daemon --refresh-dependencies'
+						}
+					}
+					catch (e) {
+						currentBuild.result = 'FAILED: jdk9'
+						throw e
+					}
+				}
+			}
+		}
+	},
 	jdk10: {
 		stage('JDK 10') {
 			timeout(time: 45, unit: 'MINUTES') {
-				node('ubuntu1804') {
+				node {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk10'}"]) {
-							sh './gradlew clean test integrationTest --no-daemon --refresh-dependencies'
+							sh './gradlew clean test --no-daemon --refresh-dependencies'
 						}
 					}
 					catch (e) {
