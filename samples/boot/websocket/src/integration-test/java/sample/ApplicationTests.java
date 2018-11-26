@@ -42,7 +42,7 @@ import org.springframework.web.socket.sockjs.client.SockJsClient;
 import org.springframework.web.socket.sockjs.client.Transport;
 import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -70,8 +70,8 @@ public class ApplicationTests {
 		ListenableFuture<WebSocketSession> wsSession = sockJsClient.doHandshake(
 				this.webSocketHandler, "ws://localhost:" + this.port + "/sockjs");
 
-		assertThatThrownBy(() -> wsSession.get().sendMessage(new TextMessage("a")))
-				.isInstanceOf(ExecutionException.class);
+		assertThatExceptionOfType(ExecutionException.class)
+				.isThrownBy(() -> wsSession.get().sendMessage(new TextMessage("a")));
 	}
 
 	@TestConfiguration

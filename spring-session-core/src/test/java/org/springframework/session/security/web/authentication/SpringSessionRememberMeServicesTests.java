@@ -27,7 +27,7 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -68,9 +68,10 @@ public class SpringSessionRememberMeServicesTests {
 	@Test
 	public void createWithNullParameter() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		assertThatThrownBy(() -> this.rememberMeServices.setRememberMeParameterName(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("rememberMeParameterName cannot be empty or null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(
+						() -> this.rememberMeServices.setRememberMeParameterName(null))
+				.withMessage("rememberMeParameterName cannot be empty or null");
 	}
 
 	@Test

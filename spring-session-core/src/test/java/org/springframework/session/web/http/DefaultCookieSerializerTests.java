@@ -33,7 +33,7 @@ import org.springframework.session.web.http.CookieSerializer.CookieValue;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link DefaultCookieSerializer}.
@@ -214,9 +214,9 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void setDomainNameAndDomainNamePatternThrows() {
 		this.serializer.setDomainName("example.com");
-		assertThatThrownBy(() -> this.serializer.setDomainNamePattern(".*"))
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("Cannot set both domainName and domainNamePattern");
+		assertThatExceptionOfType(IllegalStateException.class)
+				.isThrownBy(() -> this.serializer.setDomainNamePattern(".*"))
+				.withMessage("Cannot set both domainName and domainNamePattern");
 	}
 
 	// --- domainNamePattern ---
@@ -248,9 +248,9 @@ public class DefaultCookieSerializerTests {
 	@Test
 	public void setDomainNamePatternAndDomainNameThrows() {
 		this.serializer.setDomainNamePattern(".*");
-		assertThatThrownBy(() -> this.serializer.setDomainName("example.com"))
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("Cannot set both domainName and domainNamePattern");
+		assertThatExceptionOfType(IllegalStateException.class)
+				.isThrownBy(() -> this.serializer.setDomainName("example.com"))
+				.withMessage("Cannot set both domainName and domainNamePattern");
 	}
 
 	// --- cookieName ---
@@ -274,9 +274,9 @@ public class DefaultCookieSerializerTests {
 
 	@Test
 	public void setCookieNameNullThrows() {
-		assertThatThrownBy(() -> this.serializer.setCookieName(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("cookieName cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.serializer.setCookieName(null))
+				.withMessage("cookieName cannot be null");
 	}
 
 	// --- cookiePath ---

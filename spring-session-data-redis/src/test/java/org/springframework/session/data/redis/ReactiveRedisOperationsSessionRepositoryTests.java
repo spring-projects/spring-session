@@ -36,7 +36,7 @@ import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepo
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -80,9 +80,9 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void constructorWithNullReactiveRedisOperations() {
-		assertThatThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("sessionRedisOperations cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
+				.withMessageContaining("sessionRedisOperations cannot be null");
 	}
 
 	@Test
@@ -95,16 +95,16 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void nullRedisKeyNamespace() {
-		assertThatThrownBy(() -> this.repository.setRedisKeyNamespace(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("namespace cannot be null or empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setRedisKeyNamespace(null))
+				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
 	public void emptyRedisKeyNamespace() {
-		assertThatThrownBy(() -> this.repository.setRedisKeyNamespace(""))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("namespace cannot be null or empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setRedisKeyNamespace(""))
+				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
@@ -125,9 +125,9 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void nullRedisFlushMode() {
-		assertThatThrownBy(() -> this.repository.setRedisFlushMode(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("redisFlushMode cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setRedisFlushMode(null))
+				.withMessage("redisFlushMode cannot be null");
 	}
 
 	@Test

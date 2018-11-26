@@ -62,7 +62,7 @@ import org.springframework.session.SessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -1418,16 +1418,16 @@ public class SessionRepositoryFilterTests {
 	@Test
 	@SuppressWarnings("unused")
 	public void doesNotImplementOrdered() {
-		assertThatThrownBy(() -> {
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> {
 			Ordered o = (Ordered) this.filter;
-		}).isInstanceOf(ClassCastException.class);
+		});
 	}
 
 	@Test
 	public void setHttpSessionIdResolverNull() {
-		assertThatThrownBy(() -> this.filter.setHttpSessionIdResolver(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("httpSessionIdResolver cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.filter.setHttpSessionIdResolver(null))
+				.withMessage("httpSessionIdResolver cannot be null");
 	}
 
 	@Test

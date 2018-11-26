@@ -24,7 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class MapSessionTests {
 
@@ -38,9 +38,9 @@ public class MapSessionTests {
 
 	@Test
 	public void constructorNullSession() {
-		assertThatThrownBy(() -> new MapSession((Session) null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("session cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new MapSession((Session) null))
+				.withMessage("session cannot be null");
 	}
 
 	@Test
@@ -70,9 +70,9 @@ public class MapSessionTests {
 
 	@Test
 	public void getRequiredAttributeWhenNullThenException() {
-		assertThatThrownBy(() -> this.session.getRequiredAttribute("attrName"))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Required attribute 'attrName' is missing.");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.session.getRequiredAttribute("attrName"))
+				.withMessage("Required attribute 'attrName' is missing.");
 	}
 
 	@Test

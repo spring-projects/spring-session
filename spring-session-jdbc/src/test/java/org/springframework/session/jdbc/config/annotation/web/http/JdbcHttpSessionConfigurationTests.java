@@ -37,7 +37,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -66,8 +66,9 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Test
 	public void noDataSourceConfiguration() {
-		assertThatThrownBy(() -> registerAndRefresh(NoDataSourceConfiguration.class))
-				.isInstanceOf(BeanCreationException.class).hasMessageContaining(
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> registerAndRefresh(NoDataSourceConfiguration.class))
+				.withMessageContaining(
 						"expected at least 1 bean which qualifies as autowire candidate");
 	}
 
@@ -224,10 +225,10 @@ public class JdbcHttpSessionConfigurationTests {
 
 	@Test
 	public void multipleDataSourceConfiguration() {
-		assertThatThrownBy(() -> registerAndRefresh(DataSourceConfiguration.class,
-				MultipleDataSourceConfiguration.class))
-						.isInstanceOf(BeanCreationException.class)
-						.hasMessageContaining("expected single matching bean but found 2");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> registerAndRefresh(DataSourceConfiguration.class,
+						MultipleDataSourceConfiguration.class))
+				.withMessageContaining("expected single matching bean but found 2");
 	}
 
 	@Test

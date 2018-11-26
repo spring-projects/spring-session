@@ -41,7 +41,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -80,173 +80,173 @@ public class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	public void constructorNullJdbcOperations() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> new JdbcOperationsSessionRepository(null, this.transactionManager))
-						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("JdbcOperations must not be null");
+				.withMessage("JdbcOperations must not be null");
 	}
 
 	@Test
 	public void constructorNullTransactionManager() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> new JdbcOperationsSessionRepository(this.jdbcOperations, null))
-						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("TransactionManager must not be null");
+				.withMessage("TransactionManager must not be null");
 	}
 
 	@Test
 	public void setTableNameNull() {
-		assertThatThrownBy(() -> this.repository.setTableName(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Table name must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setTableName(null))
+				.withMessage("Table name must not be empty");
 	}
 
 	@Test
 	public void setTableNameEmpty() {
-		assertThatThrownBy(() -> this.repository.setTableName(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Table name must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setTableName(" "))
+				.withMessage("Table name must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionQueryNull() {
-		assertThatThrownBy(() -> this.repository.setCreateSessionQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setCreateSessionQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setCreateSessionQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setCreateSessionQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionAttributeQueryNull() {
-		assertThatThrownBy(() -> this.repository.setCreateSessionAttributeQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setCreateSessionAttributeQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setCreateSessionAttributeQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setCreateSessionAttributeQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setCreateSessionAttributeQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setGetSessionQueryNull() {
-		assertThatThrownBy(() -> this.repository.setGetSessionQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setGetSessionQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setGetSessionQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setGetSessionQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setGetSessionQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionQueryNull() {
-		assertThatThrownBy(() -> this.repository.setUpdateSessionQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setUpdateSessionQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setUpdateSessionQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setUpdateSessionQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionAttributeQueryNull() {
-		assertThatThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setUpdateSessionAttributeQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionAttributeQueryNull() {
-		assertThatThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionAttributeQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionQueryNull() {
-		assertThatThrownBy(() -> this.repository.setDeleteSessionQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setDeleteSessionQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setDeleteSessionQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setDeleteSessionQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setListSessionsByPrincipalNameQueryNull() {
-		assertThatThrownBy(
-				() -> this.repository.setListSessionsByPrincipalNameQuery(null))
-						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(
+						() -> this.repository.setListSessionsByPrincipalNameQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setListSessionsByPrincipalNameQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setListSessionsByPrincipalNameQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(
+						() -> this.repository.setListSessionsByPrincipalNameQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionsByLastAccessTimeQueryNull() {
-		assertThatThrownBy(() -> this.repository.setDeleteSessionsByExpiryTimeQuery(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(
+						() -> this.repository.setDeleteSessionsByExpiryTimeQuery(null))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setDeleteSessionsByLastAccessTimeQueryEmpty() {
-		assertThatThrownBy(() -> this.repository.setDeleteSessionsByExpiryTimeQuery(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Query must not be empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setDeleteSessionsByExpiryTimeQuery(" "))
+				.withMessage("Query must not be empty");
 	}
 
 	@Test
 	public void setLobHandlerNull() {
-		assertThatThrownBy(() -> this.repository.setLobHandler(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("LobHandler must not be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setLobHandler(null))
+				.withMessage("LobHandler must not be null");
 	}
 
 	@Test
 	public void setConversionServiceNull() {
-		assertThatThrownBy(() -> this.repository.setConversionService(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("conversionService must not be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.repository.setConversionService(null))
+				.withMessage("conversionService must not be null");
 	}
 
 	@Test

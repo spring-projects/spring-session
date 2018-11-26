@@ -27,7 +27,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link HeaderHttpSessionIdResolver}.
@@ -74,9 +74,9 @@ public class HeaderHttpSessionIdResolverTests {
 
 	@Test
 	public void createResolverWithNullHeaderName() {
-		assertThatThrownBy(() -> new HeaderHttpSessionIdResolver(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("headerName cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new HeaderHttpSessionIdResolver(null))
+				.withMessage("headerName cannot be null");
 	}
 
 	@Test

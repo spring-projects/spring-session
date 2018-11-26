@@ -32,7 +32,7 @@ import org.springframework.session.hazelcast.config.annotation.SpringSessionHaze
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -62,10 +62,10 @@ public class HazelcastHttpSessionConfigurationTests {
 
 	@Test
 	public void noHazelcastInstanceConfiguration() {
-		assertThatThrownBy(
-				() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class))
-						.isInstanceOf(BeanCreationException.class)
-						.hasMessageContaining("HazelcastInstance");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(
+						() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class))
+				.withMessageContaining("HazelcastInstance");
 	}
 
 	@Test
@@ -206,10 +206,9 @@ public class HazelcastHttpSessionConfigurationTests {
 
 	@Test
 	public void multipleHazelcastInstanceConfiguration() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
 				() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
-						.isInstanceOf(BeanCreationException.class)
-						.hasMessageContaining("expected single matching bean but found 2");
+				.withMessageContaining("expected single matching bean but found 2");
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {

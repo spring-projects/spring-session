@@ -36,7 +36,7 @@ import org.springframework.session.data.redis.config.annotation.SpringSessionRed
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -194,10 +194,10 @@ public class RedisWebSessionConfigurationTests {
 
 	@Test
 	public void multipleConnectionFactoryRedisConfig() {
-		assertThatThrownBy(() -> registerAndRefresh(RedisConfig.class,
-				MultipleConnectionFactoryRedisConfig.class))
-						.isInstanceOf(BeanCreationException.class)
-						.hasMessageContaining("expected single matching bean but found 2");
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> registerAndRefresh(RedisConfig.class,
+						MultipleConnectionFactoryRedisConfig.class))
+				.withMessageContaining("expected single matching bean but found 2");
 	}
 
 	@Test

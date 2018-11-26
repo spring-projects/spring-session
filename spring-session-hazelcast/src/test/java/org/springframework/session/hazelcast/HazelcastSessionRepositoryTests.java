@@ -39,7 +39,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -78,9 +78,9 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void constructorNullHazelcastInstance() {
-		assertThatThrownBy(() -> new HazelcastSessionRepository(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("HazelcastInstance must not be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new HazelcastSessionRepository(null))
+				.withMessage("HazelcastInstance must not be null");
 	}
 
 	@Test

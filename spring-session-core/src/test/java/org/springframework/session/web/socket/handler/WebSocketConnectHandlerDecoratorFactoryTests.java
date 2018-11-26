@@ -31,7 +31,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
@@ -56,9 +56,9 @@ public class WebSocketConnectHandlerDecoratorFactoryTests {
 
 	@Test
 	public void constructorNullEventPublisher() {
-		assertThatThrownBy(() -> new WebSocketConnectHandlerDecoratorFactory(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("eventPublisher cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new WebSocketConnectHandlerDecoratorFactory(null))
+				.withMessage("eventPublisher cannot be null");
 	}
 
 	@Test

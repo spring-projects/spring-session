@@ -32,7 +32,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Pool Dolorier
@@ -57,9 +57,9 @@ public class RestTests {
 	public void unauthenticatedUserSentToLogInPage() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-		assertThatThrownBy(() -> getForUser(this.baseUrl + "/", headers, String.class))
-				.isInstanceOf(HttpClientErrorException.class)
-				.satisfies((e) -> assertThat(((HttpClientErrorException) e).getStatusCode())
+		assertThatExceptionOfType(HttpClientErrorException.class)
+				.isThrownBy(() -> getForUser(this.baseUrl + "/", headers, String.class))
+				.satisfies((e) -> assertThat(e.getStatusCode())
 						.isEqualTo(HttpStatus.UNAUTHORIZED));
 	}
 

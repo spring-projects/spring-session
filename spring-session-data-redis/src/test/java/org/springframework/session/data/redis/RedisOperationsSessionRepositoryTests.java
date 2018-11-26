@@ -59,7 +59,7 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
 import org.springframework.session.events.AbstractSessionEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -115,9 +115,9 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void setApplicationEventPublisherNull() {
-		assertThatThrownBy(() -> this.redisRepository.setApplicationEventPublisher(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("applicationEventPublisher cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.redisRepository.setApplicationEventPublisher(null))
+				.withMessage("applicationEventPublisher cannot be null");
 	}
 
 	@Test
@@ -841,9 +841,9 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void setRedisFlushModeNull() {
-		assertThatThrownBy(() -> this.redisRepository.setRedisFlushMode(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("redisFlushMode cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.redisRepository.setRedisFlushMode(null))
+				.withMessage("redisFlushMode cannot be null");
 	}
 
 	@Test
@@ -868,16 +868,16 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void setRedisKeyNamespaceNullNamespace() {
-		assertThatThrownBy(() -> this.redisRepository.setRedisKeyNamespace(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("namespace cannot be null or empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.redisRepository.setRedisKeyNamespace(null))
+				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
 	public void setRedisKeyNamespaceEmptyNamespace() {
-		assertThatThrownBy(() -> this.redisRepository.setRedisKeyNamespace(" "))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("namespace cannot be null or empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.redisRepository.setRedisKeyNamespace(" "))
+				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test // gh-1120

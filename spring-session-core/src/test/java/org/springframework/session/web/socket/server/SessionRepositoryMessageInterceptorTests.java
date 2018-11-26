@@ -43,7 +43,7 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -82,9 +82,9 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	@Test
 	public void preSendconstructorNullRepository() {
-		assertThatThrownBy(() -> new SessionRepositoryMessageInterceptor<>(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("sessionRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new SessionRepositoryMessageInterceptor<>(null))
+				.withMessage("sessionRepository cannot be null");
 	}
 
 	@Test
@@ -134,17 +134,16 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	@Test
 	public void setMatchingMessageTypesNull() {
-		assertThatThrownBy(() -> this.interceptor.setMatchingMessageTypes(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("matchingMessageTypes cannot be null or empty");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.interceptor.setMatchingMessageTypes(null))
+				.withMessage("matchingMessageTypes cannot be null or empty");
 	}
 
 	@Test
 	public void setMatchingMessageTypesEmpty() {
-		assertThatThrownBy(
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> this.interceptor.setMatchingMessageTypes(Collections.emptySet()))
-						.isInstanceOf(IllegalArgumentException.class)
-						.hasMessage("matchingMessageTypes cannot be null or empty");
+				.withMessage("matchingMessageTypes cannot be null or empty");
 	}
 
 	@Test

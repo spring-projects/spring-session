@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link ReactiveMapSessionRepository}.
@@ -60,9 +60,9 @@ public class ReactiveMapSessionRepositoryTests {
 
 	@Test
 	public void constructorMapWhenNullThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> new ReactiveMapSessionRepository(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("sessions cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new ReactiveMapSessionRepository(null))
+				.withMessage("sessions cannot be null");
 	}
 
 	@Test

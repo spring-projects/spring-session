@@ -33,7 +33,7 @@ import org.springframework.session.Session;
 import org.springframework.web.server.WebSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -69,9 +69,9 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void constructorWhenNullRepositoryThenThrowsIllegalArgumentException() {
-		assertThatThrownBy(() -> new SpringSessionWebSessionStore<S>(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("reactiveSessionRepository cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new SpringSessionWebSessionStore<S>(null))
+				.withMessage("reactiveSessionRepository cannot be null");
 	}
 
 	@Test
@@ -275,9 +275,9 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void setClockWhenNullThenException() {
-		assertThatThrownBy(() -> this.webSessionStore.setClock(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("clock cannot be null");
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.webSessionStore.setClock(null))
+				.withMessage("clock cannot be null");
 	}
 
 	@Test // gh-1114

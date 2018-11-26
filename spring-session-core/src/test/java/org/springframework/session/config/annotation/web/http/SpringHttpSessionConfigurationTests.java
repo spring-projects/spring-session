@@ -38,7 +38,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link SpringHttpSessionConfiguration}.
@@ -63,9 +63,9 @@ public class SpringHttpSessionConfigurationTests {
 
 	@Test
 	public void noSessionRepositoryConfiguration() {
-		assertThatThrownBy(() -> registerAndRefresh(EmptyConfiguration.class))
-				.isInstanceOf(UnsatisfiedDependencyException.class)
-				.hasMessageContaining("org.springframework.session.SessionRepository");
+		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+				.isThrownBy(() -> registerAndRefresh(EmptyConfiguration.class))
+				.withMessageContaining("org.springframework.session.SessionRepository");
 	}
 
 	@Test
