@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public class AttributeTests {
 
-	private static final String DOCKER_IMAGE = "redis:4.0.11";
+	private static final String DOCKER_IMAGE = "redis:5.0.1";
 
 	@LocalServerPort
 	private int port;
