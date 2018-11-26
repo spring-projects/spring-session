@@ -173,13 +173,6 @@ final class DatabaseContainers {
 			super("mcr.microsoft.com/mssql/server:2017-CU12");
 		}
 
-		@Override
-		protected void configure() {
-			super.configure();
-			withStartupTimeoutSeconds(240);
-			withConnectTimeoutSeconds(240);
-		}
-
 	}
 
 }
