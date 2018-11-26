@@ -87,8 +87,6 @@ public class SqlServerJdbcOperationsSessionRepositoryITests
 
 		SqlServer2007Container() {
 			super("mcr.microsoft.com/mssql/server:2017-CU12");
-			withStartupTimeoutSeconds(240);
-			withConnectTimeoutSeconds(240);
 		}
 
 	}

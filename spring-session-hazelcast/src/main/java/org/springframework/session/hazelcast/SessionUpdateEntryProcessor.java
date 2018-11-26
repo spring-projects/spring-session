@@ -29,7 +29,7 @@ import org.springframework.session.MapSession;
  * Hazelcast {@link EntryProcessor} responsible for handling updates to session.
  *
  * @author Vedran Pavic
- * @since 2.0.5
+ * @since 1.3.4
  * @see HazelcastSessionRepository#save(HazelcastSessionRepository.HazelcastSession)
  */
 public class SessionUpdateEntryProcessor
