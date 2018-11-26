@@ -30,7 +30,8 @@ import org.springframework.session.MapSession;
  * @since 1.3.4
  * @see HazelcastSessionRepository#save(HazelcastSessionRepository.HazelcastSession)
  */
-class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSession> {
+public class SessionUpdateEntryProcessor
+		extends AbstractEntryProcessor<String, MapSession> {
 
 	private long lastAccessedTime;
 
