@@ -59,8 +59,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 
-	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
-
 	@Autowired
 	private SessionRepository<S> repository;
 
@@ -116,13 +114,13 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		this.registry.clear();
 
 		assertThat(sessionToSave.getMaxInactiveInterval())
-				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
+				.isEqualTo(Duration.ofSeconds(2));
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
 		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToSave.getId()))
 				.isInstanceOf(SessionExpiredEvent.class);
 
-		assertThat(this.repository.<Session>findById(sessionToSave.getId())).isNull();
+		assertThat(this.repository.findById(sessionToSave.getId())).isNull();
 	}
 
 	@Test
@@ -147,24 +145,18 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 
 	@Test
 	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
-		Object lock = new Object();
-
 		S sessionToSave = this.repository.createSession();
 
 		this.repository.save(sessionToSave);
 
-		synchronized (lock) {
-			lock.wait(sessionToSave.getMaxInactiveInterval().minusMillis(500).toMillis());
-		}
+		Thread.sleep(1200);
 
 		// Get and save the session like SessionRepositoryFilter would.
 		S sessionToUpdate = this.repository.findById(sessionToSave.getId());
 		sessionToUpdate.setLastAccessedTime(Instant.now());
 		this.repository.save(sessionToUpdate);
 
-		synchronized (lock) {
-			lock.wait(sessionToUpdate.getMaxInactiveInterval().minusMillis(100).toMillis());
-		}
+		Thread.sleep(1200);
 
 		assertThat(this.repository.findById(sessionToUpdate.getId())).isNotNull();
 	}
@@ -188,7 +180,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	}
 
 	@Configuration
-	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
+	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 2)
 	static class HazelcastSessionConfig {
 
 		@Bean
@@ -200,6 +192,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		public SessionEventRegistry sessionEventRegistry() {
 			return new SessionEventRegistry();
 		}
+
 	}
 
 }
