@@ -59,6 +59,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 
+	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
+
 	@Autowired
 	private SessionRepository<S> repository;
 
@@ -114,7 +116,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		this.registry.clear();
 
 		assertThat(sessionToSave.getMaxInactiveInterval())
-				.isEqualTo(Duration.ofSeconds(2));
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
 		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToSave.getId()))
@@ -146,17 +148,17 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	@Test
 	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
 		S sessionToSave = this.repository.createSession();
-
+		sessionToSave.setMaxInactiveInterval(Duration.ofSeconds(3));
 		this.repository.save(sessionToSave);
 
-		Thread.sleep(1200);
+		Thread.sleep(2000);
 
 		// Get and save the session like SessionRepositoryFilter would.
 		S sessionToUpdate = this.repository.findById(sessionToSave.getId());
 		sessionToUpdate.setLastAccessedTime(Instant.now());
 		this.repository.save(sessionToUpdate);
 
-		Thread.sleep(1200);
+		Thread.sleep(2000);
 
 		assertThat(this.repository.findById(sessionToUpdate.getId())).isNotNull();
 	}
@@ -180,7 +182,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	}
 
 	@Configuration
-	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 2)
+	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class HazelcastSessionConfig {
 
 		@Bean
