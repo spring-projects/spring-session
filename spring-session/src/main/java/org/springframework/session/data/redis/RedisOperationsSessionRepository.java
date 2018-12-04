@@ -201,7 +201,7 @@ import org.springframework.util.Assert;
  *
  * <p>
  * One problem with relying on Redis expiration exclusively is that Redis makes no
- * guarantee of when the expired event will be fired if they key has not been accessed.
+ * guarantee of when the expired event will be fired if the key has not been accessed.
  * Specifically the background task that Redis uses to clean up expired keys is a low
  * priority task and may not trigger the key expiration. For additional details see
  * <a href="http://redis.io/topics/notifications">Timing of expired events</a> section in
@@ -212,7 +212,7 @@ import org.springframework.util.Assert;
  * To circumvent the fact that expired events are not guaranteed to happen we can ensure
  * that each key is accessed when it is expected to expire. This means that if the TTL is
  * expired on the key, Redis will remove the key and fire the expired event when we try to
- * access they key.
+ * access the key.
  * </p>
  *
  * <p>
