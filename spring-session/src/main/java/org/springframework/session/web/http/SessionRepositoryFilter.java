@@ -51,7 +51,7 @@ import org.springframework.session.SessionRepository;
  * {@link org.springframework.session.SessionRepository}.
  *
  * The {@link SessionRepositoryFilter} uses a {@link HttpSessionStrategy} (default
- * {@link CookieHttpSessionStrategy} to bridge logic between an
+ * {@link CookieHttpSessionStrategy}) to bridge logic between an
  * {@link javax.servlet.http.HttpSession} and the
  * {@link org.springframework.session.Session} abstraction. Specifically:
  *
