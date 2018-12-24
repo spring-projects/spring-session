@@ -224,7 +224,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 		assertThat(this.repository.findByIndexNameAndIndexValue(
 				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username))
-						.isNotNull();
+						.hasSize(1);
 	}
 
 }
