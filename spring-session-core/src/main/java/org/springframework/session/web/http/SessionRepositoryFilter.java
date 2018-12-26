@@ -420,7 +420,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		/**
 		 * Ensures session is committed before issuing an include.
 		 *
-		 * @since 2.0.8
+		 * @since 1.3.4
 		 */
 		private final class SessionCommittingRequestDispatcher
 				implements RequestDispatcher {
