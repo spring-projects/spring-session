@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,11 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
  */
 // tag::class[]
 @Configuration
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration<S extends Session>
+		extends WebSecurityConfigurerAdapter {
 
 	@Autowired
-	private FindByIndexNameSessionRepository<Session> sessionRepository;
+	private FindByIndexNameSessionRepository<S> sessionRepository;
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
@@ -47,7 +48,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	SpringSessionBackedSessionRegistry sessionRegistry() {
+	public SpringSessionBackedSessionRegistry<S> sessionRegistry() {
 		return new SpringSessionBackedSessionRegistry<>(this.sessionRepository);
 	}
 }
