@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * A {@link org.springframework.session.SessionRepository} implementation that stores
@@ -119,6 +120,9 @@ public class HazelcastSessionRepository implements
 	 * The principal name custom attribute name.
 	 */
 	public static final String PRINCIPAL_NAME_ATTRIBUTE = "principalName";
+
+	private static final boolean SUPPORTS_SET_TTL = ClassUtils
+			.hasAtLeastOneMethodWithName(IMap.class, "setTtl");
 
 	private static final Log logger = LogFactory.getLog(HazelcastSessionRepository.class);
 
@@ -238,6 +242,9 @@ public class HazelcastSessionRepository implements
 				entryProcessor.setLastAccessedTime(session.getLastAccessedTime());
 			}
 			if (session.maxInactiveIntervalChanged) {
+				if (SUPPORTS_SET_TTL) {
+					updateTtl(session);
+				}
 				entryProcessor.setMaxInactiveInterval(session.getMaxInactiveInterval());
 			}
 			if (!session.delta.isEmpty()) {
@@ -246,6 +253,11 @@ public class HazelcastSessionRepository implements
 			this.sessions.executeOnKey(session.getId(), entryProcessor);
 		}
 		session.clearChangeFlags();
+	}
+
+	private void updateTtl(HazelcastSession session) {
+		this.sessions.setTtl(session.getId(),
+				session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 	}
 
 	@Override

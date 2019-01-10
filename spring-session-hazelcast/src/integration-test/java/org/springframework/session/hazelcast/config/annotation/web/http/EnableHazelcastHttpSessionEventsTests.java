@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -179,6 +179,28 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isFalse();
+	}
+
+	@Test // gh-1300
+	public void updateMaxInactiveIntervalTest() throws InterruptedException {
+		S sessionToSave = this.repository.createSession();
+		sessionToSave.setMaxInactiveInterval(Duration.ofMinutes(30));
+		this.repository.save(sessionToSave);
+
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.<SessionCreatedEvent>getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionCreatedEvent.class);
+		this.registry.clear();
+
+		S sessionToUpdate = this.repository.findById(sessionToSave.getId());
+		sessionToUpdate.setLastAccessedTime(Instant.now());
+		sessionToUpdate.setMaxInactiveInterval(Duration.ofSeconds(1));
+		this.repository.save(sessionToUpdate);
+
+		assertThat(this.registry.receivedEvent(sessionToUpdate.getId())).isTrue();
+		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToUpdate.getId()))
+				.isInstanceOf(SessionExpiredEvent.class);
+		assertThat(this.repository.findById(sessionToUpdate.getId())).isNull();
 	}
 
 	@Configuration
