@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 
 package org.springframework.session.hazelcast;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.query.impl.predicates.EqualPredicate;
@@ -30,14 +27,21 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
-
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -64,6 +68,9 @@ public class HazelcastSessionRepositoryTests {
 
 	@Mock
 	private IMap<String, MapSession> sessions;
+
+	@Mock
+	private ApplicationEventPublisher applicationEventPublisher;
 
 	private HazelcastSessionRepository repository;
 
@@ -350,6 +357,27 @@ public class HazelcastSessionRepositoryTests {
 		}
 
 		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
+	@Test // gh-1077
+	public void entryRemovedPublishEvent() {
+		repository.setApplicationEventPublisher(this.applicationEventPublisher);
+		MapSession oldValue = new MapSession();
+		EntryEvent<String, MapSession> entryEvent =
+				new EntryEvent<String, MapSession>("Test", null, EntryEventType.REMOVED.getType(), null, oldValue, null);
+		this.repository.entryRemoved(entryEvent);
+		verify(this.applicationEventPublisher, times(1)).publishEvent(Mockito.any(SessionDeletedEvent.class));
+	}
+
+
+	@Test // gh-1077
+	public void entryRemovedWithNullOldValue() {
+		MapSession oldValue = null;
+		EntryEvent<String, MapSession> entryEvent =
+				new EntryEvent<String, MapSession>("Test", null, EntryEventType.REMOVED.getType(), null, oldValue, null);
+		this.repository.entryRemoved(entryEvent);
+		//No NullPointerException from event.getOldValue().getId()
+		verify(this.applicationEventPublisher, times(0)).publishEvent(any(SessionDeletedEvent.class));
 	}
 
 }
