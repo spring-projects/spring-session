@@ -16,6 +16,11 @@
 
 package org.springframework.session.hazelcast;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryEventType;
 import com.hazelcast.core.IMap;
@@ -29,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,11 +43,6 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -361,7 +362,7 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test // gh-1077
 	public void entryRemovedPublishEvent() {
-		repository.setApplicationEventPublisher(this.applicationEventPublisher);
+		this.repository.setApplicationEventPublisher(this.applicationEventPublisher);
 		MapSession oldValue = new MapSession();
 		EntryEvent<String, MapSession> entryEvent =
 				new EntryEvent<String, MapSession>("Test", null, EntryEventType.REMOVED.getType(), null, oldValue, null);
