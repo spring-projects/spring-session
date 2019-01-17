@@ -275,7 +275,7 @@ public class HazelcastSessionRepositoryTests {
 
 		assertThat(session).isNull();
 		verify(this.sessions, times(1)).get(eq(expired.getId()));
-		verify(this.sessions, times(1)).remove(eq(expired.getId()));
+		verify(this.sessions, times(1)).delete(eq(expired.getId()));
 	}
 
 	@Test
@@ -297,7 +297,7 @@ public class HazelcastSessionRepositoryTests {
 
 		this.repository.delete(sessionId);
 
-		verify(this.sessions, times(1)).remove(eq(sessionId));
+		verify(this.sessions, times(1)).delete(eq(sessionId));
 	}
 
 	@Test
