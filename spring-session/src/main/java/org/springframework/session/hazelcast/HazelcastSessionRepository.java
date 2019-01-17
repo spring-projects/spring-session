@@ -232,7 +232,7 @@ public class HazelcastSessionRepository implements
 	}
 
 	public void delete(String id) {
-		this.sessions.delete(id);
+		this.sessions.remove(id);
 	}
 
 	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(String indexName,
