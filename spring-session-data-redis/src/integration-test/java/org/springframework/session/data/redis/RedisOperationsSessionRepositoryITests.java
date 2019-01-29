@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -598,6 +598,25 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 
 		assertThat(this.repository.findById(toSave.getId())).isNull();
 		assertThat(this.repository.findById(sessionId)).isNull();
+	}
+
+	@Test // gh-1270
+	public void changeSessionIdSaveConcurrently() {
+		RedisSession toSave = this.repository.createSession();
+		String originalId = toSave.getId();
+		this.repository.save(toSave);
+
+		RedisSession copy1 = this.repository.findById(originalId);
+		RedisSession copy2 = this.repository.findById(originalId);
+
+		copy1.changeSessionId();
+		this.repository.save(copy1);
+		copy2.changeSessionId();
+		this.repository.save(copy2);
+
+		assertThat(this.repository.findById(originalId)).isNull();
+		assertThat(this.repository.findById(copy1.getId())).isNotNull();
+		assertThat(this.repository.findById(copy2.getId())).isNull();
 	}
 
 	private String getSecurityName() {

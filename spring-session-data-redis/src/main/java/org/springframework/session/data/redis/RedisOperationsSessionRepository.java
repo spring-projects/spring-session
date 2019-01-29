@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -864,24 +864,34 @@ public class RedisOperationsSessionRepository implements
 				if (!isNew()) {
 					String originalSessionIdKey = getSessionKey(this.originalSessionId);
 					String sessionIdKey = getSessionKey(sessionId);
-					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(
-							originalSessionIdKey, sessionIdKey);
+					try {
+						RedisOperationsSessionRepository.this.sessionRedisOperations
+								.rename(originalSessionIdKey, sessionIdKey);
+					}
+					catch (NonTransientDataAccessException ex) {
+						handleErrNoSuchKeyError(ex);
+					}
 					String originalExpiredKey = getExpiredKey(this.originalSessionId);
 					String expiredKey = getExpiredKey(sessionId);
 					try {
-						RedisOperationsSessionRepository.this.sessionRedisOperations.rename(
-								originalExpiredKey, expiredKey);
+						RedisOperationsSessionRepository.this.sessionRedisOperations
+								.rename(originalExpiredKey, expiredKey);
 					}
 					catch (NonTransientDataAccessException ex) {
-						if (!"ERR no such key".equals(NestedExceptionUtils
-								.getMostSpecificCause(ex).getMessage())) {
-							throw ex;
-						}
+						handleErrNoSuchKeyError(ex);
 					}
 				}
 				this.originalSessionId = sessionId;
 			}
 		}
+
+		private void handleErrNoSuchKeyError(NonTransientDataAccessException ex) {
+			if (!"ERR no such key"
+					.equals(NestedExceptionUtils.getMostSpecificCause(ex).getMessage())) {
+				throw ex;
+			}
+		}
+
 	}
 
 	/**
