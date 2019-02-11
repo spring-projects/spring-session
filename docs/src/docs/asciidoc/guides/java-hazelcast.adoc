@@ -2,15 +2,17 @@
 Tommy Ludwig; Rob Winch
 :toc:
 
-This guide describes how to use Spring Session along with Spring Security using Hazelcast as your data store.
-It assumes you have already applied Spring Security to your application.
+This guide describes how to use Spring Session along with Spring Security when you use Hazelcast as your data store.
+It assumes that you have already applied Spring Security to your application.
 
-NOTE: The completed guide can be found in the <<hazelcast-spring-security-sample, Hazelcast Spring Security sample application>>.
+NOTE: You cand find the completed guide in the <<hazelcast-spring-security-sample, Hazelcast Spring Security sample application>>.
 
 == Updating Dependencies
-Before you use Spring Session, you must ensure to update your dependencies.
-If you are using Maven, ensure to add the following dependencies:
 
+Before you use Spring Session, you must update your dependencies.
+If you use Maven, you must add the following dependencies:
+
+====
 .pom.xml
 [source,xml]
 [subs="verbatim,attributes"]
@@ -30,11 +32,13 @@ If you are using Maven, ensure to add the following dependencies:
 	</dependency>
 </dependencies>
 ----
+====
 
 ifeval::["{version-snapshot}" == "true"]
-Since We are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
-Ensure you have the following in your pom.xml:
+Since we are using a SNAPSHOT version, we need to add the Spring Snapshot Maven Repository.
+You must have the following in your pom.xml:
 
+====
 .pom.xml
 [source,xml]
 ----
@@ -48,12 +52,14 @@ Ensure you have the following in your pom.xml:
 	</repository>
 </repositories>
 ----
+====
 endif::[]
 
 ifeval::["{version-milestone}" == "true"]
-Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
-Ensure you have the following in your pom.xml:
+Since we are using a Milestone version, we need to add the Spring Milestone Maven Repository.
+You must have the following in your pom.xml:
 
+====
 .pom.xml
 [source,xml]
 ----
@@ -62,6 +68,7 @@ Ensure you have the following in your pom.xml:
 <url>https://repo.spring.io/libs-milestone</url>
 </repository>
 ----
+====
 endif::[]
 
 // tag::config[]
@@ -70,126 +77,146 @@ endif::[]
 == Spring Configuration
 
 After adding the required dependencies, we can create our Spring configuration.
-The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
-Add the following Spring Configuration:
+The Spring configuration is responsible for creating a servlet filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
+To do so, add the following Spring Configuration:
 
+====
 [source,java]
 ----
 include::{docs-test-dir}docs/http/HazelcastHttpSessionConfig.java[tags=config]
 ----
 
-<1> The `@EnableHazelcastHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
-The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
-In this instance Spring Session is backed by Hazelcast.
-<2> In order to support retrieval of sessions by principal name index, appropriate `ValueExtractor` needs to be registered.
+<1> The `@EnableHazelcastHttpSession` annotation creates a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
+The filter is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
+In this instance, Spring Session is backed by Hazelcast.
+<2> In order to support retrieval of sessions by principal name index, an appropriate `ValueExtractor` needs to be registered.
 Spring Session provides `PrincipalNameExtractor` for this purpose.
 <3> We create a `HazelcastInstance` that connects Spring Session to Hazelcast.
-By default, an embedded instance of Hazelcast is started and connected to by the application.
-For more information on configuring Hazelcast, refer to the http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
+By default, the application starts and connects to an embedded instance of Hazelcast.
+For more information on configuring Hazelcast, see the http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
+====
 
 == Servlet Container Initialization
 
-Our <<security-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
+Our <<security-spring-configuration,Spring Configuration>> created a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
 
 In order for our `Filter` to do its magic, Spring needs to load our `SessionConfig` class.
-Since our application is already loading Spring configuration using our `SecurityInitializer` class, we can simply add our `SessionConfig` class to it.
+Since our application is already loading Spring configuration by using our `SecurityInitializer` class, we can add our `SessionConfig` class to it.
+The following listing shows how to do so:
 
+====
 .src/main/java/sample/SecurityInitializer.java
 [source,java]
 ----
 include::{samples-dir}javaconfig/hazelcast/src/main/java/sample/SecurityInitializer.java[tags=class]
 ----
+====
 
-Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
+Last, we need to ensure that our Servlet Container (that is, Tomcat) uses our `springSessionRepositoryFilter` for every request.
 It is extremely important that Spring Session's `springSessionRepositoryFilter` is invoked before Spring Security's `springSecurityFilterChain`.
-This ensures that the `HttpSession` that Spring Security uses is backed by Spring Session.
-Fortunately, Spring Session provides a utility class named `AbstractHttpSessionApplicationInitializer` that makes this extremely easy.
-You can find an example below:
+Doing so ensures that the `HttpSession` that Spring Security uses is backed by Spring Session.
+Fortunately, Spring Session provides a utility class named `AbstractHttpSessionApplicationInitializer` that makes this doing so easy.
+The following example shows how to do so:
 
+====
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
 include::{samples-dir}javaconfig/hazelcast/src/main/java/sample/Initializer.java[tags=class]
 ----
+====
 
-NOTE: The name of our class (Initializer) does not matter. What is important is that we extend `AbstractHttpSessionApplicationInitializer`.
+NOTE: The name of our class (`Initializer`) does not matter. What is important is that we extend `AbstractHttpSessionApplicationInitializer`.
 
-By extending `AbstractHttpSessionApplicationInitializer` we ensure that the Spring Bean by the name `springSessionRepositoryFilter` is registered with our Servlet Container for every request before Spring Security's `springSecurityFilterChain`.
+By extending `AbstractHttpSessionApplicationInitializer`, we ensure that the Spring Bean named `springSessionRepositoryFilter` is registered with our servlet container for every request before Spring Security's `springSecurityFilterChain`.
 
 // end::config[]
 
 [[hazelcast-spring-security-sample]]
 == Hazelcast Spring Security Sample Application
 
+This section describes how to work with the Hazelcast Spring Security sample application.
+
 === Running the Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-[NOTE]
 ====
-Hazelcast will run in embedded mode with your application by default, but if you want to connect
-to a stand alone instance instead, you can configure it by following the instructions in the
-http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
-====
-
 ----
 $ ./gradlew :spring-session-sample-javaconfig-hazelcast:tomcatRun
 ----
+====
+
+NOTE: By default, Hazelcast runs in embedded mode with your application.
+However, if you want to connect to a standalone instance instead, you can configure it by following the instructions in the http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
 
 You should now be able to access the application at http://localhost:8080/
 
-=== Exploring the security Sample Application
+=== Exploring the Security Sample Application
 
-Try using the application. Enter the following to log in:
+You can now try using the application.
+To do so, enter the following to log in:
 
-* **Username** _user_
-* **Password** _password_
+* *Username* _user_
+* *Password* _password_
 
-Now click the **Login** button.
-You should now see a message indicating your are logged in with the user entered previously.
+Now click the *Login* button.
+You should now see a message indicating that your are logged in with the user entered previously.
 The user's information is stored in Hazelcast rather than Tomcat's `HttpSession` implementation.
 
-=== How does it work?
+=== How Does It Work?
 
-Instead of using Tomcat's `HttpSession`, we are actually persisting the values in Hazelcast.
+Instead of using Tomcat's `HttpSession`, we persist the values in Hazelcast.
 Spring Session replaces the `HttpSession` with an implementation that is backed by a `Map` in Hazelcast.
-When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into Hazelcast.
+When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession`, it is then persisted into Hazelcast.
 
-When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
-Go ahead and view the cookies (click for help with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
+When a new `HttpSession` is created, Spring Session creates a cookie named `SESSION` in your browser. That cookie contains the ID of your session.
+You can view the cookies (with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
 
-=== Interact with the data store
+=== Interacting with the Data Store
 
-If you like, you can remove the session using http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-java-client[a Java client],
+You can remove the session by using http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-java-client[a Java client],
 http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#other-client-implementations[one of the other clients], or the
 http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#management-center[management center].
 
-==== Using the console
+==== Using the Console
 
-For example, using the management center console after connecting to your Hazelcast node:
+For example, to remove the session by using the management center console after connecting to your Hazelcast node, run the following commands:
 
+====
+----
 	default> ns spring:session:sessions
 	spring:session:sessions> m.clear
+----
+====
 
 TIP: The Hazelcast documentation has instructions for http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#executing-console-commands[the console].
 
-Alternatively, you can also delete the explicit key. Enter the following into the console ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
+Alternatively, you can also delete the explicit key. Enter the following into the console, being sure to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your `SESSION` cookie:
 
+====
+----
 	spring:session:sessions> m.remove 7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+----
+====
 
 Now visit the application at http://localhost:8080/ and observe that we are no longer authenticated.
 
 ==== Using the REST API
 
-As described in the other clients section of the documentation, there is a 
+As described in the section of the documentation that cover other clients, there is a
 http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#rest-client[REST API]
 provided by the Hazelcast node(s).
 
-For example, you could delete an individual key as follows (replacing `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie):
+For example, you could delete an individual key as follows (being sure to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie):
 
+====
+----
 	$ curl -v -X DELETE http://localhost:xxxxx/hazelcast/rest/maps/spring:session:sessions/7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
+----
+====
 
-TIP: The port number of the Hazelcast node will be printed to the console on startup. Replace `xxxxx` above with the port number.
+TIP: The port number of the Hazelcast node is printed to the console on startup. Replace `xxxxx` with the port number.
 
-Now observe that you are no longer authenticated with this session.
+Now you can see that you are no longer authenticated with this session.

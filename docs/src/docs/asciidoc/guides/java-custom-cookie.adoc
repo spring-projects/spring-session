@@ -3,100 +3,95 @@ Rob Winch
 :toc:
 
 This guide describes how to configure Spring Session to use custom cookies with Java Configuration.
-The guide assumes you have already link:./httpsession.html[setup Spring Session in your project].
+The guide assumes you have already link:./httpsession.html[set up Spring Session in your project].
 
-NOTE: The completed guide can be found in the <<custom-cookie-sample, Custom Cookie sample application>>.
+NOTE: You can find the completed guide in the <<custom-cookie-sample, Custom Cookie sample application>>.
 
 [[custom-cookie-spring-configuration]]
 == Spring Java Configuration
 
-Once you have setup Spring Session you can easily customize how the session cookie is written by exposing a `CookieSerializer` as a Spring Bean.
-Out of the box, Spring Session comes with `DefaultCookieSerializer`.
-Simply exposing the `DefaultCookieSerializer` as a Spring Bean will augment the existing configuration when using configurations like `@EnableRedisHttpSession`.
-You can find an example of customizing Spring Session's cookie below:
+Once you have set up Spring Session, you can customize how the session cookie is written by exposing a `CookieSerializer` as a Spring bean.
+Spring Session comes with `DefaultCookieSerializer`.
+Exposing the `DefaultCookieSerializer` as a Spring bean augments the existing configuration when you use configurations like `@EnableRedisHttpSession`.
+The following example shows how to customize Spring Session's cookie:
 
+====
 [source,java]
 ----
 include::{samples-dir}javaconfig/custom-cookie/src/main/java/sample/Config.java[tags=cookie-serializer]
 ----
 
-<1> We customize the name of the cookie to be JSESSIONID
-<2> We customize the path of the cookie to be "/" (rather than the default of the context root)
-<3> We customize the domain name pattern (a regular expression) to be `^.+?\\.(\\w+\\.[a-z]+)$`
+<1> We customize the name of the cookie to be `JSESSIONID`.
+<2> We customize the path of the cookie to be `/` (rather than the default of the context root).
+<3> We customize the domain name pattern (a regular expression) to be `^.+?\\.(\\w+\\.[a-z]+)$`.
 This allows sharing a session across domains and applications.
-If the regular expression does not match, no domain is set and the existing domain will be used.
-If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] will be used as the domain.
-This means that a request to https://child.example.com will set the domain to example.com.
-However, a request to http://localhost:8080/ or http://192.168.1.100:8080/ will leave the cookie unset and thus still work in development without any changes necessary for production.
+If the regular expression does not match, no domain is set and the existing domain is used.
+If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] is used as the domain.
+This means that a request to https://child.example.com sets the domain to `example.com`.
+However, a request to http://localhost:8080/ or http://192.168.1.100:8080/ leaves the cookie unset and, thus, still works in development without any changes being necessary for production.
+====
 
-[WARNING]
-====
-It is important to note that users should only match on valid domain characters since the domain name is reflected in the response.
-This is prevent a malicious user from performing attacks like https://en.wikipedia.org/wiki/HTTP_response_splitting[HTTP Response Splitting].
-====
+WARNING: You should only match on valid domain characters, since the domain name is reflected in the response.
+Doing so prevents a malicious user from performing such attacks as https://en.wikipedia.org/wiki/HTTP_response_splitting[HTTP Response Splitting].
 
 [[custom-cookie-options]]
 == Configuration Options
 
-The configuration options available are:
+The following configuration options are available:
 
-* `cookieName` - the name of the cookie to use
-Default "SESSION"
-* `useSecureCookie` - specify if a secure cookie be used
-Default use value of `HttpServletRequest.isSecure()` at the time of creation.
-* `cookiePath` - the path of the cookie
-Default is context root
-* `cookieMaxAge` - specifies the max age of the cookie to be set at the time the session is created.
-Default is -1 which indicates the cookie will be removed when the browser is closed.
-* `jvmRoute` - specifies a suffix to be appended to the session id and included in the cookie.
+* `cookieName`: The name of the cookie to use.
+Default: `SESSION`.
+* `useSecureCookie`: Specifies whether a secure cookie should be used.
+Default: Use the value of `HttpServletRequest.isSecure()` at the time of creation.
+* `cookiePath`: The path of the cookie.
+Default: The context root.
+* `cookieMaxAge`: Specifies the max age of the cookie to be set at the time the session is created.
+Default: `-1`, which indicates the cookie should be removed when the browser is closed.
+* `jvmRoute`: Specifies a suffix to be appended to the session ID and included in the cookie.
 Used to identify which JVM to route to for session affinity.
-With some implementations (i.e. Redis) this provides no performance benefit.
-However, this can help with tracing logs of a particular user.
-* `domainName` - allows specifying a specific domain name to be used for the cookie.
-This option is simple to understand, but will likely require a different configuration between development and production environments.
-See domainNamePattern as an alternative.
-* `domainNamePattern` - a case insensitive pattern used to extract the domain name from the `HttpServletRequest#getServerName()`.
-The pattern should provide a single grouping used to extract the value of the cookie domain.
-If the regular expression does not match, no domain is set and the existing domain will be used.
-If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] will be used as the domain.
+With some implementations (that is, Redis) this option provides no performance benefit.
+However, it can help with tracing logs of a particular user.
+* `domainName`: Allows specifying a specific domain name to be used for the cookie.
+This option is simple to understand but often requires a different configuration between development and production environments.
+See `domainNamePattern` as an alternative.
+* `domainNamePattern`: A case-insensitive pattern used to extract the domain name from the `HttpServletRequest#getServerName()`.
+The pattern should provide a single grouping that is used to extract the value of the cookie domain.
+If the regular expression does not match, no domain is set and the existing domain is used.
+If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] is used as the domain.
 
-[WARNING]
-====
-It is important to note that users should only match on valid domain characters since the domain name is reflected in the response.
-This is prevent a malicious user from performing attacks like https://en.wikipedia.org/wiki/HTTP_response_splitting[HTTP Response Splitting].
-====
+WARNING: You should only match on valid domain characters, since the domain name is reflected in the response.
+Doing so prevents a malicious user from performing such attacks as https://en.wikipedia.org/wiki/HTTP_response_splitting[HTTP Response Splitting].
 
 
 [[custom-cookie-sample]]
-== custom-cookie Sample Application
+== `custom-cookie` Sample Application
 
+This section describes how to work with the `custom-cookie` sample application.
 
-
-=== Running the custom-cookie Sample Application
+=== Running the `custom-cookie` Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
-[NOTE]
 ====
-For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
-Alternatively, you can update the `RedisConnectionFactory` to point to a Redis server.
-Another option is to use https://www.docker.com/[Docker] to run Redis on localhost. See https://hub.docker.com/_/redis/[Docker Redis repository] for detailed instructions.
-====
-
 ----
 $ ./gradlew :spring-session-sample-javaconfig-custom-cookie:tomcatRun
 ----
+====
+
+NOTE: For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+Alternatively, you can update the `RedisConnectionFactory` to point to a Redis server.
+Another option is to use https://www.docker.com/[Docker] to run Redis on localhost. See https://hub.docker.com/_/redis/[Docker Redis repository] for detailed instructions.
 
 You should now be able to access the application at http://localhost:8080/
 
-=== Exploring the custom-cookie Sample Application
+=== Exploring the `custom-cookie` Sample Application
 
-Try using the application. Fill out the form with the following information:
+Now you can use the application. Fill out the form with the following information:
 
-* **Attribute Name:** _username_
-* **Attribute Value:** _rob_
+* *Attribute Name:* _username_
+* *Attribute Value:* _rob_
 
-Now click the **Set Attribute** button.
+Now click the *Set Attribute* button.
 You should now see the values displayed in the table.
 
-If you look at the cookies for the application, you can see the cookie is saved to the custom name of JSESSIONID
+If you look at the cookies for the application, you can see the cookie is saved to the custom name of `JSESSIONID`.
