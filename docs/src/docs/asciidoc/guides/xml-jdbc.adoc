@@ -4,12 +4,14 @@ Rob Winch, Vedran Pavić
 
 This guide describes how to use Spring Session to transparently leverage a relational to back a web application's `HttpSession` with XML based configuration.
 
-NOTE: The completed guide can be found in the <<httpsession-jdbc-xml-sample, httpsession-jdbc-xml sample application>>.
+NOTE: You can find the completed guide in the <<httpsession-jdbc-xml-sample, httpsession-jdbc-xml sample application>>.
 
 == Updating Dependencies
-Before you use Spring Session, you must ensure to update your dependencies.
-If you are using Maven, ensure to add the following dependencies:
 
+Before you use Spring Session, you must update your dependencies.
+If you are using Maven, you must add the following dependencies:
+
+====
 .pom.xml
 [source,xml]
 [subs="verbatim,attributes"]
@@ -30,11 +32,13 @@ If you are using Maven, ensure to add the following dependencies:
 	</dependency>
 </dependencies>
 ----
+====
 
 ifeval::["{version-snapshot}" == "true"]
-Since we are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
-Ensure you have the following in your pom.xml:
+Since we are using a SNAPSHOT version, we need to add the Spring Snapshot Maven Repository.
+You must have the following in your pom.xml:
 
+====
 .pom.xml
 [source,xml]
 ----
@@ -48,12 +52,14 @@ Ensure you have the following in your pom.xml:
 	</repository>
 </repositories>
 ----
+====
 endif::[]
 
 ifeval::["{version-milestone}" == "true"]
-Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
-Ensure you have the following in your pom.xml:
+Since we are using a Milestone version, we need to add the Spring Milestone Maven Repository.
+You must have the following in your pom.xml:
 
+====
 .pom.xml
 [source,xml]
 ----
@@ -63,6 +69,7 @@ Ensure you have the following in your pom.xml:
 </repository>
 ----
 endif::[]
+====
 
 // tag::config[]
 
@@ -70,9 +77,10 @@ endif::[]
 == Spring XML Configuration
 
 After adding the required dependencies, we can create our Spring configuration.
-The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
-Add the following Spring Configuration:
+The Spring configuration is responsible for creating a servlet filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
+The following listing shows how to add the following Spring Configuration:
 
+====
 .src/main/webapp/WEB-INF/spring/session.xml
 [source,xml,indent=0]
 ----
@@ -80,83 +88,94 @@ include::{samples-dir}xml/jdbc/src/main/webapp/WEB-INF/spring/session.xml[tags=b
 ----
 
 <1> We use the combination of `<context:annotation-config/>` and `JdbcHttpSessionConfiguration` because Spring Session does not yet provide XML Namespace support (see https://github.com/spring-projects/spring-session/issues/104[gh-104]).
-This creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
-The filter is what is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
-In this instance Spring Session is backed by a relational database.
-<2> We create a `dataSource` that connects Spring Session to an embedded instance of H2 database.
-We configure the H2 database to create database tables using the SQL script which is included in Spring Session.
+This creates a Spring bean with the name of `springSessionRepositoryFilter`.
+That bean implements `Filter`.
+The filter is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
+In this instance, Spring Session is backed by a relational database.
+<2> We create a `dataSource` that connects Spring Session to an embedded instance of an H2 database.
+We configure the H2 database to create database tables by using the SQL script that is included in Spring Session.
 <3> We create a `transactionManager` that manages transactions for previously configured `dataSource`.
+====
 
-For additional information on how to configure data access related concerns, please refer to the https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
+For additional information on how to configure data access-related concerns, see the https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
 
 == XML Servlet Container Initialization
 
-Our <<httpsession-xml-spring-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
+Our <<httpsession-xml-spring-configuration,Spring Configuration>> created a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
 
 In order for our `Filter` to do its magic, we need to instruct Spring to load our `session.xml` configuration.
-We do this with the following configuration:
+We do so with the following configuration:
 
-
+====
 .src/main/webapp/WEB-INF/web.xml
 [source,xml,indent=0]
 ----
 include::{samples-dir}xml/jdbc/src/main/webapp/WEB-INF/web.xml[tags=context-param]
 include::{samples-dir}xml/jdbc/src/main/webapp/WEB-INF/web.xml[tags=listeners]
 ----
+====
 
-The https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/core.html#context-create[ContextLoaderListener] reads the contextConfigLocation and picks up our session.xml configuration.
+The https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/core.html#context-create[`ContextLoaderListener`] reads the `contextConfigLocation` and picks up our session.xml configuration.
 
-Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
+Last, we need to ensure that our Servlet Container (that is, Tomcat) uses our `springSessionRepositoryFilter` for every request.
 The following snippet performs this last step for us:
 
+====
 .src/main/webapp/WEB-INF/web.xml
 [source,xml,indent=0]
 ----
 include::{samples-dir}xml/jdbc/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
 ----
+====
 
-The https://docs.spring.io/spring-framework/docs/{spring-framework-version}/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy] will look up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
-For every request that `DelegatingFilterProxy` is invoked, the `springSessionRepositoryFilter` will be invoked.
+The https://docs.spring.io/spring-framework/docs/{spring-framework-version}/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[`DelegatingFilterProxy`] looks up a bean named `springSessionRepositoryFilter` and casts it to a `Filter`.
+For every request on which `DelegatingFilterProxy` is invoked, the `springSessionRepositoryFilter` is invoked.
 
 // end::config[]
 
 [[httpsession-jdbc-xml-sample]]
-== httpsession-jdbc-xml Sample Application
+== `httpsession-jdbc-xml` Sample Application
 
-=== Running the httpsession-jdbc-xml Sample Application
+This section describes how to work with the `httpsession-jdbc-xml` Sample Application.
+
+=== Running the `httpsession-jdbc-xml` Sample Application
 
 You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
 
+====
 ----
 $ ./gradlew :spring-session-sample-xml-jdbc:tomcatRun
 ----
+====
 
 You should now be able to access the application at http://localhost:8080/
 
-=== Exploring the httpsession-jdbc-xml Sample Application
+=== Exploring the `httpsession-jdbc-xml` Sample Application
 
-Try using the application. Fill out the form with the following information:
+Now you can try using the application. To do so, fill out the form with the following information:
 
-* **Attribute Name:** _username_
-* **Attribute Value:** _rob_
+* *Attribute Name:* _username_
+* *Attribute Value:* _rob_
 
-Now click the **Set Attribute** button. You should now see the values displayed in the table.
+Now click the *Set Attribute* button. You should now see the values displayed in the table.
 
-=== How does it work?
+=== How Does It Work?
 
-We interact with the standard `HttpSession` in the `SessionServlet` shown below:
+We interact with the standard `HttpSession` in the following `SessionServlet`:
 
+====
 .src/main/java/sample/SessionServlet.java
 [source,java]
 ----
 include::{samples-dir}xml/jdbc/src/main/java/sample/SessionServlet.java[tags=class]
 ----
+====
 
-Instead of using Tomcat's `HttpSession`, we are actually persisting the values in H2 database.
-Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
-Go ahead and view the cookies (click for help with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
+Instead of using Tomcat's `HttpSession`, we persist the values in the H2 database.
+Spring Session creates a cookie named `SESSION` in your browser. That cookie contains the ID of your session.
+You can view the cookies (with https://developers.google.com/web/tools/chrome-devtools/manage-data/cookies[Chrome] or https://developer.mozilla.org/en-US/docs/Tools/Storage_Inspector[Firefox]).
 
-If you like, you can easily remove the session using H2 web console available at: http://localhost:8080/h2-console/ (use `jdbc:h2:mem:testdb` for JDBC URL)
+You can remove the session by using H2 web console available at: http://localhost:8080/h2-console/ (use `jdbc:h2:mem:testdb` for JDBC URL)
 
-Now visit the application at http://localhost:8080/ and observe that the attribute we added is no longer displayed.
+Now you can visit the application at http://localhost:8080/ and observe that the attribute we added is no longer displayed.
