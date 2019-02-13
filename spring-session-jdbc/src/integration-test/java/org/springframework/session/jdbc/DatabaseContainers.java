@@ -72,7 +72,7 @@ final class DatabaseContainers {
 	private static class MariaDb5Container extends MariaDBContainer<MariaDb5Container> {
 
 		MariaDb5Container() {
-			super("mariadb:5.5.62");
+			super("mariadb:5.5.63");
 		}
 
 		@Override
@@ -103,7 +103,7 @@ final class DatabaseContainers {
 	private static class MySql5Container extends MySQLContainer<MySql5Container> {
 
 		MySql5Container() {
-			super("mysql:5.7.24");
+			super("mysql:5.7.25");
 		}
 
 		@Override
@@ -123,7 +123,7 @@ final class DatabaseContainers {
 	private static class MySql8Container extends MySQLContainer<MySql8Container> {
 
 		MySql8Container() {
-			super("mysql:8.0.13");
+			super("mysql:8.0.15");
 		}
 
 		@Override
@@ -170,7 +170,7 @@ final class DatabaseContainers {
 			extends MSSQLServerContainer<SqlServer2017Container> {
 
 		SqlServer2017Container() {
-			super("mcr.microsoft.com/mssql/server:2017-CU12");
+			super("mcr.microsoft.com/mssql/server:2017-CU13");
 		}
 
 	}
