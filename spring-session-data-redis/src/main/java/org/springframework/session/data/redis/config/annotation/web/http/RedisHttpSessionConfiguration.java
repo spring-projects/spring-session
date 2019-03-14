@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -125,7 +125,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	@Bean
-	public RedisMessageListenerContainer redisMessageListenerContainer() {
+	public RedisMessageListenerContainer redisMessageListenerContainer(
+			RedisOperationsSessionRepository sessionRepository) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(this.redisConnectionFactory);
 		if (this.redisTaskExecutor != null) {
@@ -134,12 +135,13 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		if (this.redisSubscriptionExecutor != null) {
 			container.setSubscriptionExecutor(this.redisSubscriptionExecutor);
 		}
-		container.addMessageListener(sessionRepository(), Arrays.asList(
-				new ChannelTopic(sessionRepository().getSessionDeletedChannel()),
-				new ChannelTopic(sessionRepository().getSessionExpiredChannel())));
-		container.addMessageListener(sessionRepository(),
+		container.addMessageListener(sessionRepository,
+				Arrays.asList(
+						new ChannelTopic(sessionRepository.getSessionDeletedChannel()),
+						new ChannelTopic(sessionRepository.getSessionExpiredChannel())));
+		container.addMessageListener(sessionRepository,
 				Collections.singletonList(new PatternTopic(
-						sessionRepository().getSessionCreatedChannelPrefix() + "*")));
+						sessionRepository.getSessionCreatedChannelPrefix() + "*")));
 		return container;
 	}
 
