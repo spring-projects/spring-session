@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,8 +106,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 	private final SessionRepository<S> sessionRepository;
 
-	private ServletContext servletContext;
-
 	private HttpSessionIdResolver httpSessionIdResolver = new CookieHttpSessionIdResolver();
 
 	/**
@@ -143,7 +141,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		request.setAttribute(SESSION_REPOSITORY_ATTR, this.sessionRepository);
 
 		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(
-				request, response, this.servletContext);
+				request, response);
 		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(
 				wrappedRequest, response);
 
@@ -153,10 +151,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		finally {
 			wrappedRequest.commitSession();
 		}
-	}
-
-	public void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
 	}
 
 	/**
@@ -203,8 +197,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private final HttpServletResponse response;
 
-		private final ServletContext servletContext;
-
 		private S requestedSession;
 
 		private boolean requestedSessionCached;
@@ -216,10 +208,9 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		private boolean requestedSessionInvalidated;
 
 		private SessionRepositoryRequestWrapper(HttpServletRequest request,
-				HttpServletResponse response, ServletContext servletContext) {
+				HttpServletResponse response) {
 			super(request);
 			this.response = response;
-			this.servletContext = servletContext;
 		}
 
 		/**
@@ -338,15 +329,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			currentSession = new HttpSessionWrapper(session, getServletContext());
 			setCurrentSession(currentSession);
 			return currentSession;
-		}
-
-		@Override
-		public ServletContext getServletContext() {
-			if (this.servletContext != null) {
-				return this.servletContext;
-			}
-			// Servlet 3.0+
-			return super.getServletContext();
 		}
 
 		@Override

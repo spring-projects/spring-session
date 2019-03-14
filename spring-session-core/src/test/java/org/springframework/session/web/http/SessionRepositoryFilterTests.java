@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
@@ -236,22 +235,6 @@ public class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				ServletContext context = wrappedRequest.getSession().getServletContext();
 				assertThat(context).isSameAs(wrappedRequest.getServletContext());
-			}
-		});
-	}
-
-	// gh-111
-	@Test
-	public void doFilterServletContextExplicit() throws Exception {
-		final ServletContext expectedContext = new MockServletContext();
-		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);
-		this.filter.setServletContext(expectedContext);
-
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				ServletContext context = wrappedRequest.getSession().getServletContext();
-				assertThat(context).isSameAs(expectedContext);
 			}
 		});
 	}
