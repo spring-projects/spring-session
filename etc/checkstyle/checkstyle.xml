@@ -8,5 +8,8 @@
 	</module>
 
 	<!-- Root Checks -->
-	<module name="io.spring.javaformat.checkstyle.SpringChecks"/>
+	<module name="io.spring.javaformat.checkstyle.check.SpringHeaderCheck">
+		<property name="headerType" value="https-apache2"/>
+	</module>
+
 </module>
