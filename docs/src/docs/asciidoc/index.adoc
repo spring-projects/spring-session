@@ -1220,7 +1220,7 @@ We appreciate https://help.github.com/articles/using-pull-requests/[Pull Request
 [[community-license]]
 === License
 
-Spring Session is Open Source software released under the http://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+Spring Session is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
 
 [[community-extensions]]
 === Community Extensions
