@@ -62,7 +62,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  *
  * For additional information on how to configure data access related concerns, please
  * refer to the <a href=
- * "http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
+ * "https://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
  * Spring Framework Reference Documentation</a>.
  *
  * @author Vedran Pavic
