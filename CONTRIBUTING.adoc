@@ -10,8 +10,8 @@ By participating, you  are expected to uphold this code. Please report unaccepta
 == Using GitHub issues
 
 We use GitHub issues to track bugs and enhancements. If you have a general usage question
-please ask on http://stackoverflow.com[Stack Overflow]. The Spring Session team and the
-broader community monitor the http://stackoverflow.com/tags/spring-session[`spring-session`]
+please ask on https://stackoverflow.com[Stack Overflow]. The Spring Session team and the
+broader community monitor the https://stackoverflow.com/tags/spring-session[`spring-session`]
 tag.
 
 If you are reporting a bug, please help to speed up problem diagnosis by providing as much

@@ -25,7 +25,7 @@ By participating, you  are expected to uphold this code. Please report unaccepta
 
 == Spring Session Project Site
 
-You can find the documentation, issue management, support, samples, and guides for using Spring Session at http://projects.spring.io/spring-session/
+You can find the documentation, issue management, support, samples, and guides for using Spring Session at https://projects.spring.io/spring-session/
 
 == License
 
