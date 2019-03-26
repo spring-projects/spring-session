@@ -95,7 +95,7 @@ and managed by GemFire.  As well, we have specified an arbitrary expiration attr
 for when the Session will timeout, which is triggered by a GemFire Region entry expiration event that also invalidates
 the Session object in the Region.
 <2> Next, we define a few `Properties` allowing us to configure certain aspects of the GemFire Server using
-http://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
+https://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
 <3> Then, we create an instance of the GemFire Cache using our defined `Properties`.
 <4> Finally, we setup a Cache Server instance running in the GemFire Server to listen for connections from cache clients.
 The Cache Server `Socket` will be used to connect our GemFire client cache, _Spring Boot_ web application to the server.
@@ -147,20 +147,20 @@ TIP: In typical GemFire deployments, where the cluster includes potentially hund
 (servers), it is more common for clients to connect to one or more GemFire Locators running in the cluster.  A Locator
 passes meta-data to clients about the servers available, their load and which servers have the client's data of interest,
 which is particularly important in direct, single-hop data access and latency-sensitive operations.  See more details
-about the http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
+about the https://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
 
-NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the https://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
 
 The `@EnableGemFireHttpSession` annotation enables a developer to configure certain aspects of both _Spring Session_
 and GemFire out-of-the-box using the following attributes:
 
 * `maxInactiveIntervalInSeconds` - controls _HttpSession_ idle-timeout expiration (defaults to **30 minutes**).
 * `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "*ClusteredSpringSessions*").
-* `clientRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
-with a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
+* `clientRegionShort` - specifies GemFire's https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
+with a GemFire https://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
 (default is `PROXY`).  This attribute is only used when configuring client Region.
-* `serverRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
-using a GemFire http://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
+* `serverRegionShort` - specifies GemFire's https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
+using a GemFire https://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
 (default is `PARTITION`).  This attribute is only used when configuring server Regions, or when a p2p topology is employed.
 
 NOTE: It is important to note that the GemFire client Region name must match a server Region by the same name if
@@ -226,7 +226,7 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
-see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+see https://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
 If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
 at the command-line:
@@ -255,7 +255,7 @@ NEXT_STEP_NAME : END
 gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
 ....
 
-NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+NOTE: The _GemFire User Guide_ has more detailed instructions on using https://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
 
 Now visit the application at http://localhost:8080/ again and observe that the attribute we added is no longer displayed.
 

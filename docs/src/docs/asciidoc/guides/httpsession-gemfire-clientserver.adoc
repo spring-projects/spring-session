@@ -87,11 +87,11 @@ include::{samples-dir}httpsession-gemfire-clientserver/src/main/java/sample/Clie
 implements `Filter`. The filter is what replaces the `HttpSession` with an implementation backed by Spring Session.
 In this instance, Spring Session is backed by GemFire.
 <2> Next, we register a `Properties` bean that allows us to configure certain aspects of the GemFire client cache
-using http://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
+using https://gemfire.docs.pivotal.io/docs-gemfire/reference/topics/gemfire_properties.html[GemFire's System properties].
 <3> Then, we configure a `Pool` of client connections to talk to the GemFire Server in our Client/Server topology. In our
 configuration, we have used sensible settings for timeouts, number of connections and so on. Also, the `Pool` has been
 configured to connect directly to a server. Learn more about various `Pool` configuration settings from the
-http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/PoolFactory.html[PoolFactory API].
+https://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/PoolFactory.html[PoolFactory API].
 <4> After configuring a `Pool`, we create an instance of the GemFire client cache using the GemFire `Properties`
 and `Pool` to communicate with the server and perform cache data access operations.
 <5> Finally, we include a Spring `BeanPostProcessor` to block the client until our GemFire Server is up and running,
@@ -105,7 +105,7 @@ time to startup.
 The first approach uses a timed wait, checking at periodic intervals to determine whether a client `Socket` connection
 can be made to the server's `CacheServer` endpoint.
 
-The second approach uses a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/management/membership/ClientMembershipListener.html[ClientMembershipListener]
+The second approach uses a GemFire https://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/management/membership/ClientMembershipListener.html[ClientMembershipListener]
 that will be notified when the client has successfully connected to the server. Once a connection has been established,
 the listener releases the latch that the `BeanPostProcessor` will wait on (up to the specified timeout) in the
 `postProcessAfterInitialization` callback to block the client. Either one of these approaches are sufficient
@@ -115,17 +115,17 @@ in practice.
 TIP: In typical GemFire deployments, where the cluster includes potentially hundreds of GemFire data nodes (servers),
 it is more common for clients to connect to one or more GemFire Locators running in the cluster. A Locator passes meta-data
 to clients about the servers available, load and which servers have the client's data of interest, which is particularly
-important for single-hop, direct data access.  See more details about the http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
+important for single-hop, direct data access.  See more details about the https://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
 
-NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the https://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
 
 The `@EnableGemFireHttpSession` annotation enables a developer to configure certain aspects of both Spring Session
 and GemFire out-of-the-box using the following attributes:
 
 * `maxInactiveIntervalInSeconds` - controls HttpSession idle-timeout expiration (defaults to **30 minutes**).
 * `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "_ClusteredSpringSessions_").
-* `clientRegionShort` - specifies GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policies]
-with a GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
+* `clientRegionShort` - specifies GemFire https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policies]
+with a GemFire https://gemfire.docs.pivotal.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
 (default is `PROXY`).
 
 NOTE: It is important to note that the GemFire client Region name must match a server Region by the same name if
@@ -235,7 +235,7 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
-see http://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+see https://gemfire.docs.pivotal.io/docs-gemfire/latest/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
 If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
 at the command-line:
@@ -264,7 +264,7 @@ NEXT_STEP_NAME : END
 gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
 ....
 
-NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+NOTE: The _GemFire User Guide_ has more detailed instructions on using https://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
 
 Now visit the application at http://localhost:8080/ again and observe that the attribute we added is no longer displayed.
 

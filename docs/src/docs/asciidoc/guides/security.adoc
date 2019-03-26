@@ -82,7 +82,7 @@ The filter is what is in charge of replacing the `HttpSession` implementation to
 In this instance Spring Session is backed by Redis.
 <2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
 We configure the connection to connect to localhost on the default port (6379)
-For more information on configuring Spring Data Redis, refer to the http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
+For more information on configuring Spring Data Redis, refer to the https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/[reference documentation].
 
 == Servlet Container Initialization
 
@@ -125,7 +125,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 
 [NOTE]
 ====
-For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
 Alternatively, you can update the `JedisConnectionFactory` to point to a Redis server.
 ====
 
@@ -159,7 +159,7 @@ If you like, you can easily remove the session using redis-cli. For example, on 
 
 	$ redis-cli keys '*' | xargs redis-cli del
 
-TIP: The Redis documentation has instructions for http://redis.io/topics/quickstart[installing redis-cli].
+TIP: The Redis documentation has instructions for https://redis.io/topics/quickstart[installing redis-cli].
 
 Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
 
