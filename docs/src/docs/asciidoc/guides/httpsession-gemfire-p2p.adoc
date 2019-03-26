@@ -96,14 +96,14 @@ Spring Session sample application.
 TIP: Additionally, we have configured this data node (server) as a GemFire Manager as well using GemFire-specific
 JMX System properties that enable JMX client (e.g. _Gfsh_) to connect to this running data node.
 
-NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the https://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
 
 The `@EnableGemFireHttpSession` annotation enables a developer to configure certain aspects of Spring Session
 and GemFire out-of-the-box using the following attributes:
 
 * `maxInactiveIntervalInSeconds` - controls HttpSession idle-timeout expiration (defaults to **30 minutes**).
 * `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "_ClusteredSpringSessions_").
-* `serverRegionShort` - specifies GemFire http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policies]
+* `serverRegionShort` - specifies GemFire https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policies]
 with a GemFire https://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
 (default is `PARTITION`).
 
@@ -204,6 +204,6 @@ NEXT_STEP_NAME : END
 gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
 ....
 
-NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+NOTE: The _GemFire User Guide_ has more detailed instructions on using https://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
 
 Now visit the application at http://localhost:8080/ and observe that the attribute we added is no longer displayed.

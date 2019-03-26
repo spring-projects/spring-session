@@ -87,12 +87,12 @@ include::{samples-dir}httpsession-gemfire-clientserver/src/main/java/sample/Clie
 implements `Filter`. The filter is what replaces the `HttpSession` with an implementation backed by Spring Session
 and GemFire.
 <2> Next, we register a `Properties` bean that allows us to configure certain aspects of the GemFire client cache
-using http://gemfire.docs.pivotal.io/docs-gemfire/latest/reference/topics/gemfire_properties.html[GemFire's System properties].
+using https://gemfire.docs.pivotal.io/docs-gemfire/latest/reference/topics/gemfire_properties.html[GemFire's System properties].
 <3> We use the `Properties` to configure an instance of a GemFire `ClientCache`.
 <4> Then, we configure a `Pool` of client connections to talk to the GemFire Server in our Client/Server topology. In our
 configuration, we have used sensible settings for timeouts, number of connections and so on. Also, the `Pool` has been
 configured to connect directly to a server. Learn more about various `Pool` configuration settings from the
-http://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/PoolFactory.html[PoolFactory API].
+https://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/PoolFactory.html[PoolFactory API].
 <56> Finally, we include a Spring `BeanPostProcessor` to block the client until our GemFire Server is up and running,
 listening for and accepting client connections.
 
@@ -108,22 +108,22 @@ the listener releases the latch that the `BeanPostProcessor` will wait on (up to
 TIP: In typical GemFire deployments, where the cluster includes potentially hundreds of GemFire data nodes (servers),
 it is more common for clients to connect to one or more GemFire Locators running in the cluster. A Locator passes meta-data
 to clients about the servers available, load and which servers have the client's data of interest, which is particularly
-important for single-hop, direct data access.  See more details about the http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
+important for single-hop, direct data access.  See more details about the https://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
 
-NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the https://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
 
 The `@EnableGemFireHttpSession` annotation enables a developer to configure certain aspects of both Spring Session
 and GemFire out-of-the-box using the following attributes:
 
 * `maxInactiveIntervalInSeconds` - controls _HttpSession_ idle-timeout expiration (defaults to **30 minutes**).
 * `regionName` - specifies the name of the GemFire Region used to store `HttpSession` state (defaults is "*ClusteredSpringSessions*").
-* `clientRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
+* `clientRegionShort` - specifies GemFire's https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
 with a GemFire https://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/client/ClientRegionShortcut.html[ClientRegionShortcut]
 (default is `PROXY`).  This attribute is only used when configuring client Region.
 * `poolName` - name of the dedicated GemFire Pool used to connect a client to the cluster of servers.  The attribute
 is only used when the application is a GemFire cache client.  Defaults to `gemfirePool`.
-* `serverRegionShort` - specifies GemFire's http://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
-using a GemFire http://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
+* `serverRegionShort` - specifies GemFire's https://gemfire.docs.pivotal.io/docs-gemfire/latest/developing/management_all_region_types/chapter_overview.html[data management policy]
+using a GemFire https://data-docs-samples.cfapps.io/docs-gemfire/latest/javadocs/japi/com/gemstone/gemfire/cache/RegionShortcut.html[RegionShortcut]
 (default is `PARTITION`).  This attribute is only used when configuring server Regions, or when a p2p topology is employed.
 
 NOTE: It is important to note that the GemFire client Region name must match a server Region by the same name if
@@ -262,7 +262,7 @@ NEXT_STEP_NAME : END
 gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
 ....
 
-NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+NOTE: The _GemFire User Guide_ has more detailed instructions on using https://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
 
 Now visit the application at http://localhost:8080/ again and observe that the attribute we added is no longer displayed.
 

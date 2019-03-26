@@ -95,7 +95,7 @@ spring.datasource.username=myapp
 spring.datasource.password=secret
 ----
 
-For more information, refer to http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
+For more information, refer to https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
 
 [[httpsession-jdbc-boot-servlet-configuration]]
 == Servlet Container Initialization

@@ -92,7 +92,7 @@ bean to replace placeholders in the Spring XML configuration meta-data with the 
 at the designated host/port is running and listening for client connections, blocking client startup until
 the server is available and ready.
 <4> Next, we include a `Properties` bean to configure certain aspects of the GemFire client cache using
-http://gemfire.docs.pivotal.io/docs-gemfire/latest/reference/topics/gemfire_properties.html[GemFire's System Properties].
+https://gemfire.docs.pivotal.io/docs-gemfire/latest/reference/topics/gemfire_properties.html[GemFire's System Properties].
 In this case, we are just setting GemFire's `log-level` from a application-specific System property, defaulting
 to `warning` if unspecified.
 <5> Then we create a instance of a GemFire `ClientCache` initialized with our `gemfireProperties`.
@@ -104,9 +104,9 @@ has been configured to connect directly to a server.
 TIP: In typical GemFire deployments, where the cluster includes potentially hundreds of GemFire data nodes (servers),
 it is more common for clients to connect to one or more GemFire Locators running in the cluster. A Locator passes meta-data
 to clients about the servers available, load and which servers have the client's data of interest, which is particularly
-important for single-hop, direct data access.  See more details about the http://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
+important for single-hop, direct data access.  See more details about the https://gemfire.docs.pivotal.io/docs-gemfire/latest/topologies_and_comm/cs_configuration/chapter_overview.html[Client/Server Topology in GemFire's User Guide].
 
-NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the https://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
 
 === Server Configuration
 
@@ -167,7 +167,7 @@ include::{samples-dir}httpsession-gemfire-clientserver-xml/src/main/webapp/WEB-I
 include::{samples-dir}httpsession-gemfire-clientserver-xml/src/main/webapp/WEB-INF/web.xml[tags=listeners]
 ----
 
-The http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener]
+The https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener]
 reads the `contextConfigLocation` context parameter value and picks up our _session-client.xml_ configuration file.
 
 Finally, we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter`
@@ -181,7 +181,7 @@ The following snippet performs this last step for us:
 include::{samples-dir}httpsession-gemfire-clientserver-xml/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
 ----
 
-The http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy]
+The https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy]
 will look up a bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`. For every request that `DelegatingFilterProxy`
 is invoked, the `springSessionRepositoryFilter` will be invoked.
 // end::config[]
@@ -263,7 +263,7 @@ NEXT_STEP_NAME : END
 gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
 ....
 
-NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+NOTE: The _GemFire User Guide_ has more detailed instructions on using https://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
 
 Now visit the application at http://localhost:8080/ again and observe that the attribute we added is no longer displayed.
 

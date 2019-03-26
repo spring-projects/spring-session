@@ -100,7 +100,7 @@ Spring Session sample application.
 TIP: Additionally, we have configured this data node (server) as a GemFire Manager as well using GemFire-specific
 JMX System properties that enable JMX client (e.g. _Gfsh_) to connect to this running data node.
 
-NOTE: For more information on configuring _Spring Data GemFire_, refer to the http://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
+NOTE: For more information on configuring _Spring Data GemFire_, refer to the https://docs.spring.io/spring-data-gemfire/docs/current/reference/html/[reference guide].
 
 == XML Servlet Container Initialization
 
@@ -118,7 +118,7 @@ include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/webapp/WEB-INF/web.xm
 include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/webapp/WEB-INF/web.xml[tags=listeners]
 ----
 
-The http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener]
+The https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener]
 reads the `contextConfigLocation` context parameter value and picks up our _session.xml_ configuration file.
 
 Finally, we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter`
@@ -132,7 +132,7 @@ The following snippet performs this last step for us:
 include::{samples-dir}httpsession-gemfire-p2p-xml/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
 ----
 
-The http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy]
+The https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy]
 will look up a bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`. For every request that `DelegatingFilterProxy`
 is invoked, the `springSessionRepositoryFilter` will be invoked.
 // end::config[]
@@ -176,7 +176,7 @@ Go ahead and view the cookies (click for help with https://developer.chrome.com/
 or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
 
 NOTE: The following instructions assume you have a local GemFire installation.  For more information on installation,
-see http://gemfire.docs.pivotal.io/gemfire/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
+see https://gemfire.docs.pivotal.io/gemfire/getting_started/installation/install_intro.html[Installing Pivotal GemFire].
 
 If you like, you can easily remove the session using `gfsh`. For example, on a Linux-based system type the following
 at the command-line:
@@ -205,6 +205,6 @@ NEXT_STEP_NAME : END
 gfsh>remove --region=/ClusteredSpringSessions --key="70002719-3c54-4c20-82c3-e7faa6b718f3"
 ....
 
-NOTE: The _GemFire User Guide_ has more detailed instructions on using http://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
+NOTE: The _GemFire User Guide_ has more detailed instructions on using https://gemfire.docs.pivotal.io/docs-gemfire/latest/tools_modules/gfsh/chapter_overview.html[gfsh].
 
 Now visit the application at http://localhost:8080/ and observe that the attribute we added is no longer displayed.

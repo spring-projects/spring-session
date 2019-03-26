@@ -27,7 +27,7 @@ This allows sharing a session across domains and applications.
 If the regular expression does not match, no domain is set and the existing domain will be used.
 If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] will be used as the domain.
 This means that a request to https://child.example.com will set the domain to example.com.
-However, a request to http://localhost:8080/ or http://192.168.1.100:8080/ will leave the cookie unset and thus still work in development without any changes necessary for production.
+However, a request to http://localhost:8080/ or https://192.168.1.100:8080/ will leave the cookie unset and thus still work in development without any changes necessary for production.
 
 [WARNING]
 ====
@@ -78,7 +78,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 
 [NOTE]
 ====
-For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
 Alternatively, you can update the `LettuceConnectionFactory` to point to a Redis server.
 ====
 
