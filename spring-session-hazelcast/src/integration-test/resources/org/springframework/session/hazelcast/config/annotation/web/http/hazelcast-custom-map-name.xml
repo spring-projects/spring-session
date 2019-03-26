@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hazelcast xmlns="http://www.hazelcast.com/schema/config"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://www.hazelcast.com/schema/config http://www.hazelcast.com/schema/config/hazelcast-config-3.11.xsd">
+<hazelcast xmlns="https://www.hazelcast.com/schema/config"
+		xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="https://www.hazelcast.com/schema/config https://www.hazelcast.com/schema/config/hazelcast-config-3.11.xsd">
 
 	<group>
 		<name>spring-session-it-test-map-name</name>
