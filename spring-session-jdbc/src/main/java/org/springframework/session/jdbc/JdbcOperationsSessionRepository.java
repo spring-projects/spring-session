@@ -81,7 +81,7 @@ import org.springframework.util.StringUtils;
  *
  * For additional information on how to create and configure {@link JdbcTemplate} and
  * {@link PlatformTransactionManager}, refer to the
- * <a href="http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
+ * <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
  * Spring Framework Reference Documentation</a>.
  * <p>
  * By default, this implementation uses <code>SPRING_SESSION</code> and
