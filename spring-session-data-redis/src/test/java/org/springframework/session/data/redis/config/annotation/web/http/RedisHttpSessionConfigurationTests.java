@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.After;
@@ -31,6 +32,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -190,6 +192,17 @@ public class RedisHttpSessionConfigurationTests {
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 
+	@Test // gh-1252
+	public void customRedisMessageListenerContainerConfig() {
+		registerAndRefresh(RedisConfig.class,
+				CustomRedisMessageListenerContainerConfig.class);
+		Map<String, RedisMessageListenerContainer> beans = this.context
+				.getBeansOfType(RedisMessageListenerContainer.class);
+		assertThat(beans).hasSize(2);
+		assertThat(beans).containsKeys("springSessionRedisMessageListenerContainer",
+				"redisMessageListenerContainer");
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -311,6 +324,17 @@ public class RedisHttpSessionConfigurationTests {
 	@Configuration
 	@EnableRedisHttpSession(redisNamespace = "${session.redis.namespace}")
 	static class CustomRedisHttpSessionConfiguration2 {
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class CustomRedisMessageListenerContainerConfig {
+
+		@Bean
+		public RedisMessageListenerContainer redisMessageListenerContainer() {
+			return new RedisMessageListenerContainer();
+		}
 
 	}
 

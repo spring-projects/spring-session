@@ -125,7 +125,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	@Bean
-	public RedisMessageListenerContainer redisMessageListenerContainer(
+	public RedisMessageListenerContainer springSessionRedisMessageListenerContainer(
 			RedisOperationsSessionRepository sessionRepository) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(this.redisConnectionFactory);
