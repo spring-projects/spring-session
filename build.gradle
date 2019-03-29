@@ -34,10 +34,5 @@ gradle.taskGraph.whenReady { graph ->
 				jacoco.enabled = jacocoEnabled
 			}
 		}
-		plugins.withType(CheckstylePlugin) {
-			dependencies {
-				checkstyle files("$rootDir/etc/checkstyle/src/main/resources")
-			}
-		}
 	}
 }
