@@ -13,17 +13,6 @@ apply plugin: 'io.spring.convention.root'
 group = 'org.springframework.session'
 description = 'Spring Session'
 
-
 ext.releaseBuild = version.endsWith('RELEASE')
 ext.snapshotBuild = version.endsWith('SNAPSHOT')
 ext.milestoneBuild = !(releaseBuild || snapshotBuild)
-
-gradle.taskGraph.whenReady { graph ->
-	subprojects {
-		plugins.withType(CheckstylePlugin) {
-			dependencies {
-				checkstyle files("$rootDir/etc/checkstyle/src/main/resources")
-			}
-		}
-	}
-}
