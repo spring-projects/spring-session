@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class HazelcastClientRepositoryITests extends AbstractHazelcastRepositoryITests {
 
 	private static GenericContainer container = new GenericContainer<>(
-			"hazelcast/hazelcast:3.11.1")
+			"hazelcast/hazelcast:3.11.2")
 					.withExposedPorts(5701)
 					.withEnv("JAVA_OPTS",
 							"-Dhazelcast.config=/opt/hazelcast/config_ext/hazelcast.xml")
