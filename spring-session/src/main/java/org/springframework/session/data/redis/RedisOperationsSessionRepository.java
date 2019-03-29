@@ -433,7 +433,7 @@ public class RedisOperationsSessionRepository implements
 		if (sessionBoundHashOperations == null) {
 			return null;
 		}
-		Map<Object, Object> entries = getSessionBoundHashOperations(id).entries();
+		Map<Object, Object> entries = sessionBoundHashOperations.entries();
 		if (entries.isEmpty()) {
 			return null;
 		}
