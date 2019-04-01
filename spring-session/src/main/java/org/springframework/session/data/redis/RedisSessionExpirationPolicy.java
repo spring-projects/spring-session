@@ -129,11 +129,15 @@ final class RedisSessionExpirationPolicy {
 
 		String expirationKey = getExpirationKey(prevMin);
 		Set<Object> sessionsToExpire = this.redis.boundSetOps(expirationKey).members();
-		this.redis.delete(expirationKey);
 		for (Object session : sessionsToExpire) {
 			String sessionKey = getSessionKey((String) session);
+
+			String sessionId = sessionKey.substring(sessionKey.lastIndexOf(":") + 1);
+			this.redisSession.delete(sessionId);
+
 			touch(sessionKey);
 		}
+		this.redis.delete(expirationKey);
 	}
 
 	/**
