@@ -79,7 +79,7 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 		}
 		catch (InvalidDataAccessApiUsageException e) {
 			throw new IllegalStateException(
-					"Unable to configure Redis to keyspace notifications. See http://docs.spring.io/spring-session/docs/current/reference/html5/#api-redisoperationssessionrepository-sessiondestroyedevent",
+					"Unable to configure Redis to keyspace notifications. See https://docs.spring.io/spring-session/docs/current/reference/html5/#api-redisoperationssessionrepository-sessiondestroyedevent",
 					e);
 		}
 	}
