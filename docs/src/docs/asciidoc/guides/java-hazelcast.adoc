@@ -85,7 +85,7 @@ In this instance Spring Session is backed by Hazelcast.
 Spring Session provides `PrincipalNameExtractor` for this purpose.
 <3> We create a `HazelcastInstance` that connects Spring Session to Hazelcast.
 By default, an embedded instance of Hazelcast is started and connected to by the application.
-For more information on configuring Hazelcast, refer to the http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
+For more information on configuring Hazelcast, refer to the https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
 
 == Servlet Container Initialization
 
@@ -130,7 +130,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 ====
 Hazelcast will run in embedded mode with your application by default, but if you want to connect
 to a stand alone instance instead, you can configure it by following the instructions in the
-http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
+https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
 ====
 
 ----
@@ -161,9 +161,9 @@ Go ahead and view the cookies (click for help with https://developers.google.com
 
 === Interact with the data store
 
-If you like, you can remove the session using http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-java-client[a Java client],
-http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#other-client-implementations[one of the other clients], or the
-http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#management-center[management center].
+If you like, you can remove the session using https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-java-client[a Java client],
+https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#other-client-implementations[one of the other clients], or the
+https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#management-center[management center].
 
 ==== Using the console
 
@@ -172,7 +172,7 @@ For example, using the management center console after connecting to your Hazelc
 	default> ns spring:session:sessions
 	spring:session:sessions> m.clear
 
-TIP: The Hazelcast documentation has instructions for http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#executing-console-commands[the console].
+TIP: The Hazelcast documentation has instructions for https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#executing-console-commands[the console].
 
 Alternatively, you can also delete the explicit key. Enter the following into the console ensuring to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie:
 
@@ -183,7 +183,7 @@ Now visit the application at http://localhost:8080/ and observe that we are no l
 ==== Using the REST API
 
 As described in the other clients section of the documentation, there is a 
-http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#rest-client[REST API]
+https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#rest-client[REST API]
 provided by the Hazelcast node(s).
 
 For example, you could delete an individual key as follows (replacing `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie):

@@ -1101,7 +1101,7 @@ A typical example of how to create a new instance can be seen below:
 include::{indexdoc-tests}[tags=new-hazelcastsessionrepository]
 ----
 
-For additional information on how to create and configure Hazelcast instance, refer to the http://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[Hazelcast documentation].
+For additional information on how to create and configure Hazelcast instance, refer to the https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[Hazelcast documentation].
 
 [[api-enablehazelcasthttpsession]]
 ==== EnableHazelcastHttpSession
@@ -1244,7 +1244,7 @@ Spring Session is Open Source software released under the https://www.apache.org
 | https://github.com/maseev/spring-session-orientdb
 
 | Spring Session Infinispan
-| http://infinispan.org/docs/dev/user_guide/user_guide.html#externalizing_session_using_spring_session
+| https://infinispan.org/docs/dev/user_guide/user_guide.html#externalizing_session_using_spring_session
 
 |===
 
