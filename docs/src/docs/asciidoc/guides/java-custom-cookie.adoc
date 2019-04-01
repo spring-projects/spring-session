@@ -28,7 +28,7 @@ This allows sharing a session across domains and applications.
 If the regular expression does not match, no domain is set and the existing domain is used.
 If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] is used as the domain.
 This means that a request to https://child.example.com sets the domain to `example.com`.
-However, a request to http://localhost:8080/ or http://192.168.1.100:8080/ leaves the cookie unset and, thus, still works in development without any changes being necessary for production.
+However, a request to http://localhost:8080/ or https://192.168.1.100:8080/ leaves the cookie unset and, thus, still works in development without any changes being necessary for production.
 ====
 
 WARNING: You should only match on valid domain characters, since the domain name is reflected in the response.
