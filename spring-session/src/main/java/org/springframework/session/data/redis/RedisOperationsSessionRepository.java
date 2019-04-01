@@ -429,7 +429,11 @@ public class RedisOperationsSessionRepository implements
 	 * @return the Redis session
 	 */
 	private RedisSession getSession(String id, boolean allowExpired) {
-		Map<Object, Object> entries = getSessionBoundHashOperations(id).entries();
+		BoundHashOperations<Object, Object, Object> sessionBoundHashOperations = getSessionBoundHashOperations(id);
+		if (sessionBoundHashOperations == null) {
+			return null;
+		}
+		Map<Object, Object> entries = sessionBoundHashOperations.entries();
 		if (entries.isEmpty()) {
 			return null;
 		}
