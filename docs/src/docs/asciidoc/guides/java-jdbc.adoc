@@ -85,7 +85,7 @@ In this instance Spring Session is backed by a relational database.
 We configure the H2 database to create database tables using the SQL script which is included in Spring Session.
 <3> We create a `transactionManager` that manages transactions for previously configured `dataSource`.
 
-For additional information on how to configure data access related concerns, please refer to the http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
+For additional information on how to configure data access related concerns, please refer to the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
 
 == Java Servlet Container Initialization
 

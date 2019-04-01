@@ -71,7 +71,7 @@ import org.springframework.util.Assert;
  *
  * <p>
  * For additional information on how to create a RedisTemplate, refer to the
- * <a href = "http://docs.spring.io/spring-data/data-redis/docs/current/reference/html/" >
+ * <a href = "https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/" >
  * Spring Data Redis Reference</a>.
  * </p>
  *
@@ -94,8 +94,8 @@ import org.springframework.util.Assert;
  *
  * <p>
  * Each session is stored in Redis as a
- * <a href="http://redis.io/topics/data-types#hashes">Hash</a>. Each session is set and
- * updated using the <a href="http://redis.io/commands/hmset">HMSET command</a>. An
+ * <a href="https://redis.io/topics/data-types#hashes">Hash</a>. Each session is set and
+ * updated using the <a href="https://redis.io/commands/hmset">HMSET command</a>. An
  * example of how each session is stored can be seen below.
  * </p>
  *
@@ -151,7 +151,7 @@ import org.springframework.util.Assert;
  *
  * <p>
  * An expiration is associated to each session using the
- * <a href="http://redis.io/commands/expire">EXPIRE command</a> based upon the
+ * <a href="https://redis.io/commands/expire">EXPIRE command</a> based upon the
  * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession#getMaxInactiveIntervalInSeconds()}
  * . For example:
  * </p>
@@ -176,7 +176,7 @@ import org.springframework.util.Assert;
  *
  * <p>
  * Spring Session relies on the expired and delete
- * <a href="http://redis.io/topics/notifications">keyspace notifications</a> from Redis to
+ * <a href="https://redis.io/topics/notifications">keyspace notifications</a> from Redis to
  * fire a SessionDestroyedEvent. It is the SessionDestroyedEvent that ensures resources
  * associated with the Session are cleaned up. For example, when using Spring Session's
  * WebSocket support the Redis expired or delete event is what triggers any WebSocket
@@ -204,7 +204,7 @@ import org.springframework.util.Assert;
  * guarantee of when the expired event will be fired if they key has not been accessed.
  * Specifically the background task that Redis uses to clean up expired keys is a low
  * priority task and may not trigger the key expiration. For additional details see
- * <a href="http://redis.io/topics/notifications">Timing of expired events</a> section in
+ * <a href="https://redis.io/topics/notifications">Timing of expired events</a> section in
  * the Redis documentation.
  * </p>
  *

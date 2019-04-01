@@ -19,7 +19,7 @@ You can run the sample by obtaining the {download-url}[source code] and invoking
 
 [NOTE]
 ====
-For the sample to work, you must http://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
 Alternatively, you can update the `LettuceConnectionFactory` to point to a Redis server.
 ====
 
@@ -140,7 +140,7 @@ For example, if the URL is http://localhost:8080/?_s=1 this alias would be used.
 
 The nice thing about specifying the session alias in the URL is that we can have multiple tabs open with different active sessions.
 The bad thing is that we need to include the session alias in every URL of our application.
-Fortunately, Spring Session will automatically include the session alias in any URL that passes through http://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletResponse.html#encodeURL(java.lang.String)[HttpServletResponse#encodeURL(java.lang.String)]
+Fortunately, Spring Session will automatically include the session alias in any URL that passes through https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletResponse.html#encodeURL(java.lang.String)[HttpServletResponse#encodeURL(java.lang.String)]
 
 This means that if you are using standard tag libraries the session alias is automatically included in the URL.
 For example, if we are currently using the session with the alias of *1*, then the following:
