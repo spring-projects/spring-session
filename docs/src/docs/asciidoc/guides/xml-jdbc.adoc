@@ -87,7 +87,7 @@ In this instance Spring Session is backed by a relational database.
 We configure the H2 database to create database tables using the SQL script which is included in Spring Session.
 <3> We create a `transactionManager` that manages transactions for previously configured `dataSource`.
 
-For additional information on how to configure data access related concerns, please refer to the http://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
+For additional information on how to configure data access related concerns, please refer to the https://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html[Spring Framework Reference Documentation].
 
 == XML Servlet Container Initialization
 
@@ -105,7 +105,7 @@ include::{samples-dir}xml/jdbc/src/main/webapp/WEB-INF/web.xml[tags=context-para
 include::{samples-dir}xml/jdbc/src/main/webapp/WEB-INF/web.xml[tags=listeners]
 ----
 
-The http://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener] reads the contextConfigLocation and picks up our session.xml configuration.
+The https://docs.spring.io/spring/docs/current/spring-framework-reference/htmlsingle/#context-create[ContextLoaderListener] reads the contextConfigLocation and picks up our session.xml configuration.
 
 Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
 The following snippet performs this last step for us:
@@ -116,7 +116,7 @@ The following snippet performs this last step for us:
 include::{samples-dir}xml/jdbc/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
 ----
 
-The http://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy] will look up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
+The https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[DelegatingFilterProxy] will look up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
 For every request that `DelegatingFilterProxy` is invoked, the `springSessionRepositoryFilter` will be invoked.
 
 // end::config[]
