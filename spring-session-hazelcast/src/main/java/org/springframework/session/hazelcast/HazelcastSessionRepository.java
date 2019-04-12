@@ -40,6 +40,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.expression.Expression;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
@@ -121,10 +123,14 @@ public class HazelcastSessionRepository implements
 	 */
 	public static final String PRINCIPAL_NAME_ATTRIBUTE = "principalName";
 
+	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+
 	private static final boolean SUPPORTS_SET_TTL = ClassUtils
 			.hasAtLeastOneMethodWithName(IMap.class, "setTtl");
 
 	private static final Log logger = LogFactory.getLog(HazelcastSessionRepository.class);
+
+	private static final PrincipalNameResolver principalNameResolver = new PrincipalNameResolver();
 
 	private final HazelcastInstance hazelcastInstance;
 
@@ -427,14 +433,18 @@ public class HazelcastSessionRepository implements
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.delegate.setAttribute(attributeName, attributeValue);
 			this.delta.put(attributeName, attributeValue);
+			if (SPRING_SECURITY_CONTEXT.equals(attributeName)) {
+				String principal = (attributeValue != null)
+						? principalNameResolver.resolvePrincipal(this)
+						: null;
+				this.delegate.setAttribute(PRINCIPAL_NAME_INDEX_NAME, principal);
+			}
 			flushImmediateIfNecessary();
 		}
 
 		@Override
 		public void removeAttribute(String attributeName) {
-			this.delegate.removeAttribute(attributeName);
-			this.delta.put(attributeName, null);
-			flushImmediateIfNecessary();
+			setAttribute(attributeName, null);
 		}
 
 		MapSession getDelegate() {
@@ -458,6 +468,29 @@ public class HazelcastSessionRepository implements
 			if (HazelcastSessionRepository.this.hazelcastFlushMode == HazelcastFlushMode.IMMEDIATE) {
 				HazelcastSessionRepository.this.save(this);
 			}
+		}
+
+	}
+
+	/**
+	 * Resolves the Spring Security principal name.
+	 */
+	static class PrincipalNameResolver {
+
+		private SpelExpressionParser parser = new SpelExpressionParser();
+
+		public String resolvePrincipal(Session session) {
+			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
+			if (principalName != null) {
+				return principalName;
+			}
+			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
+			if (authentication != null) {
+				Expression expression = this.parser
+						.parseExpression("authentication?.name");
+				return expression.getValue(authentication, String.class);
+			}
+			return null;
 		}
 
 	}
