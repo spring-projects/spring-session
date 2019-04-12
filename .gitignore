@@ -12,3 +12,5 @@ out
 *.rdb
 !eclipse/.checkstyle
 .checkstyle
+spring-session/gemfire-client-server-tests-*/
+spring-session/gemfire-multipool-client-server-tests-*/

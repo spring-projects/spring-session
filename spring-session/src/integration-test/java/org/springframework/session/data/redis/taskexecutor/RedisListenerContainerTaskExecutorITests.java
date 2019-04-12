@@ -95,6 +95,7 @@ public class RedisListenerContainerTaskExecutorITests {
 			}
 			return this.taskDispatched == null ? Boolean.FALSE : this.taskDispatched;
 		}
+
 	}
 
 	@Configuration

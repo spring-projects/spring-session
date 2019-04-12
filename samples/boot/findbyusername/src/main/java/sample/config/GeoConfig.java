@@ -23,6 +23,7 @@ import com.maxmind.geoip2.DatabaseReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
 
 /**
  *
@@ -39,4 +40,8 @@ public class GeoConfig {
 		return new DatabaseReader.Builder(geoInputStream).build();
 	}
 
+	@Bean
+	public ConfigureRedisAction configureRedisAction() {
+		return ConfigureRedisAction.NO_OP;
+	}
 }

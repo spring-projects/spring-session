@@ -23,6 +23,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
@@ -41,6 +42,11 @@ public class SessionConfig implements BeanClassLoaderAware {
 	@Bean
 	public LettuceConnectionFactory connectionFactory() {
 		return new LettuceConnectionFactory();
+	}
+
+	@Bean
+	public ConfigureRedisAction configureRedisAction() {
+		return ConfigureRedisAction.NO_OP;
 	}
 
 	/**
