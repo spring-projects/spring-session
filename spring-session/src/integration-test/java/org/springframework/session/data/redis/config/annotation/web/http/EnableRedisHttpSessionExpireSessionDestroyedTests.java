@@ -34,7 +34,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.ExpiringSession;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -122,11 +121,6 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Expirin
 		@Bean
 		public SessionExpiredEventRegistry sessionDestroyedEventRegistry() {
 			return new SessionExpiredEventRegistry();
-		}
-
-		@Bean
-		public ConfigureRedisAction configureRedisAction() {
-			return ConfigureRedisAction.NO_OP;
 		}
 	}
 }

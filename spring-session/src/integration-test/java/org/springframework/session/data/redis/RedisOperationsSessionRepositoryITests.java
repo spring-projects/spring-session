@@ -36,7 +36,6 @@ import org.springframework.session.Session;
 import org.springframework.session.data.AbstractITests;
 import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
-import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -476,11 +475,6 @@ public class RedisOperationsSessionRepositoryITests extends AbstractITests {
 		@Bean
 		public SessionEventRegistry sessionEventRegistry() {
 			return new SessionEventRegistry();
-		}
-
-		@Bean
-		public ConfigureRedisAction configureRedisAction() {
-			return ConfigureRedisAction.NO_OP;
 		}
 	}
 }
