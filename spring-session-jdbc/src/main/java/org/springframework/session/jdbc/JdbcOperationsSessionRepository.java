@@ -40,16 +40,17 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.dao.DataAccessException;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
+import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -197,11 +198,11 @@ public class JdbcOperationsSessionRepository
 
 	private static final Log logger = LogFactory.getLog(JdbcOperationsSessionRepository.class);
 
-	private static final PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
-
 	private final JdbcOperations jdbcOperations;
 
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
+
+	private final IndexResolver<JdbcSession> indexResolver;
 
 	private TransactionOperations transactionOperations = new TransactionOperations() {
 
@@ -271,6 +272,7 @@ public class JdbcOperationsSessionRepository
 	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations) {
 		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
 		this.jdbcOperations = jdbcOperations;
+		this.indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 		this.conversionService = createDefaultConversionService();
 		prepareQueries();
 	}
@@ -406,6 +408,8 @@ public class JdbcOperationsSessionRepository
 
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
+					Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
+							.resolveIndexesFor(session);
 					JdbcOperationsSessionRepository.this.jdbcOperations
 							.update(JdbcOperationsSessionRepository.this.createSessionQuery, (ps) -> {
 								ps.setString(1, session.primaryKey);
@@ -414,7 +418,7 @@ public class JdbcOperationsSessionRepository
 								ps.setLong(4, session.getLastAccessedTime().toEpochMilli());
 								ps.setInt(5, (int) session.getMaxInactiveInterval().getSeconds());
 								ps.setLong(6, session.getExpiryTime().toEpochMilli());
-								ps.setString(7, session.getPrincipalName());
+								ps.setString(7, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
 							});
 					Set<String> attributeNames = session.getAttributeNames();
 					if (!attributeNames.isEmpty()) {
@@ -430,13 +434,15 @@ public class JdbcOperationsSessionRepository
 				@Override
 				protected void doInTransactionWithoutResult(TransactionStatus status) {
 					if (session.isChanged()) {
+						Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
+								.resolveIndexesFor(session);
 						JdbcOperationsSessionRepository.this.jdbcOperations
 								.update(JdbcOperationsSessionRepository.this.updateSessionQuery, (ps) -> {
 									ps.setString(1, session.getId());
 									ps.setLong(2, session.getLastAccessedTime().toEpochMilli());
 									ps.setInt(3, (int) session.getMaxInactiveInterval().getSeconds());
 									ps.setLong(4, session.getExpiryTime().toEpochMilli());
-									ps.setString(5, session.getPrincipalName());
+									ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
 									ps.setString(6, session.primaryKey);
 								});
 					}
@@ -742,10 +748,6 @@ public class JdbcOperationsSessionRepository
 			this.delta.clear();
 		}
 
-		String getPrincipalName() {
-			return PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
-		}
-
 		Instant getExpiryTime() {
 			return getLastAccessedTime().plus(getMaxInactiveInterval());
 		}
@@ -834,30 +836,6 @@ public class JdbcOperationsSessionRepository
 		@Override
 		public boolean isExpired() {
 			return this.delegate.isExpired();
-		}
-
-	}
-
-	/**
-	 * Resolves the Spring Security principal name.
-	 *
-	 * @author Vedran Pavic
-	 */
-	static class PrincipalNameResolver {
-
-		private SpelExpressionParser parser = new SpelExpressionParser();
-
-		public String resolvePrincipal(Session session) {
-			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName != null) {
-				return principalName;
-			}
-			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication != null) {
-				Expression expression = this.parser.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
-			}
-			return null;
 		}
 
 	}

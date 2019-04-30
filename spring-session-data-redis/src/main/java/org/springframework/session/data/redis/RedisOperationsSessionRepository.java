@@ -36,10 +36,11 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
+import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.Session;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -252,8 +253,6 @@ public class RedisOperationsSessionRepository
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	static PrincipalNameResolver PRINCIPAL_NAME_RESOLVER = new PrincipalNameResolver();
-
 	/**
 	 * The default Redis database used by Spring Session.
 	 */
@@ -280,6 +279,8 @@ public class RedisOperationsSessionRepository
 	private final RedisOperations<Object, Object> sessionRedisOperations;
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
+
+	private final IndexResolver<RedisSession> indexResolver;
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 		@Override
@@ -311,6 +312,7 @@ public class RedisOperationsSessionRepository
 		this.sessionRedisOperations = sessionRedisOperations;
 		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, this::getExpirationsKey,
 				this::getSessionKey);
+		this.indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 		configureSessionChannels();
 	}
 
@@ -533,7 +535,8 @@ public class RedisOperationsSessionRepository
 
 	private void cleanupPrincipalIndex(RedisSession session) {
 		String sessionId = session.getId();
-		String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
+		Map<String, String> indexes = RedisOperationsSessionRepository.this.indexResolver.resolveIndexesFor(session);
+		String principal = indexes.get(PRINCIPAL_NAME_INDEX_NAME);
 		if (principal != null) {
 			this.sessionRedisOperations.boundSetOps(getPrincipalKey(principal)).remove(sessionId);
 		}
@@ -689,8 +692,9 @@ public class RedisOperationsSessionRepository
 		RedisSession(MapSession cached) {
 			Assert.notNull(cached, "MapSession cannot be null");
 			this.cached = cached;
-			this.originalPrincipalName = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
 			this.originalSessionId = cached.getId();
+			Map<String, String> indexes = RedisOperationsSessionRepository.this.indexResolver.resolveIndexesFor(this);
+			this.originalPrincipalName = indexes.get(PRINCIPAL_NAME_INDEX_NAME);
 		}
 
 		public void setNew(boolean isNew) {
@@ -800,7 +804,9 @@ public class RedisOperationsSessionRepository
 					RedisOperationsSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
 							.remove(sessionId);
 				}
-				String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
+				Map<String, String> indexes = RedisOperationsSessionRepository.this.indexResolver
+						.resolveIndexesFor(this);
+				String principal = indexes.get(PRINCIPAL_NAME_INDEX_NAME);
 				this.originalPrincipalName = principal;
 				if (principal != null) {
 					String principalRedisKey = getPrincipalKey(principal);
@@ -847,28 +853,6 @@ public class RedisOperationsSessionRepository
 			if (!"ERR no such key".equals(NestedExceptionUtils.getMostSpecificCause(ex).getMessage())) {
 				throw ex;
 			}
-		}
-
-	}
-
-	/**
-	 * Principal name resolver helper class.
-	 */
-	static class PrincipalNameResolver {
-
-		private SpelExpressionParser parser = new SpelExpressionParser();
-
-		public String resolvePrincipal(Session session) {
-			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName != null) {
-				return principalName;
-			}
-			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication != null) {
-				Expression expression = this.parser.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
-			}
-			return null;
 		}
 
 	}
