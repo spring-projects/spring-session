@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -40,10 +41,11 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.expression.Expression;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
+import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.Session;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -129,9 +131,9 @@ public class HazelcastSessionRepository
 
 	private static final Log logger = LogFactory.getLog(HazelcastSessionRepository.class);
 
-	private static final PrincipalNameResolver principalNameResolver = new PrincipalNameResolver();
-
 	private final HazelcastInstance hazelcastInstance;
+
+	private final IndexResolver<HazelcastSession> indexResolver;
 
 	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
 
@@ -162,6 +164,7 @@ public class HazelcastSessionRepository
 	public HazelcastSessionRepository(HazelcastInstance hazelcastInstance) {
 		Assert.notNull(hazelcastInstance, "HazelcastInstance must not be null");
 		this.hazelcastInstance = hazelcastInstance;
+		this.indexResolver = createIndexResolver();
 	}
 
 	@PostConstruct
@@ -321,6 +324,12 @@ public class HazelcastSessionRepository
 		}
 	}
 
+	private static DelegatingIndexResolver<HazelcastSession> createIndexResolver() {
+		Set<IndexResolver<HazelcastSession>> delegates = new HashSet<>();
+		delegates.add(new PrincipalNameIndexResolver<>());
+		return new DelegatingIndexResolver<>(delegates);
+	}
+
 	/**
 	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
 	 * basis for its mapping. It keeps track if changes have been made since last save.
@@ -425,7 +434,8 @@ public class HazelcastSessionRepository
 			this.delegate.setAttribute(attributeName, attributeValue);
 			this.delta.put(attributeName, attributeValue);
 			if (SPRING_SECURITY_CONTEXT.equals(attributeName)) {
-				String principal = (attributeValue != null) ? principalNameResolver.resolvePrincipal(this) : null;
+				Map<String, String> indexes = HazelcastSessionRepository.this.indexResolver.resolveIndexesFor(this);
+				String principal = (attributeValue != null) ? indexes.get(PRINCIPAL_NAME_INDEX_NAME) : null;
 				this.delegate.setAttribute(PRINCIPAL_NAME_INDEX_NAME, principal);
 			}
 			flushImmediateIfNecessary();
@@ -456,28 +466,6 @@ public class HazelcastSessionRepository
 			if (HazelcastSessionRepository.this.hazelcastFlushMode == HazelcastFlushMode.IMMEDIATE) {
 				HazelcastSessionRepository.this.save(this);
 			}
-		}
-
-	}
-
-	/**
-	 * Resolves the Spring Security principal name.
-	 */
-	static class PrincipalNameResolver {
-
-		private SpelExpressionParser parser = new SpelExpressionParser();
-
-		public String resolvePrincipal(Session session) {
-			String principalName = session.getAttribute(PRINCIPAL_NAME_INDEX_NAME);
-			if (principalName != null) {
-				return principalName;
-			}
-			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
-			if (authentication != null) {
-				Expression expression = this.parser.parseExpression("authentication?.name");
-				return expression.getValue(authentication, String.class);
-			}
-			return null;
 		}
 
 	}

@@ -45,15 +45,9 @@ import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository.PrincipalNameResolver;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
 
@@ -595,32 +589,6 @@ class RedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.publisher);
 		verifyZeroInteractions(this.redisOperations);
 		verifyZeroInteractions(this.boundHashOperations);
-	}
-
-	@Test
-	void resolvePrincipalIndex() {
-		PrincipalNameResolver resolver = RedisOperationsSessionRepository.PRINCIPAL_NAME_RESOLVER;
-		String username = "username";
-		RedisSession session = this.redisRepository.createSession();
-		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
-
-		assertThat(resolver.resolvePrincipal(session)).isEqualTo(username);
-	}
-
-	@Test
-	void resolveIndexOnSecurityContext() {
-		String principal = "resolveIndexOnSecurityContext";
-		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "notused",
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(authentication);
-
-		PrincipalNameResolver resolver = RedisOperationsSessionRepository.PRINCIPAL_NAME_RESOLVER;
-
-		RedisSession session = this.redisRepository.createSession();
-		session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
-
-		assertThat(resolver.resolvePrincipal(session)).isEqualTo(principal);
 	}
 
 	@Test
