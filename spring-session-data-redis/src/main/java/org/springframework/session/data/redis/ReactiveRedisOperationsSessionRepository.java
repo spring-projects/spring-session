@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
@@ -46,29 +45,6 @@ public class ReactiveRedisOperationsSessionRepository implements
 	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
-
-	/**
-	 * The key in the Hash representing {@link Session#getCreationTime()}.
-	 */
-	static final String CREATION_TIME_KEY = "creationTime";
-
-	/**
-	 * The key in the Hash representing {@link Session#getLastAccessedTime()}.
-	 */
-	static final String LAST_ACCESSED_TIME_KEY = "lastAccessedTime";
-
-	/**
-	 * The key in the Hash representing {@link Session#getMaxInactiveInterval()} .
-	 */
-	static final String MAX_INACTIVE_INTERVAL_KEY = "maxInactiveInterval";
-
-	/**
-	 * The prefix of the key used for session attributes. The suffix is the name of
-	 * the session attribute. For example, if the session contained an attribute named
-	 * attributeName, then there would be an entry in the hash named
-	 * sessionAttr:attributeName that mapped to its value.
-	 */
-	static final String ATTRIBUTE_PREFIX = "sessionAttr:";
 
 	private final ReactiveRedisOperations<String, Object> sessionRedisOperations;
 
@@ -162,7 +138,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 		return this.sessionRedisOperations.opsForHash().entries(sessionKey)
 				.collectMap((e) -> e.getKey().toString(), Map.Entry::getValue)
 				.filter((map) -> !map.isEmpty())
-				.map(new SessionMapper(id))
+				.map(new RedisSessionMapper(id))
 				.filter((session) -> !session.isExpired())
 				.map(RedisSession::new)
 				.switchIfEmpty(Mono.defer(() -> deleteById(id).then(Mono.empty())));
@@ -177,7 +153,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 	}
 
 	private static String getAttributeKey(String attributeName) {
-		return ATTRIBUTE_PREFIX + attributeName;
+		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
 	}
 
 	private String getSessionKey(String sessionId) {
@@ -206,10 +182,12 @@ public class ReactiveRedisOperationsSessionRepository implements
 		 */
 		RedisSession() {
 			this(new MapSession());
-			this.delta.put(CREATION_TIME_KEY, getCreationTime().toEpochMilli());
-			this.delta.put(MAX_INACTIVE_INTERVAL_KEY,
+			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY,
+					getCreationTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
 					(int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+					getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
 			this.flushImmediateIfNecessary();
 		}
@@ -266,7 +244,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			putAndFlush(LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
+			putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+					getLastAccessedTime().toEpochMilli());
 		}
 
 		@Override
@@ -277,7 +256,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			putAndFlush(MAX_INACTIVE_INTERVAL_KEY,
+			putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
 					(int) getMaxInactiveInterval().getSeconds());
 		}
 
@@ -350,38 +329,6 @@ public class ReactiveRedisOperationsSessionRepository implements
 				return ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
 						.rename(originalSessionKey, sessionKey).and(replaceSessionId);
 			}
-		}
-
-	}
-
-	private static final class SessionMapper
-			implements Function<Map<String, Object>, MapSession> {
-
-		private final String id;
-
-		private SessionMapper(String id) {
-			this.id = id;
-		}
-
-		@Override
-		public MapSession apply(Map<String, Object> map) {
-			MapSession session = new MapSession(this.id);
-
-			session.setCreationTime(
-					Instant.ofEpochMilli((long) map.get(CREATION_TIME_KEY)));
-			session.setLastAccessedTime(
-					Instant.ofEpochMilli((long) map.get(LAST_ACCESSED_TIME_KEY)));
-			session.setMaxInactiveInterval(
-					Duration.ofSeconds((int) map.get(MAX_INACTIVE_INTERVAL_KEY)));
-
-			map.forEach((name, value) -> {
-				if (name.startsWith(ATTRIBUTE_PREFIX)) {
-					session.setAttribute(name.substring(ATTRIBUTE_PREFIX.length()),
-							value);
-				}
-			});
-
-			return session;
 		}
 
 	}

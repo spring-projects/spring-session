@@ -167,15 +167,12 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 		Map<String, Object> delta = this.delta.getAllValues().get(0);
 		assertThat(delta.size()).isEqualTo(3);
-		assertThat(delta.get(ReactiveRedisOperationsSessionRepository.CREATION_TIME_KEY))
+		assertThat(delta.get(RedisSessionMapper.CREATION_TIME_KEY))
 				.isEqualTo(newSession.getCreationTime().toEpochMilli());
-		assertThat(delta
-				.get(ReactiveRedisOperationsSessionRepository.MAX_INACTIVE_INTERVAL_KEY))
-						.isEqualTo(
-								(int) newSession.getMaxInactiveInterval().getSeconds());
-		assertThat(delta
-				.get(ReactiveRedisOperationsSessionRepository.LAST_ACCESSED_TIME_KEY))
-						.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
+		assertThat(delta.get(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY))
+				.isEqualTo((int) newSession.getMaxInactiveInterval().getSeconds());
+		assertThat(delta.get(RedisSessionMapper.LAST_ACCESSED_TIME_KEY))
+				.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
 	}
 
 	@Test
@@ -214,7 +211,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0))
-				.isEqualTo(map(RedisOperationsSessionRepository.LAST_ACCESSED_ATTR,
+				.isEqualTo(map(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 						session.getLastAccessedTime().toEpochMilli()));
 	}
 
@@ -316,16 +313,14 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
 		expected.setAttribute(attribute1, "test");
 		expected.setAttribute(attribute2, null);
-		Map map = map(
-				ReactiveRedisOperationsSessionRepository.ATTRIBUTE_PREFIX + attribute1,
+		Map map = map(RedisSessionMapper.ATTRIBUTE_PREFIX + attribute1,
 				expected.getAttribute(attribute1),
-				ReactiveRedisOperationsSessionRepository.ATTRIBUTE_PREFIX + attribute2,
-				expected.getAttribute(attribute2),
-				ReactiveRedisOperationsSessionRepository.CREATION_TIME_KEY,
+				RedisSessionMapper.ATTRIBUTE_PREFIX + attribute2,
+				expected.getAttribute(attribute2), RedisSessionMapper.CREATION_TIME_KEY,
 				expected.getCreationTime().toEpochMilli(),
-				ReactiveRedisOperationsSessionRepository.MAX_INACTIVE_INTERVAL_KEY,
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
 				(int) expected.getMaxInactiveInterval().getSeconds(),
-				ReactiveRedisOperationsSessionRepository.LAST_ACCESSED_TIME_KEY,
+				RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				expected.getLastAccessedTime().toEpochMilli());
 		given(this.hashOperations.entries(anyString()))
 				.willReturn(Flux.fromIterable(map.entrySet()));
@@ -360,9 +355,9 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	@SuppressWarnings("unchecked")
 	public void getSessionExpired() {
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
-		Map map = map(ReactiveRedisOperationsSessionRepository.CREATION_TIME_KEY, 0L,
-				ReactiveRedisOperationsSessionRepository.MAX_INACTIVE_INTERVAL_KEY, 1,
-				ReactiveRedisOperationsSessionRepository.LAST_ACCESSED_TIME_KEY,
+		Map map = map(RedisSessionMapper.CREATION_TIME_KEY, 0L,
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1,
+				RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
 		given(this.hashOperations.entries(anyString()))
 				.willReturn(Flux.fromIterable(map.entrySet()));
