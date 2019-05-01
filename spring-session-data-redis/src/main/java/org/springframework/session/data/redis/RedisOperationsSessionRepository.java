@@ -264,33 +264,6 @@ public class RedisOperationsSessionRepository implements
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
 
-	/**
-	 * The key in the Hash representing
-	 * {@link org.springframework.session.Session#getCreationTime()}.
-	 */
-	static final String CREATION_TIME_ATTR = "creationTime";
-
-	/**
-	 * The key in the Hash representing
-	 * {@link org.springframework.session.Session#getMaxInactiveInterval()}
-	 * .
-	 */
-	static final String MAX_INACTIVE_ATTR = "maxInactiveInterval";
-
-	/**
-	 * The key in the Hash representing
-	 * {@link org.springframework.session.Session#getLastAccessedTime()}.
-	 */
-	static final String LAST_ACCESSED_ATTR = "lastAccessedTime";
-
-	/**
-	 * The prefix of the key used for session attributes. The suffix is the name of
-	 * the session attribute. For example, if the session contained an attribute named
-	 * attributeName, then there would be an entry in the hash named
-	 * sessionAttr:attributeName that mapped to its value.
-	 */
-	static final String SESSION_ATTR_PREFIX = "sessionAttr:";
-
 	private int database = RedisOperationsSessionRepository.DEFAULT_DATABASE;
 
 	/**
@@ -480,17 +453,18 @@ public class RedisOperationsSessionRepository implements
 		MapSession loaded = new MapSession(id);
 		for (Map.Entry<Object, Object> entry : entries.entrySet()) {
 			String key = (String) entry.getKey();
-			if (CREATION_TIME_ATTR.equals(key)) {
+			if (RedisSessionMapper.CREATION_TIME_KEY.equals(key)) {
 				loaded.setCreationTime(Instant.ofEpochMilli((long) entry.getValue()));
 			}
-			else if (MAX_INACTIVE_ATTR.equals(key)) {
+			else if (RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY.equals(key)) {
 				loaded.setMaxInactiveInterval(Duration.ofSeconds((int) entry.getValue()));
 			}
-			else if (LAST_ACCESSED_ATTR.equals(key)) {
+			else if (RedisSessionMapper.LAST_ACCESSED_TIME_KEY.equals(key)) {
 				loaded.setLastAccessedTime(Instant.ofEpochMilli((long) entry.getValue()));
 			}
-			else if (key.startsWith(SESSION_ATTR_PREFIX)) {
-				loaded.setAttribute(key.substring(SESSION_ATTR_PREFIX.length()),
+			else if (key.startsWith(RedisSessionMapper.ATTRIBUTE_PREFIX)) {
+				loaded.setAttribute(
+						key.substring(RedisSessionMapper.ATTRIBUTE_PREFIX.length()),
 						entry.getValue());
 			}
 		}
@@ -689,7 +663,7 @@ public class RedisOperationsSessionRepository implements
 	 * @return the attribute key name
 	 */
 	static String getSessionAttrNameKey(String attributeName) {
-		return SESSION_ATTR_PREFIX + attributeName;
+		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
 	}
 
 	/**
@@ -719,9 +693,12 @@ public class RedisOperationsSessionRepository implements
 		RedisSession(Duration maxInactiveInterval) {
 			this(new MapSession());
 			this.cached.setMaxInactiveInterval(maxInactiveInterval);
-			this.delta.put(CREATION_TIME_ATTR, getCreationTime().toEpochMilli());
-			this.delta.put(MAX_INACTIVE_ATTR, (int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY,
+					getCreationTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+					(int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+					getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
 		}
 
@@ -745,7 +722,8 @@ public class RedisOperationsSessionRepository implements
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			this.putAndFlush(LAST_ACCESSED_ATTR, getLastAccessedTime().toEpochMilli());
+			this.putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+					getLastAccessedTime().toEpochMilli());
 		}
 
 		@Override
@@ -780,7 +758,8 @@ public class RedisOperationsSessionRepository implements
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			this.putAndFlush(MAX_INACTIVE_ATTR, (int) getMaxInactiveInterval().getSeconds());
+			this.putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+					(int) getMaxInactiveInterval().getSeconds());
 		}
 
 		@Override
