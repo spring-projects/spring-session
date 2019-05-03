@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,9 +132,10 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void createSessionDefaultMaxInactiveInterval() {
-		StepVerifier.create(this.repository.createSession()).consumeNextWith(
-				(session) -> assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration
-						.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)))
+		StepVerifier.create(this.repository.createSession())
+				.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval())
+						.isEqualTo(Duration.ofSeconds(
+								MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)))
 				.verifyComplete();
 	}
 
@@ -155,30 +156,26 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.expire(anyString(), any()))
 				.willReturn(Mono.just(true));
 
-		StepVerifier
-				.create(this.repository.createSession().doOnNext(this.repository::save))
-				.consumeNextWith((session) -> {
-					verify(this.redisOperations).opsForHash();
-					verify(this.hashOperations).putAll(anyString(), this.delta.capture());
-					verify(this.redisOperations).expire(anyString(), any());
-					verifyZeroInteractions(this.redisOperations);
-					verifyZeroInteractions(this.hashOperations);
+		RedisSession newSession = this.repository.new RedisSession();
+		StepVerifier.create(this.repository.save(newSession)).verifyComplete();
 
-					Map<String, Object> delta = this.delta.getAllValues().get(0);
-					assertThat(delta.size()).isEqualTo(3);
-					assertThat(delta.get(
-							ReactiveRedisOperationsSessionRepository.CREATION_TIME_KEY))
-									.isEqualTo(session.getCreationTime().toEpochMilli());
-					assertThat(delta.get(
-							ReactiveRedisOperationsSessionRepository.MAX_INACTIVE_INTERVAL_KEY))
-									.isEqualTo((int) Duration.ofSeconds(
-											MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)
-											.getSeconds());
-					assertThat(delta.get(
-							ReactiveRedisOperationsSessionRepository.LAST_ACCESSED_TIME_KEY))
-									.isEqualTo(
-											session.getLastAccessedTime().toEpochMilli());
-				}).verifyComplete();
+		verify(this.redisOperations).opsForHash();
+		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
+		verify(this.redisOperations).expire(anyString(), any());
+		verifyZeroInteractions(this.redisOperations);
+		verifyZeroInteractions(this.hashOperations);
+
+		Map<String, Object> delta = this.delta.getAllValues().get(0);
+		assertThat(delta.size()).isEqualTo(3);
+		assertThat(delta.get(ReactiveRedisOperationsSessionRepository.CREATION_TIME_KEY))
+				.isEqualTo(newSession.getCreationTime().toEpochMilli());
+		assertThat(delta
+				.get(ReactiveRedisOperationsSessionRepository.MAX_INACTIVE_INTERVAL_KEY))
+						.isEqualTo(
+								(int) newSession.getMaxInactiveInterval().getSeconds());
+		assertThat(delta
+				.get(ReactiveRedisOperationsSessionRepository.LAST_ACCESSED_TIME_KEY))
+						.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
 	}
 
 	@Test
@@ -207,7 +204,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 		RedisSession session = this.repository.new RedisSession(this.cached);
 		session.setLastAccessedTime(Instant.ofEpochMilli(12345678L));
-		Mono.just(session).subscribe(this.repository::save);
+		StepVerifier.create(this.repository.save(session)).verifyComplete();
 
 		verify(this.redisOperations).hasKey(anyString());
 		verify(this.redisOperations).opsForHash();
@@ -232,7 +229,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		String attrName = "attrName";
 		RedisSession session = this.repository.new RedisSession(this.cached);
 		session.setAttribute(attrName, "attrValue");
-		Mono.just(session).subscribe(this.repository::save);
+		StepVerifier.create(this.repository.save(session)).verifyComplete();
 
 		verify(this.redisOperations).hasKey(anyString());
 		verify(this.redisOperations).opsForHash();
@@ -257,7 +254,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		String attrName = "attrName";
 		RedisSession session = this.repository.new RedisSession(new MapSession());
 		session.removeAttribute(attrName);
-		Mono.just(session).subscribe(this.repository::save);
+		StepVerifier.create(this.repository.save(session)).verifyComplete();
 
 		verify(this.redisOperations).hasKey(anyString());
 		verify(this.redisOperations).opsForHash();
@@ -333,24 +330,25 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		given(this.hashOperations.entries(anyString()))
 				.willReturn(Flux.fromIterable(map.entrySet()));
 
-		StepVerifier.create(this.repository.findById("test")).consumeNextWith((session) -> {
-			verify(this.redisOperations).opsForHash();
-			verify(this.hashOperations).entries(anyString());
-			verifyZeroInteractions(this.redisOperations);
-			verifyZeroInteractions(this.hashOperations);
+		StepVerifier.create(this.repository.findById("test"))
+				.consumeNextWith((session) -> {
+					verify(this.redisOperations).opsForHash();
+					verify(this.hashOperations).entries(anyString());
+					verifyZeroInteractions(this.redisOperations);
+					verifyZeroInteractions(this.hashOperations);
 
-			assertThat(session.getId()).isEqualTo(expected.getId());
-			assertThat(session.getAttributeNames())
-					.isEqualTo(expected.getAttributeNames());
-			assertThat(session.<String>getAttribute(attribute1))
-					.isEqualTo(expected.getAttribute(attribute1));
-			assertThat(session.<String>getAttribute(attribute2))
-					.isEqualTo(expected.getAttribute(attribute2));
+					assertThat(session.getId()).isEqualTo(expected.getId());
+					assertThat(session.getAttributeNames())
+							.isEqualTo(expected.getAttributeNames());
+					assertThat(session.<String>getAttribute(attribute1))
+							.isEqualTo(expected.getAttribute(attribute1));
+					assertThat(session.<String>getAttribute(attribute2))
+							.isEqualTo(expected.getAttribute(attribute2));
 					assertThat(session.getCreationTime().truncatedTo(ChronoUnit.MILLIS))
 							.isEqualTo(expected.getCreationTime()
 									.truncatedTo(ChronoUnit.MILLIS));
 					assertThat(session.getMaxInactiveInterval())
-					.isEqualTo(expected.getMaxInactiveInterval());
+							.isEqualTo(expected.getMaxInactiveInterval());
 					assertThat(
 							session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
 									.isEqualTo(expected.getLastAccessedTime()

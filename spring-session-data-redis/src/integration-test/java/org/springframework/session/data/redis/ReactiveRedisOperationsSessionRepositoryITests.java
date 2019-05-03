@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.time.Instant;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -66,6 +67,17 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 		this.repository.deleteById(toSave.getId()).block();
 
 		assertThat(this.repository.findById(toSave.getId()).block()).isNull();
+	}
+
+	@Test // gh-1399
+	public void saveMultipleTimes() {
+		ReactiveRedisOperationsSessionRepository.RedisSession session = this.repository
+				.createSession().block();
+		session.setAttribute("attribute1", "value1");
+		Mono<Void> save1 = this.repository.save(session);
+		session.setAttribute("attribute2", "value2");
+		Mono<Void> save2 = this.repository.save(session);
+		Mono.zip(save1, save2).block();
 	}
 
 	@Test
