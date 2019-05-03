@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,24 +143,15 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	@Override
 	public Mono<Void> save(RedisSession session) {
-		Mono<Void> result = session.saveChangeSessionId()
-				.then(session.saveDelta())
-				.and((s) -> {
-					session.isNew = false;
-					s.onComplete();
-				});
 		if (session.isNew) {
-			return result;
+			return session.save();
 		}
-		else {
-			String sessionKey = getSessionKey(
-					session.hasChangedSessionId() ? session.originalSessionId
-							: session.getId());
-			return this.sessionRedisOperations.hasKey(sessionKey)
-					.flatMap((exists) -> exists ? result
-							: Mono.error(new IllegalStateException(
-									"Session was invalidated")));
-		}
+		String sessionKey = getSessionKey(
+				session.hasChangedSessionId() ? session.originalSessionId
+						: session.getId());
+		return this.sessionRedisOperations.hasKey(sessionKey).flatMap((exists) -> exists
+				? session.save()
+				: Mono.error(new IllegalStateException("Session was invalidated")));
 	}
 
 	@Override
@@ -306,13 +297,18 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 		private void flushImmediateIfNecessary() {
 			if (ReactiveRedisOperationsSessionRepository.this.redisFlushMode == RedisFlushMode.IMMEDIATE) {
-				saveDelta();
+				save();
 			}
 		}
 
 		private void putAndFlush(String a, Object v) {
 			this.delta.put(a, v);
 			flushImmediateIfNecessary();
+		}
+
+		private Mono<Void> save() {
+			return Mono.defer(() -> saveChangeSessionId().then(saveDelta())
+					.doOnSuccess((aVoid) -> this.isNew = false));
 		}
 
 		private Mono<Void> saveDelta() {
@@ -322,7 +318,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 			String sessionKey = getSessionKey(getId());
 			Mono<Boolean> update = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
-					.opsForHash().putAll(sessionKey, this.delta);
+					.opsForHash().putAll(sessionKey, new HashMap<>(this.delta));
 			Mono<Boolean> setTtl = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
 					.expire(sessionKey, getMaxInactiveInterval());
 
