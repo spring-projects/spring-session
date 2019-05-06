@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -532,7 +532,8 @@ public class JdbcOperationsSessionRepository implements
 						public void setValues(PreparedStatement ps, int i) throws SQLException {
 							String attributeName = attributeNames.get(i);
 							ps.setString(1, attributeName);
-							setObjectAsBlob(ps, 2, session.getAttribute(attributeName));
+							getLobHandler().getLobCreator().setBlobAsBytes(ps, 2,
+									serialize(session.getAttribute(attributeName)));
 							ps.setString(3, session.getId());
 						}
 
@@ -547,7 +548,8 @@ public class JdbcOperationsSessionRepository implements
 			this.jdbcOperations.update(this.createSessionAttributeQuery, (ps) -> {
 				String attributeName = attributeNames.get(0);
 				ps.setString(1, attributeName);
-				setObjectAsBlob(ps, 2, session.getAttribute(attributeName));
+				getLobHandler().getLobCreator().setBlobAsBytes(ps, 2,
+						serialize(session.getAttribute(attributeName)));
 				ps.setString(3, session.getId());
 			});
 		}
@@ -561,7 +563,8 @@ public class JdbcOperationsSessionRepository implements
 						@Override
 						public void setValues(PreparedStatement ps, int i) throws SQLException {
 							String attributeName = attributeNames.get(i);
-							setObjectAsBlob(ps, 1, session.getAttribute(attributeName));
+							getLobHandler().getLobCreator().setBlobAsBytes(ps, 1,
+									serialize(session.getAttribute(attributeName)));
 							ps.setString(2, session.primaryKey);
 							ps.setString(3, attributeName);
 						}
@@ -576,7 +579,8 @@ public class JdbcOperationsSessionRepository implements
 		else {
 			this.jdbcOperations.update(this.updateSessionAttributeQuery, (ps) -> {
 				String attributeName = attributeNames.get(0);
-				setObjectAsBlob(ps, 1, session.getAttribute(attributeName));
+				getLobHandler().getLobCreator().setBlobAsBytes(ps, 1,
+						serialize(session.getAttribute(attributeName)));
 				ps.setString(2, session.primaryKey);
 				ps.setString(3, attributeName);
 			});
@@ -659,16 +663,17 @@ public class JdbcOperationsSessionRepository implements
 				getQuery(DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY);
 	}
 
-	private void setObjectAsBlob(PreparedStatement ps, int paramIndex, Object object)
-			throws SQLException {
-		byte[] bytes = (byte[]) this.conversionService.convert(object,
-				TypeDescriptor.valueOf(Object.class),
-				TypeDescriptor.valueOf(byte[].class));
-		this.lobHandler.getLobCreator().setBlobAsBytes(ps, paramIndex, bytes);
+	private LobHandler getLobHandler() {
+		return this.lobHandler;
 	}
 
-	private Object getBlobAsObject(ResultSet rs, String columnName) throws SQLException {
-		byte[] bytes = this.lobHandler.getBlobAsBytes(rs, columnName);
+	private byte[] serialize(Object object) {
+		return (byte[]) this.conversionService.convert(object,
+				TypeDescriptor.valueOf(Object.class),
+				TypeDescriptor.valueOf(byte[].class));
+	}
+
+	private Object deserialize(byte[] bytes) {
 		return this.conversionService.convert(bytes, TypeDescriptor.valueOf(byte[].class),
 				TypeDescriptor.valueOf(Object.class));
 	}
@@ -898,8 +903,9 @@ public class JdbcOperationsSessionRepository implements
 				}
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {
-					Object attributeValue = getBlobAsObject(rs, "ATTRIBUTE_BYTES");
-					session.delegate.setAttribute(attributeName, lazily(() -> attributeValue));
+					byte[] bytes = getLobHandler().getBlobAsBytes(rs, "ATTRIBUTE_BYTES");
+					session.delegate.setAttribute(attributeName,
+							lazily(() -> deserialize(bytes)));
 				}
 				sessions.add(session);
 			}
