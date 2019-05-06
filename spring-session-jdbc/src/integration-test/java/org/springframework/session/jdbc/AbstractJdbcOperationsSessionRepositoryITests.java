@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -797,18 +797,14 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 		MapSession delegate = (MapSession) ReflectionTestUtils.getField(session,
 				"delegate");
 
+		Supplier attribute1 = delegate.getAttribute("attribute1");
+		assertThat(ReflectionTestUtils.getField(attribute1, "value")).isNull();
 		assertThat((String) session.getAttribute("attribute1")).isEqualTo("value1");
-		assertThat(delegate).isNotNull();
-		assertThat(ReflectionTestUtils
-				.getField((Supplier) delegate.getAttribute("attribute1"), "value"))
-						.isEqualTo("value1");
-		assertThat(ReflectionTestUtils
-				.getField((Supplier) delegate.getAttribute("attribute2"), "value"))
-						.isNull();
+		assertThat(ReflectionTestUtils.getField(attribute1, "value")).isEqualTo("value1");
+		Supplier attribute2 = delegate.getAttribute("attribute2");
+		assertThat(ReflectionTestUtils.getField(attribute2, "value")).isNull();
 		assertThat((String) session.getAttribute("attribute2")).isEqualTo("value2");
-		assertThat(ReflectionTestUtils
-				.getField((Supplier) delegate.getAttribute("attribute2"), "value"))
-						.isEqualTo("value2");
+		assertThat(ReflectionTestUtils.getField(attribute2, "value")).isEqualTo("value2");
 	}
 
 	@Test // gh-1203
