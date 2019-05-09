@@ -72,7 +72,7 @@ import org.springframework.util.StringValueResolver;
  * @see EnableRedisHttpSession
  * @since 1.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableScheduling
 public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware,

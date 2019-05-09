@@ -91,7 +91,7 @@ import org.springframework.util.ObjectUtils;
  *
  * @see EnableSpringHttpSession
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	private final Log logger = LogFactory.getLog(getClass());
