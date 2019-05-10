@@ -81,24 +81,6 @@ try {
 				}
 			}
 		}
-	},
-	jdk12: {
-		stage('JDK 12') {
-			timeout(time: 45, unit: 'MINUTES') {
-				node('ubuntu1804') {
-					checkout scm
-					try {
-						withEnv(["JAVA_HOME=${tool 'jdk12'}"]) {
-							sh './gradlew clean test integrationTest --no-daemon --refresh-dependencies'
-						}
-					}
-					catch (e) {
-						currentBuild.result = 'FAILED: jdk12'
-						throw e
-					}
-				}
-			}
-		}
 	}
 
 	if (currentBuild.result == 'SUCCESS') {
