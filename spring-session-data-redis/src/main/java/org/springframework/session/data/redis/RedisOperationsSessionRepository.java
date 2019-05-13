@@ -418,7 +418,7 @@ public class RedisOperationsSessionRepository implements
 
 	@Override
 	public void save(RedisSession session) {
-		session.saveDelta();
+		session.save();
 		if (session.isNew()) {
 			String sessionCreatedKey = getSessionCreatedChannel(session.getId());
 			this.sessionRedisOperations.convertAndSend(sessionCreatedKey, session.delta);
@@ -516,12 +516,13 @@ public class RedisOperationsSessionRepository implements
 
 	@Override
 	public RedisSession createSession() {
-		RedisSession redisSession = new RedisSession();
-		if (this.defaultMaxInactiveInterval != null) {
-			redisSession.setMaxInactiveInterval(
-					Duration.ofSeconds(this.defaultMaxInactiveInterval));
-		}
-		return redisSession;
+		Duration maxInactiveInterval = Duration
+				.ofSeconds((this.defaultMaxInactiveInterval != null)
+						? this.defaultMaxInactiveInterval
+						: MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		RedisSession session = new RedisSession(maxInactiveInterval);
+		session.flushImmediateIfNecessary();
+		return session;
 	}
 
 	@Override
@@ -711,14 +712,17 @@ public class RedisOperationsSessionRepository implements
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be
 		 * persisted in the next save operation.
+		 *
+		 * @param maxInactiveInterval the amount of time that the {@link Session} should
+		 * be kept alive between client requests.
 		 */
-		RedisSession() {
+		RedisSession(Duration maxInactiveInterval) {
 			this(new MapSession());
+			this.cached.setMaxInactiveInterval(maxInactiveInterval);
 			this.delta.put(CREATION_TIME_ATTR, getCreationTime().toEpochMilli());
 			this.delta.put(MAX_INACTIVE_ATTR, (int) getMaxInactiveInterval().getSeconds());
 			this.delta.put(LAST_ACCESSED_ATTR, getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
-			this.flushImmediateIfNecessary();
 		}
 
 		/**
@@ -808,7 +812,7 @@ public class RedisOperationsSessionRepository implements
 
 		private void flushImmediateIfNecessary() {
 			if (RedisOperationsSessionRepository.this.redisFlushMode == RedisFlushMode.IMMEDIATE) {
-				saveDelta();
+				save();
 			}
 		}
 
@@ -817,16 +821,20 @@ public class RedisOperationsSessionRepository implements
 			this.flushImmediateIfNecessary();
 		}
 
+		private void save() {
+			saveChangeSessionId();
+			saveDelta();
+		}
+
 		/**
 		 * Saves any attributes that have been changed and updates the expiration of this
 		 * session.
 		 */
 		private void saveDelta() {
-			String sessionId = getId();
-			saveChangeSessionId(sessionId);
 			if (this.delta.isEmpty()) {
 				return;
 			}
+			String sessionId = getId();
 			getSessionBoundHashOperations(sessionId).putAll(this.delta);
 			String principalSessionKey = getSessionAttrNameKey(
 					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
@@ -859,30 +867,32 @@ public class RedisOperationsSessionRepository implements
 					.onExpirationUpdated(originalExpiration, this);
 		}
 
-		private void saveChangeSessionId(String sessionId) {
-			if (!sessionId.equals(this.originalSessionId)) {
-				if (!isNew()) {
-					String originalSessionIdKey = getSessionKey(this.originalSessionId);
-					String sessionIdKey = getSessionKey(sessionId);
-					try {
-						RedisOperationsSessionRepository.this.sessionRedisOperations
-								.rename(originalSessionIdKey, sessionIdKey);
-					}
-					catch (NonTransientDataAccessException ex) {
-						handleErrNoSuchKeyError(ex);
-					}
-					String originalExpiredKey = getExpiredKey(this.originalSessionId);
-					String expiredKey = getExpiredKey(sessionId);
-					try {
-						RedisOperationsSessionRepository.this.sessionRedisOperations
-								.rename(originalExpiredKey, expiredKey);
-					}
-					catch (NonTransientDataAccessException ex) {
-						handleErrNoSuchKeyError(ex);
-					}
-				}
-				this.originalSessionId = sessionId;
+		private void saveChangeSessionId() {
+			String sessionId = getId();
+			if (sessionId.equals(this.originalSessionId)) {
+				return;
 			}
+			if (!isNew()) {
+				String originalSessionIdKey = getSessionKey(this.originalSessionId);
+				String sessionIdKey = getSessionKey(sessionId);
+				try {
+					RedisOperationsSessionRepository.this.sessionRedisOperations
+							.rename(originalSessionIdKey, sessionIdKey);
+				}
+				catch (NonTransientDataAccessException ex) {
+					handleErrNoSuchKeyError(ex);
+				}
+				String originalExpiredKey = getExpiredKey(this.originalSessionId);
+				String expiredKey = getExpiredKey(sessionId);
+				try {
+					RedisOperationsSessionRepository.this.sessionRedisOperations
+							.rename(originalExpiredKey, expiredKey);
+				}
+				catch (NonTransientDataAccessException ex) {
+					handleErrNoSuchKeyError(ex);
+				}
+			}
+			this.originalSessionId = sessionId;
 		}
 
 		private void handleErrNoSuchKeyError(NonTransientDataAccessException ex) {

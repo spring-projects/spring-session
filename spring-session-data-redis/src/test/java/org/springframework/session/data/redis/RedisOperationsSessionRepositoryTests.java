@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -343,7 +343,8 @@ public class RedisOperationsSessionRepositoryTests {
 	@Test
 	public void redisSessionGetAttributes() {
 		String attrName = "attrName";
-		RedisSession session = this.redisRepository.new RedisSession();
+		RedisSession session = this.redisRepository.new RedisSession(
+				Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
 		assertThat(session.getAttributeNames()).isEmpty();
 		session.setAttribute(attrName, "attrValue");
 		assertThat(session.getAttributeNames()).containsOnly(attrName);
@@ -755,6 +756,23 @@ public class RedisOperationsSessionRepositoryTests {
 				.isEqualTo((int) Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS).getSeconds());
 		assertThat(delta.get(RedisOperationsSessionRepository.LAST_ACCESSED_ATTR))
 				.isEqualTo(session.getCreationTime().toEpochMilli());
+	}
+
+	@Test // gh-1409
+	public void flushModeImmediateCreateWithCustomMaxInactiveInterval() {
+		given(this.redisOperations.boundHashOps(anyString()))
+				.willReturn(this.boundHashOperations);
+		given(this.redisOperations.boundSetOps(anyString()))
+				.willReturn(this.boundSetOperations);
+		given(this.redisOperations.boundValueOps(anyString()))
+				.willReturn(this.boundValueOperations);
+		this.redisRepository.setDefaultMaxInactiveInterval(60);
+		this.redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		this.redisRepository.createSession();
+		Map<String, Object> delta = getDelta();
+		assertThat(delta.size()).isEqualTo(3);
+		assertThat(delta.get(RedisOperationsSessionRepository.MAX_INACTIVE_ATTR))
+				.isEqualTo(60);
 	}
 
 	@Test
