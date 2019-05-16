@@ -143,7 +143,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	@Override
 	public Mono<Void> save(RedisSession session) {
-		Mono<Void> result = session.saveChangeSessionId().and(session.saveDelta())
+		Mono<Void> result = session.saveChangeSessionId()
+				.then(session.saveDelta())
 				.and((s) -> {
 					session.isNew = false;
 					s.onComplete();
