@@ -12,7 +12,7 @@ try {
 	parallel check: {
 		stage('Check') {
 			timeout(time: 45, unit: 'MINUTES') {
-				node('ubuntu1804') {
+				node('linux') {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk8'}"]) {
@@ -33,7 +33,7 @@ try {
 	jdk9: {
 		stage('JDK 9') {
 			timeout(time: 45, unit: 'MINUTES') {
-				node {
+				node('linux') {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk9'}"]) {
@@ -51,7 +51,7 @@ try {
 	jdk10: {
 		stage('JDK 10') {
 			timeout(time: 45, unit: 'MINUTES') {
-				node {
+				node('linux') {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk10'}"]) {
@@ -69,7 +69,7 @@ try {
 	jdk11: {
 		stage('JDK 11') {
 			timeout(time: 45, unit: 'MINUTES') {
-				node('ubuntu1804') {
+				node('linux') {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk11'}"]) {
@@ -87,7 +87,7 @@ try {
 	jdk12: {
 		stage('JDK 12') {
 			timeout(time: 45, unit: 'MINUTES') {
-				node('ubuntu1804') {
+				node('linux') {
 					checkout scm
 					try {
 						withEnv(["JAVA_HOME=${tool 'openjdk12'}"]) {
@@ -106,7 +106,7 @@ try {
 	if (currentBuild.result == 'SUCCESS') {
 		parallel artifacts: {
 			stage('Deploy Artifacts') {
-				node {
+				node('linux') {
 					checkout scm
 					try {
 						withCredentials([file(credentialsId: 'spring-signing-secring.gpg', variable: 'SIGNING_KEYRING_FILE')]) {
@@ -130,7 +130,7 @@ try {
 		},
 		docs: {
 			stage('Deploy Docs') {
-				node {
+				node('linux') {
 					checkout scm
 					try {
 						withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
