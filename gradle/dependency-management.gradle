@@ -3,7 +3,7 @@ dependencyManagement {
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.9.6'
 		mavenBom 'io.projectreactor:reactor-bom:Dysprosium-M1'
 		mavenBom 'org.springframework:spring-framework-bom:5.2.0.BUILD-SNAPSHOT'
-		mavenBom 'org.springframework.data:spring-data-releasetrain:Moore-M3'
+		mavenBom 'org.springframework.data:spring-data-releasetrain:Moore-BUILD-SNAPSHOT'
 		mavenBom 'org.springframework.security:spring-security-bom:5.2.0.M1'
 		mavenBom 'org.testcontainers:testcontainers-bom:1.11.1'
 	}
