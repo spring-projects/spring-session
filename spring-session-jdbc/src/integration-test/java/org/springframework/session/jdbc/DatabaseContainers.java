@@ -88,7 +88,7 @@ final class DatabaseContainers {
 	private static class MariaDb10Container extends MariaDBContainer<MariaDb10Container> {
 
 		MariaDb10Container() {
-			super("mariadb:10.3.14");
+			super("mariadb:10.3.15");
 		}
 
 		@Override
