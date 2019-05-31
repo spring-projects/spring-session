@@ -72,7 +72,7 @@ final class DatabaseContainers {
 	private static class MariaDb5Container extends MariaDBContainer<MariaDb5Container> {
 
 		MariaDb5Container() {
-			super("mariadb:5.5.63");
+			super("mariadb:5.5.64");
 		}
 
 		@Override
@@ -88,7 +88,7 @@ final class DatabaseContainers {
 	private static class MariaDb10Container extends MariaDBContainer<MariaDb10Container> {
 
 		MariaDb10Container() {
-			super("mariadb:10.3.14");
+			super("mariadb:10.3.15");
 		}
 
 		@Override
@@ -103,7 +103,7 @@ final class DatabaseContainers {
 	private static class MySql5Container extends MySQLContainer<MySql5Container> {
 
 		MySql5Container() {
-			super("mysql:5.7.25");
+			super("mysql:5.7.26");
 		}
 
 		@Override
@@ -123,7 +123,7 @@ final class DatabaseContainers {
 	private static class MySql8Container extends MySQLContainer<MySql8Container> {
 
 		MySql8Container() {
-			super("mysql:8.0.15");
+			super("mysql:8.0.16");
 		}
 
 		@Override
@@ -143,7 +143,7 @@ final class DatabaseContainers {
 			extends PostgreSQLContainer<PostgreSql9Container> {
 
 		PostgreSql9Container() {
-			super("postgres:9.6.12");
+			super("postgres:9.6.13");
 		}
 
 	}
@@ -152,7 +152,7 @@ final class DatabaseContainers {
 			extends PostgreSQLContainer<PostgreSql10Container> {
 
 		PostgreSql10Container() {
-			super("postgres:10.7");
+			super("postgres:10.8");
 		}
 
 	}
@@ -161,7 +161,7 @@ final class DatabaseContainers {
 			extends PostgreSQLContainer<PostgreSql11Container> {
 
 		PostgreSql11Container() {
-			super("postgres:11.2");
+			super("postgres:11.3");
 		}
 
 	}
@@ -170,7 +170,7 @@ final class DatabaseContainers {
 			extends MSSQLServerContainer<SqlServer2017Container> {
 
 		SqlServer2017Container() {
-			super("mcr.microsoft.com/mssql/server:2017-CU13");
+			super("mcr.microsoft.com/mssql/server:2017-CU14");
 		}
 
 	}
