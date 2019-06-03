@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -82,7 +82,7 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	@Test
 	public void preSendconstructorNullRepository() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new SessionRepositoryMessageInterceptor<>(null))
 				.withMessage("sessionRepository cannot be null");
 	}
@@ -134,14 +134,14 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	@Test
 	public void setMatchingMessageTypesNull() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.interceptor.setMatchingMessageTypes(null))
 				.withMessage("matchingMessageTypes cannot be null or empty");
 	}
 
 	@Test
 	public void setMatchingMessageTypesEmpty() {
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+		assertThatIllegalArgumentException().isThrownBy(
 				() -> this.interceptor.setMatchingMessageTypes(Collections.emptySet()))
 				.withMessage("matchingMessageTypes cannot be null or empty");
 	}

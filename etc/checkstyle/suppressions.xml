@@ -2,16 +2,10 @@
 <!DOCTYPE suppressions PUBLIC "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
 		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
-	<!-- global -->
 	<suppress files="[\\/]src[\\/]integration-test[\\/]java[\\/]" checks="Javadoc*"/>
-
-	<!-- docs -->
 	<suppress files="[\\/]docs[\\/]" checks="Javadoc*"/>
 	<suppress files="[\\/]docs[\\/]" checks="InnerTypeLast"/>
-
-	<!-- samples -->
 	<suppress files="[\\/]samples[\\/]" checks="Javadoc*"/>
 	<suppress files="[\\/]samples[\\/].+Application\.java" checks="HideUtilityClassConstructor"/>
-
 	<suppress files="SessionRepositoryFilterTests\.java" checks="SpringLambda"/>
 </suppressions>

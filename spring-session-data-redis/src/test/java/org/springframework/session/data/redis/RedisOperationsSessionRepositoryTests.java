@@ -59,7 +59,7 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
 import org.springframework.session.events.AbstractSessionEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -115,7 +115,7 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void setApplicationEventPublisherNull() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.redisRepository.setApplicationEventPublisher(null))
 				.withMessage("applicationEventPublisher cannot be null");
 	}
@@ -195,7 +195,9 @@ public class RedisOperationsSessionRepositoryTests {
 				.get(RedisOperationsSessionRepository.CREATION_TIME_ATTR);
 		assertThat(creationTime).isEqualTo(session.getCreationTime().toEpochMilli());
 		assertThat(delta.get(RedisOperationsSessionRepository.MAX_INACTIVE_ATTR))
-				.isEqualTo((int) Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS).getSeconds());
+				.isEqualTo((int) Duration
+						.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)
+						.getSeconds());
 		assertThat(delta.get(RedisOperationsSessionRepository.LAST_ACCESSED_ATTR))
 				.isEqualTo(session.getCreationTime().toEpochMilli());
 	}
@@ -485,9 +487,12 @@ public class RedisOperationsSessionRepositoryTests {
 				.willReturn(Collections.singleton(sessionId));
 		given(this.redisOperations.boundHashOps(getKey(sessionId)))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisOperationsSessionRepository.CREATION_TIME_ATTR, createdTime.toEpochMilli(),
-				RedisOperationsSessionRepository.MAX_INACTIVE_ATTR, (int) maxInactive.getSeconds(),
-				RedisOperationsSessionRepository.LAST_ACCESSED_ATTR, lastAccessed.toEpochMilli());
+		Map map = map(RedisOperationsSessionRepository.CREATION_TIME_ATTR,
+				createdTime.toEpochMilli(),
+				RedisOperationsSessionRepository.MAX_INACTIVE_ATTR,
+				(int) maxInactive.getSeconds(),
+				RedisOperationsSessionRepository.LAST_ACCESSED_ATTR,
+				lastAccessed.toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
 
 		Map<String, RedisSession> sessionIdToSessions = this.redisRepository
@@ -753,7 +758,9 @@ public class RedisOperationsSessionRepositoryTests {
 				.get(RedisOperationsSessionRepository.CREATION_TIME_ATTR);
 		assertThat(creationTime).isEqualTo(session.getCreationTime().toEpochMilli());
 		assertThat(delta.get(RedisOperationsSessionRepository.MAX_INACTIVE_ATTR))
-				.isEqualTo((int) Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS).getSeconds());
+				.isEqualTo((int) Duration
+						.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)
+						.getSeconds());
 		assertThat(delta.get(RedisOperationsSessionRepository.LAST_ACCESSED_ATTR))
 				.isEqualTo(session.getCreationTime().toEpochMilli());
 	}
@@ -859,7 +866,7 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void setRedisFlushModeNull() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.redisRepository.setRedisFlushMode(null))
 				.withMessage("redisFlushMode cannot be null");
 	}
@@ -886,14 +893,14 @@ public class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void setRedisKeyNamespaceNullNamespace() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.redisRepository.setRedisKeyNamespace(null))
 				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
 	public void setRedisKeyNamespaceEmptyNamespace() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.redisRepository.setRedisKeyNamespace(" "))
 				.withMessage("namespace cannot be null or empty");
 	}

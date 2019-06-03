@@ -62,6 +62,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -1408,7 +1409,7 @@ public class SessionRepositoryFilterTests {
 
 	@Test
 	public void setHttpSessionIdResolverNull() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.filter.setHttpSessionIdResolver(null))
 				.withMessage("httpSessionIdResolver cannot be null");
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link ReactiveMapSessionRepository}.
@@ -60,7 +60,7 @@ public class ReactiveMapSessionRepositoryTests {
 
 	@Test
 	public void constructorMapWhenNullThenThrowsIllegalArgumentException() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ReactiveMapSessionRepository(null))
 				.withMessage("sessions cannot be null");
 	}
@@ -107,13 +107,12 @@ public class ReactiveMapSessionRepositoryTests {
 	public void createSessionWhenCustomMaxInactiveIntervalThenCustomMaxInactiveInterval() {
 		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval()
 				.plusSeconds(10);
-		this.repository.setDefaultMaxInactiveInterval(
-				(int) expectedMaxInterval.getSeconds());
+		this.repository
+				.setDefaultMaxInactiveInterval((int) expectedMaxInterval.getSeconds());
 
 		Session session = this.repository.createSession().block();
 
-		assertThat(session.getMaxInactiveInterval())
-				.isEqualTo(expectedMaxInterval);
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(expectedMaxInterval);
 	}
 
 	@Test

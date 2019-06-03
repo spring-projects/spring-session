@@ -36,7 +36,7 @@ import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepo
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -80,7 +80,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void constructorWithNullReactiveRedisOperations() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
 				.withMessageContaining("sessionRedisOperations cannot be null");
 	}
@@ -95,14 +95,14 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void nullRedisKeyNamespace() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.repository.setRedisKeyNamespace(null))
 				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
 	public void emptyRedisKeyNamespace() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.repository.setRedisKeyNamespace(""))
 				.withMessage("namespace cannot be null or empty");
 	}
@@ -125,7 +125,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	public void nullRedisFlushMode() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.repository.setRedisFlushMode(null))
 				.withMessage("redisFlushMode cannot be null");
 	}

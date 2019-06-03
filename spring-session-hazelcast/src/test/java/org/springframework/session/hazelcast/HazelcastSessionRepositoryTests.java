@@ -39,7 +39,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -79,7 +79,7 @@ public class HazelcastSessionRepositoryTests {
 
 	@Test
 	public void constructorNullHazelcastInstance() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new HazelcastSessionRepository(null))
 				.withMessage("HazelcastInstance must not be null");
 	}
@@ -262,8 +262,8 @@ public class HazelcastSessionRepositoryTests {
 		HazelcastSession session = this.repository.createSession();
 		String sessionId = session.getId();
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
-		verify(this.sessions, times(1)).set(eq(sessionId),
-				eq(session.getDelegate()), isA(Long.class), eq(TimeUnit.SECONDS));
+		verify(this.sessions, times(1)).set(eq(sessionId), eq(session.getDelegate()),
+				isA(Long.class), eq(TimeUnit.SECONDS));
 		verify(this.sessions).setTtl(eq(sessionId), anyLong(), any());
 		verify(this.sessions, times(1)).executeOnKey(eq(sessionId),
 				any(EntryProcessor.class));

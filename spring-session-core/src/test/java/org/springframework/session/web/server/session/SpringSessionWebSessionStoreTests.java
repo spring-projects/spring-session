@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.springframework.session.Session;
 import org.springframework.web.server.WebSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -69,15 +69,14 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void constructorWhenNullRepositoryThenThrowsIllegalArgumentException() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new SpringSessionWebSessionStore<S>(null))
 				.withMessage("reactiveSessionRepository cannot be null");
 	}
 
 	@Test
 	public void createSessionWhenNoAttributesThenNotStarted() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		assertThat(createdWebSession.isStarted()).isFalse();
 	}
@@ -86,16 +85,14 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	public void createSessionWhenAddAttributeThenStarted() {
 		given(this.createSession.getAttributeNames())
 				.willReturn(Collections.singleton("a"));
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		assertThat(createdWebSession.isStarted()).isTrue();
 	}
 
 	@Test
 	public void createSessionWhenGetAttributesAndSizeThenDelegatesToCreateSession() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 
@@ -109,8 +106,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndIsEmptyThenDelegatesToCreateSession() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 
@@ -124,8 +120,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndContainsKeyAndNotStringThenFalse() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 
@@ -134,8 +129,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndContainsKeyAndNotFoundThenFalse() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 
@@ -146,8 +140,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	public void createSessionWhenGetAttributesAndContainsKeyAndFoundThenTrue() {
 		given(this.createSession.getAttributeNames())
 				.willReturn(Collections.singleton("a"));
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 
@@ -156,8 +149,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndPutThenDelegatesToCreateSession() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.put("a", "b");
@@ -167,8 +159,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndPutNullThenDelegatesToCreateSession() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.put("a", null);
@@ -178,8 +169,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndRemoveThenDelegatesToCreateSession() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.remove("a");
@@ -189,8 +179,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void createSessionWhenGetAttributesAndPutAllThenDelegatesToCreateSession() {
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.putAll(Collections.singletonMap("a", "b"));
@@ -202,8 +191,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	public void createSessionWhenGetAttributesAndClearThenDelegatesToCreateSession() {
 		given(this.createSession.getAttributeNames())
 				.willReturn(Collections.singleton("a"));
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		attributes.clear();
@@ -215,8 +203,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	public void createSessionWhenGetAttributesAndKeySetThenDelegatesToCreateSession() {
 		given(this.createSession.getAttributeNames())
 				.willReturn(Collections.singleton("a"));
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 
@@ -228,8 +215,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 		given(this.createSession.getAttributeNames())
 				.willReturn(Collections.singleton("a"));
 		given(this.createSession.getAttribute("a")).willReturn("b");
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 
@@ -243,8 +229,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 				.willReturn(Collections.singleton(attrName));
 		String attrValue = "attrValue";
 		given(this.createSession.getAttribute(attrName)).willReturn(attrValue);
-		WebSession createdWebSession = this.webSessionStore.createWebSession()
-				.block();
+		WebSession createdWebSession = this.webSessionStore.createWebSession().block();
 
 		Map<String, Object> attributes = createdWebSession.getAttributes();
 		Set<Map.Entry<String, Object>> entries = attributes.entrySet();
@@ -256,8 +241,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 	@Test
 	public void retrieveSessionThenStarted() {
 		String id = "id";
-		WebSession retrievedWebSession = this.webSessionStore
-				.retrieveSession(id).block();
+		WebSession retrievedWebSession = this.webSessionStore.retrieveSession(id).block();
 
 		assertThat(retrievedWebSession.isStarted()).isTrue();
 		verify(this.findByIdSession).setLastAccessedTime(any());
@@ -275,7 +259,7 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Test
 	public void setClockWhenNullThenException() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
+		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.webSessionStore.setClock(null))
 				.withMessage("clock cannot be null");
 	}

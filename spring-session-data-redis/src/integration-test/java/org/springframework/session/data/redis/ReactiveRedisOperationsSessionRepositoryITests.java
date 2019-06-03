@@ -31,7 +31,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * Integration tests for {@link ReactiveRedisOperationsSessionRepository}.
@@ -223,7 +223,7 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 
 		toSave.setLastAccessedTime(Instant.now());
 
-		assertThatExceptionOfType(IllegalStateException.class)
+		assertThatIllegalStateException()
 				.isThrownBy(() -> this.repository.save(toSave).block())
 				.withMessage("Session was invalidated");
 
