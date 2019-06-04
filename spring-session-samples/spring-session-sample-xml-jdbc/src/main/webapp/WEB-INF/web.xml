@@ -10,7 +10,7 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
-			/WEB-INF/spring/*.xml
+			/WEB-INF/spring/session.xml
 		</param-value>
 	</context-param>
 	<!-- end::context-param[] -->
