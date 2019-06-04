@@ -3,9 +3,9 @@
 		"https://checkstyle.org/dtds/suppressions_1_2.dtd">
 <suppressions>
 	<suppress files="[\\/]src[\\/]integration-test[\\/]java[\\/]" checks="Javadoc*"/>
-	<suppress files="[\\/]docs[\\/]" checks="Javadoc*"/>
-	<suppress files="[\\/]docs[\\/]" checks="InnerTypeLast"/>
-	<suppress files="[\\/]samples[\\/]" checks="Javadoc*"/>
-	<suppress files="[\\/]samples[\\/].+Application\.java" checks="HideUtilityClassConstructor"/>
+	<suppress files="[\\/]spring-session-docs[\\/]" checks="Javadoc*"/>
+	<suppress files="[\\/]spring-session-docs[\\/]" checks="InnerTypeLast"/>
+	<suppress files="[\\/]spring-session-samples[\\/]" checks="Javadoc*"/>
+	<suppress files="[\\/]spring-session-samples[\\/].+Application\.java" checks="HideUtilityClassConstructor"/>
 	<suppress files="SessionRepositoryFilterTests\.java" checks="SpringLambda"/>
 </suppressions>

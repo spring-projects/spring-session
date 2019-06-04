@@ -1,28 +1,16 @@
 rootProject.name = 'spring-session-build'
 
-FileTree buildFiles = fileTree(rootDir) {
-	include '**/*.gradle'
-	exclude 'build', '**/gradle', 'settings.gradle', 'buildSrc', '/build.gradle', '.*', 'out'
-	exclude '**/grails3'
-	gradle.startParameter.projectProperties.get('excludeProjects')?.split(',')?.each { excludeProject ->
-		exclude excludeProject
-	}
+include 'spring-session-core'
+include 'spring-session-data-redis'
+include 'spring-session-docs'
+include 'spring-session-hazelcast'
+include 'spring-session-jdbc'
+
+file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
+    include dir.name
+    project(":$dir.name").projectDir = dir
 }
 
-String rootDirPath = rootDir.absolutePath + File.separator
-buildFiles.each { buildFile ->
-	if (buildFile.name == 'build.gradle') {
-		String buildFilePath = buildFile.parentFile.absolutePath
-		String projectPath = buildFilePath.replace(rootDirPath, '').replace(File.separator, ':')
-		include projectPath
-	}
-	else {
-		String projectName = buildFile.name.replace('.gradle', '')
-		String projectPath = ':' + projectName
-		include projectPath
-		def project = findProject("${projectPath}")
-		project.name = projectName
-		project.projectDir = buildFile.parentFile
-		project.buildFileName = buildFile.name
-	}
+rootProject.children.each { project ->
+    project.buildFileName = "${project.name}.gradle"
 }
