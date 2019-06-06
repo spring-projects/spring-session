@@ -13,10 +13,11 @@ dependencies {
 
 	providedCompile "javax.servlet:javax.servlet-api"
 
-	testCompile "junit:junit"
 	testCompile "org.springframework.security:spring-security-test"
 	testCompile "org.assertj:assertj-core"
 	testCompile "org.springframework:spring-test"
+	testCompile "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }
 
 gretty {

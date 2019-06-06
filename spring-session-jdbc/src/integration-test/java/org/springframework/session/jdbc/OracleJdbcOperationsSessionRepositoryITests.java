@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package org.springframework.session.jdbc;
 
-import org.junit.Assume;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.utility.TestcontainersConfiguration;
 
@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.ClassUtils;
 
@@ -38,19 +38,20 @@ import org.springframework.util.ClassUtils;
  *
  * @author Vedran Pavic
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
 public class OracleJdbcOperationsSessionRepositoryITests
 		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() {
-		Assume.assumeTrue("Oracle JDBC driver is present on the classpath",
-				ClassUtils.isPresent("oracle.jdbc.OracleDriver", null));
-		Assume.assumeTrue("Testcontainers property `oracle.container.image` is set",
+		Assumptions.assumeTrue(ClassUtils.isPresent("oracle.jdbc.OracleDriver", null),
+				"Oracle JDBC driver is present on the classpath");
+		Assumptions.assumeTrue(
 				TestcontainersConfiguration.getInstance().getProperties()
-						.getProperty("oracle.container.image") != null);
+						.getProperty("oracle.container.image") != null,
+				"Testcontainers property `oracle.container.image` is set");
 	}
 
 	@Configuration

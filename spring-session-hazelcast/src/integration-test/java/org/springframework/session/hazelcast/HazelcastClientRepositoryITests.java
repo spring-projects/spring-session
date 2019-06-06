@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package org.springframework.session.hazelcast;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 
@@ -31,7 +31,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
@@ -42,7 +42,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
  * @author Artem Bilan
  * @since 1.1
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class HazelcastClientRepositoryITests extends AbstractHazelcastRepositoryITests {
@@ -56,12 +56,12 @@ public class HazelcastClientRepositoryITests extends AbstractHazelcastRepository
 							"/opt/hazelcast/config_ext/hazelcast.xml",
 							BindMode.READ_ONLY);
 
-	@BeforeClass
+	@BeforeAll
 	public static void setUpClass() {
 		container.start();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void tearDownClass() {
 		container.stop();
 	}

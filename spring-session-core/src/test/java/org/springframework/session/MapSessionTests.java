@@ -20,8 +20,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -30,7 +30,7 @@ public class MapSessionTests {
 
 	private MapSession session;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.session = new MapSession();
 		this.session.setLastAccessedTime(Instant.ofEpochMilli(1413258262962L));

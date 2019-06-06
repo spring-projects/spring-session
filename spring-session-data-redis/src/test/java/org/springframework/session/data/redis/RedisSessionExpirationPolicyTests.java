@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundSetOperations;
@@ -40,7 +39,6 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  */
-@RunWith(MockitoJUnitRunner.class)
 public class RedisSessionExpirationPolicyTests {
 	// Wed Apr 15 10:28:32 CDT 2015
 	static final Long NOW = 1429111712346L;
@@ -61,8 +59,9 @@ public class RedisSessionExpirationPolicyTests {
 
 	private MapSession session;
 
-	@Before
+	@BeforeEach
 	public void setup() {
+		MockitoAnnotations.initMocks(this);
 		RedisOperationsSessionRepository repository = new RedisOperationsSessionRepository(
 				this.sessionRedisOperations);
 		this.policy = new RedisSessionExpirationPolicy(this.sessionRedisOperations,

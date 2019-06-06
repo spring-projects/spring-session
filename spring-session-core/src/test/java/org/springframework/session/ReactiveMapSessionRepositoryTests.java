@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -41,7 +41,7 @@ public class ReactiveMapSessionRepositoryTests {
 
 	private MapSession session;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.repository = new ReactiveMapSessionRepository(new HashMap<>());
 		this.session = new MapSession("session-id");

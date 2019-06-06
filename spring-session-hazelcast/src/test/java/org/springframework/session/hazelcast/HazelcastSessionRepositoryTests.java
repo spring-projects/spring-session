@@ -28,8 +28,8 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryProcessor;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.impl.predicates.EqualPredicate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -69,7 +69,7 @@ public class HazelcastSessionRepositoryTests {
 
 	private HazelcastSessionRepository repository;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		given(this.hazelcastInstance.<String, MapSession>getMap(anyString()))
 				.willReturn(this.sessions);

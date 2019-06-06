@@ -43,11 +43,10 @@ import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
 
 import org.assertj.core.data.Offset;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -78,7 +77,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 /**
  * Tests for {@link SessionRepositoryFilter}.
  */
-@RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings("deprecation")
 public class SessionRepositoryFilterTests {
 
@@ -97,8 +95,9 @@ public class SessionRepositoryFilterTests {
 
 	private MockFilterChain chain;
 
-	@Before
+	@BeforeEach
 	public void setup() throws Exception {
+		MockitoAnnotations.initMocks(this);
 		this.sessions = new HashMap<>();
 		this.sessionRepository = new MapSessionRepository(this.sessions);
 		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);

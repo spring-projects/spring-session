@@ -19,9 +19,9 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 import java.util.Map;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -57,12 +57,12 @@ public class RedisHttpSessionConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
-	@Before
+	@BeforeEach
 	public void before() {
 		this.context = new AnnotationConfigApplicationContext();
 	}
 
-	@After
+	@AfterEach
 	public void after() {
 		if (this.context != null) {
 			this.context.close();

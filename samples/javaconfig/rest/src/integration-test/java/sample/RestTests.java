@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package sample;
 import java.util.Arrays;
 import java.util.Base64;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -47,7 +47,7 @@ public class RestTests {
 
 	private String baseUrl;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.baseUrl = "http://localhost:" + System.getProperty("app.port");
 		this.restTemplate = new RestTemplate();

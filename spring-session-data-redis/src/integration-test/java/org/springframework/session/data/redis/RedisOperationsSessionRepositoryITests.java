@@ -20,9 +20,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -43,12 +43,12 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
@@ -70,7 +70,7 @@ public class RedisOperationsSessionRepositoryITests extends AbstractRedisITests 
 
 	private SecurityContext changedContext;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		if (this.registry != null) {
 			this.registry.clear();

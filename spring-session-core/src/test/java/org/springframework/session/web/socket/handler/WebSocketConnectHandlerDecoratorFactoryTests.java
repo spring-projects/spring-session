@@ -16,13 +16,12 @@
 
 package org.springframework.session.web.socket.handler;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -36,7 +35,6 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class WebSocketConnectHandlerDecoratorFactoryTests {
 	@Mock
 	ApplicationEventPublisher eventPublisher;
@@ -49,8 +47,9 @@ public class WebSocketConnectHandlerDecoratorFactoryTests {
 
 	WebSocketConnectHandlerDecoratorFactory factory;
 
-	@Before
+	@BeforeEach
 	public void setup() {
+		MockitoAnnotations.initMocks(this);
 		this.factory = new WebSocketConnectHandlerDecoratorFactory(this.eventPublisher);
 	}
 

@@ -22,8 +22,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -67,7 +67,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	private MapSession cached;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.repository = new ReactiveRedisOperationsSessionRepository(
 				this.redisOperations);

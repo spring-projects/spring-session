@@ -15,9 +15,10 @@ dependencies {
 	providedCompile "javax.servlet:javax.servlet-api"
 	providedCompile "javax.servlet.jsp:javax.servlet.jsp-api"
 
-	testCompile	"junit:junit"
 	testCompile "org.assertj:assertj-core"
 	testCompile "org.springframework:spring-test"
+	testCompile "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile seleniumDependencies
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package org.springframework.session.hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.instance.HazelcastInstanceProxy;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -208,8 +208,8 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 	@Test
 	public void createSessionWithSecurityContextAndFindByPrincipal() {
-		Assume.assumeTrue("Hazelcast runs in embedded server topology",
-				this.hazelcastInstance instanceof HazelcastInstanceProxy);
+		Assumptions.assumeTrue(this.hazelcastInstance instanceof HazelcastInstanceProxy,
+				"Hazelcast runs in embedded server topology");
 
 		HazelcastSession session = this.repository.createSession();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,12 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.util.Properties;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -37,7 +36,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
 public class EnableRedisKeyspaceNotificationsInitializerTests {
 	static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
 
@@ -50,8 +48,9 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 
 	RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
 
-	@Before
+	@BeforeEach
 	public void setup() {
+		MockitoAnnotations.initMocks(this);
 		given(this.connectionFactory.getConnection()).willReturn(this.connection);
 
 		this.initializer = new RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(

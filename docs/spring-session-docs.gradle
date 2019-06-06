@@ -13,13 +13,14 @@ dependencies {
 	testCompile 'org.springframework.security:spring-security-config'
 	testCompile 'org.springframework.security:spring-security-web'
 	testCompile 'org.springframework.security:spring-security-test'
-	testCompile 'junit:junit'
 	testCompile 'org.mockito:mockito-core'
 	testCompile 'org.springframework:spring-test'
 	testCompile 'org.assertj:assertj-core'
 	testCompile 'com.hazelcast:hazelcast'
 	testCompile 'io.lettuce:lettuce-core'
 	testCompile 'javax.servlet:javax.servlet-api'
+	testCompile 'org.junit.jupiter:junit-jupiter-api'
+	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
 def versions = dependencyManagement.managedVersions

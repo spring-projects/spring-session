@@ -25,8 +25,8 @@ import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -63,7 +63,7 @@ public abstract class AbstractJdbcOperationsSessionRepositoryITests {
 
 	private SecurityContext changedContext;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.context = SecurityContextHolder.createEmptyContext();
 		this.context.setAuthentication(

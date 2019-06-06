@@ -21,11 +21,10 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
 
 import org.springframework.session.ReactiveSessionRepository;
@@ -44,7 +43,6 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @author Vedran Pavic
  */
-@RunWith(MockitoJUnitRunner.class)
 public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@Mock
@@ -58,8 +56,9 @@ public class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	private SpringSessionWebSessionStore<S> webSessionStore;
 
-	@Before
+	@BeforeEach
 	public void setup() {
+		MockitoAnnotations.initMocks(this);
 		this.webSessionStore = new SpringSessionWebSessionStore<>(this.sessionRepository);
 		given(this.sessionRepository.findById(any()))
 				.willReturn(Mono.just(this.findByIdSession));

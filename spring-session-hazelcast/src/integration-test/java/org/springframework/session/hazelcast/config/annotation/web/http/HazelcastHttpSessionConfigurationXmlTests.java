@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -32,7 +32,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.util.SocketUtils;
 
@@ -46,7 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 
-	@RunWith(SpringRunner.class)
+	@ExtendWith(SpringExtension.class)
 	@ContextConfiguration
 	@WebAppConfiguration
 	public static class CustomXmlMapNameTest<S extends Session> {
@@ -84,7 +84,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 		}
 	}
 
-	@RunWith(SpringRunner.class)
+	@ExtendWith(SpringExtension.class)
 	@ContextConfiguration
 	@WebAppConfiguration
 	public static class CustomXmlMapNameAndIdleTest<S extends Session> {

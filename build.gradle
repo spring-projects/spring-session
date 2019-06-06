@@ -28,6 +28,10 @@ gradle.taskGraph.whenReady { graph ->
 	subprojects {
 		plugins.withType(JavaPlugin) {
 			sourceCompatibility = 1.8
+
+			test {
+				useJUnitPlatform()
+			}
 		}
 		plugins.withType(JacocoPlugin) {
 			tasks.withType(Test) {

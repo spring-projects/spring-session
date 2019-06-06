@@ -28,13 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.DefaultMessage;
@@ -72,7 +71,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class RedisOperationsSessionRepositoryTests {
 	static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
@@ -102,8 +100,9 @@ public class RedisOperationsSessionRepositoryTests {
 
 	private RedisOperationsSessionRepository redisRepository;
 
-	@Before
+	@BeforeEach
 	public void setup() {
+		MockitoAnnotations.initMocks(this);
 		this.redisRepository = new RedisOperationsSessionRepository(this.redisOperations);
 		this.redisRepository.setDefaultSerializer(this.defaultSerializer);
 

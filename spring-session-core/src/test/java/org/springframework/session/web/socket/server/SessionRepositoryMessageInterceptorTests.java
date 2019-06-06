@@ -25,12 +25,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpSession;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.Message;
@@ -52,7 +51,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-@RunWith(MockitoJUnitRunner.class)
 public class SessionRepositoryMessageInterceptorTests {
 	@Mock
 	SessionRepository<Session> sessionRepository;
@@ -67,8 +65,9 @@ public class SessionRepositoryMessageInterceptorTests {
 
 	SessionRepositoryMessageInterceptor<Session> interceptor;
 
-	@Before
+	@BeforeEach
 	public void setup() {
+		MockitoAnnotations.initMocks(this);
 		this.interceptor = new SessionRepositoryMessageInterceptor<>(
 				this.sessionRepository);
 		this.headers = SimpMessageHeaderAccessor.create();

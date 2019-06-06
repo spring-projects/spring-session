@@ -10,6 +10,8 @@ dependencies {
 	testCompile "javax.servlet:javax.servlet-api"
 	testCompile "org.springframework:spring-web"
 	testCompile "org.springframework.security:spring-security-core"
+	testCompile "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "com.h2database:h2"
 	integrationTestCompile "com.microsoft.sqlserver:mssql-jdbc"
