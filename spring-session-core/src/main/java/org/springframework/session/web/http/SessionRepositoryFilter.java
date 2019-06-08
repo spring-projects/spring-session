@@ -37,6 +37,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * Switches the {@link javax.servlet.http.HttpSession} implementation to be backed by a
@@ -144,6 +147,9 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				request, response);
 		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(
 				wrappedRequest, response);
+		RequestAttributes wrappedAttributes = new ServletRequestAttributes(
+				wrappedRequest, wrappedResponse);
+		RequestContextHolder.setRequestAttributes(wrappedAttributes);
 
 		try {
 			filterChain.doFilter(wrappedRequest, wrappedResponse);
