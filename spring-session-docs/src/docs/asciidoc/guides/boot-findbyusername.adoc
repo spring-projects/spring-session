@@ -65,7 +65,7 @@ For example, our sample application includes the location and access type of the
 ====
 [source,java,indent=0]
 ----
-include::{samples-dir}boot/findbyusername/src/main/java/sample/session/SessionDetails.java[tags=class]
+include::{samples-dir}spring-session-sample-boot-findbyusername/src/main/java/sample/session/SessionDetails.java[tags=class]
 ----
 ====
 
@@ -74,7 +74,7 @@ We then inject that information into the session on each HTTP request using a `S
 ====
 [source,java,indent=0]
 ----
-include::{samples-dir}boot/findbyusername/src/main/java/sample/session/SessionDetailsFilter.java[tags=dofilterinternal]
+include::{samples-dir}spring-session-sample-boot-findbyusername/src/main/java/sample/session/SessionDetailsFilter.java[tags=dofilterinternal]
 ----
 ====
 
@@ -94,7 +94,7 @@ The following example shows how to do so:
 ====
 [source,java,indent=0]
 ----
-include::{samples-dir}boot/findbyusername/src/main/java/sample/mvc/IndexController.java[tags=findbyusername]
+include::{samples-dir}spring-session-sample-boot-findbyusername/src/main/java/sample/mvc/IndexController.java[tags=findbyusername]
 ----
 ====
 

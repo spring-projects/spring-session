@@ -29,15 +29,15 @@ asciidoctor {
 	def ghTag = snapshotBuild ? 'master' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
 
-	attributes 'docs-itest-dir': "$rootProject.projectDir.path/docs/src/integration-test/java/",
-			'docs-test-dir': "$rootProject.projectDir.path/docs/src/test/java/",
-			'docs-test-resources-dir': "$rootProject.projectDir.path/docs/src/test/resources/",
+	attributes 'docs-itest-dir': "$rootProject.projectDir.path/spring-session-docs/src/integration-test/java/",
+			'docs-test-dir': "$rootProject.projectDir.path/spring-session-docs/src/test/java/",
+			'docs-test-resources-dir': "$rootProject.projectDir.path/spring-session-docs/src/test/resources/",
 			'download-url': "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
-			'gh-samples-url': "$ghUrl/samples/",
+			'gh-samples-url': "$ghUrl/spring-session-samples/",
 			'gh-url': ghUrl,
 			'hazelcast-version': versions['com.hazelcast:hazelcast'],
 			'lettuce-version': versions['io.lettuce:lettuce-core'],
-			'samples-dir': "$rootProject.projectDir.path/samples/",
+			'samples-dir': "$rootProject.projectDir.path/spring-session-samples/",
 			'session-jdbc-main-resources-dir': "${project(':spring-session-jdbc').projectDir.path}/src/main/resources/",
 			'spring-boot-version': project.springBootVersion,
 			'spring-data-redis-version': versions['org.springframework.data:spring-data-redis'],

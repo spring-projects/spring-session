@@ -88,7 +88,7 @@ To do so, add the following Spring Configuration:
 ====
 [source,java]
 ----
-include::{samples-dir}javaconfig/rest/src/main/java/sample/HttpSessionConfig.java[tags=class]
+include::{samples-dir}spring-session-sample-javaconfig-rest/src/main/java/sample/HttpSessionConfig.java[tags=class]
 ----
 
 <1> The `@EnableRedisHttpSession` annotation creates a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
@@ -112,7 +112,7 @@ We provide the configuration in our Spring `MvcInitializer`, as the following ex
 .src/main/java/sample/mvc/MvcInitializer.java
 [source,java,indent=0]
 ----
-include::{samples-dir}javaconfig/rest/src/main/java/sample/mvc/MvcInitializer.java[tags=config]
+include::{samples-dir}spring-session-sample-javaconfig-rest/src/main/java/sample/mvc/MvcInitializer.java[tags=config]
 ----
 ====
 
@@ -123,7 +123,7 @@ Fortunately, Spring Session provides a utility class named `AbstractHttpSessionA
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
-include::{samples-dir}javaconfig/rest/src/main/java/sample/Initializer.java[tags=class]
+include::{samples-dir}spring-session-sample-javaconfig-rest/src/main/java/sample/Initializer.java[tags=class]
 ----
 ====
 

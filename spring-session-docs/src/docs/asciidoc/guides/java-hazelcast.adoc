@@ -109,7 +109,7 @@ The following listing shows how to do so:
 .src/main/java/sample/SecurityInitializer.java
 [source,java]
 ----
-include::{samples-dir}javaconfig/hazelcast/src/main/java/sample/SecurityInitializer.java[tags=class]
+include::{samples-dir}spring-session-sample-javaconfig-hazelcast/src/main/java/sample/SecurityInitializer.java[tags=class]
 ----
 ====
 
@@ -123,7 +123,7 @@ The following example shows how to do so:
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
-include::{samples-dir}javaconfig/hazelcast/src/main/java/sample/Initializer.java[tags=class]
+include::{samples-dir}spring-session-sample-javaconfig-hazelcast/src/main/java/sample/Initializer.java[tags=class]
 ----
 ====
 

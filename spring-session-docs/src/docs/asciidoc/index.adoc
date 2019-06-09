@@ -50,27 +50,27 @@ To get started with Spring Session, the best place to start is our Sample Applic
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}boot/redis[HttpSession with Redis]
+| {gh-samples-url}spring-session-sample-boot-redis[HttpSession with Redis]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
 | link:guides/boot-redis.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}boot/jdbc[HttpSession with JDBC]
+| {gh-samples-url}spring-session-sample-boot-jdbc[HttpSession with JDBC]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/boot-jdbc.html[HttpSession with JDBC Guide]
 
-| {gh-samples-url}boot/findbyusername[Find by Username]
+| {gh-samples-url}spring-session-sample-boot-findbyusername[Find by Username]
 | Demonstrates how to use Spring Session to find sessions by username.
 | link:guides/boot-findbyusername.html[Find by Username Guide]
 
-| {gh-samples-url}boot/websocket[WebSockets]
+| {gh-samples-url}spring-session-sample-boot-websocket[WebSockets]
 | Demonstrates how to use Spring Session with WebSockets.
 | link:guides/boot-websocket.html[WebSockets Guide]
 
-| {gh-samples-url}boot/webflux[WebFlux]
+| {gh-samples-url}spring-session-sample-boot-webflux[WebFlux]
 | Demonstrates how to use Spring Session to replace the Spring WebFlux's `WebSession` with Redis.
 |
 
-| {gh-samples-url}boot/redis-json[HttpSession with Redis JSON serialization]
+| {gh-samples-url}spring-session-sample-boot-redis-json[HttpSession with Redis JSON serialization]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.
 |
 
@@ -80,27 +80,27 @@ To get started with Spring Session, the best place to start is our Sample Applic
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}javaconfig/redis[HttpSession with Redis]
+| {gh-samples-url}spring-session-sample-javaconfig-redis[HttpSession with Redis]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
 | link:guides/java-redis.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}javaconfig/jdbc[HttpSession with JDBC]
+| {gh-samples-url}spring-session-sample-javaconfig-jdbc[HttpSession with JDBC]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/java-jdbc.html[HttpSession with JDBC Guide]
 
-| {gh-samples-url}javaconfig/hazelcast[HttpSession with Hazelcast]
+| {gh-samples-url}spring-session-sample-javaconfig-hazelcast[HttpSession with Hazelcast]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
 | link:guides/java-hazelcast.html[HttpSession with Hazelcast Guide]
 
-| {gh-samples-url}javaconfig/custom-cookie[Custom Cookie]
+| {gh-samples-url}spring-session-sample-javaconfig-custom-cookie[Custom Cookie]
 | Demonstrates how to use Spring Session and customize the cookie.
 | link:guides/java-custom-cookie.html[Custom Cookie Guide]
 
-| {gh-samples-url}javaconfig/security[Spring Security]
+| {gh-samples-url}spring-session-sample-javaconfig-security[Spring Security]
 | Demonstrates how to use Spring Session with an existing Spring Security application.
 | link:guides/java-security.html[Spring Security Guide]
 
-| {gh-samples-url}javaconfig/rest[REST]
+| {gh-samples-url}spring-session-sample-javaconfig-rest[REST]
 | Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
 | link:guides/java-rest.html[REST Guide]
 
@@ -110,11 +110,11 @@ To get started with Spring Session, the best place to start is our Sample Applic
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}xml/redis[HttpSession with Redis]
+| {gh-samples-url}spring-session-sample-xml-redis[HttpSession with Redis]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
 | link:guides/xml-redis.html[HttpSession with Redis Guide]
 
-| {gh-samples-url}xml/jdbc[HttpSession with JDBC]
+| {gh-samples-url}spring-session-sample-xml-jdbc[HttpSession with JDBC]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/xml-jdbc.html[HttpSession with JDBC Guide]
 
@@ -124,13 +124,9 @@ To get started with Spring Session, the best place to start is our Sample Applic
 |===
 | Source | Description | Guide
 
-| {gh-samples-url}misc/grails3[Grails 3]
-| Demonstrates how to use Spring Session with Grails 3.
-| link:guides/grails3.html[Grails 3 Guide]
-
-| {gh-samples-url}misc/hazelcast[Hazelcast]
+| {gh-samples-url}spring-session-sample-misc-hazelcast[Hazelcast]
 | Demonstrates how to use Spring Session with Hazelcast in a Java EE application.
-| TBD
+|
 
 |===
 

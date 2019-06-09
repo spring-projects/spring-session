@@ -88,7 +88,7 @@ To do so, add the following Spring Configuration:
 .src/main/webapp/WEB-INF/spring/session.xml
 [source,xml,indent=0]
 ----
-include::{samples-dir}xml/redis/src/main/webapp/WEB-INF/spring/session.xml[tags=beans]
+include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/spring/session.xml[tags=beans]
 ----
 
 <1> We use the combination of `<context:annotation-config/>` and `RedisHttpSessionConfiguration` because Spring Session does not yet provide XML Namespace support (see https://github.com/spring-projects/spring-session/issues/104[gh-104]).
@@ -112,8 +112,8 @@ We can do so with the following configuration:
 .src/main/webapp/WEB-INF/web.xml
 [source,xml,indent=0]
 ----
-include::{samples-dir}xml/redis/src/main/webapp/WEB-INF/web.xml[tags=context-param]
-include::{samples-dir}xml/redis/src/main/webapp/WEB-INF/web.xml[tags=listeners]
+include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/web.xml[tags=context-param]
+include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/web.xml[tags=listeners]
 ----
 ====
 
@@ -126,7 +126,7 @@ The following snippet performs this last step for us:
 .src/main/webapp/WEB-INF/web.xml
 [source,xml,indent=0]
 ----
-include::{samples-dir}xml/redis/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
+include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/web.xml[tags=springSessionRepositoryFilter]
 ----
 ====
 
@@ -173,7 +173,7 @@ We interact with the standard `HttpSession` in the `SessionServlet` shown in the
 .src/main/java/sample/SessionServlet.java
 [source,java]
 ----
-include::{samples-dir}xml/redis/src/main/java/sample/SessionServlet.java[tags=class]
+include::{samples-dir}spring-session-sample-xml-redis/src/main/java/sample/SessionServlet.java[tags=class]
 ----
 ====
 

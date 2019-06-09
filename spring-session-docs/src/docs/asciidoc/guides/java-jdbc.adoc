@@ -83,7 +83,7 @@ To do so, add the following Spring Configuration:
 ====
 [source,java]
 ----
-include::{samples-dir}javaconfig/jdbc/src/main/java/sample/Config.java[tags=class]
+include::{samples-dir}spring-session-sample-javaconfig-jdbc/src/main/java/sample/Config.java[tags=class]
 ----
 
 <1> The `@EnableJdbcHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter`.
@@ -111,7 +111,7 @@ The following example shows how to do so:
 .src/main/java/sample/Initializer.java
 [source,java]
 ----
-include::{samples-dir}javaconfig/jdbc/src/main/java/sample/Initializer.java[tags=class]
+include::{samples-dir}spring-session-sample-javaconfig-jdbc/src/main/java/sample/Initializer.java[tags=class]
 ----
 
 NOTE: The name of our class (Initializer) does not matter.
@@ -158,7 +158,7 @@ We interact with the standard `HttpSession` in the `SessionServlet` shown in the
 .src/main/java/sample/SessionServlet.java
 [source,java]
 ----
-include::{samples-dir}javaconfig/jdbc/src/main/java/sample/SessionServlet.java[tags=class]
+include::{samples-dir}spring-session-sample-javaconfig-jdbc/src/main/java/sample/SessionServlet.java[tags=class]
 ----
 ====
 
