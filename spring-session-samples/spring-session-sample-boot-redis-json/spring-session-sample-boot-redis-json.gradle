@@ -17,7 +17,7 @@ dependencies {
 	testCompile "org.assertj:assertj-core"
 	testCompile "org.skyscreamer:jsonassert"
 	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntime "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile seleniumDependencies
 	integrationTestCompile "org.testcontainers:testcontainers"

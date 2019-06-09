@@ -17,7 +17,7 @@ dependencies {
 	testCompile "org.assertj:assertj-core"
 	testCompile "org.springframework:spring-test"
 	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntime "org.junit.jupiter:junit-jupiter-engine"
 }
 
 gretty {

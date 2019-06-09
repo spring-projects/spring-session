@@ -24,7 +24,7 @@ dependencies {
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.springframework.security:spring-security-test"
 	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntime "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "org.testcontainers:testcontainers"
 }

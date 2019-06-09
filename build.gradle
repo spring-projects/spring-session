@@ -29,7 +29,7 @@ gradle.taskGraph.whenReady { graph ->
 		plugins.withType(JavaPlugin) {
 			sourceCompatibility = 1.8
 
-			test {
+			tasks.withType(Test) {
 				useJUnitPlatform()
 			}
 		}
