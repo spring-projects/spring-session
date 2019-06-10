@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.session.web.http;
 
 import java.io.IOException;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -66,8 +67,11 @@ abstract class OncePerRequestFilter implements Filter {
 		}
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		String alreadyFilteredAttributeName = this.alreadyFilteredAttributeName;
+		alreadyFilteredAttributeName = updateForErrorDispatch(
+				alreadyFilteredAttributeName, request);
 		boolean hasAlreadyFilteredAttribute = request
-				.getAttribute(this.alreadyFilteredAttributeName) != null;
+				.getAttribute(alreadyFilteredAttributeName) != null;
 
 		if (hasAlreadyFilteredAttribute) {
 
@@ -76,15 +80,26 @@ abstract class OncePerRequestFilter implements Filter {
 		}
 		else {
 			// Do invoke this filter...
-			request.setAttribute(this.alreadyFilteredAttributeName, Boolean.TRUE);
+			request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
 			try {
 				doFilterInternal(httpRequest, httpResponse, filterChain);
 			}
 			finally {
 				// Remove the "already filtered" request attribute for this request.
-				request.removeAttribute(this.alreadyFilteredAttributeName);
+				request.removeAttribute(alreadyFilteredAttributeName);
 			}
 		}
+	}
+
+	private String updateForErrorDispatch(String alreadyFilteredAttributeName,
+			ServletRequest request) {
+		// Jetty does ERROR dispatch within sendError, so request attribute is still present
+		// Use a separate attribute for ERROR dispatches
+		if (DispatcherType.ERROR.equals(request.getDispatcherType())
+				&& request.getAttribute(alreadyFilteredAttributeName) != null) {
+			return alreadyFilteredAttributeName + ".ERROR";
+		}
+		return alreadyFilteredAttributeName;
 	}
 
 	/**
