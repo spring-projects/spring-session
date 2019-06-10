@@ -29,20 +29,12 @@ repositories {
 group = 'org.springframework.session'
 description = 'Spring Session'
 
-gradle.taskGraph.whenReady { graph ->
-	def jacocoEnabled = graph.allTasks.any { it instanceof JacocoReport }
-	subprojects {
-		plugins.withType(JavaPlugin) {
-			sourceCompatibility = 1.8
+subprojects {
+	plugins.withType(JavaPlugin) {
+		sourceCompatibility = JavaVersion.VERSION_1_8
 
-			tasks.withType(Test) {
-				useJUnitPlatform()
-			}
-		}
-		plugins.withType(JacocoPlugin) {
-			tasks.withType(Test) {
-				jacoco.enabled = jacocoEnabled
-			}
+		tasks.withType(Test) {
+			useJUnitPlatform()
 		}
 	}
 }
