@@ -23,16 +23,8 @@ apply plugin: 'io.spring.convention.root'
 group = 'org.springframework.session'
 description = 'Spring Session'
 
-gradle.taskGraph.whenReady { graph ->
-	def jacocoEnabled = graph.allTasks.any { it instanceof JacocoReport }
-	subprojects {
-		plugins.withType(JavaPlugin) {
-			sourceCompatibility = 1.8
-		}
-		plugins.withType(JacocoPlugin) {
-			tasks.withType(Test) {
-				jacoco.enabled = jacocoEnabled
-			}
-		}
+subprojects {
+	plugins.withType(JavaPlugin) {
+		sourceCompatibility = JavaVersion.VERSION_1_8
 	}
 }
