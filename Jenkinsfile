@@ -14,6 +14,7 @@ try {
 			timeout(time: 45, unit: 'MINUTES') {
 				node('linux') {
 					checkout scm
+					sh "git clean -dfx"
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk8'}"]) {
 							sh './gradlew clean check --no-daemon --refresh-dependencies --stacktrace'
@@ -35,6 +36,7 @@ try {
 			timeout(time: 45, unit: 'MINUTES') {
 				node('linux') {
 					checkout scm
+					sh "git clean -dfx"
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk9'}"]) {
 							sh './gradlew clean test --no-daemon --refresh-dependencies --stacktrace'
@@ -53,6 +55,7 @@ try {
 			timeout(time: 45, unit: 'MINUTES') {
 				node('linux') {
 					checkout scm
+					sh "git clean -dfx"
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk10'}"]) {
 							sh './gradlew clean test --no-daemon --refresh-dependencies --stacktrace'
@@ -71,6 +74,7 @@ try {
 			timeout(time: 45, unit: 'MINUTES') {
 				node('linux') {
 					checkout scm
+					sh "git clean -dfx"
 					try {
 						withEnv(["JAVA_HOME=${tool 'jdk11'}"]) {
 							sh './gradlew clean test integrationTest --no-daemon --refresh-dependencies --stacktrace'
@@ -108,6 +112,7 @@ try {
 			stage('Deploy Artifacts') {
 				node('linux') {
 					checkout scm
+					sh "git clean -dfx"
 					try {
 						withCredentials([file(credentialsId: 'spring-signing-secring.gpg', variable: 'SIGNING_KEYRING_FILE')]) {
 							withCredentials([string(credentialsId: 'spring-gpg-passphrase', variable: 'SIGNING_PASSWORD')]) {
@@ -132,6 +137,7 @@ try {
 			stage('Deploy Docs') {
 				node('linux') {
 					checkout scm
+					sh "git clean -dfx"
 					try {
 						withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 							withEnv(["JAVA_HOME=${tool 'jdk8'}"]) {
