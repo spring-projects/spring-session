@@ -170,7 +170,7 @@ final class DatabaseContainers {
 			extends MSSQLServerContainer<SqlServer2017Container> {
 
 		SqlServer2017Container() {
-			super("mcr.microsoft.com/mssql/server:2017-CU14");
+			super("mcr.microsoft.com/mssql/server:2017-CU15");
 		}
 
 	}
