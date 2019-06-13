@@ -48,7 +48,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 public class HazelcastClientRepositoryITests extends AbstractHazelcastRepositoryITests {
 
 	private static GenericContainer container = new GenericContainer<>(
-			"hazelcast/hazelcast:3.12")
+			"hazelcast/hazelcast:3.12.1")
 					.withExposedPorts(5701)
 					.withEnv("JAVA_OPTS",
 							"-Dhazelcast.config=/opt/hazelcast/config_ext/hazelcast.xml")
