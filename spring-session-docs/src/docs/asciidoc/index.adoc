@@ -74,6 +74,10 @@ To get started with Spring Session, the best place to start is our Sample Applic
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.
 |
 
+| {gh-samples-url}spring-session-sample-boot-redis-simple[HttpSession with simple Redis `SessionRepository`]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using `SimpleRedisOperationsSessionRepository`.
+|
+
 |===
 
 .Sample Applications that use Spring Java-based configuration
