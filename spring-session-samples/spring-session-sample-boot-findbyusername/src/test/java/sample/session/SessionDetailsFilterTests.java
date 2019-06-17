@@ -34,32 +34,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = GeoConfig.class)
-public class SessionDetailsFilterTests {
+class SessionDetailsFilterTests {
+
 	@Autowired
 	DatabaseReader reader;
 
-	SessionDetailsFilter filter;
+	private SessionDetailsFilter filter;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.filter = new SessionDetailsFilter(this.reader);
 	}
 
 	@Test
-	public void getGeoLocationHanldesInvalidIp() {
-		assertThat(this.filter.getGeoLocation("a"))
-				.isEqualTo(SessionDetailsFilter.UNKNOWN);
+	void getGeoLocationHanldesInvalidIp() {
+		assertThat(this.filter.getGeoLocation("a")).isEqualTo(SessionDetailsFilter.UNKNOWN);
 	}
 
 	@Test
-	public void getGeoLocationNullCity() {
-		assertThat(this.filter.getGeoLocation("22.231.113.64"))
-				.isEqualTo("United States");
+	void getGeoLocationNullCity() {
+		assertThat(this.filter.getGeoLocation("22.231.113.64")).isEqualTo("United States");
 	}
 
 	@Test
-	public void getGeoLocationBoth() {
-		assertThat(this.filter.getGeoLocation("184.154.83.119"))
-				.isEqualTo("Chicago, United States");
+	void getGeoLocationBoth() {
+		assertThat(this.filter.getGeoLocation("184.154.83.119")).isEqualTo("Chicago, United States");
 	}
+
 }

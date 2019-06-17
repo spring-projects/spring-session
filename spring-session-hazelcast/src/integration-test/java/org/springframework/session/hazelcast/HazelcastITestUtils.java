@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,13 +51,10 @@ public final class HazelcastITestUtils {
 
 		networkConfig.setPort(port);
 
-		networkConfig.getJoin()
-				.getMulticastConfig().setEnabled(false);
+		networkConfig.getJoin().getMulticastConfig().setEnabled(false);
 
-		config.getMapConfig(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME)
-				.addMapAttributeConfig(attributeConfig)
-				.addMapIndexConfig(new MapIndexConfig(
-						HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+		config.getMapConfig(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME).addMapAttributeConfig(attributeConfig)
+				.addMapIndexConfig(new MapIndexConfig(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
 
 		return Hazelcast.newHazelcastInstance(config);
 	}

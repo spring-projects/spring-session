@@ -32,23 +32,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class RedisHttpSessionConfigurationMockTests {
+class RedisHttpSessionConfigurationMockTests {
+
 	@Mock
 	RedisConnectionFactory factory;
+
 	@Mock
 	RedisConnection connection;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		MockitoAnnotations.initMocks(this);
 		given(this.factory.getConnection()).willReturn(this.connection);
 	}
 
 	@Test
-	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoOpThenNoInteractionWithConnectionFactory()
+	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoOpThenNoInteractionWithConnectionFactory()
 			throws Exception {
-		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(
-				this.factory, ConfigureRedisAction.NO_OP);
+		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(this.factory,
+				ConfigureRedisAction.NO_OP);
 
 		init.afterPropertiesSet();
 
@@ -56,13 +58,13 @@ public class RedisHttpSessionConfigurationMockTests {
 	}
 
 	@Test
-	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenExceptionThenCloseConnection()
+	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenExceptionThenCloseConnection()
 			throws Exception {
 		ConfigureRedisAction action = mock(ConfigureRedisAction.class);
 		willThrow(new RuntimeException()).given(action).configure(this.connection);
 
-		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(
-				this.factory, action);
+		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(this.factory,
+				action);
 
 		try {
 			init.afterPropertiesSet();
@@ -75,15 +77,16 @@ public class RedisHttpSessionConfigurationMockTests {
 	}
 
 	@Test
-	public void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoExceptionThenCloseConnection()
+	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoExceptionThenCloseConnection()
 			throws Exception {
 		ConfigureRedisAction action = mock(ConfigureRedisAction.class);
 
-		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(
-				this.factory, action);
+		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(this.factory,
+				action);
 
 		init.afterPropertiesSet();
 
 		verify(this.connection).close();
 	}
+
 }

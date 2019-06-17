@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,16 +35,15 @@ import org.springframework.session.Session;
 public class WebSocketHandlersConfig<S extends Session> {
 
 	@Bean
-	public WebSocketConnectHandler<S> webSocketConnectHandler(
-			SimpMessageSendingOperations messagingTemplate,
+	public WebSocketConnectHandler<S> webSocketConnectHandler(SimpMessageSendingOperations messagingTemplate,
 			ActiveWebSocketUserRepository repository) {
 		return new WebSocketConnectHandler<>(messagingTemplate, repository);
 	}
 
 	@Bean
-	public WebSocketDisconnectHandler<S> webSocketDisconnectHandler(
-			SimpMessageSendingOperations messagingTemplate,
+	public WebSocketDisconnectHandler<S> webSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate,
 			ActiveWebSocketUserRepository repository) {
 		return new WebSocketDisconnectHandler<>(messagingTemplate, repository);
 	}
+
 }

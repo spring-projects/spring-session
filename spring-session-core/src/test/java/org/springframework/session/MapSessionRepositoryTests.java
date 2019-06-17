@@ -29,20 +29,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link MapSessionRepository}.
  */
-public class MapSessionRepositoryTests {
+class MapSessionRepositoryTests {
 
 	private MapSessionRepository repository;
 
 	private MapSession session;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.repository = new MapSessionRepository(new ConcurrentHashMap<>());
 		this.session = new MapSession();
 	}
 
 	@Test
-	public void getSessionExpired() {
+	void getSessionExpired() {
 		this.session.setMaxInactiveInterval(Duration.ofSeconds(1));
 		this.session.setLastAccessedTime(Instant.now().minus(5, ChronoUnit.MINUTES));
 		this.repository.save(this.session);
@@ -51,29 +51,25 @@ public class MapSessionRepositoryTests {
 	}
 
 	@Test
-	public void createSessionDefaultExpiration() {
+	void createSessionDefaultExpiration() {
 		Session session = this.repository.createSession();
 
 		assertThat(session).isInstanceOf(MapSession.class);
-		assertThat(session.getMaxInactiveInterval())
-				.isEqualTo(new MapSession().getMaxInactiveInterval());
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
 	}
 
 	@Test
-	public void createSessionCustomDefaultExpiration() {
-		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval()
-				.plusSeconds(10);
-		this.repository.setDefaultMaxInactiveInterval(
-				(int) expectedMaxInterval.getSeconds());
+	void createSessionCustomDefaultExpiration() {
+		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval().plusSeconds(10);
+		this.repository.setDefaultMaxInactiveInterval((int) expectedMaxInterval.getSeconds());
 
 		Session session = this.repository.createSession();
 
-		assertThat(session.getMaxInactiveInterval())
-				.isEqualTo(expectedMaxInterval);
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(expectedMaxInterval);
 	}
 
 	@Test
-	public void changeSessionIdWhenNotYetSaved() {
+	void changeSessionIdWhenNotYetSaved() {
 		MapSession createSession = this.repository.createSession();
 
 		String originalId = createSession.getId();
@@ -86,7 +82,7 @@ public class MapSessionRepositoryTests {
 	}
 
 	@Test
-	public void changeSessionIdWhenSaved() {
+	void changeSessionIdWhenSaved() {
 		MapSession createSession = this.repository.createSession();
 
 		this.repository.save(createSession);
@@ -101,7 +97,7 @@ public class MapSessionRepositoryTests {
 	}
 
 	@Test // gh-1120
-	public void getAttributeNamesAndRemove() {
+	void getAttributeNamesAndRemove() {
 		MapSession session = this.repository.createSession();
 		session.setAttribute("attribute1", "value1");
 		session.setAttribute("attribute2", "value2");

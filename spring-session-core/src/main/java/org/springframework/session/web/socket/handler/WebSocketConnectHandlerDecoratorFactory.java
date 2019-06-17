@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,24 +38,19 @@ import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
  *
  * @author Rob Winch
  * @since 1.0
- *
  * @see WebSocketRegistryListener
  */
-public final class WebSocketConnectHandlerDecoratorFactory
-		implements WebSocketHandlerDecoratorFactory {
+public final class WebSocketConnectHandlerDecoratorFactory implements WebSocketHandlerDecoratorFactory {
 
-	private static final Log logger = LogFactory
-			.getLog(WebSocketConnectHandlerDecoratorFactory.class);
+	private static final Log logger = LogFactory.getLog(WebSocketConnectHandlerDecoratorFactory.class);
 
 	private final ApplicationEventPublisher eventPublisher;
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param eventPublisher the {@link ApplicationEventPublisher} to use. Cannot be null.
 	 */
-	public WebSocketConnectHandlerDecoratorFactory(
-			ApplicationEventPublisher eventPublisher) {
+	public WebSocketConnectHandlerDecoratorFactory(ApplicationEventPublisher eventPublisher) {
 		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
 		this.eventPublisher = eventPublisher;
 	}
@@ -72,8 +67,7 @@ public final class WebSocketConnectHandlerDecoratorFactory
 		}
 
 		@Override
-		public void afterConnectionEstablished(WebSocketSession wsSession)
-				throws Exception {
+		public void afterConnectionEstablished(WebSocketSession wsSession) throws Exception {
 			super.afterConnectionEstablished(wsSession);
 
 			publishEvent(new SessionConnectEvent(this, wsSession));
@@ -81,12 +75,13 @@ public final class WebSocketConnectHandlerDecoratorFactory
 
 		private void publishEvent(ApplicationEvent event) {
 			try {
-				WebSocketConnectHandlerDecoratorFactory.this.eventPublisher
-						.publishEvent(event);
+				WebSocketConnectHandlerDecoratorFactory.this.eventPublisher.publishEvent(event);
 			}
 			catch (Throwable ex) {
 				logger.error("Error publishing " + event + ".", ex);
 			}
 		}
+
 	}
+
 }

@@ -41,15 +41,14 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
+class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 
 	@Autowired
 	private ReactiveRedisOperationsSessionRepository repository;
 
 	@Test
-	public void saves() throws InterruptedException {
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+	void saves() throws InterruptedException {
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
@@ -70,9 +69,8 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 	}
 
 	@Test // gh-1399
-	public void saveMultipleTimes() {
-		ReactiveRedisOperationsSessionRepository.RedisSession session = this.repository
-				.createSession().block();
+	void saveMultipleTimes() {
+		ReactiveRedisOperationsSessionRepository.RedisSession session = this.repository.createSession().block();
 		session.setAttribute("attribute1", "value1");
 		Mono<Void> save1 = this.repository.save(session);
 		session.setAttribute("attribute2", "value2");
@@ -81,9 +79,8 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 	}
 
 	@Test
-	public void putAllOnSingleAttrDoesNotRemoveOld() {
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+	void putAllOnSingleAttrDoesNotRemoveOld() {
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 		toSave.setAttribute("a", "b");
 
 		this.repository.save(toSave).block();
@@ -103,17 +100,16 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 	}
 
 	@Test
-	public void changeSessionIdWhenOnlyChangeId() throws Exception {
+	void changeSessionIdWhenOnlyChangeId() throws Exception {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 		toSave.setAttribute(attrName, attrValue);
 
 		this.repository.save(toSave).block();
 
-		ReactiveRedisOperationsSessionRepository.RedisSession findById = this.repository
-				.findById(toSave.getId()).block();
+		ReactiveRedisOperationsSessionRepository.RedisSession findById = this.repository.findById(toSave.getId())
+				.block();
 
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
@@ -127,14 +123,12 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 		ReactiveRedisOperationsSessionRepository.RedisSession findByChangeSessionId = this.repository
 				.findById(changeSessionId).block();
 
-		assertThat(findByChangeSessionId.<String>getAttribute(attrName))
-				.isEqualTo(attrValue);
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
 	}
 
 	@Test
-	public void changeSessionIdWhenChangeTwice() throws Exception {
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+	void changeSessionIdWhenChangeTwice() throws Exception {
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 
 		this.repository.save(toSave).block();
 
@@ -150,17 +144,16 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 	}
 
 	@Test
-	public void changeSessionIdWhenSetAttributeOnChangedSession() throws Exception {
+	void changeSessionIdWhenSetAttributeOnChangedSession() throws Exception {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 
 		this.repository.save(toSave).block();
 
-		ReactiveRedisOperationsSessionRepository.RedisSession findById = this.repository
-				.findById(toSave.getId()).block();
+		ReactiveRedisOperationsSessionRepository.RedisSession findById = this.repository.findById(toSave.getId())
+				.block();
 
 		findById.setAttribute(attrName, attrValue);
 
@@ -174,14 +167,12 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 		ReactiveRedisOperationsSessionRepository.RedisSession findByChangeSessionId = this.repository
 				.findById(changeSessionId).block();
 
-		assertThat(findByChangeSessionId.<String>getAttribute(attrName))
-				.isEqualTo(attrValue);
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
 	}
 
 	@Test
-	public void changeSessionIdWhenHasNotSaved() throws Exception {
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+	void changeSessionIdWhenHasNotSaved() throws Exception {
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 		String originalId = toSave.getId();
 		toSave.changeSessionId();
 
@@ -193,9 +184,8 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 
 	// gh-954
 	@Test
-	public void changeSessionIdSaveTwice() {
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+	void changeSessionIdSaveTwice() {
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 		String originalId = toSave.getId();
 		toSave.changeSessionId();
 
@@ -208,23 +198,20 @@ public class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedi
 
 	// gh-1111
 	@Test
-	public void changeSessionSaveOldSessionInstance() {
-		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository
-				.createSession().block();
+	void changeSessionSaveOldSessionInstance() {
+		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 		String sessionId = toSave.getId();
 
 		this.repository.save(toSave).block();
 
-		ReactiveRedisOperationsSessionRepository.RedisSession session = this.repository
-				.findById(sessionId).block();
+		ReactiveRedisOperationsSessionRepository.RedisSession session = this.repository.findById(sessionId).block();
 		session.changeSessionId();
 		session.setLastAccessedTime(Instant.now());
 		this.repository.save(session).block();
 
 		toSave.setLastAccessedTime(Instant.now());
 
-		assertThatIllegalStateException()
-				.isThrownBy(() -> this.repository.save(toSave).block())
+		assertThatIllegalStateException().isThrownBy(() -> this.repository.save(toSave).block())
 				.withMessage("Session was invalidated");
 
 		assertThat(this.repository.findById(sessionId).block()).isNull();

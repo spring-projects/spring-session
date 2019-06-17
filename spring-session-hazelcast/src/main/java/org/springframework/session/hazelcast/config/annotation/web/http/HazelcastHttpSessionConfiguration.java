@@ -47,8 +47,7 @@ import org.springframework.util.StringUtils;
  * @see EnableHazelcastHttpSession
  */
 @Configuration(proxyBeanMethods = false)
-public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements ImportAware {
+public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
@@ -62,14 +61,12 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	@Bean
 	public HazelcastSessionRepository sessionRepository() {
-		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(
-				this.hazelcastInstance);
+		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(this.hazelcastInstance);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
 		if (StringUtils.hasText(this.sessionMapName)) {
 			sessionRepository.setSessionMapName(this.sessionMapName);
 		}
-		sessionRepository
-				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setHazelcastFlushMode(this.hazelcastFlushMode);
 		return sessionRepository;
 	}
@@ -90,8 +87,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	public void setHazelcastInstance(
 			@SpringSessionHazelcastInstance ObjectProvider<HazelcastInstance> springSessionHazelcastInstance,
 			ObjectProvider<HazelcastInstance> hazelcastInstance) {
-		HazelcastInstance hazelcastInstanceToUse = springSessionHazelcastInstance
-				.getIfAvailable();
+		HazelcastInstance hazelcastInstanceToUse = springSessionHazelcastInstance.getIfAvailable();
 		if (hazelcastInstanceToUse == null) {
 			hazelcastInstanceToUse = hazelcastInstance.getObject();
 		}
@@ -99,8 +95,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	}
 
 	@Autowired
-	public void setApplicationEventPublisher(
-			ApplicationEventPublisher applicationEventPublisher) {
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
@@ -109,8 +104,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
-		this.maxInactiveIntervalInSeconds =
-				attributes.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
 		String sessionMapNameValue = attributes.getString("sessionMapName");
 		if (StringUtils.hasText(sessionMapNameValue)) {
 			this.sessionMapName = sessionMapNameValue;

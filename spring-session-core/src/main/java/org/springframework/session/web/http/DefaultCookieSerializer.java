@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,15 +97,12 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (this.cookieName.equals(cookie.getName())) {
-					String sessionId = (this.useBase64Encoding
-							? base64Decode(cookie.getValue())
-							: cookie.getValue());
+					String sessionId = (this.useBase64Encoding ? base64Decode(cookie.getValue()) : cookie.getValue());
 					if (sessionId == null) {
 						continue;
 					}
 					if (this.jvmRoute != null && sessionId.endsWith(this.jvmRoute)) {
-						sessionId = sessionId.substring(0,
-								sessionId.length() - this.jvmRoute.length());
+						sessionId = sessionId.substring(0, sessionId.length() - this.jvmRoute.length());
 					}
 					matchingCookieValues.add(sessionId);
 				}
@@ -135,11 +132,9 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		int maxAge = getMaxAge(cookieValue);
 		if (maxAge > -1) {
 			sb.append("; Max-Age=").append(cookieValue.getCookieMaxAge());
-			OffsetDateTime expires = (maxAge != 0)
-					? OffsetDateTime.now().plusSeconds(maxAge)
+			OffsetDateTime expires = (maxAge != 0) ? OffsetDateTime.now().plusSeconds(maxAge)
 					: Instant.EPOCH.atOffset(ZoneOffset.UTC);
-			sb.append("; Expires=")
-					.append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+			sb.append("; Expires=").append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		}
 		String domain = getDomainName(request);
 		if (domain != null && domain.length() > 0) {
@@ -214,10 +209,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		char[] chars = value.toCharArray();
 		for (int i = start; i < end; i++) {
 			char c = chars[i];
-			if (c < 0x21 || c == 0x22 || c == 0x2c || c == 0x3b || c == 0x5c
-					|| c == 0x7f) {
-				throw new IllegalArgumentException(
-						"Invalid character in cookie value: " + Integer.toString(c));
+			if (c < 0x21 || c == 0x22 || c == 0x2c || c == 0x3b || c == 0x5c || c == 0x7f) {
+				throw new IllegalArgumentException("Invalid character in cookie value: " + Integer.toString(c));
 			}
 		}
 	}
@@ -225,8 +218,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	private int getMaxAge(CookieValue cookieValue) {
 		int maxAge = cookieValue.getCookieMaxAge();
 		if (maxAge < 0) {
-			if (this.rememberMeRequestAttribute != null && cookieValue.getRequest()
-					.getAttribute(this.rememberMeRequestAttribute) != null) {
+			if (this.rememberMeRequestAttribute != null
+					&& cookieValue.getRequest().getAttribute(this.rememberMeRequestAttribute) != null) {
 				// the cookie is only written at time of session creation, so we rely on
 				// session expiration rather than cookie expiration if remember me is
 				// enabled
@@ -247,8 +240,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		while (i < chars.length) {
 			prev = cur;
 			cur = chars[i];
-			if (!domainValid.get(cur)
-					|| ((prev == '.' || prev == -1) && (cur == '.' || cur == '-'))
+			if (!domainValid.get(cur) || ((prev == '.' || prev == -1) && (cur == '.' || cur == '-'))
 					|| (prev == '-' && cur == '.')) {
 				throw new IllegalArgumentException("Invalid cookie domain: " + domain);
 			}
@@ -270,7 +262,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	/**
 	 * Sets if a Cookie marked as secure should be used. The default is to use the value
 	 * of {@link HttpServletRequest#isSecure()}.
-	 *
 	 * @param useSecureCookie determines if the cookie should be marked as secure.
 	 */
 	public void setUseSecureCookie(boolean useSecureCookie) {
@@ -279,7 +270,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	/**
 	 * Sets if a Cookie marked as HTTP Only should be used. The default is true.
-	 *
 	 * @param useHttpOnlyCookie determines if the cookie should be marked as HTTP Only.
 	 */
 	public void setUseHttpOnlyCookie(boolean useHttpOnlyCookie) {
@@ -296,7 +286,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	/**
 	 * Sets the path of the Cookie. The default is to use the context path from the
 	 * {@link HttpServletRequest}.
-	 *
 	 * @param cookiePath the path of the Cookie. If null, the default of the context path
 	 * will be used.
 	 */
@@ -314,7 +303,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	/**
 	 * Sets the maxAge property of the Cookie. The default is to delete the cookie when
 	 * the browser is closed.
-	 *
 	 * @param cookieMaxAge the maxAge property of the Cookie
 	 */
 	public void setCookieMaxAge(int cookieMaxAge) {
@@ -325,14 +313,12 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * Sets an explicit Domain Name. This allow the domain of "example.com" to be used
 	 * when the request comes from www.example.com. This allows for sharing the cookie
 	 * across subdomains. The default is to use the current domain.
-	 *
 	 * @param domainName the name of the domain to use. (i.e. "example.com")
 	 * @throws IllegalStateException if the domainNamePattern is also set
 	 */
 	public void setDomainName(String domainName) {
 		if (this.domainNamePattern != null) {
-			throw new IllegalStateException(
-					"Cannot set both domainName and domainNamePattern");
+			throw new IllegalStateException("Cannot set both domainName and domainNamePattern");
 		}
 		this.domainName = domainName;
 	}
@@ -362,18 +348,15 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * <li>localhost - null</li>
 	 * <li>127.0.1.1 - null</li>
 	 * </ul>
-	 *
 	 * @param domainNamePattern the case insensitive pattern to extract the domain name
 	 * with
 	 * @throws IllegalStateException if the domainName is also set
 	 */
 	public void setDomainNamePattern(String domainNamePattern) {
 		if (this.domainName != null) {
-			throw new IllegalStateException(
-					"Cannot set both domainName and domainNamePattern");
+			throw new IllegalStateException("Cannot set both domainName and domainNamePattern");
 		}
-		this.domainNamePattern = Pattern.compile(domainNamePattern,
-				Pattern.CASE_INSENSITIVE);
+		this.domainNamePattern = Pattern.compile(domainNamePattern, Pattern.CASE_INSENSITIVE);
 	}
 
 	/**
@@ -390,7 +373,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * To use set a custom route on each JVM instance and setup a frontend proxy to
 	 * forward all requests to the JVM based on the route.
 	 * </p>
-	 *
 	 * @param jvmRoute the JVM Route to use (i.e. "node01jvmA", "n01ja", etc)
 	 */
 	public void setJvmRoute(String jvmRoute) {
@@ -401,7 +383,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * Set if the Base64 encoding of cookie value should be used. This is valuable in
 	 * order to support <a href="https://tools.ietf.org/html/rfc6265">RFC 6265</a> which
 	 * recommends using Base 64 encoding to the cookie value.
-	 *
 	 * @param useBase64Encoding the flag to indicate whether to use Base64 encoding
 	 */
 	public void setUseBase64Encoding(boolean useBase64Encoding) {
@@ -416,8 +397,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 */
 	public void setRememberMeRequestAttribute(String rememberMeRequestAttribute) {
 		if (rememberMeRequestAttribute == null) {
-			throw new IllegalArgumentException(
-					"rememberMeRequestAttribute cannot be null");
+			throw new IllegalArgumentException("rememberMeRequestAttribute cannot be null");
 		}
 		this.rememberMeRequestAttribute = rememberMeRequestAttribute;
 	}

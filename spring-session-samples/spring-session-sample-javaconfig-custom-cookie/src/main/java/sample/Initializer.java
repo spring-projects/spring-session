@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,14 @@ package sample;
 
 import org.springframework.session.web.context.AbstractHttpSessionApplicationInitializer;
 
+// @formatter:off
 // tag::class[]
 public class Initializer extends AbstractHttpSessionApplicationInitializer { // <1>
 
 	public Initializer() {
 		super(Config.class); // <2>
 	}
+
 }
 // end::class[]
+// @formatter:on

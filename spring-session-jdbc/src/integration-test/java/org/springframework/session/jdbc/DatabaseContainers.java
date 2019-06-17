@@ -78,9 +78,8 @@ final class DatabaseContainers {
 		@Override
 		protected void configure() {
 			super.configure();
-			setCommand("mysqld", "--character-set-server=utf8mb4",
-					"--collation-server=utf8mb4_unicode_ci", "--innodb_large_prefix",
-					"--innodb_file_format=barracuda", "--innodb-file-per-table");
+			setCommand("mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci",
+					"--innodb_large_prefix", "--innodb_file_format=barracuda", "--innodb-file-per-table");
 		}
 
 	}
@@ -94,8 +93,7 @@ final class DatabaseContainers {
 		@Override
 		protected void configure() {
 			super.configure();
-			setCommand("mysqld", "--character-set-server=utf8mb4",
-					"--collation-server=utf8mb4_unicode_ci");
+			setCommand("mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
 		}
 
 	}
@@ -109,8 +107,7 @@ final class DatabaseContainers {
 		@Override
 		protected void configure() {
 			super.configure();
-			setCommand("mysqld", "--character-set-server=utf8mb4",
-					"--collation-server=utf8mb4_unicode_ci");
+			setCommand("mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci");
 		}
 
 		@Override
@@ -139,8 +136,7 @@ final class DatabaseContainers {
 
 	}
 
-	private static class PostgreSql9Container
-			extends PostgreSQLContainer<PostgreSql9Container> {
+	private static class PostgreSql9Container extends PostgreSQLContainer<PostgreSql9Container> {
 
 		PostgreSql9Container() {
 			super("postgres:9.6.13");
@@ -148,8 +144,7 @@ final class DatabaseContainers {
 
 	}
 
-	private static class PostgreSql10Container
-			extends PostgreSQLContainer<PostgreSql10Container> {
+	private static class PostgreSql10Container extends PostgreSQLContainer<PostgreSql10Container> {
 
 		PostgreSql10Container() {
 			super("postgres:10.8");
@@ -157,8 +152,7 @@ final class DatabaseContainers {
 
 	}
 
-	private static class PostgreSql11Container
-			extends PostgreSQLContainer<PostgreSql11Container> {
+	private static class PostgreSql11Container extends PostgreSQLContainer<PostgreSql11Container> {
 
 		PostgreSql11Container() {
 			super("postgres:11.3");
@@ -166,8 +160,7 @@ final class DatabaseContainers {
 
 	}
 
-	private static class SqlServer2017Container
-			extends MSSQLServerContainer<SqlServer2017Container> {
+	private static class SqlServer2017Container extends MSSQLServerContainer<SqlServer2017Container> {
 
 		SqlServer2017Container() {
 			super("mcr.microsoft.com/mssql/server:2017-CU15");

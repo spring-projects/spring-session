@@ -27,12 +27,12 @@ import org.springframework.web.server.session.WebSessionIdResolver;
 import org.springframework.web.server.session.WebSessionManager;
 
 /**
- * Wire up a {@link WebSessionManager} using a Reactive {@link ReactiveSessionRepository} from the application context.
+ * Wire up a {@link WebSessionManager} using a Reactive {@link ReactiveSessionRepository}
+ * from the application context.
  *
  * @author Greg Turnquist
  * @author Rob Winch
  * @since 2.0
- *
  * @see EnableSpringWebSession
  */
 @Configuration(proxyBeanMethods = false)
@@ -45,10 +45,11 @@ public class SpringWebSessionConfiguration {
 	private WebSessionIdResolver webSessionIdResolver;
 
 	/**
-	 * Configure a {@link WebSessionManager} using a provided {@link ReactiveSessionRepository}.
-	 *
+	 * Configure a {@link WebSessionManager} using a provided
+	 * {@link ReactiveSessionRepository}.
 	 * @param repository a bean that implements {@link ReactiveSessionRepository}.
-	 * @return a configured {@link WebSessionManager} registered with a preconfigured name.
+	 * @return a configured {@link WebSessionManager} registered with a preconfigured
+	 * name.
 	 */
 	@Bean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME)
 	public WebSessionManager webSessionManager(ReactiveSessionRepository<? extends Session> repository) {
@@ -62,4 +63,5 @@ public class SpringWebSessionConfiguration {
 
 		return manager;
 	}
+
 }

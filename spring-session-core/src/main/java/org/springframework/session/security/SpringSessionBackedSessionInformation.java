@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,23 +36,18 @@ import org.springframework.session.SessionRepository;
  * @author Vedran Pavic
  * @since 1.3
  */
-class SpringSessionBackedSessionInformation<S extends Session>
-		extends SessionInformation {
+class SpringSessionBackedSessionInformation<S extends Session> extends SessionInformation {
 
-	static final String EXPIRED_ATTR = SpringSessionBackedSessionInformation.class
-			.getName() + ".EXPIRED";
+	static final String EXPIRED_ATTR = SpringSessionBackedSessionInformation.class.getName() + ".EXPIRED";
 
-	private static final Log logger = LogFactory
-			.getLog(SpringSessionBackedSessionInformation.class);
+	private static final Log logger = LogFactory.getLog(SpringSessionBackedSessionInformation.class);
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private final SessionRepository<S> sessionRepository;
 
-	SpringSessionBackedSessionInformation(S session,
-			SessionRepository<S> sessionRepository) {
-		super(resolvePrincipal(session), session.getId(),
-				Date.from(session.getLastAccessedTime()));
+	SpringSessionBackedSessionInformation(S session, SessionRepository<S> sessionRepository) {
+		super(resolvePrincipal(session), session.getId(), Date.from(session.getLastAccessedTime()));
 		this.sessionRepository = sessionRepository;
 		Boolean expired = session.getAttribute(EXPIRED_ATTR);
 		if (Boolean.TRUE.equals(expired)) {
@@ -62,20 +57,16 @@ class SpringSessionBackedSessionInformation<S extends Session>
 
 	/**
 	 * Tries to determine the principal's name from the given Session.
-	 *
 	 * @param session the session
 	 * @return the principal's name, or empty String if it couldn't be determined
 	 */
 	private static String resolvePrincipal(Session session) {
-		String principalName = session
-				.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+		String principalName = session.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		if (principalName != null) {
 			return principalName;
 		}
-		SecurityContext securityContext = session
-				.getAttribute(SPRING_SECURITY_CONTEXT);
-		if (securityContext != null
-				&& securityContext.getAuthentication() != null) {
+		SecurityContext securityContext = session.getAttribute(SPRING_SECURITY_CONTEXT);
+		if (securityContext != null && securityContext.getAuthentication() != null) {
 			return securityContext.getAuthentication().getName();
 		}
 		return "";
@@ -84,9 +75,8 @@ class SpringSessionBackedSessionInformation<S extends Session>
 	@Override
 	public void expireNow() {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Expiring session " + getSessionId() + " for user '"
-					+ getPrincipal() + "', presumably because maximum allowed concurrent "
-					+ "sessions was exceeded");
+			logger.debug("Expiring session " + getSessionId() + " for user '" + getPrincipal()
+					+ "', presumably because maximum allowed concurrent " + "sessions was exceeded");
 		}
 		super.expireNow();
 		S session = this.sessionRepository.findById(getSessionId());
@@ -95,8 +85,7 @@ class SpringSessionBackedSessionInformation<S extends Session>
 			this.sessionRepository.save(session);
 		}
 		else {
-			logger.info("Could not find Session with id " + getSessionId()
-					+ " to mark as expired");
+			logger.info("Could not find Session with id " + getSessionId() + " to mark as expired");
 		}
 	}
 

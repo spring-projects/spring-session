@@ -37,19 +37,18 @@ import javax.servlet.http.HttpServletResponse;
  * @since 1.0
  */
 abstract class OncePerRequestFilter implements Filter {
+
 	/**
 	 * Suffix that gets appended to the filter name for the "already filtered" request
 	 * attribute.
 	 */
 	public static final String ALREADY_FILTERED_SUFFIX = ".FILTERED";
 
-	private String alreadyFilteredAttributeName = getClass().getName()
-			.concat(ALREADY_FILTERED_SUFFIX);
+	private String alreadyFilteredAttributeName = getClass().getName().concat(ALREADY_FILTERED_SUFFIX);
 
 	/**
-	 * This {@code doFilter} implementation stores a request attribute for
-	 * "already filtered", proceeding without filtering again if the attribute is already
-	 * there.
+	 * This {@code doFilter} implementation stores a request attribute for "already
+	 * filtered", proceeding without filtering again if the attribute is already there.
 	 * @param request the request
 	 * @param response the response
 	 * @param filterChain the filter chain
@@ -57,21 +56,17 @@ abstract class OncePerRequestFilter implements Filter {
 	 * @throws IOException in case of I/O operation exception
 	 */
 	@Override
-	public final void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain filterChain) throws ServletException, IOException {
+	public final void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
 
-		if (!(request instanceof HttpServletRequest)
-				|| !(response instanceof HttpServletResponse)) {
-			throw new ServletException(
-					"OncePerRequestFilter just supports HTTP requests");
+		if (!(request instanceof HttpServletRequest) || !(response instanceof HttpServletResponse)) {
+			throw new ServletException("OncePerRequestFilter just supports HTTP requests");
 		}
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String alreadyFilteredAttributeName = this.alreadyFilteredAttributeName;
-		alreadyFilteredAttributeName = updateForErrorDispatch(
-				alreadyFilteredAttributeName, request);
-		boolean hasAlreadyFilteredAttribute = request
-				.getAttribute(alreadyFilteredAttributeName) != null;
+		alreadyFilteredAttributeName = updateForErrorDispatch(alreadyFilteredAttributeName, request);
+		boolean hasAlreadyFilteredAttribute = request.getAttribute(alreadyFilteredAttributeName) != null;
 
 		if (hasAlreadyFilteredAttribute) {
 
@@ -91,9 +86,9 @@ abstract class OncePerRequestFilter implements Filter {
 		}
 	}
 
-	private String updateForErrorDispatch(String alreadyFilteredAttributeName,
-			ServletRequest request) {
-		// Jetty does ERROR dispatch within sendError, so request attribute is still present
+	private String updateForErrorDispatch(String alreadyFilteredAttributeName, ServletRequest request) {
+		// Jetty does ERROR dispatch within sendError, so request attribute is still
+		// present
 		// Use a separate attribute for ERROR dispatches
 		if (DispatcherType.ERROR.equals(request.getDispatcherType())
 				&& request.getAttribute(alreadyFilteredAttributeName) != null) {
@@ -108,7 +103,6 @@ abstract class OncePerRequestFilter implements Filter {
 	 * <p>
 	 * Provides HttpServletRequest and HttpServletResponse arguments instead of the
 	 * default ServletRequest and ServletResponse ones.
-	 *
 	 * @param request the request
 	 * @param response the response
 	 * @param filterChain the FilterChain
@@ -116,9 +110,8 @@ abstract class OncePerRequestFilter implements Filter {
 	 * @throws IOException thrown when an I/O exception of some sort has occurred
 	 * @see Filter#doFilter
 	 */
-	protected abstract void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain)
-					throws ServletException, IOException;
+	protected abstract void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+			FilterChain filterChain) throws ServletException, IOException;
 
 	@Override
 	public void init(FilterConfig config) {
@@ -127,4 +120,5 @@ abstract class OncePerRequestFilter implements Filter {
 	@Override
 	public void destroy() {
 	}
+
 }

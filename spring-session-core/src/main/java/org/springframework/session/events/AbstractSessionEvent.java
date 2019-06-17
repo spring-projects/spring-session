@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ public abstract class AbstractSessionEvent extends ApplicationEvent {
 	 * Gets the {@link Session} that was destroyed. For some {@link SessionRepository}
 	 * implementations it may not be possible to get the original session in which case
 	 * this may be null.
-	 *
 	 * @param <S> the type of Session
 	 * @return the expired {@link Session} or null if the data store does not support
 	 * obtaining it

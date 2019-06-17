@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class AttributeTests {
+class AttributeTests {
 
 	private static final String DOCKER_IMAGE = "redis:5.0.5";
 
@@ -55,29 +55,29 @@ public class AttributeTests {
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.driver = new HtmlUnitDriver();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void home() {
+	void home() {
 		HomePage home = HomePage.go(this.driver, this.port);
 		home.assertAt();
 	}
 
 	@Test
-	public void noAttributes() {
+	void noAttributes() {
 		HomePage home = HomePage.go(this.driver, this.port);
 		assertThat(home.attributes()).isEmpty();
 	}
 
 	@Test
-	public void createAttribute() {
+	void createAttribute() {
 		HomePage home = HomePage.go(this.driver, this.port);
 		// @formatter:off
 		home = home.form()
@@ -98,8 +98,7 @@ public class AttributeTests {
 
 		@Bean
 		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-					.withExposedPorts(6379);
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}

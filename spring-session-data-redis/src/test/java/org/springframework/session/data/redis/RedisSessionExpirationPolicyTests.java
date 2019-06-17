@@ -39,54 +39,52 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  */
-public class RedisSessionExpirationPolicyTests {
+class RedisSessionExpirationPolicyTests {
+
 	// Wed Apr 15 10:28:32 CDT 2015
 	static final Long NOW = 1429111712346L;
 
 	// Wed Apr 15 10:27:32 CDT 2015
-	static final Long ONE_MINUTE_AGO = 1429111652346L;
+	private static final Long ONE_MINUTE_AGO = 1429111652346L;
 
 	@Mock
 	RedisOperations<Object, Object> sessionRedisOperations;
+
 	@Mock
 	BoundSetOperations<Object, Object> setOperations;
+
 	@Mock
 	BoundHashOperations<Object, Object, Object> hashOperations;
+
 	@Mock
 	BoundValueOperations<Object, Object> valueOperations;
 
-	RedisSessionExpirationPolicy policy;
+	private RedisSessionExpirationPolicy policy;
 
 	private MapSession session;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		MockitoAnnotations.initMocks(this);
-		RedisOperationsSessionRepository repository = new RedisOperationsSessionRepository(
-				this.sessionRedisOperations);
-		this.policy = new RedisSessionExpirationPolicy(this.sessionRedisOperations,
-				repository::getExpirationsKey, repository::getSessionKey);
+		RedisOperationsSessionRepository repository = new RedisOperationsSessionRepository(this.sessionRedisOperations);
+		this.policy = new RedisSessionExpirationPolicy(this.sessionRedisOperations, repository::getExpirationsKey,
+				repository::getSessionKey);
 		this.session = new MapSession();
 		this.session.setLastAccessedTime(Instant.ofEpochMilli(1429116694675L));
 		this.session.setId("12345");
 
-		given(this.sessionRedisOperations.boundSetOps(anyString()))
-				.willReturn(this.setOperations);
-		given(this.sessionRedisOperations.boundHashOps(anyString()))
-				.willReturn(this.hashOperations);
-		given(this.sessionRedisOperations.boundValueOps(anyString()))
-				.willReturn(this.valueOperations);
+		given(this.sessionRedisOperations.boundSetOps(anyString())).willReturn(this.setOperations);
+		given(this.sessionRedisOperations.boundHashOps(anyString())).willReturn(this.hashOperations);
+		given(this.sessionRedisOperations.boundValueOps(anyString())).willReturn(this.valueOperations);
 	}
 
 	// gh-169
 	@Test
-	public void onExpirationUpdatedRemovesOriginalExpirationTimeRoundedUp()
-			throws Exception {
+	void onExpirationUpdatedRemovesOriginalExpirationTimeRoundedUp() throws Exception {
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
 		long originalRoundedToNextMinInMs = RedisSessionExpirationPolicy
 				.roundUpToNextMinute(originalExpirationTimeInMs);
-		String originalExpireKey = this.policy
-				.getExpirationKey(originalRoundedToNextMinInMs);
+		String originalExpireKey = this.policy.getExpirationKey(originalRoundedToNextMinInMs);
 
 		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);
 
@@ -96,14 +94,11 @@ public class RedisSessionExpirationPolicyTests {
 	}
 
 	@Test
-	public void onExpirationUpdatedDoNotSendDeleteWhenExpirationTimeDoesNotChange()
-			throws Exception {
-		long originalExpirationTimeInMs = RedisSessionExpirationPolicy
-				.expiresInMillis(this.session) - 10;
+	void onExpirationUpdatedDoNotSendDeleteWhenExpirationTimeDoesNotChange() throws Exception {
+		long originalExpirationTimeInMs = RedisSessionExpirationPolicy.expiresInMillis(this.session) - 10;
 		long originalRoundedToNextMinInMs = RedisSessionExpirationPolicy
 				.roundUpToNextMinute(originalExpirationTimeInMs);
-		String originalExpireKey = this.policy
-				.getExpirationKey(originalRoundedToNextMinInMs);
+		String originalExpireKey = this.policy.getExpirationKey(originalRoundedToNextMinInMs);
 
 		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);
 
@@ -113,36 +108,32 @@ public class RedisSessionExpirationPolicyTests {
 	}
 
 	@Test
-	public void onExpirationUpdatedAddsExpirationTimeRoundedUp() throws Exception {
-		long expirationTimeInMs = RedisSessionExpirationPolicy
-				.expiresInMillis(this.session);
-		long expirationRoundedUpInMs = RedisSessionExpirationPolicy
-				.roundUpToNextMinute(expirationTimeInMs);
+	void onExpirationUpdatedAddsExpirationTimeRoundedUp() throws Exception {
+		long expirationTimeInMs = RedisSessionExpirationPolicy.expiresInMillis(this.session);
+		long expirationRoundedUpInMs = RedisSessionExpirationPolicy.roundUpToNextMinute(expirationTimeInMs);
 		String expectedExpireKey = this.policy.getExpirationKey(expirationRoundedUpInMs);
 
 		this.policy.onExpirationUpdated(null, this.session);
 
 		verify(this.sessionRedisOperations).boundSetOps(expectedExpireKey);
 		verify(this.setOperations).add("expires:" + this.session.getId());
-		verify(this.setOperations).expire(
-				this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
+		verify(this.setOperations).expire(this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
 				TimeUnit.SECONDS);
 	}
 
 	@Test
-	public void onExpirationUpdatedSetExpireSession() throws Exception {
+	void onExpirationUpdatedSetExpireSession() throws Exception {
 		String sessionKey = this.policy.getSessionKey(this.session.getId());
 
 		this.policy.onExpirationUpdated(null, this.session);
 
 		verify(this.sessionRedisOperations).boundHashOps(sessionKey);
-		verify(this.hashOperations).expire(
-				this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
+		verify(this.hashOperations).expire(this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
 				TimeUnit.SECONDS);
 	}
 
 	@Test
-	public void onExpirationUpdatedDeleteOnZero() throws Exception {
+	void onExpirationUpdatedDeleteOnZero() throws Exception {
 		String sessionKey = this.policy.getSessionKey("expires:" + this.session.getId());
 
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
@@ -155,13 +146,12 @@ public class RedisSessionExpirationPolicyTests {
 		verify(this.setOperations).remove("expires:" + this.session.getId());
 		verify(this.setOperations).add("expires:" + this.session.getId());
 		verify(this.sessionRedisOperations).delete(sessionKey);
-		verify(this.setOperations).expire(
-				this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
+		verify(this.setOperations).expire(this.session.getMaxInactiveInterval().plusMinutes(5).getSeconds(),
 				TimeUnit.SECONDS);
 	}
 
 	@Test
-	public void onExpirationUpdatedPersistOnNegativeExpiration() throws Exception {
+	void onExpirationUpdatedPersistOnNegativeExpiration() throws Exception {
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
 
 		this.session.setMaxInactiveInterval(Duration.ofSeconds(-1));
@@ -173,4 +163,5 @@ public class RedisSessionExpirationPolicyTests {
 		verify(this.valueOperations).persist();
 		verify(this.hashOperations).persist();
 	}
+
 }

@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
+class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 
 	@Autowired
 	private SessionTaskExecutor executor;
@@ -54,10 +54,9 @@ public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITest
 	private RedisOperations<Object, Object> redis;
 
 	@Test
-	public void testRedisDelEventsAreDispatchedInSessionTaskExecutor()
-			throws InterruptedException {
-		BoundSetOperations<Object, Object> ops = this.redis.boundSetOps(
-				"spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
+	void testRedisDelEventsAreDispatchedInSessionTaskExecutor() throws InterruptedException {
+		BoundSetOperations<Object, Object> ops = this.redis
+				.boundSetOps("spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
 		ops.add("value");
 		ops.remove("value");
 		assertThat(this.executor.taskDispatched()).isTrue();
@@ -65,6 +64,7 @@ public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITest
 	}
 
 	static class SessionTaskExecutor implements TaskExecutor {
+
 		private Object lock = new Object();
 
 		private final Executor executor;
@@ -97,6 +97,7 @@ public class RedisListenerContainerTaskExecutorITests extends AbstractRedisITest
 			}
 			return (this.taskDispatched != null) ? this.taskDispatched : Boolean.FALSE;
 		}
+
 	}
 
 	@Configuration

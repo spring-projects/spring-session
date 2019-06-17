@@ -35,18 +35,15 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class DerbyJdbcOperationsSessionRepositoryITests
-		extends AbstractJdbcOperationsSessionRepositoryITests {
+class DerbyJdbcOperationsSessionRepositoryITests extends AbstractJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseConfig {
 
 		@Bean
 		public EmbeddedDatabase dataSource() {
-			return new EmbeddedDatabaseBuilder()
-					.setType(EmbeddedDatabaseType.DERBY)
-					.addScript("org/springframework/session/jdbc/schema-derby.sql")
-					.build();
+			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.DERBY)
+					.addScript("org/springframework/session/jdbc/schema-derby.sql").build();
 		}
 
 	}

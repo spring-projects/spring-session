@@ -41,16 +41,14 @@ import org.springframework.util.ClassUtils;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class OracleJdbcOperationsSessionRepositoryITests
-		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
+class OracleJdbcOperationsSessionRepositoryITests extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
 	@BeforeAll
-	public static void setUpClass() {
+	static void setUpClass() {
 		Assumptions.assumeTrue(ClassUtils.isPresent("oracle.jdbc.OracleDriver", null),
 				"Oracle JDBC driver is present on the classpath");
 		Assumptions.assumeTrue(
-				TestcontainersConfiguration.getInstance().getProperties()
-						.getProperty("oracle.container.image") != null,
+				TestcontainersConfiguration.getInstance().getProperties().getProperty("oracle.container.image") != null,
 				"Testcontainers property `oracle.container.image` is set");
 	}
 

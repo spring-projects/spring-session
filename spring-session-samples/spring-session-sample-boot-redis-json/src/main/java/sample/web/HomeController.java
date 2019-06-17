@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,11 +30,11 @@ public class HomeController {
 
 	@RequestMapping("/setValue")
 	public String setValue(@RequestParam(name = "key", required = false) String key,
-			@RequestParam(name = "value", required = false) String value,
-			HttpServletRequest request) {
+			@RequestParam(name = "value", required = false) String value, HttpServletRequest request) {
 		if (!ObjectUtils.isEmpty(key) && !ObjectUtils.isEmpty(value)) {
 			request.getSession().setAttribute(key, value);
 		}
 		return "home";
 	}
+
 }

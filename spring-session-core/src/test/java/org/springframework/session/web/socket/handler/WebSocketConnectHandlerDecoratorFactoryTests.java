@@ -35,33 +35,36 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.verify;
 
-public class WebSocketConnectHandlerDecoratorFactoryTests {
+class WebSocketConnectHandlerDecoratorFactoryTests {
+
 	@Mock
 	ApplicationEventPublisher eventPublisher;
+
 	@Mock
 	WebSocketHandler delegate;
+
 	@Mock
 	WebSocketSession session;
+
 	@Captor
 	ArgumentCaptor<SessionConnectEvent> event;
 
-	WebSocketConnectHandlerDecoratorFactory factory;
+	private WebSocketConnectHandlerDecoratorFactory factory;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		MockitoAnnotations.initMocks(this);
 		this.factory = new WebSocketConnectHandlerDecoratorFactory(this.eventPublisher);
 	}
 
 	@Test
-	public void constructorNullEventPublisher() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new WebSocketConnectHandlerDecoratorFactory(null))
+	void constructorNullEventPublisher() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new WebSocketConnectHandlerDecoratorFactory(null))
 				.withMessage("eventPublisher cannot be null");
 	}
 
 	@Test
-	public void decorateAfterConnectionEstablished() throws Exception {
+	void decorateAfterConnectionEstablished() throws Exception {
 		WebSocketHandler decorated = this.factory.decorate(this.delegate);
 
 		decorated.afterConnectionEstablished(this.session);
@@ -71,13 +74,14 @@ public class WebSocketConnectHandlerDecoratorFactoryTests {
 	}
 
 	@Test
-	public void decorateAfterConnectionEstablishedEventError() throws Exception {
+	void decorateAfterConnectionEstablishedEventError() throws Exception {
 		WebSocketHandler decorated = this.factory.decorate(this.delegate);
-		willThrow(new IllegalStateException("Test throw on publishEvent"))
-				.given(this.eventPublisher).publishEvent(any(ApplicationEvent.class));
+		willThrow(new IllegalStateException("Test throw on publishEvent")).given(this.eventPublisher)
+				.publishEvent(any(ApplicationEvent.class));
 
 		decorated.afterConnectionEstablished(this.session);
 
 		verify(this.eventPublisher).publishEvent(any(SessionConnectEvent.class));
 	}
+
 }

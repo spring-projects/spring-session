@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ public class SessionConfig implements BeanClassLoaderAware {
 	/**
 	 * Customized {@link ObjectMapper} to add mix-in for class that doesn't have default
 	 * constructors
-	 *
 	 * @return the {@link ObjectMapper} to use
 	 */
 	private ObjectMapper objectMapper() {
@@ -60,4 +59,5 @@ public class SessionConfig implements BeanClassLoaderAware {
 	public void setBeanClassLoader(ClassLoader classLoader) {
 		this.loader = classLoader;
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,10 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 
-public class WebSocketConnectHandler<S>
-		implements ApplicationListener<SessionConnectEvent> {
+public class WebSocketConnectHandler<S> implements ApplicationListener<SessionConnectEvent> {
+
 	private ActiveWebSocketUserRepository repository;
+
 	private SimpMessageSendingOperations messagingTemplate;
 
 	public WebSocketConnectHandler(SimpMessageSendingOperations messagingTemplate,
@@ -49,9 +50,8 @@ public class WebSocketConnectHandler<S>
 			return;
 		}
 		String id = SimpMessageHeaderAccessor.getSessionId(headers);
-		this.repository.save(
-				new ActiveWebSocketUser(id, user.getName(), Calendar.getInstance()));
-		this.messagingTemplate.convertAndSend("/topic/friends/signin",
-				Arrays.asList(user.getName()));
+		this.repository.save(new ActiveWebSocketUser(id, user.getName(), Calendar.getInstance()));
+		this.messagingTemplate.convertAndSend("/topic/friends/signin", Arrays.asList(user.getName()));
 	}
+
 }

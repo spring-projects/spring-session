@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.session.events.AbstractSessionEvent;
 
 public class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
+
 	private Map<String, AbstractSessionEvent> events = new HashMap<>();
+
 	private ConcurrentMap<String, Object> locks = new ConcurrentHashMap<>();
 
 	@Override
@@ -48,14 +50,12 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 	}
 
 	@SuppressWarnings("unchecked")
-	public <E extends AbstractSessionEvent> E getEvent(String sessionId)
-			throws InterruptedException {
+	public <E extends AbstractSessionEvent> E getEvent(String sessionId) throws InterruptedException {
 		return (E) waitForEvent(sessionId);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <E extends AbstractSessionEvent> E waitForEvent(String sessionId)
-			throws InterruptedException {
+	private <E extends AbstractSessionEvent> E waitForEvent(String sessionId) throws InterruptedException {
 		Object lock = getLock(sessionId);
 		synchronized (lock) {
 			if (!this.events.containsKey(sessionId)) {
@@ -68,4 +68,5 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 	private Object getLock(String sessionId) {
 		return this.locks.computeIfAbsent(sessionId, (k) -> new Object());
 	}
+
 }

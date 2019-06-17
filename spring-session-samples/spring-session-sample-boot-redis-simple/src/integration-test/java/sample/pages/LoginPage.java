@@ -60,6 +60,7 @@ public class LoginPage extends BasePage {
 			this.button.click();
 			return PageFactory.initElements(getDriver(), page);
 		}
+
 	}
 
 }

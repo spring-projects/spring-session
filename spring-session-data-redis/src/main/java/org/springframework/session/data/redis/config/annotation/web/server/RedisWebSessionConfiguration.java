@@ -76,8 +76,7 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		ReactiveRedisTemplate<String, Object> reactiveRedisTemplate = createReactiveRedisTemplate();
 		ReactiveRedisOperationsSessionRepository sessionRepository = new ReactiveRedisOperationsSessionRepository(
 				reactiveRedisTemplate);
-		sessionRepository
-				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		if (StringUtils.hasText(this.redisNamespace)) {
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
@@ -112,8 +111,7 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	@Autowired(required = false)
 	@Qualifier("springSessionDefaultRedisSerializer")
-	public void setDefaultRedisSerializer(
-			RedisSerializer<Object> defaultRedisSerializer) {
+	public void setDefaultRedisSerializer(RedisSerializer<Object> defaultRedisSerializer) {
 		this.defaultRedisSerializer = defaultRedisSerializer;
 	}
 
@@ -132,26 +130,22 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableRedisWebSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
-		this.maxInactiveIntervalInSeconds = attributes
-				.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
 		String redisNamespaceValue = attributes.getString("redisNamespace");
 		if (StringUtils.hasText(redisNamespaceValue)) {
-			this.redisNamespace = this.embeddedValueResolver
-					.resolveStringValue(redisNamespaceValue);
+			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
 		}
 		this.redisFlushMode = attributes.getEnum("redisFlushMode");
 	}
 
 	private ReactiveRedisTemplate<String, Object> createReactiveRedisTemplate() {
 		RedisSerializer<String> keySerializer = new StringRedisSerializer();
-		RedisSerializer<Object> defaultSerializer = (this.defaultRedisSerializer != null)
-				? this.defaultRedisSerializer
+		RedisSerializer<Object> defaultSerializer = (this.defaultRedisSerializer != null) ? this.defaultRedisSerializer
 				: new JdkSerializationRedisSerializer(this.classLoader);
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-				.<String, Object>newSerializationContext(defaultSerializer)
-				.key(keySerializer).hashKey(keySerializer).build();
-		return new ReactiveRedisTemplate<>(this.redisConnectionFactory,
-				serializationContext);
+				.<String, Object>newSerializationContext(defaultSerializer).key(keySerializer).hashKey(keySerializer)
+				.build();
+		return new ReactiveRedisTemplate<>(this.redisConnectionFactory, serializationContext);
 	}
 
 }

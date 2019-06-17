@@ -34,8 +34,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class MySql8JdbcOperationsSessionRepositoryITests
-		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
+class MySql8JdbcOperationsSessionRepositoryITests extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseContainerConfig {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	/**
 	 * Creates a new instance backed by the provided {@link Map}. This allows injecting a
 	 * distributed {@link Map}.
-	 *
 	 * @param sessions the {@link Map} to use. Cannot be null.
 	 */
 	public ReactiveMapSessionRepository(Map<String, Session> sessions) {
@@ -101,8 +100,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		return Mono.defer(() -> {
 			MapSession result = new MapSession();
 			if (this.defaultMaxInactiveInterval != null) {
-				result.setMaxInactiveInterval(
-						Duration.ofSeconds(this.defaultMaxInactiveInterval));
+				result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
 			return Mono.just(result);
 		});

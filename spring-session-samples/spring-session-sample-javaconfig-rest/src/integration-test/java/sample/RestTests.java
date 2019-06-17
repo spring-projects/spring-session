@@ -37,10 +37,12 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * @author Pool Dolorier
  */
-public class RestTests {
+class RestTests {
 
 	private static final String AUTHORIZATION = "Authorization";
+
 	private static final String BASIC = "Basic ";
+
 	private static final String X_AUTH_TOKEN = "X-Auth-Token";
 
 	private RestTemplate restTemplate;
@@ -48,72 +50,65 @@ public class RestTests {
 	private String baseUrl;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		this.baseUrl = "http://localhost:" + System.getProperty("app.port");
 		this.restTemplate = new RestTemplate();
 	}
 
 	@Test
-	public void unauthenticatedUserSentToLogInPage() {
+	void unauthenticatedUserSentToLogInPage() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		assertThatExceptionOfType(HttpClientErrorException.class)
 				.isThrownBy(() -> getForUser(this.baseUrl + "/", headers, String.class))
-				.satisfies((e) -> assertThat(e.getStatusCode())
-						.isEqualTo(HttpStatus.UNAUTHORIZED));
+				.satisfies((e) -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
 	}
 
 	@Test
-	public void authenticateWithBasicWorks() {
+	void authenticateWithBasicWorks() {
 		String auth = getAuth("user", "password");
 		HttpHeaders headers = getHttpHeaders();
 		headers.set(AUTHORIZATION, BASIC + auth);
-		ResponseEntity<User> entity = getForUser(this.baseUrl + "/",
-				headers, User.class);
+		ResponseEntity<User> entity = getForUser(this.baseUrl + "/", headers, User.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(entity.getHeaders().containsKey(X_AUTH_TOKEN)).isTrue();
 		assertThat(entity.getBody().getUsername()).isEqualTo("user");
 	}
 
 	@Test
-	public void authenticateWithXAuthTokenWorks() {
+	void authenticateWithXAuthTokenWorks() {
 		String auth = getAuth("user", "password");
 		HttpHeaders headers = getHttpHeaders();
 		headers.set(AUTHORIZATION, BASIC + auth);
-		ResponseEntity<User> entity = getForUser(this.baseUrl + "/",
-				headers, User.class);
+		ResponseEntity<User> entity = getForUser(this.baseUrl + "/", headers, User.class);
 
 		String token = entity.getHeaders().getFirst(X_AUTH_TOKEN);
 
 		HttpHeaders authTokenHeader = new HttpHeaders();
 		authTokenHeader.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		authTokenHeader.set(X_AUTH_TOKEN, token);
-		ResponseEntity<User> authTokenResponse = getForUser(this.baseUrl + "/",
-				authTokenHeader, User.class);
+		ResponseEntity<User> authTokenResponse = getForUser(this.baseUrl + "/", authTokenHeader, User.class);
 		assertThat(authTokenResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
 		assertThat(authTokenResponse.getBody().getUsername()).isEqualTo("user");
 	}
 
 	@Test
-	public void logout() {
+	void logout() {
 		String auth = getAuth("user", "password");
 		HttpHeaders headers = getHttpHeaders();
 		headers.set(AUTHORIZATION, BASIC + auth);
-		ResponseEntity<User> entity = getForUser(this.baseUrl + "/",
-				headers, User.class);
+		ResponseEntity<User> entity = getForUser(this.baseUrl + "/", headers, User.class);
 
 		String token = entity.getHeaders().getFirst(X_AUTH_TOKEN);
 
 		HttpHeaders logoutHeader = getHttpHeaders();
 		logoutHeader.set(X_AUTH_TOKEN, token);
-		ResponseEntity<User> logoutResponse = getForUser(this.baseUrl + "/logout",
-				logoutHeader, User.class);
+		ResponseEntity<User> logoutResponse = getForUser(this.baseUrl + "/logout", logoutHeader, User.class);
 		assertThat(logoutResponse.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
 	}
 
 	private <T> ResponseEntity<T> getForUser(String resourceUrl, HttpHeaders headers, Class<T> type) {
-		return this.restTemplate.exchange(resourceUrl,
-				HttpMethod.GET, new HttpEntity<T>(headers), type);
+		return this.restTemplate.exchange(resourceUrl, HttpMethod.GET, new HttpEntity<T>(headers), type);
 	}
 
 	private HttpHeaders getHttpHeaders() {
@@ -126,4 +121,5 @@ public class RestTests {
 		String auth = user + ":" + password;
 		return Base64.getEncoder().encodeToString(auth.getBytes());
 	}
+
 }

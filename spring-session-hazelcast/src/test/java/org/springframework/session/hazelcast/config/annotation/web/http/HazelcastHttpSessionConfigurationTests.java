@@ -43,7 +43,7 @@ import static org.mockito.Mockito.mock;
  * @author Vedran Pavic
  * @author Aleksandar Stojsavljevic
  */
-public class HazelcastHttpSessionConfigurationTests {
+class HazelcastHttpSessionConfigurationTests {
 
 	private static final String MAP_NAME = "spring:test:sessions";
 
@@ -54,150 +54,130 @@ public class HazelcastHttpSessionConfigurationTests {
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@AfterEach
-	public void closeContext() {
+	void closeContext() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void noHazelcastInstanceConfiguration() {
+	void noHazelcastInstanceConfiguration() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(
-						() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class))
+				.isThrownBy(() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class))
 				.withMessageContaining("HazelcastInstance");
 	}
 
 	@Test
-	public void defaultConfiguration() {
+	void defaultConfiguration() {
 		registerAndRefresh(DefaultConfiguration.class);
 
 		assertThat(this.context.getBean(HazelcastSessionRepository.class)).isNotNull();
 	}
 
 	@Test
-	public void customTableName() {
+	void customTableName() {
 		registerAndRefresh(CustomSessionMapNameConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
-		HazelcastHttpSessionConfiguration configuration = this.context
-				.getBean(HazelcastHttpSessionConfiguration.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		HazelcastHttpSessionConfiguration configuration = this.context.getBean(HazelcastHttpSessionConfiguration.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(configuration, "sessionMapName"))
-				.isEqualTo(MAP_NAME);
+		assertThat(ReflectionTestUtils.getField(configuration, "sessionMapName")).isEqualTo(MAP_NAME);
 	}
 
 	@Test
-	public void setCustomSessionMapName() {
-		registerAndRefresh(BaseConfiguration.class,
-				CustomSessionMapNameSetConfiguration.class);
+	void setCustomSessionMapName() {
+		registerAndRefresh(BaseConfiguration.class, CustomSessionMapNameSetConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
-		HazelcastHttpSessionConfiguration configuration = this.context
-				.getBean(HazelcastHttpSessionConfiguration.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		HazelcastHttpSessionConfiguration configuration = this.context.getBean(HazelcastHttpSessionConfiguration.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(configuration, "sessionMapName"))
-				.isEqualTo(MAP_NAME);
+		assertThat(ReflectionTestUtils.getField(configuration, "sessionMapName")).isEqualTo(MAP_NAME);
 	}
 
 	@Test
-	public void setCustomMaxInactiveIntervalInSeconds() {
-		registerAndRefresh(BaseConfiguration.class,
-				CustomMaxInactiveIntervalInSecondsSetConfiguration.class);
+	void setCustomMaxInactiveIntervalInSeconds() {
+		registerAndRefresh(BaseConfiguration.class, CustomMaxInactiveIntervalInSecondsSetConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
 
 	@Test
-	public void customMaxInactiveIntervalInSeconds() {
+	void customMaxInactiveIntervalInSeconds() {
 		registerAndRefresh(CustomMaxInactiveIntervalInSecondsConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
 
 	@Test
-	public void customFlushImmediately() {
+	void customFlushImmediately() {
 		registerAndRefresh(CustomFlushImmediatelyConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode"))
 				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
 	}
 
 	@Test
-	public void setCustomFlushImmediately() {
-		registerAndRefresh(BaseConfiguration.class,
-				CustomFlushImmediatelySetConfiguration.class);
+	void setCustomFlushImmediately() {
+		registerAndRefresh(BaseConfiguration.class, CustomFlushImmediatelySetConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode"))
 				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
 	}
 
 	@Test
-	public void qualifiedHazelcastInstanceConfiguration() {
+	void qualifiedHazelcastInstanceConfiguration() {
 		registerAndRefresh(QualifiedHazelcastInstanceConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
-		HazelcastInstance hazelcastInstance = this.context
-				.getBean("qualifiedHazelcastInstance", HazelcastInstance.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		HazelcastInstance hazelcastInstance = this.context.getBean("qualifiedHazelcastInstance",
+				HazelcastInstance.class);
 		assertThat(repository).isNotNull();
 		assertThat(hazelcastInstance).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "sessions")).isEqualTo(
-				QualifiedHazelcastInstanceConfiguration.qualifiedHazelcastInstanceSessions);
+		assertThat(ReflectionTestUtils.getField(repository, "sessions"))
+				.isEqualTo(QualifiedHazelcastInstanceConfiguration.qualifiedHazelcastInstanceSessions);
 	}
 
 	@Test
-	public void primaryHazelcastInstanceConfiguration() {
+	void primaryHazelcastInstanceConfiguration() {
 		registerAndRefresh(PrimaryHazelcastInstanceConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
-		HazelcastInstance hazelcastInstance = this.context
-				.getBean("primaryHazelcastInstance", HazelcastInstance.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		HazelcastInstance hazelcastInstance = this.context.getBean("primaryHazelcastInstance", HazelcastInstance.class);
 		assertThat(repository).isNotNull();
 		assertThat(hazelcastInstance).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "sessions")).isEqualTo(
-				PrimaryHazelcastInstanceConfiguration.primaryHazelcastInstanceSessions);
+		assertThat(ReflectionTestUtils.getField(repository, "sessions"))
+				.isEqualTo(PrimaryHazelcastInstanceConfiguration.primaryHazelcastInstanceSessions);
 	}
 
 	@Test
-	public void qualifiedAndPrimaryHazelcastInstanceConfiguration() {
+	void qualifiedAndPrimaryHazelcastInstanceConfiguration() {
 		registerAndRefresh(QualifiedAndPrimaryHazelcastInstanceConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
-		HazelcastInstance hazelcastInstance = this.context
-				.getBean("qualifiedHazelcastInstance", HazelcastInstance.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		HazelcastInstance hazelcastInstance = this.context.getBean("qualifiedHazelcastInstance",
+				HazelcastInstance.class);
 		assertThat(repository).isNotNull();
 		assertThat(hazelcastInstance).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "sessions")).isEqualTo(
-				QualifiedAndPrimaryHazelcastInstanceConfiguration.qualifiedHazelcastInstanceSessions);
+		assertThat(ReflectionTestUtils.getField(repository, "sessions"))
+				.isEqualTo(QualifiedAndPrimaryHazelcastInstanceConfiguration.qualifiedHazelcastInstanceSessions);
 	}
 
 	@Test
-	public void namedHazelcastInstanceConfiguration() {
+	void namedHazelcastInstanceConfiguration() {
 		registerAndRefresh(NamedHazelcastInstanceConfiguration.class);
 
-		HazelcastSessionRepository repository = this.context
-				.getBean(HazelcastSessionRepository.class);
-		HazelcastInstance hazelcastInstance = this.context.getBean("hazelcastInstance",
-				HazelcastInstance.class);
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		HazelcastInstance hazelcastInstance = this.context.getBean("hazelcastInstance", HazelcastInstance.class);
 		assertThat(repository).isNotNull();
 		assertThat(hazelcastInstance).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "sessions"))
@@ -205,9 +185,9 @@ public class HazelcastHttpSessionConfigurationTests {
 	}
 
 	@Test
-	public void multipleHazelcastInstanceConfiguration() {
-		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(
-				() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
+	void multipleHazelcastInstanceConfiguration() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 
@@ -219,6 +199,7 @@ public class HazelcastHttpSessionConfigurationTests {
 	@Configuration
 	@EnableHazelcastHttpSession
 	static class NoHazelcastInstanceConfiguration {
+
 	}
 
 	static class BaseConfiguration {
@@ -229,8 +210,7 @@ public class HazelcastHttpSessionConfigurationTests {
 		@Bean
 		public HazelcastInstance defaultHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
-			given(hazelcastInstance.getMap(anyString()))
-					.willReturn(defaultHazelcastInstanceSessions);
+			given(hazelcastInstance.getMap(anyString())).willReturn(defaultHazelcastInstanceSessions);
 			return hazelcastInstance;
 		}
 
@@ -239,16 +219,17 @@ public class HazelcastHttpSessionConfigurationTests {
 	@Configuration
 	@EnableHazelcastHttpSession
 	static class DefaultConfiguration extends BaseConfiguration {
+
 	}
 
 	@Configuration
 	@EnableHazelcastHttpSession(sessionMapName = MAP_NAME)
 	static class CustomSessionMapNameConfiguration extends BaseConfiguration {
+
 	}
 
 	@Configuration
-	static class CustomSessionMapNameSetConfiguration
-			extends HazelcastHttpSessionConfiguration {
+	static class CustomSessionMapNameSetConfiguration extends HazelcastHttpSessionConfiguration {
 
 		CustomSessionMapNameSetConfiguration() {
 			setSessionMapName(MAP_NAME);
@@ -257,8 +238,7 @@ public class HazelcastHttpSessionConfigurationTests {
 	}
 
 	@Configuration
-	static class CustomMaxInactiveIntervalInSecondsSetConfiguration
-			extends HazelcastHttpSessionConfiguration {
+	static class CustomMaxInactiveIntervalInSecondsSetConfiguration extends HazelcastHttpSessionConfiguration {
 
 		CustomMaxInactiveIntervalInSecondsSetConfiguration() {
 			setMaxInactiveIntervalInSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS);
@@ -268,13 +248,12 @@ public class HazelcastHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
-	static class CustomMaxInactiveIntervalInSecondsConfiguration
-			extends BaseConfiguration {
+	static class CustomMaxInactiveIntervalInSecondsConfiguration extends BaseConfiguration {
+
 	}
 
 	@Configuration
-	static class CustomFlushImmediatelySetConfiguration
-			extends HazelcastHttpSessionConfiguration {
+	static class CustomFlushImmediatelySetConfiguration extends HazelcastHttpSessionConfiguration {
 
 		CustomFlushImmediatelySetConfiguration() {
 			setHazelcastFlushMode(HAZELCAST_FLUSH_MODE);
@@ -285,6 +264,7 @@ public class HazelcastHttpSessionConfigurationTests {
 	@Configuration
 	@EnableHazelcastHttpSession(hazelcastFlushMode = HazelcastFlushMode.IMMEDIATE)
 	static class CustomFlushImmediatelyConfiguration extends BaseConfiguration {
+
 	}
 
 	@Configuration
@@ -298,8 +278,7 @@ public class HazelcastHttpSessionConfigurationTests {
 		@SpringSessionHazelcastInstance
 		public HazelcastInstance qualifiedHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
-			given(hazelcastInstance.getMap(anyString()))
-					.willReturn(qualifiedHazelcastInstanceSessions);
+			given(hazelcastInstance.getMap(anyString())).willReturn(qualifiedHazelcastInstanceSessions);
 			return hazelcastInstance;
 		}
 
@@ -316,8 +295,7 @@ public class HazelcastHttpSessionConfigurationTests {
 		@Primary
 		public HazelcastInstance primaryHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
-			given(hazelcastInstance.getMap(anyString()))
-					.willReturn(primaryHazelcastInstanceSessions);
+			given(hazelcastInstance.getMap(anyString())).willReturn(primaryHazelcastInstanceSessions);
 			return hazelcastInstance;
 		}
 
@@ -325,8 +303,7 @@ public class HazelcastHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableHazelcastHttpSession
-	static class QualifiedAndPrimaryHazelcastInstanceConfiguration
-			extends BaseConfiguration {
+	static class QualifiedAndPrimaryHazelcastInstanceConfiguration extends BaseConfiguration {
 
 		@SuppressWarnings("unchecked")
 		static IMap<Object, Object> qualifiedHazelcastInstanceSessions = mock(IMap.class);
@@ -338,8 +315,7 @@ public class HazelcastHttpSessionConfigurationTests {
 		@SpringSessionHazelcastInstance
 		public HazelcastInstance qualifiedHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
-			given(hazelcastInstance.getMap(anyString()))
-					.willReturn(qualifiedHazelcastInstanceSessions);
+			given(hazelcastInstance.getMap(anyString())).willReturn(qualifiedHazelcastInstanceSessions);
 			return hazelcastInstance;
 		}
 
@@ -347,8 +323,7 @@ public class HazelcastHttpSessionConfigurationTests {
 		@Primary
 		public HazelcastInstance primaryHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
-			given(hazelcastInstance.getMap(anyString()))
-					.willReturn(primaryHazelcastInstanceSessions);
+			given(hazelcastInstance.getMap(anyString())).willReturn(primaryHazelcastInstanceSessions);
 			return hazelcastInstance;
 		}
 
@@ -364,8 +339,7 @@ public class HazelcastHttpSessionConfigurationTests {
 		@Bean
 		public HazelcastInstance hazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
-			given(hazelcastInstance.getMap(anyString()))
-					.willReturn(hazelcastInstanceSessions);
+			given(hazelcastInstance.getMap(anyString())).willReturn(hazelcastInstanceSessions);
 			return hazelcastInstance;
 		}
 
@@ -381,8 +355,7 @@ public class HazelcastHttpSessionConfigurationTests {
 		@Bean
 		public HazelcastInstance secondaryHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
-			given(hazelcastInstance.getMap(anyString()))
-					.willReturn(secondaryHazelcastInstanceSessions);
+			given(hazelcastInstance.getMap(anyString())).willReturn(secondaryHazelcastInstanceSessions);
 			return hazelcastInstance;
 		}
 

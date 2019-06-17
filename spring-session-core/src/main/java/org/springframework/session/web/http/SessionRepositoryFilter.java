@@ -79,25 +79,21 @@ import org.springframework.session.SessionRepository;
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFilter {
 
-	private static final String SESSION_LOGGER_NAME = SessionRepositoryFilter.class
-			.getName().concat(".SESSION_LOGGER");
+	private static final String SESSION_LOGGER_NAME = SessionRepositoryFilter.class.getName().concat(".SESSION_LOGGER");
 
 	private static final Log SESSION_LOGGER = LogFactory.getLog(SESSION_LOGGER_NAME);
 
 	/**
 	 * The session repository request attribute name.
 	 */
-	public static final String SESSION_REPOSITORY_ATTR = SessionRepository.class
-			.getName();
+	public static final String SESSION_REPOSITORY_ATTR = SessionRepository.class.getName();
 
 	/**
 	 * Invalid session id (not backed by the session repository) request attribute name.
 	 */
-	public static final String INVALID_SESSION_ID_ATTR = SESSION_REPOSITORY_ATTR
-			+ ".invalidSessionId";
+	public static final String INVALID_SESSION_ID_ATTR = SESSION_REPOSITORY_ATTR + ".invalidSessionId";
 
-	private static final String CURRENT_SESSION_ATTR = SESSION_REPOSITORY_ATTR
-			+ ".CURRENT_SESSION";
+	private static final String CURRENT_SESSION_ATTR = SESSION_REPOSITORY_ATTR + ".CURRENT_SESSION";
 
 	/**
 	 * The default filter order.
@@ -110,7 +106,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param sessionRepository the <code>SessionRepository</code> to use. Cannot be null.
 	 */
 	public SessionRepositoryFilter(SessionRepository<S> sessionRepository) {
@@ -123,7 +118,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	/**
 	 * Sets the {@link HttpSessionIdResolver} to be used. The default is a
 	 * {@link CookieHttpSessionIdResolver}.
-	 *
 	 * @param httpSessionIdResolver the {@link HttpSessionIdResolver} to use. Cannot be
 	 * null.
 	 */
@@ -135,15 +129,13 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response, FilterChain filterChain)
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		request.setAttribute(SESSION_REPOSITORY_ATTR, this.sessionRepository);
 
-		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(
-				request, response);
-		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(
-				wrappedRequest, response);
+		SessionRepositoryRequestWrapper wrappedRequest = new SessionRepositoryRequestWrapper(request, response);
+		SessionRepositoryResponseWrapper wrappedResponse = new SessionRepositoryResponseWrapper(wrappedRequest,
+				response);
 
 		try {
 			filterChain.doFilter(wrappedRequest, wrappedResponse);
@@ -159,8 +151,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	 * @author Rob Winch
 	 * @since 1.0
 	 */
-	private final class SessionRepositoryResponseWrapper
-			extends OnCommittedResponseWrapper {
+	private final class SessionRepositoryResponseWrapper extends OnCommittedResponseWrapper {
 
 		private final SessionRepositoryRequestWrapper request;
 
@@ -169,8 +160,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		 * @param request the request to be wrapped
 		 * @param response the response to be wrapped
 		 */
-		SessionRepositoryResponseWrapper(SessionRepositoryRequestWrapper request,
-				HttpServletResponse response) {
+		SessionRepositoryResponseWrapper(SessionRepositoryRequestWrapper request, HttpServletResponse response) {
 			super(response);
 			if (request == null) {
 				throw new IllegalArgumentException("request cannot be null");
@@ -182,6 +172,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		protected void onResponseCommitted() {
 			this.request.commitSession();
 		}
+
 	}
 
 	/**
@@ -192,8 +183,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	 * @author Rob Winch
 	 * @since 1.0
 	 */
-	private final class SessionRepositoryRequestWrapper
-			extends HttpServletRequestWrapper {
+	private final class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
 
 		private final HttpServletResponse response;
 
@@ -207,8 +197,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean requestedSessionInvalidated;
 
-		private SessionRepositoryRequestWrapper(HttpServletRequest request,
-				HttpServletResponse response) {
+		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
 			super(request);
 			this.response = response;
 		}
@@ -221,8 +210,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if (wrappedSession == null) {
 				if (isInvalidateClientSession()) {
-					SessionRepositoryFilter.this.httpSessionIdResolver.expireSession(this,
-							this.response);
+					SessionRepositoryFilter.this.httpSessionIdResolver.expireSession(this, this.response);
 				}
 			}
 			else {
@@ -230,10 +218,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				clearRequestedSessionCache();
 				SessionRepositoryFilter.this.sessionRepository.save(session);
 				String sessionId = session.getId();
-				if (!isRequestedSessionIdValid()
-						|| !sessionId.equals(getRequestedSessionId())) {
-					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this,
-							this.response, sessionId);
+				if (!isRequestedSessionIdValid() || !sessionId.equals(getRequestedSessionId())) {
+					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this, this.response, sessionId);
 				}
 			}
 		}
@@ -321,8 +307,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				SESSION_LOGGER.debug(
 						"A new session was created. To help you troubleshoot where the session was created we provided a StackTrace (this is not an error). You can prevent this from appearing by disabling DEBUG logging for "
 								+ SESSION_LOGGER_NAME,
-						new RuntimeException(
-								"For debugging purposes only (not an error)"));
+						new RuntimeException("For debugging purposes only (not an error)"));
 			}
 			S session = SessionRepositoryFilter.this.sessionRepository.createSession();
 			session.setLastAccessedTime(Instant.now());
@@ -352,14 +337,12 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private S getRequestedSession() {
 			if (!this.requestedSessionCached) {
-				List<String> sessionIds = SessionRepositoryFilter.this.httpSessionIdResolver
-						.resolveSessionIds(this);
+				List<String> sessionIds = SessionRepositoryFilter.this.httpSessionIdResolver.resolveSessionIds(this);
 				for (String sessionId : sessionIds) {
 					if (this.requestedSessionId == null) {
 						this.requestedSessionId = sessionId;
 					}
-					S session = SessionRepositoryFilter.this.sessionRepository
-							.findById(sessionId);
+					S session = SessionRepositoryFilter.this.sessionRepository.findById(sessionId);
 					if (session != null) {
 						this.requestedSession = session;
 						this.requestedSessionId = sessionId;
@@ -397,6 +380,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				clearRequestedSessionCache();
 				SessionRepositoryFilter.this.sessionRepository.deleteById(getId());
 			}
+
 		}
 
 		/**
@@ -404,8 +388,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		 *
 		 * @since 1.3.4
 		 */
-		private final class SessionCommittingRequestDispatcher
-				implements RequestDispatcher {
+		private final class SessionCommittingRequestDispatcher implements RequestDispatcher {
 
 			private final RequestDispatcher delegate;
 
@@ -414,14 +397,12 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 
 			@Override
-			public void forward(ServletRequest request, ServletResponse response)
-					throws ServletException, IOException {
+			public void forward(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 				this.delegate.forward(request, response);
 			}
 
 			@Override
-			public void include(ServletRequest request, ServletResponse response)
-					throws ServletException, IOException {
+			public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
 				SessionRepositoryRequestWrapper.this.commitSession();
 				this.delegate.include(request, response);
 			}

@@ -44,7 +44,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class WebSocketRegistryListenerTests {
+class WebSocketRegistryListenerTests {
 
 	@Mock
 	private WebSocketSession wsSession;
@@ -73,7 +73,7 @@ public class WebSocketRegistryListenerTests {
 	private WebSocketRegistryListener listener;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		MockitoAnnotations.initMocks(this);
 		String sessionId = "session-id";
 		MapSession session = new MapSession(sessionId);
@@ -96,14 +96,14 @@ public class WebSocketRegistryListenerTests {
 		this.listener = new WebSocketRegistryListener();
 		this.connect = new SessionConnectEvent(this.listener, this.wsSession);
 		this.connect2 = new SessionConnectEvent(this.listener, this.wsSession2);
-		this.disconnect = new SessionDisconnectEvent(this.listener, this.message,
-				this.wsSession.getId(), CloseStatus.NORMAL);
+		this.disconnect = new SessionDisconnectEvent(this.listener, this.message, this.wsSession.getId(),
+				CloseStatus.NORMAL);
 		this.deleted = new SessionDeletedEvent(this.listener, session);
 		this.expired = new SessionExpiredEvent(this.listener, session);
 	}
 
 	@Test
-	public void onApplicationEventConnectSessionDeleted() throws Exception {
+	void onApplicationEventConnectSessionDeleted() throws Exception {
 		this.listener.onApplicationEvent(this.connect);
 
 		this.listener.onApplicationEvent(this.deleted);
@@ -112,7 +112,7 @@ public class WebSocketRegistryListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventConnectSessionExpired() throws Exception {
+	void onApplicationEventConnectSessionExpired() throws Exception {
 		this.listener.onApplicationEvent(this.connect);
 
 		this.listener.onApplicationEvent(this.expired);
@@ -121,7 +121,7 @@ public class WebSocketRegistryListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventConnectSessionDeletedNullPrincipal() throws Exception {
+	void onApplicationEventConnectSessionDeletedNullPrincipal() throws Exception {
 		given(this.wsSession.getPrincipal()).willReturn(null);
 		this.listener.onApplicationEvent(this.connect);
 
@@ -131,7 +131,7 @@ public class WebSocketRegistryListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventConnectDisconnect() throws Exception {
+	void onApplicationEventConnectDisconnect() throws Exception {
 		this.listener.onApplicationEvent(this.connect);
 		this.listener.onApplicationEvent(this.disconnect);
 
@@ -143,7 +143,7 @@ public class WebSocketRegistryListenerTests {
 	// gh-76
 	@Test
 	@SuppressWarnings("unchecked")
-	public void onApplicationEventConnectDisconnectCleanup() {
+	void onApplicationEventConnectDisconnectCleanup() {
 		this.listener.onApplicationEvent(this.connect);
 
 		this.listener.onApplicationEvent(this.disconnect);
@@ -154,7 +154,7 @@ public class WebSocketRegistryListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventConnectDisconnectNullSession() throws Exception {
+	void onApplicationEventConnectDisconnectNullSession() throws Exception {
 		this.listener.onApplicationEvent(this.connect);
 		this.attributes.clear();
 
@@ -164,7 +164,7 @@ public class WebSocketRegistryListenerTests {
 	}
 
 	@Test
-	public void onApplicationEventConnectConnectDisonnect() throws Exception {
+	void onApplicationEventConnectConnectDisonnect() throws Exception {
 		this.listener.onApplicationEvent(this.connect);
 		this.listener.onApplicationEvent(this.connect2);
 		this.listener.onApplicationEvent(this.disconnect);

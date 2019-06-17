@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,12 +61,14 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 	}
 
 	/**
-	 * Configure the {@link Clock} to use to set lastAccessTime on every created
-	 * session and to calculate if it is expired.
-	 * <p>This may be useful to align to different timezone or to set the clock
-	 * back in a test, e.g. {@code Clock.offset(clock, Duration.ofMinutes(-31))}
-	 * in order to simulate session expiration.
-	 * <p>By default this is {@code Clock.system(ZoneId.of("GMT"))}.
+	 * Configure the {@link Clock} to use to set lastAccessTime on every created session
+	 * and to calculate if it is expired.
+	 * <p>
+	 * This may be useful to align to different timezone or to set the clock back in a
+	 * test, e.g. {@code Clock.offset(clock, Duration.ofMinutes(-31))} in order to
+	 * simulate session expiration.
+	 * <p>
+	 * By default this is {@code Clock.system(ZoneId.of("GMT"))}.
 	 * @param clock the clock to use
 	 */
 	public void setClock(Clock clock) {
@@ -90,8 +92,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 	@Override
 	public Mono<WebSession> retrieveSession(String sessionId) {
 		return this.sessions.findById(sessionId)
-				.doOnNext((session) -> session.setLastAccessedTime(this.clock.instant()))
-				.map(this::existingSession);
+				.doOnNext((session) -> session.setLastAccessedTime(this.clock.instant())).map(this::existingSession);
 	}
 
 	@Override
@@ -133,8 +134,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		@Override
 		public Mono<Void> changeSessionId() {
 			return Mono.defer(() -> {
-				this.session
-						.changeSessionId();
+				this.session.changeSessionId();
 				return save();
 			});
 		}
@@ -152,8 +152,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		@Override
 		public boolean isStarted() {
 			State value = this.state.get();
-			return (State.STARTED.equals(value)
-					|| (State.NEW.equals(value) && !getAttributes().isEmpty()));
+			return (State.STARTED.equals(value) || (State.NEW.equals(value) && !getAttributes().isEmpty()));
 		}
 
 		@Override
@@ -198,10 +197,13 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		public void setMaxIdleTime(Duration maxIdleTime) {
 			this.session.setMaxInactiveInterval(maxIdleTime);
 		}
+
 	}
 
 	private enum State {
+
 		NEW, STARTED, EXPIRED
+
 	}
 
 	private static class SpringSessionMap implements Map<String, Object> {
@@ -226,8 +228,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 
 		@Override
 		public boolean containsKey(Object key) {
-			return key instanceof String
-					&& this.session.getAttributeNames().contains(key);
+			return key instanceof String && this.session.getAttributeNames().contains(key);
 		}
 
 		@Override
@@ -346,5 +347,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 			}
 
 		}
+
 	}
+
 }

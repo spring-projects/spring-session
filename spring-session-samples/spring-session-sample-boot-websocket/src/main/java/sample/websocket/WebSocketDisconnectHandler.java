@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,10 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
-public class WebSocketDisconnectHandler<S>
-		implements ApplicationListener<SessionDisconnectEvent> {
+public class WebSocketDisconnectHandler<S> implements ApplicationListener<SessionDisconnectEvent> {
+
 	private ActiveWebSocketUserRepository repository;
+
 	private SimpMessageSendingOperations messagingTemplate;
 
 	public WebSocketDisconnectHandler(SimpMessageSendingOperations messagingTemplate,
@@ -44,8 +45,8 @@ public class WebSocketDisconnectHandler<S>
 		}
 		this.repository.findById(id).ifPresent((user) -> {
 			this.repository.deleteById(id);
-			this.messagingTemplate.convertAndSend("/topic/friends/signout",
-					Arrays.asList(user.getUsername()));
+			this.messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
 		});
 	}
+
 }

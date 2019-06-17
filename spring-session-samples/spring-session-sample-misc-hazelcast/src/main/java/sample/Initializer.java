@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,8 +49,7 @@ public class Initializer implements ServletContextListener {
 		Map<String, Session> sessions = this.instance.getMap(SESSION_MAP_NAME);
 
 		MapSessionRepository sessionRepository = new MapSessionRepository(sessions);
-		SessionRepositoryFilter<? extends Session> filter = new SessionRepositoryFilter<>(
-				sessionRepository);
+		SessionRepositoryFilter<? extends Session> filter = new SessionRepositoryFilter<>(sessionRepository);
 
 		Dynamic fr = sce.getServletContext().addFilter("springSessionFilter", filter);
 		fr.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST), true, "/*");
@@ -64,12 +63,9 @@ public class Initializer implements ServletContextListener {
 	private HazelcastInstance createHazelcastInstance() {
 		Config config = new Config();
 
-		config.getNetworkConfig()
-				.setPort(getAvailablePort())
-				.getJoin().getMulticastConfig().setEnabled(false);
+		config.getNetworkConfig().setPort(getAvailablePort()).getJoin().getMulticastConfig().setEnabled(false);
 
-		config.getMapConfig(SESSION_MAP_NAME)
-				.setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		config.getMapConfig(SESSION_MAP_NAME).setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 		return Hazelcast.newHazelcastInstance(config);
 	}

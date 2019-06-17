@@ -49,10 +49,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { RestMockMvcTests.Config.class, SecurityConfig.class,
-		MvcConfig.class })
+@ContextConfiguration(classes = { RestMockMvcTests.Config.class, SecurityConfig.class, MvcConfig.class })
 @WebAppConfiguration
-public class RestMockMvcTests {
+class RestMockMvcTests {
 
 	private static final String DOCKER_IMAGE = "redis:5.0.5";
 
@@ -65,27 +64,26 @@ public class RestMockMvcTests {
 	private MockMvc mvc;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).alwaysDo(print())
 				.addFilters(this.sessionRepositoryFilter).apply(springSecurity()).build();
 	}
 
 	@Test
-	public void noSessionOnNoCredentials() throws Exception {
+	void noSessionOnNoCredentials() throws Exception {
 		this.mvc.perform(get("/")).andExpect(header().doesNotExist("X-Auth-Token"))
 				.andExpect(status().isUnauthorized());
 	}
 
 	@WithMockUser
 	@Test
-	public void autheticatedAnnotation() throws Exception {
+	void autheticatedAnnotation() throws Exception {
 		this.mvc.perform(get("/")).andExpect(content().string("{\"username\":\"user\"}"));
 	}
 
 	@Test
-	public void autheticatedRequestPostProcessor() throws Exception {
-		this.mvc.perform(get("/").with(user("user")))
-				.andExpect(content().string("{\"username\":\"user\"}"));
+	void autheticatedRequestPostProcessor() throws Exception {
+		this.mvc.perform(get("/").with(user("user"))).andExpect(content().string("{\"username\":\"user\"}"));
 	}
 
 	@Configuration
@@ -94,8 +92,7 @@ public class RestMockMvcTests {
 
 		@Bean
 		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-					.withExposedPorts(6379);
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}

@@ -35,20 +35,20 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rob Winch
  * @since 2.0
  */
-public class ReactiveMapSessionRepositoryTests {
+class ReactiveMapSessionRepositoryTests {
 
 	private ReactiveMapSessionRepository repository;
 
 	private MapSession session;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.repository = new ReactiveMapSessionRepository(new HashMap<>());
 		this.session = new MapSession("session-id");
 	}
 
 	@Test
-	public void constructorMapThenFound() {
+	void constructorMapThenFound() {
 		Map<String, Session> sessions = new HashMap<>();
 		sessions.put(this.session.getId(), this.session);
 		this.repository = new ReactiveMapSessionRepository(sessions);
@@ -59,21 +59,20 @@ public class ReactiveMapSessionRepositoryTests {
 	}
 
 	@Test
-	public void constructorMapWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ReactiveMapSessionRepository(null))
+	void constructorMapWhenNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveMapSessionRepository(null))
 				.withMessage("sessions cannot be null");
 	}
 
 	@Test
-	public void saveWhenNoSubscribersThenNotFound() {
+	void saveWhenNoSubscribersThenNotFound() {
 		this.repository.save(this.session);
 
 		assertThat(this.repository.findById(this.session.getId()).block()).isNull();
 	}
 
 	@Test
-	public void saveWhenSubscriberThenFound() {
+	void saveWhenSubscriberThenFound() {
 		this.repository.save(this.session).block();
 
 		Session findByIdSession = this.repository.findById(this.session.getId()).block();
@@ -82,7 +81,7 @@ public class ReactiveMapSessionRepositoryTests {
 	}
 
 	@Test
-	public void findByIdWhenExpiredRemovesFromSessionMap() {
+	void findByIdWhenExpiredRemovesFromSessionMap() {
 		this.session.setMaxInactiveInterval(Duration.ofMinutes(1));
 		this.session.setLastAccessedTime(Instant.now().minus(5, ChronoUnit.MINUTES));
 
@@ -95,20 +94,17 @@ public class ReactiveMapSessionRepositoryTests {
 	}
 
 	@Test
-	public void createSessionWhenDefaultMaxInactiveIntervalThenDefaultMaxInactiveInterval() {
+	void createSessionWhenDefaultMaxInactiveIntervalThenDefaultMaxInactiveInterval() {
 		Session session = this.repository.createSession().block();
 
 		assertThat(session).isInstanceOf(MapSession.class);
-		assertThat(session.getMaxInactiveInterval())
-				.isEqualTo(new MapSession().getMaxInactiveInterval());
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
 	}
 
 	@Test
-	public void createSessionWhenCustomMaxInactiveIntervalThenCustomMaxInactiveInterval() {
-		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval()
-				.plusSeconds(10);
-		this.repository
-				.setDefaultMaxInactiveInterval((int) expectedMaxInterval.getSeconds());
+	void createSessionWhenCustomMaxInactiveIntervalThenCustomMaxInactiveInterval() {
+		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval().plusSeconds(10);
+		this.repository.setDefaultMaxInactiveInterval((int) expectedMaxInterval.getSeconds());
 
 		Session session = this.repository.createSession().block();
 
@@ -116,7 +112,7 @@ public class ReactiveMapSessionRepositoryTests {
 	}
 
 	@Test
-	public void changeSessionIdWhenNotYetSaved() {
+	void changeSessionIdWhenNotYetSaved() {
 		MapSession createSession = this.repository.createSession().block();
 
 		String originalId = createSession.getId();
@@ -129,7 +125,7 @@ public class ReactiveMapSessionRepositoryTests {
 	}
 
 	@Test
-	public void changeSessionIdWhenSaved() {
+	void changeSessionIdWhenSaved() {
 		MapSession createSession = this.repository.createSession().block();
 
 		this.repository.save(createSession).block();
@@ -144,7 +140,7 @@ public class ReactiveMapSessionRepositoryTests {
 	}
 
 	@Test // gh-1120
-	public void getAttributeNamesAndRemove() {
+	void getAttributeNamesAndRemove() {
 		MapSession session = this.repository.createSession().block();
 		session.setAttribute("attribute1", "value1");
 		session.setAttribute("attribute2", "value2");

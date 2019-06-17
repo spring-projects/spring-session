@@ -49,28 +49,24 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  *
  * @author Vedran Pavic
  */
-public class ReactiveRedisOperationsSessionRepositoryTests {
+class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@SuppressWarnings("unchecked")
-	private ReactiveRedisOperations<String, Object> redisOperations = mock(
-			ReactiveRedisOperations.class);
+	private ReactiveRedisOperations<String, Object> redisOperations = mock(ReactiveRedisOperations.class);
 
 	@SuppressWarnings("unchecked")
-	private ReactiveHashOperations<String, Object, Object> hashOperations = mock(
-			ReactiveHashOperations.class);
+	private ReactiveHashOperations<String, Object, Object> hashOperations = mock(ReactiveHashOperations.class);
 
 	@SuppressWarnings("unchecked")
-	private ArgumentCaptor<Map<String, Object>> delta = ArgumentCaptor
-			.forClass(Map.class);
+	private ArgumentCaptor<Map<String, Object>> delta = ArgumentCaptor.forClass(Map.class);
 
 	private ReactiveRedisOperationsSessionRepository repository;
 
 	private MapSession cached;
 
 	@BeforeEach
-	public void setUp() {
-		this.repository = new ReactiveRedisOperationsSessionRepository(
-				this.redisOperations);
+	void setUp() {
+		this.repository = new ReactiveRedisOperationsSessionRepository(this.redisOperations);
 
 		this.cached = new MapSession();
 		this.cached.setId("session-id");
@@ -79,82 +75,73 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void constructorWithNullReactiveRedisOperations() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
+	void constructorWithNullReactiveRedisOperations() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
 				.withMessageContaining("sessionRedisOperations cannot be null");
 	}
 
 	@Test
-	public void customRedisKeyNamespace() {
+	void customRedisKeyNamespace() {
 		this.repository.setRedisKeyNamespace("test");
 
-		assertThat(ReflectionTestUtils.getField(this.repository, "namespace"))
-				.isEqualTo("test:");
+		assertThat(ReflectionTestUtils.getField(this.repository, "namespace")).isEqualTo("test:");
 	}
 
 	@Test
-	public void nullRedisKeyNamespace() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.setRedisKeyNamespace(null))
+	void nullRedisKeyNamespace() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setRedisKeyNamespace(null))
 				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
-	public void emptyRedisKeyNamespace() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.setRedisKeyNamespace(""))
+	void emptyRedisKeyNamespace() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setRedisKeyNamespace(""))
 				.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
-	public void customMaxInactiveInterval() {
+	void customMaxInactiveInterval() {
 		this.repository.setDefaultMaxInactiveInterval(600);
 
-		assertThat(ReflectionTestUtils.getField(this.repository,
-				"defaultMaxInactiveInterval")).isEqualTo(600);
+		assertThat(ReflectionTestUtils.getField(this.repository, "defaultMaxInactiveInterval")).isEqualTo(600);
 	}
 
 	@Test
-	public void customRedisFlushMode() {
+	void customRedisFlushMode() {
 		this.repository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
 
-		assertThat(ReflectionTestUtils.getField(this.repository, "redisFlushMode"))
-				.isEqualTo(RedisFlushMode.IMMEDIATE);
+		assertThat(ReflectionTestUtils.getField(this.repository, "redisFlushMode")).isEqualTo(RedisFlushMode.IMMEDIATE);
 	}
 
 	@Test
-	public void nullRedisFlushMode() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.repository.setRedisFlushMode(null))
+	void nullRedisFlushMode() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setRedisFlushMode(null))
 				.withMessage("redisFlushMode cannot be null");
 	}
 
 	@Test
-	public void createSessionDefaultMaxInactiveInterval() {
+	void createSessionDefaultMaxInactiveInterval() {
 		StepVerifier.create(this.repository.createSession())
 				.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval())
-						.isEqualTo(Duration.ofSeconds(
-								MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)))
+						.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)))
 				.verifyComplete();
 	}
 
 	@Test
-	public void createSessionCustomMaxInactiveInterval() {
+	void createSessionCustomMaxInactiveInterval() {
 		this.repository.setDefaultMaxInactiveInterval(600);
 
 		StepVerifier.create(this.repository.createSession())
-				.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval())
-						.isEqualTo(Duration.ofSeconds(600)))
+				.consumeNextWith(
+						(session) -> assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(600)))
 				.verifyComplete();
 	}
 
 	@Test
-	public void saveNewSession() {
+	void saveNewSession() {
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
-		given(this.redisOperations.expire(anyString(), any()))
-				.willReturn(Mono.just(true));
+		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 
 		RedisSession newSession = this.repository.new RedisSession();
 		StepVerifier.create(this.repository.save(newSession)).verifyComplete();
@@ -176,13 +163,11 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void saveSessionNothingChanged() {
+	void saveSessionNothingChanged() {
 		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
-		given(this.redisOperations.expire(anyString(), any()))
-				.willReturn(Mono.just(true));
+		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 
-		RedisSession session = this.repository.new RedisSession(
-				new MapSession(this.cached));
+		RedisSession session = this.repository.new RedisSession(new MapSession(this.cached));
 
 		StepVerifier.create(this.repository.save(session)).verifyComplete();
 
@@ -192,12 +177,11 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void saveLastAccessChanged() {
+	void saveLastAccessChanged() {
 		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
-		given(this.redisOperations.expire(anyString(), any()))
-				.willReturn(Mono.just(true));
+		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 
 		RedisSession session = this.repository.new RedisSession(this.cached);
 		session.setLastAccessedTime(Instant.ofEpochMilli(12345678L));
@@ -210,18 +194,16 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.redisOperations);
 		verifyZeroInteractions(this.hashOperations);
 
-		assertThat(this.delta.getAllValues().get(0))
-				.isEqualTo(map(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-						session.getLastAccessedTime().toEpochMilli()));
+		assertThat(this.delta.getAllValues().get(0)).isEqualTo(
+				map(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, session.getLastAccessedTime().toEpochMilli()));
 	}
 
 	@Test
-	public void saveSetAttribute() {
+	void saveSetAttribute() {
 		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
-		given(this.redisOperations.expire(anyString(), any()))
-				.willReturn(Mono.just(true));
+		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 
 		String attrName = "attrName";
 		RedisSession session = this.repository.new RedisSession(this.cached);
@@ -236,17 +218,15 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0)).isEqualTo(
-				map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName),
-						session.getAttribute(attrName)));
+				map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
 	}
 
 	@Test
-	public void saveRemoveAttribute() {
+	void saveRemoveAttribute() {
 		given(this.redisOperations.hasKey(anyString())).willReturn(Mono.just(true));
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
-		given(this.redisOperations.expire(anyString(), any()))
-				.willReturn(Mono.just(true));
+		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 
 		String attrName = "attrName";
 		RedisSession session = this.repository.new RedisSession(new MapSession());
@@ -260,12 +240,12 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.redisOperations);
 		verifyZeroInteractions(this.hashOperations);
 
-		assertThat(this.delta.getAllValues().get(0)).isEqualTo(map(
-				RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), null));
+		assertThat(this.delta.getAllValues().get(0))
+				.isEqualTo(map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), null));
 	}
 
 	@Test
-	public void redisSessionGetAttributes() {
+	void redisSessionGetAttributes() {
 		String attrName = "attrName";
 		RedisSession session = this.repository.new RedisSession(this.cached);
 		assertThat(session.getAttributeNames()).isEmpty();
@@ -278,7 +258,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void delete() {
+	void delete() {
 		given(this.redisOperations.delete(anyString())).willReturn(Mono.just(1L));
 
 		StepVerifier.create(this.repository.deleteById("test")).verifyComplete();
@@ -289,7 +269,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	public void getSessionNotFound() {
+	void getSessionNotFound() {
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		given(this.hashOperations.entries(anyString())).willReturn(Flux.empty());
 		given(this.redisOperations.delete(anyString())).willReturn(Mono.just(0L));
@@ -305,7 +285,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void getSessionFound() {
+	void getSessionFound() {
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";
@@ -313,54 +293,38 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
 		expected.setAttribute(attribute1, "test");
 		expected.setAttribute(attribute2, null);
-		Map map = map(RedisSessionMapper.ATTRIBUTE_PREFIX + attribute1,
-				expected.getAttribute(attribute1),
-				RedisSessionMapper.ATTRIBUTE_PREFIX + attribute2,
-				expected.getAttribute(attribute2), RedisSessionMapper.CREATION_TIME_KEY,
-				expected.getCreationTime().toEpochMilli(),
-				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
-				(int) expected.getMaxInactiveInterval().getSeconds(),
-				RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-				expected.getLastAccessedTime().toEpochMilli());
-		given(this.hashOperations.entries(anyString()))
-				.willReturn(Flux.fromIterable(map.entrySet()));
+		Map map = map(RedisSessionMapper.ATTRIBUTE_PREFIX + attribute1, expected.getAttribute(attribute1),
+				RedisSessionMapper.ATTRIBUTE_PREFIX + attribute2, expected.getAttribute(attribute2),
+				RedisSessionMapper.CREATION_TIME_KEY, expected.getCreationTime().toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) expected.getMaxInactiveInterval().getSeconds(),
+				RedisSessionMapper.LAST_ACCESSED_TIME_KEY, expected.getLastAccessedTime().toEpochMilli());
+		given(this.hashOperations.entries(anyString())).willReturn(Flux.fromIterable(map.entrySet()));
 
-		StepVerifier.create(this.repository.findById("test"))
-				.consumeNextWith((session) -> {
-					verify(this.redisOperations).opsForHash();
-					verify(this.hashOperations).entries(anyString());
-					verifyZeroInteractions(this.redisOperations);
-					verifyZeroInteractions(this.hashOperations);
+		StepVerifier.create(this.repository.findById("test")).consumeNextWith((session) -> {
+			verify(this.redisOperations).opsForHash();
+			verify(this.hashOperations).entries(anyString());
+			verifyZeroInteractions(this.redisOperations);
+			verifyZeroInteractions(this.hashOperations);
 
-					assertThat(session.getId()).isEqualTo(expected.getId());
-					assertThat(session.getAttributeNames())
-							.isEqualTo(expected.getAttributeNames());
-					assertThat(session.<String>getAttribute(attribute1))
-							.isEqualTo(expected.getAttribute(attribute1));
-					assertThat(session.<String>getAttribute(attribute2))
-							.isEqualTo(expected.getAttribute(attribute2));
-					assertThat(session.getCreationTime().truncatedTo(ChronoUnit.MILLIS))
-							.isEqualTo(expected.getCreationTime()
-									.truncatedTo(ChronoUnit.MILLIS));
-					assertThat(session.getMaxInactiveInterval())
-							.isEqualTo(expected.getMaxInactiveInterval());
-					assertThat(
-							session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
-									.isEqualTo(expected.getLastAccessedTime()
-											.truncatedTo(ChronoUnit.MILLIS));
-				}).verifyComplete();
+			assertThat(session.getId()).isEqualTo(expected.getId());
+			assertThat(session.getAttributeNames()).isEqualTo(expected.getAttributeNames());
+			assertThat(session.<String>getAttribute(attribute1)).isEqualTo(expected.getAttribute(attribute1));
+			assertThat(session.<String>getAttribute(attribute2)).isEqualTo(expected.getAttribute(attribute2));
+			assertThat(session.getCreationTime().truncatedTo(ChronoUnit.MILLIS))
+					.isEqualTo(expected.getCreationTime().truncatedTo(ChronoUnit.MILLIS));
+			assertThat(session.getMaxInactiveInterval()).isEqualTo(expected.getMaxInactiveInterval());
+			assertThat(session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
+					.isEqualTo(expected.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS));
+		}).verifyComplete();
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void getSessionExpired() {
+	void getSessionExpired() {
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
-		Map map = map(RedisSessionMapper.CREATION_TIME_KEY, 0L,
-				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1,
-				RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
-		given(this.hashOperations.entries(anyString()))
-				.willReturn(Flux.fromIterable(map.entrySet()));
+		Map map = map(RedisSessionMapper.CREATION_TIME_KEY, 0L, RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1,
+				RedisSessionMapper.LAST_ACCESSED_TIME_KEY, Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
+		given(this.hashOperations.entries(anyString())).willReturn(Flux.fromIterable(map.entrySet()));
 		given(this.redisOperations.delete(anyString())).willReturn(Mono.just(0L));
 
 		StepVerifier.create(this.repository.findById("test")).verifyComplete();
@@ -373,7 +337,7 @@ public class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test // gh-1120
-	public void getAttributeNamesAndRemove() {
+	void getAttributeNamesAndRemove() {
 		RedisSession session = this.repository.new RedisSession(this.cached);
 		session.setAttribute("attribute1", "value1");
 		session.setAttribute("attribute2", "value2");

@@ -47,10 +47,10 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class Gh109Tests {
+class Gh109Tests {
 
 	@Test
-	public void loads() {
+	void loads() {
 
 	}
 
@@ -63,8 +63,7 @@ public class Gh109Tests {
 		 * override sessionRepository construction to set the custom session-timeout
 		 */
 		@Bean
-		public RedisOperationsSessionRepository sessionRepository(
-				RedisOperations<Object, Object> sessionRedisTemplate,
+		public RedisOperationsSessionRepository sessionRepository(RedisOperations<Object, Object> sessionRedisTemplate,
 				ApplicationEventPublisher applicationEventPublisher) {
 			RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
 					sessionRedisTemplate);
@@ -80,5 +79,7 @@ public class Gh109Tests {
 			given(connection.getConfig(anyString())).willReturn(new Properties());
 			return factory;
 		}
+
 	}
+
 }

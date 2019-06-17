@@ -49,7 +49,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
+class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 
 	@Autowired
 	RedisMessageListenerContainer redisMessageListenerContainer;
@@ -61,15 +61,15 @@ public class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 	Executor springSessionRedisSubscriptionExecutor;
 
 	@Test
-	public void overrideSessionTaskExecutors() {
-		verify(this.springSessionRedisSubscriptionExecutor, times(1))
-				.execute(any(SchedulingAwareRunnable.class));
+	void overrideSessionTaskExecutors() {
+		verify(this.springSessionRedisSubscriptionExecutor, times(1)).execute(any(SchedulingAwareRunnable.class));
 		verify(this.springSessionRedisTaskExecutor, never()).execute(any(Runnable.class));
 	}
 
 	@EnableRedisHttpSession
 	@Configuration
 	static class Config {
+
 		@Bean
 		public Executor springSessionRedisTaskExecutor() {
 			return mock(Executor.class);
@@ -89,5 +89,7 @@ public class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 
 			return factory;
 		}
+
 	}
+
 }

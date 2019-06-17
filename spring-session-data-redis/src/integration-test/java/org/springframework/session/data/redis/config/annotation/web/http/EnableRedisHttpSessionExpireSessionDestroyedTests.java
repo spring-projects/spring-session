@@ -44,8 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session>
-		extends AbstractRedisITests {
+class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> extends AbstractRedisITests {
 
 	@Autowired
 	private SessionRepository<S> repository;
@@ -56,16 +55,16 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 	private final Object lock = new Object();
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.registry.setLock(this.lock);
 	}
 
 	@Test
-	public void expireFiresSessionExpiredEvent() throws InterruptedException {
+	void expireFiresSessionExpiredEvent() throws InterruptedException {
 		S toSave = this.repository.createSession();
 		toSave.setAttribute("a", "b");
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user",
-				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken("user", "password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		toSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
@@ -89,9 +88,10 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 		assertThat(this.registry.receivedEvent()).isTrue();
 	}
 
-	static class SessionExpiredEventRegistry
-			implements ApplicationListener<SessionExpiredEvent> {
+	static class SessionExpiredEventRegistry implements ApplicationListener<SessionExpiredEvent> {
+
 		private boolean receivedEvent;
+
 		private Object lock;
 
 		@Override
@@ -109,6 +109,7 @@ public class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session
 		public void setLock(Object lock) {
 			this.lock = lock;
 		}
+
 	}
 
 	@Configuration

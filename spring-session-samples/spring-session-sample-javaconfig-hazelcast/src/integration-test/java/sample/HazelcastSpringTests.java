@@ -28,28 +28,28 @@ import sample.pages.LoginPage;
  * @author Eddú Meléndez
  * @author Rob Winch
  */
-public class HazelcastSpringTests {
+class HazelcastSpringTests {
 
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.driver = new HtmlUnitDriver();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void goHomeRedirectLoginPage() {
+	void goHomeRedirectLoginPage() {
 		LoginPage login = HomePage.go(this.driver);
 		login.assertAt();
 	}
 
 	@Test
-	public void login() {
+	void login() {
 		LoginPage login = HomePage.go(this.driver);
 		login.assertAt();
 		HomePage home = login.form().login(HomePage.class);

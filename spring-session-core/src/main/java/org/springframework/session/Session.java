@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,13 @@ public interface Session {
 
 	/**
 	 * Gets a unique string that identifies the {@link Session}.
-	 *
 	 * @return a unique string that identifies the {@link Session}
 	 */
 	String getId();
 
 	/**
-	 * Changes the session id. After invoking the {@link #getId()} will return a new identifier.
+	 * Changes the session id. After invoking the {@link #getId()} will return a new
+	 * identifier.
 	 * @return the new session id which {@link #getId()} will now return
 	 */
 	String changeSessionId();
@@ -46,7 +46,6 @@ public interface Session {
 	/**
 	 * Gets the Object associated with the specified name or null if no Object is
 	 * associated to that name.
-	 *
 	 * @param <T> the return type of the attribute
 	 * @param attributeName the name of the attribute to get
 	 * @return the Object associated with the specified name or null if no Object is
@@ -65,8 +64,7 @@ public interface Session {
 	default <T> T getRequiredAttribute(String name) {
 		T result = getAttribute(name);
 		if (result == null) {
-			throw new IllegalArgumentException(
-					"Required attribute '" + name + "' is missing.");
+			throw new IllegalArgumentException("Required attribute '" + name + "' is missing.");
 		}
 		return result;
 	}
@@ -88,7 +86,6 @@ public interface Session {
 	 * Gets the attribute names that have a value associated with it. Each value can be
 	 * passed into {@link org.springframework.session.Session#getAttribute(String)} to
 	 * obtain the attribute value.
-	 *
 	 * @return the attribute names that have a value associated with it.
 	 * @see #getAttribute(String)
 	 */
@@ -98,7 +95,6 @@ public interface Session {
 	 * Sets the attribute value for the provided attribute name. If the attributeValue is
 	 * null, it has the same result as removing the attribute with
 	 * {@link org.springframework.session.Session#removeAttribute(String)} .
-	 *
 	 * @param attributeName the attribute name to set
 	 * @param attributeValue the value of the attribute to set. If null, the attribute
 	 * will be removed.
@@ -113,21 +109,18 @@ public interface Session {
 
 	/**
 	 * Gets the time when this session was created.
-	 *
 	 * @return the time when this session was created.
 	 */
 	Instant getCreationTime();
 
 	/**
 	 * Sets the last accessed time.
-	 *
 	 * @param lastAccessedTime the last accessed time
 	 */
 	void setLastAccessedTime(Instant lastAccessedTime);
 
 	/**
 	 * Gets the last time this {@link Session} was accessed.
-	 *
 	 * @return the last time the client sent a request associated with the session
 	 */
 	Instant getLastAccessedTime();
@@ -135,7 +128,6 @@ public interface Session {
 	/**
 	 * Sets the maximum inactive interval between requests before this session will be
 	 * invalidated. A negative time indicates that the session will never timeout.
-	 *
 	 * @param interval the amount of time that the {@link Session} should be kept alive
 	 * between client requests.
 	 */
@@ -144,7 +136,6 @@ public interface Session {
 	/**
 	 * Gets the maximum inactive interval between requests before this session will be
 	 * invalidated. A negative time indicates that the session will never timeout.
-	 *
 	 * @return the maximum inactive interval between requests before this session will be
 	 * invalidated. A negative time indicates that the session will never timeout.
 	 */
@@ -152,7 +143,6 @@ public interface Session {
 
 	/**
 	 * Returns true if the session is expired.
-	 *
 	 * @return true if the session is expired, else false.
 	 */
 	boolean isExpired();

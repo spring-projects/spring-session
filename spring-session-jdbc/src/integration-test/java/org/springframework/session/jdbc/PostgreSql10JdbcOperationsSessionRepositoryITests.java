@@ -35,8 +35,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class PostgreSql10JdbcOperationsSessionRepositoryITests
-		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
+class PostgreSql10JdbcOperationsSessionRepositoryITests extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseContainerConfig {

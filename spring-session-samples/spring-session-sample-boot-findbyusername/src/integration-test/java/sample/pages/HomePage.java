@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  */
 public class HomePage extends BasePage {
+
 	@FindBy(css = "input[type=\"submit\"]")
 	WebElement logout;
 
@@ -41,8 +42,7 @@ public class HomePage extends BasePage {
 	}
 
 	public void assertAt() {
-		assertThat(getDriver().getTitle())
-				.isEqualTo("Spring Session Sample - Secured Content");
+		assertThat(getDriver().getTitle()).isEqualTo("Spring Session Sample - Secured Content");
 	}
 
 	public void containCookie(String cookieName) {
@@ -76,4 +76,5 @@ public class HomePage extends BasePage {
 		get(driver, "/");
 		return PageFactory.initElements(driver, LoginPage.class);
 	}
+
 }

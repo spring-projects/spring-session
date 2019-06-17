@@ -50,7 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-public class ApplicationTests {
+class ApplicationTests {
 
 	private static final String DOCKER_IMAGE = "redis:5.0.5";
 
@@ -61,14 +61,14 @@ public class ApplicationTests {
 	private WebSocketHandler webSocketHandler;
 
 	@Test
-	public void run() {
+	void run() {
 		List<Transport> transports = new ArrayList<>(2);
 		transports.add(new WebSocketTransport(new StandardWebSocketClient()));
 		transports.add(new RestTemplateXhrTransport());
 
 		SockJsClient sockJsClient = new SockJsClient(transports);
-		ListenableFuture<WebSocketSession> wsSession = sockJsClient.doHandshake(
-				this.webSocketHandler, "ws://localhost:" + this.port + "/sockjs");
+		ListenableFuture<WebSocketSession> wsSession = sockJsClient.doHandshake(this.webSocketHandler,
+				"ws://localhost:" + this.port + "/sockjs");
 
 		assertThatExceptionOfType(ExecutionException.class)
 				.isThrownBy(() -> wsSession.get().sendMessage(new TextMessage("a")));
@@ -79,8 +79,7 @@ public class ApplicationTests {
 
 		@Bean
 		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-					.withExposedPorts(6379);
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}

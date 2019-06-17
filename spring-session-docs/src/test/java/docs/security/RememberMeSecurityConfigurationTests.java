@@ -49,18 +49,21 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 @ContextConfiguration(classes = RememberMeSecurityConfiguration.class)
 @WebAppConfiguration
 @SuppressWarnings("rawtypes")
-public class RememberMeSecurityConfigurationTests<T extends Session> {
+class RememberMeSecurityConfigurationTests<T extends Session> {
+
 	@Autowired
 	WebApplicationContext context;
+
 	@Autowired
 	SessionRepositoryFilter springSessionRepositoryFilter;
+
 	@Autowired
 	SessionRepository<T> sessions;
 
-	MockMvc mockMvc;
+	private MockMvc mockMvc;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		// @formatter:off
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.context)
@@ -71,8 +74,7 @@ public class RememberMeSecurityConfigurationTests<T extends Session> {
 	}
 
 	@Test
-	public void authenticateWhenSpringSessionRememberMeEnabledThenCookieMaxAgeAndSessionExpirationSet()
-			throws Exception {
+	void authenticateWhenSpringSessionRememberMeEnabledThenCookieMaxAgeAndSessionExpirationSet() throws Exception {
 		// @formatter:off
 		MvcResult result = this.mockMvc
 			.perform(formLogin())
@@ -81,10 +83,8 @@ public class RememberMeSecurityConfigurationTests<T extends Session> {
 
 		Cookie cookie = result.getResponse().getCookie("SESSION");
 		assertThat(cookie.getMaxAge()).isEqualTo(Integer.MAX_VALUE);
-		T session = this.sessions
-				.findById(new String(Base64.getDecoder().decode(cookie.getValue())));
-		assertThat(session.getMaxInactiveInterval())
-				.isEqualTo(Duration.ofDays(30));
+		T session = this.sessions.findById(new String(Base64.getDecoder().decode(cookie.getValue())));
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofDays(30));
 
 	}
 

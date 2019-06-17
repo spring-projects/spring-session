@@ -35,14 +35,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Session>
-		extends AbstractRedisITests {
+class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Session> extends AbstractRedisITests {
 
 	@Autowired
 	private SessionRepository<S> sessionRepository;
 
 	@Test
-	public void savesOnCreate() throws InterruptedException {
+	void savesOnCreate() throws InterruptedException {
 		S created = this.sessionRepository.createSession();
 
 		S getSession = this.sessionRepository.findById(created.getId());

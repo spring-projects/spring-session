@@ -49,13 +49,13 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 	@ExtendWith(SpringExtension.class)
 	@ContextConfiguration
 	@WebAppConfiguration
-	public static class CustomXmlMapNameTest<S extends Session> {
+	static class CustomXmlMapNameTest<S extends Session> {
 
 		@Autowired
 		private SessionRepository<S> repository;
 
 		@Test
-		public void saveSessionTest() throws InterruptedException {
+		void saveSessionTest() throws InterruptedException {
 
 			S sessionToSave = this.repository.createSession();
 
@@ -64,8 +64,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 			S session = this.repository.findById(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-			assertThat(session.getMaxInactiveInterval())
-					.isEqualTo(Duration.ofMinutes(30));
+			assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofMinutes(30));
 		}
 
 		@Configuration
@@ -81,19 +80,21 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 				hazelcastConfig.setNetworkConfig(netConfig);
 				return Hazelcast.newHazelcastInstance(hazelcastConfig);
 			}
+
 		}
+
 	}
 
 	@ExtendWith(SpringExtension.class)
 	@ContextConfiguration
 	@WebAppConfiguration
-	public static class CustomXmlMapNameAndIdleTest<S extends Session> {
+	static class CustomXmlMapNameAndIdleTest<S extends Session> {
 
 		@Autowired
 		private SessionRepository<S> repository;
 
 		@Test
-		public void saveSessionTest() throws InterruptedException {
+		void saveSessionTest() throws InterruptedException {
 
 			S sessionToSave = this.repository.createSession();
 
@@ -102,8 +103,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 			S session = this.repository.findById(sessionToSave.getId());
 
 			assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-			assertThat(session.getMaxInactiveInterval())
-					.isEqualTo(Duration.ofMinutes(20));
+			assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofMinutes(20));
 		}
 
 		@Configuration
@@ -119,7 +119,9 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 				hazelcastConfig.setNetworkConfig(netConfig);
 				return Hazelcast.newHazelcastInstance(hazelcastConfig);
 			}
+
 		}
+
 	}
 
 }

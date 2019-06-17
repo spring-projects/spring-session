@@ -38,8 +38,7 @@ public class HomePage extends BasePage {
 	}
 
 	public void assertAt() {
-		assertThat(getDriver().getTitle())
-				.isEqualTo("Spring Session Sample - Secured Content");
+		assertThat(getDriver().getTitle()).isEqualTo("Spring Session Sample - Secured Content");
 	}
 
 	public void containCookie(String cookieName) {
@@ -53,8 +52,7 @@ public class HomePage extends BasePage {
 	}
 
 	public HomePage logout() {
-		WebElement logout = getDriver()
-				.findElement(By.cssSelector("input[type=\"submit\"]"));
+		WebElement logout = getDriver().findElement(By.cssSelector("input[type=\"submit\"]"));
 		logout.click();
 		return PageFactory.initElements(getDriver(), HomePage.class);
 	}

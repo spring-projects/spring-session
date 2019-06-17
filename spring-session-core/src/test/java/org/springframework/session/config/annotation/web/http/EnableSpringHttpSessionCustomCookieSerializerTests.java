@@ -61,7 +61,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class EnableSpringHttpSessionCustomCookieSerializerTests {
+class EnableSpringHttpSessionCustomCookieSerializerTests {
 
 	@Autowired
 	private MockHttpServletRequest request;
@@ -81,7 +81,7 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	private CookieSerializer cookieSerializer;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.chain = new MockFilterChain();
 
 		reset(this.sessionRepository);
@@ -89,12 +89,11 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	}
 
 	@Test
-	public void usesReadSessionIds() throws Exception {
+	void usesReadSessionIds() throws Exception {
 		String sessionId = "sessionId";
 		given(this.cookieSerializer.readCookieValues(any(HttpServletRequest.class)))
 				.willReturn(Collections.singletonList(sessionId));
-		given(this.sessionRepository.findById(anyString()))
-				.willReturn(new MapSession(sessionId));
+		given(this.sessionRepository.findById(anyString())).willReturn(new MapSession(sessionId));
 
 		this.sessionRepositoryFilter.doFilter(this.request, this.response, this.chain);
 
@@ -102,19 +101,18 @@ public class EnableSpringHttpSessionCustomCookieSerializerTests {
 	}
 
 	@Test
-	public void usesWrite() throws Exception {
+	void usesWrite() throws Exception {
 		given(this.sessionRepository.createSession()).willReturn(new MapSession());
 
-		this.sessionRepositoryFilter.doFilter(this.request, this.response,
-				new MockFilterChain() {
+		this.sessionRepositoryFilter.doFilter(this.request, this.response, new MockFilterChain() {
 
-					@Override
-					public void doFilter(ServletRequest request, ServletResponse response)
-							throws IOException, ServletException {
-						((HttpServletRequest) request).getSession();
-						super.doFilter(request, response);
-					}
-				});
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response)
+					throws IOException, ServletException {
+				((HttpServletRequest) request).getSession();
+				super.doFilter(request, response);
+			}
+		});
 
 		verify(this.cookieSerializer).writeCookieValue(any(CookieValue.class));
 	}

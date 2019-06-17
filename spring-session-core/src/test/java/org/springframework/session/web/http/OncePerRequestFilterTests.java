@@ -35,18 +35,23 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class OncePerRequestFilterTests {
+class OncePerRequestFilterTests {
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
+
 	private MockFilterChain chain;
+
 	private OncePerRequestFilter filter;
+
 	private HttpServlet servlet;
 
 	private List<OncePerRequestFilter> invocations;
 
 	@BeforeEach
 	@SuppressWarnings("serial")
-	public void setup() {
+	void setup() {
 		this.servlet = new HttpServlet() {
 		};
 		this.request = new MockHttpServletRequest();
@@ -55,9 +60,8 @@ public class OncePerRequestFilterTests {
 		this.invocations = new ArrayList<>();
 		this.filter = new OncePerRequestFilter() {
 			@Override
-			protected void doFilterInternal(HttpServletRequest request,
-					HttpServletResponse response, FilterChain filterChain)
-							throws ServletException, IOException {
+			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+					FilterChain filterChain) throws ServletException, IOException {
 				OncePerRequestFilterTests.this.invocations.add(this);
 				filterChain.doFilter(request, response);
 			}
@@ -65,34 +69,32 @@ public class OncePerRequestFilterTests {
 	}
 
 	@Test
-	public void doFilterOnce() throws ServletException, IOException {
+	void doFilterOnce() throws ServletException, IOException {
 		this.filter.doFilter(this.request, this.response, this.chain);
 
 		assertThat(this.invocations).containsOnly(this.filter);
 	}
 
 	@Test
-	public void doFilterMultiOnlyIvokesOnce() throws ServletException, IOException {
-		this.filter.doFilter(this.request, this.response,
-				new MockFilterChain(this.servlet, this.filter));
+	void doFilterMultiOnlyIvokesOnce() throws ServletException, IOException {
+		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, this.filter));
 
 		assertThat(this.invocations).containsOnly(this.filter);
 	}
 
 	@Test
-	public void doFilterOtherSubclassInvoked() throws ServletException, IOException {
+	void doFilterOtherSubclassInvoked() throws ServletException, IOException {
 		OncePerRequestFilter filter2 = new OncePerRequestFilter() {
 			@Override
-			protected void doFilterInternal(HttpServletRequest request,
-					HttpServletResponse response, FilterChain filterChain)
-							throws ServletException, IOException {
+			protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+					FilterChain filterChain) throws ServletException, IOException {
 				OncePerRequestFilterTests.this.invocations.add(this);
 				filterChain.doFilter(request, response);
 			}
 		};
-		this.filter.doFilter(this.request, this.response,
-				new MockFilterChain(this.servlet, filter2));
+		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, filter2));
 
 		assertThat(this.invocations).containsOnly(this.filter, filter2);
 	}
+
 }

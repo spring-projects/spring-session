@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,12 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository.R
  */
 final class RedisSessionExpirationPolicy {
 
-	private static final Log logger = LogFactory
-			.getLog(RedisSessionExpirationPolicy.class);
+	private static final Log logger = LogFactory.getLog(RedisSessionExpirationPolicy.class);
 
 	private final RedisOperations<Object, Object> redis;
+
 	private final Function<Long, String> lookupExpirationKey;
+
 	private final Function<String, String> lookupSessionKey;
 
 	RedisSessionExpirationPolicy(RedisOperations<Object, Object> sessionRedisOperations,
@@ -92,12 +93,10 @@ final class RedisSessionExpirationPolicy {
 		}
 
 		String expireKey = getExpirationKey(toExpire);
-		BoundSetOperations<Object, Object> expireOperations = this.redis
-				.boundSetOps(expireKey);
+		BoundSetOperations<Object, Object> expireOperations = this.redis.boundSetOps(expireKey);
 		expireOperations.add(keyToExpire);
 
-		long fiveMinutesAfterExpires = sessionExpireInSeconds
-				+ TimeUnit.MINUTES.toSeconds(5);
+		long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
 
 		expireOperations.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 		if (sessionExpireInSeconds == 0) {
@@ -105,11 +104,9 @@ final class RedisSessionExpirationPolicy {
 		}
 		else {
 			this.redis.boundValueOps(sessionKey).append("");
-			this.redis.boundValueOps(sessionKey).expire(sessionExpireInSeconds,
-					TimeUnit.SECONDS);
+			this.redis.boundValueOps(sessionKey).expire(sessionExpireInSeconds, TimeUnit.SECONDS);
 		}
-		this.redis.boundHashOps(getSessionKey(session.getId()))
-				.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+		this.redis.boundHashOps(getSessionKey(session.getId())).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 	}
 
 	String getExpirationKey(long expires) {
@@ -141,7 +138,6 @@ final class RedisSessionExpirationPolicy {
 	 * By trying to access the session we only trigger a deletion if it the TTL is
 	 * expired. This is done to handle
 	 * https://github.com/spring-projects/spring-session/issues/93
-	 *
 	 * @param key the key
 	 */
 	private void touch(String key) {
@@ -171,4 +167,5 @@ final class RedisSessionExpirationPolicy {
 		date.clear(Calendar.MILLISECOND);
 		return date.getTimeInMillis();
 	}
+
 }

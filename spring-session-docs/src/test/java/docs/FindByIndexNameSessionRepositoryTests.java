@@ -30,9 +30,11 @@ import org.springframework.session.Session;
  * @author Rob Winch
  *
  */
-public class FindByIndexNameSessionRepositoryTests {
+class FindByIndexNameSessionRepositoryTests {
+
 	@Mock
 	FindByIndexNameSessionRepository<Session> sessionRepository;
+
 	@Mock
 	Session session;
 
@@ -42,21 +44,20 @@ public class FindByIndexNameSessionRepositoryTests {
 	}
 
 	@Test
-	public void setUsername() {
+	void setUsername() {
 		// tag::set-username[]
 		String username = "username";
-		this.session.setAttribute(
-				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
+		this.session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
 		// end::set-username[]
 	}
 
 	@Test
 	@SuppressWarnings("unused")
-	public void findByUsername() {
+	void findByUsername() {
 		// tag::findby-username[]
 		String username = "username";
-		Map<String, Session> sessionIdToSession = this.sessionRepository
-				.findByPrincipalName(username);
+		Map<String, Session> sessionIdToSession = this.sessionRepository.findByPrincipalName(username);
 		// end::findby-username[]
 	}
+
 }

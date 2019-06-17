@@ -32,34 +32,34 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Eddú Meléndez
  * @author Rob Winch
  */
-public class AttributeTests {
+class AttributeTests {
 
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.driver = new HtmlUnitDriver();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void home() {
+	void home() {
 		HomePage home = HomePage.go(this.driver);
 		home.assertAt();
 	}
 
 	@Test
-	public void noAttributes() {
+	void noAttributes() {
 		HomePage home = HomePage.go(this.driver);
 		assertThat(home.attributes().size()).isEqualTo(0);
 	}
 
 	@Test
-	public void createAttribute() {
+	void createAttribute() {
 		HomePage home = HomePage.go(this.driver);
 		// @formatter:off
 		home = home.form()

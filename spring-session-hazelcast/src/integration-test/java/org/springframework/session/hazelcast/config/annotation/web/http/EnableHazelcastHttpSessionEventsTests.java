@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
+class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 
@@ -68,12 +68,12 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	private SessionEventRegistry registry;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.registry.clear();
 	}
 
 	@Test
-	public void saveSessionTest() throws InterruptedException {
+	void saveSessionTest() throws InterruptedException {
 		String username = "saves-" + System.currentTimeMillis();
 
 		S sessionToSave = this.repository.createSession();
@@ -81,13 +81,12 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		String expectedAttributeName = "a";
 		String expectedAttributeValue = "b";
 		sessionToSave.setAttribute(expectedAttributeName, expectedAttributeValue);
-		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username,
-				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication toSaveToken = new UsernamePasswordAuthenticationToken(username, "password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext toSaveContext = SecurityContextHolder.createEmptyContext();
 		toSaveContext.setAuthentication(toSaveToken);
 		sessionToSave.setAttribute("SPRING_SECURITY_CONTEXT", toSaveContext);
-		sessionToSave.setAttribute(
-				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
+		sessionToSave.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username);
 
 		this.repository.save(sessionToSave);
 
@@ -98,14 +97,13 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 		Session session = this.repository.findById(sessionToSave.getId());
 
 		assertThat(session.getId()).isEqualTo(sessionToSave.getId());
-		assertThat(session.getAttributeNames())
-				.isEqualTo(sessionToSave.getAttributeNames());
+		assertThat(session.getAttributeNames()).isEqualTo(sessionToSave.getAttributeNames());
 		assertThat(session.<String>getAttribute(expectedAttributeName))
 				.isEqualTo(sessionToSave.getAttribute(expectedAttributeName));
 	}
 
 	@Test
-	public void expiredSessionTest() throws InterruptedException {
+	void expiredSessionTest() throws InterruptedException {
 		S sessionToSave = this.repository.createSession();
 
 		this.repository.save(sessionToSave);
@@ -126,7 +124,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	}
 
 	@Test
-	public void deletedSessionTest() throws InterruptedException {
+	void deletedSessionTest() throws InterruptedException {
 		S sessionToSave = this.repository.createSession();
 
 		this.repository.save(sessionToSave);
@@ -146,7 +144,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	}
 
 	@Test
-	public void saveUpdatesTimeToLiveTest() throws InterruptedException {
+	void saveUpdatesTimeToLiveTest() throws InterruptedException {
 		S sessionToSave = this.repository.createSession();
 		sessionToSave.setMaxInactiveInterval(Duration.ofSeconds(3));
 		this.repository.save(sessionToSave);
@@ -164,7 +162,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	}
 
 	@Test // gh-1077
-	public void changeSessionIdNoEventTest() throws InterruptedException {
+	void changeSessionIdNoEventTest() throws InterruptedException {
 		S sessionToSave = this.repository.createSession();
 		sessionToSave.setMaxInactiveInterval(Duration.ofMinutes(30));
 
@@ -182,7 +180,7 @@ public class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	}
 
 	@Test // gh-1300
-	public void updateMaxInactiveIntervalTest() throws InterruptedException {
+	void updateMaxInactiveIntervalTest() throws InterruptedException {
 		S sessionToSave = this.repository.createSession();
 		sessionToSave.setMaxInactiveInterval(Duration.ofMinutes(30));
 		this.repository.save(sessionToSave);

@@ -67,8 +67,7 @@ import org.springframework.util.StringValueResolver;
 @Configuration(proxyBeanMethods = false)
 @EnableScheduling
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware,
-		SchedulingConfigurer {
+		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware, SchedulingConfigurer {
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
@@ -95,13 +94,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository() {
 		JdbcTemplate jdbcTemplate = createJdbcTemplate(this.dataSource);
-		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(
-				jdbcTemplate, this.transactionManager);
+		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(jdbcTemplate,
+				this.transactionManager);
 		if (StringUtils.hasText(this.tableName)) {
 			sessionRepository.setTableName(this.tableName);
 		}
-		sessionRepository
-				.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
 		}
@@ -117,16 +115,14 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 			sessionRepository.setConversionService(this.conversionService);
 		}
 		else {
-			sessionRepository
-					.setConversionService(createConversionServiceWithBeanClassLoader());
+			sessionRepository.setConversionService(createConversionServiceWithBeanClassLoader());
 		}
 		return sessionRepository;
 	}
 
 	private static boolean requiresTemporaryLob(DataSource dataSource) {
 		try {
-			String productName = JdbcUtils.extractDatabaseMetaData(dataSource,
-					"getDatabaseProductName");
+			String productName = JdbcUtils.extractDatabaseMetaData(dataSource, "getDatabaseProductName");
 			return "Oracle".equalsIgnoreCase(JdbcUtils.commonDatabaseName(productName));
 		}
 		catch (MetaDataAccessException ex) {
@@ -147,8 +143,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	}
 
 	@Autowired
-	public void setDataSource(
-			@SpringSessionDataSource ObjectProvider<DataSource> springSessionDataSource,
+	public void setDataSource(@SpringSessionDataSource ObjectProvider<DataSource> springSessionDataSource,
 			ObjectProvider<DataSource> dataSource) {
 		DataSource dataSourceToUse = springSessionDataSource.getIfAvailable();
 		if (dataSourceToUse == null) {
@@ -195,12 +190,10 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
-		this.maxInactiveIntervalInSeconds = attributes
-				.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
 		String tableNameValue = attributes.getString("tableName");
 		if (StringUtils.hasText(tableNameValue)) {
-			this.tableName = this.embeddedValueResolver
-					.resolveStringValue(tableNameValue);
+			this.tableName = this.embeddedValueResolver.resolveStringValue(tableNameValue);
 		}
 		String cleanupCron = attributes.getString("cleanupCron");
 		if (StringUtils.hasText(cleanupCron)) {
@@ -210,8 +203,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Override
 	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-		taskRegistrar.addCronTask(() -> sessionRepository().cleanUpExpiredSessions(),
-				this.cleanupCron);
+		taskRegistrar.addCronTask(() -> sessionRepository().cleanUpExpiredSessions(), this.cleanupCron);
 	}
 
 	private static JdbcTemplate createJdbcTemplate(DataSource dataSource) {
@@ -222,10 +214,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private GenericConversionService createConversionServiceWithBeanClassLoader() {
 		GenericConversionService conversionService = new GenericConversionService();
-		conversionService.addConverter(Object.class, byte[].class,
-				new SerializingConverter());
-		conversionService.addConverter(byte[].class, Object.class,
-				new DeserializingConverter(this.classLoader));
+		conversionService.addConverter(Object.class, byte[].class, new SerializingConverter());
+		conversionService.addConverter(byte[].class, Object.class, new DeserializingConverter(this.classLoader));
 		return conversionService;
 	}
 

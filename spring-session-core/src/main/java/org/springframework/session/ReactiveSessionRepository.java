@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ public interface ReactiveSessionRepository<S extends Session> {
 	 * persisted. For example, the implementation returned might keep track of the changes
 	 * ensuring that only the delta needs to be persisted on a save.
 	 * </p>
-	 *
 	 * @return a new {@link Session} that is capable of being persisted by this
 	 * {@link ReactiveSessionRepository}
 	 */
@@ -51,7 +50,6 @@ public interface ReactiveSessionRepository<S extends Session> {
 	 * returning a {@link Session} that immediately persists any changes. In this case,
 	 * this method may not actually do anything.
 	 * </p>
-	 *
 	 * @param session the {@link Session} to save
 	 * @return indicator of operation completion
 	 */
@@ -60,7 +58,6 @@ public interface ReactiveSessionRepository<S extends Session> {
 	/**
 	 * Gets the {@link Session} by the {@link Session#getId()} or null if no
 	 * {@link Session} is found.
-	 *
 	 * @param id the {@link Session#getId()} to lookup
 	 * @return the {@link Session} by the {@link Session#getId()} or null if no
 	 * {@link Session} is found.

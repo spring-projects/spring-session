@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,28 +37,27 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 public class IndexController {
+
 	// tag::findbyusername[]
 	@Autowired
 	FindByIndexNameSessionRepository<? extends Session> sessions;
 
 	@RequestMapping("/")
 	public String index(Principal principal, Model model) {
-		Collection<? extends Session> usersSessions = this.sessions
-				.findByPrincipalName(principal.getName()).values();
+		Collection<? extends Session> usersSessions = this.sessions.findByPrincipalName(principal.getName()).values();
 		model.addAttribute("sessions", usersSessions);
 		return "index";
 	}
 	// end::findbyusername[]
 
 	@RequestMapping(value = "/sessions/{sessionIdToDelete}", method = RequestMethod.DELETE)
-	public String removeSession(Principal principal,
-			@PathVariable String sessionIdToDelete) {
-		Set<String> usersSessionIds = this.sessions
-				.findByPrincipalName(principal.getName()).keySet();
+	public String removeSession(Principal principal, @PathVariable String sessionIdToDelete) {
+		Set<String> usersSessionIds = this.sessions.findByPrincipalName(principal.getName()).keySet();
 		if (usersSessionIds.contains(sessionIdToDelete)) {
 			this.sessions.deleteById(sessionIdToDelete);
 		}
 
 		return "redirect:/";
 	}
+
 }

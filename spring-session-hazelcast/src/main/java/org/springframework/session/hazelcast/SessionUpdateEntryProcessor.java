@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,8 +33,7 @@ import org.springframework.session.MapSession;
  * @since 1.3.4
  * @see HazelcastSessionRepository#save(HazelcastSessionRepository.HazelcastSession)
  */
-public class SessionUpdateEntryProcessor
-		extends AbstractEntryProcessor<String, MapSession> implements Offloadable {
+public class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSession> implements Offloadable {
 
 	private Instant lastAccessedTime;
 

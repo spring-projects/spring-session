@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 101)
 public class SessionDetailsFilter extends OncePerRequestFilter {
+
 	static final String UNKNOWN = "Unknown";
 
 	private DatabaseReader reader;
@@ -58,8 +59,8 @@ public class SessionDetailsFilter extends OncePerRequestFilter {
 
 	// tag::dofilterinternal[]
 	@Override
-	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
 		chain.doFilter(request, response);
 
 		HttpSession session = request.getSession(false);
@@ -108,5 +109,6 @@ public class SessionDetailsFilter extends OncePerRequestFilter {
 		}
 		return remoteAddr;
 	}
+
 }
 // end::class[]

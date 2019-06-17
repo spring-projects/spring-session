@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,8 @@ import org.springframework.session.web.http.CookieSerializer.CookieValue;
  */
 public final class CookieHttpSessionIdResolver implements HttpSessionIdResolver {
 
-	private static final String WRITTEN_SESSION_ID_ATTR = CookieHttpSessionIdResolver.class
-			.getName().concat(".WRITTEN_SESSION_ID_ATTR");
+	private static final String WRITTEN_SESSION_ID_ATTR = CookieHttpSessionIdResolver.class.getName()
+			.concat(".WRITTEN_SESSION_ID_ATTR");
 
 	private CookieSerializer cookieSerializer = new DefaultCookieSerializer();
 
@@ -74,14 +74,12 @@ public final class CookieHttpSessionIdResolver implements HttpSessionIdResolver 
 	}
 
 	@Override
-	public void setSessionId(HttpServletRequest request, HttpServletResponse response,
-			String sessionId) {
+	public void setSessionId(HttpServletRequest request, HttpServletResponse response, String sessionId) {
 		if (sessionId.equals(request.getAttribute(WRITTEN_SESSION_ID_ATTR))) {
 			return;
 		}
 		request.setAttribute(WRITTEN_SESSION_ID_ATTR, sessionId);
-		this.cookieSerializer
-				.writeCookieValue(new CookieValue(request, response, sessionId));
+		this.cookieSerializer.writeCookieValue(new CookieValue(request, response, sessionId));
 	}
 
 	@Override
@@ -91,7 +89,6 @@ public final class CookieHttpSessionIdResolver implements HttpSessionIdResolver 
 
 	/**
 	 * Sets the {@link CookieSerializer} to be used.
-	 *
 	 * @param cookieSerializer the cookieSerializer to set. Cannot be null.
 	 */
 	public void setCookieSerializer(CookieSerializer cookieSerializer) {

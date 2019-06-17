@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-public class HttpRedisJsonTest {
+class HttpRedisJsonTest {
 
 	private static final String DOCKER_IMAGE = "redis:5.0.5";
 
@@ -58,29 +58,29 @@ public class HttpRedisJsonTest {
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void goLoginRedirectToLogin() {
+	void goLoginRedirectToLogin() {
 		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		login.assertAt();
 	}
 
 	@Test
-	public void goHomeRedirectLoginPage() {
+	void goHomeRedirectLoginPage() {
 		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		login.assertAt();
 	}
 
 	@Test
-	public void login() {
+	void login() {
 		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		HomePage home = login.form().login(HomePage.class);
 		home.containCookie("SESSION");
@@ -88,7 +88,7 @@ public class HttpRedisJsonTest {
 	}
 
 	@Test
-	public void createAttribute() {
+	void createAttribute() {
 		LoginPage login = HomePage.go(this.driver, LoginPage.class);
 		HomePage home = login.form().login(HomePage.class);
 		// @formatter:off
@@ -108,8 +108,7 @@ public class HttpRedisJsonTest {
 
 		@Bean
 		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-					.withExposedPorts(6379);
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}

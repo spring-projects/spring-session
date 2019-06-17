@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,7 @@ import java.util.Map;
  * @author Rob Winch
  * @author Vedran Pavic
  */
-public interface FindByIndexNameSessionRepository<S extends Session>
-		extends SessionRepository<S> {
+public interface FindByIndexNameSessionRepository<S extends Session> extends SessionRepository<S> {
 
 	/**
 	 * A session index that contains the current principal name (i.e. username).
@@ -44,7 +43,6 @@ public interface FindByIndexNameSessionRepository<S extends Session>
 	/**
 	 * Find a {@link Map} of the session id to the {@link Session} of all sessions that
 	 * contain the specified index name index value.
-	 *
 	 * @param indexName the name of the index (i.e.
 	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME})
 	 * @param indexValue the value of the index to search for.
@@ -59,7 +57,6 @@ public interface FindByIndexNameSessionRepository<S extends Session>
 	 * contain the index with the name
 	 * {@link FindByIndexNameSessionRepository#PRINCIPAL_NAME_INDEX_NAME} and the
 	 * specified principal name.
-	 *
 	 * @param principalName the principal name
 	 * @return a {@code Map} (never {@code null}) of the session id to the {@code Session}
 	 * of all sessions that contain the specified principal name. If no results are found,

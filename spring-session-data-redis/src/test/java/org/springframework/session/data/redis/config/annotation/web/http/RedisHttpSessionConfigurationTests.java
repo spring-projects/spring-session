@@ -51,156 +51,137 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  * @author Vedran Pavic
  */
-public class RedisHttpSessionConfigurationTests {
+class RedisHttpSessionConfigurationTests {
 
 	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
 
 	private AnnotationConfigApplicationContext context;
 
 	@BeforeEach
-	public void before() {
+	void before() {
 		this.context = new AnnotationConfigApplicationContext();
 	}
 
 	@AfterEach
-	public void after() {
+	void after() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void resolveValue() {
+	void resolveValue() {
 		registerAndRefresh(RedisConfig.class, CustomRedisHttpSessionConfiguration.class);
-		RedisHttpSessionConfiguration configuration = this.context
-				.getBean(RedisHttpSessionConfiguration.class);
-		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace"))
-				.isEqualTo("myRedisNamespace");
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace")).isEqualTo("myRedisNamespace");
 	}
 
 	@Test
-	public void resolveValueByPlaceholder() {
-		this.context.setEnvironment(new MockEnvironment()
-				.withProperty("session.redis.namespace", "customRedisNamespace"));
+	void resolveValueByPlaceholder() {
+		this.context
+				.setEnvironment(new MockEnvironment().withProperty("session.redis.namespace", "customRedisNamespace"));
 		registerAndRefresh(RedisConfig.class, PropertySourceConfiguration.class,
 				CustomRedisHttpSessionConfiguration2.class);
-		RedisHttpSessionConfiguration configuration = this.context
-				.getBean(RedisHttpSessionConfiguration.class);
-		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace"))
-				.isEqualTo("customRedisNamespace");
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace")).isEqualTo("customRedisNamespace");
 	}
 
 	@Test
-	public void customCleanupCronAnnotation() {
-		registerAndRefresh(RedisConfig.class,
-				CustomCleanupCronExpressionAnnotationConfiguration.class);
+	void customCleanupCronAnnotation() {
+		registerAndRefresh(RedisConfig.class, CustomCleanupCronExpressionAnnotationConfiguration.class);
 
-		RedisHttpSessionConfiguration configuration = this.context
-				.getBean(RedisHttpSessionConfiguration.class);
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
 		assertThat(configuration).isNotNull();
-		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
-				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	@Test
-	public void customCleanupCronSetter() {
-		registerAndRefresh(RedisConfig.class,
-				CustomCleanupCronExpressionSetterConfiguration.class);
+	void customCleanupCronSetter() {
+		registerAndRefresh(RedisConfig.class, CustomCleanupCronExpressionSetterConfiguration.class);
 
-		RedisHttpSessionConfiguration configuration = this.context
-				.getBean(RedisHttpSessionConfiguration.class);
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
 		assertThat(configuration).isNotNull();
-		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron"))
-				.isEqualTo(CLEANUP_CRON_EXPRESSION);
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	@Test
-	public void qualifiedConnectionFactoryRedisConfig() {
-		registerAndRefresh(RedisConfig.class,
-				QualifiedConnectionFactoryRedisConfig.class);
+	void qualifiedConnectionFactoryRedisConfig() {
+		registerAndRefresh(RedisConfig.class, QualifiedConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
-		RedisConnectionFactory redisConnectionFactory = this.context
-				.getBean("qualifiedRedisConnectionFactory", RedisConnectionFactory.class);
+		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
+				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void primaryConnectionFactoryRedisConfig() {
+	void primaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, PrimaryConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
-		RedisConnectionFactory redisConnectionFactory = this.context
-				.getBean("primaryRedisConnectionFactory", RedisConnectionFactory.class);
+		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context.getBean("primaryRedisConnectionFactory",
+				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
-		registerAndRefresh(RedisConfig.class,
-				QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
+	void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
+		registerAndRefresh(RedisConfig.class, QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
-		RedisConnectionFactory redisConnectionFactory = this.context
-				.getBean("qualifiedRedisConnectionFactory", RedisConnectionFactory.class);
+		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
+				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void namedConnectionFactoryRedisConfig() {
+	void namedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, NamedConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
-		RedisConnectionFactory redisConnectionFactory = this.context
-				.getBean("redisConnectionFactory", RedisConnectionFactory.class);
+		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisConnectionFactory redisConnectionFactory = this.context.getBean("redisConnectionFactory",
+				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		RedisOperations redisOperations = (RedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void multipleConnectionFactoryRedisConfig() {
+	void multipleConnectionFactoryRedisConfig() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> registerAndRefresh(RedisConfig.class,
-						MultipleConnectionFactoryRedisConfig.class))
+				.isThrownBy(() -> registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class))
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 
 	@Test // gh-1252
-	public void customRedisMessageListenerContainerConfig() {
-		registerAndRefresh(RedisConfig.class,
-				CustomRedisMessageListenerContainerConfig.class);
+	void customRedisMessageListenerContainerConfig() {
+		registerAndRefresh(RedisConfig.class, CustomRedisMessageListenerContainerConfig.class);
 		Map<String, RedisMessageListenerContainer> beans = this.context
 				.getBeansOfType(RedisMessageListenerContainer.class);
 		assertThat(beans).hasSize(2);
-		assertThat(beans).containsKeys("springSessionRedisMessageListenerContainer",
-				"redisMessageListenerContainer");
+		assertThat(beans).containsKeys("springSessionRedisMessageListenerContainer", "redisMessageListenerContainer");
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -242,8 +223,7 @@ public class RedisHttpSessionConfigurationTests {
 	}
 
 	@Configuration
-	static class CustomCleanupCronExpressionSetterConfiguration
-			extends RedisHttpSessionConfiguration {
+	static class CustomCleanupCronExpressionSetterConfiguration extends RedisHttpSessionConfiguration {
 
 		CustomCleanupCronExpressionSetterConfiguration() {
 			setCleanupCron(CLEANUP_CRON_EXPRESSION);

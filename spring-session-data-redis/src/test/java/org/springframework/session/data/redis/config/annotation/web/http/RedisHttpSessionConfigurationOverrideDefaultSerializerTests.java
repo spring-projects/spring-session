@@ -46,7 +46,7 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
+class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 
 	@SpringSessionRedisOperations
 	RedisTemplate<Object, Object> template;
@@ -55,14 +55,14 @@ public class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 	RedisSerializer<Object> defaultRedisSerializer;
 
 	@Test
-	public void overrideDefaultRedisTemplate() {
-		assertThat(this.template.getDefaultSerializer())
-				.isSameAs(this.defaultRedisSerializer);
+	void overrideDefaultRedisTemplate() {
+		assertThat(this.template.getDefaultSerializer()).isSameAs(this.defaultRedisSerializer);
 	}
 
 	@EnableRedisHttpSession
 	@Configuration
 	static class Config {
+
 		@Bean
 		@SuppressWarnings("unchecked")
 		public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
@@ -78,5 +78,7 @@ public class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 
 			return factory;
 		}
+
 	}
+
 }

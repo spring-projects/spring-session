@@ -40,60 +40,50 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  *
  * @author Vedran Pavic
  */
-public class SpringSessionRememberMeServicesTests {
+class SpringSessionRememberMeServicesTests {
 
 	private SpringSessionRememberMeServices rememberMeServices;
 
 	@Test
-	public void create() {
+	void create() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices,
-				"rememberMeParameterName")).isEqualTo("remember-me");
-		assertThat(
-				ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember"))
-						.isEqualTo(false);
-		assertThat(
-				ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds"))
-						.isEqualTo(2592000);
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "rememberMeParameterName"))
+				.isEqualTo("remember-me");
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember")).isEqualTo(false);
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds")).isEqualTo(2592000);
 	}
 
 	@Test
-	public void createWithCustomParameter() {
+	void createWithCustomParameter() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.setRememberMeParameterName("test-param");
-		assertThat(ReflectionTestUtils.getField(this.rememberMeServices,
-				"rememberMeParameterName")).isEqualTo("test-param");
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "rememberMeParameterName"))
+				.isEqualTo("test-param");
 	}
 
 	@Test
-	public void createWithNullParameter() {
+	void createWithNullParameter() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
-		assertThatIllegalArgumentException()
-				.isThrownBy(
-						() -> this.rememberMeServices.setRememberMeParameterName(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.rememberMeServices.setRememberMeParameterName(null))
 				.withMessage("rememberMeParameterName cannot be empty or null");
 	}
 
 	@Test
-	public void createWithAlwaysRemember() {
+	void createWithAlwaysRemember() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.setAlwaysRemember(true);
-		assertThat(
-				ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember"))
-						.isEqualTo(true);
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember")).isEqualTo(true);
 	}
 
 	@Test
-	public void createWithCustomValidity() {
+	void createWithCustomValidity() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.setValiditySeconds(100000);
-		assertThat(
-				ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds"))
-						.isEqualTo(100000);
+		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds")).isEqualTo(100000);
 	}
 
 	@Test
-	public void autoLogin() {
+	void autoLogin() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		this.rememberMeServices = new SpringSessionRememberMeServices();
@@ -103,7 +93,7 @@ public class SpringSessionRememberMeServicesTests {
 
 	// gh-752
 	@Test
-	public void loginFailRemoveSecurityContext() {
+	void loginFailRemoveSecurityContext() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		HttpSession session = mock(HttpSession.class);
@@ -111,13 +101,12 @@ public class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.loginFail(request, response);
 		verify(request, times(1)).getSession(eq(false));
-		verify(session, times(1)).removeAttribute(
-				HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+		verify(session, times(1)).removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
 		verifyZeroInteractions(request, response, session);
 	}
 
 	@Test
-	public void loginSuccess() {
+	void loginSuccess() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		Authentication authentication = mock(Authentication.class);
@@ -128,14 +117,13 @@ public class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices.loginSuccess(request, response, authentication);
 		verify(request, times(1)).getParameter(eq("remember-me"));
 		verify(request, times(1)).getSession();
-		verify(request, times(1)).setAttribute(
-				eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
+		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(2592000));
 		verifyZeroInteractions(request, response, session, authentication);
 	}
 
 	@Test
-	public void loginSuccessWithCustomParameter() {
+	void loginSuccessWithCustomParameter() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		Authentication authentication = mock(Authentication.class);
@@ -147,14 +135,13 @@ public class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices.loginSuccess(request, response, authentication);
 		verify(request, times(1)).getParameter(eq("test-param"));
 		verify(request, times(1)).getSession();
-		verify(request, times(1)).setAttribute(
-				eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
+		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(2592000));
 		verifyZeroInteractions(request, response, session, authentication);
 	}
 
 	@Test
-	public void loginSuccessWithAlwaysRemember() {
+	void loginSuccessWithAlwaysRemember() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		Authentication authentication = mock(Authentication.class);
@@ -164,14 +151,13 @@ public class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices.setAlwaysRemember(true);
 		this.rememberMeServices.loginSuccess(request, response, authentication);
 		verify(request, times(1)).getSession();
-		verify(request, times(1)).setAttribute(
-				eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
+		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(2592000));
 		verifyZeroInteractions(request, response, session, authentication);
 	}
 
 	@Test
-	public void loginSuccessWithCustomValidity() {
+	void loginSuccessWithCustomValidity() {
 		HttpServletRequest request = mock(HttpServletRequest.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		Authentication authentication = mock(Authentication.class);
@@ -183,8 +169,7 @@ public class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices.loginSuccess(request, response, authentication);
 		verify(request, times(1)).getParameter(eq("remember-me"));
 		verify(request, times(1)).getSession();
-		verify(request, times(1)).setAttribute(
-				eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
+		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(100000));
 		verifyZeroInteractions(request, response, session, authentication);
 	}

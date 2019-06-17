@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,11 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @since 1.3
  */
-public class SpringSessionBackedSessionRegistry<S extends Session>
-		implements SessionRegistry {
+public class SpringSessionBackedSessionRegistry<S extends Session> implements SessionRegistry {
 
 	private final FindByIndexNameSessionRepository<S> sessionRepository;
 
-	public SpringSessionBackedSessionRegistry(
-			FindByIndexNameSessionRepository<S> sessionRepository) {
+	public SpringSessionBackedSessionRegistry(FindByIndexNameSessionRepository<S> sessionRepository) {
 		Assert.notNull(sessionRepository, "sessionRepository cannot be null");
 		this.sessionRepository = sessionRepository;
 	}
@@ -63,16 +61,13 @@ public class SpringSessionBackedSessionRegistry<S extends Session>
 	}
 
 	@Override
-	public List<SessionInformation> getAllSessions(Object principal,
-			boolean includeExpiredSessions) {
-		Collection<S> sessions = this.sessionRepository
-				.findByPrincipalName(name(principal)).values();
+	public List<SessionInformation> getAllSessions(Object principal, boolean includeExpiredSessions) {
+		Collection<S> sessions = this.sessionRepository.findByPrincipalName(name(principal)).values();
 		List<SessionInformation> infos = new ArrayList<>();
 		for (S session : sessions) {
-			if (includeExpiredSessions || !Boolean.TRUE.equals(session
-					.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
-				infos.add(new SpringSessionBackedSessionInformation<>(session,
-						this.sessionRepository));
+			if (includeExpiredSessions
+					|| !Boolean.TRUE.equals(session.getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))) {
+				infos.add(new SpringSessionBackedSessionInformation<>(session, this.sessionRepository));
 			}
 		}
 		return infos;
@@ -82,8 +77,7 @@ public class SpringSessionBackedSessionRegistry<S extends Session>
 	public SessionInformation getSessionInformation(String sessionId) {
 		S session = this.sessionRepository.findById(sessionId);
 		if (session != null) {
-			return new SpringSessionBackedSessionInformation<>(session,
-					this.sessionRepository);
+			return new SpringSessionBackedSessionInformation<>(session, this.sessionRepository);
 		}
 		return null;
 	}
@@ -111,7 +105,6 @@ public class SpringSessionBackedSessionRegistry<S extends Session>
 
 	/**
 	 * Derives a String name for the given principal.
-	 *
 	 * @param principal as provided by Spring Security
 	 * @return name of the principal, or its {@code toString()} representation if no name
 	 * could be derived

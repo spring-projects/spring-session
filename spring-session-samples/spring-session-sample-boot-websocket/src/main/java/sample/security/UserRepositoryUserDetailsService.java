@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserRepositoryUserDetailsService implements UserDetailsService {
+
 	private final UserRepository userRepository;
 
 	@Autowired
@@ -50,8 +51,7 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 	 * (java.lang.String)
 	 */
 	@Override
-	public UserDetails loadUserByUsername(String username)
-			throws UsernameNotFoundException {
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		User user = this.userRepository.findByEmail(username);
 		if (user == null) {
 			throw new UsernameNotFoundException("Could not find user " + username);
@@ -96,5 +96,7 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 		}
 
 		private static final long serialVersionUID = 5639683223516504866L;
+
 	}
+
 }

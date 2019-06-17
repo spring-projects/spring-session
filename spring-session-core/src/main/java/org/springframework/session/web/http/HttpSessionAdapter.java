@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -142,8 +142,8 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 		if (value != oldValue) {
 			if (oldValue instanceof HttpSessionBindingListener) {
 				try {
-					((HttpSessionBindingListener) oldValue).valueUnbound(
-							new HttpSessionBindingEvent(this, name, oldValue));
+					((HttpSessionBindingListener) oldValue)
+							.valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
 				}
 				catch (Throwable th) {
 					logger.error("Error invoking session binding event listener", th);
@@ -151,8 +151,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 			}
 			if (value instanceof HttpSessionBindingListener) {
 				try {
-					((HttpSessionBindingListener) value)
-							.valueBound(new HttpSessionBindingEvent(this, name, value));
+					((HttpSessionBindingListener) value).valueBound(new HttpSessionBindingEvent(this, name, value));
 				}
 				catch (Throwable th) {
 					logger.error("Error invoking session binding event listener", th);
@@ -173,8 +172,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 		this.session.removeAttribute(name);
 		if (oldValue instanceof HttpSessionBindingListener) {
 			try {
-				((HttpSessionBindingListener) oldValue)
-						.valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
+				((HttpSessionBindingListener) oldValue).valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
 			}
 			catch (Throwable th) {
 				logger.error("Error invoking session binding event listener", th);
@@ -205,8 +203,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 
 	private void checkState() {
 		if (this.invalidated) {
-			throw new IllegalStateException(
-					"The HttpSession has already be invalidated.");
+			throw new IllegalStateException("The HttpSession has already be invalidated.");
 		}
 	}
 

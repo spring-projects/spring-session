@@ -45,6 +45,7 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 public abstract class AbstractHttpSessionListenerTests {
+
 	@Autowired
 	ApplicationEventPublisher publisher;
 
@@ -52,12 +53,10 @@ public abstract class AbstractHttpSessionListenerTests {
 	SecuritySessionDestroyedListener listener;
 
 	@Test
-	public void springSessionDestroyedTranslatedToSpringSecurityDestroyed() {
+	void springSessionDestroyedTranslatedToSpringSecurityDestroyed() {
 		Session session = new MapSession();
 
-		this.publisher.publishEvent(
-				new org.springframework.session.events.SessionDestroyedEvent(this,
-						session));
+		this.publisher.publishEvent(new org.springframework.session.events.SessionDestroyedEvent(this, session));
 
 		assertThat(this.listener.getEvent().getId()).isEqualTo(session.getId());
 	}
@@ -71,8 +70,7 @@ public abstract class AbstractHttpSessionListenerTests {
 		return factory;
 	}
 
-	static class SecuritySessionDestroyedListener
-			implements ApplicationListener<SessionDestroyedEvent> {
+	static class SecuritySessionDestroyedListener implements ApplicationListener<SessionDestroyedEvent> {
 
 		private SessionDestroyedEvent event;
 
@@ -87,8 +85,10 @@ public abstract class AbstractHttpSessionListenerTests {
 			this.event = event;
 		}
 
-		public SessionDestroyedEvent getEvent() {
+		SessionDestroyedEvent getEvent() {
 			return this.event;
 		}
+
 	}
+
 }

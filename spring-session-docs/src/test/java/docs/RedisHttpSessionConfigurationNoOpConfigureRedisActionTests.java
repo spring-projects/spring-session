@@ -36,10 +36,10 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisHttpSessionConfigurationNoOpConfigureRedisActionTests {
+class RedisHttpSessionConfigurationNoOpConfigureRedisActionTests {
 
 	@Test
-	public void redisConnectionFactoryNotUsedSinceNoValidation() {
+	void redisConnectionFactoryNotUsedSinceNoValidation() {
 	}
 
 	@EnableRedisHttpSession
@@ -57,5 +57,7 @@ public class RedisHttpSessionConfigurationNoOpConfigureRedisActionTests {
 		public RedisConnectionFactory redisConnectionFactory() {
 			return mock(RedisConnectionFactory.class);
 		}
+
 	}
+
 }

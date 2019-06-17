@@ -51,11 +51,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @author Vedran Pavic
  */
-public class IndexDocTests {
-	static final String ATTR_USER = "user";
+class IndexDocTests {
+
+	private static final String ATTR_USER = "user";
 
 	@Test
-	public void repositoryDemo() {
+	void repositoryDemo() {
 		RepositoryDemo<MapSession> demo = new RepositoryDemo<>();
 		demo.repository = new MapSessionRepository(new ConcurrentHashMap<>());
 
@@ -64,6 +65,7 @@ public class IndexDocTests {
 
 	// tag::repository-demo[]
 	public class RepositoryDemo<S extends Session> {
+
 		private SessionRepository<S> repository; // <1>
 
 		public void demo() {
@@ -83,11 +85,12 @@ public class IndexDocTests {
 		}
 
 		// ... setter methods ...
+
 	}
 	// end::repository-demo[]
 
 	@Test
-	public void expireRepositoryDemo() {
+	void expireRepositoryDemo() {
 		ExpiringRepositoryDemo<MapSession> demo = new ExpiringRepositoryDemo<>();
 		demo.repository = new MapSessionRepository(new ConcurrentHashMap<>());
 
@@ -96,6 +99,7 @@ public class IndexDocTests {
 
 	// tag::expire-repository-demo[]
 	public class ExpiringRepositoryDemo<S extends Session> {
+
 		private SessionRepository<S> repository; // <1>
 
 		public void demo() {
@@ -110,54 +114,51 @@ public class IndexDocTests {
 		}
 
 		// ... setter methods ...
+
 	}
 	// end::expire-repository-demo[]
 
 	@Test
 	@SuppressWarnings("unused")
-	public void newRedisOperationsSessionRepository() {
+	void newRedisOperationsSessionRepository() {
 		// tag::new-redisoperationssessionrepository[]
 		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
 
 		// ... configure redisTemplate ...
 
-		SessionRepository<? extends Session> repository =
-				new RedisOperationsSessionRepository(redisTemplate);
+		SessionRepository<? extends Session> repository = new RedisOperationsSessionRepository(redisTemplate);
 		// end::new-redisoperationssessionrepository[]
 	}
 
 	@Test
 	@SuppressWarnings("unused")
-	public void newReactiveRedisOperationsSessionRepository() {
+	void newReactiveRedisOperationsSessionRepository() {
 		LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory();
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-				.<String, Object>newSerializationContext(
-						new JdkSerializationRedisSerializer())
-				.build();
+				.<String, Object>newSerializationContext(new JdkSerializationRedisSerializer()).build();
 
 		// tag::new-reactiveredisoperationssessionrepository[]
 		// ... create and configure connectionFactory and serializationContext ...
 
-		ReactiveRedisTemplate<String, Object> redisTemplate = new ReactiveRedisTemplate<>(
-				connectionFactory, serializationContext);
+		ReactiveRedisTemplate<String, Object> redisTemplate = new ReactiveRedisTemplate<>(connectionFactory,
+				serializationContext);
 
-		ReactiveSessionRepository<? extends Session> repository =
-				new ReactiveRedisOperationsSessionRepository(redisTemplate);
+		ReactiveSessionRepository<? extends Session> repository = new ReactiveRedisOperationsSessionRepository(
+				redisTemplate);
 		// end::new-reactiveredisoperationssessionrepository[]
 	}
 
 	@Test
 	@SuppressWarnings("unused")
-	public void mapRepository() {
+	void mapRepository() {
 		// tag::new-mapsessionrepository[]
-		SessionRepository<? extends Session> repository = new MapSessionRepository(
-				new ConcurrentHashMap<>());
+		SessionRepository<? extends Session> repository = new MapSessionRepository(new ConcurrentHashMap<>());
 		// end::new-mapsessionrepository[]
 	}
 
 	@Test
 	@SuppressWarnings("unused")
-	public void newJdbcOperationsSessionRepository() {
+	void newJdbcOperationsSessionRepository() {
 		// tag::new-jdbcoperationssessionrepository[]
 		JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
@@ -167,14 +168,14 @@ public class IndexDocTests {
 
 		// ... configure transactionManager ...
 
-		SessionRepository<? extends Session> repository =
-				new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
+		SessionRepository<? extends Session> repository = new JdbcOperationsSessionRepository(jdbcTemplate,
+				transactionManager);
 		// end::new-jdbcoperationssessionrepository[]
 	}
 
 	@Test
 	@SuppressWarnings("unused")
-	public void newHazelcastSessionRepository() {
+	void newHazelcastSessionRepository() {
 		// tag::new-hazelcastsessionrepository[]
 
 		Config config = new Config();
@@ -183,13 +184,12 @@ public class IndexDocTests {
 
 		HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
 
-		HazelcastSessionRepository repository =
-				new HazelcastSessionRepository(hazelcastInstance);
+		HazelcastSessionRepository repository = new HazelcastSessionRepository(hazelcastInstance);
 		// end::new-hazelcastsessionrepository[]
 	}
 
 	@Test
-	public void runSpringHttpSessionConfig() {
+	void runSpringHttpSessionConfig() {
 		AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
 		context.register(SpringHttpSessionConfig.class);
 		context.setServletContext(new MockServletContext());
@@ -204,7 +204,10 @@ public class IndexDocTests {
 	}
 
 	private static final class User {
+
 		private User(String username) {
 		}
+
 	}
+
 }

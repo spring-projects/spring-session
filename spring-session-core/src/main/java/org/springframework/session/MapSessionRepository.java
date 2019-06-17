@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,6 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
 	 * injecting a distributed {@link java.util.Map}.
-	 *
 	 * @param sessions the {@link java.util.Map} to use. Cannot be null.
 	 */
 	public MapSessionRepository(Map<String, Session> sessions) {
@@ -99,8 +98,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	public MapSession createSession() {
 		MapSession result = new MapSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			result.setMaxInactiveInterval(
-					Duration.ofSeconds(this.defaultMaxInactiveInterval));
+			result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
 	}

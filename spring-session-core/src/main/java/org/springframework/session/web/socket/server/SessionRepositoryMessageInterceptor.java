@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,15 +72,13 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param sessionRepository the {@link SessionRepository} to use. Cannot be null.
 	 */
 	public SessionRepositoryMessageInterceptor(SessionRepository<S> sessionRepository) {
 		Assert.notNull(sessionRepository, "sessionRepository cannot be null");
 		this.sessionRepository = sessionRepository;
-		this.matchingMessageTypes = EnumSet.of(SimpMessageType.CONNECT,
-				SimpMessageType.MESSAGE, SimpMessageType.SUBSCRIBE,
-				SimpMessageType.UNSUBSCRIBE);
+		this.matchingMessageTypes = EnumSet.of(SimpMessageType.CONNECT, SimpMessageType.MESSAGE,
+				SimpMessageType.SUBSCRIBE, SimpMessageType.UNSUBSCRIBE);
 	}
 
 	/**
@@ -94,14 +92,12 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 	 * The default is: SimpMessageType.CONNECT, SimpMessageType.MESSAGE,
 	 * SimpMessageType.SUBSCRIBE, SimpMessageType.UNSUBSCRIBE.
 	 * </p>
-	 *
 	 * @param matchingMessageTypes the {@link SimpMessageType} to match on in
 	 * {@link #preSend(Message, MessageChannel)}, else the {@link Message} is continued
 	 * without accessing or updating the {@link Session}
 	 */
 	public void setMatchingMessageTypes(Set<SimpMessageType> matchingMessageTypes) {
-		Assert.notEmpty(matchingMessageTypes,
-				"matchingMessageTypes cannot be null or empty");
+		Assert.notEmpty(matchingMessageTypes, "matchingMessageTypes cannot be null or empty");
 		this.matchingMessageTypes = matchingMessageTypes;
 	}
 
@@ -110,16 +106,12 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 		if (message == null) {
 			return message;
 		}
-		SimpMessageType messageType = SimpMessageHeaderAccessor
-				.getMessageType(message.getHeaders());
+		SimpMessageType messageType = SimpMessageHeaderAccessor.getMessageType(message.getHeaders());
 		if (!this.matchingMessageTypes.contains(messageType)) {
 			return message;
 		}
-		Map<String, Object> sessionHeaders = SimpMessageHeaderAccessor
-				.getSessionAttributes(message.getHeaders());
-		String sessionId = (sessionHeaders != null)
-				? (String) sessionHeaders.get(SPRING_SESSION_ID_ATTR_NAME)
-				: null;
+		Map<String, Object> sessionHeaders = SimpMessageHeaderAccessor.getSessionAttributes(message.getHeaders());
+		String sessionId = (sessionHeaders != null) ? (String) sessionHeaders.get(SPRING_SESSION_ID_ATTR_NAME) : null;
 		if (sessionId != null) {
 			S session = this.sessionRepository.findById(sessionId);
 			if (session != null) {
@@ -132,8 +124,8 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 	}
 
 	@Override
-	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response,
-			WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
+	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
+			Map<String, Object> attributes) throws Exception {
 		if (request instanceof ServletServerHttpRequest) {
 			ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
 			HttpSession session = servletRequest.getServletRequest().getSession(false);
@@ -145,8 +137,8 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 	}
 
 	@Override
-	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response,
-			WebSocketHandler wsHandler, Exception exception) {
+	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
+			Exception exception) {
 	}
 
 	public static String getSessionId(Map<String, Object> attributes) {
@@ -156,4 +148,5 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 	public static void setSessionId(Map<String, Object> attributes, String sessionId) {
 		attributes.put(SPRING_SESSION_ID_ATTR_NAME, sessionId);
 	}
+
 }

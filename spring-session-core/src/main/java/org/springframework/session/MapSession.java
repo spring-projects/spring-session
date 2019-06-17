@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,15 +47,20 @@ import java.util.UUID;
  * @since 1.0
  */
 public final class MapSession implements Session, Serializable {
+
 	/**
 	 * Default {@link #setMaxInactiveInterval(Duration)} (30 minutes).
 	 */
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
 
 	private String id;
+
 	private final String originalId;
+
 	private Map<String, Object> sessionAttrs = new HashMap<>();
+
 	private Instant creationTime = Instant.now();
+
 	private Instant lastAccessedTime = this.creationTime;
 
 	/**
@@ -70,12 +75,10 @@ public final class MapSession implements Session, Serializable {
 		this(generateId());
 	}
 
-
 	/**
 	 * Creates a new instance with the specified id. This is preferred to the default
 	 * constructor when the id is known to prevent unnecessary consumption on entropy
 	 * which can be slow.
-	 *
 	 * @param id the identifier to use
 	 */
 	public MapSession(String id) {
@@ -85,7 +88,6 @@ public final class MapSession implements Session, Serializable {
 
 	/**
 	 * Creates a new instance from the provided {@link Session}.
-	 *
 	 * @param session the {@link Session} to initialize this {@link Session} with. Cannot
 	 * be null.
 	 */
@@ -95,8 +97,7 @@ public final class MapSession implements Session, Serializable {
 		}
 		this.id = session.getId();
 		this.originalId = this.id;
-		this.sessionAttrs = new HashMap<>(
-				session.getAttributeNames().size());
+		this.sessionAttrs = new HashMap<>(session.getAttributeNames().size());
 		for (String attrName : session.getAttributeNames()) {
 			Object attrValue = session.getAttribute(attrName);
 			if (attrValue != null) {
@@ -205,7 +206,6 @@ public final class MapSession implements Session, Serializable {
 	 * Sets the identifier for this {@link Session}. The id should be a secure random
 	 * generated value to prevent malicious users from guessing this value. The default is
 	 * a secure random generated identifier.
-	 *
 	 * @param id the identifier for this session.
 	 */
 	public void setId(String id) {
@@ -227,4 +227,5 @@ public final class MapSession implements Session, Serializable {
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;
+
 }

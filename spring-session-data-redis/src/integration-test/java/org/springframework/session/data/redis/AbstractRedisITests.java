@@ -35,8 +35,7 @@ public abstract class AbstractRedisITests {
 
 		@Bean
 		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-					.withExposedPorts(6379);
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}
@@ -44,8 +43,7 @@ public abstract class AbstractRedisITests {
 		@Bean
 		public LettuceConnectionFactory redisConnectionFactory() {
 			RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(
-					redisContainer().getContainerIpAddress(),
-					redisContainer().getFirstMappedPort());
+					redisContainer().getContainerIpAddress(), redisContainer().getFirstMappedPort());
 			return new LettuceConnectionFactory(configuration);
 		}
 

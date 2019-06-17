@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ public interface CookieSerializer {
 
 	/**
 	 * Writes a given {@link CookieValue} to the provided {@link HttpServletResponse}.
-	 *
 	 * @param cookieValue the {@link CookieValue} to write to
 	 * {@link CookieValue#getResponse()}. Cannot be null.
 	 */
@@ -43,7 +42,6 @@ public interface CookieSerializer {
 	 * List since there can be multiple {@link Cookie} in a single request with a matching
 	 * name. For example, one Cookie may have a path of / and another of /context, but the
 	 * path is not transmitted in the request.
-	 *
 	 * @param request the {@link HttpServletRequest} to read the cookie from. Cannot be
 	 * null.
 	 * @return the values of all the matching cookies
@@ -70,7 +68,6 @@ public interface CookieSerializer {
 
 		/**
 		 * Creates a new instance.
-		 *
 		 * @param request the {@link HttpServletRequest} to use. Useful for determining
 		 * the context in which the cookie is set. Cannot be null.
 		 * @param response the {@link HttpServletResponse} to use.
@@ -78,8 +75,7 @@ public interface CookieSerializer {
 		 * modified by the {@link CookieSerializer} when writing to the actual cookie so
 		 * long as the original value is returned when the cookie is read.
 		 */
-		public CookieValue(HttpServletRequest request, HttpServletResponse response,
-				String cookieValue) {
+		public CookieValue(HttpServletRequest request, HttpServletResponse response, String cookieValue) {
 			this.request = request;
 			this.response = response;
 			this.cookieValue = cookieValue;
@@ -108,7 +104,6 @@ public interface CookieSerializer {
 		 * The value to be written. This value may be modified by the
 		 * {@link CookieSerializer} before written to the cookie. However, the value must
 		 * be the same as the original when it is read back in.
-		 *
 		 * @return the value to be written
 		 */
 		public String getCookieValue() {

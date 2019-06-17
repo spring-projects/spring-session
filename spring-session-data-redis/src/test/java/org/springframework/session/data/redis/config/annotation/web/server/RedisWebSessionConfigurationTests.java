@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Vedran Pavic
  */
-public class RedisWebSessionConfigurationTests {
+class RedisWebSessionConfigurationTests {
 
 	private static final String REDIS_NAMESPACE = "testNamespace";
 
@@ -53,19 +53,19 @@ public class RedisWebSessionConfigurationTests {
 	private AnnotationConfigApplicationContext context;
 
 	@BeforeEach
-	public void before() {
+	void before() {
 		this.context = new AnnotationConfigApplicationContext();
 	}
 
 	@AfterEach
-	public void after() {
+	void after() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void defaultConfiguration() {
+	void defaultConfiguration() {
 		registerAndRefresh(RedisConfig.class, DefaultConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
@@ -74,34 +74,31 @@ public class RedisWebSessionConfigurationTests {
 	}
 
 	@Test
-	public void springSessionRedisOperationsResolvingConfiguration() {
-		registerAndRefresh(RedisConfig.class,
-				SpringSessionRedisOperationsResolvingConfig.class);
+	void springSessionRedisOperationsResolvingConfiguration() {
+		registerAndRefresh(RedisConfig.class, SpringSessionRedisOperationsResolvingConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
 		ReactiveRedisOperations<String, Object> springSessionRedisOperations = this.context
-				.getBean(SpringSessionRedisOperationsResolvingConfig.class)
-				.getSpringSessionRedisOperations();
+				.getBean(SpringSessionRedisOperationsResolvingConfig.class).getSpringSessionRedisOperations();
 		assertThat(springSessionRedisOperations).isNotNull();
-		assertThat((ReactiveRedisOperations) ReflectionTestUtils.getField(repository,
-				"sessionRedisOperations")).isEqualTo(springSessionRedisOperations);
+		assertThat((ReactiveRedisOperations) ReflectionTestUtils.getField(repository, "sessionRedisOperations"))
+				.isEqualTo(springSessionRedisOperations);
 	}
 
 	@Test
-	public void customNamespace() {
+	void customNamespace() {
 		registerAndRefresh(RedisConfig.class, CustomNamespaceConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "namespace"))
-				.isEqualTo(REDIS_NAMESPACE + ":");
+		assertThat(ReflectionTestUtils.getField(repository, "namespace")).isEqualTo(REDIS_NAMESPACE + ":");
 	}
 
 	@Test
-	public void customMaxInactiveInterval() {
+	void customMaxInactiveInterval() {
 		registerAndRefresh(RedisConfig.class, CustomMaxInactiveIntervalConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
@@ -112,121 +109,112 @@ public class RedisWebSessionConfigurationTests {
 	}
 
 	@Test
-	public void customFlushMode() {
+	void customFlushMode() {
 		registerAndRefresh(RedisConfig.class, CustomFlushModeConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "redisFlushMode"))
-				.isEqualTo(RedisFlushMode.IMMEDIATE);
+		assertThat(ReflectionTestUtils.getField(repository, "redisFlushMode")).isEqualTo(RedisFlushMode.IMMEDIATE);
 	}
 
 	@Test
-	public void qualifiedConnectionFactoryRedisConfig() {
-		registerAndRefresh(RedisConfig.class,
-				QualifiedConnectionFactoryRedisConfig.class);
+	void qualifiedConnectionFactoryRedisConfig() {
+		registerAndRefresh(RedisConfig.class, QualifiedConnectionFactoryRedisConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
-		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean(
-				"qualifiedRedisConnectionFactory", ReactiveRedisConnectionFactory.class);
+		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
+				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void primaryConnectionFactoryRedisConfig() {
+	void primaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, PrimaryConnectionFactoryRedisConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
-		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean(
-				"primaryRedisConnectionFactory", ReactiveRedisConnectionFactory.class);
+		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("primaryRedisConnectionFactory",
+				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
-		registerAndRefresh(RedisConfig.class,
-				QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
+	void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
+		registerAndRefresh(RedisConfig.class, QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
-		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean(
-				"qualifiedRedisConnectionFactory", ReactiveRedisConnectionFactory.class);
+		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
+				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void namedConnectionFactoryRedisConfig() {
+	void namedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, NamedConnectionFactoryRedisConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
-		ReactiveRedisConnectionFactory redisConnectionFactory = this.context
-				.getBean("redisConnectionFactory", ReactiveRedisConnectionFactory.class);
+		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("redisConnectionFactory",
+				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisConnectionFactory).isNotNull();
-		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
 				.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
-	public void multipleConnectionFactoryRedisConfig() {
+	void multipleConnectionFactoryRedisConfig() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> registerAndRefresh(RedisConfig.class,
-						MultipleConnectionFactoryRedisConfig.class))
+				.isThrownBy(() -> registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class))
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	public void customRedisSerializerConfig() {
+	void customRedisSerializerConfig() {
 		registerAndRefresh(RedisConfig.class, CustomRedisSerializerConfig.class);
 
 		ReactiveRedisOperationsSessionRepository repository = this.context
 				.getBean(ReactiveRedisOperationsSessionRepository.class);
-		RedisSerializer<Object> redisSerializer = this.context
-				.getBean("springSessionDefaultRedisSerializer", RedisSerializer.class);
+		RedisSerializer<Object> redisSerializer = this.context.getBean("springSessionDefaultRedisSerializer",
+				RedisSerializer.class);
 		assertThat(repository).isNotNull();
 		assertThat(redisSerializer).isNotNull();
-		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+		ReactiveRedisOperations redisOperations = (ReactiveRedisOperations) ReflectionTestUtils.getField(repository,
+				"sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
-		RedisSerializationContext serializationContext = redisOperations
-				.getSerializationContext();
-		assertThat(ReflectionTestUtils.getField(
-				serializationContext.getValueSerializationPair().getReader(),
+		RedisSerializationContext serializationContext = redisOperations.getSerializationContext();
+		assertThat(ReflectionTestUtils.getField(serializationContext.getValueSerializationPair().getReader(),
 				"serializer")).isEqualTo(redisSerializer);
-		assertThat(ReflectionTestUtils.getField(
-				serializationContext.getValueSerializationPair().getWriter(),
+		assertThat(ReflectionTestUtils.getField(serializationContext.getValueSerializationPair().getWriter(),
 				"serializer")).isEqualTo(redisSerializer);
-		assertThat(ReflectionTestUtils.getField(
-				serializationContext.getHashValueSerializationPair().getReader(),
+		assertThat(ReflectionTestUtils.getField(serializationContext.getHashValueSerializationPair().getReader(),
 				"serializer")).isEqualTo(redisSerializer);
-		assertThat(ReflectionTestUtils.getField(
-				serializationContext.getHashValueSerializationPair().getWriter(),
+		assertThat(ReflectionTestUtils.getField(serializationContext.getHashValueSerializationPair().getWriter(),
 				"serializer")).isEqualTo(redisSerializer);
 	}
 
@@ -256,7 +244,7 @@ public class RedisWebSessionConfigurationTests {
 		@SpringSessionRedisOperations
 		private ReactiveRedisOperations<String, Object> springSessionRedisOperations;
 
-		public ReactiveRedisOperations<String, Object> getSpringSessionRedisOperations() {
+		ReactiveRedisOperations<String, Object> getSpringSessionRedisOperations() {
 			return this.springSessionRedisOperations;
 		}
 

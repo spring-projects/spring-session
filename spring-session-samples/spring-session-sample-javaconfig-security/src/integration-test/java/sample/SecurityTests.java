@@ -32,32 +32,31 @@ import sample.pages.LoginPage;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author Pool Dolorier
  */
-public class SecurityTests {
+class SecurityTests {
 
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		this.driver = new HtmlUnitDriver();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void unauthenticatedUserSentToLogInPage() {
+	void unauthenticatedUserSentToLogInPage() {
 		HomePage homePage = HomePage.go(this.driver);
 		LoginPage loginPage = homePage.unauthenticated();
 		loginPage.assertAt();
 	}
 
 	@Test
-	public void logInViewsHomePage() {
+	void logInViewsHomePage() {
 		LoginPage loginPage = LoginPage.go(this.driver);
 		HomePage homePage = loginPage.login("user", "password");
 		homePage.assertAt();
@@ -69,7 +68,7 @@ public class SecurityTests {
 	}
 
 	@Test
-	public void logOutSuccess() {
+	void logOutSuccess() {
 		LoginPage loginPage = LoginPage.go(this.driver);
 		HomePage homePage = loginPage.login("user", "password");
 		LoginPage successLogoutPage = homePage.logout();
@@ -77,7 +76,7 @@ public class SecurityTests {
 	}
 
 	@Test
-	public void loggedOutUserSentToLoginPage() {
+	void loggedOutUserSentToLoginPage() {
 		LoginPage loginPage = LoginPage.go(this.driver);
 		HomePage homePage = loginPage.login("user", "password");
 		homePage.logout();
@@ -85,4 +84,5 @@ public class SecurityTests {
 		LoginPage backLoginPage = backHomePage.unauthenticated();
 		backLoginPage.assertAt();
 	}
+
 }

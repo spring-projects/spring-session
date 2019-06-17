@@ -45,24 +45,20 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class HazelcastClientRepositoryITests extends AbstractHazelcastRepositoryITests {
+class HazelcastClientRepositoryITests extends AbstractHazelcastRepositoryITests {
 
-	private static GenericContainer container = new GenericContainer<>(
-			"hazelcast/hazelcast:3.12.1")
-					.withExposedPorts(5701)
-					.withEnv("JAVA_OPTS",
-							"-Dhazelcast.config=/opt/hazelcast/config_ext/hazelcast.xml")
-					.withClasspathResourceMapping("/hazelcast-server.xml",
-							"/opt/hazelcast/config_ext/hazelcast.xml",
-							BindMode.READ_ONLY);
+	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:3.12.1")
+			.withExposedPorts(5701).withEnv("JAVA_OPTS", "-Dhazelcast.config=/opt/hazelcast/config_ext/hazelcast.xml")
+			.withClasspathResourceMapping("/hazelcast-server.xml", "/opt/hazelcast/config_ext/hazelcast.xml",
+					BindMode.READ_ONLY);
 
 	@BeforeAll
-	public static void setUpClass() {
+	static void setUpClass() {
 		container.start();
 	}
 
 	@AfterAll
-	public static void tearDownClass() {
+	static void tearDownClass() {
 		container.stop();
 	}
 
@@ -73,11 +69,10 @@ public class HazelcastClientRepositoryITests extends AbstractHazelcastRepository
 		@Bean
 		public HazelcastInstance hazelcastInstance() {
 			ClientConfig clientConfig = new ClientConfig();
-			clientConfig.getNetworkConfig().addAddress(container.getContainerIpAddress()
-					+ ":" + container.getFirstMappedPort());
-			clientConfig.getUserCodeDeploymentConfig().setEnabled(true)
-					.addClass(Session.class).addClass(MapSession.class)
-					.addClass(SessionUpdateEntryProcessor.class);
+			clientConfig.getNetworkConfig()
+					.addAddress(container.getContainerIpAddress() + ":" + container.getFirstMappedPort());
+			clientConfig.getUserCodeDeploymentConfig().setEnabled(true).addClass(Session.class)
+					.addClass(MapSession.class).addClass(SessionUpdateEntryProcessor.class);
 			return HazelcastClient.newHazelcastClient(clientConfig);
 		}
 

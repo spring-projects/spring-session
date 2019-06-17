@@ -88,7 +88,6 @@ import org.springframework.util.ObjectUtils;
  * @author Rob Winch
  * @author Vedran Pavic
  * @since 1.1
- *
  * @see EnableSpringHttpSession
  */
 @Configuration(proxyBeanMethods = false)
@@ -110,8 +109,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	@PostConstruct
 	public void init() {
-		CookieSerializer cookieSerializer = (this.cookieSerializer != null)
-				? this.cookieSerializer
+		CookieSerializer cookieSerializer = (this.cookieSerializer != null) ? this.cookieSerializer
 				: createDefaultCookieSerializer();
 		this.defaultHttpSessionIdResolver.setCookieSerializer(cookieSerializer);
 	}
@@ -124,21 +122,16 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 	@Bean
 	public <S extends Session> SessionRepositoryFilter<? extends Session> springSessionRepositoryFilter(
 			SessionRepository<S> sessionRepository) {
-		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(
-				sessionRepository);
+		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(sessionRepository);
 		sessionRepositoryFilter.setHttpSessionIdResolver(this.httpSessionIdResolver);
 		return sessionRepositoryFilter;
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
-		if (ClassUtils.isPresent(
-				"org.springframework.security.web.authentication.RememberMeServices",
-				null)) {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		if (ClassUtils.isPresent("org.springframework.security.web.authentication.RememberMeServices", null)) {
 			this.usesSpringSessionRememberMeServices = !ObjectUtils
-					.isEmpty(applicationContext
-							.getBeanNamesForType(SpringSessionRememberMeServices.class));
+					.isEmpty(applicationContext.getBeanNamesForType(SpringSessionRememberMeServices.class));
 		}
 	}
 
@@ -170,8 +163,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 				sessionCookieConfig = this.servletContext.getSessionCookieConfig();
 			}
 			catch (UnsupportedOperationException ex) {
-				this.logger
-						.warn("Unable to obtain SessionCookieConfig: " + ex.getMessage());
+				this.logger.warn("Unable to obtain SessionCookieConfig: " + ex.getMessage());
 			}
 			if (sessionCookieConfig != null) {
 				if (sessionCookieConfig.getName() != null) {
@@ -189,8 +181,7 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 			}
 		}
 		if (this.usesSpringSessionRememberMeServices) {
-			cookieSerializer.setRememberMeRequestAttribute(
-					SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
+			cookieSerializer.setRememberMeRequestAttribute(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
 		}
 		return cookieSerializer;
 	}

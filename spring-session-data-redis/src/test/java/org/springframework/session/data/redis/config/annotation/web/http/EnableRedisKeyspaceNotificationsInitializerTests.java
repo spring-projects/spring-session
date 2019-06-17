@@ -36,20 +36,23 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-public class EnableRedisKeyspaceNotificationsInitializerTests {
-	static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
+class EnableRedisKeyspaceNotificationsInitializerTests {
+
+	private static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
 
 	@Mock
 	RedisConnectionFactory connectionFactory;
+
 	@Mock
 	RedisConnection connection;
+
 	@Captor
 	ArgumentCaptor<String> options;
 
-	RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
+	private RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		MockitoAnnotations.initMocks(this);
 		given(this.connectionFactory.getConnection()).willReturn(this.connection);
 
@@ -58,7 +61,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetUnset() throws Exception {
+	void afterPropertiesSetUnset() throws Exception {
 		setConfigNotification("");
 
 		this.initializer.afterPropertiesSet();
@@ -67,7 +70,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetA() throws Exception {
+	void afterPropertiesSetA() throws Exception {
 		setConfigNotification("A");
 
 		this.initializer.afterPropertiesSet();
@@ -76,7 +79,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetE() throws Exception {
+	void afterPropertiesSetE() throws Exception {
 		setConfigNotification("E");
 
 		this.initializer.afterPropertiesSet();
@@ -85,7 +88,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetK() throws Exception {
+	void afterPropertiesSetK() throws Exception {
 		setConfigNotification("K");
 
 		this.initializer.afterPropertiesSet();
@@ -94,7 +97,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetAE() throws Exception {
+	void afterPropertiesSetAE() throws Exception {
 		setConfigNotification("AE");
 
 		this.initializer.afterPropertiesSet();
@@ -103,7 +106,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetAK() throws Exception {
+	void afterPropertiesSetAK() throws Exception {
 		setConfigNotification("AK");
 
 		this.initializer.afterPropertiesSet();
@@ -112,7 +115,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetEK() throws Exception {
+	void afterPropertiesSetEK() throws Exception {
 		setConfigNotification("EK");
 
 		this.initializer.afterPropertiesSet();
@@ -121,7 +124,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetEg() throws Exception {
+	void afterPropertiesSetEg() throws Exception {
 		setConfigNotification("Eg");
 
 		this.initializer.afterPropertiesSet();
@@ -130,7 +133,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetE$() throws Exception {
+	void afterPropertiesSetE$() throws Exception {
 		setConfigNotification("E$");
 
 		this.initializer.afterPropertiesSet();
@@ -139,7 +142,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetKg() throws Exception {
+	void afterPropertiesSetKg() throws Exception {
 		setConfigNotification("Kg");
 
 		this.initializer.afterPropertiesSet();
@@ -148,7 +151,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	public void afterPropertiesSetAEK() throws Exception {
+	void afterPropertiesSetAEK() throws Exception {
 		setConfigNotification("AEK");
 
 		this.initializer.afterPropertiesSet();
@@ -157,8 +160,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	private void assertOptionsContains(String... expectedValues) {
-		verify(this.connection).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS),
-				this.options.capture());
+		verify(this.connection).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS), this.options.capture());
 		for (String expectedValue : expectedValues) {
 			assertThat(this.options.getValue()).contains(expectedValue);
 		}
@@ -168,7 +170,7 @@ public class EnableRedisKeyspaceNotificationsInitializerTests {
 	private void setConfigNotification(String value) {
 		Properties properties = new Properties();
 		properties.setProperty(CONFIG_NOTIFY_KEYSPACE_EVENTS, value);
-		given(this.connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS))
-				.willReturn(properties);
+		given(this.connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS)).willReturn(properties);
 	}
+
 }

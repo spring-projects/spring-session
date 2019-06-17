@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
  * @since 1.0
  */
 abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private boolean disableOnCommitted;
@@ -204,13 +205,11 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	/**
 	 * Adds the contentLengthToWrite to the total contentWritten size and checks to see if
 	 * the response should be written.
-	 *
 	 * @param contentLengthToWrite the size of the content that is about to be written.
 	 */
 	private void checkContentLength(long contentLengthToWrite) {
 		this.contentWritten += contentLengthToWrite;
-		boolean isBodyFullyWritten = this.contentLength > 0
-				&& this.contentWritten >= this.contentLength;
+		boolean isBodyFullyWritten = this.contentLength > 0 && this.contentWritten >= this.contentLength;
 		int bufferSize = getBufferSize();
 		boolean requiresFlush = bufferSize > 0 && this.contentWritten >= bufferSize;
 		if (isBodyFullyWritten || requiresFlush) {
@@ -234,9 +233,11 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	 * calling the prior to methods that commit the response. We delegate all methods to
 	 * the original {@link java.io.PrintWriter} to ensure that the behavior is as close to
 	 * the original {@link java.io.PrintWriter} as possible. See SEC-2039
+	 *
 	 * @author Rob Winch
 	 */
 	private class SaveContextPrintWriter extends PrintWriter {
+
 		private final PrintWriter delegate;
 
 		SaveContextPrintWriter(PrintWriter delegate) {
@@ -466,6 +467,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 			trackContentLength(c);
 			return this.delegate.append(c);
 		}
+
 	}
 
 	/**
@@ -477,6 +479,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	 * @author Rob Winch
 	 */
 	private class SaveContextServletOutputStream extends ServletOutputStream {
+
 		private final ServletOutputStream delegate;
 
 		SaveContextServletOutputStream(ServletOutputStream delegate) {
@@ -634,5 +637,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 		public void setWriteListener(WriteListener writeListener) {
 			this.delegate.setWriteListener(writeListener);
 		}
+
 	}
+
 }

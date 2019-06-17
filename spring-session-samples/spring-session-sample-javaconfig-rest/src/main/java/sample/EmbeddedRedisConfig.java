@@ -32,8 +32,7 @@ public class EmbeddedRedisConfig {
 
 	@Bean
 	public GenericContainer redisContainer() {
-		GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-				.withExposedPorts(6379);
+		GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 		redisContainer.start();
 		return redisContainer;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,7 @@ public class PrincipalNameExtractor extends ValueExtractor<MapSession, String> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public void extract(MapSession target, String argument, ValueCollector collector) {
-		String principalName = target
-				.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+		String principalName = target.getAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 		if (principalName != null) {
 			collector.addObject(principalName);
 		}

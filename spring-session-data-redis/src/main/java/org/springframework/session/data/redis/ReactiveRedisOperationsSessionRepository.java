@@ -38,8 +38,8 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @since 2.0
  */
-public class ReactiveRedisOperationsSessionRepository implements
-		ReactiveSessionRepository<ReactiveRedisOperationsSessionRepository.RedisSession> {
+public class ReactiveRedisOperationsSessionRepository
+		implements ReactiveSessionRepository<ReactiveRedisOperationsSessionRepository.RedisSession> {
 
 	/**
 	 * The default namespace for each key and channel in Redis used by Spring Session.
@@ -61,8 +61,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
 
-	public ReactiveRedisOperationsSessionRepository(
-			ReactiveRedisOperations<String, Object> sessionRedisOperations) {
+	public ReactiveRedisOperationsSessionRepository(ReactiveRedisOperations<String, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
 	}
@@ -76,7 +75,6 @@ public class ReactiveRedisOperationsSessionRepository implements
 	 * Sets the maximum inactive interval in seconds between requests before newly created
 	 * sessions will be invalidated. A negative time indicates that the session will never
 	 * timeout. The default is 1800 (30 minutes).
-	 *
 	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
 	 * should be kept alive between client requests.
 	 */
@@ -86,7 +84,6 @@ public class ReactiveRedisOperationsSessionRepository implements
 
 	/**
 	 * Sets the redis flush mode. Default flush mode is {@link RedisFlushMode#ON_SAVE}.
-	 *
 	 * @param redisFlushMode the new redis flush mode
 	 */
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
@@ -109,8 +106,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 			RedisSession session = new RedisSession();
 
 			if (this.defaultMaxInactiveInterval != null) {
-				session.setMaxInactiveInterval(
-						Duration.ofSeconds(this.defaultMaxInactiveInterval));
+				session.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
 
 			return Mono.just(session);
@@ -122,12 +118,9 @@ public class ReactiveRedisOperationsSessionRepository implements
 		if (session.isNew) {
 			return session.save();
 		}
-		String sessionKey = getSessionKey(
-				session.hasChangedSessionId() ? session.originalSessionId
-						: session.getId());
-		return this.sessionRedisOperations.hasKey(sessionKey).flatMap((exists) -> exists
-				? session.save()
-				: Mono.error(new IllegalStateException("Session was invalidated")));
+		String sessionKey = getSessionKey(session.hasChangedSessionId() ? session.originalSessionId : session.getId());
+		return this.sessionRedisOperations.hasKey(sessionKey).flatMap(
+				(exists) -> exists ? session.save() : Mono.error(new IllegalStateException("Session was invalidated")));
 	}
 
 	@Override
@@ -182,19 +175,15 @@ public class ReactiveRedisOperationsSessionRepository implements
 		 */
 		RedisSession() {
 			this(new MapSession());
-			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY,
-					getCreationTime().toEpochMilli());
-			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
-					(int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-					getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, getCreationTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
 			this.flushImmediateIfNecessary();
 		}
 
 		/**
 		 * Creates a new instance from the provided {@link MapSession}.
-		 *
 		 * @param mapSession the {@link MapSession} that represents the persisted session
 		 * that was retrieved. Cannot be null.
 		 */
@@ -244,8 +233,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-					getLastAccessedTime().toEpochMilli());
+			putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 		}
 
 		@Override
@@ -256,8 +244,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
-					(int) getMaxInactiveInterval().getSeconds());
+			putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
 		}
 
 		@Override
@@ -286,8 +273,7 @@ public class ReactiveRedisOperationsSessionRepository implements
 		}
 
 		private Mono<Void> save() {
-			return Mono.defer(() -> saveChangeSessionId().then(saveDelta())
-					.doOnSuccess((aVoid) -> this.isNew = false));
+			return Mono.defer(() -> saveChangeSessionId().then(saveDelta()).doOnSuccess((aVoid) -> this.isNew = false));
 		}
 
 		private Mono<Void> saveDelta() {
@@ -296,8 +282,8 @@ public class ReactiveRedisOperationsSessionRepository implements
 			}
 
 			String sessionKey = getSessionKey(getId());
-			Mono<Boolean> update = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
-					.opsForHash().putAll(sessionKey, new HashMap<>(this.delta));
+			Mono<Boolean> update = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations.opsForHash()
+					.putAll(sessionKey, new HashMap<>(this.delta));
 			Mono<Boolean> setTtl = ReactiveRedisOperationsSessionRepository.this.sessionRedisOperations
 					.expire(sessionKey, getMaxInactiveInterval());
 

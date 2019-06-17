@@ -13,23 +13,19 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.25.RELEASE'
+		classpath 'io.spring.gradle:spring-build-conventions:0.0.26.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
-		classpath 'io.spring.nohttp:nohttp-gradle:0.0.2.RELEASE'
 	}
 }
 
 apply plugin: 'io.spring.convention.root'
-apply plugin: 'io.spring.nohttp'
-
-repositories {
-	mavenCentral()
-}
 
 group = 'org.springframework.session'
 description = 'Spring Session'
 
 subprojects {
+	apply plugin: 'io.spring.javaformat'
+
 	plugins.withType(JavaPlugin) {
 		sourceCompatibility = JavaVersion.VERSION_1_8
 

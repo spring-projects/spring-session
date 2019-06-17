@@ -35,8 +35,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class MariaDb10JdbcOperationsSessionRepositoryITests
-		extends AbstractContainerJdbcOperationsSessionRepositoryITests {
+class MariaDb10JdbcOperationsSessionRepositoryITests extends AbstractContainerJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseContainerConfig {

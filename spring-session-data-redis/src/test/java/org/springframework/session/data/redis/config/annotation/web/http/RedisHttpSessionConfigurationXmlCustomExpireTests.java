@@ -37,7 +37,7 @@ import static org.mockito.Mockito.mock;
 public class RedisHttpSessionConfigurationXmlCustomExpireTests {
 
 	@Test
-	public void contextLoads() {
+	void contextLoads() {
 	}
 
 	static RedisConnectionFactory connectionFactory() {
@@ -48,4 +48,5 @@ public class RedisHttpSessionConfigurationXmlCustomExpireTests {
 
 		return factory;
 	}
+
 }

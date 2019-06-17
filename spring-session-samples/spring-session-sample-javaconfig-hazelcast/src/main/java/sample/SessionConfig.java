@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,27 +41,21 @@ public class SessionConfig {
 
 		int port = SocketUtils.findAvailableTcpPort();
 
-		config.getNetworkConfig()
-				.setPort(port)
-				.getJoin().getMulticastConfig().setEnabled(false);
+		config.getNetworkConfig().setPort(port).getJoin().getMulticastConfig().setEnabled(false);
 
 		System.out.println("Hazelcast port #: " + port);
 
-		SerializerConfig serializer = new SerializerConfig()
-				.setImplementation(new ObjectStreamSerializer())
+		SerializerConfig serializer = new SerializerConfig().setImplementation(new ObjectStreamSerializer())
 				.setTypeClass(Object.class);
 
-		config.getSerializationConfig()
-				.addSerializerConfig(serializer);
+		config.getSerializationConfig().addSerializerConfig(serializer);
 
 		MapAttributeConfig attributeConfig = new MapAttributeConfig()
 				.setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
 				.setExtractor(PrincipalNameExtractor.class.getName());
 
-		config.getMapConfig(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME)
-				.addMapAttributeConfig(attributeConfig)
-				.addMapIndexConfig(new MapIndexConfig(
-						HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+		config.getMapConfig(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME).addMapAttributeConfig(attributeConfig)
+				.addMapIndexConfig(new MapIndexConfig(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
 
 		return Hazelcast.newHazelcastInstance(config);
 	}

@@ -108,8 +108,8 @@ import org.springframework.util.ClassUtils;
  * @author Aleksandar Stojsavljevic
  * @since 1.3.0
  */
-public class HazelcastSessionRepository implements
-		FindByIndexNameSessionRepository<HazelcastSessionRepository.HazelcastSession>,
+public class HazelcastSessionRepository
+		implements FindByIndexNameSessionRepository<HazelcastSessionRepository.HazelcastSession>,
 		EntryAddedListener<String, MapSession>, EntryEvictedListener<String, MapSession>,
 		EntryRemovedListener<String, MapSession> {
 
@@ -125,8 +125,7 @@ public class HazelcastSessionRepository implements
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private static final boolean SUPPORTS_SET_TTL = ClassUtils
-			.hasAtLeastOneMethodWithName(IMap.class, "setTtl");
+	private static final boolean SUPPORTS_SET_TTL = ClassUtils.hasAtLeastOneMethodWithName(IMap.class, "setTtl");
 
 	private static final Log logger = LogFactory.getLog(HazelcastSessionRepository.class);
 
@@ -180,14 +179,11 @@ public class HazelcastSessionRepository implements
 	 * Sets the {@link ApplicationEventPublisher} that is used to publish
 	 * {@link AbstractSessionEvent session events}. The default is to not publish session
 	 * events.
-	 *
 	 * @param applicationEventPublisher the {@link ApplicationEventPublisher} that is used
 	 * to publish session events. Cannot be null.
 	 */
-	public void setApplicationEventPublisher(
-			ApplicationEventPublisher applicationEventPublisher) {
-		Assert.notNull(applicationEventPublisher,
-				"ApplicationEventPublisher cannot be null");
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		Assert.notNull(applicationEventPublisher, "ApplicationEventPublisher cannot be null");
 		this.eventPublisher = applicationEventPublisher;
 	}
 
@@ -224,8 +220,7 @@ public class HazelcastSessionRepository implements
 	public HazelcastSession createSession() {
 		HazelcastSession result = new HazelcastSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			result.setMaxInactiveInterval(
-					Duration.ofSeconds(this.defaultMaxInactiveInterval));
+			result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
 	}
@@ -233,14 +228,14 @@ public class HazelcastSessionRepository implements
 	@Override
 	public void save(HazelcastSession session) {
 		if (session.isNew) {
-			this.sessions.set(session.getId(), session.getDelegate(),
-					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
+			this.sessions.set(session.getId(), session.getDelegate(), session.getMaxInactiveInterval().getSeconds(),
+					TimeUnit.SECONDS);
 		}
 		else if (session.sessionIdChanged) {
 			this.sessions.delete(session.originalId);
 			session.originalId = session.getId();
-			this.sessions.set(session.getId(), session.getDelegate(),
-					session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
+			this.sessions.set(session.getId(), session.getDelegate(), session.getMaxInactiveInterval().getSeconds(),
+					TimeUnit.SECONDS);
 		}
 		else if (session.hasChanges()) {
 			SessionUpdateEntryProcessor entryProcessor = new SessionUpdateEntryProcessor();
@@ -262,8 +257,7 @@ public class HazelcastSessionRepository implements
 	}
 
 	private void updateTtl(HazelcastSession session) {
-		this.sessions.setTtl(session.getId(),
-				session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
+		this.sessions.setTtl(session.getId(), session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -285,13 +279,11 @@ public class HazelcastSessionRepository implements
 	}
 
 	@Override
-	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(String indexName,
-			String indexValue) {
+	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
 		}
-		Collection<MapSession> sessions = this.sessions
-				.values(Predicates.equal(PRINCIPAL_NAME_ATTRIBUTE, indexValue));
+		Collection<MapSession> sessions = this.sessions.values(Predicates.equal(PRINCIPAL_NAME_ATTRIBUTE, indexValue));
 		Map<String, HazelcastSession> sessionMap = new HashMap<>(sessions.size());
 		for (MapSession session : sessions) {
 			sessionMap.put(session.getId(), new HazelcastSession(session));
@@ -315,8 +307,7 @@ public class HazelcastSessionRepository implements
 		if (logger.isDebugEnabled()) {
 			logger.debug("Session expired with id: " + event.getOldValue().getId());
 		}
-		this.eventPublisher
-				.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
+		this.eventPublisher.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
 	}
 
 	@Override
@@ -434,9 +425,7 @@ public class HazelcastSessionRepository implements
 			this.delegate.setAttribute(attributeName, attributeValue);
 			this.delta.put(attributeName, attributeValue);
 			if (SPRING_SECURITY_CONTEXT.equals(attributeName)) {
-				String principal = (attributeValue != null)
-						? principalNameResolver.resolvePrincipal(this)
-						: null;
+				String principal = (attributeValue != null) ? principalNameResolver.resolvePrincipal(this) : null;
 				this.delegate.setAttribute(PRINCIPAL_NAME_INDEX_NAME, principal);
 			}
 			flushImmediateIfNecessary();
@@ -452,8 +441,7 @@ public class HazelcastSessionRepository implements
 		}
 
 		boolean hasChanges() {
-			return (this.lastAccessedTimeChanged || this.maxInactiveIntervalChanged
-					|| !this.delta.isEmpty());
+			return (this.lastAccessedTimeChanged || this.maxInactiveIntervalChanged || !this.delta.isEmpty());
 		}
 
 		void clearChangeFlags() {
@@ -486,8 +474,7 @@ public class HazelcastSessionRepository implements
 			}
 			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
 			if (authentication != null) {
-				Expression expression = this.parser
-						.parseExpression("authentication?.name");
+				Expression expression = this.parser.parseExpression("authentication?.name");
 				return expression.getValue(authentication, String.class);
 			}
 			return null;

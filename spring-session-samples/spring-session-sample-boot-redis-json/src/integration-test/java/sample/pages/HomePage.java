@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,8 +73,7 @@ public class HomePage {
 	}
 
 	public HomePage logout() {
-		WebElement logout = this.driver
-				.findElement(By.cssSelector("input[type=\"submit\"]"));
+		WebElement logout = this.driver.findElement(By.cssSelector("input[type=\"submit\"]"));
 		logout.click();
 		return PageFactory.initElements(this.driver, HomePage.class);
 	}
@@ -93,6 +92,7 @@ public class HomePage {
 	}
 
 	public class Form {
+
 		@FindBy(name = "key")
 		WebElement attributeName;
 
@@ -120,9 +120,11 @@ public class HomePage {
 			this.submit.click();
 			return PageFactory.initElements(HomePage.this.driver, page);
 		}
+
 	}
 
 	public static class Attribute {
+
 		@FindBy(xpath = ".//td[1]")
 		WebElement attributeName;
 
@@ -146,6 +148,7 @@ public class HomePage {
 		public String getAttributeValue() {
 			return this.attributeValue.getText();
 		}
+
 	}
 
 }

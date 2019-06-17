@@ -41,7 +41,7 @@ public class RedisHttpSessionConfigurationClassPathXmlApplicationContextTests {
 
 	// gh-318
 	@Test
-	public void contextLoads() {
+	void contextLoads() {
 	}
 
 	static RedisConnectionFactory connectionFactory() {
@@ -52,4 +52,5 @@ public class RedisHttpSessionConfigurationClassPathXmlApplicationContextTests {
 
 		return factory;
 	}
+
 }

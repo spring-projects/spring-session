@@ -38,15 +38,14 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @since 2.2.0
  */
-public class SimpleRedisOperationsSessionRepository implements
-		SessionRepository<SimpleRedisOperationsSessionRepository.RedisSession> {
+public class SimpleRedisOperationsSessionRepository
+		implements SessionRepository<SimpleRedisOperationsSessionRepository.RedisSession> {
 
 	private static final String DEFAULT_KEY_NAMESPACE = "spring:session:";
 
 	private final RedisOperations<String, Object> sessionRedisOperations;
 
-	private Duration defaultMaxInactiveInterval = Duration
-			.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private String keyNamespace = DEFAULT_KEY_NAMESPACE;
 
@@ -55,10 +54,9 @@ public class SimpleRedisOperationsSessionRepository implements
 	/**
 	 * Create a new {@link SimpleRedisOperationsSessionRepository} instance.
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing
-	 *     sessions
+	 * sessions
 	 */
-	public SimpleRedisOperationsSessionRepository(
-			RedisOperations<String, Object> sessionRedisOperations) {
+	public SimpleRedisOperationsSessionRepository(RedisOperations<String, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations mut not be null");
 		this.sessionRedisOperations = sessionRedisOperations;
 	}
@@ -68,8 +66,7 @@ public class SimpleRedisOperationsSessionRepository implements
 	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
 	 */
 	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
-		Assert.notNull(defaultMaxInactiveInterval,
-				"defaultMaxInactiveInterval must not be null");
+		Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
@@ -101,9 +98,7 @@ public class SimpleRedisOperationsSessionRepository implements
 	@Override
 	public void save(RedisSession session) {
 		if (!session.isNew) {
-			String key = getSessionKey(
-					session.hasChangedSessionId() ? session.originalSessionId
-							: session.getId());
+			String key = getSessionKey(session.hasChangedSessionId() ? session.originalSessionId : session.getId());
 			Boolean sessionExists = this.sessionRedisOperations.hasKey(key);
 			if (sessionExists == null || !sessionExists) {
 				throw new IllegalStateException("Session was invalidated");
@@ -115,8 +110,7 @@ public class SimpleRedisOperationsSessionRepository implements
 	@Override
 	public RedisSession findById(String sessionId) {
 		String key = getSessionKey(sessionId);
-		Map<String, Object> entries = this.sessionRedisOperations
-				.<String, Object>opsForHash().entries(key);
+		Map<String, Object> entries = this.sessionRedisOperations.<String, Object>opsForHash().entries(key);
 		if (entries.isEmpty()) {
 			return null;
 		}
@@ -162,12 +156,9 @@ public class SimpleRedisOperationsSessionRepository implements
 		RedisSession(Duration maxInactiveInterval) {
 			this(new MapSession());
 			this.cached.setMaxInactiveInterval(maxInactiveInterval);
-			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY,
-					getCreationTime().toEpochMilli());
-			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
-					(int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-					getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, getCreationTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
 		}
 
@@ -199,8 +190,7 @@ public class SimpleRedisOperationsSessionRepository implements
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.cached.setAttribute(attributeName, attributeValue);
-			putAttribute(RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName,
-					attributeValue);
+			putAttribute(RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName, attributeValue);
 		}
 
 		@Override
@@ -216,8 +206,7 @@ public class SimpleRedisOperationsSessionRepository implements
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			putAttribute(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-					getLastAccessedTime().toEpochMilli());
+			putAttribute(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 		}
 
 		@Override
@@ -228,8 +217,7 @@ public class SimpleRedisOperationsSessionRepository implements
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			putAttribute(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
-					(int) getMaxInactiveInterval().getSeconds());
+			putAttribute(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
 		}
 
 		@Override
@@ -265,8 +253,8 @@ public class SimpleRedisOperationsSessionRepository implements
 				if (!this.isNew) {
 					String originalSessionIdKey = getSessionKey(this.originalSessionId);
 					String sessionIdKey = getSessionKey(getId());
-					SimpleRedisOperationsSessionRepository.this.sessionRedisOperations
-							.rename(originalSessionIdKey, sessionIdKey);
+					SimpleRedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey,
+							sessionIdKey);
 				}
 				this.originalSessionId = getId();
 			}
@@ -277,13 +265,11 @@ public class SimpleRedisOperationsSessionRepository implements
 				return;
 			}
 			String key = getSessionKey(getId());
-			SimpleRedisOperationsSessionRepository.this.sessionRedisOperations
-					.opsForHash().putAll(key, new HashMap<>(this.delta));
-			SimpleRedisOperationsSessionRepository.this.sessionRedisOperations
-					.expireAt(key,
-							Date.from(Instant
-									.ofEpochMilli(getLastAccessedTime().toEpochMilli())
-									.plusSeconds(getMaxInactiveInterval().getSeconds())));
+			SimpleRedisOperationsSessionRepository.this.sessionRedisOperations.opsForHash().putAll(key,
+					new HashMap<>(this.delta));
+			SimpleRedisOperationsSessionRepository.this.sessionRedisOperations.expireAt(key,
+					Date.from(Instant.ofEpochMilli(getLastAccessedTime().toEpochMilli())
+							.plusSeconds(getMaxInactiveInterval().getSeconds())));
 			this.delta.clear();
 		}
 

@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Tommy Ludwig
  * @author Vedran Pavic
  */
-public abstract class AbstractHazelcastRepositoryITests {
+abstract class AbstractHazelcastRepositoryITests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -51,7 +51,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 	private HazelcastSessionRepository repository;
 
 	@Test
-	public void createAndDestroySession() {
+	void createAndDestroySession() {
 		HazelcastSession sessionToSave = this.repository.createSession();
 		String sessionId = sessionToSave.getId();
 
@@ -71,7 +71,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 	}
 
 	@Test
-	public void changeSessionIdWhenOnlyChangeId() {
+	void changeSessionIdWhenOnlyChangeId() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 		HazelcastSession toSave = this.repository.createSession();
@@ -90,17 +90,15 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 		assertThat(this.repository.findById(originalFindById)).isNull();
 
-		HazelcastSession findByChangeSessionId = this.repository
-				.findById(changeSessionId);
+		HazelcastSession findByChangeSessionId = this.repository.findById(changeSessionId);
 
-		assertThat(findByChangeSessionId.<String>getAttribute(attrName))
-				.isEqualTo(attrValue);
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		this.repository.deleteById(changeSessionId);
 	}
 
 	@Test
-	public void changeSessionIdWhenChangeTwice() {
+	void changeSessionIdWhenChangeTwice() {
 		HazelcastSession toSave = this.repository.createSession();
 
 		this.repository.save(toSave);
@@ -119,7 +117,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 	}
 
 	@Test
-	public void changeSessionIdWhenSetAttributeOnChangedSession() {
+	void changeSessionIdWhenSetAttributeOnChangedSession() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 
@@ -138,17 +136,15 @@ public abstract class AbstractHazelcastRepositoryITests {
 
 		assertThat(this.repository.findById(originalFindById)).isNull();
 
-		HazelcastSession findByChangeSessionId = this.repository
-				.findById(changeSessionId);
+		HazelcastSession findByChangeSessionId = this.repository.findById(changeSessionId);
 
-		assertThat(findByChangeSessionId.<String>getAttribute(attrName))
-				.isEqualTo(attrValue);
+		assertThat(findByChangeSessionId.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		this.repository.deleteById(changeSessionId);
 	}
 
 	@Test
-	public void changeSessionIdWhenHasNotSaved() {
+	void changeSessionIdWhenHasNotSaved() {
 		HazelcastSession toSave = this.repository.createSession();
 		String originalId = toSave.getId();
 		toSave.changeSessionId();
@@ -162,7 +158,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 	}
 
 	@Test // gh-1076
-	public void attemptToUpdateSessionAfterDelete() {
+	void attemptToUpdateSessionAfterDelete() {
 		HazelcastSession session = this.repository.createSession();
 		String sessionId = session.getId();
 		this.repository.save(session);
@@ -175,7 +171,7 @@ public abstract class AbstractHazelcastRepositoryITests {
 	}
 
 	@Test
-	public void createAndUpdateSession() {
+	void createAndUpdateSession() {
 		HazelcastSession session = this.repository.createSession();
 		String sessionId = session.getId();
 
@@ -190,13 +186,12 @@ public abstract class AbstractHazelcastRepositoryITests {
 	}
 
 	@Test
-	public void createSessionWithSecurityContextAndFindById() {
+	void createSessionWithSecurityContextAndFindById() {
 		HazelcastSession session = this.repository.createSession();
 		String sessionId = session.getId();
 
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-				"saves-" + System.currentTimeMillis(), "password",
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication authentication = new UsernamePasswordAuthenticationToken("saves-" + System.currentTimeMillis(),
+				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(authentication);
 		session.setAttribute(SPRING_SECURITY_CONTEXT, securityContext);
@@ -207,23 +202,23 @@ public abstract class AbstractHazelcastRepositoryITests {
 	}
 
 	@Test
-	public void createSessionWithSecurityContextAndFindByPrincipal() {
+	void createSessionWithSecurityContextAndFindByPrincipal() {
 		Assumptions.assumeTrue(this.hazelcastInstance instanceof HazelcastInstanceProxy,
 				"Hazelcast runs in embedded server topology");
 
 		HazelcastSession session = this.repository.createSession();
 
 		String username = "saves-" + System.currentTimeMillis();
-		Authentication authentication = new UsernamePasswordAuthenticationToken(username,
-				"password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		Authentication authentication = new UsernamePasswordAuthenticationToken(username, "password",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
 		securityContext.setAuthentication(authentication);
 		session.setAttribute(SPRING_SECURITY_CONTEXT, securityContext);
 
 		this.repository.save(session);
 
-		assertThat(this.repository.findByIndexNameAndIndexValue(
-				FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username))
+		assertThat(this.repository
+				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, username))
 						.hasSize(1);
 	}
 

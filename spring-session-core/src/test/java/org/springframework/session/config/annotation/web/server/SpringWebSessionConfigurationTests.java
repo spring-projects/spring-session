@@ -41,18 +41,19 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  *
  * @author Greg Turnquist
  */
-public class SpringWebSessionConfigurationTests {
+class SpringWebSessionConfigurationTests {
+
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void cleanup() {
+	void cleanup() {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
 
 	@Test
-	public void enableSpringWebSessionConfiguresThings() {
+	void enableSpringWebSessionConfiguresThings() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(GoodConfig.class);
@@ -69,19 +70,18 @@ public class SpringWebSessionConfigurationTests {
 	}
 
 	@Test
-	public void missingReactiveSessionRepositoryBreaksAppContext() {
+	void missingReactiveSessionRepositoryBreaksAppContext() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(BadConfig.class);
 
-		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-				.isThrownBy(this.context::refresh)
-				.withMessageContaining("Error creating bean with name 'webSessionManager'")
-				.withMessageContaining("No qualifying bean of type '" + ReactiveSessionRepository.class.getCanonicalName());
+		assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(this.context::refresh)
+				.withMessageContaining("Error creating bean with name 'webSessionManager'").withMessageContaining(
+						"No qualifying bean of type '" + ReactiveSessionRepository.class.getCanonicalName());
 	}
 
 	@Test
-	public void defaultSessionIdResolverShouldBeCookieBased() {
+	void defaultSessionIdResolverShouldBeCookieBased() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(GoodConfig.class);
@@ -92,7 +92,7 @@ public class SpringWebSessionConfigurationTests {
 	}
 
 	@Test
-	public void providedSessionIdResolverShouldBePickedUpAutomatically() {
+	void providedSessionIdResolverShouldBePickedUpAutomatically() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(OverrideSessionIdResolver.class);
@@ -109,12 +109,14 @@ public class SpringWebSessionConfigurationTests {
 	static class GoodConfig {
 
 		/**
-		 * Use Reactor-friendly, {@link java.util.Map}-backed {@link ReactiveSessionRepository} for test purposes.
+		 * Use Reactor-friendly, {@link java.util.Map}-backed
+		 * {@link ReactiveSessionRepository} for test purposes.
 		 */
 		@Bean
 		ReactiveSessionRepository<?> reactiveSessionRepository() {
 			return new ReactiveMapSessionRepository(new HashMap<>());
 		}
+
 	}
 
 	/**
@@ -137,6 +139,7 @@ public class SpringWebSessionConfigurationTests {
 		WebSessionIdResolver alternateWebSessionIdResolver() {
 			return new HeaderWebSessionIdResolver();
 		}
+
 	}
 
 }

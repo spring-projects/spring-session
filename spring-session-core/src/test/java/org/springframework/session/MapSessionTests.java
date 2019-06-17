@@ -26,38 +26,37 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
-public class MapSessionTests {
+class MapSessionTests {
 
 	private MapSession session;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.session = new MapSession();
 		this.session.setLastAccessedTime(Instant.ofEpochMilli(1413258262962L));
 	}
 
 	@Test
-	public void constructorNullSession() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new MapSession((Session) null))
+	void constructorNullSession() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new MapSession((Session) null))
 				.withMessage("session cannot be null");
 	}
 
 	@Test
-	public void getAttributeWhenNullThenNull() {
+	void getAttributeWhenNullThenNull() {
 		String result = this.session.getAttribute("attrName");
 		assertThat(result).isNull();
 	}
 
 	@Test
-	public void getAttributeOrDefaultWhenNullThenDefaultValue() {
+	void getAttributeOrDefaultWhenNullThenDefaultValue() {
 		String defaultValue = "default";
 		String result = this.session.getAttributeOrDefault("attrName", defaultValue);
 		assertThat(result).isEqualTo(defaultValue);
 	}
 
 	@Test
-	public void getAttributeOrDefaultWhenNotNullThenDefaultValue() {
+	void getAttributeOrDefaultWhenNotNullThenDefaultValue() {
 		String defaultValue = "default";
 		String attrValue = "value";
 		String attrName = "attrName";
@@ -69,14 +68,13 @@ public class MapSessionTests {
 	}
 
 	@Test
-	public void getRequiredAttributeWhenNullThenException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.session.getRequiredAttribute("attrName"))
+	void getRequiredAttributeWhenNullThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.session.getRequiredAttribute("attrName"))
 				.withMessage("Required attribute 'attrName' is missing.");
 	}
 
 	@Test
-	public void getRequiredAttributeWhenNotNullThenReturns() {
+	void getRequiredAttributeWhenNotNullThenReturns() {
 		String attrValue = "value";
 		String attrName = "attrName";
 		this.session.setAttribute(attrName, attrValue);
@@ -90,7 +88,7 @@ public class MapSessionTests {
 	 * Ensure conforms to the javadoc of {@link Session}
 	 */
 	@Test
-	public void setAttributeNullObjectRemoves() {
+	void setAttributeNullObjectRemoves() {
 		String attr = "attr";
 		this.session.setAttribute(attr, new Object());
 		this.session.setAttribute(attr, null);
@@ -98,43 +96,43 @@ public class MapSessionTests {
 	}
 
 	@Test
-	public void equalsNonSessionFalse() {
+	void equalsNonSessionFalse() {
 		assertThat(this.session.equals(new Object())).isFalse();
 	}
 
 	@Test
-	public void equalsCustomSession() {
+	void equalsCustomSession() {
 		CustomSession other = new CustomSession();
 		this.session.setId(other.getId());
 		assertThat(this.session.equals(other)).isTrue();
 	}
 
 	@Test
-	public void hashCodeEqualsIdHashCode() {
+	void hashCodeEqualsIdHashCode() {
 		this.session.setId("constantId");
 		assertThat(this.session.hashCode()).isEqualTo(this.session.getId().hashCode());
 	}
 
 	@Test
-	public void isExpiredExact() {
+	void isExpiredExact() {
 		Instant now = Instant.ofEpochMilli(1413260062962L);
 		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
 	@Test
-	public void isExpiredOneMsTooSoon() {
+	void isExpiredOneMsTooSoon() {
 		Instant now = Instant.ofEpochMilli(1413260062961L);
 		assertThat(this.session.isExpired(now)).isFalse();
 	}
 
 	@Test
-	public void isExpiredOneMsAfter() {
+	void isExpiredOneMsAfter() {
 		Instant now = Instant.ofEpochMilli(1413260062963L);
 		assertThat(this.session.isExpired(now)).isTrue();
 	}
 
 	@Test // gh-1120
-	public void getAttributeNamesAndRemove() {
+	void getAttributeNamesAndRemove() {
 		this.session.setAttribute("attribute1", "value1");
 		this.session.setAttribute("attribute2", "value2");
 
@@ -206,6 +204,7 @@ public class MapSessionTests {
 		public boolean isExpired() {
 			return false;
 		}
+
 	}
 
 }

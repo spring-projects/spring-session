@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,21 +36,19 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @since 1.3.0
  */
-public class SpringSessionRememberMeServices
-		implements RememberMeServices, LogoutHandler {
+public class SpringSessionRememberMeServices implements RememberMeServices, LogoutHandler {
 
 	/**
 	 * Remember-me login request attribute name.
 	 */
-	public static final String REMEMBER_ME_LOGIN_ATTR = SpringSessionRememberMeServices.class
-			.getName() + "REMEMBER_ME_LOGIN_ATTR";
+	public static final String REMEMBER_ME_LOGIN_ATTR = SpringSessionRememberMeServices.class.getName()
+			+ "REMEMBER_ME_LOGIN_ATTR";
 
 	private static final String DEFAULT_REMEMBERME_PARAMETER = "remember-me";
 
 	private static final int THIRTY_DAYS_SECONDS = 2592000;
 
-	private static final Log logger = LogFactory
-			.getLog(SpringSessionRememberMeServices.class);
+	private static final Log logger = LogFactory.getLog(SpringSessionRememberMeServices.class);
 
 	private String rememberMeParameterName = DEFAULT_REMEMBERME_PARAMETER;
 
@@ -61,22 +59,19 @@ public class SpringSessionRememberMeServices
 	private String sessionAttrToDeleteOnLoginFail = HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
 	@Override
-	public final Authentication autoLogin(HttpServletRequest request,
-			HttpServletResponse response) {
+	public final Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 
 	@Override
-	public final void loginFail(HttpServletRequest request,
-			HttpServletResponse response) {
+	public final void loginFail(HttpServletRequest request, HttpServletResponse response) {
 		logout(request);
 	}
 
 	@Override
-	public final void loginSuccess(HttpServletRequest request,
-			HttpServletResponse response, Authentication successfulAuthentication) {
-		if (!this.alwaysRemember
-				&& !rememberMeRequested(request, this.rememberMeParameterName)) {
+	public final void loginSuccess(HttpServletRequest request, HttpServletResponse response,
+			Authentication successfulAuthentication) {
+		if (!this.alwaysRemember && !rememberMeRequested(request, this.rememberMeParameterName)) {
 			logger.debug("Remember-me login not requested.");
 			return;
 		}
@@ -103,8 +98,7 @@ public class SpringSessionRememberMeServices
 			}
 		}
 		if (logger.isDebugEnabled()) {
-			logger.debug("Did not send remember-me cookie (principal did not set "
-					+ "parameter '" + parameter + "')");
+			logger.debug("Did not send remember-me cookie (principal did not set " + "parameter '" + parameter + "')");
 		}
 		return false;
 	}
@@ -116,8 +110,7 @@ public class SpringSessionRememberMeServices
 	 * @param rememberMeParameterName the request parameter
 	 */
 	public void setRememberMeParameterName(String rememberMeParameterName) {
-		Assert.hasText(rememberMeParameterName,
-				"rememberMeParameterName cannot be empty or null");
+		Assert.hasText(rememberMeParameterName, "rememberMeParameterName cannot be empty or null");
 		this.rememberMeParameterName = rememberMeParameterName;
 	}
 
@@ -130,8 +123,7 @@ public class SpringSessionRememberMeServices
 	}
 
 	@Override
-	public void logout(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) {
+	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		logout(request);
 	}
 
@@ -142,4 +134,5 @@ public class SpringSessionRememberMeServices
 			session.removeAttribute(this.sessionAttrToDeleteOnLoginFail);
 		}
 	}
+
 }

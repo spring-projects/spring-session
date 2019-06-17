@@ -37,15 +37,17 @@ import static org.mockito.Mockito.mock;
 @ContextConfiguration
 @WebAppConfiguration
 public class HttpSessionConfigurationNoOpConfigureRedisActionXmlTests {
+
 	@Autowired
 	SessionRepositoryFilter<? extends Session> filter;
 
 	@Test
-	public void redisConnectionFactoryNotUsedSinceNoValidation() {
+	void redisConnectionFactoryNotUsedSinceNoValidation() {
 		assertThat(this.filter).isNotNull();
 	}
 
 	static RedisConnectionFactory connectionFactory() {
 		return mock(RedisConnectionFactory.class);
 	}
+
 }

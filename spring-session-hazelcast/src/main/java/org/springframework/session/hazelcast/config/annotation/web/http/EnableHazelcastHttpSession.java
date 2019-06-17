@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,8 +79,7 @@ public @interface EnableHazelcastHttpSession {
 
 	/**
 	 * This is the name of the Map that will be used in Hazelcast to store the session
-	 * data. Default is
-	 * {@link HazelcastSessionRepository#DEFAULT_SESSION_MAP_NAME}.
+	 * data. Default is {@link HazelcastSessionRepository#DEFAULT_SESSION_MAP_NAME}.
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
 	String sessionMapName() default HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME;

@@ -56,10 +56,9 @@ class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	@Test
 	void save_NewSession_ShouldSaveSession() {
 		RedisSession session = createAndSaveSession(Instant.now());
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(
-				Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
-		assertThat(session.getAttributeNames())
-				.isEqualTo(Collections.singleton("attribute1"));
+		assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
+		assertThat(session.getAttributeNames()).isEqualTo(Collections.singleton("attribute1"));
 		assertThat(session.<String>getAttribute("attribute1")).isEqualTo("value1");
 	}
 
@@ -72,8 +71,7 @@ class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	void save_DeletedSession_ShouldThrowException() {
 		RedisSession session = createAndSaveSession(Instant.now());
 		this.sessionRepository.deleteById(session.getId());
-		assertThatIllegalStateException()
-				.isThrownBy(() -> this.sessionRepository.save(session))
+		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(session))
 				.withMessage("Session was invalidated");
 	}
 
@@ -164,8 +162,7 @@ class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 		this.sessionRepository.deleteById(originalSessionId);
 		updateSession(session, Instant.now(), "attribute1", "value1");
 		String newSessionId = session.changeSessionId();
-		assertThatIllegalStateException()
-				.isThrownBy(() -> this.sessionRepository.save(session))
+		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(session))
 				.withMessage("Session was invalidated");
 		assertThat(this.sessionRepository.findById(newSessionId)).isNull();
 		assertThat(this.sessionRepository.findById(originalSessionId)).isNull();
@@ -182,8 +179,7 @@ class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 		this.sessionRepository.save(copy1);
 		updateSession(copy2, now.plusSeconds(2L), "attribute3", "value3");
 		String newSessionId2 = copy2.changeSessionId();
-		assertThatIllegalStateException()
-				.isThrownBy(() -> this.sessionRepository.save(copy2))
+		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(copy2))
 				.withMessage("Session was invalidated");
 		assertThat(this.sessionRepository.findById(newSessionId1)).isNotNull();
 		assertThat(this.sessionRepository.findById(newSessionId2)).isNull();
@@ -220,8 +216,8 @@ class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 		return this.sessionRepository.findById(session.getId());
 	}
 
-	private static void updateSession(RedisSession session, Instant lastAccessedTime,
-			String attributeName, Object attributeValue) {
+	private static void updateSession(RedisSession session, Instant lastAccessedTime, String attributeName,
+			Object attributeValue) {
 		session.setLastAccessedTime(lastAccessedTime);
 		session.setAttribute(attributeName, attributeValue);
 	}
@@ -231,8 +227,7 @@ class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	static class Config extends BaseConfig {
 
 		@Bean
-		public SimpleRedisOperationsSessionRepository sessionRepository(
-				RedisConnectionFactory redisConnectionFactory) {
+		public SimpleRedisOperationsSessionRepository sessionRepository(RedisConnectionFactory redisConnectionFactory) {
 			RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 			redisTemplate.setConnectionFactory(redisConnectionFactory);
 			redisTemplate.afterPropertiesSet();

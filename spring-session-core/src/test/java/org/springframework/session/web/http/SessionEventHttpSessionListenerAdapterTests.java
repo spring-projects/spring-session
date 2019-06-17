@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @since 1.1
  */
-public class SessionEventHttpSessionListenerAdapterTests {
+class SessionEventHttpSessionListenerAdapterTests {
 
 	@Mock
 	private HttpSessionListener listener1;
@@ -68,10 +68,9 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	private SessionEventHttpSessionListenerAdapter listener;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		MockitoAnnotations.initMocks(this);
-		this.listener = new SessionEventHttpSessionListenerAdapter(
-				Arrays.asList(this.listener1, this.listener2));
+		this.listener = new SessionEventHttpSessionListenerAdapter(Arrays.asList(this.listener1, this.listener2));
 		this.listener.setServletContext(new MockServletContext());
 
 		Session session = new MapSession();
@@ -83,7 +82,7 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	// make configuration easier (i.e. autowire all HttpSessionListeners and might get
 	// none)
 	@Test
-	public void constructorEmptyWorks() {
+	void constructorEmptyWorks() {
 		new SessionEventHttpSessionListenerAdapter(Collections.emptyList());
 	}
 
@@ -92,9 +91,8 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	 * listeners
 	 */
 	@Test
-	public void onApplicationEventEmptyListenersDoesNotUseEvent() {
-		this.listener = new SessionEventHttpSessionListenerAdapter(
-				Collections.emptyList());
+	void onApplicationEventEmptyListenersDoesNotUseEvent() {
+		this.listener = new SessionEventHttpSessionListenerAdapter(Collections.emptyList());
 		this.destroyed = mock(SessionDestroyedEvent.class);
 
 		this.listener.onApplicationEvent(this.destroyed);
@@ -103,25 +101,23 @@ public class SessionEventHttpSessionListenerAdapterTests {
 	}
 
 	@Test
-	public void onApplicationEventDestroyed() {
+	void onApplicationEventDestroyed() {
 		this.listener.onApplicationEvent(this.destroyed);
 
 		verify(this.listener1).sessionDestroyed(this.sessionEvent.capture());
 		verify(this.listener2).sessionDestroyed(this.sessionEvent.capture());
 
-		assertThat(this.sessionEvent.getValue().getSession().getId())
-				.isEqualTo(this.destroyed.getSessionId());
+		assertThat(this.sessionEvent.getValue().getSession().getId()).isEqualTo(this.destroyed.getSessionId());
 	}
 
 	@Test
-	public void onApplicationEventCreated() {
+	void onApplicationEventCreated() {
 		this.listener.onApplicationEvent(this.created);
 
 		verify(this.listener1).sessionCreated(this.sessionEvent.capture());
 		verify(this.listener2).sessionCreated(this.sessionEvent.capture());
 
-		assertThat(this.sessionEvent.getValue().getSession().getId())
-				.isEqualTo(this.created.getSessionId());
+		assertThat(this.sessionEvent.getValue().getSession().getId()).isEqualTo(this.created.getSessionId());
 	}
 
 }

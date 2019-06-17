@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,8 +93,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	public final void registerStompEndpoints(StompEndpointRegistry registry) {
 		if (registry instanceof WebMvcStompEndpointRegistry) {
 			WebMvcStompEndpointRegistry mvcRegistry = (WebMvcStompEndpointRegistry) registry;
-			configureStompEndpoints(new SessionStompEndpointRegistry(mvcRegistry,
-					sessionRepositoryInterceptor()));
+			configureStompEndpoints(new SessionStompEndpointRegistry(mvcRegistry, sessionRepositoryInterceptor()));
 		}
 	}
 
@@ -102,7 +101,6 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	 * Register STOMP endpoints mapping each to a specific URL and (optionally) enabling
 	 * and configuring SockJS fallback options with a
 	 * {@link SessionRepositoryMessageInterceptor} automatically added as an interceptor.
-	 *
 	 * @param registry the {@link StompEndpointRegistry} which automatically has a
 	 * {@link SessionRepositoryMessageInterceptor} added to it.
 	 */
@@ -133,19 +131,19 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	 * A {@link StompEndpointRegistry} that applies {@link HandshakeInterceptor}.
 	 */
 	static class SessionStompEndpointRegistry implements StompEndpointRegistry {
+
 		private final WebMvcStompEndpointRegistry registry;
+
 		private final HandshakeInterceptor interceptor;
 
-		SessionStompEndpointRegistry(WebMvcStompEndpointRegistry registry,
-				HandshakeInterceptor interceptor) {
+		SessionStompEndpointRegistry(WebMvcStompEndpointRegistry registry, HandshakeInterceptor interceptor) {
 			this.registry = registry;
 			this.interceptor = interceptor;
 		}
 
 		@Override
 		public StompWebSocketEndpointRegistration addEndpoint(String... paths) {
-			StompWebSocketEndpointRegistration endpoints = this.registry
-					.addEndpoint(paths);
+			StompWebSocketEndpointRegistration endpoints = this.registry.addEndpoint(paths);
 			endpoints.addInterceptors(this.interceptor);
 			return endpoints;
 		}
@@ -161,9 +159,10 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 		}
 
 		@Override
-		public WebMvcStompEndpointRegistry setErrorHandler(
-				StompSubProtocolErrorHandler errorHandler) {
+		public WebMvcStompEndpointRegistry setErrorHandler(StompSubProtocolErrorHandler errorHandler) {
 			return this.registry.setErrorHandler(errorHandler);
 		}
+
 	}
+
 }

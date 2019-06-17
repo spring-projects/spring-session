@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 /**
  * Tests for {@link HeaderHttpSessionIdResolver}.
  */
-public class HeaderHttpSessionIdResolverTests {
+class HeaderHttpSessionIdResolverTests {
 
 	private static final String HEADER_X_AUTH_TOKEN = "X-Auth-Token";
 
@@ -43,71 +43,64 @@ public class HeaderHttpSessionIdResolverTests {
 	private HeaderHttpSessionIdResolver resolver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.resolver = HeaderHttpSessionIdResolver.xAuthToken();
 	}
 
 	@Test
-	public void createResolverWithXAuthTokenHeader() {
+	void createResolverWithXAuthTokenHeader() {
 		HeaderHttpSessionIdResolver resolver = HeaderHttpSessionIdResolver.xAuthToken();
-		assertThat(ReflectionTestUtils.getField(resolver, "headerName"))
-				.isEqualTo("X-Auth-Token");
+		assertThat(ReflectionTestUtils.getField(resolver, "headerName")).isEqualTo("X-Auth-Token");
 	}
 
 	@Test
-	public void createResolverWithAuthenticationInfoHeader() {
-		HeaderHttpSessionIdResolver resolver = HeaderHttpSessionIdResolver
-				.authenticationInfo();
-		assertThat(ReflectionTestUtils.getField(resolver, "headerName"))
-				.isEqualTo("Authentication-Info");
+	void createResolverWithAuthenticationInfoHeader() {
+		HeaderHttpSessionIdResolver resolver = HeaderHttpSessionIdResolver.authenticationInfo();
+		assertThat(ReflectionTestUtils.getField(resolver, "headerName")).isEqualTo("Authentication-Info");
 	}
 
 	@Test
-	public void createResolverWithCustomHeaderName() {
-		HeaderHttpSessionIdResolver resolver = new HeaderHttpSessionIdResolver(
-				"Custom-Header");
-		assertThat(ReflectionTestUtils.getField(resolver, "headerName"))
-				.isEqualTo("Custom-Header");
+	void createResolverWithCustomHeaderName() {
+		HeaderHttpSessionIdResolver resolver = new HeaderHttpSessionIdResolver("Custom-Header");
+		assertThat(ReflectionTestUtils.getField(resolver, "headerName")).isEqualTo("Custom-Header");
 	}
 
 	@Test
-	public void createResolverWithNullHeaderName() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new HeaderHttpSessionIdResolver(null))
+	void createResolverWithNullHeaderName() {
+		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderHttpSessionIdResolver(null))
 				.withMessage("headerName cannot be null");
 	}
 
 	@Test
-	public void getRequestedSessionIdNull() {
+	void getRequestedSessionIdNull() {
 		assertThat(this.resolver.resolveSessionIds(this.request)).isEmpty();
 	}
 
 	@Test
-	public void getRequestedSessionIdNotNull() {
+	void getRequestedSessionIdNotNull() {
 		String sessionId = UUID.randomUUID().toString();
 		setSessionId(sessionId);
-		assertThat(this.resolver.resolveSessionIds(this.request))
-				.isEqualTo(Collections.singletonList(sessionId));
+		assertThat(this.resolver.resolveSessionIds(this.request)).isEqualTo(Collections.singletonList(sessionId));
 	}
 
 	@Test
-	public void onNewSession() {
+	void onNewSession() {
 		String sessionId = UUID.randomUUID().toString();
 		this.resolver.setSessionId(this.request, this.response, sessionId);
 		assertThat(getSessionId()).isEqualTo(sessionId);
 	}
 
 	@Test
-	public void onDeleteSession() {
+	void onDeleteSession() {
 		this.resolver.expireSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	// the header is set as apposed to added
 	@Test
-	public void onNewSessionMulti() {
+	void onNewSessionMulti() {
 		String sessionId = UUID.randomUUID().toString();
 		this.resolver.setSessionId(this.request, this.response, sessionId);
 		this.resolver.setSessionId(this.request, this.response, sessionId);
@@ -117,7 +110,7 @@ public class HeaderHttpSessionIdResolverTests {
 
 	// the header is set as apposed to added
 	@Test
-	public void onDeleteSessionMulti() {
+	void onDeleteSessionMulti() {
 		this.resolver.expireSession(this.request, this.response);
 		this.resolver.expireSession(this.request, this.response);
 		assertThat(this.response.getHeaders(HEADER_X_AUTH_TOKEN).size()).isEqualTo(1);

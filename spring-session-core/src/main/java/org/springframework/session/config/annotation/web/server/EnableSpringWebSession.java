@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 /**
- * Add this annotation to a {@code @Configuration} class to configure a {@code WebSessionManager} for a WebFlux
- * application. This annotation assumes a {@code ReactiveSessionRepository} is defined somewhere in the application
- * context. If not, it will fail with a clear error message. For example:
+ * Add this annotation to a {@code @Configuration} class to configure a
+ * {@code WebSessionManager} for a WebFlux application. This annotation assumes a
+ * {@code ReactiveSessionRepository} is defined somewhere in the application context. If
+ * not, it will fail with a clear error message. For example:
  *
  * <pre>
  * <code>
@@ -39,8 +40,7 @@ import org.springframework.context.annotation.Import;
  *     }
  *
  * }
- * </code>
- * </pre>
+ * </code> </pre>
  *
  * @author Greg Turnquist
  * @since 2.0
@@ -51,4 +51,5 @@ import org.springframework.context.annotation.Import;
 @Import(SpringWebSessionConfiguration.class)
 @Configuration
 public @interface EnableSpringWebSession {
+
 }

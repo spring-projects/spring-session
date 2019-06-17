@@ -72,8 +72,8 @@ import org.springframework.util.Assert;
  *
  * <p>
  * For additional information on how to create a RedisTemplate, refer to the
- * <a href = "https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/" >
- * Spring Data Redis Reference</a>.
+ * <a href = "https://docs.spring.io/spring-data/data-redis/docs/current/reference/html/"
+ * > Spring Data Redis Reference</a>.
  * </p>
  *
  * <h2>Storage Details</h2>
@@ -123,10 +123,12 @@ import org.springframework.util.Assert;
  * <h3>Optimized Writes</h3>
  *
  * <p>
- * The {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession} keeps track of the properties that have changed and only
- * updates those. This means if an attribute is written once and read many times we only
- * need to write that attribute once. For example, assume the session attribute
- * "sessionAttr2" from earlier was updated. The following would be executed upon saving:
+ * The
+ * {@link org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession}
+ * keeps track of the properties that have changed and only updates those. This means if
+ * an attribute is written once and read many times we only need to write that attribute
+ * once. For example, assume the session attribute "sessionAttr2" from earlier was
+ * updated. The following would be executed upon saving:
  * </p>
  *
  * <pre>
@@ -170,15 +172,14 @@ import org.springframework.util.Assert;
  * </p>
  *
  * <p>
- * <b>NOTE:</b> The {@link #findById(String)} method ensures that no expired sessions
- * will be returned. This means there is no need to check the expiration before using a
- * session
+ * <b>NOTE:</b> The {@link #findById(String)} method ensures that no expired sessions will
+ * be returned. This means there is no need to check the expiration before using a session
  * </p>
  *
  * <p>
  * Spring Session relies on the expired and delete
- * <a href="https://redis.io/topics/notifications">keyspace notifications</a> from Redis to
- * fire a SessionDestroyedEvent. It is the SessionDestroyedEvent that ensures resources
+ * <a href="https://redis.io/topics/notifications">keyspace notifications</a> from Redis
+ * to fire a SessionDestroyedEvent. It is the SessionDestroyedEvent that ensures resources
  * associated with the Session are cleaned up. For example, when using Spring Session's
  * WebSocket support the Redis expired or delete event is what triggers any WebSocket
  * connections associated with the session to be closed.
@@ -244,11 +245,10 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @since 1.0
  */
-public class RedisOperationsSessionRepository implements
-		FindByIndexNameSessionRepository<RedisOperationsSessionRepository.RedisSession>,
-		MessageListener {
-	private static final Log logger = LogFactory
-			.getLog(RedisOperationsSessionRepository.class);
+public class RedisOperationsSessionRepository
+		implements FindByIndexNameSessionRepository<RedisOperationsSessionRepository.RedisSession>, MessageListener {
+
+	private static final Log logger = LogFactory.getLog(RedisOperationsSessionRepository.class);
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -303,16 +303,14 @@ public class RedisOperationsSessionRepository implements
 
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
-	 *
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
 	 * sessions. Cannot be null.
 	 */
-	public RedisOperationsSessionRepository(
-			RedisOperations<Object, Object> sessionRedisOperations) {
+	public RedisOperationsSessionRepository(RedisOperations<Object, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
-		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations,
-				this::getExpirationsKey, this::getSessionKey);
+		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, this::getExpirationsKey,
+				this::getSessionKey);
 		configureSessionChannels();
 	}
 
@@ -320,14 +318,11 @@ public class RedisOperationsSessionRepository implements
 	 * Sets the {@link ApplicationEventPublisher} that is used to publish
 	 * {@link SessionDestroyedEvent}. The default is to not publish a
 	 * {@link SessionDestroyedEvent}.
-	 *
 	 * @param applicationEventPublisher the {@link ApplicationEventPublisher} that is used
 	 * to publish {@link SessionDestroyedEvent}. Cannot be null.
 	 */
-	public void setApplicationEventPublisher(
-			ApplicationEventPublisher applicationEventPublisher) {
-		Assert.notNull(applicationEventPublisher,
-				"applicationEventPublisher cannot be null");
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		Assert.notNull(applicationEventPublisher, "applicationEventPublisher cannot be null");
 		this.eventPublisher = applicationEventPublisher;
 	}
 
@@ -335,7 +330,6 @@ public class RedisOperationsSessionRepository implements
 	 * Sets the maximum inactive interval in seconds between requests before newly created
 	 * sessions will be invalidated. A negative time indicates that the session will never
 	 * timeout. The default is 1800 (30 minutes).
-	 *
 	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
 	 * should be kept alive between client requests.
 	 */
@@ -346,7 +340,6 @@ public class RedisOperationsSessionRepository implements
 	/**
 	 * Sets the default redis serializer. Replaces default serializer which is based on
 	 * {@link JdkSerializationRedisSerializer}.
-	 *
 	 * @param defaultSerializer the new default redis serializer
 	 */
 	public void setDefaultSerializer(RedisSerializer<Object> defaultSerializer) {
@@ -356,7 +349,6 @@ public class RedisOperationsSessionRepository implements
 
 	/**
 	 * Sets the redis flush mode. Default flush mode is {@link RedisFlushMode#ON_SAVE}.
-	 *
 	 * @param redisFlushMode the new redis flush mode
 	 */
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
@@ -374,8 +366,7 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	private void configureSessionChannels() {
-		this.sessionCreatedChannelPrefix = this.namespace + "event:" + this.database
-				+ ":created:";
+		this.sessionCreatedChannelPrefix = this.namespace + "event:" + this.database + ":created:";
 		this.sessionDeletedChannel = "__keyevent@" + this.database + "__:del";
 		this.sessionExpiredChannel = "__keyevent@" + this.database + "__:expired";
 	}
@@ -409,16 +400,13 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	@Override
-	public Map<String, RedisSession> findByIndexNameAndIndexValue(String indexName,
-			String indexValue) {
+	public Map<String, RedisSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
 		}
 		String principalKey = getPrincipalKey(indexValue);
-		Set<Object> sessionIds = this.sessionRedisOperations.boundSetOps(principalKey)
-				.members();
-		Map<String, RedisSession> sessions = new HashMap<>(
-				sessionIds.size());
+		Set<Object> sessionIds = this.sessionRedisOperations.boundSetOps(principalKey).members();
+		Map<String, RedisSession> sessions = new HashMap<>(sessionIds.size());
 		for (Object id : sessionIds) {
 			RedisSession session = findById((String) id);
 			if (session != null) {
@@ -463,9 +451,7 @@ public class RedisOperationsSessionRepository implements
 				loaded.setLastAccessedTime(Instant.ofEpochMilli((long) entry.getValue()));
 			}
 			else if (key.startsWith(RedisSessionMapper.ATTRIBUTE_PREFIX)) {
-				loaded.setAttribute(
-						key.substring(RedisSessionMapper.ATTRIBUTE_PREFIX.length()),
-						entry.getValue());
+				loaded.setAttribute(key.substring(RedisSessionMapper.ATTRIBUTE_PREFIX.length()), entry.getValue());
 			}
 		}
 		return loaded;
@@ -490,10 +476,8 @@ public class RedisOperationsSessionRepository implements
 
 	@Override
 	public RedisSession createSession() {
-		Duration maxInactiveInterval = Duration
-				.ofSeconds((this.defaultMaxInactiveInterval != null)
-						? this.defaultMaxInactiveInterval
-						: MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		Duration maxInactiveInterval = Duration.ofSeconds((this.defaultMaxInactiveInterval != null)
+				? this.defaultMaxInactiveInterval : MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 		RedisSession session = new RedisSession(maxInactiveInterval);
 		session.flushImmediateIfNecessary();
 		return session;
@@ -509,8 +493,7 @@ public class RedisOperationsSessionRepository implements
 
 		if (channel.startsWith(this.sessionCreatedChannelPrefix)) {
 			// TODO: is this thread safe?
-			Map<Object, Object> loaded = (Map<Object, Object>) this.defaultSerializer
-					.deserialize(message.getBody());
+			Map<Object, Object> loaded = (Map<Object, Object>) this.defaultSerializer.deserialize(message.getBody());
 			handleCreated(loaded, channel);
 			return;
 		}
@@ -529,8 +512,7 @@ public class RedisOperationsSessionRepository implements
 			RedisSession session = getSession(sessionId, true);
 
 			if (session == null) {
-				logger.warn("Unable to publish SessionDestroyedEvent for session "
-						+ sessionId);
+				logger.warn("Unable to publish SessionDestroyedEvent for session " + sessionId);
 				return;
 			}
 
@@ -553,8 +535,7 @@ public class RedisOperationsSessionRepository implements
 		String sessionId = session.getId();
 		String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(session);
 		if (principal != null) {
-			this.sessionRedisOperations.boundSetOps(getPrincipalKey(principal))
-					.remove(sessionId);
+			this.sessionRedisOperations.boundSetOps(getPrincipalKey(principal)).remove(sessionId);
 		}
 	}
 
@@ -589,7 +570,6 @@ public class RedisOperationsSessionRepository implements
 
 	/**
 	 * Gets the Hash key for this session by prefixing it appropriately.
-	 *
 	 * @param sessionId the session id
 	 * @return the Hash key for this session by prefixing it appropriately.
 	 */
@@ -598,8 +578,7 @@ public class RedisOperationsSessionRepository implements
 	}
 
 	String getPrincipalKey(String principalName) {
-		return this.namespace + "index:"
-				+ FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME + ":"
+		return this.namespace + "index:" + FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME + ":"
 				+ principalName;
 	}
 
@@ -650,15 +629,13 @@ public class RedisOperationsSessionRepository implements
 	 * @param sessionId the id of the {@link Session} to work with
 	 * @return the {@link BoundHashOperations} to operate on a {@link Session}
 	 */
-	private BoundHashOperations<Object, Object, Object> getSessionBoundHashOperations(
-			String sessionId) {
+	private BoundHashOperations<Object, Object, Object> getSessionBoundHashOperations(String sessionId) {
 		String key = getSessionKey(sessionId);
 		return this.sessionRedisOperations.boundHashOps(key);
 	}
 
 	/**
 	 * Gets the key for the specified session attribute.
-	 *
 	 * @param attributeName the attribute name
 	 * @return the attribute key name
 	 */
@@ -676,35 +653,36 @@ public class RedisOperationsSessionRepository implements
 	 * @since 1.0
 	 */
 	final class RedisSession implements Session {
+
 		private final MapSession cached;
+
 		private Instant originalLastAccessTime;
+
 		private Map<String, Object> delta = new HashMap<>();
+
 		private boolean isNew;
+
 		private String originalPrincipalName;
+
 		private String originalSessionId;
 
 		/**
 		 * Creates a new instance ensuring to mark all of the new attributes to be
 		 * persisted in the next save operation.
-		 *
 		 * @param maxInactiveInterval the amount of time that the {@link Session} should
 		 * be kept alive between client requests.
 		 */
 		RedisSession(Duration maxInactiveInterval) {
 			this(new MapSession());
 			this.cached.setMaxInactiveInterval(maxInactiveInterval);
-			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY,
-					getCreationTime().toEpochMilli());
-			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
-					(int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-					getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, getCreationTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
 		}
 
 		/**
 		 * Creates a new instance from the provided {@link MapSession}.
-		 *
 		 * @param cached the {@link MapSession} that represents the persisted session that
 		 * was retrieved. Cannot be null.
 		 */
@@ -722,8 +700,7 @@ public class RedisOperationsSessionRepository implements
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			this.putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-					getLastAccessedTime().toEpochMilli());
+			this.putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 		}
 
 		@Override
@@ -758,8 +735,7 @@ public class RedisOperationsSessionRepository implements
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			this.putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
-					(int) getMaxInactiveInterval().getSeconds());
+			this.putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
 		}
 
 		@Override
@@ -817,33 +793,27 @@ public class RedisOperationsSessionRepository implements
 			getSessionBoundHashOperations(sessionId).putAll(this.delta);
 			String principalSessionKey = getSessionAttrNameKey(
 					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
-			String securityPrincipalSessionKey = getSessionAttrNameKey(
-					SPRING_SECURITY_CONTEXT);
-			if (this.delta.containsKey(principalSessionKey)
-					|| this.delta.containsKey(securityPrincipalSessionKey)) {
+			String securityPrincipalSessionKey = getSessionAttrNameKey(SPRING_SECURITY_CONTEXT);
+			if (this.delta.containsKey(principalSessionKey) || this.delta.containsKey(securityPrincipalSessionKey)) {
 				if (this.originalPrincipalName != null) {
-					String originalPrincipalRedisKey = getPrincipalKey(
-							this.originalPrincipalName);
-					RedisOperationsSessionRepository.this.sessionRedisOperations
-							.boundSetOps(originalPrincipalRedisKey).remove(sessionId);
+					String originalPrincipalRedisKey = getPrincipalKey(this.originalPrincipalName);
+					RedisOperationsSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
+							.remove(sessionId);
 				}
 				String principal = PRINCIPAL_NAME_RESOLVER.resolvePrincipal(this);
 				this.originalPrincipalName = principal;
 				if (principal != null) {
 					String principalRedisKey = getPrincipalKey(principal);
-					RedisOperationsSessionRepository.this.sessionRedisOperations
-							.boundSetOps(principalRedisKey).add(sessionId);
+					RedisOperationsSessionRepository.this.sessionRedisOperations.boundSetOps(principalRedisKey)
+							.add(sessionId);
 				}
 			}
 
 			this.delta = new HashMap<>(this.delta.size());
 
 			Long originalExpiration = (this.originalLastAccessTime != null)
-					? this.originalLastAccessTime.plus(getMaxInactiveInterval())
-							.toEpochMilli()
-					: null;
-			RedisOperationsSessionRepository.this.expirationPolicy
-					.onExpirationUpdated(originalExpiration, this);
+					? this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli() : null;
+			RedisOperationsSessionRepository.this.expirationPolicy.onExpirationUpdated(originalExpiration, this);
 		}
 
 		private void saveChangeSessionId() {
@@ -855,8 +825,8 @@ public class RedisOperationsSessionRepository implements
 				String originalSessionIdKey = getSessionKey(this.originalSessionId);
 				String sessionIdKey = getSessionKey(sessionId);
 				try {
-					RedisOperationsSessionRepository.this.sessionRedisOperations
-							.rename(originalSessionIdKey, sessionIdKey);
+					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey,
+							sessionIdKey);
 				}
 				catch (NonTransientDataAccessException ex) {
 					handleErrNoSuchKeyError(ex);
@@ -864,8 +834,7 @@ public class RedisOperationsSessionRepository implements
 				String originalExpiredKey = getExpiredKey(this.originalSessionId);
 				String expiredKey = getExpiredKey(sessionId);
 				try {
-					RedisOperationsSessionRepository.this.sessionRedisOperations
-							.rename(originalExpiredKey, expiredKey);
+					RedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalExpiredKey, expiredKey);
 				}
 				catch (NonTransientDataAccessException ex) {
 					handleErrNoSuchKeyError(ex);
@@ -875,8 +844,7 @@ public class RedisOperationsSessionRepository implements
 		}
 
 		private void handleErrNoSuchKeyError(NonTransientDataAccessException ex) {
-			if (!"ERR no such key"
-					.equals(NestedExceptionUtils.getMostSpecificCause(ex).getMessage())) {
+			if (!"ERR no such key".equals(NestedExceptionUtils.getMostSpecificCause(ex).getMessage())) {
 				throw ex;
 			}
 		}
@@ -887,6 +855,7 @@ public class RedisOperationsSessionRepository implements
 	 * Principal name resolver helper class.
 	 */
 	static class PrincipalNameResolver {
+
 		private SpelExpressionParser parser = new SpelExpressionParser();
 
 		public String resolvePrincipal(Session session) {
@@ -896,12 +865,12 @@ public class RedisOperationsSessionRepository implements
 			}
 			Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
 			if (authentication != null) {
-				Expression expression = this.parser
-						.parseExpression("authentication?.name");
+				Expression expression = this.parser.parseExpression("authentication?.name");
 				return expression.getValue(authentication, String.class);
 			}
 			return null;
 		}
 
 	}
+
 }

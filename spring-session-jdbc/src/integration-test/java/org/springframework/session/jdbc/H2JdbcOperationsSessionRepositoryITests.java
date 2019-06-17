@@ -35,18 +35,15 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-public class H2JdbcOperationsSessionRepositoryITests
-		extends AbstractJdbcOperationsSessionRepositoryITests {
+class H2JdbcOperationsSessionRepositoryITests extends AbstractJdbcOperationsSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseConfig {
 
 		@Bean
 		public EmbeddedDatabase dataSource() {
-			return new EmbeddedDatabaseBuilder()
-					.setType(EmbeddedDatabaseType.H2)
-					.addScript("org/springframework/session/jdbc/schema-h2.sql")
-					.build();
+			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
+					.addScript("org/springframework/session/jdbc/schema-h2.sql").build();
 		}
 
 	}

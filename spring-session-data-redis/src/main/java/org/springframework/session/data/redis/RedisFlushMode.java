@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.session.SessionRepository;
  * @since 1.1
  */
 public enum RedisFlushMode {
+
 	/**
 	 * Only writes to Redis when
 	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
@@ -39,4 +40,5 @@ public enum RedisFlushMode {
 	 * immediately.
 	 */
 	IMMEDIATE
+
 }

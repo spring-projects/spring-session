@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class RedisSerializerTest {
+class RedisSerializerTest {
 
 	private static final String DOCKER_IMAGE = "redis:5.0.5";
 
@@ -45,7 +45,7 @@ public class RedisSerializerTest {
 	private RedisTemplate<Object, Object> sessionRedisTemplate;
 
 	@Test
-	public void testRedisTemplate() {
+	void testRedisTemplate() {
 		assertThat(this.sessionRedisTemplate).isNotNull();
 		assertThat(this.sessionRedisTemplate.getDefaultSerializer()).isNotNull();
 		assertThat(this.sessionRedisTemplate.getDefaultSerializer())
@@ -57,8 +57,7 @@ public class RedisSerializerTest {
 
 		@Bean
 		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-					.withExposedPorts(6379);
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}

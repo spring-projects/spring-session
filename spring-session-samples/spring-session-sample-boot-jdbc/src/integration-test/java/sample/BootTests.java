@@ -39,7 +39,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
-public class BootTests {
+class BootTests {
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -47,17 +47,17 @@ public class BootTests {
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void home() {
+	void home() {
 		LoginPage login = HomePage.go(this.driver);
 		login.assertAt();
 		HomePage home = login.form().login(HomePage.class);
@@ -65,7 +65,7 @@ public class BootTests {
 	}
 
 	@Test
-	public void login() {
+	void login() {
 		LoginPage login = HomePage.go(this.driver);
 		HomePage home = login.form().login(HomePage.class);
 		home.containCookie("SESSION");
@@ -73,7 +73,7 @@ public class BootTests {
 	}
 
 	@Test
-	public void logout() {
+	void logout() {
 		LoginPage login = HomePage.go(this.driver);
 		HomePage home = login.form().login(HomePage.class);
 		login = home.logout();

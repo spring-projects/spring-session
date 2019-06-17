@@ -30,8 +30,7 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
  */
 // tag::class[]
 @Configuration
-public class SecurityConfiguration<S extends Session>
-		extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration<S extends Session> extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private FindByIndexNameSessionRepository<S> sessionRepository;
@@ -51,5 +50,6 @@ public class SecurityConfiguration<S extends Session>
 	public SpringSessionBackedSessionRegistry<S> sessionRegistry() {
 		return new SpringSessionBackedSessionRegistry<>(this.sessionRepository);
 	}
+
 }
 // end::class[]

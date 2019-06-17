@@ -34,17 +34,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link CookieHttpSessionIdResolver}.
  */
-public class CookieHttpSessionIdResolverTests {
+class CookieHttpSessionIdResolverTests {
 
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
 
 	private CookieHttpSessionIdResolver strategy;
+
 	private String cookieName;
+
 	private Session session;
 
 	@BeforeEach
-	public void setup() throws Exception {
+	void setup() throws Exception {
 		this.cookieName = "SESSION";
 		this.session = new MapSession();
 		this.request = new MockHttpServletRequest();
@@ -53,19 +56,19 @@ public class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	public void getRequestedSessionIdNull() throws Exception {
+	void getRequestedSessionIdNull() throws Exception {
 		assertThat(this.strategy.resolveSessionIds(this.request)).isEmpty();
 	}
 
 	@Test
-	public void getRequestedSessionIdNotNull() throws Exception {
+	void getRequestedSessionIdNotNull() throws Exception {
 		setSessionCookie(this.session.getId());
 		assertThat(this.strategy.resolveSessionIds(this.request))
 				.isEqualTo(Collections.singletonList(this.session.getId()));
 	}
 
 	@Test
-	public void getRequestedSessionIdNotNullCustomCookieName() throws Exception {
+	void getRequestedSessionIdNotNullCustomCookieName() throws Exception {
 		setCookieName("CUSTOM");
 		setSessionCookie(this.session.getId());
 		assertThat(this.strategy.resolveSessionIds(this.request))
@@ -73,13 +76,13 @@ public class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	public void onNewSession() throws Exception {
+	void onNewSession() throws Exception {
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		assertThat(getSessionId()).isEqualTo(this.session.getId());
 	}
 
 	@Test
-	public void onNewSessionTwiceSameId() throws Exception {
+	void onNewSessionTwiceSameId() throws Exception {
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 
@@ -87,7 +90,7 @@ public class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	public void onNewSessionTwiceNewId() throws Exception {
+	void onNewSessionTwiceNewId() throws Exception {
 		Session newSession = new MapSession();
 
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
@@ -101,49 +104,47 @@ public class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	public void onNewSessionCookiePath() throws Exception {
+	void onNewSessionCookiePath() throws Exception {
 		this.request.setContextPath("/somethingunique");
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 
 		Cookie sessionCookie = this.response.getCookie(this.cookieName);
-		assertThat(sessionCookie.getPath())
-				.isEqualTo(this.request.getContextPath() + "/");
+		assertThat(sessionCookie.getPath()).isEqualTo(this.request.getContextPath() + "/");
 	}
 
 	@Test
-	public void onNewSessionCustomCookieName() throws Exception {
+	void onNewSessionCustomCookieName() throws Exception {
 		setCookieName("CUSTOM");
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		assertThat(getSessionId()).isEqualTo(this.session.getId());
 	}
 
 	@Test
-	public void onDeleteSession() throws Exception {
+	void onDeleteSession() throws Exception {
 		this.strategy.expireSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	@Test
-	public void onDeleteSessionCookiePath() throws Exception {
+	void onDeleteSessionCookiePath() throws Exception {
 		this.request.setContextPath("/somethingunique");
 		this.strategy.expireSession(this.request, this.response);
 
 		Cookie sessionCookie = this.response.getCookie(this.cookieName);
-		assertThat(sessionCookie.getPath())
-				.isEqualTo(this.request.getContextPath() + "/");
+		assertThat(sessionCookie.getPath()).isEqualTo(this.request.getContextPath() + "/");
 	}
 
 	@Test
-	public void onDeleteSessionCustomCookieName() throws Exception {
+	void onDeleteSessionCustomCookieName() throws Exception {
 		setCookieName("CUSTOM");
 		this.strategy.expireSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	@Test
-	public void createSessionCookieValue() {
-		assertThat(createSessionCookieValue(17)).isEqualToIgnoringCase(
-				"0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
+	void createSessionCookieValue() {
+		assertThat(createSessionCookieValue(17))
+				.isEqualToIgnoringCase("0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 10 16");
 	}
 
 	private String createSessionCookieValue(long size) {

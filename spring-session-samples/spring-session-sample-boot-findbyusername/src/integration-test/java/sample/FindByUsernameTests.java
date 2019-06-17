@@ -44,7 +44,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 @ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
-public class FindByUsernameTests {
+class FindByUsernameTests {
 
 	private static final String DOCKER_IMAGE = "redis:5.0.5";
 
@@ -54,23 +54,23 @@ public class FindByUsernameTests {
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void home() {
+	void home() {
 		LoginPage login = HomePage.go(this.driver);
 		login.assertAt();
 	}
 
 	@Test
-	public void login() {
+	void login() {
 		LoginPage login = HomePage.go(this.driver);
 		HomePage home = login.form().login(HomePage.class);
 		home.assertAt();
@@ -84,8 +84,7 @@ public class FindByUsernameTests {
 
 		@Bean
 		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE)
-					.withExposedPorts(6379);
+			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}
