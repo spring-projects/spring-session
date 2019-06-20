@@ -13,6 +13,7 @@ try {
 		stage('Check') {
 			timeout(time: 45, unit: 'MINUTES') {
 				node('linux') {
+					label 'spring-session'
 					checkout scm
 					sh "git clean -dfx"
 					try {
