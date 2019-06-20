@@ -61,8 +61,6 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	private String redisNamespace = ReactiveRedisOperationsSessionRepository.DEFAULT_NAMESPACE;
 
-	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
-
 	private ReactiveRedisConnectionFactory redisConnectionFactory;
 
 	private RedisSerializer<Object> defaultRedisSerializer;
@@ -80,7 +78,6 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		if (StringUtils.hasText(this.redisNamespace)) {
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
-		sessionRepository.setRedisFlushMode(this.redisFlushMode);
 		return sessionRepository;
 	}
 
@@ -92,9 +89,9 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		this.redisNamespace = namespace;
 	}
 
+	@Deprecated
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
-		this.redisFlushMode = redisFlushMode;
 	}
 
 	@Autowired
@@ -135,7 +132,6 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
 		}
-		this.redisFlushMode = attributes.getEnum("redisFlushMode");
 	}
 
 	private ReactiveRedisTemplate<String, Object> createReactiveRedisTemplate() {

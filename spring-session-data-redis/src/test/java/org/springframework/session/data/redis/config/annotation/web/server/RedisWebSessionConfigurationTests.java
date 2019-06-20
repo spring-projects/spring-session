@@ -30,7 +30,6 @@ import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
-import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -106,16 +105,6 @@ class RedisWebSessionConfigurationTests {
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
-	}
-
-	@Test
-	void customFlushMode() {
-		registerAndRefresh(RedisConfig.class, CustomFlushModeConfig.class);
-
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "redisFlushMode")).isEqualTo(RedisFlushMode.IMMEDIATE);
 	}
 
 	@Test
@@ -257,11 +246,6 @@ class RedisWebSessionConfigurationTests {
 
 	@EnableRedisWebSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalConfig {
-
-	}
-
-	@EnableRedisWebSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
-	static class CustomFlushModeConfig {
 
 	}
 

@@ -93,7 +93,9 @@ public @interface EnableRedisWebSession {
 	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
 	 * Session are immediately written to the Redis instance.
 	 * @return the {@link RedisFlushMode} to use
+	 * @deprecated since 2.2.0 as support {@code IMMEDIATE} is removed
 	 */
+	@Deprecated
 	RedisFlushMode redisFlushMode() default RedisFlushMode.ON_SAVE;
 
 }

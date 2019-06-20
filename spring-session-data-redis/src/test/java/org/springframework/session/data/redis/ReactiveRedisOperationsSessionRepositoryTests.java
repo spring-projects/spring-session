@@ -107,19 +107,6 @@ class ReactiveRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	void customRedisFlushMode() {
-		this.repository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
-
-		assertThat(ReflectionTestUtils.getField(this.repository, "redisFlushMode")).isEqualTo(RedisFlushMode.IMMEDIATE);
-	}
-
-	@Test
-	void nullRedisFlushMode() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setRedisFlushMode(null))
-				.withMessage("redisFlushMode cannot be null");
-	}
-
-	@Test
 	void createSessionDefaultMaxInactiveInterval() {
 		StepVerifier.create(this.repository.createSession())
 				.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval())

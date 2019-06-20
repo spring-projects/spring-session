@@ -59,8 +59,6 @@ public class ReactiveRedisOperationsSessionRepository
 	 */
 	private Integer defaultMaxInactiveInterval;
 
-	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
-
 	public ReactiveRedisOperationsSessionRepository(ReactiveRedisOperations<String, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
@@ -85,10 +83,11 @@ public class ReactiveRedisOperationsSessionRepository
 	/**
 	 * Sets the redis flush mode. Default flush mode is {@link RedisFlushMode#ON_SAVE}.
 	 * @param redisFlushMode the new redis flush mode
+	 * @deprecated since 2.2.0 as support {@code IMMEDIATE} is removed
 	 */
+	@Deprecated
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
-		this.redisFlushMode = redisFlushMode;
 	}
 
 	/**
@@ -179,7 +178,6 @@ public class ReactiveRedisOperationsSessionRepository
 			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
 			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 			this.isNew = true;
-			this.flushImmediateIfNecessary();
 		}
 
 		/**
@@ -216,13 +214,13 @@ public class ReactiveRedisOperationsSessionRepository
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.cached.setAttribute(attributeName, attributeValue);
-			putAndFlush(getAttributeKey(attributeName), attributeValue);
+			this.delta.put(getAttributeKey(attributeName), attributeValue);
 		}
 
 		@Override
 		public void removeAttribute(String attributeName) {
 			this.cached.removeAttribute(attributeName);
-			putAndFlush(getAttributeKey(attributeName), null);
+			this.delta.put(getAttributeKey(attributeName), null);
 		}
 
 		@Override
@@ -233,7 +231,7 @@ public class ReactiveRedisOperationsSessionRepository
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
 		}
 
 		@Override
@@ -244,7 +242,7 @@ public class ReactiveRedisOperationsSessionRepository
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
 		}
 
 		@Override
@@ -259,17 +257,6 @@ public class ReactiveRedisOperationsSessionRepository
 
 		private boolean hasChangedSessionId() {
 			return !getId().equals(this.originalSessionId);
-		}
-
-		private void flushImmediateIfNecessary() {
-			if (ReactiveRedisOperationsSessionRepository.this.redisFlushMode == RedisFlushMode.IMMEDIATE) {
-				save();
-			}
-		}
-
-		private void putAndFlush(String a, Object v) {
-			this.delta.put(a, v);
-			flushImmediateIfNecessary();
 		}
 
 		private Mono<Void> save() {
