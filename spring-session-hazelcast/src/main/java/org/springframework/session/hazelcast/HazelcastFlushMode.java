@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.session.hazelcast;
 
+import org.springframework.session.FlushMode;
 import org.springframework.session.SessionRepository;
 
 /**
@@ -23,7 +24,9 @@ import org.springframework.session.SessionRepository;
  *
  * @author Aleksandar Stojsavljevic
  * @since 1.3.0
+ * @deprecated since 2.2.0 in favor of {@link FlushMode}
  */
+@Deprecated
 public enum HazelcastFlushMode {
 
 	/**
@@ -31,7 +34,7 @@ public enum HazelcastFlushMode {
 	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
 	 * a web environment this is typically done as soon as the HTTP response is committed.
 	 */
-	ON_SAVE,
+	ON_SAVE(FlushMode.ON_SAVE),
 
 	/**
 	 * Writes to Hazelcast as soon as possible. For example
@@ -39,6 +42,16 @@ public enum HazelcastFlushMode {
 	 * Another example is that setting an attribute on the session will also write to
 	 * Hazelcast immediately.
 	 */
-	IMMEDIATE
+	IMMEDIATE(FlushMode.IMMEDIATE);
+
+	private final FlushMode flushMode;
+
+	HazelcastFlushMode(FlushMode flushMode) {
+		this.flushMode = flushMode;
+	}
+
+	public FlushMode getFlushMode() {
+		return this.flushMode;
+	}
 
 }

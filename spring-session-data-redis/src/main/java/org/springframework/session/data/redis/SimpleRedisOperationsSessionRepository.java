@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -49,7 +50,7 @@ public class SimpleRedisOperationsSessionRepository
 
 	private String keyNamespace = DEFAULT_KEY_NAMESPACE;
 
-	private RedisFlushMode flushMode = RedisFlushMode.ON_SAVE;
+	private FlushMode flushMode = FlushMode.ON_SAVE;
 
 	/**
 	 * Create a new {@link SimpleRedisOperationsSessionRepository} instance.
@@ -83,7 +84,7 @@ public class SimpleRedisOperationsSessionRepository
 	 * Set the flush mode.
 	 * @param flushMode the flush mode
 	 */
-	public void setFlushMode(RedisFlushMode flushMode) {
+	public void setFlushMode(FlushMode flushMode) {
 		Assert.notNull(flushMode, "flushMode must not be null");
 		this.flushMode = flushMode;
 	}
@@ -231,7 +232,7 @@ public class SimpleRedisOperationsSessionRepository
 		}
 
 		private void flushIfRequired() {
-			if (SimpleRedisOperationsSessionRepository.this.flushMode == RedisFlushMode.IMMEDIATE) {
+			if (SimpleRedisOperationsSessionRepository.this.flushMode == FlushMode.IMMEDIATE) {
 				save();
 			}
 		}

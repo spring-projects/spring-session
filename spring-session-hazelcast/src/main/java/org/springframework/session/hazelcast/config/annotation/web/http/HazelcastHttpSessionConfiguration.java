@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
@@ -53,7 +54,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private String sessionMapName = HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME;
 
-	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
+	private FlushMode flushMode = FlushMode.ON_SAVE;
 
 	private HazelcastInstance hazelcastInstance;
 
@@ -67,7 +68,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 			sessionRepository.setSessionMapName(this.sessionMapName);
 		}
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-		sessionRepository.setHazelcastFlushMode(this.hazelcastFlushMode);
+		sessionRepository.setFlushMode(this.flushMode);
 		return sessionRepository;
 	}
 
@@ -79,8 +80,13 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.sessionMapName = sessionMapName;
 	}
 
+	@Deprecated
 	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
-		this.hazelcastFlushMode = hazelcastFlushMode;
+		setFlushMode(hazelcastFlushMode.getFlushMode());
+	}
+
+	public void setFlushMode(FlushMode flushMode) {
+		this.flushMode = flushMode;
 	}
 
 	@Autowired
@@ -100,6 +106,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
@@ -109,7 +116,12 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		if (StringUtils.hasText(sessionMapNameValue)) {
 			this.sessionMapName = sessionMapNameValue;
 		}
-		this.hazelcastFlushMode = attributes.getEnum("hazelcastFlushMode");
+		FlushMode flushMode = attributes.getEnum("flushMode");
+		HazelcastFlushMode hazelcastFlushMode = attributes.getEnum("hazelcastFlushMode");
+		if (flushMode == FlushMode.ON_SAVE && hazelcastFlushMode != HazelcastFlushMode.ON_SAVE) {
+			flushMode = hazelcastFlushMode.getFlushMode();
+		}
+		this.flushMode = flushMode;
 	}
 
 }

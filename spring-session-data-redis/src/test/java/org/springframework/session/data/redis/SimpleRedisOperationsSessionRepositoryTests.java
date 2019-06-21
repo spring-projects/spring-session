@@ -33,6 +33,7 @@ import org.mockito.MockitoAnnotations;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.data.redis.SimpleRedisOperationsSessionRepository.RedisSession;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -114,9 +115,8 @@ class SimpleRedisOperationsSessionRepositoryTests {
 
 	@Test
 	void setFlushMode_ValidFlushMode_ShouldSetFlushMode() {
-		this.sessionRepository.setFlushMode(RedisFlushMode.IMMEDIATE);
-		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "flushMode"))
-				.isEqualTo(RedisFlushMode.IMMEDIATE);
+		this.sessionRepository.setFlushMode(FlushMode.IMMEDIATE);
+		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
 
 	@Test
@@ -145,7 +145,7 @@ class SimpleRedisOperationsSessionRepositoryTests {
 
 	@Test
 	void createSession_ImmediateFlushMode_ShouldCreateSession() {
-		this.sessionRepository.setFlushMode(RedisFlushMode.IMMEDIATE);
+		this.sessionRepository.setFlushMode(FlushMode.IMMEDIATE);
 		RedisSession session = this.sessionRepository.createSession();
 		String key = getSessionKey(session.getId());
 		verify(this.sessionRedisOperations).opsForHash();

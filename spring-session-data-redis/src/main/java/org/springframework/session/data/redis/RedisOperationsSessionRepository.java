@@ -38,6 +38,7 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
@@ -300,7 +301,7 @@ public class RedisOperationsSessionRepository
 
 	private RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer();
 
-	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
+	private FlushMode flushMode = FlushMode.ON_SAVE;
 
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
@@ -352,10 +353,21 @@ public class RedisOperationsSessionRepository
 	/**
 	 * Sets the redis flush mode. Default flush mode is {@link RedisFlushMode#ON_SAVE}.
 	 * @param redisFlushMode the new redis flush mode
+	 * @deprecated since 2.2.0 in favor of {@link #setFlushMode(FlushMode)}
 	 */
+	@Deprecated
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
-		this.redisFlushMode = redisFlushMode;
+		setFlushMode(redisFlushMode.getFlushMode());
+	}
+
+	/**
+	 * Sets the redis flush mode. Default flush mode is {@link FlushMode#ON_SAVE}.
+	 * @param flushMode the flush mode
+	 */
+	public void setFlushMode(FlushMode flushMode) {
+		Assert.notNull(flushMode, "flushMode cannot be null");
+		this.flushMode = flushMode;
 	}
 
 	/**
@@ -770,7 +782,7 @@ public class RedisOperationsSessionRepository
 		}
 
 		private void flushImmediateIfNecessary() {
-			if (RedisOperationsSessionRepository.this.redisFlushMode == RedisFlushMode.IMMEDIATE) {
+			if (RedisOperationsSessionRepository.this.flushMode == FlushMode.IMMEDIATE) {
 				save();
 			}
 		}

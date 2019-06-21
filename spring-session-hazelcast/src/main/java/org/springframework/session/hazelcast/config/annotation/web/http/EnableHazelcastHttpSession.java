@@ -26,6 +26,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -94,7 +95,22 @@ public @interface EnableHazelcastHttpSession {
 	 * Session are immediately written to the Hazelcast instance.
 	 * @return the {@link HazelcastFlushMode} to use
 	 * @since 1.3.0
+	 * @deprecated since 2.2.0 in favor of {@link #flushMode()}
 	 */
+	@Deprecated
 	HazelcastFlushMode hazelcastFlushMode() default HazelcastFlushMode.ON_SAVE;
+
+	/**
+	 * Flush mode for the Hazelcast sessions. The default is {@code ON_SAVE} which only
+	 * updates the backing Hazelcast when {@link SessionRepository#save(Session)} is
+	 * invoked. In a web environment this happens just before the HTTP response is
+	 * committed.
+	 * <p>
+	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
+	 * Session are immediately written to the Hazelcast instance.
+	 * @return the {@link FlushMode} to use
+	 * @since 2.2.0
+	 */
+	FlushMode flushMode() default FlushMode.ON_SAVE;
 
 }

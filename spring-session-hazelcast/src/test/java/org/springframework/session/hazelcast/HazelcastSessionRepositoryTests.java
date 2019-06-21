@@ -35,6 +35,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
 
@@ -122,7 +123,7 @@ class HazelcastSessionRepositoryTests {
 	void saveNewFlushModeImmediate() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),
@@ -148,7 +149,7 @@ class HazelcastSessionRepositoryTests {
 	void saveUpdatedAttributeFlushModeImmediate() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue");
@@ -178,7 +179,7 @@ class HazelcastSessionRepositoryTests {
 	void removeAttributeFlushModeImmediate() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		session.removeAttribute("testName");
@@ -208,7 +209,7 @@ class HazelcastSessionRepositoryTests {
 	void saveUpdatedLastAccessedTimeFlushModeImmediate() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		session.setLastAccessedTime(Instant.now());
@@ -238,7 +239,7 @@ class HazelcastSessionRepositoryTests {
 	void saveUpdatedMaxInactiveIntervalInSecondsFlushModeImmediate() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		String sessionId = session.getId();
@@ -269,7 +270,7 @@ class HazelcastSessionRepositoryTests {
 	void saveUnchangedFlushModeImmediate() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		this.repository.setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 
 		HazelcastSession session = this.repository.createSession();
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),

@@ -34,6 +34,8 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.session.FlushMode;
+import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -84,6 +86,42 @@ class RedisHttpSessionConfigurationTests {
 				CustomRedisHttpSessionConfiguration2.class);
 		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
 		assertThat(ReflectionTestUtils.getField(configuration, "redisNamespace")).isEqualTo("customRedisNamespace");
+	}
+
+	@Test
+	void customFlushImmediately() {
+		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelyConfiguration.class);
+		RedisOperationsSessionRepository sessionRepository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		assertThat(sessionRepository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
+	}
+
+	@Test
+	void customFlushImmediatelyLegacy() {
+		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelyLegacyConfiguration.class);
+		RedisOperationsSessionRepository sessionRepository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		assertThat(sessionRepository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
+	}
+
+	@Test
+	void setCustomFlushImmediately() {
+		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelySetConfiguration.class);
+		RedisOperationsSessionRepository sessionRepository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		assertThat(sessionRepository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
+	}
+
+	@Test
+	void setCustomFlushImmediatelyLegacy() {
+		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelySetLegacyConfiguration.class);
+		RedisOperationsSessionRepository sessionRepository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		assertThat(sessionRepository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
 
 	@Test
@@ -214,6 +252,36 @@ class RedisHttpSessionConfigurationTests {
 		public RedisConnectionFactory defaultRedisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
+
+	}
+
+	@Configuration
+	static class CustomFlushImmediatelySetConfiguration extends RedisHttpSessionConfiguration {
+
+		CustomFlushImmediatelySetConfiguration() {
+			setFlushMode(FlushMode.IMMEDIATE);
+		}
+
+	}
+
+	@Configuration
+	static class CustomFlushImmediatelySetLegacyConfiguration extends RedisHttpSessionConfiguration {
+
+		CustomFlushImmediatelySetLegacyConfiguration() {
+			setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession(flushMode = FlushMode.IMMEDIATE)
+	static class CustomFlushImmediatelyConfiguration {
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
+	static class CustomFlushImmediatelyLegacyConfiguration {
 
 	}
 

@@ -46,6 +46,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
@@ -636,7 +637,7 @@ class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 
-		this.redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		this.redisRepository.setFlushMode(FlushMode.IMMEDIATE);
 		RedisSession session = this.redisRepository.createSession();
 
 		Map<String, Object> delta = getDelta();
@@ -655,7 +656,7 @@ class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 		this.redisRepository.setDefaultMaxInactiveInterval(60);
-		this.redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		this.redisRepository.setFlushMode(FlushMode.IMMEDIATE);
 		this.redisRepository.createSession();
 		Map<String, Object> delta = getDelta();
 		assertThat(delta.size()).isEqualTo(3);
@@ -668,7 +669,7 @@ class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 
-		this.redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		this.redisRepository.setFlushMode(FlushMode.IMMEDIATE);
 		RedisSession session = this.redisRepository.createSession();
 		String attrName = "someAttribute";
 		session.setAttribute(attrName, "someValue");
@@ -685,7 +686,7 @@ class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 
-		this.redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		this.redisRepository.setFlushMode(FlushMode.IMMEDIATE);
 		RedisSession session = this.redisRepository.createSession();
 		String attrName = "someAttribute";
 		session.removeAttribute(attrName);
@@ -702,7 +703,7 @@ class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 
-		this.redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		this.redisRepository.setFlushMode(FlushMode.IMMEDIATE);
 		RedisSession session = this.redisRepository.createSession();
 
 		reset(this.boundHashOperations);
@@ -718,7 +719,7 @@ class RedisOperationsSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 
-		this.redisRepository.setRedisFlushMode(RedisFlushMode.IMMEDIATE);
+		this.redisRepository.setFlushMode(FlushMode.IMMEDIATE);
 		RedisSession session = this.redisRepository.createSession();
 
 		session.setLastAccessedTime(Instant.now());
@@ -727,6 +728,12 @@ class RedisOperationsSessionRepositoryTests {
 		assertThat(delta.size()).isEqualTo(1);
 		assertThat(delta).isEqualTo(
 				map(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, session.getLastAccessedTime().toEpochMilli()));
+	}
+
+	@Test
+	void setFlushModeNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setFlushMode(null))
+				.withMessage("flushMode cannot be null");
 	}
 
 	@Test

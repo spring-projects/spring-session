@@ -26,6 +26,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.session.FlushMode;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
@@ -48,8 +49,6 @@ class HazelcastHttpSessionConfigurationTests {
 	private static final String MAP_NAME = "spring:test:sessions";
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 600;
-
-	private static final HazelcastFlushMode HAZELCAST_FLUSH_MODE = HazelcastFlushMode.IMMEDIATE;
 
 	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
@@ -120,8 +119,16 @@ class HazelcastHttpSessionConfigurationTests {
 
 		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode"))
-				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
+		assertThat(ReflectionTestUtils.getField(repository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
+	}
+
+	@Test
+	void customFlushImmediatelyLegacy() {
+		registerAndRefresh(CustomFlushImmediatelyLegacyConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(repository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
 
 	@Test
@@ -130,8 +137,16 @@ class HazelcastHttpSessionConfigurationTests {
 
 		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "hazelcastFlushMode"))
-				.isEqualTo(HazelcastFlushMode.IMMEDIATE);
+		assertThat(ReflectionTestUtils.getField(repository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
+	}
+
+	@Test
+	void setCustomFlushImmediatelyLegacy() {
+		registerAndRefresh(BaseConfiguration.class, CustomFlushImmediatelySetLegacyConfiguration.class);
+
+		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
+		assertThat(repository).isNotNull();
+		assertThat(ReflectionTestUtils.getField(repository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
 
 	@Test
@@ -256,14 +271,29 @@ class HazelcastHttpSessionConfigurationTests {
 	static class CustomFlushImmediatelySetConfiguration extends HazelcastHttpSessionConfiguration {
 
 		CustomFlushImmediatelySetConfiguration() {
-			setHazelcastFlushMode(HAZELCAST_FLUSH_MODE);
+			setFlushMode(FlushMode.IMMEDIATE);
 		}
 
 	}
 
 	@Configuration
-	@EnableHazelcastHttpSession(hazelcastFlushMode = HazelcastFlushMode.IMMEDIATE)
+	static class CustomFlushImmediatelySetLegacyConfiguration extends HazelcastHttpSessionConfiguration {
+
+		CustomFlushImmediatelySetLegacyConfiguration() {
+			setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		}
+
+	}
+
+	@Configuration
+	@EnableHazelcastHttpSession(flushMode = FlushMode.IMMEDIATE)
 	static class CustomFlushImmediatelyConfiguration extends BaseConfiguration {
+
+	}
+
+	@Configuration
+	@EnableHazelcastHttpSession(hazelcastFlushMode = HazelcastFlushMode.IMMEDIATE)
+	static class CustomFlushImmediatelyLegacyConfiguration extends BaseConfiguration {
 
 	}
 

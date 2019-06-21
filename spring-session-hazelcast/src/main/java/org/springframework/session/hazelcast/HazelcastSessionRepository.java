@@ -42,6 +42,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
@@ -154,7 +155,7 @@ public class HazelcastSessionRepository
 
 	private String sessionMapName = DEFAULT_SESSION_MAP_NAME;
 
-	private HazelcastFlushMode hazelcastFlushMode = HazelcastFlushMode.ON_SAVE;
+	private FlushMode flushMode = FlushMode.ON_SAVE;
 
 	private IMap<String, MapSession> sessions;
 
@@ -212,10 +213,20 @@ public class HazelcastSessionRepository
 	 * Sets the Hazelcast flush mode. Default flush mode is
 	 * {@link HazelcastFlushMode#ON_SAVE}.
 	 * @param hazelcastFlushMode the new Hazelcast flush mode
+	 * @deprecated since 2.2.0 in favor of {@link #setFlushMode(FlushMode)}
 	 */
 	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
 		Assert.notNull(hazelcastFlushMode, "HazelcastFlushMode cannot be null");
-		this.hazelcastFlushMode = hazelcastFlushMode;
+		setFlushMode(hazelcastFlushMode.getFlushMode());
+	}
+
+	/**
+	 * Sets the Hazelcast flush mode. Default flush mode is {@link FlushMode#ON_SAVE}.
+	 * @param flushMode the new Hazelcast flush mode
+	 */
+	public void setFlushMode(FlushMode flushMode) {
+		Assert.notNull(flushMode, "flushMode cannot be null");
+		this.flushMode = flushMode;
 	}
 
 	@Override
@@ -456,7 +467,7 @@ public class HazelcastSessionRepository
 		}
 
 		private void flushImmediateIfNecessary() {
-			if (HazelcastSessionRepository.this.hazelcastFlushMode == HazelcastFlushMode.IMMEDIATE) {
+			if (HazelcastSessionRepository.this.flushMode == FlushMode.IMMEDIATE) {
 				HazelcastSessionRepository.this.save(this);
 			}
 		}

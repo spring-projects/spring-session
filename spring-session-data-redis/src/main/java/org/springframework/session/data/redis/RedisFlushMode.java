@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis;
 
+import org.springframework.session.FlushMode;
 import org.springframework.session.SessionRepository;
 
 /**
@@ -23,7 +24,9 @@ import org.springframework.session.SessionRepository;
  *
  * @author Rob Winch
  * @since 1.1
+ * @deprecated since 2.2.0 in favor of {@link FlushMode}
  */
+@Deprecated
 public enum RedisFlushMode {
 
 	/**
@@ -31,7 +34,7 @@ public enum RedisFlushMode {
 	 * {@link SessionRepository#save(org.springframework.session.Session)} is invoked. In
 	 * a web environment this is typically done as soon as the HTTP response is committed.
 	 */
-	ON_SAVE,
+	ON_SAVE(FlushMode.ON_SAVE),
 
 	/**
 	 * Writes to Redis as soon as possible. For example
@@ -39,6 +42,16 @@ public enum RedisFlushMode {
 	 * example is that setting an attribute on the session will also write to Redis
 	 * immediately.
 	 */
-	IMMEDIATE
+	IMMEDIATE(FlushMode.IMMEDIATE);
+
+	private final FlushMode flushMode;
+
+	RedisFlushMode(FlushMode flushMode) {
+		this.flushMode = flushMode;
+	}
+
+	public FlushMode getFlushMode() {
+		return this.flushMode;
+	}
 
 }

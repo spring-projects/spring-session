@@ -757,8 +757,8 @@ You can use the following attributes to customize the configuration:
 
 * *maxInactiveIntervalInSeconds*: The amount of time before the session expires, in seconds.
 * *redisNamespace*: Allows configuring an application specific namespace for the sessions. Redis keys and channel IDs start with the prefix of `<redisNamespace>:`.
-* *redisFlushMode*: Allows specifying when data is written to Redis. The default is only when `save` is invoked on `SessionRepository`.
-A value of `RedisFlushMode.IMMEDIATE` writes to Redis as soon as possible.
+* *flushMode*: Allows specifying when data is written to Redis. The default is only when `save` is invoked on `SessionRepository`.
+A value of `FlushMode.IMMEDIATE` writes to Redis as soon as possible.
 
 ===== Custom `RedisSerializer`
 
@@ -1008,8 +1008,8 @@ You can use the following attributes to customize the configuration:
 
 * *maxInactiveIntervalInSeconds*: The amount of time before the session expires, in seconds
 * *redisNamespace*: Allows configuring an application specific namespace for the sessions. Redis keys and channel IDs start with q prefix of `<redisNamespace>:`.
-* *redisFlushMode*: Allows specifying when data is written to Redis. The default is only when `save` is invoked on `ReactiveSessionRepository`.
-A value of `RedisFlushMode.IMMEDIATE` writes to Redis as soon as possible.
+* *flushMode*: Allows specifying when data is written to Redis. The default is only when `save` is invoked on `ReactiveSessionRepository`.
+A value of `FlushMode.IMMEDIATE` writes to Redis as soon as possible.
 
 [[api-reactiveredisoperationssessionrepository-writes]]
 ===== Optimized Writes

@@ -48,6 +48,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.redis.RedisFlushMode;
@@ -83,7 +84,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private String redisNamespace = RedisOperationsSessionRepository.DEFAULT_NAMESPACE;
 
-	private RedisFlushMode redisFlushMode = RedisFlushMode.ON_SAVE;
+	private FlushMode flushMode = FlushMode.ON_SAVE;
 
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
@@ -115,7 +116,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		if (StringUtils.hasText(this.redisNamespace)) {
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
-		sessionRepository.setRedisFlushMode(this.redisFlushMode);
+		sessionRepository.setFlushMode(this.flushMode);
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
 		return sessionRepository;
@@ -153,9 +154,15 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		this.redisNamespace = namespace;
 	}
 
+	@Deprecated
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
-		this.redisFlushMode = redisFlushMode;
+		setFlushMode(redisFlushMode.getFlushMode());
+	}
+
+	public void setFlushMode(FlushMode flushMode) {
+		Assert.notNull(flushMode, "flushMode cannot be null");
+		this.flushMode = flushMode;
 	}
 
 	public void setCleanupCron(String cleanupCron) {
@@ -217,6 +224,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
@@ -226,7 +234,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
 		}
-		this.redisFlushMode = attributes.getEnum("redisFlushMode");
+		FlushMode flushMode = attributes.getEnum("flushMode");
+		RedisFlushMode redisFlushMode = attributes.getEnum("redisFlushMode");
+		if (flushMode == FlushMode.ON_SAVE && redisFlushMode != RedisFlushMode.ON_SAVE) {
+			flushMode = redisFlushMode.getFlushMode();
+		}
+		this.flushMode = flushMode;
 		String cleanupCron = attributes.getString("cleanupCron");
 		if (StringUtils.hasText(cleanupCron)) {
 			this.cleanupCron = cleanupCron;

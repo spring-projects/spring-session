@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
@@ -94,8 +95,22 @@ public @interface EnableRedisHttpSession {
 	 * Session are immediately written to the Redis instance.
 	 * @return the {@link RedisFlushMode} to use
 	 * @since 1.1
+	 * @deprecated since 2.2.0 in favor of {@link #flushMode()}
 	 */
+	@Deprecated
 	RedisFlushMode redisFlushMode() default RedisFlushMode.ON_SAVE;
+
+	/**
+	 * Flush mode for the Redis sessions. The default is {@code ON_SAVE} which only
+	 * updates the backing Redis when {@link SessionRepository#save(Session)} is invoked.
+	 * In a web environment this happens just before the HTTP response is committed.
+	 * <p>
+	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
+	 * Session are immediately written to the Redis instance.
+	 * @return the {@link FlushMode} to use
+	 * @since 2.2.0
+	 */
+	FlushMode flushMode() default FlushMode.ON_SAVE;
 
 	/**
 	 * The cron expression for expired session cleanup job. By default runs every minute.

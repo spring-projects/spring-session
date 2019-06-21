@@ -21,10 +21,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.FlushMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.AbstractRedisITests;
-import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -50,7 +50,7 @@ class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Session> 
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
+	@EnableRedisHttpSession(flushMode = FlushMode.IMMEDIATE)
 	static class RedisHttpSessionConfig extends BaseConfig {
 
 	}
