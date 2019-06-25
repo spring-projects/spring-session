@@ -215,6 +215,7 @@ public class HazelcastSessionRepository
 	 * @param hazelcastFlushMode the new Hazelcast flush mode
 	 * @deprecated since 2.2.0 in favor of {@link #setFlushMode(FlushMode)}
 	 */
+	@Deprecated
 	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
 		Assert.notNull(hazelcastFlushMode, "HazelcastFlushMode cannot be null");
 		setFlushMode(hazelcastFlushMode.getFlushMode());
