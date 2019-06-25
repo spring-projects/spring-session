@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
@@ -118,5 +119,13 @@ public @interface EnableRedisHttpSession {
 	 * @since 2.0.0
 	 */
 	String cleanupCron() default RedisHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
+
+	/**
+	 * Save mode for the session. The default is {@link SaveMode#ON_SET_ATTRIBUTE}, which
+	 * only saves changes made to session.
+	 * @return the save mode
+	 * @since 2.2.0
+	 */
+	SaveMode saveMode() default SaveMode.ON_SET_ATTRIBUTE;
 
 }

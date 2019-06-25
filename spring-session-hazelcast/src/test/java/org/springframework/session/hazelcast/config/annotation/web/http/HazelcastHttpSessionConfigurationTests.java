@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.session.FlushMode;
+import org.springframework.session.SaveMode;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
@@ -147,6 +148,20 @@ class HazelcastHttpSessionConfigurationTests {
 		HazelcastSessionRepository repository = this.context.getBean(HazelcastSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
+	}
+
+	@Test
+	void customSaveModeAnnotation() {
+		registerAndRefresh(BaseConfiguration.class, CustomSaveModeExpressionAnnotationConfiguration.class);
+		assertThat(this.context.getBean(HazelcastSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+				SaveMode.ALWAYS);
+	}
+
+	@Test
+	void customSaveModeSetter() {
+		registerAndRefresh(BaseConfiguration.class, CustomSaveModeExpressionSetterConfiguration.class);
+		assertThat(this.context.getBean(HazelcastSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+				SaveMode.ALWAYS);
 	}
 
 	@Test
@@ -281,6 +296,20 @@ class HazelcastHttpSessionConfigurationTests {
 
 		CustomFlushImmediatelySetLegacyConfiguration() {
 			setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
+		}
+
+	}
+
+	@EnableHazelcastHttpSession(saveMode = SaveMode.ALWAYS)
+	static class CustomSaveModeExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class CustomSaveModeExpressionSetterConfiguration extends HazelcastHttpSessionConfiguration {
+
+		CustomSaveModeExpressionSetterConfiguration() {
+			setSaveMode(SaveMode.ALWAYS);
 		}
 
 	}

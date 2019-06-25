@@ -42,6 +42,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
+import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -296,6 +297,8 @@ public class RedisOperationsSessionRepository
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
@@ -361,6 +364,15 @@ public class RedisOperationsSessionRepository
 	public void setFlushMode(FlushMode flushMode) {
 		Assert.notNull(flushMode, "flushMode cannot be null");
 		this.flushMode = flushMode;
+	}
+
+	/**
+	 * Set the save mode.
+	 * @param saveMode the save mode
+	 */
+	public void setSaveMode(SaveMode saveMode) {
+		Assert.notNull(saveMode, "saveMode must not be null");
+		this.saveMode = saveMode;
 	}
 
 	/**
@@ -439,7 +451,7 @@ public class RedisOperationsSessionRepository
 		if (!allowExpired && loaded.isExpired()) {
 			return null;
 		}
-		RedisSession result = new RedisSession(loaded);
+		RedisSession result = new RedisSession(loaded, false);
 		result.originalLastAccessTime = loaded.getLastAccessedTime();
 		return result;
 	}
@@ -483,9 +495,11 @@ public class RedisOperationsSessionRepository
 
 	@Override
 	public RedisSession createSession() {
-		Duration maxInactiveInterval = Duration.ofSeconds((this.defaultMaxInactiveInterval != null)
-				? this.defaultMaxInactiveInterval : MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
-		RedisSession session = new RedisSession(maxInactiveInterval);
+		MapSession cached = new MapSession();
+		if (this.defaultMaxInactiveInterval != null) {
+			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
+		}
+		RedisSession session = new RedisSession(cached, true);
 		session.flushImmediateIfNecessary();
 		return session;
 	}
@@ -674,32 +688,22 @@ public class RedisOperationsSessionRepository
 
 		private String originalSessionId;
 
-		/**
-		 * Creates a new instance ensuring to mark all of the new attributes to be
-		 * persisted in the next save operation.
-		 * @param maxInactiveInterval the amount of time that the {@link Session} should
-		 * be kept alive between client requests.
-		 */
-		RedisSession(Duration maxInactiveInterval) {
-			this(new MapSession());
-			this.cached.setMaxInactiveInterval(maxInactiveInterval);
-			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, getCreationTime().toEpochMilli());
-			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
-			this.isNew = true;
-		}
-
-		/**
-		 * Creates a new instance from the provided {@link MapSession}.
-		 * @param cached the {@link MapSession} that represents the persisted session that
-		 * was retrieved. Cannot be null.
-		 */
-		RedisSession(MapSession cached) {
-			Assert.notNull(cached, "MapSession cannot be null");
+		RedisSession(MapSession cached, boolean isNew) {
 			this.cached = cached;
+			this.isNew = isNew;
 			this.originalSessionId = cached.getId();
 			Map<String, String> indexes = RedisOperationsSessionRepository.this.indexResolver.resolveIndexesFor(this);
 			this.originalPrincipalName = indexes.get(PRINCIPAL_NAME_INDEX_NAME);
+			if (this.isNew) {
+				this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, cached.getCreationTime().toEpochMilli());
+				this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+						(int) cached.getMaxInactiveInterval().getSeconds());
+				this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, cached.getLastAccessedTime().toEpochMilli());
+			}
+			if (this.isNew || (RedisOperationsSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
+				getAttributeNames().forEach((attributeName) -> this.delta.put(getSessionAttrNameKey(attributeName),
+						cached.getAttribute(attributeName)));
+			}
 		}
 
 		public void setNew(boolean isNew) {
@@ -709,7 +713,8 @@ public class RedisOperationsSessionRepository
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			this.putAndFlush(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
+			flushImmediateIfNecessary();
 		}
 
 		@Override
@@ -744,7 +749,8 @@ public class RedisOperationsSessionRepository
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			this.putAndFlush(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			flushImmediateIfNecessary();
 		}
 
 		@Override
@@ -754,7 +760,12 @@ public class RedisOperationsSessionRepository
 
 		@Override
 		public <T> T getAttribute(String attributeName) {
-			return this.cached.getAttribute(attributeName);
+			T attributeValue = this.cached.getAttribute(attributeName);
+			if (attributeValue != null
+					&& RedisOperationsSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
+				this.delta.put(getSessionAttrNameKey(attributeName), attributeValue);
+			}
+			return attributeValue;
 		}
 
 		@Override
@@ -765,24 +776,21 @@ public class RedisOperationsSessionRepository
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.cached.setAttribute(attributeName, attributeValue);
-			this.putAndFlush(getSessionAttrNameKey(attributeName), attributeValue);
+			this.delta.put(getSessionAttrNameKey(attributeName), attributeValue);
+			flushImmediateIfNecessary();
 		}
 
 		@Override
 		public void removeAttribute(String attributeName) {
 			this.cached.removeAttribute(attributeName);
-			this.putAndFlush(getSessionAttrNameKey(attributeName), null);
+			this.delta.put(getSessionAttrNameKey(attributeName), null);
+			flushImmediateIfNecessary();
 		}
 
 		private void flushImmediateIfNecessary() {
 			if (RedisOperationsSessionRepository.this.flushMode == FlushMode.IMMEDIATE) {
 				save();
 			}
-		}
-
-		private void putAndFlush(String a, Object v) {
-			this.delta.put(a, v);
-			this.flushImmediateIfNecessary();
 		}
 
 		private void save() {

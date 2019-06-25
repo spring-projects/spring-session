@@ -26,6 +26,7 @@ import java.util.Set;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.Assert;
@@ -51,6 +52,8 @@ public class SimpleRedisOperationsSessionRepository
 	private String keyNamespace = DEFAULT_KEY_NAMESPACE;
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
+
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
 	/**
 	 * Create a new {@link SimpleRedisOperationsSessionRepository} instance.
@@ -89,9 +92,20 @@ public class SimpleRedisOperationsSessionRepository
 		this.flushMode = flushMode;
 	}
 
+	/**
+	 * Set the save mode.
+	 * @param saveMode the save mode
+	 */
+	public void setSaveMode(SaveMode saveMode) {
+		Assert.notNull(saveMode, "saveMode must not be null");
+		this.saveMode = saveMode;
+	}
+
 	@Override
 	public RedisSession createSession() {
-		RedisSession session = new RedisSession(this.defaultMaxInactiveInterval);
+		MapSession cached = new MapSession();
+		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
+		RedisSession session = new RedisSession(cached, true);
 		session.flushIfRequired();
 		return session;
 	}
@@ -120,7 +134,7 @@ public class SimpleRedisOperationsSessionRepository
 			deleteById(sessionId);
 			return null;
 		}
-		return new RedisSession(session);
+		return new RedisSession(session, false);
 	}
 
 	@Override
@@ -141,6 +155,10 @@ public class SimpleRedisOperationsSessionRepository
 		return this.keyNamespace + "sessions:" + sessionId;
 	}
 
+	private static String getAttributeKey(String attributeName) {
+		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
+	}
+
 	/**
 	 * An internal {@link Session} implementation used by this {@link SessionRepository}.
 	 */
@@ -154,18 +172,20 @@ public class SimpleRedisOperationsSessionRepository
 
 		private String originalSessionId;
 
-		RedisSession(Duration maxInactiveInterval) {
-			this(new MapSession());
-			this.cached.setMaxInactiveInterval(maxInactiveInterval);
-			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, getCreationTime().toEpochMilli());
-			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
-			this.isNew = true;
-		}
-
-		RedisSession(MapSession cached) {
+		RedisSession(MapSession cached, boolean isNew) {
 			this.cached = cached;
+			this.isNew = isNew;
 			this.originalSessionId = cached.getId();
+			if (this.isNew) {
+				this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, cached.getCreationTime().toEpochMilli());
+				this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+						(int) cached.getMaxInactiveInterval().getSeconds());
+				this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, cached.getLastAccessedTime().toEpochMilli());
+			}
+			if (this.isNew || (SimpleRedisOperationsSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
+				getAttributeNames().forEach((attributeName) -> this.delta.put(getAttributeKey(attributeName),
+						cached.getAttribute(attributeName)));
+			}
 		}
 
 		@Override
@@ -180,7 +200,12 @@ public class SimpleRedisOperationsSessionRepository
 
 		@Override
 		public <T> T getAttribute(String attributeName) {
-			return this.cached.getAttribute(attributeName);
+			T attributeValue = this.cached.getAttribute(attributeName);
+			if (attributeValue != null
+					&& SimpleRedisOperationsSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
+				this.delta.put(getAttributeKey(attributeName), attributeValue);
+			}
+			return attributeValue;
 		}
 
 		@Override
@@ -191,7 +216,8 @@ public class SimpleRedisOperationsSessionRepository
 		@Override
 		public void setAttribute(String attributeName, Object attributeValue) {
 			this.cached.setAttribute(attributeName, attributeValue);
-			putAttribute(RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName, attributeValue);
+			this.delta.put(getAttributeKey(attributeName), attributeValue);
+			flushIfRequired();
 		}
 
 		@Override
@@ -207,7 +233,8 @@ public class SimpleRedisOperationsSessionRepository
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
-			putAttribute(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
+			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
+			flushIfRequired();
 		}
 
 		@Override
@@ -218,7 +245,8 @@ public class SimpleRedisOperationsSessionRepository
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
 			this.cached.setMaxInactiveInterval(interval);
-			putAttribute(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
+			flushIfRequired();
 		}
 
 		@Override
@@ -272,11 +300,6 @@ public class SimpleRedisOperationsSessionRepository
 					Date.from(Instant.ofEpochMilli(getLastAccessedTime().toEpochMilli())
 							.plusSeconds(getMaxInactiveInterval().getSeconds())));
 			this.delta.clear();
-		}
-
-		private void putAttribute(String name, Object value) {
-			this.delta.put(name, value);
-			flushIfRequired();
 		}
 
 	}

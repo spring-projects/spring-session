@@ -30,6 +30,7 @@ import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.impl.predicates.EqualPredicate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,7 +38,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -81,6 +84,12 @@ class HazelcastSessionRepositoryTests {
 	void constructorNullHazelcastInstance() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new HazelcastSessionRepository(null))
 				.withMessage("HazelcastInstance must not be null");
+	}
+
+	@Test
+	void setSaveModeNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSaveMode(null))
+				.withMessage("saveMode must not be null");
 	}
 
 	@Test
@@ -399,6 +408,63 @@ class HazelcastSessionRepositoryTests {
 		}
 
 		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void saveWithSaveModeOnSetAttribute() {
+		verify(this.sessions).addEntryListener(any(MapListener.class), anyBoolean());
+		this.repository.setSaveMode(SaveMode.ON_SET_ATTRIBUTE);
+		MapSession delegate = new MapSession();
+		delegate.setAttribute("attribute1", "value1");
+		delegate.setAttribute("attribute2", "value2");
+		delegate.setAttribute("attribute3", "value3");
+		HazelcastSession session = this.repository.new HazelcastSession(delegate, false);
+		session.getAttribute("attribute2");
+		session.setAttribute("attribute3", "value4");
+		this.repository.save(session);
+		ArgumentCaptor<SessionUpdateEntryProcessor> captor = ArgumentCaptor.forClass(SessionUpdateEntryProcessor.class);
+		verify(this.sessions).executeOnKey(eq(session.getId()), captor.capture());
+		assertThat((Map<String, Object>) ReflectionTestUtils.getField(captor.getValue(), "delta")).hasSize(1);
+		verifyZeroInteractions(this.sessions);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void saveWithSaveModeOnGetAttribute() {
+		verify(this.sessions).addEntryListener(any(MapListener.class), anyBoolean());
+		this.repository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
+		MapSession delegate = new MapSession();
+		delegate.setAttribute("attribute1", "value1");
+		delegate.setAttribute("attribute2", "value2");
+		delegate.setAttribute("attribute3", "value3");
+		HazelcastSession session = this.repository.new HazelcastSession(delegate, false);
+		session.getAttribute("attribute2");
+		session.setAttribute("attribute3", "value4");
+		this.repository.save(session);
+		ArgumentCaptor<SessionUpdateEntryProcessor> captor = ArgumentCaptor.forClass(SessionUpdateEntryProcessor.class);
+		verify(this.sessions).executeOnKey(eq(session.getId()), captor.capture());
+		assertThat((Map<String, Object>) ReflectionTestUtils.getField(captor.getValue(), "delta")).hasSize(2);
+		verifyZeroInteractions(this.sessions);
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void saveWithSaveModeAlways() {
+		verify(this.sessions).addEntryListener(any(MapListener.class), anyBoolean());
+		this.repository.setSaveMode(SaveMode.ALWAYS);
+		MapSession delegate = new MapSession();
+		delegate.setAttribute("attribute1", "value1");
+		delegate.setAttribute("attribute2", "value2");
+		delegate.setAttribute("attribute3", "value3");
+		HazelcastSession session = this.repository.new HazelcastSession(delegate, false);
+		session.getAttribute("attribute2");
+		session.setAttribute("attribute3", "value4");
+		this.repository.save(session);
+		ArgumentCaptor<SessionUpdateEntryProcessor> captor = ArgumentCaptor.forClass(SessionUpdateEntryProcessor.class);
+		verify(this.sessions).executeOnKey(eq(session.getId()), captor.capture());
+		assertThat((Map<String, Object>) ReflectionTestUtils.getField(captor.getValue(), "delta")).hasSize(3);
+		verifyZeroInteractions(this.sessions);
 	}
 
 }

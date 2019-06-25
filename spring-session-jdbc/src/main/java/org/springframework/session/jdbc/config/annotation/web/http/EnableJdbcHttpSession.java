@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import javax.sql.DataSource;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -95,5 +96,13 @@ public @interface EnableJdbcHttpSession {
 	 * @since 2.0.0
 	 */
 	String cleanupCron() default JdbcHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
+
+	/**
+	 * Save mode for the session. The default is {@link SaveMode#ON_SET_ATTRIBUTE}, which
+	 * only saves changes made to session.
+	 * @return the save mode
+	 * @since 2.2.0
+	 */
+	SaveMode saveMode() default SaveMode.ON_SET_ATTRIBUTE;
 
 }

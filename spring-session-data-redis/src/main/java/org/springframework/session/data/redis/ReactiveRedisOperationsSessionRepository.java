@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
+import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
 
@@ -58,6 +59,8 @@ public class ReactiveRedisOperationsSessionRepository
 	 * {@link RedisSession#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
+
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
 	public ReactiveRedisOperationsSessionRepository(ReactiveRedisOperations<String, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
@@ -91,6 +94,15 @@ public class ReactiveRedisOperationsSessionRepository
 	}
 
 	/**
+	 * Set the save mode.
+	 * @param saveMode the save mode
+	 */
+	public void setSaveMode(SaveMode saveMode) {
+		Assert.notNull(saveMode, "saveMode must not be null");
+		this.saveMode = saveMode;
+	}
+
+	/**
 	 * Returns the {@link ReactiveRedisOperations} used for sessions.
 	 * @return the {@link ReactiveRedisOperations} used for sessions
 	 * @since 2.1.0
@@ -102,12 +114,11 @@ public class ReactiveRedisOperationsSessionRepository
 	@Override
 	public Mono<RedisSession> createSession() {
 		return Mono.defer(() -> {
-			RedisSession session = new RedisSession();
-
+			MapSession cached = new MapSession();
 			if (this.defaultMaxInactiveInterval != null) {
-				session.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
+				cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
-
+			RedisSession session = new RedisSession(cached, true);
 			return Mono.just(session);
 		});
 	}
@@ -132,7 +143,7 @@ public class ReactiveRedisOperationsSessionRepository
 				.filter((map) -> !map.isEmpty())
 				.map(new RedisSessionMapper(id))
 				.filter((session) -> !session.isExpired())
-				.map(RedisSession::new)
+				.map((session) -> new RedisSession(session, false))
 				.switchIfEmpty(Mono.defer(() -> deleteById(id).then(Mono.empty())));
 		// @formatter:on
 	}
@@ -168,27 +179,20 @@ public class ReactiveRedisOperationsSessionRepository
 
 		private String originalSessionId;
 
-		/**
-		 * Creates a new instance ensuring to mark all of the new attributes to be
-		 * persisted in the next save operation.
-		 */
-		RedisSession() {
-			this(new MapSession());
-			this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, getCreationTime().toEpochMilli());
-			this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) getMaxInactiveInterval().getSeconds());
-			this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, getLastAccessedTime().toEpochMilli());
-			this.isNew = true;
-		}
-
-		/**
-		 * Creates a new instance from the provided {@link MapSession}.
-		 * @param mapSession the {@link MapSession} that represents the persisted session
-		 * that was retrieved. Cannot be null.
-		 */
-		RedisSession(MapSession mapSession) {
-			Assert.notNull(mapSession, "mapSession cannot be null");
-			this.cached = mapSession;
-			this.originalSessionId = mapSession.getId();
+		RedisSession(MapSession cached, boolean isNew) {
+			this.cached = cached;
+			this.isNew = isNew;
+			this.originalSessionId = cached.getId();
+			if (this.isNew) {
+				this.delta.put(RedisSessionMapper.CREATION_TIME_KEY, cached.getCreationTime().toEpochMilli());
+				this.delta.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+						(int) cached.getMaxInactiveInterval().getSeconds());
+				this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, cached.getLastAccessedTime().toEpochMilli());
+			}
+			if (this.isNew || (ReactiveRedisOperationsSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
+				getAttributeNames().forEach((attributeName) -> this.delta.put(getAttributeKey(attributeName),
+						cached.getAttribute(attributeName)));
+			}
 		}
 
 		@Override
@@ -203,7 +207,12 @@ public class ReactiveRedisOperationsSessionRepository
 
 		@Override
 		public <T> T getAttribute(String attributeName) {
-			return this.cached.getAttribute(attributeName);
+			T attributeValue = this.cached.getAttribute(attributeName);
+			if (attributeValue != null
+					&& ReactiveRedisOperationsSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
+				this.delta.put(getAttributeKey(attributeName), attributeValue);
+			}
+			return attributeValue;
 		}
 
 		@Override

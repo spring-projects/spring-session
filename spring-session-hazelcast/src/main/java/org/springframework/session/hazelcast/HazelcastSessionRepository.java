@@ -45,6 +45,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
+import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -147,6 +148,8 @@ public class HazelcastSessionRepository
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
 	private IMap<String, MapSession> sessions;
 
 	private String sessionListenerId;
@@ -220,13 +223,24 @@ public class HazelcastSessionRepository
 		this.flushMode = flushMode;
 	}
 
+	/**
+	 * Set the save mode.
+	 * @param saveMode the save mode
+	 */
+	public void setSaveMode(SaveMode saveMode) {
+		Assert.notNull(saveMode, "saveMode must not be null");
+		this.saveMode = saveMode;
+	}
+
 	@Override
 	public HazelcastSession createSession() {
-		HazelcastSession result = new HazelcastSession();
+		MapSession cached = new MapSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
+			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
-		return result;
+		HazelcastSession session = new HazelcastSession(cached, true);
+		session.flushImmediateIfNecessary();
+		return session;
 	}
 
 	@Override
@@ -253,7 +267,7 @@ public class HazelcastSessionRepository
 				entryProcessor.setMaxInactiveInterval(session.getMaxInactiveInterval());
 			}
 			if (!session.delta.isEmpty()) {
-				entryProcessor.setDelta(session.delta);
+				entryProcessor.setDelta(new HashMap<>(session.delta));
 			}
 			this.sessions.executeOnKey(session.getId(), entryProcessor);
 		}
@@ -274,7 +288,7 @@ public class HazelcastSessionRepository
 			deleteById(saved.getId());
 			return null;
 		}
-		return new HazelcastSession(saved);
+		return new HazelcastSession(saved, false);
 	}
 
 	@Override
@@ -290,7 +304,7 @@ public class HazelcastSessionRepository
 		Collection<MapSession> sessions = this.sessions.values(Predicates.equal(PRINCIPAL_NAME_ATTRIBUTE, indexValue));
 		Map<String, HazelcastSession> sessionMap = new HashMap<>(sessions.size());
 		for (MapSession session : sessions) {
-			sessionMap.put(session.getId(), new HazelcastSession(session));
+			sessionMap.put(session.getId(), new HazelcastSession(session, false));
 		}
 		return sessionMap;
 	}
@@ -347,25 +361,14 @@ public class HazelcastSessionRepository
 
 		private Map<String, Object> delta = new HashMap<>();
 
-		/**
-		 * Creates a new instance ensuring to mark all of the new attributes to be
-		 * persisted in the next save operation.
-		 */
-		HazelcastSession() {
-			this(new MapSession());
-			this.isNew = true;
-			flushImmediateIfNecessary();
-		}
-
-		/**
-		 * Creates a new instance from the provided {@link MapSession}.
-		 * @param cached the {@link MapSession} that represents the persisted session that
-		 * was retrieved. Cannot be {@code null}.
-		 */
-		HazelcastSession(MapSession cached) {
-			Assert.notNull(cached, "MapSession cannot be null");
+		HazelcastSession(MapSession cached, boolean isNew) {
 			this.delegate = cached;
+			this.isNew = isNew;
 			this.originalId = cached.getId();
+			if (this.isNew || (HazelcastSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
+				getAttributeNames()
+						.forEach((attributeName) -> this.delta.put(attributeName, cached.getAttribute(attributeName)));
+			}
 		}
 
 		@Override
@@ -416,7 +419,11 @@ public class HazelcastSessionRepository
 
 		@Override
 		public <T> T getAttribute(String attributeName) {
-			return this.delegate.getAttribute(attributeName);
+			T attributeValue = this.delegate.getAttribute(attributeName);
+			if (attributeValue != null && HazelcastSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
+				this.delta.put(attributeName, attributeValue);
+			}
+			return attributeValue;
 		}
 
 		@Override

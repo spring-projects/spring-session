@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
+import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
@@ -97,5 +98,13 @@ public @interface EnableRedisWebSession {
 	 */
 	@Deprecated
 	RedisFlushMode redisFlushMode() default RedisFlushMode.ON_SAVE;
+
+	/**
+	 * Save mode for the session. The default is {@link SaveMode#ON_SET_ATTRIBUTE}, which
+	 * only saves changes made to session.
+	 * @return the save mode
+	 * @since 2.2.0
+	 */
+	SaveMode saveMode() default SaveMode.ON_SET_ATTRIBUTE;
 
 }

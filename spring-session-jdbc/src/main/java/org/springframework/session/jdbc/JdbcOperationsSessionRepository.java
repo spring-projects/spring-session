@@ -51,6 +51,7 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
+import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
@@ -237,6 +238,8 @@ public class JdbcOperationsSessionRepository
 
 	private LobHandler lobHandler = new DefaultLobHandler();
 
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
 	/**
 	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
 	 * provided {@link JdbcOperations} to manage sessions.
@@ -383,13 +386,22 @@ public class JdbcOperationsSessionRepository
 		this.conversionService = conversionService;
 	}
 
+	/**
+	 * Set the save mode.
+	 * @param saveMode the save mode
+	 */
+	public void setSaveMode(SaveMode saveMode) {
+		Assert.notNull(saveMode, "saveMode must not be null");
+		this.saveMode = saveMode;
+	}
+
 	@Override
 	public JdbcSession createSession() {
-		JdbcSession session = new JdbcSession();
+		MapSession delegate = new MapSession();
 		if (this.defaultMaxInactiveInterval != null) {
-			session.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
+			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
-		return session;
+		return new JdbcSession(delegate, UUID.randomUUID().toString(), true);
 	}
 
 	@Override
@@ -708,17 +720,13 @@ public class JdbcOperationsSessionRepository
 
 		private Map<String, DeltaValue> delta = new HashMap<>();
 
-		JdbcSession() {
-			this.delegate = new MapSession();
-			this.isNew = true;
-			this.primaryKey = UUID.randomUUID().toString();
-		}
-
-		JdbcSession(String primaryKey, Session delegate) {
-			Assert.notNull(primaryKey, "primaryKey cannot be null");
-			Assert.notNull(delegate, "Session cannot be null");
-			this.primaryKey = primaryKey;
+		JdbcSession(MapSession delegate, String primaryKey, boolean isNew) {
 			this.delegate = delegate;
+			this.primaryKey = primaryKey;
+			this.isNew = isNew;
+			if (this.isNew || (JdbcOperationsSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
+				getAttributeNames().forEach((attributeName) -> this.delta.put(attributeName, DeltaValue.UPDATED));
+			}
 		}
 
 		boolean isNew() {
@@ -757,7 +765,15 @@ public class JdbcOperationsSessionRepository
 		@Override
 		public <T> T getAttribute(String attributeName) {
 			Supplier<T> supplier = this.delegate.getAttribute(attributeName);
-			return (supplier != null) ? supplier.get() : null;
+			if (supplier == null) {
+				return null;
+			}
+			T attributeValue = supplier.get();
+			if (attributeValue != null
+					&& JdbcOperationsSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
+				this.delta.put(attributeName, DeltaValue.UPDATED);
+			}
+			return attributeValue;
 		}
 
 		@Override
@@ -848,7 +864,7 @@ public class JdbcOperationsSessionRepository
 					delegate.setCreationTime(Instant.ofEpochMilli(rs.getLong("CREATION_TIME")));
 					delegate.setLastAccessedTime(Instant.ofEpochMilli(rs.getLong("LAST_ACCESS_TIME")));
 					delegate.setMaxInactiveInterval(Duration.ofSeconds(rs.getInt("MAX_INACTIVE_INTERVAL")));
-					session = new JdbcSession(primaryKey, delegate);
+					session = new JdbcSession(delegate, primaryKey, false);
 				}
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {

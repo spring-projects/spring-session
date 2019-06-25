@@ -50,6 +50,7 @@ import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
@@ -86,6 +87,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
@@ -117,6 +120,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
 		sessionRepository.setFlushMode(this.flushMode);
+		sessionRepository.setSaveMode(this.saveMode);
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
 		return sessionRepository;
@@ -163,6 +167,10 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	public void setFlushMode(FlushMode flushMode) {
 		Assert.notNull(flushMode, "flushMode cannot be null");
 		this.flushMode = flushMode;
+	}
+
+	public void setSaveMode(SaveMode saveMode) {
+		this.saveMode = saveMode;
 	}
 
 	public void setCleanupCron(String cleanupCron) {
@@ -240,6 +248,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			flushMode = redisFlushMode.getFlushMode();
 		}
 		this.flushMode = flushMode;
+		this.saveMode = attributes.getEnum("saveMode");
 		String cleanupCron = attributes.getString("cleanupCron");
 		if (StringUtils.hasText(cleanupCron)) {
 			this.cleanupCron = cleanupCron;

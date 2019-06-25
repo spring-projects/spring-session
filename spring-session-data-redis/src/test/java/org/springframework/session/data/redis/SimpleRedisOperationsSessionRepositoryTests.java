@@ -35,6 +35,7 @@ import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.data.redis.SimpleRedisOperationsSessionRepository.RedisSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -123,6 +124,19 @@ class SimpleRedisOperationsSessionRepositoryTests {
 	void setFlushMode_NullFlushMode_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setFlushMode(null))
 				.withMessage("flushMode must not be null");
+	}
+
+	@Test
+	void setSaveMode_ValidSaveMode_ShouldSetSaveMode() {
+		this.sessionRepository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
+		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "saveMode"))
+				.isEqualTo(SaveMode.ON_GET_ATTRIBUTE);
+	}
+
+	@Test
+	void setSaveMode_NullSaveMode_ShouldThrowException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setSaveMode(null))
+				.withMessage("saveMode must not be null");
 	}
 
 	@Test
@@ -224,6 +238,69 @@ class SimpleRedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	void save_WithSaveModeOnSetAttribute_SholdSaveSession() {
+		given(this.sessionRedisOperations.hasKey(eq(TEST_SESSION_KEY))).willReturn(true);
+		this.sessionRepository.setSaveMode(SaveMode.ON_SET_ATTRIBUTE);
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put("attribute1", "value1");
+		attributes.put("attribute2", "value2");
+		attributes.put("attribute3", "value3");
+		RedisSession session = createTestSession(attributes);
+		session.getAttribute("attribute2");
+		session.setAttribute("attribute3", "value4");
+		this.sessionRepository.save(session);
+		verify(this.sessionRedisOperations).hasKey(eq(TEST_SESSION_KEY));
+		verify(this.sessionRedisOperations).opsForHash();
+		verify(this.sessionRedisOperations).expireAt(eq(TEST_SESSION_KEY), eq(getExpiry(session)));
+		verify(this.sessionHashOperations).putAll(eq(TEST_SESSION_KEY), this.delta.capture());
+		assertThat(this.delta.getValue()).hasSize(1);
+		verifyNoMoreInteractions(this.sessionRedisOperations);
+		verifyNoMoreInteractions(this.sessionHashOperations);
+	}
+
+	@Test
+	void saveWithSaveModeOnGetAttribute() {
+		given(this.sessionRedisOperations.hasKey(eq(TEST_SESSION_KEY))).willReturn(true);
+		this.sessionRepository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put("attribute1", "value1");
+		attributes.put("attribute2", "value2");
+		attributes.put("attribute3", "value3");
+		RedisSession session = createTestSession(attributes);
+		session.getAttribute("attribute2");
+		session.setAttribute("attribute3", "value4");
+		this.sessionRepository.save(session);
+		verify(this.sessionRedisOperations).hasKey(eq(TEST_SESSION_KEY));
+		verify(this.sessionRedisOperations).opsForHash();
+		verify(this.sessionRedisOperations).expireAt(eq(TEST_SESSION_KEY), eq(getExpiry(session)));
+		verify(this.sessionHashOperations).putAll(eq(TEST_SESSION_KEY), this.delta.capture());
+		assertThat(this.delta.getValue()).hasSize(2);
+		verifyNoMoreInteractions(this.sessionRedisOperations);
+		verifyNoMoreInteractions(this.sessionHashOperations);
+	}
+
+	@Test
+	void saveWithSaveModeAlways() {
+		given(this.sessionRedisOperations.hasKey(eq(TEST_SESSION_KEY))).willReturn(true);
+		this.sessionRepository.setSaveMode(SaveMode.ALWAYS);
+		Map<String, Object> attributes = new HashMap<>();
+		attributes.put("attribute1", "value1");
+		attributes.put("attribute2", "value2");
+		attributes.put("attribute3", "value3");
+		RedisSession session = createTestSession(attributes);
+		session.getAttribute("attribute2");
+		session.setAttribute("attribute3", "value4");
+		this.sessionRepository.save(session);
+		verify(this.sessionRedisOperations).hasKey(eq(TEST_SESSION_KEY));
+		verify(this.sessionRedisOperations).opsForHash();
+		verify(this.sessionRedisOperations).expireAt(eq(TEST_SESSION_KEY), eq(getExpiry(session)));
+		verify(this.sessionHashOperations).putAll(eq(TEST_SESSION_KEY), this.delta.capture());
+		assertThat(this.delta.getValue()).hasSize(3);
+		verifyNoMoreInteractions(this.sessionRedisOperations);
+		verifyNoMoreInteractions(this.sessionHashOperations);
+	}
+
+	@Test
 	void save_SessionNotExists_ShouldThrowException() {
 		RedisSession session = createTestSession();
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(session))
@@ -315,12 +392,16 @@ class SimpleRedisOperationsSessionRepositoryTests {
 		return result;
 	}
 
-	private RedisSession createTestSession() {
+	private RedisSession createTestSession(Map<String, Object> attributes) {
 		MapSession cached = new MapSession(TEST_SESSION_ID);
 		cached.setCreationTime(Instant.EPOCH);
 		cached.setLastAccessedTime(Instant.EPOCH);
-		cached.setAttribute("attribute1", "value1");
-		return this.sessionRepository.new RedisSession(cached);
+		attributes.forEach(cached::setAttribute);
+		return this.sessionRepository.new RedisSession(cached, false);
+	}
+
+	private RedisSession createTestSession() {
+		return createTestSession(Collections.singletonMap("attribute1", "value1"));
 	}
 
 }

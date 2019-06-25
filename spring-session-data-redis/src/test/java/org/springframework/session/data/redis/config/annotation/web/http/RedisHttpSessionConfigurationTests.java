@@ -35,6 +35,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
+import org.springframework.session.SaveMode;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -140,6 +141,20 @@ class RedisHttpSessionConfigurationTests {
 		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
 		assertThat(configuration).isNotNull();
 		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
+	}
+
+	@Test
+	void customSaveModeAnnotation() {
+		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionAnnotationConfiguration.class);
+		assertThat(this.context.getBean(RedisOperationsSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+				SaveMode.ALWAYS);
+	}
+
+	@Test
+	void customSaveModeSetter() {
+		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionSetterConfiguration.class);
+		assertThat(this.context.getBean(RedisOperationsSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+				SaveMode.ALWAYS);
 	}
 
 	@Test
@@ -295,6 +310,20 @@ class RedisHttpSessionConfigurationTests {
 
 		CustomCleanupCronExpressionSetterConfiguration() {
 			setCleanupCron(CLEANUP_CRON_EXPRESSION);
+		}
+
+	}
+
+	@EnableRedisHttpSession(saveMode = SaveMode.ALWAYS)
+	static class CustomSaveModeExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class CustomSaveModeExpressionSetterConfiguration extends RedisHttpSessionConfiguration {
+
+		CustomSaveModeExpressionSetterConfiguration() {
+			setSaveMode(SaveMode.ALWAYS);
 		}
 
 	}

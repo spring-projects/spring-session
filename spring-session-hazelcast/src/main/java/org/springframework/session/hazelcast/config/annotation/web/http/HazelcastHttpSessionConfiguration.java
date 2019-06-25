@@ -30,6 +30,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
@@ -56,6 +57,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
 	private HazelcastInstance hazelcastInstance;
 
 	private ApplicationEventPublisher applicationEventPublisher;
@@ -69,6 +72,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		}
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setFlushMode(this.flushMode);
+		sessionRepository.setSaveMode(this.saveMode);
 		return sessionRepository;
 	}
 
@@ -87,6 +91,10 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	public void setFlushMode(FlushMode flushMode) {
 		this.flushMode = flushMode;
+	}
+
+	public void setSaveMode(SaveMode saveMode) {
+		this.saveMode = saveMode;
 	}
 
 	@Autowired
@@ -122,6 +130,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 			flushMode = hazelcastFlushMode.getFlushMode();
 		}
 		this.flushMode = flushMode;
+		this.saveMode = attributes.getEnum("saveMode");
 	}
 
 }

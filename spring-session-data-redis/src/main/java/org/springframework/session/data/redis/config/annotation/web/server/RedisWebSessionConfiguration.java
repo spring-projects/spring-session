@@ -35,6 +35,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.RedisFlushMode;
@@ -61,6 +62,8 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	private String redisNamespace = ReactiveRedisOperationsSessionRepository.DEFAULT_NAMESPACE;
 
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
 	private ReactiveRedisConnectionFactory redisConnectionFactory;
 
 	private RedisSerializer<Object> defaultRedisSerializer;
@@ -78,6 +81,7 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		if (StringUtils.hasText(this.redisNamespace)) {
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
+		sessionRepository.setSaveMode(this.saveMode);
 		return sessionRepository;
 	}
 
@@ -92,6 +96,10 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 	@Deprecated
 	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
 		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
+	}
+
+	public void setSaveMode(SaveMode saveMode) {
+		this.saveMode = saveMode;
 	}
 
 	@Autowired
@@ -132,6 +140,7 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
 		}
+		this.saveMode = attributes.getEnum("saveMode");
 	}
 
 	private ReactiveRedisTemplate<String, Object> createReactiveRedisTemplate() {

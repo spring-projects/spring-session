@@ -43,6 +43,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.MapSession;
+import org.springframework.session.SaveMode;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
@@ -77,6 +78,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
+	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
 	private DataSource dataSource;
 
 	private PlatformTransactionManager transactionManager;
@@ -100,6 +103,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 			sessionRepository.setTableName(this.tableName);
 		}
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setSaveMode(this.saveMode);
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
 		}
@@ -140,6 +144,10 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	public void setCleanupCron(String cleanupCron) {
 		this.cleanupCron = cleanupCron;
+	}
+
+	public void setSaveMode(SaveMode saveMode) {
+		this.saveMode = saveMode;
 	}
 
 	@Autowired
@@ -199,6 +207,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		if (StringUtils.hasText(cleanupCron)) {
 			this.cleanupCron = cleanupCron;
 		}
+		this.saveMode = attributes.getEnum("saveMode");
 	}
 
 	@Override

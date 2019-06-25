@@ -29,6 +29,7 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.session.SaveMode;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
@@ -105,6 +106,20 @@ class RedisWebSessionConfigurationTests {
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+	}
+
+	@Test
+	void customSaveModeAnnotation() {
+		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionAnnotationConfiguration.class);
+		assertThat(this.context.getBean(ReactiveRedisOperationsSessionRepository.class))
+				.hasFieldOrPropertyWithValue("saveMode", SaveMode.ALWAYS);
+	}
+
+	@Test
+	void customSaveModeSetter() {
+		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionSetterConfiguration.class);
+		assertThat(this.context.getBean(ReactiveRedisOperationsSessionRepository.class))
+				.hasFieldOrPropertyWithValue("saveMode", SaveMode.ALWAYS);
 	}
 
 	@Test
@@ -246,6 +261,20 @@ class RedisWebSessionConfigurationTests {
 
 	@EnableRedisWebSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalConfig {
+
+	}
+
+	@EnableRedisWebSession(saveMode = SaveMode.ALWAYS)
+	static class CustomSaveModeExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class CustomSaveModeExpressionSetterConfiguration extends RedisWebSessionConfiguration {
+
+		CustomSaveModeExpressionSetterConfiguration() {
+			setSaveMode(SaveMode.ALWAYS);
+		}
 
 	}
 
