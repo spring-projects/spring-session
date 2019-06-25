@@ -283,14 +283,7 @@ public class RedisOperationsSessionRepository
 
 	private final IndexResolver<RedisSession> indexResolver;
 
-	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
-		@Override
-		public void publishEvent(ApplicationEvent event) {
-		}
-
-		@Override
-		public void publishEvent(Object event) {
-		}
+	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
 
 	/**

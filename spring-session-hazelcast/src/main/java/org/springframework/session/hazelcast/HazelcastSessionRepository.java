@@ -38,7 +38,6 @@ import com.hazelcast.query.Predicates;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -135,16 +134,7 @@ public class HazelcastSessionRepository
 
 	private final IndexResolver<HazelcastSession> indexResolver;
 
-	private ApplicationEventPublisher eventPublisher = new ApplicationEventPublisher() {
-
-		@Override
-		public void publishEvent(ApplicationEvent event) {
-		}
-
-		@Override
-		public void publishEvent(Object event) {
-		}
-
+	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
 
 	/**
