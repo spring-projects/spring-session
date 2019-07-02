@@ -71,20 +71,11 @@ public class Initializer implements ServletContextListener {
 	}
 
 	private static int getAvailablePort() {
-		ServerSocket socket = null;
-		try {
-			socket = new ServerSocket(0);
+		try (ServerSocket socket = new ServerSocket(0)) {
 			return socket.getLocalPort();
 		}
 		catch (IOException ex) {
 			throw new RuntimeException(ex);
-		}
-		finally {
-			try {
-				socket.close();
-			}
-			catch (IOException ex) {
-			}
 		}
 	}
 

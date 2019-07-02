@@ -210,7 +210,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		for (int i = start; i < end; i++) {
 			char c = chars[i];
 			if (c < 0x21 || c == 0x22 || c == 0x2c || c == 0x3b || c == 0x5c || c == 0x7f) {
-				throw new IllegalArgumentException("Invalid character in cookie value: " + Integer.toString(c));
+				throw new IllegalArgumentException("Invalid character in cookie value: " + c);
 			}
 		}
 	}

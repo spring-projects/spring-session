@@ -65,7 +65,7 @@ class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 
 	static class SessionTaskExecutor implements TaskExecutor {
 
-		private Object lock = new Object();
+		private final Object lock = new Object();
 
 		private final Executor executor;
 

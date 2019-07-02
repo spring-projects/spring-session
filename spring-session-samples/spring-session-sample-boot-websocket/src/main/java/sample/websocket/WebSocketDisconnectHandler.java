@@ -16,7 +16,7 @@
 
 package sample.websocket;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 import sample.data.ActiveWebSocketUserRepository;
 
@@ -45,7 +45,8 @@ public class WebSocketDisconnectHandler<S> implements ApplicationListener<Sessio
 		}
 		this.repository.findById(id).ifPresent((user) -> {
 			this.repository.deleteById(id);
-			this.messagingTemplate.convertAndSend("/topic/friends/signout", Arrays.asList(user.getUsername()));
+			this.messagingTemplate.convertAndSend("/topic/friends/signout",
+					Collections.singletonList(user.getUsername()));
 		});
 	}
 

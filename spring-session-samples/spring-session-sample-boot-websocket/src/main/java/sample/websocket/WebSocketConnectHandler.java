@@ -17,8 +17,8 @@
 package sample.websocket;
 
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 
 import sample.data.ActiveWebSocketUser;
 import sample.data.ActiveWebSocketUserRepository;
@@ -51,7 +51,7 @@ public class WebSocketConnectHandler<S> implements ApplicationListener<SessionCo
 		}
 		String id = SimpMessageHeaderAccessor.getSessionId(headers);
 		this.repository.save(new ActiveWebSocketUser(id, user.getName(), Calendar.getInstance()));
-		this.messagingTemplate.convertAndSend("/topic/friends/signin", Arrays.asList(user.getName()));
+		this.messagingTemplate.convertAndSend("/topic/friends/signin", Collections.singletonList(user.getName()));
 	}
 
 }

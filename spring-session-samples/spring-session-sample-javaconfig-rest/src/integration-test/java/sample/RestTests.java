@@ -16,8 +16,8 @@
 
 package sample;
 
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +58,7 @@ class RestTests {
 	@Test
 	void unauthenticatedUserSentToLogInPage() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		assertThatExceptionOfType(HttpClientErrorException.class)
 				.isThrownBy(() -> getForUser(this.baseUrl + "/", headers, String.class))
 				.satisfies((e) -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
@@ -85,7 +85,7 @@ class RestTests {
 		String token = entity.getHeaders().getFirst(X_AUTH_TOKEN);
 
 		HttpHeaders authTokenHeader = new HttpHeaders();
-		authTokenHeader.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		authTokenHeader.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		authTokenHeader.set(X_AUTH_TOKEN, token);
 		ResponseEntity<User> authTokenResponse = getForUser(this.baseUrl + "/", authTokenHeader, User.class);
 		assertThat(authTokenResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -113,7 +113,7 @@ class RestTests {
 
 	private HttpHeaders getHttpHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		return headers;
 	}
 

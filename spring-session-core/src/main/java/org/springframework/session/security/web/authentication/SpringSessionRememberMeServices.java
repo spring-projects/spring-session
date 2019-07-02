@@ -56,8 +56,6 @@ public class SpringSessionRememberMeServices implements RememberMeServices, Logo
 
 	private int validitySeconds = THIRTY_DAYS_SECONDS;
 
-	private String sessionAttrToDeleteOnLoginFail = HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
-
 	@Override
 	public final Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		return null;
@@ -131,7 +129,7 @@ public class SpringSessionRememberMeServices implements RememberMeServices, Logo
 		logger.debug("Interactive login attempt was unsuccessful.");
 		HttpSession session = request.getSession(false);
 		if (session != null) {
-			session.removeAttribute(this.sessionAttrToDeleteOnLoginFail);
+			session.removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
 		}
 	}
 

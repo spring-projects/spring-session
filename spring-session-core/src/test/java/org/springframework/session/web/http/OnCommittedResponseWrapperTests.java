@@ -18,6 +18,7 @@ package org.springframework.session.web.http;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import javax.servlet.ServletOutputStream;
@@ -811,7 +812,7 @@ class OnCommittedResponseWrapperTests {
 	@Test
 	void contentLengthPrintWriterPrintlnStringCommits() throws Exception {
 		String x = "1";
-		this.response.setContentLength(String.valueOf(x).length());
+		this.response.setContentLength(x.length());
 
 		this.response.getWriter().println(x);
 
@@ -831,7 +832,7 @@ class OnCommittedResponseWrapperTests {
 	@Test
 	void contentLengthPrintWriterAppendCharSequenceCommits() throws Exception {
 		String x = "a";
-		this.response.setContentLength(String.valueOf(x).length());
+		this.response.setContentLength(x.length());
 
 		this.response.getWriter().append(x);
 
@@ -906,7 +907,7 @@ class OnCommittedResponseWrapperTests {
 
 		assertThat(this.committed).isFalse();
 
-		this.response.getOutputStream().write("1".getBytes("UTF-8"));
+		this.response.getOutputStream().write("1".getBytes(StandardCharsets.UTF_8));
 
 		assertThat(this.committed).isTrue();
 	}
@@ -1053,7 +1054,7 @@ class OnCommittedResponseWrapperTests {
 	@Test
 	void contentLengthOutputStreamPrintlnStringCommits() throws Exception {
 		String x = "1";
-		this.response.setContentLength(String.valueOf(x).length());
+		this.response.setContentLength(x.length());
 
 		this.response.getOutputStream().println(x);
 
