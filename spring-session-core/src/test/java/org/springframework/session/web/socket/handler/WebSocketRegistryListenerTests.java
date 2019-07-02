@@ -154,7 +154,7 @@ class WebSocketRegistryListenerTests {
 	}
 
 	@Test
-	void onApplicationEventConnectDisconnectNullSession() throws Exception {
+	void onApplicationEventConnectDisconnectNullSession() {
 		this.listener.onApplicationEvent(this.connect);
 		this.attributes.clear();
 

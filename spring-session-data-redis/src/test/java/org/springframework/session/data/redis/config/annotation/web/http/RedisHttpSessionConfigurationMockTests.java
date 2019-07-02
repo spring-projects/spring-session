@@ -47,8 +47,7 @@ class RedisHttpSessionConfigurationMockTests {
 	}
 
 	@Test
-	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoOpThenNoInteractionWithConnectionFactory()
-			throws Exception {
+	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoOpThenNoInteractionWithConnectionFactory() {
 		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(this.factory,
 				ConfigureRedisAction.NO_OP);
 
@@ -58,8 +57,7 @@ class RedisHttpSessionConfigurationMockTests {
 	}
 
 	@Test
-	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenExceptionThenCloseConnection()
-			throws Exception {
+	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenExceptionThenCloseConnection() {
 		ConfigureRedisAction action = mock(ConfigureRedisAction.class);
 		willThrow(new RuntimeException()).given(action).configure(this.connection);
 
@@ -77,8 +75,7 @@ class RedisHttpSessionConfigurationMockTests {
 	}
 
 	@Test
-	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoExceptionThenCloseConnection()
-			throws Exception {
+	void enableRedisKeyspaceNotificationsInitializerAfterPropertiesSetWhenNoExceptionThenCloseConnection() {
 		ConfigureRedisAction action = mock(ConfigureRedisAction.class);
 
 		EnableRedisKeyspaceNotificationsInitializer init = new EnableRedisKeyspaceNotificationsInitializer(this.factory,

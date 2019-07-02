@@ -47,7 +47,7 @@ class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedisITests
 	private ReactiveRedisOperationsSessionRepository repository;
 
 	@Test
-	void saves() throws InterruptedException {
+	void saves() {
 		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 
 		String expectedAttributeName = "a";
@@ -100,7 +100,7 @@ class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedisITests
 	}
 
 	@Test
-	void changeSessionIdWhenOnlyChangeId() throws Exception {
+	void changeSessionIdWhenOnlyChangeId() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
@@ -127,7 +127,7 @@ class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedisITests
 	}
 
 	@Test
-	void changeSessionIdWhenChangeTwice() throws Exception {
+	void changeSessionIdWhenChangeTwice() {
 		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 
 		this.repository.save(toSave).block();
@@ -144,7 +144,7 @@ class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedisITests
 	}
 
 	@Test
-	void changeSessionIdWhenSetAttributeOnChangedSession() throws Exception {
+	void changeSessionIdWhenSetAttributeOnChangedSession() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 
@@ -171,7 +171,7 @@ class ReactiveRedisOperationsSessionRepositoryITests extends AbstractRedisITests
 	}
 
 	@Test
-	void changeSessionIdWhenHasNotSaved() throws Exception {
+	void changeSessionIdWhenHasNotSaved() {
 		ReactiveRedisOperationsSessionRepository.RedisSession toSave = this.repository.createSession().block();
 		String originalId = toSave.getId();
 		toSave.changeSessionId();

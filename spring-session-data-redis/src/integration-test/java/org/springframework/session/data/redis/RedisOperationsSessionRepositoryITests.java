@@ -173,7 +173,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByPrincipalNameExpireRemovesIndex() throws Exception {
+	void findByPrincipalNameExpireRemovesIndex() {
 		String principalName = "findByPrincipalNameExpireRemovesIndex" + UUID.randomUUID();
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
@@ -195,7 +195,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByPrincipalNameNoPrincipalNameChange() throws Exception {
+	void findByPrincipalNameNoPrincipalNameChange() {
 		String principalName = "findByPrincipalNameNoPrincipalNameChange" + UUID.randomUUID();
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
@@ -213,7 +213,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByPrincipalNameNoPrincipalNameChangeReload() throws Exception {
+	void findByPrincipalNameNoPrincipalNameChangeReload() {
 		String principalName = "findByPrincipalNameNoPrincipalNameChangeReload" + UUID.randomUUID();
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
@@ -233,7 +233,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByDeletedPrincipalName() throws Exception {
+	void findByDeletedPrincipalName() {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
@@ -250,7 +250,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByChangedPrincipalName() throws Exception {
+	void findByChangedPrincipalName() {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = this.repository.createSession();
@@ -272,7 +272,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByDeletedPrincipalNameReload() throws Exception {
+	void findByDeletedPrincipalNameReload() {
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(INDEX_NAME, principalName);
@@ -290,7 +290,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByChangedPrincipalNameReload() throws Exception {
+	void findByChangedPrincipalNameReload() {
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
 		RedisSession toSave = this.repository.createSession();
@@ -336,7 +336,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findBySecurityPrincipalNameExpireRemovesIndex() throws Exception {
+	void findBySecurityPrincipalNameExpireRemovesIndex() {
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
@@ -357,7 +357,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByPrincipalNameNoSecurityPrincipalNameChange() throws Exception {
+	void findByPrincipalNameNoSecurityPrincipalNameChange() {
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
@@ -374,7 +374,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByPrincipalNameNoSecurityPrincipalNameChangeReload() throws Exception {
+	void findByPrincipalNameNoSecurityPrincipalNameChangeReload() {
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
@@ -393,7 +393,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByDeletedSecurityPrincipalName() throws Exception {
+	void findByDeletedSecurityPrincipalName() {
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
@@ -409,7 +409,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByChangedSecurityPrincipalName() throws Exception {
+	void findByChangedSecurityPrincipalName() {
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
@@ -429,7 +429,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByDeletedSecurityPrincipalNameReload() throws Exception {
+	void findByDeletedSecurityPrincipalNameReload() {
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
@@ -446,7 +446,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void findByChangedSecurityPrincipalNameReload() throws Exception {
+	void findByChangedSecurityPrincipalNameReload() {
 		RedisSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
 
@@ -468,7 +468,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void changeSessionIdWhenOnlyChangeId() throws Exception {
+	void changeSessionIdWhenOnlyChangeId() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 		RedisSession toSave = this.repository.createSession();
@@ -493,7 +493,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void changeSessionIdWhenChangeTwice() throws Exception {
+	void changeSessionIdWhenChangeTwice() {
 		RedisSession toSave = this.repository.createSession();
 
 		this.repository.save(toSave);
@@ -510,7 +510,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void changeSessionIdWhenSetAttributeOnChangedSession() throws Exception {
+	void changeSessionIdWhenSetAttributeOnChangedSession() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 
@@ -535,7 +535,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Test
-	void changeSessionIdWhenHasNotSaved() throws Exception {
+	void changeSessionIdWhenHasNotSaved() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
 

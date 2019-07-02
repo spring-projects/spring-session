@@ -159,13 +159,13 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
-	void createSessionDefaultMaxInactiveInterval() throws Exception {
+	void createSessionDefaultMaxInactiveInterval() {
 		Session session = this.redisRepository.createSession();
 		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
 	}
 
 	@Test
-	void createSessionCustomMaxInactiveInterval() throws Exception {
+	void createSessionCustomMaxInactiveInterval() {
 		int interval = 1;
 		this.redisRepository.setDefaultMaxInactiveInterval(interval);
 		Session session = this.redisRepository.createSession();

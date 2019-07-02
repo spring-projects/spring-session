@@ -80,7 +80,7 @@ class RedisSessionExpirationPolicyTests {
 
 	// gh-169
 	@Test
-	void onExpirationUpdatedRemovesOriginalExpirationTimeRoundedUp() throws Exception {
+	void onExpirationUpdatedRemovesOriginalExpirationTimeRoundedUp() {
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
 		long originalRoundedToNextMinInMs = RedisSessionExpirationPolicy
 				.roundUpToNextMinute(originalExpirationTimeInMs);
@@ -94,7 +94,7 @@ class RedisSessionExpirationPolicyTests {
 	}
 
 	@Test
-	void onExpirationUpdatedDoNotSendDeleteWhenExpirationTimeDoesNotChange() throws Exception {
+	void onExpirationUpdatedDoNotSendDeleteWhenExpirationTimeDoesNotChange() {
 		long originalExpirationTimeInMs = RedisSessionExpirationPolicy.expiresInMillis(this.session) - 10;
 		long originalRoundedToNextMinInMs = RedisSessionExpirationPolicy
 				.roundUpToNextMinute(originalExpirationTimeInMs);
@@ -108,7 +108,7 @@ class RedisSessionExpirationPolicyTests {
 	}
 
 	@Test
-	void onExpirationUpdatedAddsExpirationTimeRoundedUp() throws Exception {
+	void onExpirationUpdatedAddsExpirationTimeRoundedUp() {
 		long expirationTimeInMs = RedisSessionExpirationPolicy.expiresInMillis(this.session);
 		long expirationRoundedUpInMs = RedisSessionExpirationPolicy.roundUpToNextMinute(expirationTimeInMs);
 		String expectedExpireKey = this.policy.getExpirationKey(expirationRoundedUpInMs);
@@ -122,7 +122,7 @@ class RedisSessionExpirationPolicyTests {
 	}
 
 	@Test
-	void onExpirationUpdatedSetExpireSession() throws Exception {
+	void onExpirationUpdatedSetExpireSession() {
 		String sessionKey = this.policy.getSessionKey(this.session.getId());
 
 		this.policy.onExpirationUpdated(null, this.session);
@@ -133,7 +133,7 @@ class RedisSessionExpirationPolicyTests {
 	}
 
 	@Test
-	void onExpirationUpdatedDeleteOnZero() throws Exception {
+	void onExpirationUpdatedDeleteOnZero() {
 		String sessionKey = this.policy.getSessionKey("expires:" + this.session.getId());
 
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
@@ -151,7 +151,7 @@ class RedisSessionExpirationPolicyTests {
 	}
 
 	@Test
-	void onExpirationUpdatedPersistOnNegativeExpiration() throws Exception {
+	void onExpirationUpdatedPersistOnNegativeExpiration() {
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
 
 		this.session.setMaxInactiveInterval(Duration.ofSeconds(-1));

@@ -58,7 +58,7 @@ public class MessageController {
 	}
 
 	@SubscribeMapping("/users")
-	public List<String> subscribeMessages() throws Exception {
+	public List<String> subscribeMessages() {
 		return this.activeUserRepository.findAllActiveUsers();
 	}
 

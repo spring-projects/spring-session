@@ -55,7 +55,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 		private SessionRepository<S> repository;
 
 		@Test
-		void saveSessionTest() throws InterruptedException {
+		void saveSessionTest() {
 
 			S sessionToSave = this.repository.createSession();
 
@@ -94,7 +94,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 		private SessionRepository<S> repository;
 
 		@Test
-		void saveSessionTest() throws InterruptedException {
+		void saveSessionTest() {
 
 			S sessionToSave = this.repository.createSession();
 

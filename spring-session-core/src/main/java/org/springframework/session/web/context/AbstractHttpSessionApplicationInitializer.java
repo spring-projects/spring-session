@@ -23,7 +23,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Conventions;
@@ -105,7 +104,7 @@ public abstract class AbstractHttpSessionApplicationInitializer implements WebAp
 	}
 
 	@Override
-	public void onStartup(ServletContext servletContext) throws ServletException {
+	public void onStartup(ServletContext servletContext) {
 		beforeSessionRepositoryFilter(servletContext);
 		if (this.configurationClasses != null) {
 			AnnotationConfigWebApplicationContext rootAppContext = new AnnotationConfigWebApplicationContext();

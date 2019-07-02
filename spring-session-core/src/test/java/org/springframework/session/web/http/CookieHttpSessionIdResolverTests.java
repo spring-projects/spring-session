@@ -47,7 +47,7 @@ class CookieHttpSessionIdResolverTests {
 	private Session session;
 
 	@BeforeEach
-	void setup() throws Exception {
+	void setup() {
 		this.cookieName = "SESSION";
 		this.session = new MapSession();
 		this.request = new MockHttpServletRequest();
@@ -56,19 +56,19 @@ class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	void getRequestedSessionIdNull() throws Exception {
+	void getRequestedSessionIdNull() {
 		assertThat(this.strategy.resolveSessionIds(this.request)).isEmpty();
 	}
 
 	@Test
-	void getRequestedSessionIdNotNull() throws Exception {
+	void getRequestedSessionIdNotNull() {
 		setSessionCookie(this.session.getId());
 		assertThat(this.strategy.resolveSessionIds(this.request))
 				.isEqualTo(Collections.singletonList(this.session.getId()));
 	}
 
 	@Test
-	void getRequestedSessionIdNotNullCustomCookieName() throws Exception {
+	void getRequestedSessionIdNotNullCustomCookieName() {
 		setCookieName("CUSTOM");
 		setSessionCookie(this.session.getId());
 		assertThat(this.strategy.resolveSessionIds(this.request))
@@ -76,13 +76,13 @@ class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	void onNewSession() throws Exception {
+	void onNewSession() {
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		assertThat(getSessionId()).isEqualTo(this.session.getId());
 	}
 
 	@Test
-	void onNewSessionTwiceSameId() throws Exception {
+	void onNewSessionTwiceSameId() {
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 
@@ -90,7 +90,7 @@ class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	void onNewSessionTwiceNewId() throws Exception {
+	void onNewSessionTwiceNewId() {
 		Session newSession = new MapSession();
 
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
@@ -104,7 +104,7 @@ class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	void onNewSessionCookiePath() throws Exception {
+	void onNewSessionCookiePath() {
 		this.request.setContextPath("/somethingunique");
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 
@@ -113,20 +113,20 @@ class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	void onNewSessionCustomCookieName() throws Exception {
+	void onNewSessionCustomCookieName() {
 		setCookieName("CUSTOM");
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		assertThat(getSessionId()).isEqualTo(this.session.getId());
 	}
 
 	@Test
-	void onDeleteSession() throws Exception {
+	void onDeleteSession() {
 		this.strategy.expireSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();
 	}
 
 	@Test
-	void onDeleteSessionCookiePath() throws Exception {
+	void onDeleteSessionCookiePath() {
 		this.request.setContextPath("/somethingunique");
 		this.strategy.expireSession(this.request, this.response);
 
@@ -135,7 +135,7 @@ class CookieHttpSessionIdResolverTests {
 	}
 
 	@Test
-	void onDeleteSessionCustomCookieName() throws Exception {
+	void onDeleteSessionCustomCookieName() {
 		setCookieName("CUSTOM");
 		this.strategy.expireSession(this.request, this.response);
 		assertThat(getSessionId()).isEmpty();

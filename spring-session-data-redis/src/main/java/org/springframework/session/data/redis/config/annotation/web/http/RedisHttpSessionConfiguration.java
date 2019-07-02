@@ -296,7 +296,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		}
 
 		@Override
-		public void afterPropertiesSet() throws Exception {
+		public void afterPropertiesSet() {
 			if (this.configure == ConfigureRedisAction.NO_OP) {
 				return;
 			}

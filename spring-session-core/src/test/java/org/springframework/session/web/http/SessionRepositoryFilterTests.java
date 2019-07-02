@@ -96,7 +96,7 @@ class SessionRepositoryFilterTests {
 	private MockFilterChain chain;
 
 	@BeforeEach
-	void setup() throws Exception {
+	void setup() {
 		MockitoAnnotations.initMocks(this);
 		this.sessions = new HashMap<>();
 		this.sessionRepository = new MapSessionRepository(this.sessions);
@@ -1141,8 +1141,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 				String actualId = wrappedRequest.getRequestedSessionId();
 				assertThat(actualId).isEqualTo(expectedId);
 			}
@@ -1176,8 +1175,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 				wrappedRequest.getSession();
 			}
 		});
@@ -1194,8 +1192,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 				wrappedRequest.getSession().getId();
 			}
 		});
@@ -1207,8 +1204,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 				wrappedRequest.getSession().invalidate();
 			}
 		});
@@ -1223,8 +1219,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 				wrappedRequest.getSession().getId();
 			}
 		});
@@ -1235,8 +1230,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 			}
 		});
 
@@ -1252,8 +1246,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 				wrappedRequest.getSession().getId();
 			}
 		});
@@ -1263,8 +1256,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 			}
 		});
 
@@ -1279,8 +1271,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 			}
 		});
 
@@ -1298,8 +1289,7 @@ class SessionRepositoryFilterTests {
 
 		doFilter(new DoInFilter() {
 			@Override
-			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
-					throws IOException {
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
 			}
 		});
 
@@ -1505,7 +1495,7 @@ class SessionRepositoryFilterTests {
 		this.chain = new MockFilterChain();
 	}
 
-	private void nextRequest() throws Exception {
+	private void nextRequest() {
 		Map<String, Cookie> nameToCookie = new HashMap<>();
 		if (this.request.getCookies() != null) {
 			for (Cookie cookie : this.request.getCookies()) {

@@ -222,14 +222,14 @@ class SessionRepositoryMessageInterceptorTests {
 	}
 
 	@Test
-	void beforeHandshakeNotServletServerHttpRequest() throws Exception {
+	void beforeHandshakeNotServletServerHttpRequest() {
 		assertThat(this.interceptor.beforeHandshake(null, null, null, null)).isTrue();
 
 		verifyZeroInteractions(this.sessionRepository);
 	}
 
 	@Test
-	void beforeHandshakeNullSession() throws Exception {
+	void beforeHandshakeNullSession() {
 		ServletServerHttpRequest request = new ServletServerHttpRequest(new MockHttpServletRequest());
 		assertThat(this.interceptor.beforeHandshake(request, null, null, null)).isTrue();
 
@@ -237,7 +237,7 @@ class SessionRepositoryMessageInterceptorTests {
 	}
 
 	@Test
-	void beforeHandshakeSession() throws Exception {
+	void beforeHandshakeSession() {
 		MockHttpServletRequest httpRequest = new MockHttpServletRequest();
 		HttpSession httpSession = httpRequest.getSession();
 		ServletServerHttpRequest request = new ServletServerHttpRequest(httpRequest);

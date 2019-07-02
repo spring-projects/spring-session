@@ -61,7 +61,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetUnset() throws Exception {
+	void afterPropertiesSetUnset() {
 		setConfigNotification("");
 
 		this.initializer.afterPropertiesSet();
@@ -70,7 +70,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetA() throws Exception {
+	void afterPropertiesSetA() {
 		setConfigNotification("A");
 
 		this.initializer.afterPropertiesSet();
@@ -79,7 +79,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetE() throws Exception {
+	void afterPropertiesSetE() {
 		setConfigNotification("E");
 
 		this.initializer.afterPropertiesSet();
@@ -88,7 +88,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetK() throws Exception {
+	void afterPropertiesSetK() {
 		setConfigNotification("K");
 
 		this.initializer.afterPropertiesSet();
@@ -97,7 +97,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetAE() throws Exception {
+	void afterPropertiesSetAE() {
 		setConfigNotification("AE");
 
 		this.initializer.afterPropertiesSet();
@@ -106,7 +106,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetAK() throws Exception {
+	void afterPropertiesSetAK() {
 		setConfigNotification("AK");
 
 		this.initializer.afterPropertiesSet();
@@ -115,7 +115,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetEK() throws Exception {
+	void afterPropertiesSetEK() {
 		setConfigNotification("EK");
 
 		this.initializer.afterPropertiesSet();
@@ -124,7 +124,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetEg() throws Exception {
+	void afterPropertiesSetEg() {
 		setConfigNotification("Eg");
 
 		this.initializer.afterPropertiesSet();
@@ -133,7 +133,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetE$() throws Exception {
+	void afterPropertiesSetE$() {
 		setConfigNotification("E$");
 
 		this.initializer.afterPropertiesSet();
@@ -142,7 +142,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetKg() throws Exception {
+	void afterPropertiesSetKg() {
 		setConfigNotification("Kg");
 
 		this.initializer.afterPropertiesSet();
@@ -151,7 +151,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	}
 
 	@Test
-	void afterPropertiesSetAEK() throws Exception {
+	void afterPropertiesSetAEK() {
 		setConfigNotification("AEK");
 
 		this.initializer.afterPropertiesSet();
