@@ -54,9 +54,7 @@ import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -204,14 +202,7 @@ public class JdbcOperationsSessionRepository
 
 	private final IndexResolver<JdbcSession> indexResolver;
 
-	private TransactionOperations transactionOperations = new TransactionOperations() {
-
-		@Override
-		public <T> T execute(TransactionCallback<T> action) throws TransactionException {
-			return action.doInTransaction(null);
-		}
-
-	};
+	private TransactionOperations transactionOperations = TransactionOperations.withoutTransaction();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
