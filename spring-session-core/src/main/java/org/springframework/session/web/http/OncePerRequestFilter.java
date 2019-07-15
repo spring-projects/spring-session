@@ -68,13 +68,14 @@ abstract class OncePerRequestFilter implements Filter {
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String alreadyFilteredAttributeName = this.alreadyFilteredAttributeName;
-		alreadyFilteredAttributeName = updateForErrorDispatch(
-				alreadyFilteredAttributeName, request);
 		boolean hasAlreadyFilteredAttribute = request
 				.getAttribute(alreadyFilteredAttributeName) != null;
 
 		if (hasAlreadyFilteredAttribute) {
-
+			if (DispatcherType.ERROR.equals(request.getDispatcherType())) {
+				doFilterNestedErrorDispatch(httpRequest, httpResponse, filterChain);
+				return;
+			}
 			// Proceed without invoking this filter...
 			filterChain.doFilter(request, response);
 		}
@@ -91,15 +92,39 @@ abstract class OncePerRequestFilter implements Filter {
 		}
 	}
 
-	private String updateForErrorDispatch(String alreadyFilteredAttributeName,
-			ServletRequest request) {
-		// Jetty does ERROR dispatch within sendError, so request attribute is still present
-		// Use a separate attribute for ERROR dispatches
-		if (DispatcherType.ERROR.equals(request.getDispatcherType())
-				&& request.getAttribute(alreadyFilteredAttributeName) != null) {
-			return alreadyFilteredAttributeName + ".ERROR";
-		}
-		return alreadyFilteredAttributeName;
+	/**
+	 * Return the name of the request attribute that identifies that a request is already
+	 * filtered.
+	 * <p>
+	 * The default implementation takes the configured name of the concrete filter
+	 * instance and appends ".FILTERED". If the filter is not fully initialized, it falls
+	 * back to its class name.
+	 * @return the name of request attribute indicating already filtered request
+	 * @see #ALREADY_FILTERED_SUFFIX
+	 */
+	protected String getAlreadyFilteredAttributeName() {
+		return this.alreadyFilteredAttributeName;
+	}
+
+	/**
+	 * Typically an ERROR dispatch happens after the REQUEST dispatch completes, and the
+	 * filter chain starts anew. On some servers however the ERROR dispatch may be nested
+	 * within the REQUEST dispatch, e.g. as a result of calling {@code sendError} on the
+	 * response. In that case we are still in the filter chain, on the same thread, but
+	 * the request and response have been switched to the original, unwrapped ones.
+	 * <p>
+	 * Sub-classes may use this method to filter such nested ERROR dispatches and re-apply
+	 * wrapping on the request or response. {@code ThreadLocal} context, if any, should
+	 * still be active as we are still nested within the filter chain.
+	 * @param request the request
+	 * @param response the response
+	 * @param filterChain the filter chain
+	 * @throws ServletException if request is not HTTP request
+	 * @throws IOException in case of I/O operation exception
+	 */
+	protected void doFilterNestedErrorDispatch(HttpServletRequest request, HttpServletResponse response,
+			FilterChain filterChain) throws ServletException, IOException {
+		doFilter(request, response, filterChain);
 	}
 
 	/**
