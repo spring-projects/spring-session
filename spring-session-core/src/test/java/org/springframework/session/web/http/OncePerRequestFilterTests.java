@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,6 +97,37 @@ class OncePerRequestFilterTests {
 		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, filter2));
 
 		assertThat(this.invocations).containsOnly(this.filter, filter2);
+	}
+
+	@Test // gh-1470
+	void filterNestedErrorDispatch() throws ServletException, IOException {
+		TestOncePerRequestFilter filter = new TestOncePerRequestFilter();
+		this.request.setAttribute(filter.getAlreadyFilteredAttributeName(), Boolean.TRUE);
+		this.request.setDispatcherType(DispatcherType.ERROR);
+		this.request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+		filter.doFilter(this.request, new MockHttpServletResponse(), this.chain);
+		assertThat(filter.didFilter).isFalse();
+		assertThat(filter.didFilterNestedErrorDispatch).isTrue();
+	}
+
+	private static class TestOncePerRequestFilter extends OncePerRequestFilter {
+
+		private boolean didFilter;
+
+		private boolean didFilterNestedErrorDispatch;
+
+		@Override
+		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+				FilterChain filterChain) {
+			this.didFilter = true;
+		}
+
+		@Override
+		protected void doFilterNestedErrorDispatch(HttpServletRequest request, HttpServletResponse response,
+				FilterChain filterChain) {
+			this.didFilterNestedErrorDispatch = true;
+		}
+
 	}
 
 }

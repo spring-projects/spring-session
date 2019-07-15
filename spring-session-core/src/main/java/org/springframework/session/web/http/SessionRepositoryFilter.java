@@ -145,6 +145,12 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		}
 	}
 
+	@Override
+	protected void doFilterNestedErrorDispatch(HttpServletRequest request, HttpServletResponse response,
+			FilterChain filterChain) throws ServletException, IOException {
+		doFilterInternal(request, response, filterChain);
+	}
+
 	/**
 	 * Allows ensuring that the session is saved if the response is committed.
 	 *
