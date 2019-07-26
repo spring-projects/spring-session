@@ -42,6 +42,7 @@ import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
@@ -78,6 +79,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
+	private FlushMode flushMode = FlushMode.ON_SAVE;
+
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
 	private DataSource dataSource;
@@ -103,6 +106,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 			sessionRepository.setTableName(this.tableName);
 		}
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
@@ -144,6 +148,10 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	public void setCleanupCron(String cleanupCron) {
 		this.cleanupCron = cleanupCron;
+	}
+
+	public void setFlushMode(FlushMode flushMode) {
+		this.flushMode = flushMode;
 	}
 
 	public void setSaveMode(SaveMode saveMode) {
@@ -207,6 +215,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		if (StringUtils.hasText(cleanupCron)) {
 			this.cleanupCron = cleanupCron;
 		}
+		this.flushMode = attributes.getEnum("flushMode");
 		this.saveMode = attributes.getEnum("saveMode");
 	}
 

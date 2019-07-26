@@ -31,6 +31,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
@@ -134,6 +135,20 @@ class JdbcHttpSessionConfigurationTests {
 		JdbcHttpSessionConfiguration configuration = this.context.getBean(JdbcHttpSessionConfiguration.class);
 		assertThat(configuration).isNotNull();
 		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
+	}
+
+	@Test
+	void customFlushModeAnnotation() {
+		registerAndRefresh(DataSourceConfiguration.class, CustomFlushModeExpressionAnnotationConfiguration.class);
+		assertThat(this.context.getBean(JdbcHttpSessionConfiguration.class)).hasFieldOrPropertyWithValue("flushMode",
+				FlushMode.IMMEDIATE);
+	}
+
+	@Test
+	void customFlushModeSetter() {
+		registerAndRefresh(DataSourceConfiguration.class, CustomFlushModeExpressionSetterConfiguration.class);
+		assertThat(this.context.getBean(JdbcHttpSessionConfiguration.class)).hasFieldOrPropertyWithValue("flushMode",
+				FlushMode.IMMEDIATE);
 	}
 
 	@Test
@@ -311,6 +326,20 @@ class JdbcHttpSessionConfigurationTests {
 
 		CustomCleanupCronExpressionSetterConfiguration() {
 			setCleanupCron(CLEANUP_CRON_EXPRESSION);
+		}
+
+	}
+
+	@EnableJdbcHttpSession(flushMode = FlushMode.IMMEDIATE)
+	static class CustomFlushModeExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class CustomFlushModeExpressionSetterConfiguration extends JdbcHttpSessionConfiguration {
+
+		CustomFlushModeExpressionSetterConfiguration() {
+			setFlushMode(FlushMode.IMMEDIATE);
 		}
 
 	}

@@ -48,6 +48,7 @@ import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
@@ -238,6 +239,8 @@ public class JdbcOperationsSessionRepository
 
 	private LobHandler lobHandler = new DefaultLobHandler();
 
+	private FlushMode flushMode = FlushMode.ON_SAVE;
+
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
 	/**
@@ -387,6 +390,15 @@ public class JdbcOperationsSessionRepository
 	}
 
 	/**
+	 * Set the flush mode. Default is {@link FlushMode#ON_SAVE}.
+	 * @param flushMode the flush mode
+	 */
+	public void setFlushMode(FlushMode flushMode) {
+		Assert.notNull(flushMode, "flushMode must not be null");
+		this.flushMode = flushMode;
+	}
+
+	/**
 	 * Set the save mode.
 	 * @param saveMode the save mode
 	 */
@@ -401,77 +413,14 @@ public class JdbcOperationsSessionRepository
 		if (this.defaultMaxInactiveInterval != null) {
 			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
-		return new JdbcSession(delegate, UUID.randomUUID().toString(), true);
+		JdbcSession session = new JdbcSession(delegate, UUID.randomUUID().toString(), true);
+		session.flushIfRequired();
+		return session;
 	}
 
 	@Override
 	public void save(final JdbcSession session) {
-		if (session.isNew()) {
-			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-
-				@Override
-				protected void doInTransactionWithoutResult(TransactionStatus status) {
-					Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
-							.resolveIndexesFor(session);
-					JdbcOperationsSessionRepository.this.jdbcOperations
-							.update(JdbcOperationsSessionRepository.this.createSessionQuery, (ps) -> {
-								ps.setString(1, session.primaryKey);
-								ps.setString(2, session.getId());
-								ps.setLong(3, session.getCreationTime().toEpochMilli());
-								ps.setLong(4, session.getLastAccessedTime().toEpochMilli());
-								ps.setInt(5, (int) session.getMaxInactiveInterval().getSeconds());
-								ps.setLong(6, session.getExpiryTime().toEpochMilli());
-								ps.setString(7, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
-							});
-					Set<String> attributeNames = session.getAttributeNames();
-					if (!attributeNames.isEmpty()) {
-						insertSessionAttributes(session, new ArrayList<>(attributeNames));
-					}
-				}
-
-			});
-		}
-		else {
-			this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-
-				@Override
-				protected void doInTransactionWithoutResult(TransactionStatus status) {
-					if (session.isChanged()) {
-						Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
-								.resolveIndexesFor(session);
-						JdbcOperationsSessionRepository.this.jdbcOperations
-								.update(JdbcOperationsSessionRepository.this.updateSessionQuery, (ps) -> {
-									ps.setString(1, session.getId());
-									ps.setLong(2, session.getLastAccessedTime().toEpochMilli());
-									ps.setInt(3, (int) session.getMaxInactiveInterval().getSeconds());
-									ps.setLong(4, session.getExpiryTime().toEpochMilli());
-									ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
-									ps.setString(6, session.primaryKey);
-								});
-					}
-					List<String> addedAttributeNames = session.delta.entrySet().stream()
-							.filter((entry) -> entry.getValue() == DeltaValue.ADDED).map(Map.Entry::getKey)
-							.collect(Collectors.toList());
-					if (!addedAttributeNames.isEmpty()) {
-						insertSessionAttributes(session, addedAttributeNames);
-					}
-					List<String> updatedAttributeNames = session.delta.entrySet().stream()
-							.filter((entry) -> entry.getValue() == DeltaValue.UPDATED).map(Map.Entry::getKey)
-							.collect(Collectors.toList());
-					if (!updatedAttributeNames.isEmpty()) {
-						updateSessionAttributes(session, updatedAttributeNames);
-					}
-					List<String> removedAttributeNames = session.delta.entrySet().stream()
-							.filter((entry) -> entry.getValue() == DeltaValue.REMOVED).map(Map.Entry::getKey)
-							.collect(Collectors.toList());
-					if (!removedAttributeNames.isEmpty()) {
-						deleteSessionAttributes(session, removedAttributeNames);
-					}
-				}
-
-			});
-		}
-		session.clearChangeFlags();
+		session.save();
 	}
 
 	@Override
@@ -806,6 +755,7 @@ public class JdbcOperationsSessionRepository
 			if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) || SPRING_SECURITY_CONTEXT.equals(attributeName)) {
 				this.changed = true;
 			}
+			flushIfRequired();
 		}
 
 		@Override
@@ -822,6 +772,7 @@ public class JdbcOperationsSessionRepository
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.delegate.setLastAccessedTime(lastAccessedTime);
 			this.changed = true;
+			flushIfRequired();
 		}
 
 		@Override
@@ -833,6 +784,7 @@ public class JdbcOperationsSessionRepository
 		public void setMaxInactiveInterval(Duration interval) {
 			this.delegate.setMaxInactiveInterval(interval);
 			this.changed = true;
+			flushIfRequired();
 		}
 
 		@Override
@@ -843,6 +795,83 @@ public class JdbcOperationsSessionRepository
 		@Override
 		public boolean isExpired() {
 			return this.delegate.isExpired();
+		}
+
+		private void flushIfRequired() {
+			if (JdbcOperationsSessionRepository.this.flushMode == FlushMode.IMMEDIATE) {
+				save();
+			}
+		}
+
+		private void save() {
+			if (this.isNew) {
+				JdbcOperationsSessionRepository.this.transactionOperations
+						.execute(new TransactionCallbackWithoutResult() {
+
+							@Override
+							protected void doInTransactionWithoutResult(TransactionStatus status) {
+								Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
+										.resolveIndexesFor(JdbcSession.this);
+								JdbcOperationsSessionRepository.this.jdbcOperations
+										.update(JdbcOperationsSessionRepository.this.createSessionQuery, (ps) -> {
+											ps.setString(1, JdbcSession.this.primaryKey);
+											ps.setString(2, getId());
+											ps.setLong(3, getCreationTime().toEpochMilli());
+											ps.setLong(4, getLastAccessedTime().toEpochMilli());
+											ps.setInt(5, (int) getMaxInactiveInterval().getSeconds());
+											ps.setLong(6, getExpiryTime().toEpochMilli());
+											ps.setString(7, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
+										});
+								Set<String> attributeNames = getAttributeNames();
+								if (!attributeNames.isEmpty()) {
+									insertSessionAttributes(JdbcSession.this, new ArrayList<>(attributeNames));
+								}
+							}
+
+						});
+			}
+			else {
+				JdbcOperationsSessionRepository.this.transactionOperations
+						.execute(new TransactionCallbackWithoutResult() {
+
+							@Override
+							protected void doInTransactionWithoutResult(TransactionStatus status) {
+								if (JdbcSession.this.changed) {
+									Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
+											.resolveIndexesFor(JdbcSession.this);
+									JdbcOperationsSessionRepository.this.jdbcOperations
+											.update(JdbcOperationsSessionRepository.this.updateSessionQuery, (ps) -> {
+												ps.setString(1, getId());
+												ps.setLong(2, getLastAccessedTime().toEpochMilli());
+												ps.setInt(3, (int) getMaxInactiveInterval().getSeconds());
+												ps.setLong(4, getExpiryTime().toEpochMilli());
+												ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
+												ps.setString(6, JdbcSession.this.primaryKey);
+											});
+								}
+								List<String> addedAttributeNames = JdbcSession.this.delta.entrySet().stream()
+										.filter((entry) -> entry.getValue() == DeltaValue.ADDED).map(Map.Entry::getKey)
+										.collect(Collectors.toList());
+								if (!addedAttributeNames.isEmpty()) {
+									insertSessionAttributes(JdbcSession.this, addedAttributeNames);
+								}
+								List<String> updatedAttributeNames = JdbcSession.this.delta.entrySet().stream()
+										.filter((entry) -> entry.getValue() == DeltaValue.UPDATED)
+										.map(Map.Entry::getKey).collect(Collectors.toList());
+								if (!updatedAttributeNames.isEmpty()) {
+									updateSessionAttributes(JdbcSession.this, updatedAttributeNames);
+								}
+								List<String> removedAttributeNames = JdbcSession.this.delta.entrySet().stream()
+										.filter((entry) -> entry.getValue() == DeltaValue.REMOVED)
+										.map(Map.Entry::getKey).collect(Collectors.toList());
+								if (!removedAttributeNames.isEmpty()) {
+									deleteSessionAttributes(JdbcSession.this, removedAttributeNames);
+								}
+							}
+
+						});
+			}
+			clearChangeFlags();
 		}
 
 	}

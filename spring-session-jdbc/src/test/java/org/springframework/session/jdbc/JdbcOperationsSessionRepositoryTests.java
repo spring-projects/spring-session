@@ -37,9 +37,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.jdbc.JdbcOperationsSessionRepository.JdbcSession;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 
@@ -57,6 +59,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -228,6 +231,12 @@ class JdbcOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	void setFlushModeNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setFlushMode(null))
+				.withMessage("flushMode must not be null");
+	}
+
+	@Test
 	void setSaveModeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSaveMode(null))
 				.withMessage("saveMode must not be null");
@@ -252,6 +261,16 @@ class JdbcOperationsSessionRepositoryTests {
 		assertThat(session.isNew()).isTrue();
 		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(interval));
 		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	void createSessionImmediateFlushMode() {
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
+		JdbcSession session = this.repository.createSession();
+		assertThat(session.isNew()).isFalse();
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations).update(startsWith("INSERT"), isA(PreparedStatementSetter.class));
+		verifyNoMoreInteractions(this.jdbcOperations);
 	}
 
 	@Test
@@ -771,6 +790,51 @@ class JdbcOperationsSessionRepositoryTests {
 		verify(this.jdbcOperations).batchUpdate(startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"), captor.capture());
 		assertThat(captor.getValue().getBatchSize()).isEqualTo(3);
 		verifyZeroInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	void flushModeImmediateSetAttribute() {
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
+		String attrName = "someAttribute";
+		session.setAttribute(attrName, "someValue");
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+				isA(PreparedStatementSetter.class));
+		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	void flushModeImmediateRemoveAttribute() {
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
+		MapSession cached = new MapSession();
+		cached.setAttribute("attribute1", "value1");
+		JdbcSession session = this.repository.new JdbcSession(cached, "primaryKey", false);
+		session.removeAttribute("attribute1");
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations).update(startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
+				isA(PreparedStatementSetter.class));
+		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	void flushModeSetMaxInactiveIntervalInSeconds() {
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
+		session.setMaxInactiveInterval(Duration.ofSeconds(1));
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations).update(startsWith("UPDATE SPRING_SESSION SET"), isA(PreparedStatementSetter.class));
+		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	void flushModeSetLastAccessedTime() {
+		this.repository.setFlushMode(FlushMode.IMMEDIATE);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
+		session.setLastAccessedTime(Instant.now());
+		assertPropagationRequiresNew();
+		verify(this.jdbcOperations).update(startsWith("UPDATE SPRING_SESSION SET"), isA(PreparedStatementSetter.class));
+		verifyNoMoreInteractions(this.jdbcOperations);
 	}
 
 	private void assertPropagationRequiresNew() {

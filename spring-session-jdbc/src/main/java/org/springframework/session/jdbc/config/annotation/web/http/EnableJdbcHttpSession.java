@@ -26,8 +26,11 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
+import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -96,6 +99,18 @@ public @interface EnableJdbcHttpSession {
 	 * @since 2.0.0
 	 */
 	String cleanupCron() default JdbcHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
+
+	/**
+	 * Flush mode for the sessions. The default is {@code ON_SAVE} which only updates the
+	 * backing database when {@link SessionRepository#save(Session)} is invoked. In a web
+	 * environment this happens just before the HTTP response is committed.
+	 * <p>
+	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
+	 * Session are immediately written to the database.
+	 * @return the flush mode
+	 * @since 2.2.0
+	 */
+	FlushMode flushMode() default FlushMode.ON_SAVE;
 
 	/**
 	 * Save mode for the session. The default is {@link SaveMode#ON_SET_ATTRIBUTE}, which
