@@ -54,6 +54,7 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  * @author Vedran Pavic
  */
+@SuppressWarnings("deprecation")
 class RedisHttpSessionConfigurationTests {
 
 	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
