@@ -14,6 +14,7 @@ dependencies {
 	testRuntime "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "com.h2database:h2"
+	integrationTestCompile "com.ibm.db2:jcc"
 	integrationTestCompile "com.microsoft.sqlserver:mssql-jdbc"
 	integrationTestCompile "com.zaxxer:HikariCP"
 	integrationTestCompile "mysql:mysql-connector-java"
@@ -21,6 +22,7 @@ dependencies {
 	integrationTestCompile "org.hsqldb:hsqldb"
 	integrationTestCompile "org.mariadb.jdbc:mariadb-java-client"
 	integrationTestCompile "org.postgresql:postgresql"
+	integrationTestCompile "org.testcontainers:db2"
 	integrationTestCompile "org.testcontainers:mariadb"
 	integrationTestCompile "org.testcontainers:mssqlserver"
 	integrationTestCompile "org.testcontainers:mysql"

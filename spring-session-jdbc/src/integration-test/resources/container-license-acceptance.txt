@@ -1,1 +1,2 @@
+ibmcom/db2:11.5.0.0a
 mcr.microsoft.com/mssql/server:2017-CU15

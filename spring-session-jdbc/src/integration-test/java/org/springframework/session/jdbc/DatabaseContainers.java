@@ -16,6 +16,7 @@
 
 package org.springframework.session.jdbc;
 
+import org.testcontainers.containers.Db2Container;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MariaDBContainer;
@@ -31,6 +32,10 @@ import org.testcontainers.containers.PostgreSQLContainer;
 final class DatabaseContainers {
 
 	private DatabaseContainers() {
+	}
+
+	static Db211Container db211() {
+		return new Db211Container();
 	}
 
 	static MariaDBContainer mariaDb5() {
@@ -67,6 +72,14 @@ final class DatabaseContainers {
 
 	static MSSQLServerContainer sqlServer2017() {
 		return new SqlServer2017Container();
+	}
+
+	private static class Db211Container extends Db2Container {
+
+		Db211Container() {
+			super("ibmcom/db2:11.5.0.0a");
+		}
+
 	}
 
 	private static class MariaDb5Container extends MariaDBContainer<MariaDb5Container> {

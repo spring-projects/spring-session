@@ -30,6 +30,10 @@ final class DatabasePopulators {
 	private DatabasePopulators() {
 	}
 
+	static ResourceDatabasePopulator db2() {
+		return new ResourceDatabasePopulator(new ClassPathResource("org/springframework/session/jdbc/schema-db2.sql"));
+	}
+
 	static ResourceDatabasePopulator mySql() {
 		return new ResourceDatabasePopulator(
 				new ClassPathResource("org/springframework/session/jdbc/schema-mysql.sql"));
