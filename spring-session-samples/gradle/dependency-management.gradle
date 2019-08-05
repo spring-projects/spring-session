@@ -1,3 +1,5 @@
+ext['spring-framework.version'] = '5.2.0.RC1'
+
 dependencyManagement {
 	dependencies {
 		dependency 'ch.qos.logback:logback-classic:1.2.3'
