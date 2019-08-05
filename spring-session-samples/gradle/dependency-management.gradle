@@ -1,5 +1,3 @@
-ext['spring-framework.version'] = '5.2.0.BUILD-SNAPSHOT'
-
 dependencyManagement {
 	dependencies {
 		dependency 'ch.qos.logback:logback-classic:1.2.3'
