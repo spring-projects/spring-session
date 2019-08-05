@@ -88,7 +88,7 @@ final class DatabaseContainers {
 	private static class MariaDb10Container extends MariaDBContainer<MariaDb10Container> {
 
 		MariaDb10Container() {
-			super("mariadb:10.4.6");
+			super("mariadb:10.4.7");
 		}
 
 		@Override
@@ -170,7 +170,7 @@ final class DatabaseContainers {
 			extends MSSQLServerContainer<SqlServer2017Container> {
 
 		SqlServer2017Container() {
-			super("mcr.microsoft.com/mssql/server:2017-CU15");
+			super("mcr.microsoft.com/mssql/server:2017-cu16");
 		}
 
 	}
