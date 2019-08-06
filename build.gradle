@@ -4,7 +4,7 @@ buildscript {
 		snapshotBuild = version.endsWith('SNAPSHOT')
 		milestoneBuild = !(releaseBuild || snapshotBuild)
 
-		springBootVersion = '2.2.0.M4'
+		springBootVersion = '2.2.0.M5'
 	}
 
 	repositories {
