@@ -16,14 +16,13 @@
 
 package org.springframework.session.security;
 
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
@@ -110,13 +109,8 @@ public class SpringSessionBackedSessionRegistry<S extends Session> implements Se
 	 * could be derived
 	 */
 	protected String name(Object principal) {
-		if (principal instanceof UserDetails) {
-			return ((UserDetails) principal).getUsername();
-		}
-		if (principal instanceof Principal) {
-			return ((Principal) principal).getName();
-		}
-		return principal.toString();
+		// We are reusing the logic from AbstractAuthenticationToken#getName
+		return new TestingAuthenticationToken(principal, null).getName();
 	}
 
 }

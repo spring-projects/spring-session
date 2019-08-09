@@ -16,6 +16,7 @@
 
 package org.springframework.session.security;
 
+import java.security.Principal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -30,6 +31,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.session.SessionInformation;
@@ -104,11 +106,25 @@ class SpringSessionBackedSessionRegistryTest {
 	}
 
 	@Test
-	void getAllSessions() {
+	void getAllSessionsForUserDetails() {
 		setUpSessions();
-
 		List<SessionInformation> allSessionInfos = this.sessionRegistry.getAllSessions(PRINCIPAL, true);
+		assertThat(allSessionInfos).extracting("sessionId").containsExactly(SESSION_ID, SESSION_ID2);
+	}
 
+	@Test
+	void getAllSessionsForAuthenticatedPrincipal() {
+		setUpSessions();
+		List<SessionInformation> allSessionInfos = this.sessionRegistry
+				.getAllSessions((AuthenticatedPrincipal) () -> USER_NAME, true);
+		assertThat(allSessionInfos).extracting("sessionId").containsExactly(SESSION_ID, SESSION_ID2);
+	}
+
+	@Test
+	void getAllSessionsForPrincipal() {
+		setUpSessions();
+		List<SessionInformation> allSessionInfos = this.sessionRegistry.getAllSessions(new TestPrincipal(USER_NAME),
+				true);
 		assertThat(allSessionInfos).extracting("sessionId").containsExactly(SESSION_ID, SESSION_ID2);
 	}
 
@@ -157,6 +173,42 @@ class SpringSessionBackedSessionRegistryTest {
 		sessions.put(session1.getId(), session1);
 		sessions.put(session2.getId(), session2);
 		when(this.sessionRepository.findByPrincipalName(USER_NAME)).thenReturn(sessions);
+	}
+
+	private static final class TestPrincipal implements Principal {
+
+		private final String name;
+
+		private TestPrincipal(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String getName() {
+			return this.name;
+		}
+
+		@Override
+		public boolean equals(Object another) {
+			if (this == another) {
+				return true;
+			}
+			if (another instanceof TestPrincipal) {
+				return this.name.equals(((TestPrincipal) another).name);
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return this.name.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return this.name;
+		}
+
 	}
 
 }
