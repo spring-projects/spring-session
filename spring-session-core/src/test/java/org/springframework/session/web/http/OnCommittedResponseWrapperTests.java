@@ -1100,6 +1100,17 @@ class OnCommittedResponseWrapperTests {
 		assertThat(this.committed).isTrue();
 	}
 
+	// gh-7261
+	@Test
+	void contentLengthLongOutputStreamWriteStringCommits() throws IOException {
+		String body = "something";
+		this.response.setContentLengthLong(body.length());
+
+		this.response.getOutputStream().print(body);
+
+		assertThat(this.committed).isTrue();
+	}
+
 	@Test
 	void bufferSizeCommitsOnce() throws Exception {
 		String expected = "1234567890";

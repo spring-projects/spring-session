@@ -70,6 +70,12 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	}
 
 	@Override
+	public void setContentLengthLong(long len) {
+		setContentLength(len);
+		super.setContentLengthLong(len);
+	}
+
+	@Override
 	public void setContentLength(int len) {
 		setContentLength((long) len);
 		super.setContentLength(len);
