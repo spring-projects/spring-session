@@ -1104,7 +1104,7 @@ public class OnCommittedResponseWrapperTests {
 
 	// gh-7261
 	@Test
-	void contentLengthLongOutputStreamWriteStringCommits() throws IOException {
+	public void contentLengthLongOutputStreamWriteStringCommits() throws IOException {
 		String body = "something";
 		this.response.setContentLengthLong(body.length());
 
