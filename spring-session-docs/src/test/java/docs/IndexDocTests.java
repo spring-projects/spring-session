@@ -30,7 +30,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
@@ -42,7 +41,7 @@ import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -162,14 +161,14 @@ class IndexDocTests {
 		// tag::new-jdbcoperationssessionrepository[]
 		JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
-		// ... configure JdbcTemplate ...
+		// ... configure jdbcTemplate ...
 
-		PlatformTransactionManager transactionManager = new DataSourceTransactionManager();
+		TransactionTemplate transactionTemplate = new TransactionTemplate();
 
-		// ... configure transactionManager ...
+		// ... configure transactionTemplate ...
 
 		SessionRepository<? extends Session> repository = new JdbcOperationsSessionRepository(jdbcTemplate,
-				transactionManager);
+				transactionTemplate);
 		// end::new-jdbcoperationssessionrepository[]
 	}
 

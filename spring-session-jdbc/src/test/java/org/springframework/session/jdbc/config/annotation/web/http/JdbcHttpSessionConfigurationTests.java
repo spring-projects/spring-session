@@ -37,6 +37,8 @@ import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -77,7 +79,10 @@ class JdbcHttpSessionConfigurationTests {
 	void defaultConfiguration() {
 		registerAndRefresh(DataSourceConfiguration.class, DefaultConfiguration.class);
 
-		assertThat(this.context.getBean(JdbcOperationsSessionRepository.class)).isNotNull();
+		JdbcOperationsSessionRepository sessionRepository = this.context.getBean(JdbcOperationsSessionRepository.class);
+		assertThat(sessionRepository).isNotNull();
+		assertThat(sessionRepository).extracting("transactionOperations")
+				.hasFieldOrPropertyWithValue("propagationBehavior", TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 	}
 
 	@Test
@@ -223,6 +228,17 @@ class JdbcHttpSessionConfigurationTests {
 				.isThrownBy(
 						() -> registerAndRefresh(DataSourceConfiguration.class, MultipleDataSourceConfiguration.class))
 				.withMessageContaining("expected single matching bean but found 2");
+	}
+
+	@Test
+	void customTransactionOperationsConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class, CustomTransactionOperationsConfiguration.class);
+
+		JdbcOperationsSessionRepository repository = this.context.getBean(JdbcOperationsSessionRepository.class);
+		TransactionOperations transactionOperations = this.context.getBean(TransactionOperations.class);
+		assertThat(repository).isNotNull();
+		assertThat(transactionOperations).isNotNull();
+		assertThat(repository).hasFieldOrPropertyWithValue("transactionOperations", transactionOperations);
 	}
 
 	@Test
@@ -413,6 +429,16 @@ class JdbcHttpSessionConfigurationTests {
 		@Bean
 		public DataSource secondaryDataSource() {
 			return mock(DataSource.class);
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class CustomTransactionOperationsConfiguration {
+
+		@Bean
+		public TransactionOperations springSessionTransactionOperations() {
+			return TransactionOperations.withoutTransaction();
 		}
 
 	}

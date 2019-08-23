@@ -50,6 +50,9 @@ import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.TransactionOperations;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 
@@ -87,6 +90,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private PlatformTransactionManager transactionManager;
 
+	private TransactionOperations transactionOperations;
+
 	private LobHandler lobHandler;
 
 	private ConversionService springSessionConversionService;
@@ -100,8 +105,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Bean
 	public JdbcOperationsSessionRepository sessionRepository() {
 		JdbcTemplate jdbcTemplate = createJdbcTemplate(this.dataSource);
+		if (this.transactionOperations == null) {
+			this.transactionOperations = createTransactionTemplate(this.transactionManager);
+		}
 		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(jdbcTemplate,
-				this.transactionManager);
+				this.transactionOperations);
 		if (StringUtils.hasText(this.tableName)) {
 			sessionRepository.setTableName(this.tableName);
 		}
@@ -123,7 +131,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 			sessionRepository.setConversionService(this.conversionService);
 		}
 		else {
-			sessionRepository.setConversionService(createConversionServiceWithBeanClassLoader());
+			sessionRepository.setConversionService(createConversionServiceWithBeanClassLoader(this.classLoader));
 		}
 		return sessionRepository;
 	}
@@ -171,6 +179,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Autowired
 	public void setTransactionManager(PlatformTransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
+	}
+
+	@Autowired(required = false)
+	@Qualifier("springSessionTransactionOperations")
+	public void setTransactionOperations(TransactionOperations transactionOperations) {
+		this.transactionOperations = transactionOperations;
 	}
 
 	@Autowired(required = false)
@@ -230,10 +244,17 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		return jdbcTemplate;
 	}
 
-	private GenericConversionService createConversionServiceWithBeanClassLoader() {
+	private static TransactionTemplate createTransactionTemplate(PlatformTransactionManager transactionManager) {
+		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+		transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		transactionTemplate.afterPropertiesSet();
+		return transactionTemplate;
+	}
+
+	private static GenericConversionService createConversionServiceWithBeanClassLoader(ClassLoader classLoader) {
 		GenericConversionService conversionService = new GenericConversionService();
 		conversionService.addConverter(Object.class, byte[].class, new SerializingConverter());
-		conversionService.addConverter(byte[].class, Object.class, new DeserializingConverter(this.classLoader));
+		conversionService.addConverter(byte[].class, Object.class, new DeserializingConverter(classLoader));
 		return conversionService;
 	}
 

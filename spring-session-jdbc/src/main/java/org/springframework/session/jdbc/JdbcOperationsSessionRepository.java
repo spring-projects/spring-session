@@ -42,7 +42,6 @@ import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
@@ -56,8 +55,6 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
@@ -75,16 +72,16 @@ import org.springframework.util.StringUtils;
  *
  * // ... configure jdbcTemplate ...
  *
- * PlatformTransactionManager transactionManager = new DataSourceTransactionManager();
+ * TransactionTemplate transactionTemplate = new TransactionTemplate();
  *
- * // ... configure transactionManager ...
+ * // ... configure transactionTemplate ...
  *
  * JdbcOperationsSessionRepository sessionRepository =
- *         new JdbcOperationsSessionRepository(jdbcTemplate, transactionManager);
+ *         new JdbcOperationsSessionRepository(jdbcTemplate, transactionTemplate);
  * </pre>
  *
- * For additional information on how to create and configure {@link JdbcTemplate} and
- * {@link PlatformTransactionManager}, refer to the <a href=
+ * For additional information on how to create and configure {@code JdbcTemplate} and
+ * {@code TransactionTemplate}, refer to the <a href=
  * "https://docs.spring.io/spring/docs/current/spring-framework-reference/html/spring-data-tier.html">
  * Spring Framework Reference Documentation</a>.
  * <p>
@@ -200,11 +197,11 @@ public class JdbcOperationsSessionRepository
 
 	private final JdbcOperations jdbcOperations;
 
+	private final TransactionOperations transactionOperations;
+
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
 
 	private final IndexResolver<JdbcSession> indexResolver;
-
-	private TransactionOperations transactionOperations = TransactionOperations.withoutTransaction();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -237,11 +234,29 @@ public class JdbcOperationsSessionRepository
 
 	private ConversionService conversionService;
 
-	private LobHandler lobHandler = new DefaultLobHandler();
+	private LobHandler lobHandler;
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
+	/**
+	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
+	 * provided {@link JdbcOperations} and {@link TransactionOperations} to manage
+	 * sessions.
+	 * @param jdbcOperations the {@link JdbcOperations} to use
+	 * @param transactionOperations the {@link TransactionOperations} to use
+	 */
+	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations, TransactionOperations transactionOperations) {
+		Assert.notNull(jdbcOperations, "jdbcOperations must not be null");
+		Assert.notNull(transactionOperations, "transactionOperations must not be null");
+		this.jdbcOperations = jdbcOperations;
+		this.transactionOperations = transactionOperations;
+		this.indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
+		this.conversionService = createDefaultConversionService();
+		this.lobHandler = new DefaultLobHandler();
+		prepareQueries();
+	}
 
 	/**
 	 * Create a new {@link JdbcOperationsSessionRepository} instance which uses the
@@ -251,12 +266,13 @@ public class JdbcOperationsSessionRepository
 	 * propagation level of {@link TransactionDefinition#PROPAGATION_REQUIRES_NEW}.
 	 * @param jdbcOperations the {@link JdbcOperations} to use
 	 * @param transactionManager the {@link PlatformTransactionManager} to use
+	 * @deprecated since 2.2.0 in favor of
+	 * {@link #JdbcOperationsSessionRepository(JdbcOperations, TransactionOperations)}
 	 */
+	@Deprecated
 	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations,
 			PlatformTransactionManager transactionManager) {
-		this(jdbcOperations);
-		Assert.notNull(transactionManager, "TransactionManager must not be null");
-		this.transactionOperations = createTransactionTemplate(transactionManager);
+		this(jdbcOperations, createTransactionTemplate(transactionManager));
 	}
 
 	/**
@@ -265,13 +281,12 @@ public class JdbcOperationsSessionRepository
 	 * <p>
 	 * The created instance will not execute data access operations in a transaction.
 	 * @param jdbcOperations the {@link JdbcOperations} to use
+	 * @deprecated since 2.2.0 in favor of
+	 * {@link #JdbcOperationsSessionRepository(JdbcOperations, TransactionOperations)}
 	 */
+	@Deprecated
 	public JdbcOperationsSessionRepository(JdbcOperations jdbcOperations) {
-		Assert.notNull(jdbcOperations, "JdbcOperations must not be null");
-		this.jdbcOperations = jdbcOperations;
-		this.indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
-		this.conversionService = createDefaultConversionService();
-		prepareQueries();
+		this(jdbcOperations, TransactionOperations.withoutTransaction());
 	}
 
 	/**
@@ -448,15 +463,8 @@ public class JdbcOperationsSessionRepository
 
 	@Override
 	public void deleteById(final String id) {
-		this.transactionOperations.execute(new TransactionCallbackWithoutResult() {
-
-			@Override
-			protected void doInTransactionWithoutResult(TransactionStatus status) {
-				JdbcOperationsSessionRepository.this.jdbcOperations
-						.update(JdbcOperationsSessionRepository.this.deleteSessionQuery, id);
-			}
-
-		});
+		this.transactionOperations.execute(() -> JdbcOperationsSessionRepository.this.jdbcOperations
+				.update(JdbcOperationsSessionRepository.this.deleteSessionQuery, id));
 	}
 
 	@Override
@@ -581,6 +589,7 @@ public class JdbcOperationsSessionRepository
 	}
 
 	private static TransactionTemplate createTransactionTemplate(PlatformTransactionManager transactionManager) {
+		Assert.notNull(transactionManager, "transactionManager must not be null");
 		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
 		transactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 		transactionTemplate.afterPropertiesSet();
@@ -805,71 +814,59 @@ public class JdbcOperationsSessionRepository
 
 		private void save() {
 			if (this.isNew) {
-				JdbcOperationsSessionRepository.this.transactionOperations
-						.execute(new TransactionCallbackWithoutResult() {
-
-							@Override
-							protected void doInTransactionWithoutResult(TransactionStatus status) {
-								Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
-										.resolveIndexesFor(JdbcSession.this);
-								JdbcOperationsSessionRepository.this.jdbcOperations
-										.update(JdbcOperationsSessionRepository.this.createSessionQuery, (ps) -> {
-											ps.setString(1, JdbcSession.this.primaryKey);
-											ps.setString(2, getId());
-											ps.setLong(3, getCreationTime().toEpochMilli());
-											ps.setLong(4, getLastAccessedTime().toEpochMilli());
-											ps.setInt(5, (int) getMaxInactiveInterval().getSeconds());
-											ps.setLong(6, getExpiryTime().toEpochMilli());
-											ps.setString(7, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
-										});
-								Set<String> attributeNames = getAttributeNames();
-								if (!attributeNames.isEmpty()) {
-									insertSessionAttributes(JdbcSession.this, new ArrayList<>(attributeNames));
-								}
-							}
-
-						});
+				JdbcOperationsSessionRepository.this.transactionOperations.execute(() -> {
+					Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
+							.resolveIndexesFor(JdbcSession.this);
+					JdbcOperationsSessionRepository.this.jdbcOperations
+							.update(JdbcOperationsSessionRepository.this.createSessionQuery, (ps) -> {
+								ps.setString(1, JdbcSession.this.primaryKey);
+								ps.setString(2, getId());
+								ps.setLong(3, getCreationTime().toEpochMilli());
+								ps.setLong(4, getLastAccessedTime().toEpochMilli());
+								ps.setInt(5, (int) getMaxInactiveInterval().getSeconds());
+								ps.setLong(6, getExpiryTime().toEpochMilli());
+								ps.setString(7, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
+							});
+					Set<String> attributeNames = getAttributeNames();
+					if (!attributeNames.isEmpty()) {
+						insertSessionAttributes(JdbcSession.this, new ArrayList<>(attributeNames));
+					}
+				});
 			}
 			else {
-				JdbcOperationsSessionRepository.this.transactionOperations
-						.execute(new TransactionCallbackWithoutResult() {
-
-							@Override
-							protected void doInTransactionWithoutResult(TransactionStatus status) {
-								if (JdbcSession.this.changed) {
-									Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
-											.resolveIndexesFor(JdbcSession.this);
-									JdbcOperationsSessionRepository.this.jdbcOperations
-											.update(JdbcOperationsSessionRepository.this.updateSessionQuery, (ps) -> {
-												ps.setString(1, getId());
-												ps.setLong(2, getLastAccessedTime().toEpochMilli());
-												ps.setInt(3, (int) getMaxInactiveInterval().getSeconds());
-												ps.setLong(4, getExpiryTime().toEpochMilli());
-												ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
-												ps.setString(6, JdbcSession.this.primaryKey);
-											});
-								}
-								List<String> addedAttributeNames = JdbcSession.this.delta.entrySet().stream()
-										.filter((entry) -> entry.getValue() == DeltaValue.ADDED).map(Map.Entry::getKey)
-										.collect(Collectors.toList());
-								if (!addedAttributeNames.isEmpty()) {
-									insertSessionAttributes(JdbcSession.this, addedAttributeNames);
-								}
-								List<String> updatedAttributeNames = JdbcSession.this.delta.entrySet().stream()
-										.filter((entry) -> entry.getValue() == DeltaValue.UPDATED)
-										.map(Map.Entry::getKey).collect(Collectors.toList());
-								if (!updatedAttributeNames.isEmpty()) {
-									updateSessionAttributes(JdbcSession.this, updatedAttributeNames);
-								}
-								List<String> removedAttributeNames = JdbcSession.this.delta.entrySet().stream()
-										.filter((entry) -> entry.getValue() == DeltaValue.REMOVED)
-										.map(Map.Entry::getKey).collect(Collectors.toList());
-								if (!removedAttributeNames.isEmpty()) {
-									deleteSessionAttributes(JdbcSession.this, removedAttributeNames);
-								}
-							}
-
-						});
+				JdbcOperationsSessionRepository.this.transactionOperations.execute(() -> {
+					if (JdbcSession.this.changed) {
+						Map<String, String> indexes = JdbcOperationsSessionRepository.this.indexResolver
+								.resolveIndexesFor(JdbcSession.this);
+						JdbcOperationsSessionRepository.this.jdbcOperations
+								.update(JdbcOperationsSessionRepository.this.updateSessionQuery, (ps) -> {
+									ps.setString(1, getId());
+									ps.setLong(2, getLastAccessedTime().toEpochMilli());
+									ps.setInt(3, (int) getMaxInactiveInterval().getSeconds());
+									ps.setLong(4, getExpiryTime().toEpochMilli());
+									ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
+									ps.setString(6, JdbcSession.this.primaryKey);
+								});
+					}
+					List<String> addedAttributeNames = JdbcSession.this.delta.entrySet().stream()
+							.filter((entry) -> entry.getValue() == DeltaValue.ADDED).map(Map.Entry::getKey)
+							.collect(Collectors.toList());
+					if (!addedAttributeNames.isEmpty()) {
+						insertSessionAttributes(JdbcSession.this, addedAttributeNames);
+					}
+					List<String> updatedAttributeNames = JdbcSession.this.delta.entrySet().stream()
+							.filter((entry) -> entry.getValue() == DeltaValue.UPDATED).map(Map.Entry::getKey)
+							.collect(Collectors.toList());
+					if (!updatedAttributeNames.isEmpty()) {
+						updateSessionAttributes(JdbcSession.this, updatedAttributeNames);
+					}
+					List<String> removedAttributeNames = JdbcSession.this.delta.entrySet().stream()
+							.filter((entry) -> entry.getValue() == DeltaValue.REMOVED).map(Map.Entry::getKey)
+							.collect(Collectors.toList());
+					if (!removedAttributeNames.isEmpty()) {
+						deleteSessionAttributes(JdbcSession.this, removedAttributeNames);
+					}
+				});
 			}
 			clearChangeFlags();
 		}
