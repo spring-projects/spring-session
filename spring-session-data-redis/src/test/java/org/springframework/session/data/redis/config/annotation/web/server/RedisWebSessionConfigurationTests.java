@@ -25,11 +25,13 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
@@ -222,6 +224,15 @@ class RedisWebSessionConfigurationTests {
 				"serializer")).isEqualTo(redisSerializer);
 	}
 
+	@Test
+	void sessionRepositoryCustomizer() {
+		registerAndRefresh(RedisConfig.class, SessionRepositoryCustomizerConfiguration.class);
+		ReactiveRedisOperationsSessionRepository sessionRepository = this.context
+				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
+				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -344,6 +355,24 @@ class RedisWebSessionConfigurationTests {
 		@SuppressWarnings("unchecked")
 		public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
 			return mock(RedisSerializer.class);
+		}
+
+	}
+
+	@EnableRedisWebSession
+	static class SessionRepositoryCustomizerConfiguration {
+
+		@Bean
+		@Order(0)
+		public ReactiveSessionRepositoryCustomizer<ReactiveRedisOperationsSessionRepository> sessionRepositoryCustomizerOne() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+		}
+
+		@Bean
+		@Order(1)
+		public ReactiveSessionRepositoryCustomizer<ReactiveRedisOperationsSessionRepository> sessionRepositoryCustomizerTwo() {
+			return (sessionRepository) -> sessionRepository
+					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}
 
 	}

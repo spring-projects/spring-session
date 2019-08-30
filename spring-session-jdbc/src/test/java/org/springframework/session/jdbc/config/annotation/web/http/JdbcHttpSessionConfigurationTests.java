@@ -27,12 +27,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -274,6 +276,14 @@ class JdbcHttpSessionConfigurationTests {
 		assertThat(ReflectionTestUtils.getField(configuration, "tableName")).isEqualTo("custom_session_table");
 	}
 
+	@Test
+	void sessionRepositoryCustomizer() {
+		registerAndRefresh(DataSourceConfiguration.class, SessionRepositoryCustomizerConfiguration.class);
+		JdbcOperationsSessionRepository sessionRepository = this.context.getBean(JdbcOperationsSessionRepository.class);
+		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
+				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -469,6 +479,24 @@ class JdbcHttpSessionConfigurationTests {
 		@Bean
 		public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 			return new PropertySourcesPlaceholderConfigurer();
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class SessionRepositoryCustomizerConfiguration {
+
+		@Bean
+		@Order(0)
+		public SessionRepositoryCustomizer<JdbcOperationsSessionRepository> sessionRepositoryCustomizerOne() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+		}
+
+		@Bean
+		@Order(1)
+		public SessionRepositoryCustomizer<JdbcOperationsSessionRepository> sessionRepositoryCustomizerTwo() {
+			return (sessionRepository) -> sessionRepository
+					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}
 
 	}

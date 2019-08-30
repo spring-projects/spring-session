@@ -16,7 +16,9 @@
 
 package org.springframework.session.jdbc.config.annotation.web.http;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
@@ -45,6 +47,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
@@ -98,6 +101,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private ConversionService conversionService;
 
+	private List<SessionRepositoryCustomizer<JdbcOperationsSessionRepository>> sessionRepositoryCustomizers;
+
 	private ClassLoader classLoader;
 
 	private StringValueResolver embeddedValueResolver;
@@ -133,6 +138,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		else {
 			sessionRepository.setConversionService(createConversionServiceWithBeanClassLoader(this.classLoader));
 		}
+		this.sessionRepositoryCustomizers
+				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}
 
@@ -203,6 +210,12 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Qualifier("conversionService")
 	public void setConversionService(ConversionService conversionService) {
 		this.conversionService = conversionService;
+	}
+
+	@Autowired(required = false)
+	public void setSessionRepositoryCustomizer(
+			ObjectProvider<SessionRepositoryCustomizer<JdbcOperationsSessionRepository>> sessionRepositoryCustomizers) {
+		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 
 	@Override
