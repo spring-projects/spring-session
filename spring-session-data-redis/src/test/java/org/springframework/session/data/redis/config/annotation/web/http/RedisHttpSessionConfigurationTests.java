@@ -29,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
@@ -36,6 +37,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -56,6 +58,8 @@ import static org.mockito.Mockito.mock;
  */
 @SuppressWarnings("deprecation")
 class RedisHttpSessionConfigurationTests {
+
+	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 600;
 
 	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
 
@@ -238,6 +242,15 @@ class RedisHttpSessionConfigurationTests {
 		assertThat(beans).containsKeys("springSessionRedisMessageListenerContainer", "redisMessageListenerContainer");
 	}
 
+	@Test
+	void sessionRepositoryCustomizer() {
+		registerAndRefresh(RedisConfig.class, SessionRepositoryCustomizerConfiguration.class);
+		RedisOperationsSessionRepository sessionRepository = this.context
+				.getBean(RedisOperationsSessionRepository.class);
+		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
+				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -412,6 +425,24 @@ class RedisHttpSessionConfigurationTests {
 		@Bean
 		public RedisMessageListenerContainer redisMessageListenerContainer() {
 			return new RedisMessageListenerContainer();
+		}
+
+	}
+
+	@EnableRedisHttpSession
+	static class SessionRepositoryCustomizerConfiguration {
+
+		@Bean
+		@Order(0)
+		public SessionRepositoryCustomizer<RedisOperationsSessionRepository> sessionRepositoryCustomizerOne() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+		}
+
+		@Bean
+		@Order(1)
+		public SessionRepositoryCustomizer<RedisOperationsSessionRepository> sessionRepositoryCustomizerTwo() {
+			return (sessionRepository) -> sessionRepository
+					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}
 
 	}

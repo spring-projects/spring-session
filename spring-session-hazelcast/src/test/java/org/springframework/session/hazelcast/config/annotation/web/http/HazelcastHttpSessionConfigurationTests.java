@@ -26,8 +26,10 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
@@ -220,6 +222,14 @@ class HazelcastHttpSessionConfigurationTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
 				.withMessageContaining("expected single matching bean but found 2");
+	}
+
+	@Test
+	void sessionRepositoryCustomizer() {
+		registerAndRefresh(SessionRepositoryCustomizerConfiguration.class);
+		HazelcastSessionRepository sessionRepository = this.context.getBean(HazelcastSessionRepository.class);
+		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
+				MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -417,6 +427,24 @@ class HazelcastHttpSessionConfigurationTests {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(secondaryHazelcastInstanceSessions);
 			return hazelcastInstance;
+		}
+
+	}
+
+	@EnableHazelcastHttpSession
+	static class SessionRepositoryCustomizerConfiguration extends BaseConfiguration {
+
+		@Bean
+		@Order(0)
+		public SessionRepositoryCustomizer<HazelcastSessionRepository> sessionRepositoryCustomizerOne() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+		}
+
+		@Bean
+		@Order(1)
+		public SessionRepositoryCustomizer<HazelcastSessionRepository> sessionRepositoryCustomizerTwo() {
+			return (sessionRepository) -> sessionRepository
+					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}
 
 	}

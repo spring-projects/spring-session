@@ -16,7 +16,9 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.hazelcast.core.HazelcastInstance;
 
@@ -31,6 +33,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastSessionRepository;
@@ -63,6 +66,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private ApplicationEventPublisher applicationEventPublisher;
 
+	private List<SessionRepositoryCustomizer<HazelcastSessionRepository>> sessionRepositoryCustomizers;
+
 	@Bean
 	public HazelcastSessionRepository sessionRepository() {
 		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(this.hazelcastInstance);
@@ -73,6 +78,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
+		this.sessionRepositoryCustomizers
+				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}
 
@@ -111,6 +118,12 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	@Autowired
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
+	@Autowired(required = false)
+	public void setSessionRepositoryCustomizer(
+			ObjectProvider<SessionRepositoryCustomizer<HazelcastSessionRepository>> sessionRepositoryCustomizers) {
+		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 
 	@Override

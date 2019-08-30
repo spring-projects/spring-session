@@ -16,7 +16,9 @@
 
 package org.springframework.session.data.redis.config.annotation.web.server;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
@@ -36,6 +38,7 @@ import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
 import org.springframework.session.data.redis.RedisFlushMode;
@@ -68,6 +71,8 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	private RedisSerializer<Object> defaultRedisSerializer;
 
+	private List<ReactiveSessionRepositoryCustomizer<ReactiveRedisOperationsSessionRepository>> sessionRepositoryCustomizers;
+
 	private ClassLoader classLoader;
 
 	private StringValueResolver embeddedValueResolver;
@@ -82,6 +87,8 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
 		sessionRepository.setSaveMode(this.saveMode);
+		this.sessionRepositoryCustomizers
+				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}
 
@@ -118,6 +125,12 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 	@Qualifier("springSessionDefaultRedisSerializer")
 	public void setDefaultRedisSerializer(RedisSerializer<Object> defaultRedisSerializer) {
 		this.defaultRedisSerializer = defaultRedisSerializer;
+	}
+
+	@Autowired(required = false)
+	public void setSessionRepositoryCustomizer(
+			ObjectProvider<ReactiveSessionRepositoryCustomizer<ReactiveRedisOperationsSessionRepository>> sessionRepositoryCustomizers) {
+		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 
 	@Override

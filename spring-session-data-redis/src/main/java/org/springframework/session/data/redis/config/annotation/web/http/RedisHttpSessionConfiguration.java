@@ -18,8 +18,10 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.LogFactory;
 
@@ -51,6 +53,7 @@ import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisOperationsSessionRepository;
@@ -103,6 +106,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private Executor redisSubscriptionExecutor;
 
+	private List<SessionRepositoryCustomizer<RedisOperationsSessionRepository>> sessionRepositoryCustomizers;
+
 	private ClassLoader classLoader;
 
 	private StringValueResolver embeddedValueResolver;
@@ -123,6 +128,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		sessionRepository.setSaveMode(this.saveMode);
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
+		this.sessionRepositoryCustomizers
+				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}
 
@@ -219,6 +226,12 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	@Qualifier("springSessionRedisSubscriptionExecutor")
 	public void setRedisSubscriptionExecutor(Executor redisSubscriptionExecutor) {
 		this.redisSubscriptionExecutor = redisSubscriptionExecutor;
+	}
+
+	@Autowired(required = false)
+	public void setSessionRepositoryCustomizer(
+			ObjectProvider<SessionRepositoryCustomizer<RedisOperationsSessionRepository>> sessionRepositoryCustomizers) {
+		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 
 	@Override
