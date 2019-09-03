@@ -152,7 +152,7 @@ final class DatabaseContainers {
 	private static class PostgreSql9Container extends PostgreSQLContainer<PostgreSql9Container> {
 
 		PostgreSql9Container() {
-			super("postgres:9.6.14");
+			super("postgres:9.6.15");
 		}
 
 	}
@@ -160,7 +160,7 @@ final class DatabaseContainers {
 	private static class PostgreSql10Container extends PostgreSQLContainer<PostgreSql10Container> {
 
 		PostgreSql10Container() {
-			super("postgres:10.9");
+			super("postgres:10.10");
 		}
 
 	}
@@ -168,7 +168,7 @@ final class DatabaseContainers {
 	private static class PostgreSql11Container extends PostgreSQLContainer<PostgreSql11Container> {
 
 		PostgreSql11Container() {
-			super("postgres:11.4");
+			super("postgres:11.5");
 		}
 
 	}
