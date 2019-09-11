@@ -1,3 +1,5 @@
+ext['webjars-locator-core.version'] = '0.38'
+
 dependencyManagement {
 	dependencies {
 		dependency 'ch.qos.logback:logback-classic:1.2.3'
