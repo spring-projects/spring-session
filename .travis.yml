@@ -17,4 +17,4 @@ cache:
 
 install: true
 
-script: ./gradlew clean build --refresh-dependencies --no-daemon
+script: ./gradlew clean check --no-daemon --stacktrace
