@@ -23,6 +23,13 @@ apply plugin: 'io.spring.convention.root'
 group = 'org.springframework.session'
 description = 'Spring Session'
 
+configurations.all {
+	resolutionStrategy {
+		cacheChangingModulesFor 0, "seconds"
+		cacheDynamicVersionsFor 0, "seconds"
+	}
+}
+
 subprojects {
 	apply plugin: 'io.spring.javaformat'
 
