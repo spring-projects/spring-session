@@ -49,7 +49,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
-import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -81,7 +81,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-	private String tableName = JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
+	private String tableName = JdbcIndexedSessionRepository.DEFAULT_TABLE_NAME;
 
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
@@ -101,19 +101,19 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private ConversionService conversionService;
 
-	private List<SessionRepositoryCustomizer<JdbcOperationsSessionRepository>> sessionRepositoryCustomizers;
+	private List<SessionRepositoryCustomizer<JdbcIndexedSessionRepository>> sessionRepositoryCustomizers;
 
 	private ClassLoader classLoader;
 
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public JdbcOperationsSessionRepository sessionRepository() {
+	public JdbcIndexedSessionRepository sessionRepository() {
 		JdbcTemplate jdbcTemplate = createJdbcTemplate(this.dataSource);
 		if (this.transactionOperations == null) {
 			this.transactionOperations = createTransactionTemplate(this.transactionManager);
 		}
-		JdbcOperationsSessionRepository sessionRepository = new JdbcOperationsSessionRepository(jdbcTemplate,
+		JdbcIndexedSessionRepository sessionRepository = new JdbcIndexedSessionRepository(jdbcTemplate,
 				this.transactionOperations);
 		if (StringUtils.hasText(this.tableName)) {
 			sessionRepository.setTableName(this.tableName);
@@ -214,7 +214,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	@Autowired(required = false)
 	public void setSessionRepositoryCustomizer(
-			ObjectProvider<SessionRepositoryCustomizer<JdbcOperationsSessionRepository>> sessionRepositoryCustomizers) {
+			ObjectProvider<SessionRepositoryCustomizer<JdbcIndexedSessionRepository>> sessionRepositoryCustomizers) {
 		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 

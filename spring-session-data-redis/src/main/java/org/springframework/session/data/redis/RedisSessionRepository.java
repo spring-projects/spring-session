@@ -40,8 +40,7 @@ import org.springframework.util.Assert;
  * @author Vedran Pavic
  * @since 2.2.0
  */
-public class SimpleRedisOperationsSessionRepository
-		implements SessionRepository<SimpleRedisOperationsSessionRepository.RedisSession> {
+public class RedisSessionRepository implements SessionRepository<RedisSessionRepository.RedisSession> {
 
 	private static final String DEFAULT_KEY_NAMESPACE = "spring:session:";
 
@@ -56,11 +55,11 @@ public class SimpleRedisOperationsSessionRepository
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
 	/**
-	 * Create a new {@link SimpleRedisOperationsSessionRepository} instance.
+	 * Create a new {@link RedisSessionRepository} instance.
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing
 	 * sessions
 	 */
-	public SimpleRedisOperationsSessionRepository(RedisOperations<String, Object> sessionRedisOperations) {
+	public RedisSessionRepository(RedisOperations<String, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations mut not be null");
 		this.sessionRedisOperations = sessionRedisOperations;
 	}
@@ -182,7 +181,7 @@ public class SimpleRedisOperationsSessionRepository
 						(int) cached.getMaxInactiveInterval().getSeconds());
 				this.delta.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, cached.getLastAccessedTime().toEpochMilli());
 			}
-			if (this.isNew || (SimpleRedisOperationsSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
+			if (this.isNew || (RedisSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
 				getAttributeNames().forEach((attributeName) -> this.delta.put(getAttributeKey(attributeName),
 						cached.getAttribute(attributeName)));
 			}
@@ -201,8 +200,7 @@ public class SimpleRedisOperationsSessionRepository
 		@Override
 		public <T> T getAttribute(String attributeName) {
 			T attributeValue = this.cached.getAttribute(attributeName);
-			if (attributeValue != null
-					&& SimpleRedisOperationsSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
+			if (attributeValue != null && RedisSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
 				this.delta.put(getAttributeKey(attributeName), attributeValue);
 			}
 			return attributeValue;
@@ -260,7 +258,7 @@ public class SimpleRedisOperationsSessionRepository
 		}
 
 		private void flushIfRequired() {
-			if (SimpleRedisOperationsSessionRepository.this.flushMode == FlushMode.IMMEDIATE) {
+			if (RedisSessionRepository.this.flushMode == FlushMode.IMMEDIATE) {
 				save();
 			}
 		}
@@ -282,8 +280,7 @@ public class SimpleRedisOperationsSessionRepository
 				if (!this.isNew) {
 					String originalSessionIdKey = getSessionKey(this.originalSessionId);
 					String sessionIdKey = getSessionKey(getId());
-					SimpleRedisOperationsSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey,
-							sessionIdKey);
+					RedisSessionRepository.this.sessionRedisOperations.rename(originalSessionIdKey, sessionIdKey);
 				}
 				this.originalSessionId = getId();
 			}
@@ -294,9 +291,8 @@ public class SimpleRedisOperationsSessionRepository
 				return;
 			}
 			String key = getSessionKey(getId());
-			SimpleRedisOperationsSessionRepository.this.sessionRedisOperations.opsForHash().putAll(key,
-					new HashMap<>(this.delta));
-			SimpleRedisOperationsSessionRepository.this.sessionRedisOperations.expireAt(key,
+			RedisSessionRepository.this.sessionRedisOperations.opsForHash().putAll(key, new HashMap<>(this.delta));
+			RedisSessionRepository.this.sessionRedisOperations.expireAt(key,
 					Date.from(Instant.ofEpochMilli(getLastAccessedTime().toEpochMilli())
 							.plusSeconds(getMaxInactiveInterval().getSeconds())));
 			this.delta.clear();

@@ -32,7 +32,7 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.SaveMode;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
-import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
+import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -70,8 +70,7 @@ class RedisWebSessionConfigurationTests {
 	void defaultConfiguration() {
 		registerAndRefresh(RedisConfig.class, DefaultConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		assertThat(repository).isNotNull();
 	}
 
@@ -79,8 +78,7 @@ class RedisWebSessionConfigurationTests {
 	void springSessionRedisOperationsResolvingConfiguration() {
 		registerAndRefresh(RedisConfig.class, SpringSessionRedisOperationsResolvingConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		assertThat(repository).isNotNull();
 		ReactiveRedisOperations<String, Object> springSessionRedisOperations = this.context
 				.getBean(SpringSessionRedisOperationsResolvingConfig.class).getSpringSessionRedisOperations();
@@ -93,8 +91,7 @@ class RedisWebSessionConfigurationTests {
 	void customNamespace() {
 		registerAndRefresh(RedisConfig.class, CustomNamespaceConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "namespace")).isEqualTo(REDIS_NAMESPACE + ":");
 	}
@@ -103,8 +100,7 @@ class RedisWebSessionConfigurationTests {
 	void customMaxInactiveInterval() {
 		registerAndRefresh(RedisConfig.class, CustomMaxInactiveIntervalConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		assertThat(repository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
 				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
@@ -113,23 +109,22 @@ class RedisWebSessionConfigurationTests {
 	@Test
 	void customSaveModeAnnotation() {
 		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionAnnotationConfiguration.class);
-		assertThat(this.context.getBean(ReactiveRedisOperationsSessionRepository.class))
-				.hasFieldOrPropertyWithValue("saveMode", SaveMode.ALWAYS);
+		assertThat(this.context.getBean(ReactiveRedisSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+				SaveMode.ALWAYS);
 	}
 
 	@Test
 	void customSaveModeSetter() {
 		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionSetterConfiguration.class);
-		assertThat(this.context.getBean(ReactiveRedisOperationsSessionRepository.class))
-				.hasFieldOrPropertyWithValue("saveMode", SaveMode.ALWAYS);
+		assertThat(this.context.getBean(ReactiveRedisSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+				SaveMode.ALWAYS);
 	}
 
 	@Test
 	void qualifiedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, QualifiedConnectionFactoryRedisConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
 				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -145,8 +140,7 @@ class RedisWebSessionConfigurationTests {
 	void primaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, PrimaryConnectionFactoryRedisConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("primaryRedisConnectionFactory",
 				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -162,8 +156,7 @@ class RedisWebSessionConfigurationTests {
 	void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
 				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -179,8 +172,7 @@ class RedisWebSessionConfigurationTests {
 	void namedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, NamedConnectionFactoryRedisConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		ReactiveRedisConnectionFactory redisConnectionFactory = this.context.getBean("redisConnectionFactory",
 				ReactiveRedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -200,12 +192,11 @@ class RedisWebSessionConfigurationTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void customRedisSerializerConfig() {
 		registerAndRefresh(RedisConfig.class, CustomRedisSerializerConfig.class);
 
-		ReactiveRedisOperationsSessionRepository repository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
+		@SuppressWarnings("unchecked")
 		RedisSerializer<Object> redisSerializer = this.context.getBean("springSessionDefaultRedisSerializer",
 				RedisSerializer.class);
 		assertThat(repository).isNotNull();
@@ -227,8 +218,7 @@ class RedisWebSessionConfigurationTests {
 	@Test
 	void sessionRepositoryCustomizer() {
 		registerAndRefresh(RedisConfig.class, SessionRepositoryCustomizerConfiguration.class);
-		ReactiveRedisOperationsSessionRepository sessionRepository = this.context
-				.getBean(ReactiveRedisOperationsSessionRepository.class);
+		ReactiveRedisSessionRepository sessionRepository = this.context.getBean(ReactiveRedisSessionRepository.class);
 		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
 				MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
@@ -364,13 +354,13 @@ class RedisWebSessionConfigurationTests {
 
 		@Bean
 		@Order(0)
-		public ReactiveSessionRepositoryCustomizer<ReactiveRedisOperationsSessionRepository> sessionRepositoryCustomizerOne() {
+		public ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerOne() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 		@Bean
 		@Order(1)
-		public ReactiveSessionRepositoryCustomizer<ReactiveRedisOperationsSessionRepository> sessionRepositoryCustomizerTwo() {
+		public ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}

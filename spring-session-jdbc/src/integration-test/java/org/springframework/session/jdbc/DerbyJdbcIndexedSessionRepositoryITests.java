@@ -28,14 +28,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using Derby database.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using Derby database.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class DerbyJdbcOperationsSessionRepositoryITests extends AbstractJdbcOperationsSessionRepositoryITests {
+class DerbyJdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseConfig {

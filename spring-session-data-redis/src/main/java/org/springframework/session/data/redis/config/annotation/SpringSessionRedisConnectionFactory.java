@@ -24,11 +24,11 @@ import java.lang.annotation.Target;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 
 /**
  * Qualifier annotation for a {@link RedisConnectionFactory} to be injected in
- * {@link RedisOperationsSessionRepository}.
+ * {@link RedisIndexedSessionRepository}.
  *
  * @author Vedran Pavic
  * @since 2.0.0

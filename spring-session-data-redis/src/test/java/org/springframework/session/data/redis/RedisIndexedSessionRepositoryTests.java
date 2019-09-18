@@ -37,8 +37,6 @@ import org.mockito.MockitoAnnotations;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.connection.DefaultMessage;
-import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.BoundValueOperations;
@@ -50,7 +48,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -67,49 +65,40 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-@SuppressWarnings({ "unchecked", "rawtypes", "deprecation" })
-class RedisOperationsSessionRepositoryTests {
-
-	private static final String SPRING_SECURITY_CONTEXT_KEY = "SPRING_SECURITY_CONTEXT";
+class RedisIndexedSessionRepositoryTests {
 
 	@Mock
-	RedisConnectionFactory factory;
+	private RedisOperations<Object, Object> redisOperations;
 
 	@Mock
-	RedisConnection connection;
+	private BoundValueOperations<Object, Object> boundValueOperations;
 
 	@Mock
-	RedisOperations<Object, Object> redisOperations;
+	private BoundHashOperations<Object, Object, Object> boundHashOperations;
 
 	@Mock
-	BoundValueOperations<Object, Object> boundValueOperations;
+	private BoundSetOperations<Object, Object> boundSetOperations;
 
 	@Mock
-	BoundHashOperations<Object, Object, Object> boundHashOperations;
+	private ApplicationEventPublisher publisher;
 
 	@Mock
-	BoundSetOperations<Object, Object> boundSetOperations;
-
-	@Mock
-	ApplicationEventPublisher publisher;
-
-	@Mock
-	RedisSerializer<Object> defaultSerializer;
+	private RedisSerializer<Object> defaultSerializer;
 
 	@Captor
-	ArgumentCaptor<AbstractSessionEvent> event;
+	private ArgumentCaptor<AbstractSessionEvent> event;
 
 	@Captor
-	ArgumentCaptor<Map<String, Object>> delta;
+	private ArgumentCaptor<Map<String, Object>> delta;
 
 	private MapSession cached;
 
-	private RedisOperationsSessionRepository redisRepository;
+	private RedisIndexedSessionRepository redisRepository;
 
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.initMocks(this);
-		this.redisRepository = new RedisOperationsSessionRepository(this.redisOperations);
+		this.redisRepository = new RedisIndexedSessionRepository(this.redisOperations);
 		this.redisRepository.setDefaultSerializer(this.defaultSerializer);
 
 		this.cached = new MapSession();
@@ -277,7 +266,7 @@ class RedisOperationsSessionRepositoryTests {
 		this.redisRepository.save(session);
 
 		assertThat(getDelta()).isEqualTo(
-				map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
+				map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
 	}
 
 	@Test
@@ -291,7 +280,7 @@ class RedisOperationsSessionRepositoryTests {
 
 		this.redisRepository.save(session);
 
-		assertThat(getDelta()).isEqualTo(map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), null));
+		assertThat(getDelta()).isEqualTo(map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), null));
 	}
 
 	@Test
@@ -320,6 +309,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void delete() {
 		String attrName = "attrName";
 		MapSession expected = new MapSession();
@@ -327,7 +317,7 @@ class RedisOperationsSessionRepositoryTests {
 		expected.setAttribute(attrName, "attrValue");
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
-		Map map = map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), expected.getAttribute(attrName),
+		Map map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), expected.getAttribute(attrName),
 				RedisSessionMapper.CREATION_TIME_KEY, expected.getCreationTime().toEpochMilli(),
 				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) expected.getMaxInactiveInterval().getSeconds(),
 				RedisSessionMapper.LAST_ACCESSED_TIME_KEY, expected.getLastAccessedTime().toEpochMilli());
@@ -353,6 +343,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void getSessionNotFound() {
 		String id = "abc";
 		given(this.redisOperations.boundHashOps(getKey(id))).willReturn(this.boundHashOperations);
@@ -362,6 +353,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void getSessionFound() {
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";
@@ -370,8 +362,8 @@ class RedisOperationsSessionRepositoryTests {
 		expected.setAttribute(attribute1, "test");
 		expected.setAttribute(attribute2, null);
 		given(this.redisOperations.boundHashOps(getKey(expected.getId()))).willReturn(this.boundHashOperations);
-		Map map = map(RedisOperationsSessionRepository.getSessionAttrNameKey(attribute1),
-				expected.getAttribute(attribute1), RedisOperationsSessionRepository.getSessionAttrNameKey(attribute2),
+		Map map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attribute1),
+				expected.getAttribute(attribute1), RedisIndexedSessionRepository.getSessionAttrNameKey(attribute2),
 				expected.getAttribute(attribute2), RedisSessionMapper.CREATION_TIME_KEY,
 				expected.getCreationTime().toEpochMilli(), RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
 				(int) expected.getMaxInactiveInterval().getSeconds(), RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
@@ -391,6 +383,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void getSessionExpired() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.boundHashOps(getKey(expiredId))).willReturn(this.boundHashOperations);
@@ -402,6 +395,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void findByPrincipalNameExpired() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
@@ -417,6 +411,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void findByPrincipalName() {
 		Instant lastAccessed = Instant.now().minusMillis(10);
 		Instant createdTime = lastAccessed.minusMillis(10);
@@ -446,7 +441,6 @@ class RedisOperationsSessionRepositoryTests {
 
 	@Test
 	void cleanupExpiredSessions() {
-		String expiredId = "expired-id";
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 
 		Set<Object> expiredIds = new HashSet<>(Arrays.asList("expired-key1", "expired-key2"));
@@ -497,6 +491,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void onMessageDeletedSessionFound() {
 		String deletedId = "deleted-id";
 		given(this.redisOperations.boundHashOps(getKey(deletedId))).willReturn(this.boundHashOperations);
@@ -523,6 +518,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void onMessageDeletedSessionNotFound() {
 		String deletedId = "deleted-id";
 		given(this.redisOperations.boundHashOps(getKey(deletedId))).willReturn(this.boundHashOperations);
@@ -545,6 +541,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void onMessageExpiredSessionFound() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.boundHashOps(getKey(expiredId))).willReturn(this.boundHashOperations);
@@ -571,6 +568,7 @@ class RedisOperationsSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void onMessageExpiredSessionNotFound() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.boundHashOps(getKey(expiredId))).willReturn(this.boundHashOperations);
@@ -677,7 +675,7 @@ class RedisOperationsSessionRepositoryTests {
 		Map<String, Object> delta = getDelta(2);
 		assertThat(delta.size()).isEqualTo(1);
 		assertThat(delta).isEqualTo(
-				map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
+				map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
 	}
 
 	@Test
@@ -694,10 +692,11 @@ class RedisOperationsSessionRepositoryTests {
 		Map<String, Object> delta = getDelta(2);
 		assertThat(delta.size()).isEqualTo(1);
 		assertThat(delta).isEqualTo(
-				map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
+				map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void flushModeSetMaxInactiveIntervalInSeconds() {
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
@@ -734,12 +733,6 @@ class RedisOperationsSessionRepositoryTests {
 	void setFlushModeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setFlushMode(null))
 				.withMessage("flushMode cannot be null");
-	}
-
-	@Test
-	void setRedisFlushModeNull() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setRedisFlushMode(null))
-				.withMessage("redisFlushMode cannot be null");
 	}
 
 	@Test

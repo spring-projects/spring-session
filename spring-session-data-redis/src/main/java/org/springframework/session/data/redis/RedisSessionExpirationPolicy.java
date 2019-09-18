@@ -28,7 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.Session;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 
 /**
  * A strategy for expiring {@link RedisSession} instances. This performs two operations:

@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -42,7 +42,6 @@ import static org.mockito.Mockito.mock;
  *
  * @author Rob Winch
  * @author Mark Paluch
- * @since 1.0.2
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
@@ -63,10 +62,9 @@ class Gh109Tests {
 		 * override sessionRepository construction to set the custom session-timeout
 		 */
 		@Bean
-		public RedisOperationsSessionRepository sessionRepository(RedisOperations<Object, Object> sessionRedisTemplate,
+		public RedisIndexedSessionRepository sessionRepository(RedisOperations<Object, Object> sessionRedisTemplate,
 				ApplicationEventPublisher applicationEventPublisher) {
-			RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(
-					sessionRedisTemplate);
+			RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(sessionRedisTemplate);
 			sessionRepository.setDefaultMaxInactiveInterval(this.sessionTimeout);
 			return sessionRepository;
 		}

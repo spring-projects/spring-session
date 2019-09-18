@@ -16,11 +16,8 @@
 
 package org.springframework.session.jdbc;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.utility.TestcontainersConfiguration;
+import org.testcontainers.containers.MariaDBContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,43 +25,30 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.ClassUtils;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using Oracle database.
- * <p>
- * This test is conditional on presence of Oracle JDBC driver on the classpath and
- * Testcontainers property {@code oracle.container.image} being set.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using MariaDB 5.x database.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class OracleJdbcOperationsSessionRepositoryITests extends AbstractContainerJdbcOperationsSessionRepositoryITests {
-
-	@BeforeAll
-	static void setUpClass() {
-		Assumptions.assumeTrue(ClassUtils.isPresent("oracle.jdbc.OracleDriver", null),
-				"Oracle JDBC driver is present on the classpath");
-		Assumptions.assumeTrue(
-				TestcontainersConfiguration.getInstance().getProperties().getProperty("oracle.container.image") != null,
-				"Testcontainers property `oracle.container.image` is set");
-	}
+class MariaDb5JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public OracleContainer databaseContainer() {
-			OracleContainer databaseContainer = DatabaseContainers.oracle();
+		public MariaDBContainer databaseContainer() {
+			MariaDBContainer databaseContainer = DatabaseContainers.mariaDb5();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
 		public ResourceDatabasePopulator databasePopulator() {
-			return DatabasePopulators.oracle();
+			return DatabasePopulators.mySql();
 		}
 
 	}

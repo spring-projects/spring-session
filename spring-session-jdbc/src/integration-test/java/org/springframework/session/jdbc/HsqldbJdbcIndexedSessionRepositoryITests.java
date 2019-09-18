@@ -28,14 +28,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using HSQLDB database.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using HSQLDB database.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class HsqldbJdbcOperationsSessionRepositoryITests extends AbstractJdbcOperationsSessionRepositoryITests {
+class HsqldbJdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseConfig {

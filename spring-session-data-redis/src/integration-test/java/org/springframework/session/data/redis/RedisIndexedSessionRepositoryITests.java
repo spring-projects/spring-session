@@ -37,7 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.SessionEventRegistry;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository.RedisSession;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -48,17 +48,23 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * Integration tests for {@link RedisIndexedSessionRepository}.
+ *
+ * @author Rob Winch
+ * @author Vedran Pavic
+ */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
+class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 	@Autowired
-	private RedisOperationsSessionRepository repository;
+	private RedisIndexedSessionRepository repository;
 
 	@Autowired
 	private SessionEventRegistry registry;
@@ -88,7 +94,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	void saves() throws InterruptedException {
 		String username = "saves-" + System.currentTimeMillis();
 
-		String usernameSessionKey = "RedisOperationsSessionRepositoryITests:index:" + INDEX_NAME + ":" + username;
+		String usernameSessionKey = "RedisIndexedSessionRepositoryITests:index:" + INDEX_NAME + ":" + username;
 
 		RedisSession toSave = this.repository.createSession();
 		String expectedAttributeName = "a";
@@ -180,7 +186,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 
 		this.repository.save(toSave);
 
-		String body = "RedisOperationsSessionRepositoryITests:sessions:expires:" + toSave.getId();
+		String body = "RedisIndexedSessionRepositoryITests:sessions:expires:" + toSave.getId();
 		String channel = "__keyevent@0__:expired";
 		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8),
 				body.getBytes(StandardCharsets.UTF_8));
@@ -342,7 +348,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 
 		this.repository.save(toSave);
 
-		String body = "RedisOperationsSessionRepositoryITests:sessions:expires:" + toSave.getId();
+		String body = "RedisIndexedSessionRepositoryITests:sessions:expires:" + toSave.getId();
 		String channel = "__keyevent@0__:expired";
 		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8),
 				body.getBytes(StandardCharsets.UTF_8));
@@ -607,7 +613,7 @@ class RedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisNamespace = "RedisOperationsSessionRepositoryITests")
+	@EnableRedisHttpSession(redisNamespace = "RedisIndexedSessionRepositoryITests")
 	static class Config extends BaseConfig {
 
 		@Bean

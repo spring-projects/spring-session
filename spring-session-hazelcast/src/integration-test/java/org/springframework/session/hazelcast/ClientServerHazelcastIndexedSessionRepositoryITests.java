@@ -35,17 +35,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests that check the underlying data source - in this case Hazelcast
- * Client.
+ * Integration tests for {@link HazelcastIndexedSessionRepository} using client-server
+ * topology.
  *
  * @author Vedran Pavic
  * @author Artem Bilan
- * @since 1.1
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-class HazelcastClientRepositoryITests extends AbstractHazelcastRepositoryITests {
+class ClientServerHazelcastIndexedSessionRepositoryITests extends AbstractHazelcastIndexedSessionRepositoryITests {
 
 	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:3.12.2")
 			.withExposedPorts(5701).withEnv("JAVA_OPTS", "-Dhazelcast.config=/opt/hazelcast/config_ext/hazelcast.xml")

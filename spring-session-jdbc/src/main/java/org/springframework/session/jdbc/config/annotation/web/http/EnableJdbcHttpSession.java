@@ -32,7 +32,7 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
-import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
@@ -91,7 +91,7 @@ public @interface EnableJdbcHttpSession {
 	 * The name of database table used by Spring Session to store sessions.
 	 * @return the database table name
 	 */
-	String tableName() default JdbcOperationsSessionRepository.DEFAULT_TABLE_NAME;
+	String tableName() default JdbcIndexedSessionRepository.DEFAULT_TABLE_NAME;
 
 	/**
 	 * The cron expression for expired session cleanup job. By default runs every minute.

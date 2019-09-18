@@ -25,13 +25,14 @@ import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.map.EntryProcessor;
 
 import org.springframework.session.MapSession;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository.HazelcastSession;
 
 /**
  * Hazelcast {@link EntryProcessor} responsible for handling updates to session.
  *
  * @author Vedran Pavic
  * @since 1.3.4
- * @see HazelcastSessionRepository#save(HazelcastSessionRepository.HazelcastSession)
+ * @see HazelcastIndexedSessionRepository#save(HazelcastSession)
  */
 public class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSession> implements Offloadable {
 

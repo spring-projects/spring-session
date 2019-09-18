@@ -39,7 +39,7 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
-import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository.HazelcastSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,12 +57,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
- * Tests for {@link HazelcastSessionRepository}.
+ * Tests for {@link HazelcastIndexedSessionRepository}.
  *
  * @author Vedran Pavic
  * @author Aleksandar Stojsavljevic
  */
-class HazelcastSessionRepositoryTests {
+class HazelcastIndexedSessionRepositoryTests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -71,18 +71,18 @@ class HazelcastSessionRepositoryTests {
 	@SuppressWarnings("unchecked")
 	private IMap<String, MapSession> sessions = mock(IMap.class);
 
-	private HazelcastSessionRepository repository;
+	private HazelcastIndexedSessionRepository repository;
 
 	@BeforeEach
 	void setUp() {
 		given(this.hazelcastInstance.<String, MapSession>getMap(anyString())).willReturn(this.sessions);
-		this.repository = new HazelcastSessionRepository(this.hazelcastInstance);
+		this.repository = new HazelcastIndexedSessionRepository(this.hazelcastInstance);
 		this.repository.init();
 	}
 
 	@Test
 	void constructorNullHazelcastInstance() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new HazelcastSessionRepository(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new HazelcastIndexedSessionRepository(null))
 				.withMessage("HazelcastInstance must not be null");
 	}
 

@@ -36,10 +36,10 @@ import org.springframework.session.MapSessionRepository;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
-import org.springframework.session.hazelcast.HazelcastSessionRepository;
-import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -119,32 +119,31 @@ class IndexDocTests {
 
 	@Test
 	@SuppressWarnings("unused")
-	void newRedisOperationsSessionRepository() {
-		// tag::new-redisoperationssessionrepository[]
+	void newRedisIndexedSessionRepository() {
+		// tag::new-redisindexedsessionrepository[]
 		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
 
 		// ... configure redisTemplate ...
 
-		SessionRepository<? extends Session> repository = new RedisOperationsSessionRepository(redisTemplate);
-		// end::new-redisoperationssessionrepository[]
+		SessionRepository<? extends Session> repository = new RedisIndexedSessionRepository(redisTemplate);
+		// end::new-redisindexedsessionrepository[]
 	}
 
 	@Test
 	@SuppressWarnings("unused")
-	void newReactiveRedisOperationsSessionRepository() {
+	void newReactiveRedisSessionRepository() {
 		LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory();
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
 				.<String, Object>newSerializationContext(new JdkSerializationRedisSerializer()).build();
 
-		// tag::new-reactiveredisoperationssessionrepository[]
+		// tag::new-reactiveredissessionrepository[]
 		// ... create and configure connectionFactory and serializationContext ...
 
 		ReactiveRedisTemplate<String, Object> redisTemplate = new ReactiveRedisTemplate<>(connectionFactory,
 				serializationContext);
 
-		ReactiveSessionRepository<? extends Session> repository = new ReactiveRedisOperationsSessionRepository(
-				redisTemplate);
-		// end::new-reactiveredisoperationssessionrepository[]
+		ReactiveSessionRepository<? extends Session> repository = new ReactiveRedisSessionRepository(redisTemplate);
+		// end::new-reactiveredissessionrepository[]
 	}
 
 	@Test
@@ -157,8 +156,8 @@ class IndexDocTests {
 
 	@Test
 	@SuppressWarnings("unused")
-	void newJdbcOperationsSessionRepository() {
-		// tag::new-jdbcoperationssessionrepository[]
+	void newJdbcIndexedSessionRepository() {
+		// tag::new-jdbcindexedsessionrepository[]
 		JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
 		// ... configure jdbcTemplate ...
@@ -167,15 +166,15 @@ class IndexDocTests {
 
 		// ... configure transactionTemplate ...
 
-		SessionRepository<? extends Session> repository = new JdbcOperationsSessionRepository(jdbcTemplate,
+		SessionRepository<? extends Session> repository = new JdbcIndexedSessionRepository(jdbcTemplate,
 				transactionTemplate);
-		// end::new-jdbcoperationssessionrepository[]
+		// end::new-jdbcindexedsessionrepository[]
 	}
 
 	@Test
 	@SuppressWarnings("unused")
-	void newHazelcastSessionRepository() {
-		// tag::new-hazelcastsessionrepository[]
+	void newHazelcastIndexedSessionRepository() {
+		// tag::new-hazelcastindexedsessionrepository[]
 
 		Config config = new Config();
 
@@ -183,8 +182,8 @@ class IndexDocTests {
 
 		HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
 
-		HazelcastSessionRepository repository = new HazelcastSessionRepository(hazelcastInstance);
-		// end::new-hazelcastsessionrepository[]
+		HazelcastIndexedSessionRepository repository = new HazelcastIndexedSessionRepository(hazelcastInstance);
+		// end::new-hazelcastindexedsessionrepository[]
 	}
 
 	@Test

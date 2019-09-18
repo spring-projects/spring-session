@@ -33,7 +33,7 @@ import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
-import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository.RedisSession;
+import org.springframework.session.data.redis.ReactiveRedisSessionRepository.RedisSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,11 +46,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
- * Tests for {@link ReactiveRedisOperationsSessionRepository}.
+ * Tests for {@link ReactiveRedisSessionRepository}.
  *
  * @author Vedran Pavic
  */
-class ReactiveRedisOperationsSessionRepositoryTests {
+class ReactiveRedisSessionRepositoryTests {
 
 	@SuppressWarnings("unchecked")
 	private ReactiveRedisOperations<String, Object> redisOperations = mock(ReactiveRedisOperations.class);
@@ -61,13 +61,13 @@ class ReactiveRedisOperationsSessionRepositoryTests {
 	@SuppressWarnings("unchecked")
 	private ArgumentCaptor<Map<String, Object>> delta = ArgumentCaptor.forClass(Map.class);
 
-	private ReactiveRedisOperationsSessionRepository repository;
+	private ReactiveRedisSessionRepository repository;
 
 	private MapSession cached;
 
 	@BeforeEach
 	void setUp() {
-		this.repository = new ReactiveRedisOperationsSessionRepository(this.redisOperations);
+		this.repository = new ReactiveRedisSessionRepository(this.redisOperations);
 
 		this.cached = new MapSession();
 		this.cached.setId("session-id");
@@ -77,7 +77,7 @@ class ReactiveRedisOperationsSessionRepositoryTests {
 
 	@Test
 	void constructorWithNullReactiveRedisOperations() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveRedisSessionRepository(null))
 				.withMessageContaining("sessionRedisOperations cannot be null");
 	}
 
@@ -206,7 +206,7 @@ class ReactiveRedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0)).isEqualTo(
-				map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
+				map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
 	}
 
 	@Test
@@ -229,7 +229,7 @@ class ReactiveRedisOperationsSessionRepositoryTests {
 		verifyZeroInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0))
-				.isEqualTo(map(RedisOperationsSessionRepository.getSessionAttrNameKey(attrName), null));
+				.isEqualTo(map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), null));
 	}
 
 	@Test

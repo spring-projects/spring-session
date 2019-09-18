@@ -23,7 +23,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 
 /**
- * Base class for {@link RedisOperationsSessionRepository} integration tests.
+ * Base class for Redis integration tests.
  *
  * @author Vedran Pavic
  */

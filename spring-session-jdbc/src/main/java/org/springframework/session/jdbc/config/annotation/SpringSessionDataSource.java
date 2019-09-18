@@ -25,11 +25,11 @@ import java.lang.annotation.Target;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.session.jdbc.JdbcOperationsSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 
 /**
  * Qualifier annotation for a {@link DataSource} to be injected in
- * {@link JdbcOperationsSessionRepository}.
+ * {@link JdbcIndexedSessionRepository}.
  *
  * @author Vedran Pavic
  * @since 2.0.0

@@ -43,8 +43,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.jdbc.JdbcOperationsSessionRepository.JdbcSession;
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository.JdbcSession;
 import org.springframework.transaction.support.TransactionOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,49 +58,39 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
- * Tests for {@link JdbcOperationsSessionRepository}.
+ * Tests for {@link JdbcIndexedSessionRepository}.
  *
  * @author Vedran Pavic
  * @author Craig Andrews
- * @since 1.2.0
  */
-class JdbcOperationsSessionRepositoryTests {
+class JdbcIndexedSessionRepositoryTests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	@Mock
 	private JdbcOperations jdbcOperations;
 
-	private JdbcOperationsSessionRepository repository;
+	private JdbcIndexedSessionRepository repository;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
-		this.repository = new JdbcOperationsSessionRepository(this.jdbcOperations,
+		this.repository = new JdbcIndexedSessionRepository(this.jdbcOperations,
 				TransactionOperations.withoutTransaction());
 	}
 
 	@Test
 	void constructorNullJdbcOperations() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JdbcOperationsSessionRepository(null, TransactionOperations.withoutTransaction()))
+				.isThrownBy(() -> new JdbcIndexedSessionRepository(null, TransactionOperations.withoutTransaction()))
 				.withMessage("jdbcOperations must not be null");
 	}
 
 	@Test
 	void constructorNullTransactionOperations() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(
-						() -> new JdbcOperationsSessionRepository(this.jdbcOperations, (TransactionOperations) null))
+				.isThrownBy(() -> new JdbcIndexedSessionRepository(this.jdbcOperations, null))
 				.withMessage("transactionOperations must not be null");
-	}
-
-	@Test
-	@SuppressWarnings("deprecation")
-	void constructorNullTransactionManager() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> new JdbcOperationsSessionRepository(this.jdbcOperations, (PlatformTransactionManager) null))
-				.withMessage("transactionManager must not be null");
 	}
 
 	@Test
@@ -250,7 +239,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void createSessionDefaultMaxInactiveInterval() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcSession session = this.repository.createSession();
 
 		assertThat(session.isNew()).isTrue();
 		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
@@ -262,7 +251,7 @@ class JdbcOperationsSessionRepositoryTests {
 		int interval = 1;
 		this.repository.setDefaultMaxInactiveInterval(interval);
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcSession session = this.repository.createSession();
 
 		assertThat(session.isNew()).isTrue();
 		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(interval));
@@ -280,7 +269,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveNewWithoutAttributes() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcSession session = this.repository.createSession();
 
 		this.repository.save(session);
 
@@ -291,7 +280,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveNewWithSingleAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue");
 
 		this.repository.save(session);
@@ -306,7 +295,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveNewWithMultipleAttributes() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcSession session = this.repository.createSession();
 		session.setAttribute("testName1", "testValue1");
 		session.setAttribute("testName2", "testValue2");
 
@@ -322,8 +311,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedAddSingleAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName", "testValue");
 
 		this.repository.save(session);
@@ -336,8 +324,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedAddMultipleAttributes() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName1", "testValue1");
 		session.setAttribute("testName2", "testValue2");
 
@@ -351,8 +338,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedModifySingleAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName", "testValue");
 		session.clearChangeFlags();
 		session.setAttribute("testName", "testValue");
@@ -367,8 +353,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedModifyMultipleAttributes() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName1", "testValue1");
 		session.setAttribute("testName2", "testValue2");
 		session.clearChangeFlags();
@@ -385,8 +370,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedRemoveSingleAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName", "testValue");
 		session.clearChangeFlags();
 		session.removeAttribute("testName");
@@ -401,8 +385,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedRemoveNonExistingAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.removeAttribute("testName");
 
 		this.repository.save(session);
@@ -413,8 +396,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedRemoveMultipleAttributes() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName1", "testValue1");
 		session.setAttribute("testName2", "testValue2");
 		session.clearChangeFlags();
@@ -431,8 +413,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test // gh-1070
 	void saveUpdatedAddAndModifyAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName", "testValue1");
 		session.setAttribute("testName", "testValue2");
 
@@ -446,8 +427,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test // gh-1070
 	void saveUpdatedAddAndRemoveAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName", "testValue");
 		session.removeAttribute("testName");
 
@@ -459,8 +439,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test // gh-1070
 	void saveUpdatedModifyAndRemoveAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName", "testValue1");
 		session.clearChangeFlags();
 		session.setAttribute("testName", "testValue2");
@@ -476,8 +455,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test // gh-1070
 	void saveUpdatedRemoveAndAddAttribute() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setAttribute("testName", "testValue1");
 		session.clearChangeFlags();
 		session.removeAttribute("testName");
@@ -493,8 +471,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUpdatedLastAccessedTime() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setLastAccessedTime(Instant.now());
 
 		this.repository.save(session);
@@ -507,8 +484,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test
 	void saveUnchanged() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(new MapSession(),
-				"primaryKey", false);
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 
 		this.repository.save(session);
 
@@ -523,7 +499,7 @@ class JdbcOperationsSessionRepositoryTests {
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
 				isA(ResultSetExtractor.class))).willReturn(Collections.emptyList());
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.findById(sessionId);
+		JdbcSession session = this.repository.findById(sessionId);
 
 		assertThat(session).isNull();
 		verify(this.jdbcOperations, times(1)).query(isA(String.class), isA(PreparedStatementSetter.class),
@@ -538,7 +514,7 @@ class JdbcOperationsSessionRepositoryTests {
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
 				isA(ResultSetExtractor.class))).willReturn(Collections.singletonList(expired));
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.findById(expired.getId());
+		JdbcSession session = this.repository.findById(expired.getId());
 
 		assertThat(session).isNull();
 		verify(this.jdbcOperations, times(1)).query(isA(String.class), isA(PreparedStatementSetter.class),
@@ -554,7 +530,7 @@ class JdbcOperationsSessionRepositoryTests {
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
 				isA(ResultSetExtractor.class))).willReturn(Collections.singletonList(saved));
 
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.findById(saved.getId());
+		JdbcSession session = this.repository.findById(saved.getId());
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.isNew()).isFalse();
@@ -576,8 +552,7 @@ class JdbcOperationsSessionRepositoryTests {
 	void findByIndexNameAndIndexValueUnknownIndexName() {
 		String indexValue = "testIndexValue";
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions = this.repository
-				.findByIndexNameAndIndexValue("testIndexName", indexValue);
+		Map<String, JdbcSession> sessions = this.repository.findByIndexNameAndIndexValue("testIndexName", indexValue);
 
 		assertThat(sessions).isEmpty();
 		verifyNoMoreInteractions(this.jdbcOperations);
@@ -590,7 +565,7 @@ class JdbcOperationsSessionRepositoryTests {
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
 				isA(ResultSetExtractor.class))).willReturn(Collections.emptyList());
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions = this.repository
+		Map<String, JdbcSession> sessions = this.repository
 				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
 
 		assertThat(sessions).isEmpty();
@@ -614,7 +589,7 @@ class JdbcOperationsSessionRepositoryTests {
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
 				isA(ResultSetExtractor.class))).willReturn(saved);
 
-		Map<String, JdbcOperationsSessionRepository.JdbcSession> sessions = this.repository
+		Map<String, JdbcSession> sessions = this.repository
 				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
 
 		assertThat(sessions).hasSize(2);
@@ -631,7 +606,7 @@ class JdbcOperationsSessionRepositoryTests {
 
 	@Test // gh-1120
 	void getAttributeNamesAndRemove() {
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.createSession();
+		JdbcSession session = this.repository.createSession();
 		session.setAttribute("attribute1", "value1");
 		session.setAttribute("attribute2", "value2");
 
@@ -649,8 +624,7 @@ class JdbcOperationsSessionRepositoryTests {
 		delegate.setAttribute("attribute1", (Supplier<String>) () -> "value1");
 		delegate.setAttribute("attribute2", (Supplier<String>) () -> "value2");
 		delegate.setAttribute("attribute3", (Supplier<String>) () -> "value3");
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(delegate,
-				UUID.randomUUID().toString(), false);
+		JdbcSession session = this.repository.new JdbcSession(delegate, UUID.randomUUID().toString(), false);
 		session.getAttribute("attribute2");
 		session.setAttribute("attribute3", "value4");
 		this.repository.save(session);
@@ -666,8 +640,7 @@ class JdbcOperationsSessionRepositoryTests {
 		delegate.setAttribute("attribute1", (Supplier<String>) () -> "value1");
 		delegate.setAttribute("attribute2", (Supplier<String>) () -> "value2");
 		delegate.setAttribute("attribute3", (Supplier<String>) () -> "value3");
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(delegate,
-				UUID.randomUUID().toString(), false);
+		JdbcSession session = this.repository.new JdbcSession(delegate, UUID.randomUUID().toString(), false);
 		session.getAttribute("attribute2");
 		session.setAttribute("attribute3", "value4");
 		this.repository.save(session);
@@ -685,8 +658,7 @@ class JdbcOperationsSessionRepositoryTests {
 		delegate.setAttribute("attribute1", (Supplier<String>) () -> "value1");
 		delegate.setAttribute("attribute2", (Supplier<String>) () -> "value2");
 		delegate.setAttribute("attribute3", (Supplier<String>) () -> "value3");
-		JdbcOperationsSessionRepository.JdbcSession session = this.repository.new JdbcSession(delegate,
-				UUID.randomUUID().toString(), false);
+		JdbcSession session = this.repository.new JdbcSession(delegate, UUID.randomUUID().toString(), false);
 		session.getAttribute("attribute2");
 		session.setAttribute("attribute3", "value4");
 		this.repository.save(session);

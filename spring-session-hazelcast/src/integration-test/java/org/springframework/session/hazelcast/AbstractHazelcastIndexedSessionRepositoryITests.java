@@ -30,17 +30,17 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
-import org.springframework.session.hazelcast.HazelcastSessionRepository.HazelcastSession;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository.HazelcastSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Abstract base class for Hazelcast integration tests.
+ * Base class for {@link HazelcastIndexedSessionRepository} integration tests.
  *
  * @author Tommy Ludwig
  * @author Vedran Pavic
  */
-abstract class AbstractHazelcastRepositoryITests {
+abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -48,7 +48,7 @@ abstract class AbstractHazelcastRepositoryITests {
 	private HazelcastInstance hazelcastInstance;
 
 	@Autowired
-	private HazelcastSessionRepository repository;
+	private HazelcastIndexedSessionRepository repository;
 
 	@Test
 	void createAndDestroySession() {
@@ -56,7 +56,7 @@ abstract class AbstractHazelcastRepositoryITests {
 		String sessionId = sessionToSave.getId();
 
 		IMap<String, MapSession> hazelcastMap = this.hazelcastInstance
-				.getMap(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME);
+				.getMap(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME);
 
 		assertThat(hazelcastMap.size()).isEqualTo(0);
 

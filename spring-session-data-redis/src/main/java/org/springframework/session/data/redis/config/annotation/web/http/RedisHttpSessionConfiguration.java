@@ -56,7 +56,7 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.redis.RedisFlushMode;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -86,7 +86,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-	private String redisNamespace = RedisOperationsSessionRepository.DEFAULT_NAMESPACE;
+	private String redisNamespace = RedisIndexedSessionRepository.DEFAULT_NAMESPACE;
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
@@ -106,16 +106,16 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private Executor redisSubscriptionExecutor;
 
-	private List<SessionRepositoryCustomizer<RedisOperationsSessionRepository>> sessionRepositoryCustomizers;
+	private List<SessionRepositoryCustomizer<RedisIndexedSessionRepository>> sessionRepositoryCustomizers;
 
 	private ClassLoader classLoader;
 
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public RedisOperationsSessionRepository sessionRepository() {
+	public RedisIndexedSessionRepository sessionRepository() {
 		RedisTemplate<Object, Object> redisTemplate = createRedisTemplate();
-		RedisOperationsSessionRepository sessionRepository = new RedisOperationsSessionRepository(redisTemplate);
+		RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(redisTemplate);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
 		if (this.defaultRedisSerializer != null) {
 			sessionRepository.setDefaultSerializer(this.defaultRedisSerializer);
@@ -135,7 +135,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	@Bean
 	public RedisMessageListenerContainer springSessionRedisMessageListenerContainer(
-			RedisOperationsSessionRepository sessionRepository) {
+			RedisIndexedSessionRepository sessionRepository) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
 		container.setConnectionFactory(this.redisConnectionFactory);
 		if (this.redisTaskExecutor != null) {
@@ -230,7 +230,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	@Autowired(required = false)
 	public void setSessionRepositoryCustomizer(
-			ObjectProvider<SessionRepositoryCustomizer<RedisOperationsSessionRepository>> sessionRepositoryCustomizers) {
+			ObjectProvider<SessionRepositoryCustomizer<RedisIndexedSessionRepository>> sessionRepositoryCustomizers) {
 		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 
@@ -295,7 +295,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 				&& this.redisConnectionFactory instanceof JedisConnectionFactory) {
 			return ((JedisConnectionFactory) this.redisConnectionFactory).getDatabase();
 		}
-		return RedisOperationsSessionRepository.DEFAULT_DATABASE;
+		return RedisIndexedSessionRepository.DEFAULT_DATABASE;
 	}
 
 	/**

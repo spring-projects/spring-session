@@ -14,37 +14,42 @@
  * limitations under the License.
  */
 
-package org.springframework.session.hazelcast;
+package org.springframework.session.jdbc;
 
-import com.hazelcast.core.HazelcastInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests that check the underlying data source - in this case Hazelcast
- * Server.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using PostgreSQL 9.x
+ * database.
  *
- * @author Tommy Ludwig
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration
 @WebAppConfiguration
-class HazelcastServerRepositoryITests extends AbstractHazelcastRepositoryITests {
+@ContextConfiguration
+class PostgreSql9JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
 
-	@EnableHazelcastHttpSession
 	@Configuration
-	static class HazelcastSessionConfig {
+	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public HazelcastInstance hazelcastInstance() {
-			return HazelcastITestUtils.embeddedHazelcastServer();
+		public PostgreSQLContainer databaseContainer() {
+			PostgreSQLContainer databaseContainer = DatabaseContainers.postgreSql9();
+			databaseContainer.start();
+			return databaseContainer;
+		}
+
+		@Bean
+		public ResourceDatabasePopulator databasePopulator() {
+			return DatabasePopulators.postgreSql();
 		}
 
 	}

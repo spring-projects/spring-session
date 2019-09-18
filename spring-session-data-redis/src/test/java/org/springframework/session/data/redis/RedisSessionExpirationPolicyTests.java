@@ -66,7 +66,7 @@ class RedisSessionExpirationPolicyTests {
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.initMocks(this);
-		RedisOperationsSessionRepository repository = new RedisOperationsSessionRepository(this.sessionRedisOperations);
+		RedisIndexedSessionRepository repository = new RedisIndexedSessionRepository(this.sessionRedisOperations);
 		this.policy = new RedisSessionExpirationPolicy(this.sessionRedisOperations, repository::getExpirationsKey,
 				repository::getSessionKey);
 		this.session = new MapSession();

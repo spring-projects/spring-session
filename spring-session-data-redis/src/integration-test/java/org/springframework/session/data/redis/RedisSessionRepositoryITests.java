@@ -32,7 +32,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.MapSession;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
-import org.springframework.session.data.redis.SimpleRedisOperationsSessionRepository.RedisSession;
+import org.springframework.session.data.redis.RedisSessionRepository.RedisSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -41,17 +41,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
- * Integration tests for {@link SimpleRedisOperationsSessionRepository}.
+ * Integration tests for {@link RedisSessionRepository}.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
+class RedisSessionRepositoryITests extends AbstractRedisITests {
 
 	@Autowired
-	private SimpleRedisOperationsSessionRepository sessionRepository;
+	private RedisSessionRepository sessionRepository;
 
 	@Test
 	void save_NewSession_ShouldSaveSession() {
@@ -227,11 +227,11 @@ class SimpleRedisOperationsSessionRepositoryITests extends AbstractRedisITests {
 	static class Config extends BaseConfig {
 
 		@Bean
-		public SimpleRedisOperationsSessionRepository sessionRepository(RedisConnectionFactory redisConnectionFactory) {
+		public RedisSessionRepository sessionRepository(RedisConnectionFactory redisConnectionFactory) {
 			RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 			redisTemplate.setConnectionFactory(redisConnectionFactory);
 			redisTemplate.afterPropertiesSet();
-			return new SimpleRedisOperationsSessionRepository(redisTemplate);
+			return new RedisSessionRepository(redisTemplate);
 		}
 
 	}

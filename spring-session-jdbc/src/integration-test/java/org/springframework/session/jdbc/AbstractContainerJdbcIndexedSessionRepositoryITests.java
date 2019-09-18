@@ -26,13 +26,12 @@ import org.springframework.jdbc.datasource.init.DataSourceInitializer;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
 
 /**
- * Abstract base class for Testcontainers based {@link JdbcOperationsSessionRepository}
- * integration tests.
+ * Base class for Testcontainers based {@link JdbcIndexedSessionRepository} integration
+ * tests.
  *
  * @author Vedran Pavic
  */
-abstract class AbstractContainerJdbcOperationsSessionRepositoryITests
-		extends AbstractJdbcOperationsSessionRepositoryITests {
+abstract class AbstractContainerJdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSessionRepositoryITests {
 
 	static class BaseContainerConfig extends BaseConfig {
 

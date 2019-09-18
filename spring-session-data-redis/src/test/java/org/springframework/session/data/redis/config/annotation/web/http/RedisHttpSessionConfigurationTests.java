@@ -39,7 +39,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisFlushMode;
-import org.springframework.session.data.redis.RedisOperationsSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -56,7 +56,6 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  * @author Vedran Pavic
  */
-@SuppressWarnings("deprecation")
 class RedisHttpSessionConfigurationTests {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 600;
@@ -97,8 +96,7 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void customFlushImmediately() {
 		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelyConfiguration.class);
-		RedisOperationsSessionRepository sessionRepository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
@@ -106,8 +104,7 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void customFlushImmediatelyLegacy() {
 		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelyLegacyConfiguration.class);
-		RedisOperationsSessionRepository sessionRepository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
@@ -115,8 +112,7 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void setCustomFlushImmediately() {
 		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelySetConfiguration.class);
-		RedisOperationsSessionRepository sessionRepository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
@@ -124,8 +120,7 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void setCustomFlushImmediatelyLegacy() {
 		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelySetLegacyConfiguration.class);
-		RedisOperationsSessionRepository sessionRepository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
@@ -151,14 +146,14 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void customSaveModeAnnotation() {
 		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionAnnotationConfiguration.class);
-		assertThat(this.context.getBean(RedisOperationsSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+		assertThat(this.context.getBean(RedisIndexedSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
 				SaveMode.ALWAYS);
 	}
 
 	@Test
 	void customSaveModeSetter() {
 		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionSetterConfiguration.class);
-		assertThat(this.context.getBean(RedisOperationsSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+		assertThat(this.context.getBean(RedisIndexedSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
 				SaveMode.ALWAYS);
 	}
 
@@ -166,7 +161,7 @@ class RedisHttpSessionConfigurationTests {
 	void qualifiedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, QualifiedConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -182,7 +177,7 @@ class RedisHttpSessionConfigurationTests {
 	void primaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, PrimaryConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("primaryRedisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -198,7 +193,7 @@ class RedisHttpSessionConfigurationTests {
 	void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -214,7 +209,7 @@ class RedisHttpSessionConfigurationTests {
 	void namedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, NamedConnectionFactoryRedisConfig.class);
 
-		RedisOperationsSessionRepository repository = this.context.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("redisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -245,8 +240,7 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void sessionRepositoryCustomizer() {
 		registerAndRefresh(RedisConfig.class, SessionRepositoryCustomizerConfiguration.class);
-		RedisOperationsSessionRepository sessionRepository = this.context
-				.getBean(RedisOperationsSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
 				MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
@@ -294,6 +288,7 @@ class RedisHttpSessionConfigurationTests {
 	}
 
 	@Configuration
+	@SuppressWarnings("deprecation")
 	static class CustomFlushImmediatelySetLegacyConfiguration extends RedisHttpSessionConfiguration {
 
 		CustomFlushImmediatelySetLegacyConfiguration() {
@@ -310,6 +305,7 @@ class RedisHttpSessionConfigurationTests {
 
 	@Configuration
 	@EnableRedisHttpSession(redisFlushMode = RedisFlushMode.IMMEDIATE)
+	@SuppressWarnings("deprecation")
 	static class CustomFlushImmediatelyLegacyConfiguration {
 
 	}
@@ -434,13 +430,13 @@ class RedisHttpSessionConfigurationTests {
 
 		@Bean
 		@Order(0)
-		public SessionRepositoryCustomizer<RedisOperationsSessionRepository> sessionRepositoryCustomizerOne() {
+		public SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerOne() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 		@Bean
 		@Order(1)
-		public SessionRepositoryCustomizer<RedisOperationsSessionRepository> sessionRepositoryCustomizerTwo() {
+		public SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}

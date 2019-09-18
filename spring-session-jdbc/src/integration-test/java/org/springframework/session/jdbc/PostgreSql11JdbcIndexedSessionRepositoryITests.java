@@ -17,7 +17,7 @@
 package org.springframework.session.jdbc;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.MariaDBContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using MariaDB 10.x
+ * Integration tests for {@link JdbcIndexedSessionRepository} using PostgreSQL 11.x
  * database.
  *
  * @author Vedran Pavic
@@ -35,21 +35,21 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class MariaDb10JdbcOperationsSessionRepositoryITests extends AbstractContainerJdbcOperationsSessionRepositoryITests {
+class PostgreSql11JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public MariaDBContainer databaseContainer() {
-			MariaDBContainer databaseContainer = DatabaseContainers.mariaDb10();
+		public PostgreSQLContainer databaseContainer() {
+			PostgreSQLContainer databaseContainer = DatabaseContainers.postgreSql11();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
 		public ResourceDatabasePopulator databasePopulator() {
-			return DatabasePopulators.mySql();
+			return DatabasePopulators.postgreSql();
 		}
 
 	}

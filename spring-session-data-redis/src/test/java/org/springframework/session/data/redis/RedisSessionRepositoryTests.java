@@ -36,7 +36,7 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
-import org.springframework.session.data.redis.SimpleRedisOperationsSessionRepository.RedisSession;
+import org.springframework.session.data.redis.RedisSessionRepository.RedisSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,11 +48,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
- * Tests for {@link SimpleRedisOperationsSessionRepository}.
+ * Tests for {@link RedisSessionRepository}.
  *
  * @author Vedran Pavic
  */
-class SimpleRedisOperationsSessionRepositoryTests {
+class RedisSessionRepositoryTests {
 
 	private static final String TEST_SESSION_ID = "session-id";
 
@@ -67,18 +67,18 @@ class SimpleRedisOperationsSessionRepositoryTests {
 	@Captor
 	private ArgumentCaptor<Map<String, Object>> delta;
 
-	private SimpleRedisOperationsSessionRepository sessionRepository;
+	private RedisSessionRepository sessionRepository;
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.initMocks(this);
 		given(this.sessionRedisOperations.<String, Object>opsForHash()).willReturn(this.sessionHashOperations);
-		this.sessionRepository = new SimpleRedisOperationsSessionRepository(this.sessionRedisOperations);
+		this.sessionRepository = new RedisSessionRepository(this.sessionRedisOperations);
 	}
 
 	@Test
 	void constructor_NullRedisOperations_ShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveRedisOperationsSessionRepository(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveRedisSessionRepository(null))
 				.withMessageContaining("sessionRedisOperations cannot be null");
 	}
 

@@ -42,7 +42,7 @@ public final class HazelcastITestUtils {
 	 */
 	public static HazelcastInstance embeddedHazelcastServer(int port) {
 		MapAttributeConfig attributeConfig = new MapAttributeConfig()
-				.setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
 				.setExtractor(PrincipalNameExtractor.class.getName());
 
 		Config config = new Config();
@@ -53,8 +53,9 @@ public final class HazelcastITestUtils {
 
 		networkConfig.getJoin().getMulticastConfig().setEnabled(false);
 
-		config.getMapConfig(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME).addMapAttributeConfig(attributeConfig)
-				.addMapIndexConfig(new MapIndexConfig(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
+				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
+						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
 
 		return Hazelcast.newHazelcastInstance(config);
 	}

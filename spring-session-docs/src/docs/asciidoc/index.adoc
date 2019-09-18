@@ -75,7 +75,7 @@ To get started with Spring Session, the best place to start is our Sample Applic
 |
 
 | {gh-samples-url}spring-session-sample-boot-redis-simple[HttpSession with simple Redis `SessionRepository`]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using `SimpleRedisOperationsSessionRepository`.
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using `RedisSessionRepository`.
 |
 
 |===
@@ -590,12 +590,12 @@ You can browse the complete link:../../api/[Javadoc] online. The key APIs are de
 * <<api-reactivesessionrepository>>
 * <<api-enablespringhttpsession>>
 * <<api-enablespringwebsession>>
-* <<api-redisoperationssessionrepository>>
-* <<api-reactiveredisoperationssessionrepository>>
+* <<api-redisindexedsessionrepository>>
+* <<api-reactiveredissessionrepository>>
 * <<api-mapsessionrepository>>
 * <<api-reactivemapsessionrepository>>
-* <<api-jdbcoperationssessionrepository>>
-* <<api-hazelcastsessionrepository>>
+* <<api-jdbcindexedsessionrepository>>
+* <<api-hazelcastindexedsessionrepository>>
 
 [[api-session]]
 === Using `Session`
@@ -727,31 +727,31 @@ Note that no infrastructure for session expirations is configured for you.
 This is because things such as session expiration are highly implementation-dependent.
 This means that, if you require cleaning up expired sessions, you are responsible for cleaning up the expired sessions.
 
-[[api-redisoperationssessionrepository]]
-=== Using `RedisOperationsSessionRepository`
+[[api-redisindexedsessionrepository]]
+=== Using `RedisIndexedSessionRepository`
 
-`RedisOperationsSessionRepository` is a `SessionRepository` that is implemented by using Spring Data's `RedisOperations`.
+`RedisIndexedSessionRepository` is a `SessionRepository` that is implemented by using Spring Data's `RedisOperations`.
 In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
 The implementation supports `SessionDestroyedEvent` and `SessionCreatedEvent` through `SessionMessageListener`.
 
-[[api-redisoperationssessionrepository-new]]
-==== Instantiating a `RedisOperationsSessionRepository`
+[[api-redisindexedsessionrepository-new]]
+==== Instantiating a `RedisIndexedSessionRepository`
 
 You can see a typical example of how to create a new instance in the following listing:
 
 ====
 [source,java,indent=0]
 ----
-include::{indexdoc-tests}[tags=new-redisoperationssessionrepository]
+include::{indexdoc-tests}[tags=new-redisindexedsessionrepository]
 ----
 ====
 
 For additional information on how to create a `RedisConnectionFactory`, see the Spring Data Redis Reference.
 
-[[api-redisoperationssessionrepository-config]]
+[[api-redisindexedsessionrepository-config]]
 ==== Using `@EnableRedisHttpSession`
 
-In a web environment, the simplest way to create a new `RedisOperationsSessionRepository` is to use `@EnableRedisHttpSession`.
+In a web environment, the simplest way to create a new `RedisIndexedSessionRepository` is to use `@EnableRedisHttpSession`.
 You can find complete example usage in the <<samples>>.
 You can use the following attributes to customize the configuration:
 
@@ -766,11 +766,11 @@ You can customize the serialization by creating a bean named `springSessionDefau
 
 ==== Redis `TaskExecutor`
 
-`RedisOperationsSessionRepository` is subscribed to receive events from Redis by using a `RedisMessageListenerContainer`.
+`RedisIndexedSessionRepository` is subscribed to receive events from Redis by using a `RedisMessageListenerContainer`.
 You can customize the way those events are dispatched by creating a bean named `springSessionRedisTaskExecutor`, a bean `springSessionRedisSubscriptionExecutor`, or both.
 You can find more details on configuring Redis task executors https://docs.spring.io/spring-data-redis/docs/{spring-data-redis-version}/reference/html/#redis:pubsub:subscribe:containers[here].
 
-[[api-redisoperationssessionrepository-storage]]
+[[api-redisindexedsessionrepository-storage]]
 ==== Storage Details
 
 The following sections outline how Redis is updated for each operation.
@@ -819,10 +819,10 @@ In the preceding example, the following statements are true about the session:
 The first is `attrName`, with a value of `someAttrValue`.
 The second session attribute is named `attrName2`, with a value of `someAttrValue2`.
 
-[[api-redisoperationssessionrepository-writes]]
+[[api-redisindexedsessionrepository-writes]]
 ===== Optimized Writes
 
-The `Session` instances managed by `RedisOperationsSessionRepository` keeps track of the properties that have changed and updates only those.
+The `Session` instances managed by `RedisIndexedSessionRepository` keeps track of the properties that have changed and updates only those.
 This means that, if an attribute is written once and read many times, we need to write that attribute only once.
 For example, assume the `sessionAttr2` session attribute from the lsiting in the preceding section was updated.
 The following command would be run upon saving:
@@ -833,7 +833,7 @@ HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe sessionAttr:a
 ----
 ====
 
-[[api-redisoperationssessionrepository-expiration]]
+[[api-redisindexedsessionrepository-expiration]]
 ===== Session Expiration
 
 An expiration is associated with each session by using the `EXPIRE` command, based upon the `Session.getMaxInactiveInterval()`.
@@ -852,7 +852,7 @@ An expiration is set on the session itself five minutes after it actually expire
 NOTE: The `SessionRepository.findById(String)` method ensures that no expired sessions are returned.
 This means that you need not check the expiration before using a session.
 
-Spring Session relies on the delete and expired https://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisoperationssessionrepository-sessiondestroyedevent,`SessionDeletedEvent`>> and a <<api-redisoperationssessionrepository-sessiondestroyedevent,`SessionExpiredEvent`>>, respectively.
+Spring Session relies on the delete and expired https://redis.io/topics/notifications[keyspace notifications] from Redis to fire a <<api-redisindexedsessionrepository-sessiondestroyedevent,`SessionDeletedEvent`>> and a <<api-redisindexedsessionrepository-sessiondestroyedevent,`SessionExpiredEvent`>>, respectively.
 `SessionDeletedEvent` or `SessionExpiredEvent` ensure that resources associated with the `Session` are cleaned up.
 For example, when you use Spring Session's WebSocket support, the Redis expired or delete event triggers any WebSocket connections associated with the session to be closed.
 
@@ -893,12 +893,12 @@ Short of using distributed locks (which would kill our performance), there is no
 By simply accessing the key, we ensure that the key is only removed if the TTL on that key is expired.
 
 
-[[api-redisoperationssessionrepository-sessiondestroyedevent]]
+[[api-redisindexedsessionrepository-sessiondestroyedevent]]
 ==== `SessionDeletedEvent` and `SessionExpiredEvent`
 
 `SessionDeletedEvent` and `SessionExpiredEvent` are both types of `SessionDestroyedEvent`.
 
-`RedisOperationsSessionRepository` supports firing a `SessionDeletedEvent` when a `Session` is deleted or a `SessionExpiredEvent` when a `Session` expires.
+`RedisIndexedSessionRepository` supports firing a `SessionDeletedEvent` when a `Session` is deleted or a `SessionExpiredEvent` when a `Session` expires.
 This is necessary to ensure resources associated with the `Session` are properly cleaned up.
 
 For example, when integrating with WebSockets, the `SessionDestroyedEvent` is in charge of closing any active WebSocket connections.
@@ -937,15 +937,15 @@ include::{docs-test-resources-dir}docs/HttpSessionConfigurationNoOpConfigureRedi
 ----
 ====
 
-[[api-redisoperationssessionrepository-sessioncreatedevent]]
+[[api-redisindexedsessionrepository-sessioncreatedevent]]
 ==== Using `SessionCreatedEvent`
 
 When a session is created, an event is sent to Redis with a channel ID of `spring:session:channel:created:33fdd1b6-b496-4b33-9f7d-df96679d32fe`,
 where `33fdd1b6-b496-4b33-9f7d-df96679d32fe` is the session ID. The body of the event is the session that was created.
 
-If registered as a `MessageListener` (the default), `RedisOperationsSessionRepository` then translates the Redis message into a `SessionCreatedEvent`.
+If registered as a `MessageListener` (the default), `RedisIndexedSessionRepository` then translates the Redis message into a `SessionCreatedEvent`.
 
-[[api-redisoperationssessionrepository-cli]]
+[[api-redisindexedsessionrepository-cli]]
 ==== Viewing the Session in Redis
 
 After https://redis.io/topics/quickstart[installing redis-cli], you can inspect the values in Redis https://redis.io/commands#hash[using the redis-cli].
@@ -980,30 +980,30 @@ redis 127.0.0.1:6379> hget spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed
 ----
 ====
 
-[[api-reactiveredisoperationssessionrepository]]
-=== Using `ReactiveRedisOperationsSessionRepository`
+[[api-reactiveredissessionrepository]]
+=== Using `ReactiveRedisSessionRepository`
 
-`ReactiveRedisOperationsSessionRepository` is a `ReactiveSessionRepository` that is implemented by using Spring Data's `ReactiveRedisOperations`.
+`ReactiveRedisSessionRepository` is a `ReactiveSessionRepository` that is implemented by using Spring Data's `ReactiveRedisOperations`.
 In a web environment, this is typically used in combination with `WebSessionStore`.
 
-[[api-reactiveredisoperationssessionrepository-new]]
-==== Instantiating a `ReactiveRedisOperationsSessionRepository`
+[[api-reactiveredissessionrepository-new]]
+==== Instantiating a `ReactiveRedisSessionRepository`
 
 The following example shows how to create a new instance:
 
 ====
 [source,java,indent=0]
 ----
-include::{indexdoc-tests}[tags=new-reactiveredisoperationssessionrepository]
+include::{indexdoc-tests}[tags=new-reactiveredissessionrepository]
 ----
 ====
 
 For additional information on how to create a `ReactiveRedisConnectionFactory`, see the Spring Data Redis Reference.
 
-[[api-reactiveredisoperationssessionrepository-config]]
+[[api-reactiveredissessionrepository-config]]
 ==== Using `@EnableRedisWebSession`
 
-In a web environment, the simplest way to create a new `ReactiveRedisOperationsSessionRepository` is to use `@EnableRedisWebSession`.
+In a web environment, the simplest way to create a new `ReactiveRedisSessionRepository` is to use `@EnableRedisWebSession`.
 You can use the following attributes to customize the configuration:
 
 * *maxInactiveIntervalInSeconds*: The amount of time before the session expires, in seconds
@@ -1011,13 +1011,13 @@ You can use the following attributes to customize the configuration:
 * *flushMode*: Allows specifying when data is written to Redis. The default is only when `save` is invoked on `ReactiveSessionRepository`.
 A value of `FlushMode.IMMEDIATE` writes to Redis as soon as possible.
 
-[[api-reactiveredisoperationssessionrepository-writes]]
+[[api-reactiveredissessionrepository-writes]]
 ===== Optimized Writes
 
-The `Session` instances managed by `ReactiveRedisOperationsSessionRepository` keep track of the properties that have changed and updates only those.
+The `Session` instances managed by `ReactiveRedisSessionRepository` keep track of the properties that have changed and updates only those.
 This means that, if an attribute is written once and read many times, we need to write that attribute only once.
 
-[[api-reactiveredisoperationssessionrepository-cli]]
+[[api-reactiveredissessionrepository-cli]]
 ==== Viewing the Session in Redis
 
 After https://redis.io/topics/quickstart[installing redis-cli], you can inspect the values in Redis https://redis.io/commands#hash[using the redis-cli].
@@ -1101,31 +1101,31 @@ The `ReactiveMapSessionRepository` allows for persisting `Session` in a `Map`, w
 You can use the implementation with a `ConcurrentHashMap` as a testing or convenience mechanism.
 Alternatively, you can use it with distributed `Map` implementations, with the requirement that the supplied `Map` must be non-blocking.
 
-[[api-jdbcoperationssessionrepository]]
-=== Using `JdbcOperationsSessionRepository`
+[[api-jdbcindexedsessionrepository]]
+=== Using `JdbcIndexedSessionRepository`
 
-`JdbcOperationsSessionRepository` is a `SessionRepository` implementation that uses Spring's `JdbcOperations` to store sessions in a relational database.
+`JdbcIndexedSessionRepository` is a `SessionRepository` implementation that uses Spring's `JdbcOperations` to store sessions in a relational database.
 In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
 Note that this implementation does not support publishing of session events.
 
-[[api-jdbcoperationssessionrepository-new]]
-==== Instantiating a `JdbcOperationsSessionRepository`
+[[api-jdbcindexedsessionrepository-new]]
+==== Instantiating a `JdbcIndexedSessionRepository`
 
 The following example shows how to create a new instance:
 
 ====
 [source,java,indent=0]
 ----
-include::{indexdoc-tests}[tags=new-jdbcoperationssessionrepository]
+include::{indexdoc-tests}[tags=new-jdbcindexedsessionrepository]
 ----
 ====
 
 For additional information on how to create and configure `JdbcTemplate` and `PlatformTransactionManager`, see the https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
 
-[[api-jdbcoperationssessionrepository-config]]
+[[api-jdbcindexedsessionrepository-config]]
 ==== Using `@EnableJdbcHttpSession`
 
-In a web environment, the simplest way to create a new `JdbcOperationsSessionRepository` is to use `@EnableJdbcHttpSession`.
+In a web environment, the simplest way to create a new `JdbcIndexedSessionRepository` is to use `@EnableJdbcHttpSession`.
 You can find complete example usage in the <<samples>>
 You can use the following attributes to customize the configuration:
 
@@ -1142,7 +1142,7 @@ You can customize the default serialization and deserialization of the session b
 When working in a typical Spring environment, the default `ConversionService` bean (named `conversionService`) is automatically picked up and used for serialization and deserialization.
 However, you can override the default `ConversionService` by providing a bean named `springSessionConversionService`.
 
-[[api-jdbcoperationssessionrepository-storage]]
+[[api-jdbcindexedsessionrepository-storage]]
 ==== Storage Details
 
 By default, this implementation uses `SPRING_SESSION` and `SPRING_SESSION_ATTRIBUTES` tables to store sessions.
@@ -1172,24 +1172,24 @@ include::{session-jdbc-main-resources-dir}org/springframework/session/jdbc/schem
 
 ==== Transaction Management
 
-All JDBC operations in `JdbcOperationsSessionRepository` are executed in a transactional manner.
+All JDBC operations in `JdbcIndexedSessionRepository` are executed in a transactional manner.
 Transactions are executed with propagation set to `REQUIRES_NEW` in order to avoid unexpected behavior due to interference with existing transactions (for example, running a `save` operation in a thread that already participates in a read-only transaction).
 
-[[api-hazelcastsessionrepository]]
-=== Using `HazelcastSessionRepository`
+[[api-hazelcastindexedsessionrepository]]
+=== Using `HazelcastIndexedSessionRepository`
 
-`HazelcastSessionRepository` is a `SessionRepository` implementation that stores sessions in Hazelcast's distributed `IMap`.
+`HazelcastIndexedSessionRepository` is a `SessionRepository` implementation that stores sessions in Hazelcast's distributed `IMap`.
 In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
 
-[[api-hazelcastsessionrepository-new]]
-==== Instantiating a `HazelcastSessionRepository`
+[[api-hazelcastindexedsessionrepository-new]]
+==== Instantiating a `HazelcastIndexedSessionRepository`
 
 The following example shows how to create a new instance:
 
 ====
 [source,java,indent=0]
 ----
-include::{indexdoc-tests}[tags=new-hazelcastsessionrepository]
+include::{indexdoc-tests}[tags=new-hazelcastindexedsessionrepository]
 ----
 ====
 
@@ -1351,7 +1351,7 @@ The minimum requirements for Spring Session are:
 * Java 8+.
 * If you run in a Servlet Container (not required), Servlet 3.1+.
 * If you use other Spring libraries (not required), the minimum required version is Spring 5.0.x.
-* `@EnableRedisHttpSession` requires Redis 2.8+. This is necessary to support <<api-redisoperationssessionrepository-expiration,Session Expiration>>
+* `@EnableRedisHttpSession` requires Redis 2.8+. This is necessary to support <<api-redisindexedsessionrepository-expiration,Session Expiration>>
 * `@EnableHazelcastHttpSession` requires Hazelcast 3.6+. This is necessary to support <<api-enablehazelcasthttpsession-storage,`FindByIndexNameSessionRepository`>>
 
 NOTE: At its core, Spring Session has a required dependency only on `spring-jcl`.

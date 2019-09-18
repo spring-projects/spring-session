@@ -17,7 +17,7 @@
 package org.springframework.session.jdbc;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.Db2Container;
+import org.testcontainers.containers.MSSQLServerContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,29 +27,29 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using IBM DB2 11.x
- * database.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using Microsoft SQL Server
+ * 2017 database.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class Db211JdbcOperationsSessionRepositoryITests extends AbstractContainerJdbcOperationsSessionRepositoryITests {
+class SqlServerJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public Db2Container databaseContainer() {
-			Db2Container databaseContainer = DatabaseContainers.db211();
+		public MSSQLServerContainer databaseContainer() {
+			MSSQLServerContainer databaseContainer = DatabaseContainers.sqlServer2017();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
 		public ResourceDatabasePopulator databasePopulator() {
-			return DatabasePopulators.db2();
+			return DatabasePopulators.sqlServer();
 		}
 
 	}

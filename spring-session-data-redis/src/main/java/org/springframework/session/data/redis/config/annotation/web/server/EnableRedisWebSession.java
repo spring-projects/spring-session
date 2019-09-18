@@ -30,7 +30,7 @@ import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
-import org.springframework.session.data.redis.ReactiveRedisOperationsSessionRepository;
+import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.web.server.session.WebSessionManager;
 
@@ -83,7 +83,7 @@ public @interface EnableRedisWebSession {
 	 * the applications and they could function within the same Redis instance.
 	 * @return the unique namespace for keys
 	 */
-	String redisNamespace() default ReactiveRedisOperationsSessionRepository.DEFAULT_NAMESPACE;
+	String redisNamespace() default ReactiveRedisSessionRepository.DEFAULT_NAMESPACE;
 
 	/**
 	 * Flush mode for the Redis sessions. The default is {@code ON_SAVE} which only

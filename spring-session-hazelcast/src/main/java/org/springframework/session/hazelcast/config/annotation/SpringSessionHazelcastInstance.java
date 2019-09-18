@@ -25,11 +25,11 @@ import java.lang.annotation.Target;
 import com.hazelcast.core.HazelcastInstance;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.session.hazelcast.HazelcastSessionRepository;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 
 /**
  * Qualifier annotation for a {@link HazelcastInstance} to be injected in
- * {@link HazelcastSessionRepository}.
+ * {@link HazelcastIndexedSessionRepository}.
  *
  * @author Vedran Pavic
  * @since 2.0.0

@@ -17,33 +17,38 @@
 package org.springframework.session.jdbc;
 
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.containers.MySQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcOperationsSessionRepository} using H2 database.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using MySQL 8.x database.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class H2JdbcOperationsSessionRepositoryITests extends AbstractJdbcOperationsSessionRepositoryITests {
+class MySql8JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
-	static class Config extends BaseConfig {
+	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public EmbeddedDatabase dataSource() {
-			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2)
-					.addScript("org/springframework/session/jdbc/schema-h2.sql").build();
+		public MySQLContainer databaseContainer() {
+			MySQLContainer databaseContainer = DatabaseContainers.mySql8();
+			databaseContainer.start();
+			return databaseContainer;
+		}
+
+		@Bean
+		public ResourceDatabasePopulator databasePopulator() {
+			return DatabasePopulators.mySql();
 		}
 
 	}

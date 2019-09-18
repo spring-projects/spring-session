@@ -24,7 +24,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.session.hazelcast.HazelcastSessionRepository;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.PrincipalNameExtractor;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
@@ -36,14 +36,14 @@ public class HazelcastHttpSessionConfig {
 	@Bean
 	public HazelcastInstance hazelcastInstance() {
 		MapAttributeConfig attributeConfig = new MapAttributeConfig()
-				.setName(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
 				.setExtractor(PrincipalNameExtractor.class.getName());
 
 		Config config = new Config();
 
-		config.getMapConfig(HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME) // <2>
-				.addMapAttributeConfig(attributeConfig)
-				.addMapIndexConfig(new MapIndexConfig(HazelcastSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME) // <2>
+				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
+						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
 
 		return Hazelcast.newHazelcastInstance(config); // <3>
 	}

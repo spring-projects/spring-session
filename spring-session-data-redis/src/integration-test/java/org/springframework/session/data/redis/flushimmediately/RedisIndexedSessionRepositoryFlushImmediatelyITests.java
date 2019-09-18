@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-class RedisOperationsSessionRepositoryFlushImmediatelyITests<S extends Session> extends AbstractRedisITests {
+class RedisIndexedSessionRepositoryFlushImmediatelyITests<S extends Session> extends AbstractRedisITests {
 
 	@Autowired
 	private SessionRepository<S> sessionRepository;

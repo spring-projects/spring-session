@@ -36,7 +36,7 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
-import org.springframework.session.hazelcast.HazelcastSessionRepository;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.StringUtils;
@@ -56,7 +56,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
-	private String sessionMapName = HazelcastSessionRepository.DEFAULT_SESSION_MAP_NAME;
+	private String sessionMapName = HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME;
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
@@ -66,11 +66,12 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private ApplicationEventPublisher applicationEventPublisher;
 
-	private List<SessionRepositoryCustomizer<HazelcastSessionRepository>> sessionRepositoryCustomizers;
+	private List<SessionRepositoryCustomizer<HazelcastIndexedSessionRepository>> sessionRepositoryCustomizers;
 
 	@Bean
-	public HazelcastSessionRepository sessionRepository() {
-		HazelcastSessionRepository sessionRepository = new HazelcastSessionRepository(this.hazelcastInstance);
+	public HazelcastIndexedSessionRepository sessionRepository() {
+		HazelcastIndexedSessionRepository sessionRepository = new HazelcastIndexedSessionRepository(
+				this.hazelcastInstance);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
 		if (StringUtils.hasText(this.sessionMapName)) {
 			sessionRepository.setSessionMapName(this.sessionMapName);
@@ -122,7 +123,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	@Autowired(required = false)
 	public void setSessionRepositoryCustomizer(
-			ObjectProvider<SessionRepositoryCustomizer<HazelcastSessionRepository>> sessionRepositoryCustomizers) {
+			ObjectProvider<SessionRepositoryCustomizer<HazelcastIndexedSessionRepository>> sessionRepositoryCustomizers) {
 		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 
