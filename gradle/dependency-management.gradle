@@ -18,6 +18,7 @@ dependencyManagement {
 		dependency 'com.h2database:h2:1.4.199'
 		dependency 'com.ibm.db2:jcc:11.5.0.0'
 		dependency 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
+		dependency 'com.oracle.ojdbc:ojdbc8:19.3.0.0'
 		dependency 'com.zaxxer:HikariCP:3.3.1'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
 		dependency 'io.lettuce:lettuce-core:5.1.8.RELEASE'

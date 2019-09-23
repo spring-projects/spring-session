@@ -28,13 +28,12 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.util.ClassUtils;
 
 /**
  * Integration tests for {@link JdbcIndexedSessionRepository} using Oracle database.
  * <p>
- * This test is conditional on presence of Oracle JDBC driver on the classpath and
- * Testcontainers property {@code oracle.container.image} being set.
+ * This test is conditional on Testcontainers property {@code oracle.container.image}
+ * being set.
  *
  * @author Vedran Pavic
  */
@@ -45,10 +44,8 @@ class OracleJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcInde
 
 	@BeforeAll
 	static void setUpClass() {
-		Assumptions.assumeTrue(ClassUtils.isPresent("oracle.jdbc.OracleDriver", null),
-				"Oracle JDBC driver is present on the classpath");
 		Assumptions.assumeTrue(
-				TestcontainersConfiguration.getInstance().getProperties().getProperty("oracle.container.image") != null,
+				TestcontainersConfiguration.getInstance().getProperties().containsKey("oracle.container.image"),
 				"Testcontainers property `oracle.container.image` is set");
 	}
 
@@ -57,7 +54,7 @@ class OracleJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcInde
 
 		@Bean
 		public OracleContainer databaseContainer() {
-			OracleContainer databaseContainer = DatabaseContainers.oracle();
+			OracleContainer databaseContainer = DatabaseContainers.oracleXe();
 			databaseContainer.start();
 			return databaseContainer;
 		}

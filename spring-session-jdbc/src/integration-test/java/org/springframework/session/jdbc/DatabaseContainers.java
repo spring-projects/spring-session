@@ -16,6 +16,9 @@
 
 package org.springframework.session.jdbc;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import org.testcontainers.containers.Db2Container;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
@@ -23,6 +26,7 @@ import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
 /**
  * Factories for various {@link JdbcDatabaseContainer}s.
@@ -54,8 +58,8 @@ final class DatabaseContainers {
 		return new MySql8Container();
 	}
 
-	static OracleContainer oracle() {
-		return new OracleContainer();
+	static OracleXeContainer oracleXe() {
+		return new OracleXeContainer();
 	}
 
 	static PostgreSQLContainer postgreSql9() {
@@ -145,6 +149,24 @@ final class DatabaseContainers {
 		@Override
 		public String getDriverClassName() {
 			return "com.mysql.cj.jdbc.Driver";
+		}
+
+	}
+
+	private static class OracleXeContainer extends OracleContainer {
+
+		@Override
+		protected void configure() {
+			super.configure();
+			this.waitStrategy = new LogMessageWaitStrategy().withRegEx(".*DATABASE IS READY TO USE!.*\\s")
+					.withStartupTimeout(Duration.of(10, ChronoUnit.MINUTES));
+			setShmSize(1024L * 1024L * 1024L);
+			addEnv("ORACLE_PWD", getPassword());
+		}
+
+		@Override
+		protected void waitUntilContainerStarted() {
+			getWaitStrategy().waitUntilReady(this);
 		}
 
 	}
