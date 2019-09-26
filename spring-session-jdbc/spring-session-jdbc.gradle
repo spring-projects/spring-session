@@ -30,3 +30,7 @@ dependencies {
 	integrationTestCompile "org.testcontainers:oracle-xe"
 	integrationTestCompile "org.testcontainers:postgresql"
 }
+
+integrationTest {
+	maxParallelForks = 4
+}
