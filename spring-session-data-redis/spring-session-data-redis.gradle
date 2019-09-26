@@ -5,7 +5,6 @@ description = "Spring Session Redis implementation"
 dependencies {
 	compile project(':spring-session-core')
 	compile ("org.springframework.data:spring-data-redis") {
-		exclude group: "org.slf4j", module: 'slf4j-api'
 		exclude group: "org.slf4j", module: 'jcl-over-slf4j'
 	}
 
