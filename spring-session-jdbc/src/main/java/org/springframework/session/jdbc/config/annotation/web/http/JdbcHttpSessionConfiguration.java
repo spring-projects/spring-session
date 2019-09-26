@@ -45,8 +45,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.FlushMode;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
@@ -95,6 +97,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private TransactionOperations transactionOperations;
 
+	private IndexResolver<Session> indexResolver;
+
 	private LobHandler lobHandler;
 
 	private ConversionService springSessionConversionService;
@@ -121,6 +125,9 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
+		if (this.indexResolver != null) {
+			sessionRepository.setIndexResolver(this.indexResolver);
+		}
 		if (this.lobHandler != null) {
 			sessionRepository.setLobHandler(this.lobHandler);
 		}
@@ -192,6 +199,11 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 	@Qualifier("springSessionTransactionOperations")
 	public void setTransactionOperations(TransactionOperations transactionOperations) {
 		this.transactionOperations = transactionOperations;
+	}
+
+	@Autowired(required = false)
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
+		this.indexResolver = indexResolver;
 	}
 
 	@Autowired(required = false)

@@ -31,8 +31,10 @@ import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.session.FlushMode;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
@@ -66,6 +68,8 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private ApplicationEventPublisher applicationEventPublisher;
 
+	private IndexResolver<Session> indexResolver;
+
 	private List<SessionRepositoryCustomizer<HazelcastIndexedSessionRepository>> sessionRepositoryCustomizers;
 
 	@Bean
@@ -73,6 +77,9 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		HazelcastIndexedSessionRepository sessionRepository = new HazelcastIndexedSessionRepository(
 				this.hazelcastInstance);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
+		if (this.indexResolver != null) {
+			sessionRepository.setIndexResolver(this.indexResolver);
+		}
 		if (StringUtils.hasText(this.sessionMapName)) {
 			sessionRepository.setSessionMapName(this.sessionMapName);
 		}
@@ -119,6 +126,11 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	@Autowired
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
+	@Autowired(required = false)
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
+		this.indexResolver = indexResolver;
 	}
 
 	@Autowired(required = false)

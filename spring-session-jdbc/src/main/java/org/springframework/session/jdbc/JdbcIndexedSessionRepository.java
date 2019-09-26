@@ -198,8 +198,6 @@ public class JdbcIndexedSessionRepository
 
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
 
-	private final IndexResolver<JdbcSession> indexResolver;
-
 	/**
 	 * The name of database table used by Spring Session to store sessions.
 	 */
@@ -229,9 +227,11 @@ public class JdbcIndexedSessionRepository
 	 */
 	private Integer defaultMaxInactiveInterval;
 
-	private ConversionService conversionService;
+	private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
-	private LobHandler lobHandler;
+	private ConversionService conversionService = createDefaultConversionService();
+
+	private LobHandler lobHandler = new DefaultLobHandler();
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
@@ -248,9 +248,6 @@ public class JdbcIndexedSessionRepository
 		Assert.notNull(transactionOperations, "transactionOperations must not be null");
 		this.jdbcOperations = jdbcOperations;
 		this.transactionOperations = transactionOperations;
-		this.indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
-		this.conversionService = createDefaultConversionService();
-		this.lobHandler = new DefaultLobHandler();
 		prepareQueries();
 	}
 
@@ -353,6 +350,15 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setDefaultMaxInactiveInterval(Integer defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
+	}
+
+	/**
+	 * Set the {@link IndexResolver} to use.
+	 * @param indexResolver the index resolver
+	 */
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
+		Assert.notNull(indexResolver, "indexResolver cannot be null");
+		this.indexResolver = indexResolver;
 	}
 
 	public void setLobHandler(LobHandler lobHandler) {

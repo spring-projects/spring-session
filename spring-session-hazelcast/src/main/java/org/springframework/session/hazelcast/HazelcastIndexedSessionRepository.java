@@ -133,8 +133,6 @@ public class HazelcastIndexedSessionRepository
 
 	private final HazelcastInstance hazelcastInstance;
 
-	private final IndexResolver<HazelcastSession> indexResolver;
-
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
 
@@ -143,6 +141,8 @@ public class HazelcastIndexedSessionRepository
 	 * {@link MapSession#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
+
+	private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
 	private String sessionMapName = DEFAULT_SESSION_MAP_NAME;
 
@@ -161,7 +161,6 @@ public class HazelcastIndexedSessionRepository
 	public HazelcastIndexedSessionRepository(HazelcastInstance hazelcastInstance) {
 		Assert.notNull(hazelcastInstance, "HazelcastInstance must not be null");
 		this.hazelcastInstance = hazelcastInstance;
-		this.indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 	}
 
 	@PostConstruct
@@ -195,6 +194,15 @@ public class HazelcastIndexedSessionRepository
 	 */
 	public void setDefaultMaxInactiveInterval(Integer defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
+	}
+
+	/**
+	 * Set the {@link IndexResolver} to use.
+	 * @param indexResolver the index resolver
+	 */
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
+		Assert.notNull(indexResolver, "indexResolver cannot be null");
+		this.indexResolver = indexResolver;
 	}
 
 	/**

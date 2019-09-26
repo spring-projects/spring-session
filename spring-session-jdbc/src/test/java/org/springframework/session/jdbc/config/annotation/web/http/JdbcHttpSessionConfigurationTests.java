@@ -33,7 +33,9 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
@@ -243,6 +245,17 @@ class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
+	void customIndexResolverConfiguration() {
+		registerAndRefresh(DataSourceConfiguration.class, CustomIndexResolverConfiguration.class);
+		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
+		@SuppressWarnings("unchecked")
+		IndexResolver<Session> indexResolver = this.context.getBean(IndexResolver.class);
+		assertThat(repository).isNotNull();
+		assertThat(indexResolver).isNotNull();
+		assertThat(repository).hasFieldOrPropertyWithValue("indexResolver", indexResolver);
+	}
+
+	@Test
 	void customLobHandlerConfiguration() {
 		registerAndRefresh(DataSourceConfiguration.class, CustomLobHandlerConfiguration.class);
 
@@ -448,6 +461,17 @@ class JdbcHttpSessionConfigurationTests {
 		@Bean
 		public TransactionOperations springSessionTransactionOperations() {
 			return TransactionOperations.withoutTransaction();
+		}
+
+	}
+
+	@EnableJdbcHttpSession
+	static class CustomIndexResolverConfiguration {
+
+		@Bean
+		@SuppressWarnings("unchecked")
+		public IndexResolver<Session> indexResolver() {
+			return mock(IndexResolver.class);
 		}
 
 	}

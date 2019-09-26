@@ -28,7 +28,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.session.FlushMode;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
@@ -221,6 +223,17 @@ class HazelcastHttpSessionConfigurationTests {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
 				.withMessageContaining("expected single matching bean but found 2");
+	}
+
+	@Test
+	void customIndexResolverConfiguration() {
+		registerAndRefresh(CustomIndexResolverConfiguration.class);
+		HazelcastIndexedSessionRepository repository = this.context.getBean(HazelcastIndexedSessionRepository.class);
+		@SuppressWarnings("unchecked")
+		IndexResolver<Session> indexResolver = this.context.getBean(IndexResolver.class);
+		assertThat(repository).isNotNull();
+		assertThat(indexResolver).isNotNull();
+		assertThat(repository).hasFieldOrPropertyWithValue("indexResolver", indexResolver);
 	}
 
 	@Test
@@ -429,6 +442,17 @@ class HazelcastHttpSessionConfigurationTests {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(secondaryHazelcastInstanceSessions);
 			return hazelcastInstance;
+		}
+
+	}
+
+	@EnableHazelcastHttpSession
+	static class CustomIndexResolverConfiguration extends BaseConfiguration {
+
+		@Bean
+		@SuppressWarnings("unchecked")
+		public IndexResolver<Session> indexResolver() {
+			return mock(IndexResolver.class);
 		}
 
 	}

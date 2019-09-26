@@ -36,7 +36,9 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
@@ -228,6 +230,17 @@ class RedisHttpSessionConfigurationTests {
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 
+	@Test
+	void customIndexResolverConfiguration() {
+		registerAndRefresh(RedisConfig.class, CustomIndexResolverConfiguration.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
+		@SuppressWarnings("unchecked")
+		IndexResolver<Session> indexResolver = this.context.getBean(IndexResolver.class);
+		assertThat(repository).isNotNull();
+		assertThat(indexResolver).isNotNull();
+		assertThat(repository).hasFieldOrPropertyWithValue("indexResolver", indexResolver);
+	}
+
 	@Test // gh-1252
 	void customRedisMessageListenerContainerConfig() {
 		registerAndRefresh(RedisConfig.class, CustomRedisMessageListenerContainerConfig.class);
@@ -411,6 +424,18 @@ class RedisHttpSessionConfigurationTests {
 	@Configuration
 	@EnableRedisHttpSession(redisNamespace = "${session.redis.namespace}")
 	static class CustomRedisHttpSessionConfiguration2 {
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class CustomIndexResolverConfiguration {
+
+		@Bean
+		@SuppressWarnings("unchecked")
+		public IndexResolver<Session> indexResolver() {
+			return mock(IndexResolver.class);
+		}
 
 	}
 

@@ -51,8 +51,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.FlushMode;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.redis.RedisFlushMode;
@@ -98,6 +100,8 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 
 	private RedisConnectionFactory redisConnectionFactory;
 
+	private IndexResolver<Session> indexResolver;
+
 	private RedisSerializer<Object> defaultRedisSerializer;
 
 	private ApplicationEventPublisher applicationEventPublisher;
@@ -117,6 +121,9 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		RedisTemplate<Object, Object> redisTemplate = createRedisTemplate();
 		RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(redisTemplate);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
+		if (this.indexResolver != null) {
+			sessionRepository.setIndexResolver(this.indexResolver);
+		}
 		if (this.defaultRedisSerializer != null) {
 			sessionRepository.setDefaultSerializer(this.defaultRedisSerializer);
 		}
@@ -214,6 +221,11 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	@Autowired
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.applicationEventPublisher = applicationEventPublisher;
+	}
+
+	@Autowired(required = false)
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
+		this.indexResolver = indexResolver;
 	}
 
 	@Autowired(required = false)

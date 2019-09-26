@@ -280,8 +280,6 @@ public class RedisIndexedSessionRepository
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
 
-	private final IndexResolver<RedisSession> indexResolver;
-
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
 
@@ -290,6 +288,8 @@ public class RedisIndexedSessionRepository
 	 * {@link RedisSession#setMaxInactiveInterval(Duration)}.
 	 */
 	private Integer defaultMaxInactiveInterval;
+
+	private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
 	private RedisSerializer<Object> defaultSerializer = new JdkSerializationRedisSerializer();
 
@@ -307,7 +307,6 @@ public class RedisIndexedSessionRepository
 		this.sessionRedisOperations = sessionRedisOperations;
 		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, this::getExpirationsKey,
 				this::getSessionKey);
-		this.indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 		configureSessionChannels();
 	}
 
@@ -332,6 +331,15 @@ public class RedisIndexedSessionRepository
 	 */
 	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
+	}
+
+	/**
+	 * Set the {@link IndexResolver} to use.
+	 * @param indexResolver the index resolver
+	 */
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
+		Assert.notNull(indexResolver, "indexResolver cannot be null");
+		this.indexResolver = indexResolver;
 	}
 
 	/**
