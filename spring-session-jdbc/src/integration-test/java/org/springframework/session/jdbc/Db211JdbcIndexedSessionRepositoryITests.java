@@ -40,14 +40,14 @@ class Db211JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndex
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public Db2Container databaseContainer() {
+		Db2Container databaseContainer() {
 			Db2Container databaseContainer = DatabaseContainers.db211();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
-		public ResourceDatabasePopulator databasePopulator() {
+		ResourceDatabasePopulator databasePopulator() {
 			return DatabasePopulators.db2();
 		}
 

@@ -310,12 +310,12 @@ class JdbcHttpSessionConfigurationTests {
 	static class DataSourceConfiguration {
 
 		@Bean
-		public DataSource defaultDataSource() {
+		DataSource defaultDataSource() {
 			return mock(DataSource.class);
 		}
 
 		@Bean
-		public PlatformTransactionManager transactionManager() {
+		PlatformTransactionManager transactionManager() {
 			return mock(PlatformTransactionManager.class);
 		}
 
@@ -401,7 +401,7 @@ class JdbcHttpSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionDataSource
-		public DataSource qualifiedDataSource() {
+		DataSource qualifiedDataSource() {
 			return mock(DataSource.class);
 		}
 
@@ -412,7 +412,7 @@ class JdbcHttpSessionConfigurationTests {
 
 		@Bean
 		@Primary
-		public DataSource primaryDataSource() {
+		DataSource primaryDataSource() {
 			return mock(DataSource.class);
 		}
 
@@ -423,13 +423,13 @@ class JdbcHttpSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionDataSource
-		public DataSource qualifiedDataSource() {
+		DataSource qualifiedDataSource() {
 			return mock(DataSource.class);
 		}
 
 		@Bean
 		@Primary
-		public DataSource primaryDataSource() {
+		DataSource primaryDataSource() {
 			return mock(DataSource.class);
 		}
 
@@ -439,7 +439,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class NamedDataSourceConfiguration {
 
 		@Bean
-		public DataSource dataSource() {
+		DataSource dataSource() {
 			return mock(DataSource.class);
 		}
 
@@ -449,7 +449,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class MultipleDataSourceConfiguration {
 
 		@Bean
-		public DataSource secondaryDataSource() {
+		DataSource secondaryDataSource() {
 			return mock(DataSource.class);
 		}
 
@@ -459,7 +459,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class CustomTransactionOperationsConfiguration {
 
 		@Bean
-		public TransactionOperations springSessionTransactionOperations() {
+		TransactionOperations springSessionTransactionOperations() {
 			return TransactionOperations.withoutTransaction();
 		}
 
@@ -470,7 +470,7 @@ class JdbcHttpSessionConfigurationTests {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		public IndexResolver<Session> indexResolver() {
+		IndexResolver<Session> indexResolver() {
 			return mock(IndexResolver.class);
 		}
 
@@ -480,7 +480,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class CustomLobHandlerConfiguration {
 
 		@Bean
-		public LobHandler springSessionLobHandler() {
+		LobHandler springSessionLobHandler() {
 			return mock(LobHandler.class);
 		}
 
@@ -490,7 +490,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class CustomConversionServiceConfiguration {
 
 		@Bean
-		public ConversionService springSessionConversionService() {
+		ConversionService springSessionConversionService() {
 			return mock(ConversionService.class);
 		}
 
@@ -500,7 +500,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class CustomJdbcHttpSessionConfiguration {
 
 		@Bean
-		public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 			return new PropertySourcesPlaceholderConfigurer();
 		}
 
@@ -511,13 +511,13 @@ class JdbcHttpSessionConfigurationTests {
 
 		@Bean
 		@Order(0)
-		public SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerOne() {
+		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerOne() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 		@Bean
 		@Order(1)
-		public SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
+		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}

@@ -46,12 +46,12 @@ class RedisHttpSessionConfigurationNoOpConfigureRedisActionTests {
 	static class Config {
 
 		@Bean
-		public static ConfigureRedisAction configureRedisAction() {
+		ConfigureRedisAction configureRedisAction() {
 			return ConfigureRedisAction.NO_OP;
 		}
 
 		@Bean
-		public RedisConnectionFactory redisConnectionFactory() {
+		RedisConnectionFactory redisConnectionFactory() {
 			return mock(RedisConnectionFactory.class);
 		}
 

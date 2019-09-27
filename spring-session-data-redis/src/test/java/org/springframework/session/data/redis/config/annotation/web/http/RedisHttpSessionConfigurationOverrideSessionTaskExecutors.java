@@ -71,17 +71,17 @@ class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 	static class Config {
 
 		@Bean
-		public Executor springSessionRedisTaskExecutor() {
+		Executor springSessionRedisTaskExecutor() {
 			return mock(Executor.class);
 		}
 
 		@Bean
-		public Executor springSessionRedisSubscriptionExecutor() {
+		Executor springSessionRedisSubscriptionExecutor() {
 			return mock(Executor.class);
 		}
 
 		@Bean
-		public RedisConnectionFactory connectionFactory() {
+		RedisConnectionFactory connectionFactory() {
 			RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 			RedisConnection connection = mock(RedisConnection.class);
 			given(factory.getConnection()).willReturn(connection);

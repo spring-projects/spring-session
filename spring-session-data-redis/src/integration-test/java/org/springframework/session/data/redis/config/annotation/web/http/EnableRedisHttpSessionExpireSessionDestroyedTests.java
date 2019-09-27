@@ -102,11 +102,11 @@ class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> exten
 			}
 		}
 
-		public boolean receivedEvent() {
+		boolean receivedEvent() {
 			return this.receivedEvent;
 		}
 
-		public void setLock(Object lock) {
+		void setLock(Object lock) {
 			this.lock = lock;
 		}
 
@@ -117,7 +117,7 @@ class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> exten
 	static class Config extends BaseConfig {
 
 		@Bean
-		public SessionExpiredEventRegistry sessionDestroyedEventRegistry() {
+		SessionExpiredEventRegistry sessionDestroyedEventRegistry() {
 			return new SessionExpiredEventRegistry();
 		}
 

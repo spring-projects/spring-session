@@ -65,11 +65,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 		this.servletContext = servletContext;
 	}
 
-	public void setSession(S session) {
-		this.session = session;
-	}
-
-	public S getSession() {
+	S getSession() {
 		return this.session;
 	}
 
@@ -191,14 +187,14 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 		this.invalidated = true;
 	}
 
-	public void setNew(boolean isNew) {
-		this.old = !isNew;
-	}
-
 	@Override
 	public boolean isNew() {
 		checkState();
 		return !this.old;
+	}
+
+	void markNotNew() {
+		this.old = true;
 	}
 
 	private void checkState() {

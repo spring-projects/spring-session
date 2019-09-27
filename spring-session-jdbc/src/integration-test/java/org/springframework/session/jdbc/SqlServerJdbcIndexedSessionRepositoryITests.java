@@ -41,14 +41,14 @@ class SqlServerJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcI
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public MSSQLServerContainer databaseContainer() {
+		MSSQLServerContainer databaseContainer() {
 			MSSQLServerContainer databaseContainer = DatabaseContainers.sqlServer2017();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
-		public ResourceDatabasePopulator databasePopulator() {
+		ResourceDatabasePopulator databasePopulator() {
 			return DatabasePopulators.sqlServer();
 		}
 

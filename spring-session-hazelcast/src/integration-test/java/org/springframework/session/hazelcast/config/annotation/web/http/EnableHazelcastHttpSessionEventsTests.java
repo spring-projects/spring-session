@@ -206,12 +206,12 @@ class EnableHazelcastHttpSessionEventsTests<S extends Session> {
 	static class HazelcastSessionConfig {
 
 		@Bean
-		public HazelcastInstance embeddedHazelcast() {
+		HazelcastInstance embeddedHazelcast() {
 			return HazelcastITestUtils.embeddedHazelcastServer();
 		}
 
 		@Bean
-		public SessionEventRegistry sessionEventRegistry() {
+		SessionEventRegistry sessionEventRegistry() {
 			return new SessionEventRegistry();
 		}
 

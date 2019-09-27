@@ -262,7 +262,7 @@ class HazelcastHttpSessionConfigurationTests {
 		static IMap<Object, Object> defaultHazelcastInstanceSessions = mock(IMap.class);
 
 		@Bean
-		public HazelcastInstance defaultHazelcastInstance() {
+		HazelcastInstance defaultHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(defaultHazelcastInstanceSessions);
 			return hazelcastInstance;
@@ -361,7 +361,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionHazelcastInstance
-		public HazelcastInstance qualifiedHazelcastInstance() {
+		HazelcastInstance qualifiedHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(qualifiedHazelcastInstanceSessions);
 			return hazelcastInstance;
@@ -378,7 +378,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 		@Bean
 		@Primary
-		public HazelcastInstance primaryHazelcastInstance() {
+		HazelcastInstance primaryHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(primaryHazelcastInstanceSessions);
 			return hazelcastInstance;
@@ -398,7 +398,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionHazelcastInstance
-		public HazelcastInstance qualifiedHazelcastInstance() {
+		HazelcastInstance qualifiedHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(qualifiedHazelcastInstanceSessions);
 			return hazelcastInstance;
@@ -406,7 +406,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 		@Bean
 		@Primary
-		public HazelcastInstance primaryHazelcastInstance() {
+		HazelcastInstance primaryHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(primaryHazelcastInstanceSessions);
 			return hazelcastInstance;
@@ -422,7 +422,7 @@ class HazelcastHttpSessionConfigurationTests {
 		static IMap<Object, Object> hazelcastInstanceSessions = mock(IMap.class);
 
 		@Bean
-		public HazelcastInstance hazelcastInstance() {
+		HazelcastInstance hazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(hazelcastInstanceSessions);
 			return hazelcastInstance;
@@ -438,7 +438,7 @@ class HazelcastHttpSessionConfigurationTests {
 		static IMap<Object, Object> secondaryHazelcastInstanceSessions = mock(IMap.class);
 
 		@Bean
-		public HazelcastInstance secondaryHazelcastInstance() {
+		HazelcastInstance secondaryHazelcastInstance() {
 			HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 			given(hazelcastInstance.getMap(anyString())).willReturn(secondaryHazelcastInstanceSessions);
 			return hazelcastInstance;
@@ -451,7 +451,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		public IndexResolver<Session> indexResolver() {
+		IndexResolver<Session> indexResolver() {
 			return mock(IndexResolver.class);
 		}
 
@@ -462,13 +462,13 @@ class HazelcastHttpSessionConfigurationTests {
 
 		@Bean
 		@Order(0)
-		public SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizerOne() {
+		SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizerOne() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 		@Bean
 		@Order(1)
-		public SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
+		SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}

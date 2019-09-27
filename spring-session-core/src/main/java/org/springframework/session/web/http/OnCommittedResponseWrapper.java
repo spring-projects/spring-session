@@ -25,9 +25,6 @@ import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 /**
  * Base class for response wrappers which encapsulate the logic for handling an event when
  * the {@link javax.servlet.http.HttpServletResponse} is committed.
@@ -36,8 +33,6 @@ import org.apache.commons.logging.LogFactory;
  * @since 1.0
  */
 abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
-
-	private final Log logger = LogFactory.getLog(getClass());
 
 	private boolean disableOnCommitted;
 
@@ -92,7 +87,7 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	 * {@link javax.servlet.http.HttpServletResponse} is committed. This can be useful in
 	 * the event that Async Web Requests are made.
 	 */
-	public void disableOnResponseCommitted() {
+	private void disableOnResponseCommitted() {
 		this.disableOnCommitted = true;
 	}
 

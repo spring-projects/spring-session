@@ -40,14 +40,14 @@ class MariaDb10JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcI
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public MariaDBContainer databaseContainer() {
+		MariaDBContainer databaseContainer() {
 			MariaDBContainer databaseContainer = DatabaseContainers.mariaDb10();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
-		public ResourceDatabasePopulator databasePopulator() {
+		ResourceDatabasePopulator databasePopulator() {
 			return DatabasePopulators.mySql();
 		}
 

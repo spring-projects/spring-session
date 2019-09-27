@@ -88,7 +88,7 @@ class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 			}
 		}
 
-		public boolean taskDispatched() throws InterruptedException {
+		boolean taskDispatched() throws InterruptedException {
 			if (this.taskDispatched != null) {
 				return this.taskDispatched;
 			}
@@ -105,12 +105,12 @@ class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 	static class Config extends BaseConfig {
 
 		@Bean
-		public Executor springSessionRedisTaskExecutor() {
+		Executor springSessionRedisTaskExecutor() {
 			return new SessionTaskExecutor(Executors.newSingleThreadExecutor());
 		}
 
 		@Bean
-		public Executor springSessionRedisSubscriptionExecutor() {
+		Executor springSessionRedisSubscriptionExecutor() {
 			return new SimpleAsyncTaskExecutor();
 		}
 

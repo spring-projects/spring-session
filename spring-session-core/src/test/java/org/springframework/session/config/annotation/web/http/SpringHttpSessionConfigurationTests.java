@@ -120,7 +120,7 @@ class SpringHttpSessionConfigurationTests {
 	static class BaseConfiguration {
 
 		@Bean
-		public MapSessionRepository sessionRepository() {
+		MapSessionRepository sessionRepository() {
 			return new MapSessionRepository(new ConcurrentHashMap<>());
 		}
 
@@ -137,7 +137,7 @@ class SpringHttpSessionConfigurationTests {
 	static class SessionCookieConfigConfiguration extends BaseConfiguration {
 
 		@Bean
-		public ServletContext servletContext() {
+		ServletContext servletContext() {
 			MockServletContext servletContext = new MockServletContext();
 			servletContext.getSessionCookieConfig().setName("test-name");
 			servletContext.getSessionCookieConfig().setDomain("test-domain");
@@ -153,7 +153,7 @@ class SpringHttpSessionConfigurationTests {
 	static class RememberMeServicesConfiguration extends BaseConfiguration {
 
 		@Bean
-		public SpringSessionRememberMeServices rememberMeServices() {
+		SpringSessionRememberMeServices rememberMeServices() {
 			return new SpringSessionRememberMeServices();
 		}
 

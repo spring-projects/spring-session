@@ -227,7 +227,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 	static class Config extends BaseConfig {
 
 		@Bean
-		public RedisSessionRepository sessionRepository(RedisConnectionFactory redisConnectionFactory) {
+		RedisSessionRepository sessionRepository(RedisConnectionFactory redisConnectionFactory) {
 			RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 			redisTemplate.setConnectionFactory(redisConnectionFactory);
 			redisTemplate.afterPropertiesSet();

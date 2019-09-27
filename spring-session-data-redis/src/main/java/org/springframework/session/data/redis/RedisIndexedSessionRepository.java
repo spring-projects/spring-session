@@ -396,10 +396,10 @@ public class RedisIndexedSessionRepository
 	@Override
 	public void save(RedisSession session) {
 		session.save();
-		if (session.isNew()) {
+		if (session.isNew) {
 			String sessionCreatedKey = getSessionCreatedChannel(session.getId());
 			this.sessionRedisOperations.convertAndSend(sessionCreatedKey, session.delta);
-			session.setNew(false);
+			session.isNew = false;
 		}
 	}
 
@@ -699,10 +699,6 @@ public class RedisIndexedSessionRepository
 			}
 		}
 
-		public void setNew(boolean isNew) {
-			this.isNew = isNew;
-		}
-
 		@Override
 		public void setLastAccessedTime(Instant lastAccessedTime) {
 			this.cached.setLastAccessedTime(lastAccessedTime);
@@ -713,10 +709,6 @@ public class RedisIndexedSessionRepository
 		@Override
 		public boolean isExpired() {
 			return this.cached.isExpired();
-		}
-
-		public boolean isNew() {
-			return this.isNew;
 		}
 
 		@Override
@@ -832,7 +824,7 @@ public class RedisIndexedSessionRepository
 			if (sessionId.equals(this.originalSessionId)) {
 				return;
 			}
-			if (!isNew()) {
+			if (!this.isNew) {
 				String originalSessionIdKey = getSessionKey(this.originalSessionId);
 				String sessionIdKey = getSessionKey(sessionId);
 				try {

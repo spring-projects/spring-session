@@ -53,14 +53,14 @@ class OracleJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcInde
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public OracleContainer databaseContainer() {
+		OracleContainer databaseContainer() {
 			OracleContainer databaseContainer = DatabaseContainers.oracleXe();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
-		public ResourceDatabasePopulator databasePopulator() {
+		ResourceDatabasePopulator databasePopulator() {
 			return DatabasePopulators.oracle();
 		}
 

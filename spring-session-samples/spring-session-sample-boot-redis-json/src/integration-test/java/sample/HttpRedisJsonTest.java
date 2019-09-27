@@ -107,14 +107,14 @@ class HttpRedisJsonTest {
 	static class Config {
 
 		@Bean
-		public GenericContainer redisContainer() {
+		GenericContainer redisContainer() {
 			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
 			redisContainer.start();
 			return redisContainer;
 		}
 
 		@Bean
-		public LettuceConnectionFactory redisConnectionFactory() {
+		LettuceConnectionFactory redisConnectionFactory() {
 			return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
 					redisContainer().getFirstMappedPort());
 		}

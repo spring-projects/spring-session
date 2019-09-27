@@ -41,14 +41,14 @@ class PostgreSql9JdbcIndexedSessionRepositoryITests extends AbstractContainerJdb
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public PostgreSQLContainer databaseContainer() {
+		PostgreSQLContainer databaseContainer() {
 			PostgreSQLContainer databaseContainer = DatabaseContainers.postgreSql9();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
-		public ResourceDatabasePopulator databasePopulator() {
+		ResourceDatabasePopulator databasePopulator() {
 			return DatabasePopulators.postgreSql();
 		}
 

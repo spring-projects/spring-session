@@ -275,7 +275,7 @@ class RedisHttpSessionConfigurationTests {
 	static class PropertySourceConfiguration {
 
 		@Bean
-		public PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+		PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
 			return new PropertySourcesPlaceholderConfigurer();
 		}
 
@@ -285,7 +285,7 @@ class RedisHttpSessionConfigurationTests {
 	static class RedisConfig {
 
 		@Bean
-		public RedisConnectionFactory defaultRedisConnectionFactory() {
+		RedisConnectionFactory defaultRedisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
 
@@ -357,7 +357,7 @@ class RedisHttpSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionRedisConnectionFactory
-		public RedisConnectionFactory qualifiedRedisConnectionFactory() {
+		RedisConnectionFactory qualifiedRedisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
 
@@ -369,7 +369,7 @@ class RedisHttpSessionConfigurationTests {
 
 		@Bean
 		@Primary
-		public RedisConnectionFactory primaryRedisConnectionFactory() {
+		RedisConnectionFactory primaryRedisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
 
@@ -381,13 +381,13 @@ class RedisHttpSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionRedisConnectionFactory
-		public RedisConnectionFactory qualifiedRedisConnectionFactory() {
+		RedisConnectionFactory qualifiedRedisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
 
 		@Bean
 		@Primary
-		public RedisConnectionFactory primaryRedisConnectionFactory() {
+		RedisConnectionFactory primaryRedisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
 
@@ -398,7 +398,7 @@ class RedisHttpSessionConfigurationTests {
 	static class NamedConnectionFactoryRedisConfig {
 
 		@Bean
-		public RedisConnectionFactory redisConnectionFactory() {
+		RedisConnectionFactory redisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
 
@@ -409,7 +409,7 @@ class RedisHttpSessionConfigurationTests {
 	static class MultipleConnectionFactoryRedisConfig {
 
 		@Bean
-		public RedisConnectionFactory secondaryRedisConnectionFactory() {
+		RedisConnectionFactory secondaryRedisConnectionFactory() {
 			return mockRedisConnectionFactory();
 		}
 
@@ -433,7 +433,7 @@ class RedisHttpSessionConfigurationTests {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		public IndexResolver<Session> indexResolver() {
+		IndexResolver<Session> indexResolver() {
 			return mock(IndexResolver.class);
 		}
 
@@ -444,7 +444,7 @@ class RedisHttpSessionConfigurationTests {
 	static class CustomRedisMessageListenerContainerConfig {
 
 		@Bean
-		public RedisMessageListenerContainer redisMessageListenerContainer() {
+		RedisMessageListenerContainer redisMessageListenerContainer() {
 			return new RedisMessageListenerContainer();
 		}
 
@@ -455,13 +455,13 @@ class RedisHttpSessionConfigurationTests {
 
 		@Bean
 		@Order(0)
-		public SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerOne() {
+		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerOne() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 		@Bean
 		@Order(1)
-		public SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
+		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}

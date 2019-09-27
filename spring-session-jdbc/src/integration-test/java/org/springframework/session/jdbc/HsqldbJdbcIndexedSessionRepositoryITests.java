@@ -41,7 +41,7 @@ class HsqldbJdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSessio
 	static class Config extends BaseConfig {
 
 		@Bean
-		public EmbeddedDatabase dataSource() {
+		EmbeddedDatabase dataSource() {
 			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL)
 					.addScript("org/springframework/session/jdbc/schema-hsqldb.sql").build();
 		}

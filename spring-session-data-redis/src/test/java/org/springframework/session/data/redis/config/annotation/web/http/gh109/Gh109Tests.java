@@ -62,7 +62,7 @@ class Gh109Tests {
 		 * override sessionRepository construction to set the custom session-timeout
 		 */
 		@Bean
-		public RedisIndexedSessionRepository sessionRepository(RedisOperations<Object, Object> sessionRedisTemplate,
+		RedisIndexedSessionRepository sessionRepository(RedisOperations<Object, Object> sessionRedisTemplate,
 				ApplicationEventPublisher applicationEventPublisher) {
 			RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(sessionRedisTemplate);
 			sessionRepository.setDefaultMaxInactiveInterval(this.sessionTimeout);
@@ -70,7 +70,7 @@ class Gh109Tests {
 		}
 
 		@Bean
-		public RedisConnectionFactory redisConnectionFactory() {
+		RedisConnectionFactory redisConnectionFactory() {
 			RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 			RedisConnection connection = mock(RedisConnection.class);
 			given(factory.getConnection()).willReturn(connection);

@@ -40,14 +40,14 @@ class MySql8JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcInde
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		public MySQLContainer databaseContainer() {
+		MySQLContainer databaseContainer() {
 			MySQLContainer databaseContainer = DatabaseContainers.mySql8();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
-		public ResourceDatabasePopulator databasePopulator() {
+		ResourceDatabasePopulator databasePopulator() {
 			return DatabasePopulators.mySql();
 		}
 

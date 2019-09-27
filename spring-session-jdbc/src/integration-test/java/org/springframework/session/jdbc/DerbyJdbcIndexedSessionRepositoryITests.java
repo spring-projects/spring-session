@@ -41,7 +41,7 @@ class DerbyJdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSession
 	static class Config extends BaseConfig {
 
 		@Bean
-		public EmbeddedDatabase dataSource() {
+		EmbeddedDatabase dataSource() {
 			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.DERBY)
 					.addScript("org/springframework/session/jdbc/schema-derby.sql").build();
 		}

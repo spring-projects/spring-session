@@ -1331,11 +1331,8 @@ class SessionRepositoryFilterTests {
 
 	// We want the filter to work without any dependencies on Spring
 	@Test
-	@SuppressWarnings("unused")
 	void doesNotImplementOrdered() {
-		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> {
-			Ordered o = (Ordered) this.filter;
-		});
+		assertThatExceptionOfType(ClassCastException.class).isThrownBy(() -> Ordered.class.cast(this.filter));
 	}
 
 	@Test

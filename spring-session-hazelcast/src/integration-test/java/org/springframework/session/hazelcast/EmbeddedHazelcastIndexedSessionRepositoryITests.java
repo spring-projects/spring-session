@@ -43,7 +43,7 @@ class EmbeddedHazelcastIndexedSessionRepositoryITests extends AbstractHazelcastI
 	static class HazelcastSessionConfig {
 
 		@Bean
-		public HazelcastInstance hazelcastInstance() {
+		HazelcastInstance hazelcastInstance() {
 			return HazelcastITestUtils.embeddedHazelcastServer();
 		}
 

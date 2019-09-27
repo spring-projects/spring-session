@@ -48,13 +48,13 @@ class RedisHttpSessionConfigurationNoOpConfigureRedisActionTests {
 
 		// tag::configure-redis-action[]
 		@Bean
-		public static ConfigureRedisAction configureRedisAction() {
+		ConfigureRedisAction configureRedisAction() {
 			return ConfigureRedisAction.NO_OP;
 		}
 		// end::configure-redis-action[]
 
 		@Bean
-		public RedisConnectionFactory redisConnectionFactory() {
+		RedisConnectionFactory redisConnectionFactory() {
 			return mock(RedisConnectionFactory.class);
 		}
 

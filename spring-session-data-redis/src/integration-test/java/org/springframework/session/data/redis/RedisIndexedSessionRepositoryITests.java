@@ -617,7 +617,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 	static class Config extends BaseConfig {
 
 		@Bean
-		public SessionEventRegistry sessionEventRegistry() {
+		SessionEventRegistry sessionEventRegistry() {
 			return new SessionEventRegistry();
 		}
 

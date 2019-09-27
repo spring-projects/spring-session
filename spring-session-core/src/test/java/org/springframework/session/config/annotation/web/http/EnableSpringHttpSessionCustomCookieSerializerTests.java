@@ -126,12 +126,12 @@ class EnableSpringHttpSessionCustomCookieSerializerTests {
 	static class Config {
 
 		@Bean
-		public SessionRepository sessionRepository() {
+		SessionRepository sessionRepository() {
 			return mock(SessionRepository.class);
 		}
 
 		@Bean
-		public CookieSerializer cookieSerializer() {
+		CookieSerializer cookieSerializer() {
 			return mock(CookieSerializer.class);
 		}
 

@@ -57,6 +57,7 @@ class DelegatingIndexResolverTests {
 			this.supportedIndex = supportedIndex;
 		}
 
+		@Override
 		public Map<String, String> resolveIndexesFor(MapSession session) {
 			return Collections.singletonMap(this.supportedIndex, session.getAttribute(this.supportedIndex));
 		}

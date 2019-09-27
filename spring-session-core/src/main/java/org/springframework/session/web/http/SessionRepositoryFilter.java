@@ -292,7 +292,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 					requestedSession.setLastAccessedTime(Instant.now());
 					this.requestedSessionIdValid = true;
 					currentSession = new HttpSessionWrapper(requestedSession, getServletContext());
-					currentSession.setNew(false);
+					currentSession.markNotNew();
 					setCurrentSession(currentSession);
 					return currentSession;
 				}

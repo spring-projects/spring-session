@@ -72,7 +72,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 		static class HazelcastSessionXmlConfigCustomMapName {
 
 			@Bean
-			public HazelcastInstance embeddedHazelcast() {
+			HazelcastInstance embeddedHazelcast() {
 				Config hazelcastConfig = new ClasspathXmlConfig(
 						"org/springframework/session/hazelcast/config/annotation/web/http/hazelcast-custom-map-name.xml");
 				NetworkConfig netConfig = new NetworkConfig();
@@ -111,7 +111,7 @@ public class HazelcastHttpSessionConfigurationXmlTests<S extends Session> {
 		static class HazelcastSessionXmlConfigCustomMapNameAndIdle {
 
 			@Bean
-			public HazelcastInstance embeddedHazelcast() {
+			HazelcastInstance embeddedHazelcast() {
 				Config hazelcastConfig = new ClasspathXmlConfig(
 						"org/springframework/session/hazelcast/config/annotation/web/http/hazelcast-custom-idle-time-map-name.xml");
 				NetworkConfig netConfig = new NetworkConfig();

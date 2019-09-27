@@ -232,7 +232,7 @@ class RedisWebSessionConfigurationTests {
 	static class RedisConfig {
 
 		@Bean
-		public ReactiveRedisConnectionFactory defaultRedisConnectionFactory() {
+		ReactiveRedisConnectionFactory defaultRedisConnectionFactory() {
 			return mock(ReactiveRedisConnectionFactory.class);
 		}
 
@@ -284,7 +284,7 @@ class RedisWebSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionRedisConnectionFactory
-		public ReactiveRedisConnectionFactory qualifiedRedisConnectionFactory() {
+		ReactiveRedisConnectionFactory qualifiedRedisConnectionFactory() {
 			return mock(ReactiveRedisConnectionFactory.class);
 		}
 
@@ -295,7 +295,7 @@ class RedisWebSessionConfigurationTests {
 
 		@Bean
 		@Primary
-		public ReactiveRedisConnectionFactory primaryRedisConnectionFactory() {
+		ReactiveRedisConnectionFactory primaryRedisConnectionFactory() {
 			return mock(ReactiveRedisConnectionFactory.class);
 		}
 
@@ -306,13 +306,13 @@ class RedisWebSessionConfigurationTests {
 
 		@Bean
 		@SpringSessionRedisConnectionFactory
-		public ReactiveRedisConnectionFactory qualifiedRedisConnectionFactory() {
+		ReactiveRedisConnectionFactory qualifiedRedisConnectionFactory() {
 			return mock(ReactiveRedisConnectionFactory.class);
 		}
 
 		@Bean
 		@Primary
-		public ReactiveRedisConnectionFactory primaryRedisConnectionFactory() {
+		ReactiveRedisConnectionFactory primaryRedisConnectionFactory() {
 			return mock(ReactiveRedisConnectionFactory.class);
 		}
 
@@ -322,7 +322,7 @@ class RedisWebSessionConfigurationTests {
 	static class NamedConnectionFactoryRedisConfig {
 
 		@Bean
-		public ReactiveRedisConnectionFactory redisConnectionFactory() {
+		ReactiveRedisConnectionFactory redisConnectionFactory() {
 			return mock(ReactiveRedisConnectionFactory.class);
 		}
 
@@ -332,7 +332,7 @@ class RedisWebSessionConfigurationTests {
 	static class MultipleConnectionFactoryRedisConfig {
 
 		@Bean
-		public ReactiveRedisConnectionFactory secondaryRedisConnectionFactory() {
+		ReactiveRedisConnectionFactory secondaryRedisConnectionFactory() {
 			return mock(ReactiveRedisConnectionFactory.class);
 		}
 
@@ -343,7 +343,7 @@ class RedisWebSessionConfigurationTests {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
+		RedisSerializer<Object> springSessionDefaultRedisSerializer() {
 			return mock(RedisSerializer.class);
 		}
 
@@ -354,13 +354,13 @@ class RedisWebSessionConfigurationTests {
 
 		@Bean
 		@Order(0)
-		public ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerOne() {
+		ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerOne() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 		@Bean
 		@Order(1)
-		public ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerTwo() {
+		ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}

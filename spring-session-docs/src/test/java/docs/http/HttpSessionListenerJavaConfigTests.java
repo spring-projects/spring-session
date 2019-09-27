@@ -32,12 +32,12 @@ class HttpSessionListenerJavaConfigTests extends AbstractHttpSessionListenerTest
 	static class MockConfig {
 
 		@Bean
-		public static RedisConnectionFactory redisConnectionFactory() {
+		static RedisConnectionFactory redisConnectionFactory() {
 			return AbstractHttpSessionListenerTests.createMockRedisConnection();
 		}
 
 		@Bean
-		public SecuritySessionDestroyedListener securitySessionDestroyedListener() {
+		SecuritySessionDestroyedListener securitySessionDestroyedListener() {
 			return new SecuritySessionDestroyedListener();
 		}
 

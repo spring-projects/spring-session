@@ -499,7 +499,7 @@ class DefaultCookieSerializerTests {
 		assertThat(getCookie().getSameSite()).isNull();
 	}
 
-	public void setCookieName(String cookieName) {
+	void setCookieName(String cookieName) {
 		this.cookieName = cookieName;
 		this.serializer.setCookieName(cookieName);
 	}

@@ -771,7 +771,7 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 	static class BaseConfig {
 
 		@Bean
-		public PlatformTransactionManager transactionManager(DataSource dataSource) {
+		PlatformTransactionManager transactionManager(DataSource dataSource) {
 			return new DataSourceTransactionManager(dataSource);
 		}
 

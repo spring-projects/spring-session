@@ -36,7 +36,7 @@ abstract class AbstractContainerJdbcIndexedSessionRepositoryITests extends Abstr
 	static class BaseContainerConfig extends BaseConfig {
 
 		@Bean
-		public HikariDataSource dataSource(JdbcDatabaseContainer databaseContainer) {
+		HikariDataSource dataSource(JdbcDatabaseContainer databaseContainer) {
 			HikariDataSource dataSource = new HikariDataSource();
 			dataSource.setJdbcUrl(databaseContainer.getJdbcUrl());
 			dataSource.setUsername(databaseContainer.getUsername());
@@ -45,7 +45,7 @@ abstract class AbstractContainerJdbcIndexedSessionRepositoryITests extends Abstr
 		}
 
 		@Bean
-		public DataSourceInitializer dataSourceInitializer(DataSource dataSource, DatabasePopulator databasePopulator) {
+		DataSourceInitializer dataSourceInitializer(DataSource dataSource, DatabasePopulator databasePopulator) {
 			DataSourceInitializer initializer = new DataSourceInitializer();
 			initializer.setDataSource(dataSource);
 			initializer.setDatabasePopulator(databasePopulator);

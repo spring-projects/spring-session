@@ -65,12 +65,12 @@ class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
+		RedisSerializer<Object> springSessionDefaultRedisSerializer() {
 			return mock(RedisSerializer.class);
 		}
 
 		@Bean
-		public RedisConnectionFactory connectionFactory() {
+		RedisConnectionFactory connectionFactory() {
 			RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 			RedisConnection connection = mock(RedisConnection.class);
 			given(factory.getConnection()).willReturn(connection);
