@@ -434,7 +434,7 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public void deleteById(final String id) {
-		this.transactionOperations.execute(() -> JdbcIndexedSessionRepository.this.jdbcOperations
+		this.transactionOperations.executeWithoutResult((status) -> JdbcIndexedSessionRepository.this.jdbcOperations
 				.update(JdbcIndexedSessionRepository.this.deleteSessionQuery, id));
 	}
 
@@ -776,7 +776,7 @@ public class JdbcIndexedSessionRepository
 
 		private void save() {
 			if (this.isNew) {
-				JdbcIndexedSessionRepository.this.transactionOperations.execute(() -> {
+				JdbcIndexedSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
 					Map<String, String> indexes = JdbcIndexedSessionRepository.this.indexResolver
 							.resolveIndexesFor(JdbcSession.this);
 					JdbcIndexedSessionRepository.this.jdbcOperations
@@ -796,7 +796,7 @@ public class JdbcIndexedSessionRepository
 				});
 			}
 			else {
-				JdbcIndexedSessionRepository.this.transactionOperations.execute(() -> {
+				JdbcIndexedSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
 					if (JdbcSession.this.changed) {
 						Map<String, String> indexes = JdbcIndexedSessionRepository.this.indexResolver
 								.resolveIndexesFor(JdbcSession.this);
