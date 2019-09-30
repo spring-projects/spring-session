@@ -1,4 +1,4 @@
-ext['spring-framework.version'] = '5.2.0.BUILD-SNAPSHOT'
+ext['spring-framework.version'] = '5.2.0.RELEASE'
 ext['webjars-locator-core.version'] = '0.38'
 
 dependencyManagement {
