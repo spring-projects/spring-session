@@ -77,7 +77,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Target(ElementType.TYPE)
 @Documented
 @Import(JdbcHttpSessionConfiguration.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public @interface EnableJdbcHttpSession {
 
 	/**

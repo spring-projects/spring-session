@@ -49,7 +49,7 @@ import org.springframework.context.annotation.Import;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Documented
 @Import(SpringWebSessionConfiguration.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public @interface EnableSpringWebSession {
 
 }

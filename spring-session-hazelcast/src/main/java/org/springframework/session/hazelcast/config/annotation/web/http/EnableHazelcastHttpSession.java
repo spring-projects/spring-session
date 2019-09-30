@@ -69,7 +69,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Target(ElementType.TYPE)
 @Documented
 @Import(HazelcastHttpSessionConfiguration.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public @interface EnableHazelcastHttpSession {
 
 	/**

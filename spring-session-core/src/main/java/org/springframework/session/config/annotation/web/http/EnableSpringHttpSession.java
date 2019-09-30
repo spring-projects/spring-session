@@ -74,7 +74,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Documented
 @Import(SpringHttpSessionConfiguration.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public @interface EnableSpringHttpSession {
 
 }

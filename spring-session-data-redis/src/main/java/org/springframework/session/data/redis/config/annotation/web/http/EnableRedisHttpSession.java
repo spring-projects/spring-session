@@ -65,7 +65,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Target(ElementType.TYPE)
 @Documented
 @Import(RedisHttpSessionConfiguration.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public @interface EnableRedisHttpSession {
 
 	/**

@@ -63,7 +63,7 @@ import org.springframework.web.server.session.WebSessionManager;
 @Target(ElementType.TYPE)
 @Documented
 @Import(RedisWebSessionConfiguration.class)
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public @interface EnableRedisWebSession {
 
 	/**
