@@ -1,3 +1,4 @@
+ext['jackson.version'] = '2.10.0'
 ext['reactor-bom.version'] = 'Dysprosium-RELEASE'
 ext['spring-data-releasetrain.version'] = 'Moore-RELEASE'
 ext['spring-framework.version'] = '5.2.0.RELEASE'
