@@ -39,7 +39,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 public class RedisSerializerTest {
 
-	private static final String DOCKER_IMAGE = "redis:5.0.5";
+	private static final String DOCKER_IMAGE = "redis:5.0.6";
 
 	@SpringSessionRedisOperations
 	private RedisTemplate<Object, Object> sessionRedisTemplate;

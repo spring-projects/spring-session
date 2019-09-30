@@ -45,7 +45,7 @@ import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDr
 @SpringBootTest(webEnvironment = WebEnvironment.MOCK)
 public class BootTests {
 
-	private static final String DOCKER_IMAGE = "redis:5.0.5";
+	private static final String DOCKER_IMAGE = "redis:5.0.6";
 
 	@Autowired
 	private MockMvc mockMvc;
