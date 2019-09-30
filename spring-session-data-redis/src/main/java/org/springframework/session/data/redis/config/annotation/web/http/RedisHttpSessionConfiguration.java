@@ -80,9 +80,8 @@ import org.springframework.util.StringValueResolver;
  * @since 1.0
  */
 @Configuration(proxyBeanMethods = false)
-@EnableScheduling
 public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware, SchedulingConfigurer {
+		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
@@ -280,11 +279,6 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		}
 	}
 
-	@Override
-	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-		taskRegistrar.addCronTask(() -> sessionRepository().cleanupExpiredSessions(), this.cleanupCron);
-	}
-
 	private RedisTemplate<Object, Object> createRedisTemplate() {
 		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
@@ -346,6 +340,27 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 					LogFactory.getLog(getClass()).error("Error closing RedisConnection", ex);
 				}
 			}
+		}
+
+	}
+
+	/**
+	 * Configuration of scheduled job for cleaning up expired sessions.
+	 */
+	@EnableScheduling
+	@Configuration(proxyBeanMethods = false)
+	class SessionCleanupConfiguration implements SchedulingConfigurer {
+
+		private final RedisIndexedSessionRepository sessionRepository;
+
+		SessionCleanupConfiguration(RedisIndexedSessionRepository sessionRepository) {
+			this.sessionRepository = sessionRepository;
+		}
+
+		@Override
+		public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+			taskRegistrar.addCronTask(this.sessionRepository::cleanupExpiredSessions,
+					RedisHttpSessionConfiguration.this.cleanupCron);
 		}
 
 	}

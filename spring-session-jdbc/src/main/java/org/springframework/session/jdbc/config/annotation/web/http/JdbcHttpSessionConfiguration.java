@@ -75,9 +75,8 @@ import org.springframework.util.StringValueResolver;
  * @see EnableJdbcHttpSession
  */
 @Configuration(proxyBeanMethods = false)
-@EnableScheduling
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware, SchedulingConfigurer {
+		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
 	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
@@ -258,11 +257,6 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		this.saveMode = attributes.getEnum("saveMode");
 	}
 
-	@Override
-	public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-		taskRegistrar.addCronTask(() -> sessionRepository().cleanUpExpiredSessions(), this.cleanupCron);
-	}
-
 	private static JdbcTemplate createJdbcTemplate(DataSource dataSource) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		jdbcTemplate.afterPropertiesSet();
@@ -281,6 +275,27 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		conversionService.addConverter(Object.class, byte[].class, new SerializingConverter());
 		conversionService.addConverter(byte[].class, Object.class, new DeserializingConverter(classLoader));
 		return conversionService;
+	}
+
+	/**
+	 * Configuration of scheduled job for cleaning up expired sessions.
+	 */
+	@EnableScheduling
+	@Configuration(proxyBeanMethods = false)
+	class SessionCleanupConfiguration implements SchedulingConfigurer {
+
+		private final JdbcIndexedSessionRepository sessionRepository;
+
+		SessionCleanupConfiguration(JdbcIndexedSessionRepository sessionRepository) {
+			this.sessionRepository = sessionRepository;
+		}
+
+		@Override
+		public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+			taskRegistrar.addCronTask(this.sessionRepository::cleanUpExpiredSessions,
+					JdbcHttpSessionConfiguration.this.cleanupCron);
+		}
+
 	}
 
 }
