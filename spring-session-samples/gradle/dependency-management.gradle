@@ -1,4 +1,5 @@
 ext['spring-framework.version'] = '5.2.0.RELEASE'
+ext['spring-data-releasetrain.version'] = 'Moore-RELEASE'
 ext['webjars-locator-core.version'] = '0.38'
 
 dependencyManagement {
