@@ -7,4 +7,5 @@
 	<suppress files="[\\/]spring-session-docs[\\/]" checks="InnerTypeLast"/>
 	<suppress files="[\\/]spring-session-samples[\\/]" checks="Javadoc*"/>
 	<suppress files="[\\/]spring-session-samples[\\/].+Application\.java" checks="HideUtilityClassConstructor"/>
+	<suppress files="CookieSerializer\.java" checks="SpringMethodVisibility"/>
 </suppressions>

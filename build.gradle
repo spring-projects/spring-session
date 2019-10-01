@@ -13,7 +13,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.26.RELEASE'
+		classpath 'io.spring.gradle:spring-build-conventions:0.0.27.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 	}
 }
@@ -26,23 +26,8 @@ description = 'Spring Session'
 subprojects {
 	apply plugin: 'io.spring.javaformat'
 
-	configurations.all {
-		resolutionStrategy {
-			cacheChangingModulesFor 0, "seconds"
-			cacheDynamicVersionsFor 0, "seconds"
-		}
-	}
-
 	plugins.withType(JavaPlugin) {
 		sourceCompatibility = JavaVersion.VERSION_1_8
-	}
-
-	plugins.withId('io.spring.dependency-management') {
-		dependencyManagement {
-			resolutionStrategy {
-				cacheChangingModulesFor 0, "seconds"
-			}
-		}
 	}
 
 	tasks.withType(Test) {
