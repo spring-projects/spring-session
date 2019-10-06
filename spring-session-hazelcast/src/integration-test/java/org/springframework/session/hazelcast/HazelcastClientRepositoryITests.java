@@ -22,8 +22,8 @@ import com.hazelcast.core.HazelcastInstance;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.MountableFile;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,11 +50,9 @@ public class HazelcastClientRepositoryITests extends AbstractHazelcastRepository
 	private static GenericContainer container = new GenericContainer<>(
 			"hazelcast/hazelcast:3.11.4")
 					.withExposedPorts(5701)
-					.withEnv("JAVA_OPTS",
-							"-Dhazelcast.config=/opt/hazelcast/config_ext/hazelcast.xml")
-					.withClasspathResourceMapping("/hazelcast-server.xml",
-							"/opt/hazelcast/config_ext/hazelcast.xml",
-							BindMode.READ_ONLY);
+					.withCopyFileToContainer(
+							MountableFile.forClasspathResource("/hazelcast-server.xml"),
+							"/opt/hazelcast/hazelcast.xml");
 
 	@BeforeClass
 	public static void setUpClass() {
