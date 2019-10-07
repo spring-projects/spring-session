@@ -16,6 +16,7 @@
 
 package org.springframework.session.web.http;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -61,6 +62,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		domainValid.set('.');
 		domainValid.set('-');
 	}
+
+	private Clock clock = Clock.systemUTC();
 
 	private String cookieName = "SESSION";
 
@@ -121,7 +124,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	public void writeCookieValue(CookieValue cookieValue) {
 		HttpServletRequest request = cookieValue.getRequest();
 		HttpServletResponse response = cookieValue.getResponse();
-
 		StringBuilder sb = new StringBuilder();
 		sb.append(this.cookieName).append('=');
 		String value = getValue(cookieValue);
@@ -132,7 +134,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		int maxAge = getMaxAge(cookieValue);
 		if (maxAge > -1) {
 			sb.append("; Max-Age=").append(cookieValue.getCookieMaxAge());
-			OffsetDateTime expires = (maxAge != 0) ? OffsetDateTime.now().plusSeconds(maxAge)
+			OffsetDateTime expires = (maxAge != 0) ? OffsetDateTime.now(this.clock).plusSeconds(maxAge)
 					: Instant.EPOCH.atOffset(ZoneOffset.UTC);
 			sb.append("; Expires=").append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		}
@@ -155,7 +157,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		if (this.sameSite != null) {
 			sb.append("; SameSite=").append(this.sameSite);
 		}
-
 		response.addHeader("Set-Cookie", sb.toString());
 	}
 
@@ -257,6 +258,10 @@ public class DefaultCookieSerializer implements CookieSerializer {
 				throw new IllegalArgumentException("Invalid cookie path: " + path);
 			}
 		}
+	}
+
+	void setClock(Clock clock) {
+		this.clock = clock.withZone(ZoneOffset.UTC);
 	}
 
 	/**
