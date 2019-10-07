@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.session.web.http;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Base64;
 
 import javax.servlet.http.Cookie;
@@ -26,6 +29,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -56,7 +60,7 @@ public class DefaultCookieSerializerTests {
 
 	private MockHttpServletRequest request;
 
-	private MockHttpServletResponse response;
+	private CookiePreservingMockHttpServletResponse response;
 
 	private DefaultCookieSerializer serializer;
 
@@ -70,7 +74,7 @@ public class DefaultCookieSerializerTests {
 	public void setup() {
 		this.cookieName = "SESSION";
 		this.request = new MockHttpServletRequest();
-		this.response = new MockHttpServletResponse();
+		this.response = new CookiePreservingMockHttpServletResponse();
 		this.sessionId = "sessionId";
 		this.serializer = new DefaultCookieSerializer();
 		this.serializer.setUseBase64Encoding(this.useBase64Encoding);
@@ -232,7 +236,7 @@ public class DefaultCookieSerializerTests {
 			this.serializer.writeCookieValue(cookieValue(this.sessionId));
 			assertThat(getCookie().getDomain()).isEqualTo("example.com");
 
-			this.response = new MockHttpServletResponse();
+			this.response = new CookiePreservingMockHttpServletResponse();
 		}
 
 		String[] notMatchingDomains = { "example.com", "localhost", "127.0.0.1" };
@@ -241,7 +245,7 @@ public class DefaultCookieSerializerTests {
 			this.serializer.writeCookieValue(cookieValue(this.sessionId));
 			assertThat(getCookie().getDomain()).isNull();
 
-			this.response = new MockHttpServletResponse();
+			this.response = new CookiePreservingMockHttpServletResponse();
 		}
 	}
 
@@ -326,34 +330,41 @@ public class DefaultCookieSerializerTests {
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(-1);
+		assertThat(this.response.rawCookie).doesNotContain("Expires");
 	}
 
 	@Test
 	public void writeCookieCookieMaxAgeExplicit() {
+		this.serializer.setClock(Clock.fixed(Instant.parse("2019-10-07T20:10:00Z"), ZoneOffset.UTC));
 		this.serializer.setCookieMaxAge(100);
 
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(100);
+		assertThat(this.response.rawCookie).contains("Expires=Mon, 7 Oct 2019 20:11:40 GMT");
 	}
 
 	@Test
 	public void writeCookieCookieMaxAgeExplicitEmptyCookie() {
+		this.serializer.setClock(Clock.fixed(Instant.parse("2019-10-07T20:10:00Z"), ZoneOffset.UTC));
 		this.serializer.setCookieMaxAge(100);
 
 		this.serializer.writeCookieValue(cookieValue(""));
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(0);
+		assertThat(this.response.rawCookie).contains("Expires=Thu, 1 Jan 1970 00:00:00 GMT");
 	}
 
 	@Test
 	public void writeCookieCookieMaxAgeExplicitCookieValue() {
+		this.serializer.setClock(Clock.fixed(Instant.parse("2019-10-07T20:10:00Z"), ZoneOffset.UTC));
 		CookieValue cookieValue = cookieValue(this.sessionId);
 		cookieValue.setCookieMaxAge(100);
 
 		this.serializer.writeCookieValue(cookieValue);
 
 		assertThat(getCookie().getMaxAge()).isEqualTo(100);
+		assertThat(this.response.rawCookie).contains("Expires=Mon, 7 Oct 2019 20:11:40 GMT");
 	}
 
 	// --- secure ---
@@ -529,6 +540,20 @@ public class DefaultCookieSerializerTests {
 
 	private CookieValue cookieValue(String cookieValue) {
 		return new CookieValue(this.request, this.response, cookieValue);
+	}
+
+	private static class CookiePreservingMockHttpServletResponse extends MockHttpServletResponse {
+
+		private String rawCookie;
+
+		@Override
+		public void addHeader(String name, String value) {
+			if (HttpHeaders.SET_COOKIE.equals(name)) {
+				this.rawCookie = value;
+			}
+			super.addHeader(name, value);
+		}
+
 	}
 
 }

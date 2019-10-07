@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.session.web.http;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -61,6 +62,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		domainValid.set('.');
 		domainValid.set('-');
 	}
+
+	private Clock clock = Clock.systemUTC();
 
 	private String cookieName = "SESSION";
 
@@ -136,7 +139,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		if (maxAge > -1) {
 			sb.append("; Max-Age=").append(cookieValue.getCookieMaxAge());
 			OffsetDateTime expires = (maxAge != 0)
-					? OffsetDateTime.now().plusSeconds(maxAge)
+					? OffsetDateTime.now(this.clock).plusSeconds(maxAge)
 					: Instant.EPOCH.atOffset(ZoneOffset.UTC);
 			sb.append("; Expires=")
 					.append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
@@ -265,6 +268,10 @@ public class DefaultCookieSerializer implements CookieSerializer {
 				throw new IllegalArgumentException("Invalid cookie path: " + path);
 			}
 		}
+	}
+
+	void setClock(Clock clock) {
+		this.clock = clock.withZone(ZoneOffset.UTC);
 	}
 
 	/**
