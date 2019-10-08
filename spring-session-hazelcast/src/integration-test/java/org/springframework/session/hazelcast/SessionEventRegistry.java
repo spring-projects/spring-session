@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentMap;
 import org.springframework.context.ApplicationListener;
 import org.springframework.session.events.AbstractSessionEvent;
 
-public class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
+class SessionEventRegistry implements ApplicationListener<AbstractSessionEvent> {
 
 	private Map<String, AbstractSessionEvent> events = new HashMap<>();
 
@@ -40,17 +40,17 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 		}
 	}
 
-	public void clear() {
+	void clear() {
 		this.events.clear();
 		this.locks.clear();
 	}
 
-	public boolean receivedEvent(String sessionId) throws InterruptedException {
+	boolean receivedEvent(String sessionId) throws InterruptedException {
 		return waitForEvent(sessionId) != null;
 	}
 
 	@SuppressWarnings("unchecked")
-	public <E extends AbstractSessionEvent> E getEvent(String sessionId) throws InterruptedException {
+	<E extends AbstractSessionEvent> E getEvent(String sessionId) throws InterruptedException {
 		return (E) waitForEvent(sessionId);
 	}
 

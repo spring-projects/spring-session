@@ -19,7 +19,7 @@ package sample;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapAttributeConfig;
 import com.hazelcast.config.MapIndexConfig;
-import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.PrincipalNameExtractor;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
-import org.springframework.util.SocketUtils;
 
 // tag::class[]
 @EnableHazelcastHttpSession(maxInactiveIntervalInSeconds = 300)
@@ -38,26 +37,15 @@ public class SessionConfig {
 	@Bean(destroyMethod = "shutdown")
 	public HazelcastInstance hazelcastInstance() {
 		Config config = new Config();
-
-		int port = SocketUtils.findAvailableTcpPort();
-
-		config.getNetworkConfig().setPort(port).getJoin().getMulticastConfig().setEnabled(false);
-
-		System.out.println("Hazelcast port #: " + port);
-
-		SerializerConfig serializer = new SerializerConfig().setImplementation(new ObjectStreamSerializer())
-				.setTypeClass(Object.class);
-
-		config.getSerializationConfig().addSerializerConfig(serializer);
-
+		NetworkConfig networkConfig = config.getNetworkConfig();
+		networkConfig.setPort(0);
+		networkConfig.getJoin().getMulticastConfig().setEnabled(false);
 		MapAttributeConfig attributeConfig = new MapAttributeConfig()
 				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
 				.setExtractor(PrincipalNameExtractor.class.getName());
-
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
 				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
 						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
-
 		return Hazelcast.newHazelcastInstance(config);
 	}
 

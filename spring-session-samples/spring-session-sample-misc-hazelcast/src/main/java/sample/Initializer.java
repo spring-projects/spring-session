@@ -16,8 +16,6 @@
 
 package sample;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.EnumSet;
 import java.util.Map;
 
@@ -28,6 +26,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import com.hazelcast.config.Config;
+import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
@@ -62,21 +61,11 @@ public class Initializer implements ServletContextListener {
 
 	private HazelcastInstance createHazelcastInstance() {
 		Config config = new Config();
-
-		config.getNetworkConfig().setPort(getAvailablePort()).getJoin().getMulticastConfig().setEnabled(false);
-
+		NetworkConfig networkConfig = config.getNetworkConfig();
+		networkConfig.setPort(0);
+		networkConfig.getJoin().getMulticastConfig().setEnabled(false);
 		config.getMapConfig(SESSION_MAP_NAME).setTimeToLiveSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
-
 		return Hazelcast.newHazelcastInstance(config);
-	}
-
-	private static int getAvailablePort() {
-		try (ServerSocket socket = new ServerSocket(0)) {
-			return socket.getLocalPort();
-		}
-		catch (IOException ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
 }

@@ -35,16 +35,13 @@ public class HazelcastHttpSessionConfig {
 
 	@Bean
 	public HazelcastInstance hazelcastInstance() {
+		Config config = new Config();
 		MapAttributeConfig attributeConfig = new MapAttributeConfig()
 				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
 				.setExtractor(PrincipalNameExtractor.class.getName());
-
-		Config config = new Config();
-
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME) // <2>
 				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
 						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
-
 		return Hazelcast.newHazelcastInstance(config); // <3>
 	}
 

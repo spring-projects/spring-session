@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.hazelcast.config.annotation.web.http;
+package org.springframework.session.hazelcast;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,8 +38,7 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
-import org.springframework.session.hazelcast.HazelcastITestUtils;
-import org.springframework.session.hazelcast.SessionEventRegistry;
+import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -57,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-class EnableHazelcastHttpSessionEventsTests<S extends Session> {
+class SessionEventHazelcastIndexedSessionRepositoryTests<S extends Session> {
 
 	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
 
