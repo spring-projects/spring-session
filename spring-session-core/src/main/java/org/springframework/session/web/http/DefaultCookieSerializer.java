@@ -18,8 +18,8 @@ package org.springframework.session.web.http;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -134,8 +134,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		int maxAge = getMaxAge(cookieValue);
 		if (maxAge > -1) {
 			sb.append("; Max-Age=").append(cookieValue.getCookieMaxAge());
-			OffsetDateTime expires = (maxAge != 0) ? OffsetDateTime.now(this.clock).plusSeconds(maxAge)
-					: Instant.EPOCH.atOffset(ZoneOffset.UTC);
+			ZonedDateTime expires = (maxAge != 0) ? ZonedDateTime.now(this.clock).plusSeconds(maxAge)
+					: Instant.EPOCH.atZone(ZoneOffset.UTC);
 			sb.append("; Expires=").append(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME));
 		}
 		String domain = getDomainName(request);
