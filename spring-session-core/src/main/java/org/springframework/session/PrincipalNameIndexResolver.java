@@ -34,6 +34,8 @@ public class PrincipalNameIndexResolver<S extends Session> extends SingleIndexRe
 
 	private static final SpelExpressionParser parser = new SpelExpressionParser();
 
+	private static final Expression expression = parser.parseExpression("authentication?.name");
+
 	public PrincipalNameIndexResolver() {
 		super(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 	}
@@ -45,7 +47,6 @@ public class PrincipalNameIndexResolver<S extends Session> extends SingleIndexRe
 		}
 		Object authentication = session.getAttribute(SPRING_SECURITY_CONTEXT);
 		if (authentication != null) {
-			Expression expression = parser.parseExpression("authentication?.name");
 			return expression.getValue(authentication, String.class);
 		}
 		return null;
