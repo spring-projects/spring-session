@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.CreateWithIdSessionRepository;
 import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
@@ -108,10 +109,12 @@ import org.springframework.util.ClassUtils;
  * @author Tommy Ludwig
  * @author Mark Anderson
  * @author Aleksandar Stojsavljevic
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class HazelcastIndexedSessionRepository
 		implements FindByIndexNameSessionRepository<HazelcastIndexedSessionRepository.HazelcastSession>,
+				   CreateWithIdSessionRepository<HazelcastIndexedSessionRepository.HazelcastSession>,
 		EntryAddedListener<String, MapSession>, EntryEvictedListener<String, MapSession>,
 		EntryRemovedListener<String, MapSession> {
 
@@ -244,6 +247,17 @@ public class HazelcastIndexedSessionRepository
 	}
 
 	@Override
+	public HazelcastSession createSession(final String id) {
+		MapSession cached = new MapSession(id);
+		if (this.defaultMaxInactiveInterval != null) {
+			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
+		}
+		HazelcastSession session = new HazelcastSession(cached, true);
+		session.flushImmediateIfNecessary();
+		return session;
+	}
+
+	@Override
 	public void save(HazelcastSession session) {
 		if (session.isNew) {
 			this.sessions.set(session.getId(), session.getDelegate(), session.getMaxInactiveInterval().getSeconds(),
@@ -338,14 +352,8 @@ public class HazelcastIndexedSessionRepository
 			this.eventPublisher.publishEvent(new SessionDeletedEvent(this, session));
 		}
 	}
-
-	/**
-	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
-	 * basis for its mapping. It keeps track if changes have been made since last save.
-	 *
-	 * @author Aleksandar Stojsavljevic
-	 */
 	final class HazelcastSession implements Session {
+
 
 		private final MapSession delegate;
 

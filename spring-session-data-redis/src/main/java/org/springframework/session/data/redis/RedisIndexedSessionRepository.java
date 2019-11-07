@@ -38,6 +38,7 @@ import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.CreateWithIdSessionRepository;
 import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
@@ -244,10 +245,12 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class RedisIndexedSessionRepository
-		implements FindByIndexNameSessionRepository<RedisIndexedSessionRepository.RedisSession>, MessageListener {
+		implements FindByIndexNameSessionRepository<RedisIndexedSessionRepository.RedisSession>,
+				   CreateWithIdSessionRepository<RedisIndexedSessionRepository.RedisSession>, MessageListener {
 
 	private static final Log logger = LogFactory.getLog(RedisIndexedSessionRepository.class);
 
@@ -490,6 +493,17 @@ public class RedisIndexedSessionRepository
 	@Override
 	public RedisSession createSession() {
 		MapSession cached = new MapSession();
+		if (this.defaultMaxInactiveInterval != null) {
+			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
+		}
+		RedisSession session = new RedisSession(cached, true);
+		session.flushImmediateIfNecessary();
+		return session;
+	}
+
+	@Override
+	public RedisSession createSession(final String id) {
+		MapSession cached = new MapSession(id);
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
