@@ -58,6 +58,9 @@ See `domainNamePattern` as an alternative.
 The pattern should provide a single grouping that is used to extract the value of the cookie domain.
 If the regular expression does not match, no domain is set and the existing domain is used.
 If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] is used as the domain.
+* `sameSite`: The value for the `SameSite` cookie directive.
+To disable the serialization of the `SameSite` cookie directive, you may set this value to `null`.
+Default: `Lax`
 
 WARNING: You should only match on valid domain characters, since the domain name is reflected in the response.
 Doing so prevents a malicious user from performing such attacks as https://en.wikipedia.org/wiki/HTTP_response_splitting[HTTP Response Splitting].
