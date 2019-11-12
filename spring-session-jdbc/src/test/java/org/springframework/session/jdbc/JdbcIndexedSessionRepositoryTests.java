@@ -268,6 +268,23 @@ class JdbcIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void createSessionWithSpecificId() {
+		final String desiredSessionId = "desiredId";
+		JdbcSession session = this.repository.createSession(desiredSessionId);
+		assertThat(session.isNew()).isTrue();
+		assertThat(session.getId()).isEqualTo(desiredSessionId);
+		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	void createSessionWithIdEqualNull() {
+		JdbcSession session = this.repository.createSession(null);
+		assertThat(session.isNew()).isTrue();
+		assertThat(session.getId()).isNotNull();
+		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
 	void saveNewWithoutAttributes() {
 		JdbcSession session = this.repository.createSession();
 
