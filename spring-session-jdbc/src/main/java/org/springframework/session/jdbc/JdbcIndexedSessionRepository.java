@@ -132,7 +132,7 @@ import org.springframework.util.StringUtils;
  */
 public class JdbcIndexedSessionRepository
 		implements FindByIndexNameSessionRepository<JdbcIndexedSessionRepository.JdbcSession>,
-				   CreateWithIdSessionRepository<JdbcIndexedSessionRepository.JdbcSession> {
+		CreateWithIdSessionRepository<JdbcIndexedSessionRepository.JdbcSession> {
 
 	/**
 	 * The default name of database table used by Spring Session to store sessions.
@@ -404,9 +404,7 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public JdbcSession createSession(final String id) {
-		MapSession delegate = Optional.ofNullable(id)
-									.map(MapSession::new)
-									.orElse(new MapSession());
+		MapSession delegate = Optional.ofNullable(id).map(MapSession::new).orElse(new MapSession());
 		if (this.defaultMaxInactiveInterval != null) {
 			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
