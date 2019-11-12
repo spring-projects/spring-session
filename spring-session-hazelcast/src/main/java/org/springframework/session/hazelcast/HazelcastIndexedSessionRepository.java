@@ -115,7 +115,7 @@ import org.springframework.util.ClassUtils;
  */
 public class HazelcastIndexedSessionRepository
 		implements FindByIndexNameSessionRepository<HazelcastIndexedSessionRepository.HazelcastSession>,
-				   CreateWithIdSessionRepository<HazelcastIndexedSessionRepository.HazelcastSession>,
+		CreateWithIdSessionRepository<HazelcastIndexedSessionRepository.HazelcastSession>,
 		EntryAddedListener<String, MapSession>, EntryEvictedListener<String, MapSession>,
 		EntryRemovedListener<String, MapSession> {
 
@@ -243,9 +243,7 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public HazelcastSession createSession(final String id) {
-		MapSession cached = Optional.ofNullable(id)
-									.map(MapSession::new)
-									.orElse(new MapSession());
+		MapSession cached = Optional.ofNullable(id).map(MapSession::new).orElse(new MapSession());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -349,8 +347,8 @@ public class HazelcastIndexedSessionRepository
 			this.eventPublisher.publishEvent(new SessionDeletedEvent(this, session));
 		}
 	}
-	final class HazelcastSession implements Session {
 
+	final class HazelcastSession implements Session {
 
 		private final MapSession delegate;
 

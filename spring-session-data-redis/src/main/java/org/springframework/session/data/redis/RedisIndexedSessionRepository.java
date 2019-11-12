@@ -251,7 +251,7 @@ import org.springframework.util.Assert;
  */
 public class RedisIndexedSessionRepository
 		implements FindByIndexNameSessionRepository<RedisIndexedSessionRepository.RedisSession>,
-				   CreateWithIdSessionRepository<RedisIndexedSessionRepository.RedisSession>, MessageListener {
+		CreateWithIdSessionRepository<RedisIndexedSessionRepository.RedisSession>, MessageListener {
 
 	private static final Log logger = LogFactory.getLog(RedisIndexedSessionRepository.class);
 
@@ -498,9 +498,7 @@ public class RedisIndexedSessionRepository
 
 	@Override
 	public RedisSession createSession(final String id) {
-		MapSession cached = Optional.ofNullable(id)
-									.map(MapSession::new)
-									.orElse(new MapSession());
+		MapSession cached = Optional.ofNullable(id).map(MapSession::new).orElse(new MapSession());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
