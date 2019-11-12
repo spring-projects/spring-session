@@ -348,6 +348,12 @@ public class HazelcastIndexedSessionRepository
 		}
 	}
 
+	/**
+	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
+	 * basis for its mapping. It keeps track if changes have been made since last save.
+	 *
+	 * @author Aleksandar Stojsavljevic
+	 */
 	final class HazelcastSession implements Session {
 
 		private final MapSession delegate;
