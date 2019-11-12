@@ -19,6 +19,7 @@ package org.springframework.session.data.redis;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -492,18 +493,14 @@ public class RedisIndexedSessionRepository
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession();
-		if (this.defaultMaxInactiveInterval != null) {
-			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-		}
-		RedisSession session = new RedisSession(cached, true);
-		session.flushImmediateIfNecessary();
-		return session;
+		return createSession(null);
 	}
 
 	@Override
 	public RedisSession createSession(final String id) {
-		MapSession cached = new MapSession(id);
+		MapSession cached = Optional.ofNullable(id)
+									.map(MapSession::new)
+									.orElse(new MapSession());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}

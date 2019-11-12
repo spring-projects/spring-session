@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -398,18 +399,14 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public JdbcSession createSession() {
-		MapSession delegate = new MapSession();
-		if (this.defaultMaxInactiveInterval != null) {
-			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-		}
-		JdbcSession session = new JdbcSession(delegate, UUID.randomUUID().toString(), true);
-		session.flushIfRequired();
-		return session;
+		return createSession(null);
 	}
 
 	@Override
 	public JdbcSession createSession(final String id) {
-		MapSession delegate = new MapSession(id);
+		MapSession delegate = Optional.ofNullable(id)
+									.map(MapSession::new)
+									.orElse(new MapSession());
 		if (this.defaultMaxInactiveInterval != null) {
 			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}

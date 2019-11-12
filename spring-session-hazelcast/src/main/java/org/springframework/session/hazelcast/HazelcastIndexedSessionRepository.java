@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -237,18 +238,14 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public HazelcastSession createSession() {
-		MapSession cached = new MapSession();
-		if (this.defaultMaxInactiveInterval != null) {
-			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-		}
-		HazelcastSession session = new HazelcastSession(cached, true);
-		session.flushImmediateIfNecessary();
-		return session;
+		return createSession(null);
 	}
 
 	@Override
 	public HazelcastSession createSession(final String id) {
-		MapSession cached = new MapSession(id);
+		MapSession cached = Optional.ofNullable(id)
+									.map(MapSession::new)
+									.orElse(new MapSession());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
