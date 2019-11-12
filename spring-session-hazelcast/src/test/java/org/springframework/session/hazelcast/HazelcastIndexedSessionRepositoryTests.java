@@ -116,6 +116,27 @@ class HazelcastIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void createSessionWithSpecificId() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
+
+		final String desiredSessionId = "desiredId";
+		HazelcastSession session = this.repository.createSession(desiredSessionId);
+
+		assertThat(session.getId()).isEqualTo(desiredSessionId);
+		verifyZeroInteractions(this.sessions);
+	}
+
+	@Test
+	void createSessionWithIdEqualNull() {
+		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
+
+		HazelcastSession session = this.repository.createSession(null);
+
+		assertThat(session.getId()).isNotNull();
+		verifyZeroInteractions(this.sessions);
+	}
+
+	@Test
 	void saveNewFlushModeOnSave() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 

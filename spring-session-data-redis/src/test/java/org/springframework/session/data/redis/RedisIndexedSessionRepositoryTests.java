@@ -163,6 +163,19 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void createSessionWithSpecificId() {
+		final String desiredSessionId = "desiredId";
+		Session session = this.redisRepository.createSession(desiredSessionId);
+		assertThat(session.getId()).isEqualTo(desiredSessionId);
+	}
+
+	@Test
+	void createSessionWithIdEqualNull() {
+		Session session = this.redisRepository.createSession(null);
+		assertThat(session.getId()).isNotNull();
+	}
+
+	@Test
 	void saveNewSession() {
 		RedisSession session = this.redisRepository.createSession();
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
