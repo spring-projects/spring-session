@@ -265,7 +265,7 @@ public class RedisIndexedSessionRepository
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	private int database = DEFAULT_DATABASE;
 

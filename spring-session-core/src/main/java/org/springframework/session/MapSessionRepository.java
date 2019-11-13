@@ -47,7 +47,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	private final Map<String, Session> sessions;
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
@@ -99,22 +99,22 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	@Override
 	public String changeSessionId(final MapSession session) {
-		String newId = this.idGenerationStrategy.createSessionId();
+		String newId = this.sessionIdStrategy.createSessionId();
 		session.changeSessionId(newId);
 		return newId;
 	}
 
 	@Override
 	public MapSession createSession() {
-		MapSession result = new MapSession(this.idGenerationStrategy.createSessionId());
+		MapSession result = new MapSession(this.sessionIdStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 }

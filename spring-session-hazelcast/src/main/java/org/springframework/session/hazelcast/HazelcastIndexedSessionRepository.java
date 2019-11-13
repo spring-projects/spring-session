@@ -135,7 +135,7 @@ public class HazelcastIndexedSessionRepository
 
 	private final HazelcastInstance hazelcastInstance;
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
@@ -238,7 +238,7 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public HazelcastSession createSession() {
-		MapSession cached = new MapSession(this.idGenerationStrategy.createSessionId());
+		MapSession cached = new MapSession(this.sessionIdStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -302,7 +302,7 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public String changeSessionId(final HazelcastSession session) {
-		String newId = this.idGenerationStrategy.createSessionId();
+		String newId = this.sessionIdStrategy.createSessionId();
 		session.changeSessionId(newId);
 		return newId;
 	}
@@ -350,8 +350,8 @@ public class HazelcastIndexedSessionRepository
 		}
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 	/**

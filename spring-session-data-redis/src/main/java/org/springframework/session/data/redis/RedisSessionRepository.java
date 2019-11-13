@@ -48,7 +48,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private final RedisOperations<String, Object> sessionRedisOperations;
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 

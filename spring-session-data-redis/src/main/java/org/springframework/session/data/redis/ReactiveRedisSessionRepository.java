@@ -51,7 +51,7 @@ public class ReactiveRedisSessionRepository
 
 	private final ReactiveRedisOperations<String, Object> sessionRedisOperations;
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	/**
 	 * The namespace for every key used by Spring Session in Redis.

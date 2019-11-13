@@ -41,7 +41,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  */
 public class ReactiveMapSessionRepository implements ReactiveSessionRepository<MapSession> {
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	/**
 	 * If non-null, this value is used to override
@@ -101,7 +101,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	@Override
 	public Mono<MapSession> createSession() {
 		return Mono.defer(() -> {
-			MapSession result = new MapSession(this.idGenerationStrategy.createSessionId());
+			MapSession result = new MapSession(this.sessionIdStrategy.createSessionId());
 			if (this.defaultMaxInactiveInterval != null) {
 				result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
@@ -109,8 +109,8 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		});
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 }

@@ -200,7 +200,7 @@ public class JdbcIndexedSessionRepository
 
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.

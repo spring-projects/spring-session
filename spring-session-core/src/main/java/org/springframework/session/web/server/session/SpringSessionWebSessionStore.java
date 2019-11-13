@@ -55,7 +55,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 
 	private final ReactiveSessionRepository<S> sessions;
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
 
 	private Clock clock = Clock.system(ZoneOffset.UTC);
 
@@ -112,8 +112,8 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		return new SpringSessionWebSession(session, State.STARTED);
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		@Override
 		public Mono<Void> changeSessionId() {
 			return Mono.defer(() -> {
-				this.session.changeSessionId(SpringSessionWebSessionStore.this.idGenerationStrategy.createSessionId());
+				this.session.changeSessionId(SpringSessionWebSessionStore.this.sessionIdStrategy.createSessionId());
 				return save();
 			});
 		}
