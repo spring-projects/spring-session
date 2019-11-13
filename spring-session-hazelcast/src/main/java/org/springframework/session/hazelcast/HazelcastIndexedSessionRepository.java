@@ -412,6 +412,7 @@ public class HazelcastIndexedSessionRepository
 		public void changeSessionId(final String id) {
 			this.delegate.changeSessionId(id);
 			this.sessionIdChanged = true;
+			flushImmediateIfNecessary();
 		}
 
 		@Override
