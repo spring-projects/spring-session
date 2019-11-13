@@ -102,7 +102,7 @@ class EnableSpringHttpSessionCustomCookieSerializerTests {
 
 	@Test
 	void usesWrite() throws Exception {
-		given(this.sessionRepository.createSession()).willReturn(new MapSession());
+		given(this.sessionRepository.createSession()).willReturn(new MapSession("1"));
 
 		this.sessionRepositoryFilter.doFilter(this.request, this.response, new MockFilterChain() {
 

@@ -35,6 +35,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.lang.Nullable;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.util.Assert;
 import org.springframework.web.server.WebSession;
 import org.springframework.web.server.session.WebSessionStore;
@@ -47,11 +48,14 @@ import org.springframework.web.server.session.WebSessionStore;
  * @param <S> the {@link Session} type
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Jakub Maciej
  * @since 2.0
  */
 public class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
 
 	private final ReactiveSessionRepository<S> sessions;
+
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
 
 	private Clock clock = Clock.system(ZoneOffset.UTC);
 
@@ -108,6 +112,10 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		return new SpringSessionWebSession(session, State.STARTED);
 	}
 
+	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
+		this.idGenerationStrategy = idGenerationStrategy;
+	}
+
 	/**
 	 * Adapts Spring Session's {@link Session} to a {@link WebSession}.
 	 */
@@ -134,7 +142,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		@Override
 		public Mono<Void> changeSessionId() {
 			return Mono.defer(() -> {
-				this.session.changeSessionId();
+				this.session.changeSessionId(SpringSessionWebSessionStore.this.idGenerationStrategy.createSessionId());
 				return save();
 			});
 		}

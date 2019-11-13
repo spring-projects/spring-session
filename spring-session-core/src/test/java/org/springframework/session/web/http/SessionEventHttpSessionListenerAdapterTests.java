@@ -73,7 +73,7 @@ class SessionEventHttpSessionListenerAdapterTests {
 		this.listener = new SessionEventHttpSessionListenerAdapter(Arrays.asList(this.listener1, this.listener2));
 		this.listener.setServletContext(new MockServletContext());
 
-		Session session = new MapSession();
+		Session session = new MapSession("1");
 		this.destroyed = new SessionDestroyedEvent(this, session);
 		this.created = new SessionCreatedEvent(this, session);
 	}

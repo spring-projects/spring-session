@@ -36,9 +36,12 @@ import org.springframework.session.events.SessionExpiredEvent;
  * </p>
  *
  * @author Rob Winch
+ * @author Jakub Maciej
  * @since 2.0
  */
 public class ReactiveMapSessionRepository implements ReactiveSessionRepository<MapSession> {
+
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
 
 	/**
 	 * If non-null, this value is used to override
@@ -98,12 +101,16 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	@Override
 	public Mono<MapSession> createSession() {
 		return Mono.defer(() -> {
-			MapSession result = new MapSession();
+			MapSession result = new MapSession(this.idGenerationStrategy.createSessionId());
 			if (this.defaultMaxInactiveInterval != null) {
 				result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
 			return Mono.just(result);
 		});
+	}
+
+	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
+		this.idGenerationStrategy = idGenerationStrategy;
 	}
 
 }

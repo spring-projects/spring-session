@@ -32,7 +32,7 @@ class MapSessionTests {
 
 	@BeforeEach
 	void setup() {
-		this.session = new MapSession();
+		this.session = new MapSession("1");
 		this.session.setLastAccessedTime(Instant.ofEpochMilli(1413258262962L));
 	}
 
@@ -151,7 +151,7 @@ class MapSessionTests {
 		}
 
 		@Override
-		public String changeSessionId() {
+		public void changeSessionId(String id) {
 			throw new UnsupportedOperationException();
 		}
 

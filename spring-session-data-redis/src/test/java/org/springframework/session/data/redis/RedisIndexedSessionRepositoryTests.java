@@ -101,7 +101,7 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository = new RedisIndexedSessionRepository(this.redisOperations);
 		this.redisRepository.setDefaultSerializer(this.defaultSerializer);
 
-		this.cached = new MapSession();
+		this.cached = new MapSession("1");
 		this.cached.setId("session-id");
 		this.cached.setCreationTime(Instant.ofEpochMilli(1404360000000L));
 		this.cached.setLastAccessedTime(Instant.ofEpochMilli(1404360000000L));
@@ -121,7 +121,8 @@ class RedisIndexedSessionRepositoryTests {
 
 		RedisSession createSession = this.redisRepository.createSession();
 		String originalId = createSession.getId();
-		String changeSessionId = createSession.changeSessionId();
+		String changeSessionId = "1";
+		createSession.changeSessionId(changeSessionId);
 		this.redisRepository.save(createSession);
 
 		verify(this.redisOperations, never()).rename(anyString(), anyString());
@@ -139,7 +140,8 @@ class RedisIndexedSessionRepositoryTests {
 		RedisSession session = this.redisRepository.new RedisSession(this.cached, false);
 		session.setLastAccessedTime(session.getLastAccessedTime());
 		String originalId = session.getId();
-		String changeSessionId = session.changeSessionId();
+		String changeSessionId = "1";
+		session.changeSessionId(changeSessionId);
 		this.redisRepository.save(session);
 
 		verify(this.redisOperations, times(2)).rename(anyString(), anyString());
@@ -151,7 +153,7 @@ class RedisIndexedSessionRepositoryTests {
 	@Test
 	void createSessionDefaultMaxInactiveInterval() {
 		Session session = this.redisRepository.createSession();
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession("1").getMaxInactiveInterval());
 	}
 
 	@Test
@@ -257,7 +259,7 @@ class RedisIndexedSessionRepositoryTests {
 	@Test
 	void saveSetAttribute() {
 		String attrName = "attrName";
-		RedisSession session = this.redisRepository.new RedisSession(new MapSession(), false);
+		RedisSession session = this.redisRepository.new RedisSession(new MapSession("1"), false);
 		session.setAttribute(attrName, "attrValue");
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
@@ -272,7 +274,7 @@ class RedisIndexedSessionRepositoryTests {
 	@Test
 	void saveRemoveAttribute() {
 		String attrName = "attrName";
-		RedisSession session = this.redisRepository.new RedisSession(new MapSession(), false);
+		RedisSession session = this.redisRepository.new RedisSession(new MapSession("1"), false);
 		session.removeAttribute(attrName);
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
@@ -285,7 +287,7 @@ class RedisIndexedSessionRepositoryTests {
 
 	@Test
 	void saveExpired() {
-		RedisSession session = this.redisRepository.new RedisSession(new MapSession(), false);
+		RedisSession session = this.redisRepository.new RedisSession(new MapSession("1"), false);
 		session.setMaxInactiveInterval(Duration.ZERO);
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
@@ -312,7 +314,7 @@ class RedisIndexedSessionRepositoryTests {
 	@SuppressWarnings("unchecked")
 	void delete() {
 		String attrName = "attrName";
-		MapSession expected = new MapSession();
+		MapSession expected = new MapSession("1");
 		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
 		expected.setAttribute(attrName, "attrValue");
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
@@ -357,7 +359,7 @@ class RedisIndexedSessionRepositoryTests {
 	void getSessionFound() {
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";
-		MapSession expected = new MapSession();
+		MapSession expected = new MapSession("1");
 		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
 		expected.setAttribute(attribute1, "test");
 		expected.setAttribute(attribute2, null);
@@ -739,7 +741,7 @@ class RedisIndexedSessionRepositoryTests {
 	void changeRedisNamespace() {
 		String namespace = "foo:bar";
 		this.redisRepository.setRedisKeyNamespace(namespace);
-		RedisSession session = this.redisRepository.new RedisSession(new MapSession(), false);
+		RedisSession session = this.redisRepository.new RedisSession(new MapSession("1"), false);
 		session.setMaxInactiveInterval(Duration.ZERO);
 		given(this.redisOperations.boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
@@ -835,7 +837,7 @@ class RedisIndexedSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 		this.redisRepository.setSaveMode(SaveMode.ON_SET_ATTRIBUTE);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");
@@ -852,7 +854,7 @@ class RedisIndexedSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 		this.redisRepository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");
@@ -869,7 +871,7 @@ class RedisIndexedSessionRepositoryTests {
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
 		this.redisRepository.setSaveMode(SaveMode.ALWAYS);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");

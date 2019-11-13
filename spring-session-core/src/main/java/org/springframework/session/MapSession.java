@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * <p>
@@ -44,6 +43,7 @@ import java.util.UUID;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Jakub Maciej
  * @since 1.0
  */
 public final class MapSession implements Session, Serializable {
@@ -67,13 +67,6 @@ public final class MapSession implements Session, Serializable {
 	 * Defaults to 30 minutes.
 	 */
 	private Duration maxInactiveInterval = Duration.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
-
-	/**
-	 * Creates a new instance with a secure randomly generated identifier.
-	 */
-	public MapSession() {
-		this(generateId());
-	}
 
 	/**
 	 * Creates a new instance with the specified id. This is preferred to the default
@@ -124,20 +117,18 @@ public final class MapSession implements Session, Serializable {
 		return this.id;
 	}
 
+	@Override
+	public void changeSessionId(final String id) {
+		setId(id);
+	}
+
 	/**
 	 * Get the original session id.
 	 * @return the original session id
-	 * @see #changeSessionId()
+	 * @see #changeSessionId(String changedId)
 	 */
 	public String getOriginalId() {
 		return this.originalId;
-	}
-
-	@Override
-	public String changeSessionId() {
-		String changedId = generateId();
-		setId(changedId);
-		return changedId;
 	}
 
 	@Override
@@ -220,10 +211,6 @@ public final class MapSession implements Session, Serializable {
 	@Override
 	public int hashCode() {
 		return this.id.hashCode();
-	}
-
-	private static String generateId() {
-		return UUID.randomUUID().toString();
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;

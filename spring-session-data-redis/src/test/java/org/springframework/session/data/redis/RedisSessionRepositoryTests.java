@@ -200,7 +200,7 @@ class RedisSessionRepositoryTests {
 	@Test
 	void save_NewSessionAndChangedSessionId_ShouldSaveSession() {
 		RedisSession session = this.sessionRepository.createSession();
-		session.changeSessionId();
+		session.changeSessionId("1");
 		this.sessionRepository.save(session);
 		String key = getSessionKey(session.getId());
 		verify(this.sessionRedisOperations).opsForHash();

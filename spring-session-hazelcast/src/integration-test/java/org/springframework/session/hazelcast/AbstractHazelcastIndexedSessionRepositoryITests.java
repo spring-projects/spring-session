@@ -84,7 +84,8 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = "1";
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
 
@@ -104,8 +105,10 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = toSave.changeSessionId();
-		String changeId2 = toSave.changeSessionId();
+		String changeId1 = "1";
+		toSave.changeSessionId(changeId1);
+		String changeId2 = "2";
+		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
 
@@ -130,7 +133,8 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = "1";
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
 
@@ -147,7 +151,7 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 	void changeSessionIdWhenHasNotSaved() {
 		HazelcastSession toSave = this.repository.createSession();
 		String originalId = toSave.getId();
-		toSave.changeSessionId();
+		toSave.changeSessionId("1");
 
 		this.repository.save(toSave);
 

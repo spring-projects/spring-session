@@ -44,6 +44,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -244,6 +245,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class RedisIndexedSessionRepository
@@ -262,6 +264,8 @@ public class RedisIndexedSessionRepository
 	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
+
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
 
 	private int database = DEFAULT_DATABASE;
 
@@ -488,8 +492,15 @@ public class RedisIndexedSessionRepository
 	}
 
 	@Override
+	public String changeSessionId(final RedisSession session) {
+		String newId = this.idGenerationStrategy.createSessionId();
+		session.changeSessionId(newId);
+		return newId;
+	}
+
+	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession();
+		MapSession cached = new MapSession(this.idGenerationStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -659,6 +670,10 @@ public class RedisIndexedSessionRepository
 		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
 	}
 
+	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
+		this.idGenerationStrategy = idGenerationStrategy;
+	}
+
 	/**
 	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
 	 * basis for its mapping. It keeps track of any attributes that have changed. When
@@ -722,8 +737,8 @@ public class RedisIndexedSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
-			return this.cached.changeSessionId();
+		public void changeSessionId(final String id) {
+			this.cached.changeSessionId(id);
 		}
 
 		@Override

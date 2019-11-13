@@ -34,6 +34,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  * </p>
  *
  * @author Rob Winch
+ * @author Jakub Maciej
  * @since 1.0
  */
 public class MapSessionRepository implements SessionRepository<MapSession> {
@@ -45,6 +46,8 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	private Integer defaultMaxInactiveInterval;
 
 	private final Map<String, Session> sessions;
+
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
 
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
@@ -95,12 +98,23 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	}
 
 	@Override
+	public String changeSessionId(final MapSession session) {
+		String newId = this.idGenerationStrategy.createSessionId();
+		session.changeSessionId(newId);
+		return newId;
+	}
+
+	@Override
 	public MapSession createSession() {
-		MapSession result = new MapSession();
+		MapSession result = new MapSession(this.idGenerationStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
+	}
+
+	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
+		this.idGenerationStrategy = idGenerationStrategy;
 	}
 
 }

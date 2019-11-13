@@ -26,6 +26,7 @@ import java.util.Set;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Jakub Maciej
  * @since 1.0
  */
 public interface Session {
@@ -39,9 +40,9 @@ public interface Session {
 	/**
 	 * Changes the session id. After invoking the {@link #getId()} will return a new
 	 * identifier.
-	 * @return the new session id which {@link #getId()} will now return
+	 * @param id desired new sessionId
 	 */
-	String changeSessionId();
+	void changeSessionId(String id);
 
 	/**
 	 * Gets the Object associated with the specified name or null if no Object is

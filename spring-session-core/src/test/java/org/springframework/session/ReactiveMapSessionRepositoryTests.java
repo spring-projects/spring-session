@@ -98,12 +98,12 @@ class ReactiveMapSessionRepositoryTests {
 		Session session = this.repository.createSession().block();
 
 		assertThat(session).isInstanceOf(MapSession.class);
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession("1").getMaxInactiveInterval());
 	}
 
 	@Test
 	void createSessionWhenCustomMaxInactiveIntervalThenCustomMaxInactiveInterval() {
-		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval().plusSeconds(10);
+		final Duration expectedMaxInterval = new MapSession("1").getMaxInactiveInterval().plusSeconds(10);
 		this.repository.setDefaultMaxInactiveInterval((int) expectedMaxInterval.getSeconds());
 
 		Session session = this.repository.createSession().block();
@@ -116,7 +116,7 @@ class ReactiveMapSessionRepositoryTests {
 		MapSession createSession = this.repository.createSession().block();
 
 		String originalId = createSession.getId();
-		createSession.changeSessionId();
+		createSession.changeSessionId("1");
 
 		this.repository.save(createSession).block();
 
@@ -131,7 +131,7 @@ class ReactiveMapSessionRepositoryTests {
 		this.repository.save(createSession).block();
 
 		String originalId = createSession.getId();
-		createSession.changeSessionId();
+		createSession.changeSessionId("1");
 
 		this.repository.save(createSession).block();
 

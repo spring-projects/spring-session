@@ -114,7 +114,8 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = "1";
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById).block();
 
@@ -132,8 +133,10 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.save(toSave).block();
 
 		String originalId = toSave.getId();
-		String changeId1 = toSave.changeSessionId();
-		String changeId2 = toSave.changeSessionId();
+		String changeId1 = "1";
+		toSave.changeSessionId(changeId1);
+		String changeId2 = "2";
+		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave).block();
 
@@ -156,7 +159,8 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = "1";
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById).block();
 
@@ -171,7 +175,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 	void changeSessionIdWhenHasNotSaved() {
 		RedisSession toSave = this.repository.createSession().block();
 		String originalId = toSave.getId();
-		toSave.changeSessionId();
+		toSave.changeSessionId("1");
 
 		this.repository.save(toSave).block();
 
@@ -184,7 +188,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 	void changeSessionIdSaveTwice() {
 		RedisSession toSave = this.repository.createSession().block();
 		String originalId = toSave.getId();
-		toSave.changeSessionId();
+		toSave.changeSessionId("1");
 
 		this.repository.save(toSave).block();
 		this.repository.save(toSave).block();
@@ -202,7 +206,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.save(toSave).block();
 
 		RedisSession session = this.repository.findById(sessionId).block();
-		session.changeSessionId();
+		session.changeSessionId("1");
 		session.setLastAccessedTime(Instant.now());
 		this.repository.save(session).block();
 

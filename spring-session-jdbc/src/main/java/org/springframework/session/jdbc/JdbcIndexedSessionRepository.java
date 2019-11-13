@@ -53,6 +53,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -125,6 +126,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Vedran Pavic
  * @author Craig Andrews
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class JdbcIndexedSessionRepository
@@ -197,6 +199,8 @@ public class JdbcIndexedSessionRepository
 	private final TransactionOperations transactionOperations;
 
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
+
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -395,7 +399,7 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public JdbcSession createSession() {
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession(this.idGenerationStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -436,6 +440,13 @@ public class JdbcIndexedSessionRepository
 	public void deleteById(final String id) {
 		this.transactionOperations.executeWithoutResult((status) -> JdbcIndexedSessionRepository.this.jdbcOperations
 				.update(JdbcIndexedSessionRepository.this.deleteSessionQuery, id));
+	}
+
+	@Override
+	public String changeSessionId(final JdbcSession session) {
+		String newId = this.idGenerationStrategy.createSessionId();
+		session.changeSessionId(newId);
+		return newId;
 	}
 
 	@Override
@@ -595,6 +606,10 @@ public class JdbcIndexedSessionRepository
 				TypeDescriptor.valueOf(Object.class));
 	}
 
+	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
+		this.idGenerationStrategy = idGenerationStrategy;
+	}
+
 	private enum DeltaValue {
 
 		ADDED, UPDATED, REMOVED
@@ -677,9 +692,10 @@ public class JdbcIndexedSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
+		public void changeSessionId(final String id) {
 			this.changed = true;
-			return this.delegate.changeSessionId();
+			String newId = JdbcIndexedSessionRepository.this.idGenerationStrategy.createSessionId();
+			this.delegate.changeSessionId(newId);
 		}
 
 		@Override

@@ -75,6 +75,7 @@ import org.springframework.session.SessionRepository;
  * @author Rob Winch
  * @author Vedran Pavic
  * @author Josh Cummings
+ * @author Jakub Maciej
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFilter {
@@ -254,7 +255,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 						"Cannot change session ID. There is no session associated with this request.");
 			}
 
-			return getCurrentSession().getSession().changeSessionId();
+			return SessionRepositoryFilter.this.sessionRepository.changeSessionId(getCurrentSession().getSession());
 		}
 
 		@Override

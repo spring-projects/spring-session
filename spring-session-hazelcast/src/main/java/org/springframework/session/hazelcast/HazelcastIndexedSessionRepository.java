@@ -47,6 +47,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -108,6 +109,7 @@ import org.springframework.util.ClassUtils;
  * @author Tommy Ludwig
  * @author Mark Anderson
  * @author Aleksandar Stojsavljevic
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class HazelcastIndexedSessionRepository
@@ -132,6 +134,8 @@ public class HazelcastIndexedSessionRepository
 	private static final Log logger = LogFactory.getLog(HazelcastIndexedSessionRepository.class);
 
 	private final HazelcastInstance hazelcastInstance;
+
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
 
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
@@ -234,7 +238,7 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public HazelcastSession createSession() {
-		MapSession cached = new MapSession();
+		MapSession cached = new MapSession(this.idGenerationStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -297,6 +301,13 @@ public class HazelcastIndexedSessionRepository
 	}
 
 	@Override
+	public String changeSessionId(final HazelcastSession session) {
+		String newId = this.idGenerationStrategy.createSessionId();
+		session.changeSessionId(newId);
+		return newId;
+	}
+
+	@Override
 	public Map<String, HazelcastSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 		if (!PRINCIPAL_NAME_INDEX_NAME.equals(indexName)) {
 			return Collections.emptyMap();
@@ -337,6 +348,10 @@ public class HazelcastIndexedSessionRepository
 			}
 			this.eventPublisher.publishEvent(new SessionDeletedEvent(this, session));
 		}
+	}
+
+	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
+		this.idGenerationStrategy = idGenerationStrategy;
 	}
 
 	/**
@@ -394,10 +409,9 @@ public class HazelcastIndexedSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
-			String newSessionId = this.delegate.changeSessionId();
+		public void changeSessionId(final String id) {
+			this.delegate.changeSessionId(id);
 			this.sessionIdChanged = true;
-			return newSessionId;
 		}
 
 		@Override

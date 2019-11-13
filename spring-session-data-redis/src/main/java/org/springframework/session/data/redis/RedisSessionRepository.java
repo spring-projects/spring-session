@@ -28,6 +28,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.SessionRepository;
 import org.springframework.util.Assert;
 
@@ -38,6 +39,7 @@ import org.springframework.util.Assert;
  * This implementation does not support publishing of session events.
  *
  * @author Vedran Pavic
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class RedisSessionRepository implements SessionRepository<RedisSessionRepository.RedisSession> {
@@ -45,6 +47,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	private static final String DEFAULT_KEY_NAMESPACE = "spring:session:";
 
 	private final RedisOperations<String, Object> sessionRedisOperations;
+
+	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultGenerationStrategy();
 
 	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
@@ -102,7 +106,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession();
+		MapSession cached = new MapSession(this.idGenerationStrategy.createSessionId());
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushIfRequired();
@@ -142,6 +146,11 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		this.sessionRedisOperations.delete(key);
 	}
 
+	@Override
+	public String changeSessionId(final RedisSession session) {
+		return null;
+	}
+
 	/**
 	 * Returns the {@link RedisOperations} used for sessions.
 	 * @return the {@link RedisOperations} used for sessions
@@ -156,6 +165,10 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private static String getAttributeKey(String attributeName) {
 		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
+	}
+
+	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
+		this.idGenerationStrategy = idGenerationStrategy;
 	}
 
 	/**
@@ -193,8 +206,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		}
 
 		@Override
-		public String changeSessionId() {
-			return this.cached.changeSessionId();
+		public void changeSessionId(final String id) {
+			this.cached.changeSessionId(id);
 		}
 
 		@Override

@@ -69,7 +69,7 @@ class ReactiveRedisSessionRepositoryTests {
 	void setUp() {
 		this.repository = new ReactiveRedisSessionRepository(this.redisOperations);
 
-		this.cached = new MapSession();
+		this.cached = new MapSession("1");
 		this.cached.setId("session-id");
 		this.cached.setCreationTime(Instant.ofEpochMilli(1404360000000L));
 		this.cached.setLastAccessedTime(Instant.ofEpochMilli(1404360000000L));
@@ -131,7 +131,7 @@ class ReactiveRedisSessionRepositoryTests {
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 
-		RedisSession newSession = this.repository.new RedisSession(new MapSession(), true);
+		RedisSession newSession = this.repository.new RedisSession(new MapSession("1"), true);
 		StepVerifier.create(this.repository.save(newSession)).verifyComplete();
 
 		verify(this.redisOperations).opsForHash();
@@ -217,7 +217,7 @@ class ReactiveRedisSessionRepositoryTests {
 		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 
 		String attrName = "attrName";
-		RedisSession session = this.repository.new RedisSession(new MapSession(), false);
+		RedisSession session = this.repository.new RedisSession(new MapSession("1"), false);
 		session.removeAttribute(attrName);
 		StepVerifier.create(this.repository.save(session)).verifyComplete();
 
@@ -344,7 +344,7 @@ class ReactiveRedisSessionRepositoryTests {
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 		this.repository.setSaveMode(SaveMode.ON_SET_ATTRIBUTE);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");
@@ -368,7 +368,7 @@ class ReactiveRedisSessionRepositoryTests {
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 		this.repository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");
@@ -392,7 +392,7 @@ class ReactiveRedisSessionRepositoryTests {
 		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
 		given(this.redisOperations.expire(anyString(), any())).willReturn(Mono.just(true));
 		this.repository.setSaveMode(SaveMode.ALWAYS);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");

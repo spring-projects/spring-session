@@ -47,7 +47,7 @@ class PrincipalNameIndexResolverTests {
 
 	@Test
 	void resolveFromPrincipalName() {
-		MapSession session = new MapSession();
+		MapSession session = new MapSession("1");
 		session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, PRINCIPAL_NAME);
 		assertThat(this.indexResolver.resolveIndexValueFor(session)).isEqualTo(PRINCIPAL_NAME);
 	}
@@ -58,7 +58,7 @@ class PrincipalNameIndexResolverTests {
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(authentication);
-		MapSession session = new MapSession();
+		MapSession session = new MapSession("1");
 		session.setAttribute(SPRING_SECURITY_CONTEXT, context);
 		assertThat(this.indexResolver.resolveIndexValueFor(session)).isEqualTo(PRINCIPAL_NAME);
 	}

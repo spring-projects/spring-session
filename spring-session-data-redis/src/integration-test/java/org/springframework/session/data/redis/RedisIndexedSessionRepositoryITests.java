@@ -487,7 +487,8 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = "1";
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
 
@@ -505,8 +506,10 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = toSave.changeSessionId();
-		String changeId2 = toSave.changeSessionId();
+		String changeId1 = "1";
+		toSave.changeSessionId(changeId1);
+		String changeId2 = "2";
+		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
 
@@ -529,7 +532,8 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = "1";
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
 
@@ -547,7 +551,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 		RedisSession toSave = this.repository.createSession();
 		String originalId = toSave.getId();
-		toSave.changeSessionId();
+		toSave.changeSessionId("1");
 
 		this.repository.save(toSave);
 
@@ -560,7 +564,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 	void changeSessionIdSaveTwice() {
 		RedisSession toSave = this.repository.createSession();
 		String originalId = toSave.getId();
-		toSave.changeSessionId();
+		toSave.changeSessionId("1");
 
 		this.repository.save(toSave);
 		this.repository.save(toSave);
@@ -578,7 +582,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 		this.repository.deleteById(sessionId);
 
-		toSave.changeSessionId();
+		toSave.changeSessionId("1");
 		this.repository.save(toSave);
 
 		assertThat(this.repository.findById(toSave.getId())).isNull();
@@ -594,9 +598,9 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		RedisSession copy1 = this.repository.findById(originalId);
 		RedisSession copy2 = this.repository.findById(originalId);
 
-		copy1.changeSessionId();
+		copy1.changeSessionId("1");
 		this.repository.save(copy1);
-		copy2.changeSessionId();
+		copy2.changeSessionId("2");
 		this.repository.save(copy2);
 
 		assertThat(this.repository.findById(originalId)).isNull();

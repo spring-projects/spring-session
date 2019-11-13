@@ -49,7 +49,7 @@ class CookieHttpSessionIdResolverTests {
 	@BeforeEach
 	void setup() {
 		this.cookieName = "SESSION";
-		this.session = new MapSession();
+		this.session = new MapSession("1");
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.strategy = new CookieHttpSessionIdResolver();
@@ -91,7 +91,7 @@ class CookieHttpSessionIdResolverTests {
 
 	@Test
 	void onNewSessionTwiceNewId() {
-		Session newSession = new MapSession();
+		Session newSession = new MapSession("2");
 
 		this.strategy.setSessionId(this.request, this.response, this.session.getId());
 		this.strategy.setSessionId(this.request, this.response, newSession.getId());

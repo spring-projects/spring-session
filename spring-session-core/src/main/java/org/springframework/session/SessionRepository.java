@@ -21,6 +21,7 @@ package org.springframework.session;
  *
  * @param <S> the {@link Session} type
  * @author Rob Winch
+ * @author Jakub Maciej
  * @since 1.0
  */
 public interface SessionRepository<S extends Session> {
@@ -67,5 +68,12 @@ public interface SessionRepository<S extends Session> {
 	 * @param id the {@link org.springframework.session.Session#getId()} to delete
 	 */
 	void deleteById(String id);
+
+	/**
+	 * Changes the session id.
+	 * @param session which id should be changed
+	 * @return new session id
+	 */
+	String changeSessionId(S session);
 
 }
