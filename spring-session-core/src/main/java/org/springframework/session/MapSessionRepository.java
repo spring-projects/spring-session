@@ -113,7 +113,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		return result;
 	}
 
-	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
 		this.sessionIdStrategy = sessionIdStrategy;
 	}
 

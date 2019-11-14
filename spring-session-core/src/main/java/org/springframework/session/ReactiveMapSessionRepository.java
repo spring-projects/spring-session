@@ -109,7 +109,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		});
 	}
 
-	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
 		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
