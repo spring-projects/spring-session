@@ -265,7 +265,7 @@ public class RedisIndexedSessionRepository
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	private int database = DEFAULT_DATABASE;
 
@@ -493,14 +493,14 @@ public class RedisIndexedSessionRepository
 
 	@Override
 	public String changeSessionId(final RedisSession session) {
-		String newId = this.idGenerationStrategy.createSessionId();
+		String newId = this.sessionIdStrategy.createSessionId();
 		session.changeSessionId(newId);
 		return newId;
 	}
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession(this.idGenerationStrategy.createSessionId());
+		MapSession cached = new MapSession(this.sessionIdStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -670,8 +670,8 @@ public class RedisIndexedSessionRepository
 		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 	/**

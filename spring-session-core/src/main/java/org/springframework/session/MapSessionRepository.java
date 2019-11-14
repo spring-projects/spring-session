@@ -47,7 +47,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	private final Map<String, Session> sessions;
 
-	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows

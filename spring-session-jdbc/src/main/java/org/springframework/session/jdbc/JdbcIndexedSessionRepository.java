@@ -200,7 +200,7 @@ public class JdbcIndexedSessionRepository
 
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -399,7 +399,7 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public JdbcSession createSession() {
-		MapSession delegate = new MapSession(this.idGenerationStrategy.createSessionId());
+		MapSession delegate = new MapSession(this.sessionIdStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -444,7 +444,7 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public String changeSessionId(final JdbcSession session) {
-		String newId = this.idGenerationStrategy.createSessionId();
+		String newId = this.sessionIdStrategy.createSessionId();
 		session.changeSessionId(newId);
 		return newId;
 	}
@@ -606,8 +606,8 @@ public class JdbcIndexedSessionRepository
 				TypeDescriptor.valueOf(Object.class));
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 	private enum DeltaValue {
@@ -694,7 +694,7 @@ public class JdbcIndexedSessionRepository
 		@Override
 		public void changeSessionId(final String id) {
 			this.changed = true;
-			String newId = JdbcIndexedSessionRepository.this.idGenerationStrategy.createSessionId();
+			String newId = JdbcIndexedSessionRepository.this.sessionIdStrategy.createSessionId();
 			this.delegate.changeSessionId(newId);
 		}
 

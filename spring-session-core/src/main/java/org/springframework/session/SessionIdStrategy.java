@@ -34,7 +34,7 @@ public interface SessionIdStrategy {
 	 * Gets default strategy used to generate session id {@link SessionIdStrategy}.
 	 * @return gets default strategy used to generate session id {@link SessionIdStrategy}
 	 */
-	static SessionIdStrategy getDefaultSessionIdStrategy() {
+	static SessionIdStrategy getDefault() {
 		return new UUIDSessionIdStrategy();
 	}
 

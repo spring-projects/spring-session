@@ -51,7 +51,7 @@ public class ReactiveRedisSessionRepository
 
 	private final ReactiveRedisOperations<String, Object> sessionRedisOperations;
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	/**
 	 * The namespace for every key used by Spring Session in Redis.
@@ -112,7 +112,7 @@ public class ReactiveRedisSessionRepository
 	@Override
 	public Mono<RedisSession> createSession() {
 		return Mono.defer(() -> {
-			MapSession cached = new MapSession(this.idGenerationStrategy.createSessionId());
+			MapSession cached = new MapSession(this.sessionIdStrategy.createSessionId());
 			if (this.defaultMaxInactiveInterval != null) {
 				cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
@@ -161,8 +161,8 @@ public class ReactiveRedisSessionRepository
 		return this.namespace + "sessions:" + sessionId;
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 	/**

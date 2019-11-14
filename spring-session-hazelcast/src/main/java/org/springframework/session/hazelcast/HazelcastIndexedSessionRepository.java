@@ -135,7 +135,7 @@ public class HazelcastIndexedSessionRepository
 
 	private final HazelcastInstance hazelcastInstance;
 
-	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};

@@ -41,7 +41,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  */
 public class ReactiveMapSessionRepository implements ReactiveSessionRepository<MapSession> {
 
-	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	/**
 	 * If non-null, this value is used to override

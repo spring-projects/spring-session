@@ -48,7 +48,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private final RedisOperations<String, Object> sessionRedisOperations;
 
-	private SessionIdStrategy idGenerationStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
@@ -106,7 +106,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession(this.idGenerationStrategy.createSessionId());
+		MapSession cached = new MapSession(this.sessionIdStrategy.createSessionId());
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushIfRequired();
@@ -167,8 +167,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
 	}
 
-	public void setIdGenerationStrategy(final SessionIdStrategy idGenerationStrategy) {
-		this.idGenerationStrategy = idGenerationStrategy;
+	public void setsessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 	/**

@@ -55,7 +55,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 
 	private final ReactiveSessionRepository<S> sessions;
 
-	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefaultSessionIdStrategy();
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	private Clock clock = Clock.system(ZoneOffset.UTC);
 
