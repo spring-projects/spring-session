@@ -1,5 +1,5 @@
 = Spring Session
-Rob Winch; Vedran Pavić; Jay Bryant
+Rob Winch; Vedran Pavić; Jay Bryant; Eleftheria Stein-Kousathana
 :doctype: book
 :indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/

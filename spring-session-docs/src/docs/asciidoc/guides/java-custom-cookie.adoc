@@ -1,5 +1,5 @@
 = Spring Session - Custom Cookie
-Rob Winch
+Rob Winch; Eleftheria Stein-Kousathana
 :toc:
 
 This guide describes how to configure Spring Session to use custom cookies with Java Configuration.
