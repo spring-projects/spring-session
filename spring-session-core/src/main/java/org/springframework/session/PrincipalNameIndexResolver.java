@@ -32,9 +32,7 @@ public class PrincipalNameIndexResolver<S extends Session> extends SingleIndexRe
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private static final SpelExpressionParser parser = new SpelExpressionParser();
-
-	private static final Expression expression = parser.parseExpression("authentication?.name");
+	private static final Expression expression = new SpelExpressionParser().parseExpression("authentication?.name");
 
 	public PrincipalNameIndexResolver() {
 		super(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
