@@ -19,6 +19,8 @@ package org.springframework.session.web.http;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
 import javax.servlet.http.Cookie;
@@ -28,7 +30,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -52,7 +53,7 @@ class DefaultCookieSerializerTests {
 
 	private MockHttpServletRequest request;
 
-	private CookiePreservingMockHttpServletResponse response;
+	private MockHttpServletResponse response;
 
 	private DefaultCookieSerializer serializer;
 
@@ -62,7 +63,7 @@ class DefaultCookieSerializerTests {
 	void setup() {
 		this.cookieName = "SESSION";
 		this.request = new MockHttpServletRequest();
-		this.response = new CookiePreservingMockHttpServletResponse();
+		this.response = new MockHttpServletResponse();
 		this.sessionId = "sessionId";
 		this.serializer = new DefaultCookieSerializer();
 	}
@@ -213,14 +214,14 @@ class DefaultCookieSerializerTests {
 			this.request.setServerName(domain);
 			this.serializer.writeCookieValue(cookieValue(this.sessionId));
 			assertThat(getCookie().getDomain()).isEqualTo("example.com");
-			this.response = new CookiePreservingMockHttpServletResponse();
+			this.response = new MockHttpServletResponse();
 		}
 		String[] notMatchingDomains = { "example.com", "localhost", "127.0.0.1" };
 		for (String domain : notMatchingDomains) {
 			this.request.setServerName(domain);
 			this.serializer.writeCookieValue(cookieValue(this.sessionId));
 			assertThat(getCookie().getDomain()).isNull();
-			this.response = new CookiePreservingMockHttpServletResponse();
+			this.response = new MockHttpServletResponse();
 		}
 	}
 
@@ -291,7 +292,7 @@ class DefaultCookieSerializerTests {
 	void writeCookieCookieMaxAgeDefault() {
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 		assertThat(getCookie().getMaxAge()).isEqualTo(-1);
-		assertThat(this.response.rawCookie).doesNotContain("Expires");
+		assertThat(getCookie().getExpires()).isNull();
 	}
 
 	@Test
@@ -299,8 +300,11 @@ class DefaultCookieSerializerTests {
 		this.serializer.setClock(Clock.fixed(Instant.parse("2019-10-07T20:10:00Z"), ZoneOffset.UTC));
 		this.serializer.setCookieMaxAge(100);
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
-		assertThat(getCookie().getMaxAge()).isEqualTo(100);
-		assertThat(this.response.rawCookie).contains("Expires=Mon, 7 Oct 2019 20:11:40 GMT");
+		MockCookie cookie = getCookie();
+		assertThat(cookie.getMaxAge()).isEqualTo(100);
+		ZonedDateTime expires = cookie.getExpires();
+		assertThat(expires).isNotNull();
+		assertThat(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME)).isEqualTo("Mon, 7 Oct 2019 20:11:40 GMT");
 	}
 
 	@Test
@@ -308,8 +312,11 @@ class DefaultCookieSerializerTests {
 		this.serializer.setClock(Clock.fixed(Instant.parse("2019-10-07T20:10:00Z"), ZoneOffset.UTC));
 		this.serializer.setCookieMaxAge(100);
 		this.serializer.writeCookieValue(cookieValue(""));
-		assertThat(getCookie().getMaxAge()).isEqualTo(0);
-		assertThat(this.response.rawCookie).contains("Expires=Thu, 1 Jan 1970 00:00:00 GMT");
+		MockCookie cookie = getCookie();
+		assertThat(cookie.getMaxAge()).isEqualTo(0);
+		ZonedDateTime expires = cookie.getExpires();
+		assertThat(expires).isNotNull();
+		assertThat(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME)).isEqualTo("Thu, 1 Jan 1970 00:00:00 GMT");
 	}
 
 	@Test
@@ -318,8 +325,11 @@ class DefaultCookieSerializerTests {
 		CookieValue cookieValue = cookieValue(this.sessionId);
 		cookieValue.setCookieMaxAge(100);
 		this.serializer.writeCookieValue(cookieValue);
-		assertThat(getCookie().getMaxAge()).isEqualTo(100);
-		assertThat(this.response.rawCookie).contains("Expires=Mon, 7 Oct 2019 20:11:40 GMT");
+		MockCookie cookie = getCookie();
+		assertThat(cookie.getMaxAge()).isEqualTo(100);
+		ZonedDateTime expires = cookie.getExpires();
+		assertThat(expires).isNotNull();
+		assertThat(expires.format(DateTimeFormatter.RFC_1123_DATE_TIME)).isEqualTo("Mon, 7 Oct 2019 20:11:40 GMT");
 	}
 
 	// --- secure ---
@@ -480,20 +490,6 @@ class DefaultCookieSerializerTests {
 
 	private CookieValue cookieValue(String cookieValue) {
 		return new CookieValue(this.request, this.response, cookieValue);
-	}
-
-	private static class CookiePreservingMockHttpServletResponse extends MockHttpServletResponse {
-
-		private String rawCookie;
-
-		@Override
-		public void addHeader(String name, String value) {
-			if (HttpHeaders.SET_COOKIE.equals(name)) {
-				this.rawCookie = value;
-			}
-			super.addHeader(name, value);
-		}
-
 	}
 
 }
