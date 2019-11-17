@@ -490,7 +490,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = sessionIdStrategy.createSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
@@ -509,9 +509,9 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = sessionIdStrategy.createSessionId();
+		String changeId1 = this.sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId1);
-		String changeId2 = sessionIdStrategy.createSessionId();
+		String changeId2 = this.sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
@@ -535,7 +535,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = sessionIdStrategy.createSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);

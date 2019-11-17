@@ -124,7 +124,7 @@ class RedisIndexedSessionRepositoryTests {
 
 		RedisSession createSession = this.redisRepository.createSession();
 		String originalId = createSession.getId();
-		String changeSessionId = sessionIdStrategy.createSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
 		createSession.changeSessionId(changeSessionId);
 		this.redisRepository.save(createSession);
 
@@ -143,7 +143,7 @@ class RedisIndexedSessionRepositoryTests {
 		RedisSession session = this.redisRepository.new RedisSession(this.cached, false);
 		session.setLastAccessedTime(session.getLastAccessedTime());
 		String originalId = session.getId();
-		String changeSessionId = sessionIdStrategy.createSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
 		session.changeSessionId(changeSessionId);
 		this.redisRepository.save(session);
 

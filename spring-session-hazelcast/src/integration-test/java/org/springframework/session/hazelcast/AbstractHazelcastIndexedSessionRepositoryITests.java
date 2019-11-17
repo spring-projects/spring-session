@@ -87,7 +87,7 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = sessionIdStrategy.createSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
@@ -108,9 +108,9 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = sessionIdStrategy.createSessionId();
+		String changeId1 = this.sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId1);
-		String changeId2 = sessionIdStrategy.createSessionId();
+		String changeId2 = this.sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
@@ -136,7 +136,7 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = sessionIdStrategy.createSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
