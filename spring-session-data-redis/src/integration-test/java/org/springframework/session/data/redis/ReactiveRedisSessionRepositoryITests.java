@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 
 	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
+
 	@Autowired
 	private ReactiveRedisSessionRepository repository;
 
