@@ -694,8 +694,7 @@ public class JdbcIndexedSessionRepository
 		@Override
 		public void changeSessionId(final String id) {
 			this.changed = true;
-			String newId = JdbcIndexedSessionRepository.this.sessionIdStrategy.createSessionId();
-			this.delegate.changeSessionId(newId);
+			this.delegate.changeSessionId(id);
 		}
 
 		@Override
