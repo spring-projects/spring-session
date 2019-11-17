@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 import org.springframework.test.context.ContextConfiguration;
@@ -44,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 @WebAppConfiguration
 class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 
+	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 	@Autowired
 	private ReactiveRedisSessionRepository repository;
 
@@ -114,7 +116,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById).block();
@@ -133,9 +135,9 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.save(toSave).block();
 
 		String originalId = toSave.getId();
-		String changeId1 = "1";
+		String changeId1 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId1);
-		String changeId2 = "2";
+		String changeId2 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave).block();
@@ -159,7 +161,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById).block();

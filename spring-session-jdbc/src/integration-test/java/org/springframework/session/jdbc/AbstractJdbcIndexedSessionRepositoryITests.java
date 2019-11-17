@@ -38,6 +38,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository.JdbcSession;
 import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -56,6 +57,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
+
+	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	@Autowired
 	private JdbcIndexedSessionRepository repository;
@@ -578,7 +581,7 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
@@ -599,9 +602,9 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = "1";
+		String changeId1 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId1);
-		String changeId2 = "2";
+		String changeId2 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
@@ -625,7 +628,7 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);

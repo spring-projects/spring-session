@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.data.redis.RedisSessionRepository.RedisSession;
 import org.springframework.test.context.ContextConfiguration;
@@ -52,6 +53,8 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 
 	@Autowired
 	private RedisSessionRepository sessionRepository;
+
+	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	@Test
 	void save_NewSession_ShouldSaveSession() {
@@ -98,7 +101,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		RedisSession session = createAndSaveSession(Instant.now());
 		String originalSessionId = session.getId();
 		updateSession(session, Instant.now(), "attribute1", "value2");
-		String newSessionId = "1";
+		String newSessionId = sessionIdStrategy.createSessionId();
 		session.changeSessionId(newSessionId);
 		this.sessionRepository.save(session);
 		RedisSession loaded = this.sessionRepository.findById(newSessionId);
@@ -112,7 +115,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 	void save_OnlyChangeSessionId_ShouldChangeSessionId() {
 		RedisSession session = createAndSaveSession(Instant.now());
 		String originalSessionId = session.getId();
-		String newSessionId = "1";
+		String newSessionId = sessionIdStrategy.createSessionId();
 		session.changeSessionId(newSessionId);
 		this.sessionRepository.save(session);
 		assertThat(this.sessionRepository.findById(newSessionId)).isNotNull();
@@ -124,10 +127,10 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		RedisSession session = createAndSaveSession(Instant.now());
 		String originalSessionId = session.getId();
 		updateSession(session, Instant.now(), "attribute1", "value2");
-		String newSessionId1 = "1";
+		String newSessionId1 = sessionIdStrategy.createSessionId();
 		session.changeSessionId(newSessionId1);
 		updateSession(session, Instant.now(), "attribute1", "value3");
-		String newSessionId2 = "2";
+		String newSessionId2 = sessionIdStrategy.createSessionId();
 		session.changeSessionId(newSessionId2);
 		this.sessionRepository.save(session);
 		assertThat(this.sessionRepository.findById(newSessionId1)).isNull();
@@ -140,7 +143,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		RedisSession session = this.sessionRepository.createSession();
 		String originalSessionId = session.getId();
 		updateSession(session, Instant.now(), "attribute1", "value1");
-		String newSessionId = "1";
+		String newSessionId = sessionIdStrategy.createSessionId();
 		session.changeSessionId(newSessionId);
 		this.sessionRepository.save(session);
 		assertThat(this.sessionRepository.findById(newSessionId)).isNotNull();
@@ -153,7 +156,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		String originalSessionId;
 		originalSessionId = session.getId();
 		updateSession(session, Instant.now(), "attribute1", "value1");
-		String newSessionId = "1";
+		String newSessionId = sessionIdStrategy.createSessionId();
 		session.changeSessionId(newSessionId);
 		this.sessionRepository.save(session);
 		this.sessionRepository.save(session);
@@ -167,7 +170,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		String originalSessionId = session.getId();
 		this.sessionRepository.deleteById(originalSessionId);
 		updateSession(session, Instant.now(), "attribute1", "value1");
-		String newSessionId = "1";
+		String newSessionId = sessionIdStrategy.createSessionId();
 		session.changeSessionId(newSessionId);
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(session))
 				.withMessage("Session was invalidated");
@@ -182,11 +185,11 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		RedisSession copy2 = this.sessionRepository.findById(originalSessionId);
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		updateSession(copy1, now.plusSeconds(1L), "attribute2", "value2");
-		String newSessionId1 = "1";
+		String newSessionId1 = sessionIdStrategy.createSessionId();
 		copy1.changeSessionId(newSessionId1);
 		this.sessionRepository.save(copy1);
 		updateSession(copy2, now.plusSeconds(2L), "attribute3", "value3");
-		String newSessionId2 = "2";
+		String newSessionId2 = sessionIdStrategy.createSessionId();
 		copy2.changeSessionId(newSessionId2);
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(copy2))
 				.withMessage("Session was invalidated");

@@ -30,6 +30,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository.HazelcastSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +44,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+
+	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	@Autowired
 	private HazelcastInstance hazelcastInstance;
@@ -84,7 +87,7 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
@@ -105,9 +108,9 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = "1";
+		String changeId1 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId1);
-		String changeId2 = "2";
+		String changeId2 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
@@ -133,7 +136,7 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);

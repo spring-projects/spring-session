@@ -36,6 +36,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
@@ -62,6 +63,8 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
+
+	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	@Autowired
 	private RedisIndexedSessionRepository repository;
@@ -487,7 +490,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
@@ -506,9 +509,9 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = "1";
+		String changeId1 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId1);
-		String changeId2 = "2";
+		String changeId2 = sessionIdStrategy.createSessionId();
 		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
@@ -532,7 +535,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);

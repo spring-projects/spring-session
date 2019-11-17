@@ -48,6 +48,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
 
@@ -66,6 +67,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 class RedisIndexedSessionRepositoryTests {
+
+	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	@Mock
 	private RedisOperations<Object, Object> redisOperations;
@@ -121,7 +124,7 @@ class RedisIndexedSessionRepositoryTests {
 
 		RedisSession createSession = this.redisRepository.createSession();
 		String originalId = createSession.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		createSession.changeSessionId(changeSessionId);
 		this.redisRepository.save(createSession);
 
@@ -140,7 +143,7 @@ class RedisIndexedSessionRepositoryTests {
 		RedisSession session = this.redisRepository.new RedisSession(this.cached, false);
 		session.setLastAccessedTime(session.getLastAccessedTime());
 		String originalId = session.getId();
-		String changeSessionId = "1";
+		String changeSessionId = sessionIdStrategy.createSessionId();
 		session.changeSessionId(changeSessionId);
 		this.redisRepository.save(session);
 
