@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.util.Assert;
 
 /**
  * A {@link SessionRepository} backed by a {@link java.util.Map} and that uses a
@@ -113,7 +114,13 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		return result;
 	}
 
+	/**
+	 * Allows override of default session id generation strategy.
+	 * @param sessionIdStrategy session id generation strategy to be used with this
+	 * repository
+	 */
 	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		Assert.notNull(sessionIdStrategy, "sessionIdStrategy must not be null");
 		this.sessionIdStrategy = sessionIdStrategy;
 	}
 

@@ -167,7 +167,13 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
 	}
 
+	/**
+	 * Allows override of default session id generation strategy.
+	 * @param sessionIdStrategy session id generation strategy to be used with this
+	 * repository
+	 */
 	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		Assert.notNull(sessionIdStrategy, "sessionIdStrategy must not be null");
 		this.sessionIdStrategy = sessionIdStrategy;
 	}
 

@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveSessionRepository} backed by a {@link Map} and that uses a
@@ -109,7 +110,13 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		});
 	}
 
+	/**
+	 * Allows override of default session id generation strategy.
+	 * @param sessionIdStrategy session id generation strategy to be used with this
+	 * repository
+	 */
 	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		Assert.notNull(sessionIdStrategy, "sessionIdStrategy must not be null");
 		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
