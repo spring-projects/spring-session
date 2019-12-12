@@ -55,6 +55,8 @@ final class RedisSessionExpirationPolicy {
 	private final Function<Long, String> lookupExpirationKey;
 
 	private final Function<String, String> lookupSessionKey;
+	
+	private final String expirePrefix = "expires:"
 
 	RedisSessionExpirationPolicy(RedisOperations<Object, Object> sessionRedisOperations,
 			Function<Long, String> lookupExpirationKey, Function<String, String> lookupSessionKey) {
@@ -67,11 +69,12 @@ final class RedisSessionExpirationPolicy {
 	void onDelete(Session session) {
 		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 		String expireKey = getExpirationKey(toExpire);
-		this.redis.boundSetOps(expireKey).remove(session.getId());
+		String keyToExpire = expirePrefix + session.getId();
+		this.redis.boundSetOps(expireKey).remove(keyToExpire);
 	}
 
 	void onExpirationUpdated(Long originalExpirationTimeInMilli, Session session) {
-		String keyToExpire = "expires:" + session.getId();
+		String keyToExpire = expirePrefix + session.getId();
 		long toExpire = roundUpToNextMinute(expiresInMillis(session));
 
 		if (originalExpirationTimeInMilli != null) {
