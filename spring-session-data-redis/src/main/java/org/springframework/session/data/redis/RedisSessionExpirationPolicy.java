@@ -55,8 +55,8 @@ final class RedisSessionExpirationPolicy {
 	private final Function<Long, String> lookupExpirationKey;
 
 	private final Function<String, String> lookupSessionKey;
-	
-	private final String expirePrefix = "expires:";
+
+	private String expirePrefix = "expires:";
 
 	RedisSessionExpirationPolicy(RedisOperations<Object, Object> sessionRedisOperations,
 			Function<Long, String> lookupExpirationKey, Function<String, String> lookupSessionKey) {
