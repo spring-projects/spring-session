@@ -3,7 +3,7 @@ dependencyManagement {
 		mavenBom 'io.projectreactor:reactor-bom:Dysprosium-SR4'
 		mavenBom 'org.junit:junit-bom:5.5.2'
 		mavenBom 'org.springframework:spring-framework-bom:5.2.2.RELEASE'
-		mavenBom 'org.springframework.data:spring-data-releasetrain:Moore-RELEASE'
+		mavenBom 'org.springframework.data:spring-data-releasetrain:Moore-SR4'
 		mavenBom 'org.springframework.security:spring-security-bom:5.2.1.RELEASE'
 		mavenBom 'org.testcontainers:testcontainers-bom:1.12.2'
 	}
