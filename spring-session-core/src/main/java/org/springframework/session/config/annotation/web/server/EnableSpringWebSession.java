@@ -36,7 +36,7 @@ import org.springframework.context.annotation.Import;
  *
  *     {@literal @Bean}
  *     public ReactiveSessionRepository sessionRepository() {
- *         return new ReactiveMapSessionRepository();
+ *         return new ReactiveMapSessionRepository(new ConcurrentHashMap<>());
  *     }
  *
  * }

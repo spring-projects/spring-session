@@ -58,7 +58,7 @@ import org.springframework.util.ObjectUtils;
  *
  *     {@literal @Bean}
  *     public MapSessionRepository sessionRepository() {
- *         return new MapSessionRepository();
+ *         return new MapSessionRepository(new ConcurrentHashMap<>());
  *     }
  *
  * }
