@@ -40,7 +40,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
  *
  *     {@literal @Bean}
  *     public MapSessionRepository sessionRepository() {
- *         return new MapSessionRepository();
+ *         return new MapSessionRepository(new ConcurrentHashMap<>());
  *     }
  *
  * }
