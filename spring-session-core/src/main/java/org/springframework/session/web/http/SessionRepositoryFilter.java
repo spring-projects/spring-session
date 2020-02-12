@@ -221,10 +221,11 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 			else {
 				S session = wrappedSession.getSession();
+				String sessionId = session.getId();
+				boolean isRequestedSession = isRequestedSessionIdValid() && sessionId.equals(getRequestedSessionId());
 				clearRequestedSessionCache();
 				SessionRepositoryFilter.this.sessionRepository.save(session);
-				String sessionId = session.getId();
-				if (!isRequestedSessionIdValid() || !sessionId.equals(getRequestedSessionId())) {
+				if (!isRequestedSession) {
 					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this, this.response, sessionId);
 				}
 			}
