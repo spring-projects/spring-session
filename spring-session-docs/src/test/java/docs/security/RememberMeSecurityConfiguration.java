@@ -19,6 +19,7 @@ package docs.security;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -41,14 +42,16 @@ public class RememberMeSecurityConfiguration extends WebSecurityConfigurerAdapte
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			// ... additional configuration ...
-			.rememberMe()
-				.rememberMeServices(rememberMeServices());
+			.rememberMe((rememberMe) -> rememberMe
+				.rememberMeServices(rememberMeServices())
+			);
 		// end::http-rememberme[]
 
 		http
-			.formLogin().and()
-			.authorizeRequests()
-				.anyRequest().authenticated();
+			.formLogin(Customizer.withDefaults())
+			.authorizeRequests((authorize) -> authorize
+				.anyRequest().authenticated()
+			);
 	}
 
 	// tag::rememberme-bean[]

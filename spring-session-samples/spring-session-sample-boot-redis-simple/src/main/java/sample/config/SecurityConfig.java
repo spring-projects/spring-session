@@ -28,12 +28,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.authorizeRequests()
+			.authorizeRequests((authorize) -> authorize
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.anyRequest().authenticated()
-				.and()
-			.formLogin()
-				.permitAll();
+			)
+			.formLogin((formLogin) -> formLogin
+				.permitAll()
+			);
 	}
 	// @formatter:on
 

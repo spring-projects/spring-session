@@ -40,9 +40,10 @@ public class SecurityConfiguration<S extends Session> extends WebSecurityConfigu
 		// @formatter:off
 		http
 			// other config goes here...
-			.sessionManagement()
+			.sessionManagement((sessionManagement) -> sessionManagement
 				.maximumSessions(2)
-				.sessionRegistry(sessionRegistry());
+				.sessionRegistry(sessionRegistry())
+			);
 		// @formatter:on
 	}
 
