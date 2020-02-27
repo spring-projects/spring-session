@@ -142,7 +142,7 @@ import org.springframework.util.Assert;
  * <p>
  * When a session is created an event is sent to Redis with the channel of
  * "spring:session:channel:created:33fdd1b6-b496-4b33-9f7d-df96679d32fe" such that
- * "33fdd1b6-b496-4b33-9f7d-df96679d32fe" is the sesion id. The body of the event will be
+ * "33fdd1b6-b496-4b33-9f7d-df96679d32fe" is the session id. The body of the event will be
  * the session that was created.
  * </p>
  *
