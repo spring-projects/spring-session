@@ -1,7 +1,10 @@
 = Spring Session - WebSocket
 Rob Winch
-:toc:
+:toc: left
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
 
 This guide describes how to use Spring Session to ensure that WebSocket messages keep your HttpSession alive.
 
@@ -11,6 +14,9 @@ NOTE: Spring Session's WebSocket support works only with Spring's WebSocket supp
 Specifically,it does not work with using https://www.jcp.org/en/jsr/detail?id=356[JSR-356] directly, because JSR-356 does not have a mechanism for intercepting incoming WebSocket messages.
 
 // end::disclaimer[]
+
+[#index-link]
+link:../index.html[Index]
 
 == HttpSession Setup
 

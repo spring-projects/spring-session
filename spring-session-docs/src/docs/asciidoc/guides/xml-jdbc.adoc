@@ -1,10 +1,16 @@
 = Spring Session - HttpSession (Quick Start)
 Rob Winch, Vedran Pavić
-:toc:
+:toc: left
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
 
 This guide describes how to use Spring Session to transparently leverage a relational to back a web application's `HttpSession` with XML based configuration.
 
 NOTE: You can find the completed guide in the <<httpsession-jdbc-xml-sample, httpsession-jdbc-xml sample application>>.
+
+[#index-link]
+link:../index.html[Index]
 
 == Updating Dependencies
 

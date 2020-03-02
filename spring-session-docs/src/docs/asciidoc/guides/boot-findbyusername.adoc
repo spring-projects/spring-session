@@ -1,11 +1,16 @@
 = Spring Session - find by username
 Rob Winch
-:toc:
+:toc: left
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
 
 This guide describes how to use Spring Session to find sessions by username.
 
 NOTE: You can find the completed guide in the <<findbyusername-sample, findbyusername application>>.
 
+[#index-link]
+link:../index.html[Index]
 
 [[findbyusername-assumptions]]
 == Assumptions

@@ -13,7 +13,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.27.RELEASE'
+		classpath 'io.spring.gradle:spring-build-conventions:0.0.28.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 	}
 }

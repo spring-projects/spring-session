@@ -1,11 +1,17 @@
 = Spring Session and Spring Security with Hazelcast
 Tommy Ludwig; Rob Winch
-:toc:
+:toc: left
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
 
 This guide describes how to use Spring Session along with Spring Security when you use Hazelcast as your data store.
 It assumes that you have already applied Spring Security to your application.
 
 NOTE: You cand find the completed guide in the <<hazelcast-spring-security-sample, Hazelcast Spring Security sample application>>.
+
+[#index-link]
+link:../index.html[Index]
 
 == Updating Dependencies
 

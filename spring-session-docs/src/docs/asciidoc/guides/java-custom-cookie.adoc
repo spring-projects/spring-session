@@ -1,11 +1,17 @@
 = Spring Session - Custom Cookie
 Rob Winch; Eleftheria Stein-Kousathana
-:toc:
+:toc: left
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
 
 This guide describes how to configure Spring Session to use custom cookies with Java Configuration.
 The guide assumes you have already link:./httpsession.html[set up Spring Session in your project].
 
 NOTE: You can find the completed guide in the <<custom-cookie-sample, Custom Cookie sample application>>.
+
+[#index-link]
+link:../index.html[Index]
 
 [[custom-cookie-spring-configuration]]
 == Spring Java Configuration

@@ -46,5 +46,7 @@ asciidoctor {
 			'spring-session-version': project.version,
 			'version-milestone': milestoneBuild,
 			'version-release': releaseBuild,
-			'version-snapshot': snapshotBuild
+			'version-snapshot': snapshotBuild,
+			'highlightjsdir@': "js/highlight",
+			'docinfodir@': "."
 }

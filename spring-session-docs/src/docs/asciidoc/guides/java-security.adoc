@@ -1,11 +1,17 @@
 = Spring Session and Spring Security
 Rob Winch
-:toc:
+:toc: left
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
 
 This guide describes how to use Spring Session along with Spring Security.
 It assumes you have already applied Spring Security to your application.
 
 NOTE: You can find the completed guide in the <<security-sample, security sample application>>.
+
+[#index-link]
+link:../index.html[Index]
 
 == Updating Dependencies
 Before you use Spring Session, you must update your dependencies.
