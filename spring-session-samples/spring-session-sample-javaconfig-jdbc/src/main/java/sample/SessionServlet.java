@@ -37,4 +37,4 @@ public class SessionServlet extends HttpServlet {
 	private static final long serialVersionUID = 2878267318695777395L;
 
 }
-// tag::end[]
+// end::class[]

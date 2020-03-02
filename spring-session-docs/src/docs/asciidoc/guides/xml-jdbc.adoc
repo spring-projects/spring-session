@@ -68,8 +68,8 @@ You must have the following in your pom.xml:
 	<url>https://repo.spring.io/libs-milestone</url>
 </repository>
 ----
-endif::[]
 ====
+endif::[]
 
 // tag::config[]
 

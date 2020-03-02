@@ -151,6 +151,6 @@ To do so, enter the following into your terminal, being sure to replace `7e8383a
 ----
 	$ redis-cli del spring:session:sessions:7e8383a4-082c-4ffe-a4bc-c40fd3363c5e
 ----
-=====
+====
 
 Now you can visit the application at http://localhost:8080/ and observe that we are no longer authenticated.
