@@ -25,7 +25,7 @@ dependencies {
 
 def versions = dependencyManagement.managedVersions
 
-asciidoctor {
+asciidoctorj {
 	def ghTag = snapshotBuild ? 'master' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
 
