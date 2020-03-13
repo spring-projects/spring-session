@@ -107,7 +107,7 @@ For additional information on how to configure data access-related concerns, see
 
 == XML Servlet Container Initialization
 
-Our <<httpsession-xml-spring-configuration,Spring Configuration>> created a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
+Our <<httpsession-jdbc-xml-spring-configuration,Spring Configuration>> created a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
 
 In order for our `Filter` to do its magic, we need to instruct Spring to load our `session.xml` configuration.
