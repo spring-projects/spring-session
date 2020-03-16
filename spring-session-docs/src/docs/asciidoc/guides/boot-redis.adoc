@@ -59,7 +59,7 @@ Further customization is possible by using `application.properties`, as the foll
 .src/main/resources/application.properties
 ----
 server.servlet.session.timeout= # Session timeout. If a duration suffix is not specified, seconds is used.
-spring.session.redis.flush-mode=on-save # Sessions flush mode.
+spring.session.redis.flush-mode=on_save # Sessions flush mode.
 spring.session.redis.namespace=spring:session # Namespace for keys used to store sessions.
 ----
 ====
