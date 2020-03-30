@@ -52,6 +52,9 @@ spring.session.store-type=jdbc # Session store type.
 ----
 ====
 
+If a single Spring Session module is present on the classpath, Spring Boot uses that store implementation automatically.
+If you have more than one implementation, you must choose the StoreType that you wish to use to store the sessions, as shows above.
+
 Under the hood, Spring Boot applies configuration that is equivalent to manually adding the `@EnableJdbcHttpSession` annotation.
 This creates a Spring bean with the name of `springSessionRepositoryFilter`. That bean implements `Filter`.
 The filter is in charge of replacing the `HttpSession` implementation to be backed by Spring Session.
