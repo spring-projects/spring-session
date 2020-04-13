@@ -25,7 +25,7 @@
 				<td th:text="${#temporals.format(sessionElement.lastAccessedTime.atZone(T(java.time.ZoneId).systemDefault()),'dd/MMM/yyyy HH:mm:ss')}"></td>
 				<td th:text="${details?.accessType}"></td>
 				<td>
-					<form th:action="@{'/sessions/' + ${sessionElement.id}}" th:method="delete">
+					<form th:action="@{'/sessions/' + ${sessionElement.id}}" th:method="post">
 						<input th:id="'terminate-' + ${sessionElement.id}" type="submit" value="Terminate" th:disabled="${sessionElement.id == #httpSession.id}"/>
 					</form>
 				</td>
