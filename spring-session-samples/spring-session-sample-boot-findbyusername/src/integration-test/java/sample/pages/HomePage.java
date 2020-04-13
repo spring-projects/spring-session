@@ -56,6 +56,18 @@ public class HomePage extends BasePage {
 	}
 
 	public void terminateButtonDisabled() {
+		String sessionId = getSessionId();
+		WebElement element = getDriver().findElement(By.id("terminate-" + sessionId));
+		assertThat(element.isEnabled()).isFalse();
+	}
+
+	public HomePage terminateSession(String sessionId) {
+		WebElement terminate = getDriver().findElement(By.id("terminate-" + sessionId));
+		terminate.click();
+		return new HomePage(getDriver());
+	}
+
+	public String getSessionId() {
 		Set<Cookie> cookies = getDriver().manage().getCookies();
 		String cookieValue = null;
 		for (Cookie cookie : cookies) {
@@ -63,8 +75,7 @@ public class HomePage extends BasePage {
 				cookieValue = new String(Base64.getDecoder().decode(cookie.getValue()));
 			}
 		}
-		WebElement element = getDriver().findElement(By.id("terminate-" + cookieValue));
-		assertThat(element.isEnabled()).isFalse();
+		return cookieValue;
 	}
 
 	public HomePage logout() {

@@ -53,6 +53,8 @@ class FindByUsernameTests {
 
 	private WebDriver driver;
 
+	private WebDriver driver2;
+
 	@BeforeEach
 	void setup() {
 		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
@@ -61,6 +63,9 @@ class FindByUsernameTests {
 	@AfterEach
 	void tearDown() {
 		this.driver.quit();
+		if (this.driver2 != null) {
+			this.driver2.quit();
+		}
 	}
 
 	@Test
@@ -77,6 +82,25 @@ class FindByUsernameTests {
 		home.containCookie("SESSION");
 		home.doesNotContainCookie("JSESSIONID");
 		home.terminateButtonDisabled();
+	}
+
+	@Test
+	void terminateOtherSession() throws Exception {
+		HomePage forgotToLogout = home(this.driver);
+
+		this.driver2 = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
+		HomePage terminateFogotSession = home(this.driver2);
+		terminateFogotSession.terminateSession(forgotToLogout.getSessionId()).assertAt();
+
+		LoginPage login = HomePage.go(this.driver);
+		login.assertAt();
+	}
+
+	private static HomePage home(WebDriver driver) {
+		LoginPage login = HomePage.go(driver);
+		HomePage home = login.form().login(HomePage.class);
+		home.assertAt();
+		return home;
 	}
 
 	@TestConfiguration

@@ -26,8 +26,8 @@ import org.springframework.session.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
  * Controller for sending the user to the login view.
@@ -50,7 +50,7 @@ public class IndexController {
 	}
 	// end::findbyusername[]
 
-	@RequestMapping(value = "/sessions/{sessionIdToDelete}", method = RequestMethod.DELETE)
+	@PostMapping("/sessions/{sessionIdToDelete}")
 	public String removeSession(Principal principal, @PathVariable String sessionIdToDelete) {
 		Set<String> usersSessionIds = this.sessions.findByPrincipalName(principal.getName()).keySet();
 		if (usersSessionIds.contains(sessionIdToDelete)) {
