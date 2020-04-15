@@ -289,7 +289,7 @@ Any method that returns an `HttpSession` is overridden.
 All other methods are implemented by `HttpServletRequestWrapper` and delegate to the original `HttpServletRequest` implementation.
 
 We replace the `HttpServletRequest` implementation by using a servlet `Filter` called `SessionRepositoryFilter`.
-The pseudocode belows:
+The following pseudocode shows how it works:
 
 ====
 [source, java]
