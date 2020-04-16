@@ -3,9 +3,16 @@
 Spring Session is released under the Apache 2.0 license. If you would like to contribute
 something, or simply want to hack on the code this document should help you get started.
 
+
 == Code of Conduct
-This project adheres to the Contributor Covenant link:CODE_OF_CONDUCT.adoc[code of conduct].
-By participating, you  are expected to uphold this code. Please report unacceptable behavior to spring-code-of-conduct@pivotal.io.
+
+Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct]
+
+
+== Reporting Security Vulnerabilities
+
+Please see our https://github.com/spring-projects/spring-session/security/policy[Security policy].
+
 
 == Using GitHub issues
 
