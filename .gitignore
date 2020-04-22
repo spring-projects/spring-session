@@ -13,3 +13,4 @@ out
 .checkstyle
 !etc/eclipse/.checkstyle
 !**/src/**/build
+.DS_Store
