@@ -1,0 +1,66 @@
+= Spring Session - WebFlux with Custom Cookie
+Eleftheria Stein-Kousathana
+:toc: left
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
+
+This guide describes how to configure Spring Session to use custom cookies in a WebFlux based application.
+The guide assumes you have already set up Spring Session in your project using your chosen data store. For example, link:./boot-redis.html[HttpSession with Redis].
+
+NOTE: You can find the completed guide in the <<webflux-custom-cookie-sample, WebFlux Custom Cookie sample application>>.
+
+[#index-link]
+link:../index.html[Index]
+
+[[webflux-custom-cookie-spring-configuration]]
+== Spring Boot Configuration
+
+Once you have set up Spring Session, you can customize how the session cookie is written by exposing a `WebSessionIdResolver` as a Spring bean.
+Spring Session uses a `CookieWebSessionIdResolver` by default.
+Exposing the `WebSessionIdResolver` as a Spring bean augments the existing configuration when you use configurations like `@EnableRedisHttpSession`.
+The following example shows how to customize Spring Session's cookie:
+
+====
+[source,java]
+----
+include::{samples-dir}spring-session-sample-boot-webflux-custom-cookie/src/main/java/sample/CookieConfig.java[tags=webflux-cookie-serializer]
+----
+
+<1> We customize the name of the cookie to be `JSESSIONID`.
+<2> We customize the path of the cookie to be `/` (rather than the default of the context root).
+<3> We customize the `SameSite` cookie directive to be `Strict`.
+====
+
+[[webflux-custom-cookie-sample]]
+== `webflux-custom-cookie` Sample Application
+
+This section describes how to work with the `webflux-custom-cookie` sample application.
+
+=== Running the `webflux-custom-cookie` Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+====
+----
+$ ./gradlew :spring-session-sample-boot-webflux-custom-cookie:bootRun
+----
+====
+
+NOTE: For the sample to work, you must https://redis.io/download[install Redis 2.8+] on localhost and run it with the default port (6379).
+Alternatively, you can update the `RedisConnectionFactory` to point to a Redis server.
+Another option is to use https://www.docker.com/[Docker] to run Redis on localhost. See https://hub.docker.com/_/redis/[Docker Redis repository] for detailed instructions.
+
+You should now be able to access the application at http://localhost:8080/
+
+=== Exploring the `webflux-custom-cookie` Sample Application
+
+Now you can use the application. Fill out the form with the following information:
+
+* *Attribute Name:* _username_
+* *Attribute Value:* _rob_
+
+Now click the *Set Attribute* button.
+You should now see the values displayed in the table.
+
+If you look at the cookies for the application, you can see the cookie is saved to the custom name of `JSESSIONID`.

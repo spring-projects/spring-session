@@ -72,7 +72,7 @@ To get started with Spring Session, the best place to start is our Sample Applic
 
 | {gh-samples-url}spring-session-sample-boot-webflux-custom-cookie[WebFlux with Custom Cookie]
 | Demonstrates how to use Spring Session to customize the Session cookie in a WebFlux based application.
-|
+| link:guides/boot-webflux-custom-cookie.html[WebFlux with Custom Cookie Guide]
 
 | {gh-samples-url}spring-session-sample-boot-redis-json[HttpSession with Redis JSON serialization]
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.

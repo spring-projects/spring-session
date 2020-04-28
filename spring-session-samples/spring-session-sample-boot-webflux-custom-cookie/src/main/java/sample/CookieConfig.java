@@ -27,13 +27,15 @@ import org.springframework.web.server.session.WebSessionIdResolver;
 @Configuration
 public class CookieConfig {
 
+	// tag::webflux-cookie-serializer[]
 	@Bean
 	public WebSessionIdResolver webSessionIdResolver() {
 		CookieWebSessionIdResolver resolver = new CookieWebSessionIdResolver();
-		resolver.setCookieName("JSESSIONID");
-		resolver.addCookieInitializer((builder) -> builder.path("/"));
-		resolver.addCookieInitializer((builder) -> builder.sameSite("Strict"));
+		resolver.setCookieName("JSESSIONID"); // <1>
+		resolver.addCookieInitializer((builder) -> builder.path("/")); // <2>
+		resolver.addCookieInitializer((builder) -> builder.sameSite("Strict")); // <3>
 		return resolver;
 	}
+	// end::webflux-cookie-serializer[]
 
 }
