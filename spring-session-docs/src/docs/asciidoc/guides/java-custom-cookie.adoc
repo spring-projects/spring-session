@@ -6,7 +6,7 @@ Rob Winch; Eleftheria Stein-Kousathana
 :docinfodir: guides
 
 This guide describes how to configure Spring Session to use custom cookies with Java Configuration.
-The guide assumes you have already link:./httpsession.html[set up Spring Session in your project].
+The guide assumes you have already set up Spring Session in your project using your chosen data store. For example, link:./boot-redis.html[HttpSession with Redis].
 
 NOTE: You can find the completed guide in the <<custom-cookie-sample, Custom Cookie sample application>>.
 

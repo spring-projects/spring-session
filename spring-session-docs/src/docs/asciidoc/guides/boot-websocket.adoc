@@ -20,7 +20,7 @@ link:../index.html[Index]
 
 == HttpSession Setup
 
-The first step is to integrate Spring Session with the HttpSession. These steps are already outlined in the link:httpsession.html[HttpSession Guide].
+The first step is to integrate Spring Session with the HttpSession. These steps are already outlined in the link:./boot-redis.html[HttpSession with Redis Guide].
 
 Please make sure you have already integrated Spring Session with HttpSession before proceeding.
 
