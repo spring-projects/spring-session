@@ -308,7 +308,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	/**
 	 * Sets the maxAge property of the Cookie. The default is to delete the cookie when
 	 * the browser is closed.
-	 * @param cookieMaxAge the maxAge property of the Cookie
+	 * @param cookieMaxAge the maxAge property of the Cookie (defined in seconds)
 	 */
 	public void setCookieMaxAge(int cookieMaxAge) {
 		this.cookieMaxAge = cookieMaxAge;
