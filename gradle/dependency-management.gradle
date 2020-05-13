@@ -1,6 +1,6 @@
 dependencyManagement {
 	imports {
-		mavenBom 'io.projectreactor:reactor-bom:Californium-SR16'
+		mavenBom 'io.projectreactor:reactor-bom:Californium-SR18'
 		mavenBom 'org.springframework:spring-framework-bom:5.1.14.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Lovelace-SR16'
 		mavenBom 'org.springframework.security:spring-security-bom:5.1.8.RELEASE'
