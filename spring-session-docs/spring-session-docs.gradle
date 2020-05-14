@@ -25,6 +25,21 @@ dependencies {
 
 def versions = dependencyManagement.managedVersions
 
+asciidoctorPdf {
+    clearSources()
+    sources {
+        include "index.adoc"
+    }
+}
+
+asciidoctor {
+    clearSources()
+    sources {
+        include "index.adoc"
+        include "guides/*.adoc"
+    }
+}
+
 asciidoctorj {
 	def ghTag = snapshotBuild ? 'master' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
