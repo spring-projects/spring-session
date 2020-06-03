@@ -29,7 +29,7 @@ import org.springframework.session.MapSession;
  * @author Vedran Pavic
  * @since 1.3.0
  */
-public class PrincipalNameExtractor extends ValueExtractor<MapSession, String> {
+public class PrincipalNameExtractor implements ValueExtractor<MapSession, String> {
 
 	@Override
 	@SuppressWarnings("unchecked")
