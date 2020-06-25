@@ -4,7 +4,7 @@ dependencyManagement {
 		mavenBom 'org.junit:junit-bom:5.6.2'
 		mavenBom 'org.springframework:spring-framework-bom:5.2.6.RELEASE'
 		mavenBom 'org.springframework.data:spring-data-releasetrain:Neumann-RELEASE'
-		mavenBom 'org.springframework.security:spring-security-bom:5.3.2.RELEASE'
+		mavenBom 'org.springframework.security:spring-security-bom:5.3.3.RELEASE'
 		mavenBom 'org.testcontainers:testcontainers-bom:1.14.3'
 	}
 
