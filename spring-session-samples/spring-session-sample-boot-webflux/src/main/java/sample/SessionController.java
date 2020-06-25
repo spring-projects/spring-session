@@ -36,7 +36,7 @@ public class SessionController {
 	@GetMapping("/")
 	public String index(Model model, WebSession webSession) {
 		model.addAttribute("webSession", webSession);
-		return "index";
+		return "home";
 	}
 
 	private static final long serialVersionUID = 2878267318695777395L;

@@ -8,6 +8,7 @@ dependencies {
 	compile "org.springframework.boot:spring-boot-starter-data-jpa"
 	compile "org.springframework.boot:spring-boot-starter-data-redis"
 	compile "org.springframework.boot:spring-boot-starter-websocket"
+	compile "org.springframework.boot:spring-boot-starter-validation"
 	compile "org.springframework.boot:spring-boot-devtools"
 	compile "org.springframework:spring-websocket"
 	compile "org.springframework.security:spring-security-messaging"
