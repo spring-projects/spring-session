@@ -44,6 +44,7 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -460,63 +461,65 @@ public class JdbcIndexedSessionRepository
 
 	private void insertSessionAttributes(JdbcSession session, List<String> attributeNames) {
 		Assert.notEmpty(attributeNames, "attributeNames must not be null or empty");
-		if (attributeNames.size() > 1) {
-			this.jdbcOperations.batchUpdate(this.createSessionAttributeQuery, new BatchPreparedStatementSetter() {
+		try (LobCreator lobCreator = lobHandler.getLobCreator()) {
+			if (attributeNames.size() > 1) {
+				this.jdbcOperations.batchUpdate(this.createSessionAttributeQuery, new BatchPreparedStatementSetter() {
 
-				@Override
-				public void setValues(PreparedStatement ps, int i) throws SQLException {
-					String attributeName = attributeNames.get(i);
+					@Override
+					public void setValues(PreparedStatement ps, int i) throws SQLException {
+						String attributeName = attributeNames.get(i);
+						ps.setString(1, attributeName);
+						lobCreator.setBlobAsBytes(ps, 2,
+								serialize(session.getAttribute(attributeName)));
+						ps.setString(3, session.getId());
+					}
+
+					@Override
+					public int getBatchSize() {
+						return attributeNames.size();
+					}
+
+				});
+			} else {
+				this.jdbcOperations.update(this.createSessionAttributeQuery, (ps) -> {
+					String attributeName = attributeNames.get(0);
 					ps.setString(1, attributeName);
-					getLobHandler().getLobCreator().setBlobAsBytes(ps, 2,
-							serialize(session.getAttribute(attributeName)));
+					lobCreator.setBlobAsBytes(ps, 2, serialize(session.getAttribute(attributeName)));
 					ps.setString(3, session.getId());
-				}
-
-				@Override
-				public int getBatchSize() {
-					return attributeNames.size();
-				}
-
-			});
-		}
-		else {
-			this.jdbcOperations.update(this.createSessionAttributeQuery, (ps) -> {
-				String attributeName = attributeNames.get(0);
-				ps.setString(1, attributeName);
-				getLobHandler().getLobCreator().setBlobAsBytes(ps, 2, serialize(session.getAttribute(attributeName)));
-				ps.setString(3, session.getId());
-			});
+				});
+			}
 		}
 	}
 
 	private void updateSessionAttributes(JdbcSession session, List<String> attributeNames) {
 		Assert.notEmpty(attributeNames, "attributeNames must not be null or empty");
-		if (attributeNames.size() > 1) {
-			this.jdbcOperations.batchUpdate(this.updateSessionAttributeQuery, new BatchPreparedStatementSetter() {
+		try (LobCreator lobCreator = lobHandler.getLobCreator()) {
+			if (attributeNames.size() > 1) {
+				this.jdbcOperations.batchUpdate(this.updateSessionAttributeQuery, new BatchPreparedStatementSetter() {
 
-				@Override
-				public void setValues(PreparedStatement ps, int i) throws SQLException {
-					String attributeName = attributeNames.get(i);
-					getLobHandler().getLobCreator().setBlobAsBytes(ps, 1,
-							serialize(session.getAttribute(attributeName)));
+					@Override
+					public void setValues(PreparedStatement ps, int i) throws SQLException {
+						String attributeName = attributeNames.get(i);
+						lobCreator.setBlobAsBytes(ps, 1,
+								serialize(session.getAttribute(attributeName)));
+						ps.setString(2, session.primaryKey);
+						ps.setString(3, attributeName);
+					}
+
+					@Override
+					public int getBatchSize() {
+						return attributeNames.size();
+					}
+
+				});
+			} else {
+				this.jdbcOperations.update(this.updateSessionAttributeQuery, (ps) -> {
+					String attributeName = attributeNames.get(0);
+					lobCreator.setBlobAsBytes(ps, 1, serialize(session.getAttribute(attributeName)));
 					ps.setString(2, session.primaryKey);
 					ps.setString(3, attributeName);
-				}
-
-				@Override
-				public int getBatchSize() {
-					return attributeNames.size();
-				}
-
-			});
-		}
-		else {
-			this.jdbcOperations.update(this.updateSessionAttributeQuery, (ps) -> {
-				String attributeName = attributeNames.get(0);
-				getLobHandler().getLobCreator().setBlobAsBytes(ps, 1, serialize(session.getAttribute(attributeName)));
-				ps.setString(2, session.primaryKey);
-				ps.setString(3, attributeName);
-			});
+				});
+			}
 		}
 	}
 
