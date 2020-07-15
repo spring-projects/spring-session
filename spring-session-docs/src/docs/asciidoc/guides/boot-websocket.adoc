@@ -59,14 +59,14 @@ What does `AbstractSessionWebSocketMessageBrokerConfigurer` do behind the scenes
 
 * `WebSocketConnectHandlerDecoratorFactory` is added as a `WebSocketHandlerDecoratorFactory` to `WebSocketTransportRegistration`.
 This ensures a custom `SessionConnectEvent` is fired that contains the `WebSocketSession`.
-The `WebSocketSession` is necessary to terminate any WebSocket connections that are still open when a Spring Session is terminated.
+The `WebSocketSession` is necessary to end any WebSocket connections that are still open when a Spring Session is ended.
 * `SessionRepositoryMessageInterceptor` is added as a `HandshakeInterceptor` to every `StompWebSocketEndpointRegistration`.
 This ensures that the `Session` is added to the WebSocket properties to enable updating the last accessed time.
 * `SessionRepositoryMessageInterceptor` is added as a `ChannelInterceptor` to our inbound `ChannelRegistration`.
 This ensures that every time an inbound message is received, that the last accessed time of our Spring Session is updated.
 * `WebSocketRegistryListener` is created as a Spring bean.
 This ensures that we have a mapping of all of the `Session` IDs to the corresponding WebSocket connections.
-By maintaining this mapping, we can close all the WebSocket connections when a Spring Session (HttpSession) is terminated.
+By maintaining this mapping, we can close all the WebSocket connections when a Spring Session (HttpSession) is ended.
 
 
 // end::config[]
@@ -131,7 +131,7 @@ You can see that the message is no longer sent.
 ====
 Spring Session expires in 60 seconds, but the notification from Redis is not guaranteed to happen within 60 seconds.
 To ensure the socket is closed in a reasonable amount of time, Spring Session runs a background task every minute at 00 seconds that forcibly cleans up any expired sessions.
-This means you need to wait at most two minutes before the WebSocket connection is terminated.
+This means you need to wait at most two minutes before the WebSocket connection is closed.
 ====
 
 You can now try accessing http://localhost:8080/

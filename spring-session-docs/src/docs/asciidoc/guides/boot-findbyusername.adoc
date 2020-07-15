@@ -28,7 +28,7 @@ Consider the following scenario:
 
 * User goes to library and authenticates to the application.
 * User goes home and realizes they forgot to log out.
-* User can log in and terminate the session from the library using clues like the location, created time, last accessed time, and so on.
+* User can log in and end the session from the library using clues like the location, created time, last accessed time, and so on.
 
 Would it not be nice if we could let the user invalidate the session at the library from any device with which they authenticate?
 This sample demonstrates how this is possible.
@@ -145,5 +145,5 @@ You can emulate the flow we discussed in the <<About the Sample>> section by doi
 * Enter the following to log in:
 ** *Username* _user_
 ** *Password* _password_
-* Terminate your original session.
+* End your original session.
 * Refresh the original window and see that you are logged out.
