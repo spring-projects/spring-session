@@ -1177,8 +1177,8 @@ include::{session-jdbc-main-resources-dir}org/springframework/session/jdbc/schem
 
 ==== Transaction Management
 
-All JDBC operations in `JdbcIndexedSessionRepository` are executed in a transactional manner.
-Transactions are executed with propagation set to `REQUIRES_NEW` in order to avoid unexpected behavior due to interference with existing transactions (for example, running a `save` operation in a thread that already participates in a read-only transaction).
+All JDBC operations in `JdbcIndexedSessionRepository` are performed in a transactional manner.
+Transactions are performed with propagation set to `REQUIRES_NEW` in order to avoid unexpected behavior due to interference with existing transactions (for example, running a `save` operation in a thread that already participates in a read-only transaction).
 
 [[api-hazelcastindexedsessionrepository]]
 === Using `HazelcastIndexedSessionRepository`
