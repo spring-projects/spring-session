@@ -32,44 +32,6 @@ try {
 			}
 		}
 	},
-	jdk9: {
-		stage('JDK 9') {
-			timeout(time: 45, unit: 'MINUTES') {
-				node('linux') {
-					checkout scm
-					sh "git clean -dfx"
-					try {
-						withEnv(["JAVA_HOME=${tool 'jdk9'}"]) {
-							sh './gradlew clean test --no-daemon --stacktrace'
-						}
-					}
-					catch (e) {
-						currentBuild.result = 'FAILED: jdk9'
-						throw e
-					}
-				}
-			}
-		}
-	},
-	jdk10: {
-		stage('JDK 10') {
-			timeout(time: 45, unit: 'MINUTES') {
-				node('linux') {
-					checkout scm
-					sh "git clean -dfx"
-					try {
-						withEnv(["JAVA_HOME=${tool 'jdk10'}"]) {
-							sh './gradlew clean test --no-daemon --stacktrace'
-						}
-					}
-					catch (e) {
-						currentBuild.result = 'FAILED: jdk10'
-						throw e
-					}
-				}
-			}
-		}
-	},
 	jdk11: {
 		stage('JDK 11') {
 			timeout(time: 45, unit: 'MINUTES') {
