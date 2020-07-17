@@ -1,0 +1,47 @@
+name: PR Build
+
+on: pull_request
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+      - name: Build with Gradle
+        run: ./gradlew clean check --no-daemon --stacktrace
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#sudo: required
+#language: java
+#jdk:
+#  - openjdk8
+#  - openjdk11
+#services:
+#  - docker
+#before_cache:
+#  - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
+#  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+#cache:
+#  directories:
+#    - $HOME/.gradle/caches/
+#    - $HOME/.gradle/wrapper/
+#install: true
+#script: ./gradlew clean check --no-daemon --stacktrace
