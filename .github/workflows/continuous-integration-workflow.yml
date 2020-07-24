@@ -28,3 +28,42 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon --stacktrace
+  artifacts:
+    name: Deploy Artifacts
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+      - name: Deploy artifacts
+        run: |
+          export VERSION_HEADER=$'Version: GnuPG v2\n\n'
+          export ORG_GRADLE_PROJECT_signingKey=${GPG_PRIVATE_KEY#"$VERSION_HEADER"}
+          export ORG_GRADLE_PROJECT_signingPassword="$GPG_PASSPHRASE"
+          ./gradlew deployArtifacts finalizeDeployArtifacts -PossrhUsername="$OSSRH_USERNAME" -PossrhPassword="$OSSRH_PASSWORD" -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" --stacktrace
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+  docs:
+    name: Deploy Docs
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+      - name: Deploy Docs
+        run: ./gradlew deployDocs --no-daemon -PdeployDocsSshKey="$DOCS_SSH_KEY" -PdeployDocsSshUsername="$DOCS_USERNAME" -PdeployDocsHost="$DOCS_HOST" --stacktrace
+        env:
+          DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
+          DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
+          DOCS_HOST: ${{ secrets.DOCS_HOST }}
