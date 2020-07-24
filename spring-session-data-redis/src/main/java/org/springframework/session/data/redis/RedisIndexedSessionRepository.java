@@ -792,7 +792,8 @@ public class RedisIndexedSessionRepository
 				return;
 			}
 			String sessionId = getId();
-			getSessionBoundHashOperations(sessionId).putAll(this.delta);
+			BoundHashOperations<Object, Object, Object> boundHashOperations = getSessionBoundHashOperations(sessionId);
+			boundHashOperations.putAll(this.delta);
 			String principalSessionKey = getSessionAttrNameKey(
 					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 			String securityPrincipalSessionKey = getSessionAttrNameKey(SPRING_SECURITY_CONTEXT);
@@ -809,6 +810,11 @@ public class RedisIndexedSessionRepository
 					String principalRedisKey = getPrincipalKey(principal);
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(principalRedisKey)
 							.add(sessionId);
+				}
+			}
+			for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
+				if (attribute.getValue() == null) {
+					boundHashOperations.delete(attribute.getKey());
 				}
 			}
 
