@@ -128,6 +128,36 @@ Doing so ensures that the Spring bean named `springSessionRepositoryFilter` is r
 <2> `AbstractHttpSessionApplicationInitializer` also provides a mechanism to ensure Spring loads our `Config`.
 ====
 
+== Multiple DataSources
+Spring Session provides the `@SpringSessionDataSource` qualifier, allowing you to explicitly declare which `DataSource` bean should be injected in `JdbcIndexedSessionRepository`.
+This is particularly useful in scenarios with multiple `DataSource` beans present in the application context.
+
+The following example shows how to do so:
+
+====
+.Config.java
+[source,java]
+----
+@EnableJdbcHttpSession
+public class Config {
+
+	@Bean
+	@SpringSessionDataSource // <1>
+	public EmbeddedDatabase firstDataSource() {
+		return new EmbeddedDatabaseBuilder()
+				.setType(EmbeddedDatabaseType.H2).addScript("org/springframework/session/jdbc/schema-h2.sql").build();
+	}
+
+	@Bean
+	public HikariDataSource secondDataSource() {
+		// ...
+	}
+}
+----
+
+<1> This qualifier declares that firstDataSource is to be used by Spring Session.
+====
+
 // end::config[]
 
 [[httpsession-jdbc-sample]]
