@@ -27,7 +27,7 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
       - name: Build with Gradle
-        run: ./gradlew clean check --no-daemon --refresh-dependencies --stacktrace
+        run: ./gradlew clean build --no-daemon --stacktrace
   artifacts:
     name: Deploy Artifacts
     needs: [build]
