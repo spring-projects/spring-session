@@ -5,8 +5,8 @@ on:
 #  push:
     branches:
       - 2.3.x
-    schedule:
-      - cron: '0 10 * * *' # Once per day at 10am UTC
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
 
 jobs:
   build:
