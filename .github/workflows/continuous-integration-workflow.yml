@@ -1,8 +1,7 @@
 name: CI
 
 on:
-  pull_request:
-#  push:
+  push:
     branches:
       - 2.3.x
     schedule:
