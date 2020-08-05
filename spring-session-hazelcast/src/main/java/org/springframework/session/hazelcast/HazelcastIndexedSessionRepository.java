@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
@@ -30,7 +31,7 @@ import javax.annotation.PreDestroy;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
@@ -152,7 +153,7 @@ public class HazelcastIndexedSessionRepository
 
 	private IMap<String, MapSession> sessions;
 
-	private String sessionListenerId;
+	private UUID sessionListenerId;
 
 	/**
 	 * Create a new {@link HazelcastIndexedSessionRepository} instance.

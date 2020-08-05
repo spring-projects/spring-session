@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.Map;
 
 import com.hazelcast.core.Offloadable;
-import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.map.EntryProcessor;
 
 import org.springframework.session.MapSession;
@@ -34,7 +33,7 @@ import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository.H
  * @since 1.3.4
  * @see HazelcastIndexedSessionRepository#save(HazelcastSession)
  */
-public class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSession> implements Offloadable {
+public class SessionUpdateEntryProcessor implements EntryProcessor<String, MapSession, Object>, Offloadable {
 
 	private Instant lastAccessedTime;
 

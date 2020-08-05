@@ -20,6 +20,7 @@ dependencies {
 	compile "org.webjars:stomp-websocket"
 	compile "org.webjars:webjars-locator-core"
 	compile "com.h2database:h2"
+    compile "javax.validation:validation-api"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.springframework.security:spring-security-test"

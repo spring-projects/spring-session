@@ -17,8 +17,8 @@
 package org.springframework.session.hazelcast;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.instance.HazelcastInstanceProxy;
+import com.hazelcast.instance.impl.HazelcastInstanceProxy;
+import com.hazelcast.map.IMap;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
