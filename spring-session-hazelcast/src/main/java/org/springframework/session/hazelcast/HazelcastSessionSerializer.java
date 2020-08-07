@@ -14,10 +14,12 @@ import java.time.Instant;
  * A {@link com.hazelcast.nio.serialization.Serializer} implementation that
  * handles the (de)serialization of {@link MapSession} stored on {@link com.hazelcast.core.IMap}.
  *
+ * <p>
  * The use of this serializer is optional and provides faster serialization of
  * sessions. If not configured to be used, Hazelcast will serialize sessions
  * via {@link java.io.Serializable} by default.
  *
+ * <p>
  * If multiple instances of a Spring application is run, then all of them need to use
  * the same serialization method. If this serializer is registered on one instance
  * and not another one, then it will end up with HazelcastSerializationException.
@@ -62,7 +64,7 @@ import java.time.Instant;
  */
 public class HazelcastSessionSerializer implements StreamSerializer<MapSession> {
 
-	private static final int SERIALIZER_TYPE_ID = 12345;
+	private static final int SERIALIZER_TYPE_ID = 1453;
 
 	@Override
 	public void write(ObjectDataOutput out, MapSession session) throws IOException {
