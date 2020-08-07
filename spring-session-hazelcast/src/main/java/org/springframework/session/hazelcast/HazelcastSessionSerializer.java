@@ -10,6 +10,56 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 
+/**
+ * A {@link com.hazelcast.nio.serialization.Serializer} implementation that
+ * handles the (de)serialization of {@link MapSession} stored on {@link com.hazelcast.core.IMap}.
+ *
+ * The use of this serializer is optional and provides faster serialization of
+ * sessions. If not configured to be used, Hazelcast will serialize sessions
+ * via {@link java.io.Serializable} by default.
+ *
+ * If multiple instances of a Spring application is run, then all of them need to use
+ * the same serialization method. If this serializer is registered on one instance
+ * and not another one, then it will end up with HazelcastSerializationException.
+ * The same applies when clients are configured to use this serializer but not the
+ * members, and vice versa. Also note that, if a new instance is created with this
+ * serialization but the existing Hazelcast cluster contains the values not serialized
+ * by this but instead the default one, this will result in incompatibility again.
+ *
+ * <p>
+ * An example of how to register the serializer on embedded instance can be seen below:
+ *
+ * <pre class="code">
+ * Config config = new Config();
+ *
+ * // ... other configurations for Hazelcast ...
+ *
+ * SerializerConfig serializerConfig = new SerializerConfig();
+ * serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
+ * config.getSerializationConfig().addSerializerConfig(serializerConfig);
+ *
+ * HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+ * </pre>
+ *
+ * Below is the example of how to register the serializer on client instance. Note that,
+ * to use the serializer in client/server mode, the serializer - and hence {@link MapSession},
+ * must exist on the server's classpath and must be registered via {@link com.hazelcast.config.SerializerConfig}
+ * with the configuration above for each server.
+ *
+ * <pre class="code">
+ * ClientConfig clientConfig = new ClientConfig();
+ *
+ * // ... other configurations for Hazelcast Client ...
+ *
+ * SerializerConfig serializerConfig = new SerializerConfig();
+ * serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
+ * clientConfig.getSerializationConfig().addSerializerConfig(serializerConfig);
+ *
+ * HazelcastInstance hazelcastClient = HazelcastClient.newHazelcastClient(clientConfig);
+ * </pre>
+ *
+ * @author Enes Ozcan
+ */
 public class HazelcastSessionSerializer implements StreamSerializer<MapSession> {
 
 	private static final int SERIALIZER_TYPE_ID = 12345;
