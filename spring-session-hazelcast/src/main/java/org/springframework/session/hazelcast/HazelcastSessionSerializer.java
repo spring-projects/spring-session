@@ -1,32 +1,49 @@
-package org.springframework.session.hazelcast;
+/*
+ * Copyright 2014-2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-import com.hazelcast.nio.ObjectDataInput;
-import com.hazelcast.nio.ObjectDataOutput;
-import com.hazelcast.nio.serialization.StreamSerializer;
-import org.springframework.session.MapSession;
+package org.springframework.session.hazelcast;
 
 import java.io.EOFException;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.StreamSerializer;
+
+import org.springframework.session.MapSession;
+
 /**
- * A {@link com.hazelcast.nio.serialization.Serializer} implementation that
- * handles the (de)serialization of {@link MapSession} stored on {@link com.hazelcast.core.IMap}.
+ * A {@link com.hazelcast.nio.serialization.Serializer} implementation that handles the
+ * (de)serialization of {@link MapSession} stored on {@link com.hazelcast.core.IMap}.
  *
  * <p>
- * The use of this serializer is optional and provides faster serialization of
- * sessions. If not configured to be used, Hazelcast will serialize sessions
- * via {@link java.io.Serializable} by default.
+ * The use of this serializer is optional and provides faster serialization of sessions.
+ * If not configured to be used, Hazelcast will serialize sessions via
+ * {@link java.io.Serializable} by default.
  *
  * <p>
- * If multiple instances of a Spring application is run, then all of them need to use
- * the same serialization method. If this serializer is registered on one instance
- * and not another one, then it will end up with HazelcastSerializationException.
- * The same applies when clients are configured to use this serializer but not the
- * members, and vice versa. Also note that, if a new instance is created with this
- * serialization but the existing Hazelcast cluster contains the values not serialized
- * by this but instead the default one, this will result in incompatibility again.
+ * If multiple instances of a Spring application is run, then all of them need to use the
+ * same serialization method. If this serializer is registered on one instance and not
+ * another one, then it will end up with HazelcastSerializationException. The same applies
+ * when clients are configured to use this serializer but not the members, and vice versa.
+ * Also note that, if a new instance is created with this serialization but the existing
+ * Hazelcast cluster contains the values not serialized by this but instead the default
+ * one, this will result in incompatibility again.
  *
  * <p>
  * An example of how to register the serializer on embedded instance can be seen below:
@@ -44,9 +61,10 @@ import java.time.Instant;
  * </pre>
  *
  * Below is the example of how to register the serializer on client instance. Note that,
- * to use the serializer in client/server mode, the serializer - and hence {@link MapSession},
- * must exist on the server's classpath and must be registered via {@link com.hazelcast.config.SerializerConfig}
- * with the configuration above for each server.
+ * to use the serializer in client/server mode, the serializer - and hence
+ * {@link MapSession}, must exist on the server's classpath and must be registered via
+ * {@link com.hazelcast.config.SerializerConfig} with the configuration above for each
+ * server.
  *
  * <pre class="code">
  * ClientConfig clientConfig = new ClientConfig();
@@ -110,7 +128,8 @@ public class HazelcastSessionSerializer implements StreamSerializer<MapSession> 
 				Object attrValue = in.readObject();
 				cached.setAttribute(attrName, attrValue);
 			}
-		} catch (EOFException ignored) {
+		}
+		catch (EOFException ignored) {
 		}
 		return cached;
 	}
