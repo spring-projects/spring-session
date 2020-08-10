@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - test-slack-integration
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
 
@@ -80,3 +80,13 @@ jobs:
           GRADLE_ENTERPRISE_CACHE_USER: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
           GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
           GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+  notify_slack:
+    name: Notify Slack
+    needs: [build, artifacts, docs]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
