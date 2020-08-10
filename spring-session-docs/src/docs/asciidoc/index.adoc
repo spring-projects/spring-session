@@ -58,6 +58,10 @@ To get started with Spring Session, the best place to start is our Sample Applic
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/boot-jdbc.html[HttpSession with JDBC Guide]
 
+| {gh-samples-url}spring-session-sample-boot-hazelcast[HttpSession with Hazelcast]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
+|
+
 | {gh-samples-url}spring-session-sample-boot-findbyusername[Find by Username]
 | Demonstrates how to use Spring Session to find sessions by username.
 | link:guides/boot-findbyusername.html[Find by Username Guide]
