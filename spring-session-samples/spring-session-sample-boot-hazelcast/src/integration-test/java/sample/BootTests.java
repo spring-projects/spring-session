@@ -93,6 +93,7 @@ class BootTests {
 			hazelcastContainer.start();
 			return hazelcastContainer;
 		}
+
 	}
 
 }
