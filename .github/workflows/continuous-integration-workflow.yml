@@ -82,12 +82,12 @@ jobs:
           GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
   notify_slack:
     name: Notify Slack
-    needs: [build, artifacts, docs]
     runs-on: ubuntu-latest
+    env:
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    needs: [build, artifacts, docs]
     steps:
       - uses: act10ns/slack@v1
-      - env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
       with:
         status: ${{ job.status }}
         steps: ${{ toJson(steps) }}
