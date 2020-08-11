@@ -88,8 +88,8 @@ jobs:
     needs: [build, artifacts, docs]
     steps:
       - uses: act10ns/slack@v1
-      with:
-        status: ${{ job.status }}
-        steps: ${{ toJson(steps) }}
-        channel: '#spring-security-ci'
-      if: always()
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }}
+          channel: '#spring-security-ci'
+        if: always()
