@@ -278,19 +278,6 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		}
 	}
 
-	private RedisTemplate<Object, Object> createRedisTemplate() {
-		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-		if (this.defaultRedisSerializer != null) {
-			redisTemplate.setDefaultSerializer(this.defaultRedisSerializer);
-		}
-		redisTemplate.setConnectionFactory(this.redisConnectionFactory);
-		redisTemplate.setBeanClassLoader(this.classLoader);
-		redisTemplate.afterPropertiesSet();
-		return redisTemplate;
-	}
-
 	private int resolveDatabase() {
 		if (ClassUtils.isPresent("io.lettuce.core.RedisClient", null)
 				&& this.redisConnectionFactory instanceof LettuceConnectionFactory) {
