@@ -116,8 +116,7 @@ public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 	private StringValueResolver embeddedValueResolver;
 
 	@Bean
-	public RedisIndexedSessionRepository sessionRepository() {
-		RedisTemplate<Object, Object> redisTemplate = createRedisTemplate();
+	public RedisIndexedSessionRepository sessionRepository(RedisTemplate redisTemplate) {
 		RedisIndexedSessionRepository sessionRepository = new RedisIndexedSessionRepository(redisTemplate);
 		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
 		if (this.indexResolver != null) {
