@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,14 @@
 
 package sample.config;
 
+import java.time.Duration;
+
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.session.RedisSessionProperties;
+import org.springframework.boot.autoconfigure.session.SessionProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,13 +31,22 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.data.redis.RedisSessionRepository;
 
+@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(RedisSessionProperties.class)
 @EnableSpringHttpSession
 public class SessionConfig {
 
+	private final SessionProperties sessionProperties;
+
+	private final RedisSessionProperties redisSessionProperties;
+
 	private final RedisConnectionFactory redisConnectionFactory;
 
-	public SessionConfig(ObjectProvider<RedisConnectionFactory> redisConnectionFactory) {
-		this.redisConnectionFactory = redisConnectionFactory.getIfAvailable();
+	public SessionConfig(SessionProperties sessionProperties, RedisSessionProperties redisSessionProperties,
+			ObjectProvider<RedisConnectionFactory> redisConnectionFactory) {
+		this.sessionProperties = sessionProperties;
+		this.redisSessionProperties = redisSessionProperties;
+		this.redisConnectionFactory = redisConnectionFactory.getObject();
 	}
 
 	@Bean
@@ -45,7 +60,15 @@ public class SessionConfig {
 
 	@Bean
 	public RedisSessionRepository sessionRepository(RedisOperations<String, Object> sessionRedisOperations) {
-		return new RedisSessionRepository(sessionRedisOperations);
+		RedisSessionRepository sessionRepository = new RedisSessionRepository(sessionRedisOperations);
+		Duration timeout = this.sessionProperties.getTimeout();
+		if (timeout != null) {
+			sessionRepository.setDefaultMaxInactiveInterval(timeout);
+		}
+		sessionRepository.setKeyNamespace(this.redisSessionProperties.getNamespace());
+		sessionRepository.setFlushMode(this.redisSessionProperties.getFlushMode());
+		sessionRepository.setSaveMode(this.redisSessionProperties.getSaveMode());
+		return sessionRepository;
 	}
 
 }
