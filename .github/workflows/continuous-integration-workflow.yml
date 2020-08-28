@@ -14,12 +14,16 @@ jobs:
     steps:
       - name: Hello world action step
         id: hello
-        uses: elliedori/hello-world-js-action@v1.1
+        uses: elliedori/hello-world-js-action@v1.2
         with:
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           who-to-greet: 'the big blue sky'
       - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+        run: |
+          export SLACK_URL="$SLACK_WEBHOOK_URL"
+          echo "The time was ${{ steps.hello.outputs.time }}"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 #  build:
 #    name: Build
 #    runs-on: ubuntu-latest
