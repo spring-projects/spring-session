@@ -17,6 +17,7 @@ jobs:
         uses: elliedori/hello-world-js-action@v1
         with:
           who-to-greet: 'the big blue sky'
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
       - name: Get the output time
         run: echo "The time was ${{ steps.hello.outputs.time }}"
 #  build:
