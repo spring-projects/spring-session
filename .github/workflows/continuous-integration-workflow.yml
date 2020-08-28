@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Hello world action step
         id: hello
-        uses: elliedori/hello-world-js-action@v1
+        uses: elliedori/hello-world-js-action@v1.1
         with:
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
           who-to-greet: 'the big blue sky'
