@@ -3,80 +3,90 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - test-custom-action
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
 
 jobs:
-  build:
-    name: Build
+  hello_world_job:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        jdk: [8, 11]
-      fail-fast: false
+    name: Something that says hello
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK ${{ matrix.jdk }}
-        uses: actions/setup-java@v1
+      - name: Hello world action step
+        id: hello
+        uses: elliedori/hello-world-js-action@v1
         with:
-          java-version: ${{ matrix.jdk }}
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-      - name: Build with Gradle
-        run: ./gradlew clean build --no-daemon --stacktrace
-  artifacts:
-    name: Deploy Artifacts
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: '8'
-      - name: Deploy artifacts
-        run: |
-          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
-          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
-          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          export VERSION_HEADER=$'Version: GnuPG v2\n\n'
-          export ORG_GRADLE_PROJECT_signingKey=${GPG_PRIVATE_KEY#"$VERSION_HEADER"}
-          export ORG_GRADLE_PROJECT_signingPassword="$GPG_PASSPHRASE"
-          ./gradlew deployArtifacts finalizeDeployArtifacts -PossrhUsername="$OSSRH_USERNAME" -PossrhPassword="$OSSRH_PASSWORD" -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" --stacktrace
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-          GRADLE_ENTERPRISE_CACHE_USER: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
-          GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
-          GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
-  docs:
-    name: Deploy Docs
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: '8'
-      - name: Deploy Docs
-        run: |
-          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
-          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
-          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew deployDocs --no-daemon -PdeployDocsSshKey="$DOCS_SSH_KEY" -PdeployDocsSshUsername="$DOCS_USERNAME" -PdeployDocsHost="$DOCS_HOST" --stacktrace
-        env:
-          DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
-          DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
-          DOCS_HOST: ${{ secrets.DOCS_HOST }}
-          GRADLE_ENTERPRISE_CACHE_USER: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
-          GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
-          GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+          who-to-greet: 'the big blue sky'
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}
+#  build:
+#    name: Build
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        jdk: [8, 11]
+#      fail-fast: false
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Set up JDK ${{ matrix.jdk }}
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: ${{ matrix.jdk }}
+#      - name: Cache Gradle packages
+#        uses: actions/cache@v2
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+#      - name: Build with Gradle
+#
+#        run: |
+#          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
+#          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
+#          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+#          ./gradlew clean build --no-daemon --stacktrace
+#  artifacts:
+#    name: Deploy Artifacts
+#    needs: [build]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Set up JDK
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: '8'
+#      - name: Deploy artifacts
+#        run: |
+#          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
+#          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
+#          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+#          export VERSION_HEADER=$'Version: GnuPG v2\n\n'
+#          export ORG_GRADLE_PROJECT_signingKey=${GPG_PRIVATE_KEY#"$VERSION_HEADER"}
+#          export ORG_GRADLE_PROJECT_signingPassword="$GPG_PASSPHRASE"
+#          ./gradlew deployArtifacts finalizeDeployArtifacts -PossrhUsername="$OSSRH_USERNAME" -PossrhPassword="$OSSRH_PASSWORD" -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" --stacktrace
+#        env:
+#          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+#          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+#          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+#          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+#          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+#          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+#  docs:
+#    name: Deploy Docs
+#    needs: [build]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: Set up JDK
+#        uses: actions/setup-java@v1
+#        with:
+#          java-version: '8'
+#      - name: Deploy Docs
+#        run: |
+#          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
+#          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
+#          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+#          ./gradlew deployDocs --no-daemon -PdeployDocsSshKey="$DOCS_SSH_KEY" -PdeployDocsSshUsername="$DOCS_USERNAME" -PdeployDocsHost="$DOCS_HOST" --stacktrace
+#        env:
+#          DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
+#          DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
+#          DOCS_HOST: ${{ secrets.DOCS_HOST }}
