@@ -79,6 +79,7 @@ import org.springframework.session.MapSession;
  * </pre>
  *
  * @author Enes Ozcan
+ * @since 2.4.0
  */
 public class HazelcastSessionSerializer implements StreamSerializer<MapSession> {
 
