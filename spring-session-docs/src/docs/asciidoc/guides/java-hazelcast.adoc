@@ -97,10 +97,17 @@ The filter is in charge of replacing the `HttpSession` implementation to be back
 In this instance, Spring Session is backed by Hazelcast.
 <2> In order to support retrieval of sessions by principal name index, an appropriate `ValueExtractor` needs to be registered.
 Spring Session provides `PrincipalNameExtractor` for this purpose.
-<3> We create a `HazelcastInstance` that connects Spring Session to Hazelcast.
+<3> In order to serialize `MapSession` objects efficiently, `HazelcastSessionSerializer` needs to be registered. If this
+is not set, Hazelcast will serialize sessions using native Java serialization.
+<4> We create a `HazelcastInstance` that connects Spring Session to Hazelcast.
 By default, the application starts and connects to an embedded instance of Hazelcast.
 For more information on configuring Hazelcast, see the https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
 ====
+
+NOTE: If `HazelcastSessionSerializer` is preferred, it needs to be configured for all Hazelcast cluster members before they start.
+In a Hazelcast cluster, all members should use the same serialization method for sessions. Also, if Hazelcast Client/Server topology
+is used, then both members and clients must use the same serialization method. The serializer can be registered via `ClientConfig`
+with the same `SerializerConfiguration` of members.
 
 == Servlet Container Initialization
 

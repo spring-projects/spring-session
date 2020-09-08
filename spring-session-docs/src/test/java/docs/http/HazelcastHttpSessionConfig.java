@@ -19,12 +19,15 @@ package docs.http;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.MapAttributeConfig;
 import com.hazelcast.config.MapIndexConfig;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.session.MapSession;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
+import org.springframework.session.hazelcast.HazelcastSessionSerializer;
 import org.springframework.session.hazelcast.PrincipalNameExtractor;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
@@ -42,7 +45,10 @@ public class HazelcastHttpSessionConfig {
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME) // <2>
 				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
 						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
-		return Hazelcast.newHazelcastInstance(config); // <3>
+		SerializerConfig serializerConfig = new SerializerConfig();
+		serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
+		config.getSerializationConfig().addSerializerConfig(serializerConfig); // <3>
+		return Hazelcast.newHazelcastInstance(config); // <4>
 	}
 
 }

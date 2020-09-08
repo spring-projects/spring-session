@@ -20,8 +20,11 @@ import com.hazelcast.config.Config;
 import com.hazelcast.config.MapAttributeConfig;
 import com.hazelcast.config.MapIndexConfig;
 import com.hazelcast.config.NetworkConfig;
+import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+
+import org.springframework.session.MapSession;
 
 /**
  * Utility class for Hazelcast integration tests.
@@ -48,6 +51,9 @@ final class HazelcastITestUtils {
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
 				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
 						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+		SerializerConfig serializerConfig = new SerializerConfig();
+		serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
+		config.getSerializationConfig().addSerializerConfig(serializerConfig);
 		return Hazelcast.newHazelcastInstance(config);
 	}
 
