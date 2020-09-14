@@ -1,17 +1,29 @@
 apply plugin: 'io.spring.convention.spring-module'
 
+configurations {
+	hazelcast4
+}
+
 dependencies {
 	compile project(':spring-session-core')
 	compile "com.hazelcast:hazelcast"
 	compile "javax.annotation:javax.annotation-api"
 	compile "org.springframework:spring-context"
 
+	hazelcast4(project(path: ":hazelcast4", configuration: 'classesOnlyElements'))
+	compileOnly(project(":hazelcast4"))
+
 	testCompile "javax.servlet:javax.servlet-api"
 	testCompile "org.springframework:spring-web"
 	testCompile "org.springframework.security:spring-security-core"
 	testCompile "org.junit.jupiter:junit-jupiter-api"
+	testRuntime project(':hazelcast4')
 	testRuntime "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "com.hazelcast:hazelcast-client"
 	integrationTestCompile "org.testcontainers:testcontainers"
+}
+
+jar {
+	from configurations.hazelcast4
 }

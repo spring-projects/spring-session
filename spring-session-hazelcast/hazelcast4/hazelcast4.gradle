@@ -1,0 +1,37 @@
+plugins {
+    id 'java-library'
+    id 'io.spring.convention.repository'
+    id 'io.spring.convention.springdependencymangement'
+    id 'io.spring.convention.dependency-set'
+    id 'io.spring.convention.checkstyle'
+    id 'io.spring.convention.tests-configuration'
+    id 'io.spring.convention.integration-test'
+}
+
+configurations {
+    classesOnlyElements {
+        canBeConsumed = true
+        canBeResolved = false
+    }
+}
+
+artifacts {
+    classesOnlyElements(compileJava.destinationDir)
+}
+
+dependencies {
+    compile project(':spring-session-core')
+    compile "com.hazelcast:hazelcast:4.0.2"
+    compile "org.springframework:spring-context"
+
+    testCompile "javax.servlet:javax.servlet-api"
+    testCompile "org.springframework:spring-web"
+    testCompile "org.junit.jupiter:junit-jupiter-api"
+    testCompile "org.springframework.security:spring-security-core"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine"
+
+    integrationTestCompile "org.testcontainers:testcontainers"
+    integrationTestCompile "com.hazelcast:hazelcast:4.0.2"
+    integrationTestCompile project(":spring-session-hazelcast")
+}
+
