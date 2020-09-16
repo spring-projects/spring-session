@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        maven { url 'https://repo.spring.io/plugins-release' }
+    }
+    dependencies {
+        classpath 'io.spring.gradle:propdeps-plugin:0.0.10.RELEASE'
+    }
+}
+
 plugins {
     id 'java-library'
     id 'io.spring.convention.repository'
@@ -6,6 +15,7 @@ plugins {
     id 'io.spring.convention.checkstyle'
     id 'io.spring.convention.tests-configuration'
     id 'io.spring.convention.integration-test'
+    id 'propdeps'
 }
 
 configurations {
@@ -21,7 +31,7 @@ artifacts {
 
 dependencies {
     compile project(':spring-session-core')
-    compile "com.hazelcast:hazelcast:4.0.2"
+    optional "com.hazelcast:hazelcast:4.0.2"
     compile "org.springframework:spring-context"
     compile "javax.annotation:javax.annotation-api"
 

@@ -2,6 +2,7 @@ apply plugin: 'io.spring.convention.spring-sample-war'
 
 dependencies {
 	compile project(':spring-session-hazelcast')
+	compile project(':hazelcast4')
 	compile "org.springframework:spring-web"
 	compile "org.springframework.security:spring-security-config"
 	compile "org.springframework.security:spring-security-web"

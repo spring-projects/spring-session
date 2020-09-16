@@ -67,7 +67,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(EnableHazelcastHttpSessionSelector.class)
+@Import(HazelcastHttpSessionConfiguration.class)
 @Configuration(proxyBeanMethods = false)
 public @interface EnableHazelcastHttpSession {
 
