@@ -21,7 +21,6 @@ import java.time.Instant;
 
 import com.hazelcast.core.HazelcastInstance;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -179,7 +178,6 @@ class SessionEventHazelcast4IndexedSessionRepositoryTests<S extends Session> {
 	}
 
 	@Test // gh-1300
-	@Disabled("See https://github.com/hazelcast/hazelcast/issues/16987")
 	void updateMaxInactiveIntervalTest() throws InterruptedException {
 		S sessionToSave = this.repository.createSession();
 		sessionToSave.setMaxInactiveInterval(Duration.ofMinutes(30));

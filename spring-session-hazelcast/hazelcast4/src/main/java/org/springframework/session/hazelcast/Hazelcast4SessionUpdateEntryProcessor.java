@@ -19,9 +19,10 @@ package org.springframework.session.hazelcast;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import com.hazelcast.core.Offloadable;
 import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.ExtendedMapEntry;
 
 import org.springframework.session.MapSession;
 
@@ -32,7 +33,7 @@ import org.springframework.session.MapSession;
  * @author Eleftheria Stein
  * @since 2.4.0
  */
-public class Hazelcast4SessionUpdateEntryProcessor implements EntryProcessor<String, MapSession, Object>, Offloadable {
+public class Hazelcast4SessionUpdateEntryProcessor implements EntryProcessor<String, MapSession, Object> {
 
 	private Instant lastAccessedTime;
 
@@ -62,13 +63,14 @@ public class Hazelcast4SessionUpdateEntryProcessor implements EntryProcessor<Str
 				}
 			}
 		}
-		entry.setValue(value);
+		if (this.maxInactiveInterval != null) {
+			((ExtendedMapEntry<String, MapSession>) entry).setValue(value, this.maxInactiveInterval.getSeconds(),
+					TimeUnit.SECONDS);
+		}
+		else {
+			entry.setValue(value);
+		}
 		return Boolean.TRUE;
-	}
-
-	@Override
-	public String getExecutorName() {
-		return OFFLOADABLE_EXECUTOR;
 	}
 
 	void setLastAccessedTime(Instant lastAccessedTime) {
