@@ -18,6 +18,7 @@ package org.springframework.session.data.redis;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.util.ByteUtils;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
@@ -272,9 +274,19 @@ public class RedisIndexedSessionRepository
 
 	private String sessionCreatedChannelPrefix;
 
+	private byte[] sessionCreatedChannelPrefixBytes;
+
 	private String sessionDeletedChannel;
 
+	private byte[] sessionDeletedChannelBytes;
+
 	private String sessionExpiredChannel;
+
+	private byte[] sessionExpiredChannelBytes;
+
+	private String expiredKeyPrefix;
+
+	private byte[] expiredKeyPrefixBytes;
 
 	private final RedisOperations<Object, Object> sessionRedisOperations;
 
@@ -381,8 +393,13 @@ public class RedisIndexedSessionRepository
 
 	private void configureSessionChannels() {
 		this.sessionCreatedChannelPrefix = this.namespace + "event:" + this.database + ":created:";
+		this.sessionCreatedChannelPrefixBytes = this.sessionCreatedChannelPrefix.getBytes();
 		this.sessionDeletedChannel = "__keyevent@" + this.database + "__:del";
+		this.sessionDeletedChannelBytes = this.sessionDeletedChannel.getBytes();
 		this.sessionExpiredChannel = "__keyevent@" + this.database + "__:expired";
+		this.sessionExpiredChannelBytes = this.sessionExpiredChannel.getBytes();
+		this.expiredKeyPrefix = this.namespace + "sessions:expires:";
+		this.expiredKeyPrefixBytes = this.expiredKeyPrefix.getBytes();
 	}
 
 	/**
@@ -501,25 +518,24 @@ public class RedisIndexedSessionRepository
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
 		byte[] messageChannel = message.getChannel();
-		byte[] messageBody = message.getBody();
 
-		String channel = new String(messageChannel);
-
-		if (channel.startsWith(this.sessionCreatedChannelPrefix)) {
+		if (ByteUtils.startsWith(messageChannel, this.sessionCreatedChannelPrefixBytes)) {
 			// TODO: is this thread safe?
 			@SuppressWarnings("unchecked")
 			Map<Object, Object> loaded = (Map<Object, Object>) this.defaultSerializer.deserialize(message.getBody());
-			handleCreated(loaded, channel);
+			handleCreated(loaded, new String(messageChannel));
 			return;
 		}
 
-		String body = new String(messageBody);
-		if (!body.startsWith(getExpiredKeyPrefix())) {
+		byte[] messageBody = message.getBody();
+
+		if (!ByteUtils.startsWith(messageBody, this.expiredKeyPrefixBytes)) {
 			return;
 		}
 
-		boolean isDeleted = channel.equals(this.sessionDeletedChannel);
-		if (isDeleted || channel.equals(this.sessionExpiredChannel)) {
+		boolean isDeleted = Arrays.equals(messageChannel, this.sessionDeletedChannelBytes);
+		if (isDeleted || Arrays.equals(messageChannel, this.sessionExpiredChannelBytes)) {
+			String body = new String(messageBody);
 			int beginIndex = body.lastIndexOf(":") + 1;
 			int endIndex = body.length();
 			String sessionId = body.substring(beginIndex, endIndex);
@@ -611,7 +627,7 @@ public class RedisIndexedSessionRepository
 	}
 
 	private String getExpiredKeyPrefix() {
-		return this.namespace + "sessions:expires:";
+		return this.expiredKeyPrefix;
 	}
 
 	/**
