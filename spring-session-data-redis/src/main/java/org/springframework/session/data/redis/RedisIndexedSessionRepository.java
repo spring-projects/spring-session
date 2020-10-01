@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -792,8 +792,7 @@ public class RedisIndexedSessionRepository
 				return;
 			}
 			String sessionId = getId();
-			BoundHashOperations<Object, Object, Object> boundHashOperations = getSessionBoundHashOperations(sessionId);
-			boundHashOperations.putAll(this.delta);
+			getSessionBoundHashOperations(sessionId).putAll(this.delta);
 			String principalSessionKey = getSessionAttrNameKey(
 					FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 			String securityPrincipalSessionKey = getSessionAttrNameKey(SPRING_SECURITY_CONTEXT);
@@ -810,11 +809,6 @@ public class RedisIndexedSessionRepository
 					String principalRedisKey = getPrincipalKey(principal);
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(principalRedisKey)
 							.add(sessionId);
-				}
-			}
-			for (final Map.Entry<String, Object> attribute : this.delta.entrySet()) {
-				if (attribute.getValue() == null) {
-					boundHashOperations.delete(attribute.getKey());
 				}
 			}
 
