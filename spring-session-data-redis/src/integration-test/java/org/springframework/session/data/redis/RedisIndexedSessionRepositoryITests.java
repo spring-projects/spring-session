@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.session.data.redis;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -133,22 +132,6 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 		assertThat(this.registry.getEvent(toSave.getId()).getSession().<String>getAttribute(expectedAttributeName))
 				.isEqualTo(expectedAttributeValue);
-	}
-
-	@Test
-	void removeAttributeRemovedAttributeKey() {
-		RedisSession toSave = this.repository.createSession();
-		toSave.setAttribute("a", "b");
-		this.repository.save(toSave);
-
-		toSave.removeAttribute("a");
-		this.repository.save(toSave);
-
-		String id = toSave.getId();
-		String key = "RedisIndexedSessionRepositoryITests:sessions:" + id;
-
-		Set<Map.Entry<Object, Object>> entries = this.redis.boundHashOps(key).entries().entrySet();
-		assertThat(entries).extracting(Map.Entry::getKey).doesNotContain("sessionAttr:a");
 	}
 
 	@Test
