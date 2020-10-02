@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,13 +42,13 @@ import org.springframework.util.Assert;
  */
 public class RedisSessionRepository implements SessionRepository<RedisSessionRepository.RedisSession> {
 
-	private static final String DEFAULT_KEY_NAMESPACE = "spring:session:";
+	private static final String DEFAULT_KEY_NAMESPACE = "spring:session";
 
 	private final RedisOperations<String, Object> sessionRedisOperations;
 
 	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
-	private String keyNamespace = DEFAULT_KEY_NAMESPACE;
+	private String keyNamespace = DEFAULT_KEY_NAMESPACE + ":";
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
@@ -76,10 +76,21 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	/**
 	 * Set the key namespace.
 	 * @param keyNamespace the key namespace
+	 * @deprecated since 2.4.0 in favor of {@link #setRedisKeyNamespace(String)}
 	 */
+	@Deprecated
 	public void setKeyNamespace(String keyNamespace) {
 		Assert.hasText(keyNamespace, "keyNamespace must not be empty");
 		this.keyNamespace = keyNamespace;
+	}
+
+	/**
+	 * Set the Redis key namespace.
+	 * @param namespace the Redis key namespace
+	 */
+	public void setRedisKeyNamespace(String namespace) {
+		Assert.hasText(namespace, "namespace must not be empty");
+		this.keyNamespace = namespace.trim() + ":";
 	}
 
 	/**
