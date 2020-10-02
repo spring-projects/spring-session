@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,15 +103,33 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
+	void setRedisKeyNamespace_ValidNamespace_ShouldSetNamespace() {
+		this.sessionRepository.setRedisKeyNamespace("test");
+		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "keyNamespace")).isEqualTo("test:");
+	}
+
+	@Test
 	void setKeyNamespace_NullNamespace_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setKeyNamespace(null))
 				.withMessage("keyNamespace must not be empty");
 	}
 
 	@Test
+	void setRedisKeyNamespace_NullNamespace_ShouldThrowException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setRedisKeyNamespace(null))
+				.withMessage("namespace must not be empty");
+	}
+
+	@Test
 	void setKeyNamespace_EmptyNamespace_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setKeyNamespace(" "))
 				.withMessage("keyNamespace must not be empty");
+	}
+
+	@Test
+	void setRedisKeyNamespace_EmptyNamespace_ShouldThrowException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setRedisKeyNamespace(" "))
+				.withMessage("namespace must not be empty");
 	}
 
 	@Test
@@ -185,7 +203,7 @@ class RedisSessionRepositoryTests {
 
 	@Test
 	void save_NewSessionAndCustomKeyNamespace_ShouldSaveSession() {
-		this.sessionRepository.setKeyNamespace("custom:");
+		this.sessionRepository.setRedisKeyNamespace("custom");
 		RedisSession session = this.sessionRepository.createSession();
 		this.sessionRepository.save(session);
 		String key = "custom:sessions:" + session.getId();
