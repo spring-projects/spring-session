@@ -14,6 +14,11 @@ dependencyManagement {
 			entry 'hazelcast-client'
 		}
 
+		dependencySet(group: 'org.apache.ignite', version: '2.9.0') {
+			entry 'ignite-core'
+			entry 'ignite-indexing'
+		}
+
 		dependency 'org.aspectj:aspectjweaver:1.9.6'
 		dependency 'com.h2database:h2:1.4.200'
 		dependency 'com.ibm.db2:jcc:11.5.0.0'
