@@ -1,15 +1,15 @@
 dependencyManagement {
 	imports {
-		mavenBom 'com.fasterxml.jackson:jackson-bom:2.11.0'
+		mavenBom 'com.fasterxml.jackson:jackson-bom:2.11.3'
 	}
 
 	dependencies {
 		dependency 'ch.qos.logback:logback-classic:1.2.3'
-		dependency 'com.maxmind.geoip2:geoip2:2.14.0'
+		dependency 'com.maxmind.geoip2:geoip2:2.15.0'
 		dependency 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2'
 		dependency 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
 		dependency 'org.apache.taglibs:taglibs-standard-jstlel:1.2.5'
-		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.43.1'
+		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.44.0'
 		dependency 'org.slf4j:jcl-over-slf4j:1.7.30'
 		dependency 'org.slf4j:log4j-over-slf4j:1.7.30'
 		dependency 'org.webjars:bootstrap:2.3.2'
