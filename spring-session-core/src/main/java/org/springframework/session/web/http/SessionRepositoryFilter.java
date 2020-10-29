@@ -141,7 +141,13 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			filterChain.doFilter(wrappedRequest, wrappedResponse);
 		}
 		finally {
-			wrappedRequest.commitSession();
+			try {
+				wrappedRequest.commitSession();
+			}
+			catch (Throwable e) {
+				SESSION_LOGGER.error("commit session error", e);
+				throw e;
+			}
 		}
 	}
 
