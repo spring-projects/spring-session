@@ -60,7 +60,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JdbcIndexedSessionRepository}.
@@ -719,7 +718,7 @@ class JdbcIndexedSessionRepositoryTests {
 	void saveAndFreeTemporaryLob() {
 		DefaultLobHandler lobHandler = mock(DefaultLobHandler.class);
 		TemporaryLobCreator lobCreator = mock(TemporaryLobCreator.class);
-		when(lobHandler.getLobCreator()).thenReturn(lobCreator);
+		given(lobHandler.getLobCreator()).willReturn(lobCreator);
 		lobHandler.setCreateTemporaryLob(true);
 		this.repository.setLobHandler(lobHandler);
 
