@@ -35,6 +35,8 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.TemporaryLobCreator;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -53,9 +55,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link JdbcIndexedSessionRepository}.
@@ -708,6 +713,21 @@ class JdbcIndexedSessionRepositoryTests {
 		session.setLastAccessedTime(Instant.now());
 		verify(this.jdbcOperations).update(startsWith("UPDATE SPRING_SESSION SET"), isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
+	void saveAndFreeTemporaryLob() {
+		DefaultLobHandler lobHandler = mock(DefaultLobHandler.class);
+		TemporaryLobCreator lobCreator = mock(TemporaryLobCreator.class);
+		when(lobHandler.getLobCreator()).thenReturn(lobCreator);
+		lobHandler.setCreateTemporaryLob(true);
+		this.repository.setLobHandler(lobHandler);
+
+		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
+		session.setAttribute("testName", "testValue");
+		this.repository.save(session);
+
+		verify(lobCreator, atLeastOnce()).close();
 	}
 
 }
