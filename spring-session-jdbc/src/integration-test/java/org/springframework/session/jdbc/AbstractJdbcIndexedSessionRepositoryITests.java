@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +29,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobCreator;
+import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -38,6 +45,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository.JdbcSession;
 import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -45,6 +53,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Base class for {@link JdbcIndexedSessionRepository} integration tests.
@@ -58,7 +68,17 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
 
 	@Autowired
+	private ApplicationContext applicationContext;
+
+	@Autowired
+	private DataSource dataSource;
+
+	@Autowired
 	private JdbcIndexedSessionRepository repository;
+
+	private JdbcOperations jdbcOperations;
+
+	private LobHandler lobHandler;
 
 	private SecurityContext context;
 
@@ -66,6 +86,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 
 	@BeforeEach
 	void setUp() {
+		this.jdbcOperations = new JdbcTemplate(this.dataSource);
+		this.lobHandler = new DefaultLobHandler();
 		this.context = SecurityContextHolder.createEmptyContext();
 		this.context.setAuthentication(new UsernamePasswordAuthenticationToken("username-" + UUID.randomUUID(), "na",
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
@@ -757,6 +779,32 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 
 		assertThat(session).isNotNull();
 		assertThat((byte[]) session.getAttribute(attributeName)).hasSize(arraySize);
+	}
+
+	@Test // gh-1213
+	void saveNewSessionAttributeConcurrently() {
+		JdbcSession session = this.repository.createSession();
+		this.repository.save(session);
+		String attributeName = "attribute1";
+		String attributeValue = "value1";
+		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
+			this.jdbcOperations.update("INSERT INTO SPRING_SESSION_ATTRIBUTES VALUES (?, ?, ?)", (ps) -> {
+				ps.setString(1, (String) ReflectionTestUtils.getField(session, "primaryKey"));
+				ps.setString(2, attributeName);
+				lobCreator.setBlobAsBytes(ps, 3, "value2".getBytes());
+			});
+		}
+		session.setAttribute(attributeName, attributeValue);
+		if (this.applicationContext.getBeansOfType(SessionRepositoryCustomizer.class).isEmpty()) {
+			// without DB specific upsert configured we're seeing duplicate key error
+			assertThatExceptionOfType(DuplicateKeyException.class).isThrownBy(() -> this.repository.save(session));
+		}
+		else {
+			// with DB specific upsert configured we're fine
+			assertThatCode(() -> this.repository.save(session)).doesNotThrowAnyException();
+			assertThat((String) this.repository.findById(session.getId()).getAttribute(attributeName))
+					.isEqualTo(attributeValue);
+		}
 	}
 
 	private String getSecurityName() {

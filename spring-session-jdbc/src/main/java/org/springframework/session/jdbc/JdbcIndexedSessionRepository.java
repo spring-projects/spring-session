@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -268,7 +268,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setCreateSessionQuery(String createSessionQuery) {
 		Assert.hasText(createSessionQuery, "Query must not be empty");
-		this.createSessionQuery = createSessionQuery;
+		this.createSessionQuery = getQuery(createSessionQuery);
 	}
 
 	/**
@@ -277,7 +277,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setCreateSessionAttributeQuery(String createSessionAttributeQuery) {
 		Assert.hasText(createSessionAttributeQuery, "Query must not be empty");
-		this.createSessionAttributeQuery = createSessionAttributeQuery;
+		this.createSessionAttributeQuery = getQuery(createSessionAttributeQuery);
 	}
 
 	/**
@@ -286,7 +286,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setGetSessionQuery(String getSessionQuery) {
 		Assert.hasText(getSessionQuery, "Query must not be empty");
-		this.getSessionQuery = getSessionQuery;
+		this.getSessionQuery = getQuery(getSessionQuery);
 	}
 
 	/**
@@ -295,7 +295,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setUpdateSessionQuery(String updateSessionQuery) {
 		Assert.hasText(updateSessionQuery, "Query must not be empty");
-		this.updateSessionQuery = updateSessionQuery;
+		this.updateSessionQuery = getQuery(updateSessionQuery);
 	}
 
 	/**
@@ -304,7 +304,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setUpdateSessionAttributeQuery(String updateSessionAttributeQuery) {
 		Assert.hasText(updateSessionAttributeQuery, "Query must not be empty");
-		this.updateSessionAttributeQuery = updateSessionAttributeQuery;
+		this.updateSessionAttributeQuery = getQuery(updateSessionAttributeQuery);
 	}
 
 	/**
@@ -313,7 +313,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setDeleteSessionAttributeQuery(String deleteSessionAttributeQuery) {
 		Assert.hasText(deleteSessionAttributeQuery, "Query must not be empty");
-		this.deleteSessionAttributeQuery = deleteSessionAttributeQuery;
+		this.deleteSessionAttributeQuery = getQuery(deleteSessionAttributeQuery);
 	}
 
 	/**
@@ -322,7 +322,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setDeleteSessionQuery(String deleteSessionQuery) {
 		Assert.hasText(deleteSessionQuery, "Query must not be empty");
-		this.deleteSessionQuery = deleteSessionQuery;
+		this.deleteSessionQuery = getQuery(deleteSessionQuery);
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setListSessionsByPrincipalNameQuery(String listSessionsByPrincipalNameQuery) {
 		Assert.hasText(listSessionsByPrincipalNameQuery, "Query must not be empty");
-		this.listSessionsByPrincipalNameQuery = listSessionsByPrincipalNameQuery;
+		this.listSessionsByPrincipalNameQuery = getQuery(listSessionsByPrincipalNameQuery);
 	}
 
 	/**
@@ -340,7 +340,7 @@ public class JdbcIndexedSessionRepository
 	 */
 	public void setDeleteSessionsByExpiryTimeQuery(String deleteSessionsByExpiryTimeQuery) {
 		Assert.hasText(deleteSessionsByExpiryTimeQuery, "Query must not be empty");
-		this.deleteSessionsByExpiryTimeQuery = deleteSessionsByExpiryTimeQuery;
+		this.deleteSessionsByExpiryTimeQuery = getQuery(deleteSessionsByExpiryTimeQuery);
 	}
 
 	/**
