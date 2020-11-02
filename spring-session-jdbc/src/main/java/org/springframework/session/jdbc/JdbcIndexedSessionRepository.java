@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
@@ -46,6 +47,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.session.CreateWithIdSessionRepository;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
@@ -126,10 +128,12 @@ import org.springframework.util.StringUtils;
  *
  * @author Vedran Pavic
  * @author Craig Andrews
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class JdbcIndexedSessionRepository
-		implements FindByIndexNameSessionRepository<JdbcIndexedSessionRepository.JdbcSession> {
+		implements FindByIndexNameSessionRepository<JdbcIndexedSessionRepository.JdbcSession>,
+		CreateWithIdSessionRepository<JdbcIndexedSessionRepository.JdbcSession> {
 
 	/**
 	 * The default name of database table used by Spring Session to store sessions.
@@ -396,7 +400,12 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public JdbcSession createSession() {
-		MapSession delegate = new MapSession();
+		return createSession(null);
+	}
+
+	@Override
+	public JdbcSession createSession(final String id) {
+		MapSession delegate = Optional.ofNullable(id).map(MapSession::new).orElse(new MapSession());
 		if (this.defaultMaxInactiveInterval != null) {
 			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
