@@ -1,4 +1,4 @@
-name: 2.4.x CI
+name: CI
 
 on:
   push:
