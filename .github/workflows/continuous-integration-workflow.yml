@@ -1,9 +1,9 @@
-name: CI
+name: 2.4.x CI
 
 on:
   push:
     branches:
-      - master
+      - 2.4.x
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
 
