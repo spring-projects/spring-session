@@ -31,9 +31,7 @@ public class MySqlJdbcIndexedSessionRepositoryCustomizer
 	// @formatter:off
 	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = ""
 			+ "INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
-			+ "    SELECT PRIMARY_ID, ?, ? "
-			+ "    FROM %TABLE_NAME% "
-			+ "    WHERE SESSION_ID = ? "
+			+ "VALUES (?, ?, ?) "
 			+ "ON DUPLICATE KEY UPDATE ATTRIBUTE_BYTES = VALUES(ATTRIBUTE_BYTES)";
 	// @formatter:on
 

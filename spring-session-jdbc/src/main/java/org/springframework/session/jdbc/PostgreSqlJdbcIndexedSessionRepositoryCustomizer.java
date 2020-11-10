@@ -31,9 +31,7 @@ public class PostgreSqlJdbcIndexedSessionRepositoryCustomizer
 	// @formatter:off
 	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = ""
 			+ "INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
-			+ "    SELECT PRIMARY_ID, ?, ? "
-			+ "    FROM %TABLE_NAME% "
-			+ "    WHERE SESSION_ID = ? "
+			+ "VALUES (?, ?, ?) "
 			+ "ON CONFLICT (SESSION_PRIMARY_ID, ATTRIBUTE_NAME) "
 			+ "DO UPDATE SET ATTRIBUTE_BYTES = EXCLUDED.ATTRIBUTE_BYTES";
 	// @formatter:on

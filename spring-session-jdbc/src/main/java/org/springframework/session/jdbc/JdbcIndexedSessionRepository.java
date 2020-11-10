@@ -40,6 +40,8 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -139,55 +141,64 @@ public class JdbcIndexedSessionRepository
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	// @formatter:off
-	private static final String CREATE_SESSION_QUERY = "INSERT INTO %TABLE_NAME%(PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME) "
+	private static final String CREATE_SESSION_QUERY = ""
+			+ "INSERT INTO %TABLE_NAME% (PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = "INSERT INTO %TABLE_NAME%_ATTRIBUTES(SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
-			+ "SELECT PRIMARY_ID, ?, ? "
-			+ "FROM %TABLE_NAME% "
-			+ "WHERE SESSION_ID = ?";
+	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = ""
+			+ "INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
+			+ "VALUES (?, ?, ?)";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String GET_SESSION_QUERY = "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES "
+	private static final String GET_SESSION_QUERY = ""
+			+ "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES "
 			+ "FROM %TABLE_NAME% S "
-			+ "LEFT OUTER JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID "
+			+ "LEFT JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID "
 			+ "WHERE S.SESSION_ID = ?";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String UPDATE_SESSION_QUERY = "UPDATE %TABLE_NAME% SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, EXPIRY_TIME = ?, PRINCIPAL_NAME = ? "
+	private static final String UPDATE_SESSION_QUERY = ""
+			+ "UPDATE %TABLE_NAME% "
+			+ "SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, EXPIRY_TIME = ?, PRINCIPAL_NAME = ? "
 			+ "WHERE PRIMARY_ID = ?";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String UPDATE_SESSION_ATTRIBUTE_QUERY = "UPDATE %TABLE_NAME%_ATTRIBUTES SET ATTRIBUTE_BYTES = ? "
+	private static final String UPDATE_SESSION_ATTRIBUTE_QUERY = ""
+			+ "UPDATE %TABLE_NAME%_ATTRIBUTES "
+			+ "SET ATTRIBUTE_BYTES = ? "
 			+ "WHERE SESSION_PRIMARY_ID = ? "
 			+ "AND ATTRIBUTE_NAME = ?";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String DELETE_SESSION_ATTRIBUTE_QUERY = "DELETE FROM %TABLE_NAME%_ATTRIBUTES "
+	private static final String DELETE_SESSION_ATTRIBUTE_QUERY = ""
+			+ "DELETE FROM %TABLE_NAME%_ATTRIBUTES "
 			+ "WHERE SESSION_PRIMARY_ID = ? "
 			+ "AND ATTRIBUTE_NAME = ?";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String DELETE_SESSION_QUERY = "DELETE FROM %TABLE_NAME% "
+	private static final String DELETE_SESSION_QUERY = ""
+			+ "DELETE FROM %TABLE_NAME% "
 			+ "WHERE SESSION_ID = ?";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES "
+	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = ""
+			+ "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES "
 			+ "FROM %TABLE_NAME% S "
-			+ "LEFT OUTER JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID "
+			+ "LEFT JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID "
 			+ "WHERE S.PRINCIPAL_NAME = ?";
 	// @formatter:on
 
 	// @formatter:off
-	private static final String DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY = "DELETE FROM %TABLE_NAME% "
+	private static final String DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY = ""
+			+ "DELETE FROM %TABLE_NAME% "
 			+ "WHERE EXPIRY_TIME < ?";
 	// @formatter:on
 
@@ -463,30 +474,49 @@ public class JdbcIndexedSessionRepository
 		Assert.notEmpty(attributeNames, "attributeNames must not be null or empty");
 		try (LobCreator lobCreator = this.lobHandler.getLobCreator()) {
 			if (attributeNames.size() > 1) {
-				this.jdbcOperations.batchUpdate(this.createSessionAttributeQuery, new BatchPreparedStatementSetter() {
+				try {
+					this.jdbcOperations.batchUpdate(this.createSessionAttributeQuery,
+							new BatchPreparedStatementSetter() {
 
-					@Override
-					public void setValues(PreparedStatement ps, int i) throws SQLException {
-						String attributeName = attributeNames.get(i);
-						ps.setString(1, attributeName);
-						lobCreator.setBlobAsBytes(ps, 2, serialize(session.getAttribute(attributeName)));
-						ps.setString(3, session.getId());
-					}
+								@Override
+								public void setValues(PreparedStatement ps, int i) throws SQLException {
+									String attributeName = attributeNames.get(i);
+									ps.setString(1, session.primaryKey);
+									ps.setString(2, attributeName);
+									lobCreator.setBlobAsBytes(ps, 3, serialize(session.getAttribute(attributeName)));
+								}
 
-					@Override
-					public int getBatchSize() {
-						return attributeNames.size();
-					}
+								@Override
+								public int getBatchSize() {
+									return attributeNames.size();
+								}
 
-				});
+							});
+				}
+				catch (DuplicateKeyException ex) {
+					throw ex;
+				}
+				catch (DataIntegrityViolationException ex) {
+					// parent record not found - we are ignoring this error because we
+					// assume that a concurrent request has removed the session
+				}
 			}
 			else {
-				this.jdbcOperations.update(this.createSessionAttributeQuery, (ps) -> {
-					String attributeName = attributeNames.get(0);
-					ps.setString(1, attributeName);
-					lobCreator.setBlobAsBytes(ps, 2, serialize(session.getAttribute(attributeName)));
-					ps.setString(3, session.getId());
-				});
+				try {
+					this.jdbcOperations.update(this.createSessionAttributeQuery, (ps) -> {
+						String attributeName = attributeNames.get(0);
+						ps.setString(1, session.primaryKey);
+						ps.setString(2, attributeName);
+						lobCreator.setBlobAsBytes(ps, 3, serialize(session.getAttribute(attributeName)));
+					});
+				}
+				catch (DuplicateKeyException ex) {
+					throw ex;
+				}
+				catch (DataIntegrityViolationException ex) {
+					// parent record not found - we are ignoring this error because we
+					// assume that a concurrent request has removed the session
+				}
 			}
 		}
 	}

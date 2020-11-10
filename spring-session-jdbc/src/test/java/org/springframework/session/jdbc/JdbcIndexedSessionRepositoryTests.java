@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -290,9 +290,9 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION("),
+		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION ("),
 				isA(PreparedStatementSetter.class));
-		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES ("),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -306,9 +306,9 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION("),
+		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION ("),
 				isA(PreparedStatementSetter.class));
-		verify(this.jdbcOperations, times(1)).batchUpdate(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+		verify(this.jdbcOperations, times(1)).batchUpdate(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES ("),
 				isA(BatchPreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -321,7 +321,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES ("),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -335,7 +335,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).batchUpdate(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+		verify(this.jdbcOperations, times(1)).batchUpdate(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES ("),
 				isA(BatchPreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -424,7 +424,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+		verify(this.jdbcOperations).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES ("),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -679,7 +679,7 @@ class JdbcIndexedSessionRepositoryTests {
 		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		String attrName = "someAttribute";
 		session.setAttribute(attrName, "someValue");
-		verify(this.jdbcOperations).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES("),
+		verify(this.jdbcOperations).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES ("),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
