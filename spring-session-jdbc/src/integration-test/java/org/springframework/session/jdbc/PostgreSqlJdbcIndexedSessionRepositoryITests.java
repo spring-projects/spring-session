@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.springframework.session.jdbc;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.Db2Container;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,28 +27,28 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcIndexedSessionRepository} using IBM DB2 11.x database.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using PostgreSQL database.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class Db211JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
+class PostgreSqlJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		Db2Container databaseContainer() {
-			Db2Container databaseContainer = DatabaseContainers.db211();
+		PostgreSQLContainer<?> databaseContainer() {
+			PostgreSQLContainer<?> databaseContainer = DatabaseContainers.postgreSql();
 			databaseContainer.start();
 			return databaseContainer;
 		}
 
 		@Bean
 		ResourceDatabasePopulator databasePopulator() {
-			return DatabasePopulators.db2();
+			return DatabasePopulators.postgreSql();
 		}
 
 	}

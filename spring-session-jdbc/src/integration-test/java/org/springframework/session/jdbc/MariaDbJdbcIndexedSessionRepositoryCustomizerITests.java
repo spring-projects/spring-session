@@ -25,15 +25,15 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcIndexedSessionRepository} using MySQL 8.x database
- * with {@link MySqlJdbcIndexedSessionRepositoryCustomizer}.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using MariaDB database with
+ * {@link MySqlJdbcIndexedSessionRepositoryCustomizer}.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class MySql8JdbcIndexedSessionRepositoryCustomizerITests extends MySql8JdbcIndexedSessionRepositoryITests {
+class MariaDbJdbcIndexedSessionRepositoryCustomizerITests extends MariaDbJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class CustomizerConfig extends Config {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,39 +17,30 @@
 package org.springframework.session.jdbc;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcIndexedSessionRepository} using PostgreSQL 9.x
- * database.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using MySQL database with
+ * {@link MySqlJdbcIndexedSessionRepositoryCustomizer}.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class PostgreSql9JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
+class MySqlJdbcIndexedSessionRepositoryCustomizerITests extends MySqlJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
-	static class Config extends BaseContainerConfig {
+	static class CustomizerConfig extends Config {
 
 		@Bean
-		PostgreSQLContainer databaseContainer() {
-			PostgreSQLContainer databaseContainer = DatabaseContainers.postgreSql9();
-			databaseContainer.start();
-			return databaseContainer;
-		}
-
-		@Bean
-		ResourceDatabasePopulator databasePopulator() {
-			return DatabasePopulators.postgreSql();
+		MySqlJdbcIndexedSessionRepositoryCustomizer mySqlJdbcIndexedSessionRepositoryCustomizer() {
+			return new MySqlJdbcIndexedSessionRepositoryCustomizer();
 		}
 
 	}

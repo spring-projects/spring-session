@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,38 +17,30 @@
 package org.springframework.session.jdbc;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.MySQLContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcIndexedSessionRepository} using MySQL 8.x database.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using IBM DB2 database with
+ * {@link Db2JdbcIndexedSessionRepositoryCustomizer}.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class MySql8JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
+class Db2JdbcIndexedSessionRepositoryCustomizerITests extends Db2JdbcIndexedSessionRepositoryITests {
 
 	@Configuration
-	static class Config extends BaseContainerConfig {
+	static class CustomizerConfig extends Config {
 
 		@Bean
-		MySQLContainer databaseContainer() {
-			MySQLContainer databaseContainer = DatabaseContainers.mySql8();
-			databaseContainer.start();
-			return databaseContainer;
-		}
-
-		@Bean
-		ResourceDatabasePopulator databasePopulator() {
-			return DatabasePopulators.mySql();
+		Db2JdbcIndexedSessionRepositoryCustomizer db2JdbcIndexedSessionRepositoryCustomizer() {
+			return new Db2JdbcIndexedSessionRepositoryCustomizer();
 		}
 
 	}

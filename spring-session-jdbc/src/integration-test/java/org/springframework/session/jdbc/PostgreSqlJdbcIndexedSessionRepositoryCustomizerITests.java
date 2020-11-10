@@ -25,22 +25,22 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
- * Integration tests for {@link JdbcIndexedSessionRepository} using IBM DB2 11.x database
- * with {@link Db2JdbcIndexedSessionRepositoryCustomizer}.
+ * Integration tests for {@link JdbcIndexedSessionRepository} using PostgreSQL database
+ * with {@link PostgreSqlJdbcIndexedSessionRepositoryCustomizer}.
  *
  * @author Vedran Pavic
  */
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
 @ContextConfiguration
-class Db211JdbcIndexedSessionRepositoryCustomizerITests extends Db211JdbcIndexedSessionRepositoryITests {
+class PostgreSqlJdbcIndexedSessionRepositoryCustomizerITests extends PostgreSqlJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
 	static class CustomizerConfig extends Config {
 
 		@Bean
-		Db2JdbcIndexedSessionRepositoryCustomizer db2JdbcIndexedSessionRepositoryCustomizer() {
-			return new Db2JdbcIndexedSessionRepositoryCustomizer();
+		PostgreSqlJdbcIndexedSessionRepositoryCustomizer postgreSqlJdbcIndexedSessionRepositoryCustomizer() {
+			return new PostgreSqlJdbcIndexedSessionRepositoryCustomizer();
 		}
 
 	}

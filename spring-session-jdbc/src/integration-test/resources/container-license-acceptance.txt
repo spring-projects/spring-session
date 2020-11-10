@@ -1,2 +1,2 @@
-ibmcom/db2:11.5.0.0a
-mcr.microsoft.com/mssql/server:2017-CU16
+ibmcom/db2:11.5.4.0
+mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-16.04
