@@ -10,11 +10,19 @@ buildscript {
 	repositories {
 		gradlePluginPortal()
 		maven { url 'https://repo.spring.io/plugins-release/' }
-        maven { url 'https://repo.spring.io/plugins-snapshot' }
+        maven {
+            url = 'https://repo.spring.io/plugins-snapshot'
+            if (project.hasProperty('artifactoryUsername')) {
+                credentials {
+                    username "$artifactoryUsername"
+                    password "$artifactoryPassword"
+                }
+            }
+        }
 	}
 
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.34.RELEASE'
+		classpath 'io.spring.gradle:spring-build-conventions:0.0.35.RELEASE'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 	}
 }
