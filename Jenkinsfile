@@ -8,6 +8,8 @@ properties([
 def SUCCESS = hudson.model.Result.SUCCESS.toString()
 currentBuild.result = SUCCESS
 
+def ARTIFACTORY_CREDENTIALS = usernamePassword(credentialsId: '02bd1690-b54f-4c9f-819d-a77cb7a9822c', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')
+
 try {
 	parallel check: {
 		stage('Check') {
@@ -17,8 +19,10 @@ try {
 					checkout scm
 					sh "git clean -dfx"
 					try {
-						withEnv(["JAVA_HOME=${tool 'jdk8'}"]) {
-							sh './gradlew clean check --no-daemon --stacktrace'
+					    withCredentials([ARTIFACTORY_CREDENTIALS]) {
+                            withEnv(["JAVA_HOME=${tool 'jdk8'}"]) {
+                                sh './gradlew clean check -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --no-daemon --stacktrace'
+                            }
 						}
 					}
 					catch (e) {
@@ -39,8 +43,10 @@ try {
 					checkout scm
 					sh "git clean -dfx"
 					try {
-						withEnv(["JAVA_HOME=${tool 'jdk11'}"]) {
-							sh './gradlew clean test integrationTest --no-daemon --stacktrace'
+					    withCredentials([ARTIFACTORY_CREDENTIALS]) {
+                            withEnv(["JAVA_HOME=${tool 'jdk11'}"]) {
+                                sh './gradlew clean test integrationTest -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --no-daemon --stacktrace'
+                            }
 						}
 					}
 					catch (e) {
@@ -57,8 +63,10 @@ try {
 				node('linux') {
 					checkout scm
 					try {
-						withEnv(["JAVA_HOME=${tool 'openjdk12'}"]) {
-							sh './gradlew clean test integrationTest --no-daemon --stacktrace'
+					    withCredentials([ARTIFACTORY_CREDENTIALS]) {
+                            withEnv(["JAVA_HOME=${tool 'openjdk12'}"]) {
+                                sh './gradlew clean test integrationTest -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD --no-daemon --stacktrace'
+                            }
 						}
 					}
 					catch (e) {
@@ -80,7 +88,7 @@ try {
 						withCredentials([file(credentialsId: 'spring-signing-secring.gpg', variable: 'SIGNING_KEYRING_FILE')]) {
 							withCredentials([string(credentialsId: 'spring-gpg-passphrase', variable: 'SIGNING_PASSWORD')]) {
 								withCredentials([usernamePassword(credentialsId: 'oss-token', passwordVariable: 'OSSRH_PASSWORD', usernameVariable: 'OSSRH_USERNAME')]) {
-									withCredentials([usernamePassword(credentialsId: '02bd1690-b54f-4c9f-819d-a77cb7a9822c', usernameVariable: 'ARTIFACTORY_USERNAME', passwordVariable: 'ARTIFACTORY_PASSWORD')]) {
+									withCredentials([ARTIFACTORY_CREDENTIALS]) {
 										withEnv(["JAVA_HOME=${tool 'jdk8'}"]) {
 											sh './gradlew deployArtifacts --no-daemon --stacktrace -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password=$SIGNING_PASSWORD -PossrhUsername=$OSSRH_USERNAME -PossrhPassword=$OSSRH_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD'
                                             sh './gradlew finalizeDeployArtifacts --no-daemon --stacktrace -Psigning.secretKeyRingFile=$SIGNING_KEYRING_FILE -Psigning.keyId=$SPRING_SIGNING_KEYID -Psigning.password=$SIGNING_PASSWORD -PossrhUsername=$OSSRH_USERNAME -PossrhPassword=$OSSRH_PASSWORD -PartifactoryUsername=$ARTIFACTORY_USERNAME -PartifactoryPassword=$ARTIFACTORY_PASSWORD'
