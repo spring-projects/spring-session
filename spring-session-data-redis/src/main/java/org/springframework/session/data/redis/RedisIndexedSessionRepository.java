@@ -46,6 +46,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -246,6 +247,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class RedisIndexedSessionRepository
@@ -264,6 +266,8 @@ public class RedisIndexedSessionRepository
 	 * The default namespace for each key and channel in Redis used by Spring Session.
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
+
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	private int database = DEFAULT_DATABASE;
 
@@ -505,8 +509,15 @@ public class RedisIndexedSessionRepository
 	}
 
 	@Override
+	public String changeSessionId(final RedisSession session) {
+		String newId = this.sessionIdStrategy.createSessionId();
+		session.changeSessionId(newId);
+		return newId;
+	}
+
+	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession();
+		MapSession cached = new MapSession(this.sessionIdStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -676,6 +687,16 @@ public class RedisIndexedSessionRepository
 	}
 
 	/**
+	 * Allows override of default session id generation strategy.
+	 * @param sessionIdStrategy session id generation strategy to be used with this
+	 * repository
+	 */
+	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		Assert.notNull(sessionIdStrategy, "sessionIdStrategy must not be null");
+		this.sessionIdStrategy = sessionIdStrategy;
+	}
+
+	/**
 	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
 	 * basis for its mapping. It keeps track of any attributes that have changed. When
 	 * {@link RedisIndexedSessionRepository.RedisSession#saveDelta()} is invoked all the
@@ -738,8 +759,8 @@ public class RedisIndexedSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
-			return this.cached.changeSessionId();
+		public void changeSessionId(final String id) {
+			this.cached.changeSessionId(id);
 		}
 
 		@Override

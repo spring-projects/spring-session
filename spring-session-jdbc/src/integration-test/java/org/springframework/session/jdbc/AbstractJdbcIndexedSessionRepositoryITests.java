@@ -38,6 +38,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository.JdbcSession;
 import org.springframework.session.jdbc.config.annotation.web.http.EnableJdbcHttpSession;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -56,6 +57,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
 	private static final String INDEX_NAME = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
+
+	private final SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	@Autowired
 	private JdbcIndexedSessionRepository repository;
@@ -578,7 +581,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(findById.<String>getAttribute(attrName)).isEqualTo(attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
 
@@ -598,8 +602,10 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		this.repository.save(toSave);
 
 		String originalId = toSave.getId();
-		String changeId1 = toSave.changeSessionId();
-		String changeId2 = toSave.changeSessionId();
+		String changeId1 = this.sessionIdStrategy.createSessionId();
+		toSave.changeSessionId(changeId1);
+		String changeId2 = this.sessionIdStrategy.createSessionId();
+		toSave.changeSessionId(changeId2);
 
 		this.repository.save(toSave);
 
@@ -622,7 +628,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		findById.setAttribute(attrName, attrValue);
 
 		String originalFindById = findById.getId();
-		String changeSessionId = findById.changeSessionId();
+		String changeSessionId = this.sessionIdStrategy.createSessionId();
+		findById.changeSessionId(changeSessionId);
 
 		this.repository.save(findById);
 
@@ -639,7 +646,7 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 	void changeSessionIdWhenHasNotSaved() {
 		JdbcSession toSave = this.repository.createSession();
 		String originalId = toSave.getId();
-		toSave.changeSessionId();
+		toSave.changeSessionId("1");
 
 		this.repository.save(toSave);
 
@@ -647,7 +654,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(this.repository.findById(originalId)).isNull();
 	}
 
-	@Test // gh-1070
+	@Test
+	// gh-1070
 	void saveUpdatedAddAndModifyAttribute() {
 		JdbcSession session = this.repository.createSession();
 		this.repository.save(session);
@@ -660,7 +668,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(session.<String>getAttribute("testName")).isEqualTo("testValue2");
 	}
 
-	@Test // gh-1070
+	@Test
+	// gh-1070
 	void saveUpdatedAddAndRemoveAttribute() {
 		JdbcSession session = this.repository.createSession();
 		this.repository.save(session);
@@ -673,7 +682,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(session.<String>getAttribute("testName")).isNull();
 	}
 
-	@Test // gh-1070
+	@Test
+	// gh-1070
 	void saveUpdatedModifyAndRemoveAttribute() {
 		JdbcSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue1");
@@ -687,7 +697,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(session.<String>getAttribute("testName")).isNull();
 	}
 
-	@Test // gh-1070
+	@Test
+	// gh-1070
 	void saveUpdatedRemoveAndAddAttribute() {
 		JdbcSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue1");
@@ -701,7 +712,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(session.<String>getAttribute("testName")).isEqualTo("testValue2");
 	}
 
-	@Test // gh-1031
+	@Test
+	// gh-1031
 	void saveDeleted() {
 		JdbcSession session = this.repository.createSession();
 		this.repository.save(session);
@@ -713,7 +725,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(this.repository.findById(session.getId())).isNull();
 	}
 
-	@Test // gh-1031
+	@Test
+	// gh-1031
 	void saveDeletedAddAttribute() {
 		JdbcSession session = this.repository.createSession();
 		this.repository.save(session);
@@ -726,7 +739,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(this.repository.findById(session.getId())).isNull();
 	}
 
-	@Test // gh-1133
+	@Test
+	// gh-1133
 	void sessionFromStoreResolvesAttributesLazily() {
 		JdbcSession session = this.repository.createSession();
 		session.setAttribute("attribute1", "value1");
@@ -745,7 +759,8 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(ReflectionTestUtils.getField(attribute2, "value")).isEqualTo("value2");
 	}
 
-	@Test // gh-1203
+	@Test
+	// gh-1203
 	void saveWithLargeAttribute() {
 		String attributeName = "largeAttribute";
 		int arraySize = 4000;

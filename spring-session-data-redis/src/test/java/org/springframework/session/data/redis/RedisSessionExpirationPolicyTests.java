@@ -69,7 +69,7 @@ class RedisSessionExpirationPolicyTests {
 		RedisIndexedSessionRepository repository = new RedisIndexedSessionRepository(this.sessionRedisOperations);
 		this.policy = new RedisSessionExpirationPolicy(this.sessionRedisOperations, repository::getExpirationsKey,
 				repository::getSessionKey);
-		this.session = new MapSession();
+		this.session = new MapSession("1");
 		this.session.setLastAccessedTime(Instant.ofEpochMilli(1429116694675L));
 		this.session.setId("12345");
 

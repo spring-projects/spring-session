@@ -38,7 +38,7 @@ class MapSessionRepositoryTests {
 	@BeforeEach
 	void setup() {
 		this.repository = new MapSessionRepository(new ConcurrentHashMap<>());
-		this.session = new MapSession();
+		this.session = new MapSession("1");
 	}
 
 	@Test
@@ -55,12 +55,12 @@ class MapSessionRepositoryTests {
 		Session session = this.repository.createSession();
 
 		assertThat(session).isInstanceOf(MapSession.class);
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession("1").getMaxInactiveInterval());
 	}
 
 	@Test
 	void createSessionCustomDefaultExpiration() {
-		final Duration expectedMaxInterval = new MapSession().getMaxInactiveInterval().plusSeconds(10);
+		final Duration expectedMaxInterval = new MapSession("1").getMaxInactiveInterval().plusSeconds(10);
 		this.repository.setDefaultMaxInactiveInterval((int) expectedMaxInterval.getSeconds());
 
 		Session session = this.repository.createSession();
@@ -73,7 +73,7 @@ class MapSessionRepositoryTests {
 		MapSession createSession = this.repository.createSession();
 
 		String originalId = createSession.getId();
-		createSession.changeSessionId();
+		createSession.changeSessionId("1");
 
 		this.repository.save(createSession);
 
@@ -88,7 +88,7 @@ class MapSessionRepositoryTests {
 		this.repository.save(createSession);
 
 		String originalId = createSession.getId();
-		createSession.changeSessionId();
+		createSession.changeSessionId("1");
 
 		this.repository.save(createSession);
 

@@ -54,6 +54,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdStrategy;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -126,6 +127,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Vedran Pavic
  * @author Craig Andrews
+ * @author Jakub Maciej
  * @since 2.2.0
  */
 public class JdbcIndexedSessionRepository
@@ -198,6 +200,8 @@ public class JdbcIndexedSessionRepository
 	private final TransactionOperations transactionOperations;
 
 	private final ResultSetExtractor<List<JdbcSession>> extractor = new SessionResultSetExtractor();
+
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	/**
 	 * The name of database table used by Spring Session to store sessions.
@@ -396,7 +400,7 @@ public class JdbcIndexedSessionRepository
 
 	@Override
 	public JdbcSession createSession() {
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession(this.sessionIdStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
@@ -437,6 +441,13 @@ public class JdbcIndexedSessionRepository
 	public void deleteById(final String id) {
 		this.transactionOperations.executeWithoutResult((status) -> JdbcIndexedSessionRepository.this.jdbcOperations
 				.update(JdbcIndexedSessionRepository.this.deleteSessionQuery, id));
+	}
+
+	@Override
+	public String changeSessionId(final JdbcSession session) {
+		String newId = this.sessionIdStrategy.createSessionId();
+		session.changeSessionId(newId);
+		return newId;
 	}
 
 	@Override
@@ -598,6 +609,16 @@ public class JdbcIndexedSessionRepository
 				TypeDescriptor.valueOf(Object.class));
 	}
 
+	/**
+	 * Allows override of default session id generation strategy.
+	 * @param sessionIdStrategy session id generation strategy to be used with this
+	 * repository
+	 */
+	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		Assert.notNull(sessionIdStrategy, "sessionIdStrategy must not be null");
+		this.sessionIdStrategy = sessionIdStrategy;
+	}
+
 	private enum DeltaValue {
 
 		ADDED, UPDATED, REMOVED
@@ -680,9 +701,9 @@ public class JdbcIndexedSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
+		public void changeSessionId(final String id) {
 			this.changed = true;
-			return this.delegate.changeSessionId();
+			this.delegate.changeSessionId(id);
 		}
 
 		@Override

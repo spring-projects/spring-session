@@ -40,7 +40,7 @@ class DelegatingIndexResolverTests {
 
 	@Test
 	void resolve() {
-		MapSession session = new MapSession();
+		MapSession session = new MapSession("1");
 		session.setAttribute("one", "first");
 		session.setAttribute("two", "second");
 		Map<String, String> indexes = this.indexResolver.resolveIndexesFor(session);

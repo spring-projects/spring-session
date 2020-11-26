@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.util.Assert;
 
 /**
  * A {@link SessionRepository} backed by a {@link java.util.Map} and that uses a
@@ -34,6 +35,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  * </p>
  *
  * @author Rob Winch
+ * @author Jakub Maciej
  * @since 1.0
  */
 public class MapSessionRepository implements SessionRepository<MapSession> {
@@ -45,6 +47,8 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	private Integer defaultMaxInactiveInterval;
 
 	private final Map<String, Session> sessions;
+
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
@@ -95,12 +99,29 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	}
 
 	@Override
+	public String changeSessionId(final MapSession session) {
+		String newId = this.sessionIdStrategy.createSessionId();
+		session.changeSessionId(newId);
+		return newId;
+	}
+
+	@Override
 	public MapSession createSession() {
-		MapSession result = new MapSession();
+		MapSession result = new MapSession(this.sessionIdStrategy.createSessionId());
 		if (this.defaultMaxInactiveInterval != null) {
 			result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 		}
 		return result;
+	}
+
+	/**
+	 * Allows override of default session id generation strategy.
+	 * @param sessionIdStrategy session id generation strategy to be used with this
+	 * repository
+	 */
+	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		Assert.notNull(sessionIdStrategy, "sessionIdStrategy must not be null");
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 }

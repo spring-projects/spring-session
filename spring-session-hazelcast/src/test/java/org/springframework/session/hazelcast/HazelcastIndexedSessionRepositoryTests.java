@@ -98,7 +98,7 @@ class HazelcastIndexedSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession("1").getMaxInactiveInterval());
 		verifyZeroInteractions(this.sessions);
 	}
 
@@ -306,7 +306,7 @@ class HazelcastIndexedSessionRepositoryTests {
 	void getSessionExpired() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		MapSession expired = new MapSession();
+		MapSession expired = new MapSession("1");
 		expired.setLastAccessedTime(Instant.now().minusSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 		given(this.sessions.get(eq(expired.getId()))).willReturn(expired);
 
@@ -322,7 +322,7 @@ class HazelcastIndexedSessionRepositoryTests {
 	void getSessionFound() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		MapSession saved = new MapSession();
+		MapSession saved = new MapSession("1");
 		saved.setAttribute("savedName", "savedValue");
 		given(this.sessions.get(eq(saved.getId()))).willReturn(saved);
 
@@ -381,10 +381,10 @@ class HazelcastIndexedSessionRepositoryTests {
 		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, "notused",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		List<MapSession> saved = new ArrayList<>(2);
-		MapSession saved1 = new MapSession();
+		MapSession saved1 = new MapSession("1");
 		saved1.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved1);
-		MapSession saved2 = new MapSession();
+		MapSession saved2 = new MapSession("2");
 		saved2.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved2);
 		given(this.sessions.values(isA(EqualPredicate.class))).willReturn(saved);
@@ -415,7 +415,7 @@ class HazelcastIndexedSessionRepositoryTests {
 	void saveWithSaveModeOnSetAttribute() {
 		verify(this.sessions).addEntryListener(any(MapListener.class), anyBoolean());
 		this.repository.setSaveMode(SaveMode.ON_SET_ATTRIBUTE);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");
@@ -434,7 +434,7 @@ class HazelcastIndexedSessionRepositoryTests {
 	void saveWithSaveModeOnGetAttribute() {
 		verify(this.sessions).addEntryListener(any(MapListener.class), anyBoolean());
 		this.repository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");
@@ -453,7 +453,7 @@ class HazelcastIndexedSessionRepositoryTests {
 	void saveWithSaveModeAlways() {
 		verify(this.sessions).addEntryListener(any(MapListener.class), anyBoolean());
 		this.repository.setSaveMode(SaveMode.ALWAYS);
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession("1");
 		delegate.setAttribute("attribute1", "value1");
 		delegate.setAttribute("attribute2", "value2");
 		delegate.setAttribute("attribute3", "value3");

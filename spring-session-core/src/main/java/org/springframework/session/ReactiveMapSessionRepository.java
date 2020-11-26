@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveSessionRepository} backed by a {@link Map} and that uses a
@@ -36,9 +37,12 @@ import org.springframework.session.events.SessionExpiredEvent;
  * </p>
  *
  * @author Rob Winch
+ * @author Jakub Maciej
  * @since 2.0
  */
 public class ReactiveMapSessionRepository implements ReactiveSessionRepository<MapSession> {
+
+	private SessionIdStrategy sessionIdStrategy = SessionIdStrategy.getDefault();
 
 	/**
 	 * If non-null, this value is used to override
@@ -98,12 +102,22 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	@Override
 	public Mono<MapSession> createSession() {
 		return Mono.defer(() -> {
-			MapSession result = new MapSession();
+			MapSession result = new MapSession(this.sessionIdStrategy.createSessionId());
 			if (this.defaultMaxInactiveInterval != null) {
 				result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
 			}
 			return Mono.just(result);
 		});
+	}
+
+	/**
+	 * Allows override of default session id generation strategy.
+	 * @param sessionIdStrategy session id generation strategy to be used with this
+	 * repository
+	 */
+	public void setSessionIdStrategy(final SessionIdStrategy sessionIdStrategy) {
+		Assert.notNull(sessionIdStrategy, "sessionIdStrategy must not be null");
+		this.sessionIdStrategy = sessionIdStrategy;
 	}
 
 }

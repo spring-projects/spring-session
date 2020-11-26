@@ -54,7 +54,7 @@ public abstract class AbstractHttpSessionListenerTests {
 
 	@Test
 	void springSessionDestroyedTranslatedToSpringSecurityDestroyed() {
-		Session session = new MapSession();
+		Session session = new MapSession("1");
 
 		this.publisher.publishEvent(new org.springframework.session.events.SessionDestroyedEvent(this, session));
 

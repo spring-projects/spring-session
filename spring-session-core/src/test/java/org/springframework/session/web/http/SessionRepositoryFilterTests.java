@@ -133,7 +133,7 @@ class SessionRepositoryFilterTests {
 
 	@Test
 	void doFilterCreateSetsLastAccessedTime() throws Exception {
-		MapSession session = new MapSession();
+		MapSession session = new MapSession("1");
 		session.setLastAccessedTime(Instant.EPOCH);
 		this.sessionRepository = spy(this.sessionRepository);
 		given(this.sessionRepository.createSession()).willReturn(session);

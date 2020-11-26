@@ -52,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Tommy Ludwig
  * @author Vedran Pavic
+ * @author Jakub Maciej
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
@@ -172,7 +173,7 @@ class SessionEventHazelcastIndexedSessionRepositoryTests<S extends Session> {
 				.isInstanceOf(SessionCreatedEvent.class);
 		this.registry.clear();
 
-		sessionToSave.changeSessionId();
+		sessionToSave.changeSessionId("1");
 		this.repository.save(sessionToSave);
 
 		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isFalse();
