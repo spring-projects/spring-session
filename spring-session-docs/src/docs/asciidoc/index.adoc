@@ -1406,11 +1406,8 @@ Spring Session is Open Source software released under the https://www.apache.org
 |===
 | Name | Location
 
-| Spring Session OrientDB
-| https://github.com/maseev/spring-session-orientdb
-
 | Spring Session Infinispan
-| https://infinispan.org/docs/dev/user_guide/user_guide.html#externalizing_session_using_spring_session
+| https://infinispan.org/infinispan-spring-boot/master/spring_boot_starter.html#_enabling_spring_session_support
 
 |===
 
