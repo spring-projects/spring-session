@@ -88,7 +88,7 @@ import org.springframework.util.Assert;
  * details.
  *
  * <pre>
- * HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:attrName someAttrValue sessionAttr2:attrName someAttrValue2
+ * HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe creationTime 1404360000000 maxInactiveInterval 1800 lastAccessedTime 1404360000000 sessionAttr:attrName someAttrValue sessionAttr:attrName2 someAttrValue2
  * EXPIRE spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe 2100
  * APPEND spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe ""
  * EXPIRE spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe 1800
@@ -131,7 +131,7 @@ import org.springframework.util.Assert;
  * The {@link RedisIndexedSessionRepository.RedisSession} keeps track of the properties
  * that have changed and only updates those. This means if an attribute is written once
  * and read many times we only need to write that attribute once. For example, assume the
- * session attribute "sessionAttr2" from earlier was updated. The following would be
+ * session attribute "attrName2" from earlier was updated. The following would be
  * executed upon saving:
  * </p>
  *
