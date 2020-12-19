@@ -131,8 +131,8 @@ import org.springframework.util.Assert;
  * The {@link RedisIndexedSessionRepository.RedisSession} keeps track of the properties
  * that have changed and only updates those. This means if an attribute is written once
  * and read many times we only need to write that attribute once. For example, assume the
- * session attribute "attrName2" from earlier was updated. The following would be
- * executed upon saving:
+ * session attribute "attrName2" from earlier was updated. The following would be executed
+ * upon saving:
  * </p>
  *
  * <pre>
