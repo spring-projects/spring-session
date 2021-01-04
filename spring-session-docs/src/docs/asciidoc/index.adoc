@@ -791,7 +791,7 @@ HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe creationTime 
 	maxInactiveInterval 1800 \
 	lastAccessedTime 1404360000000 \
 	sessionAttr:attrName someAttrValue \
-	sessionAttr2:attrName someAttrValue2
+	sessionAttr:attrName2 someAttrValue2
 EXPIRE spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe 2100
 APPEND spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe ""
 EXPIRE spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe 1800
@@ -814,7 +814,7 @@ HMSET spring:session:sessions:33fdd1b6-b496-4b33-9f7d-df96679d32fe creationTime 
 	maxInactiveInterval 1800 \
 	lastAccessedTime 1404360000000 \
 	sessionAttr:attrName someAttrValue \
-	sessionAttr2:attrName someAttrValue2
+	sessionAttr:attrName2 someAttrValue2
 ----
 ====
 
@@ -833,7 +833,7 @@ The second session attribute is named `attrName2`, with a value of `someAttrValu
 
 The `Session` instances managed by `RedisIndexedSessionRepository` keeps track of the properties that have changed and updates only those.
 This means that, if an attribute is written once and read many times, we need to write that attribute only once.
-For example, assume the `sessionAttr2` session attribute from the lsiting in the preceding section was updated.
+For example, assume the `attrName2` session attribute from the lsiting in the preceding section was updated.
 The following command would be run upon saving:
 
 ====
