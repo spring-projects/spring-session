@@ -87,6 +87,7 @@ try {
 			timeout(time: 45, unit: 'MINUTES') {
 				node('linux') {
 					checkout scm
+					sh "git clean -dfx"
 					try {
                         withCredentials([GRADLE_ENTERPRISE_CACHE_USER,
                              GRADLE_ENTERPRISE_SECRET_ACCESS_KEY,
