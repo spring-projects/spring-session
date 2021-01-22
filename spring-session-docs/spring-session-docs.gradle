@@ -65,3 +65,7 @@ asciidoctorj {
 			'highlightjsdir@': "js/highlight",
 			'docinfodir@': "."
 }
+
+repositories {
+    maven { url "https://repo.spring.io/release" }
+}
