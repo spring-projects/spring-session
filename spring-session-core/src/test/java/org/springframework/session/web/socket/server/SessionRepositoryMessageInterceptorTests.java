@@ -49,7 +49,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 class SessionRepositoryMessageInterceptorTests {
 
@@ -98,7 +98,7 @@ class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(this.interceptor.preSend(createMessage(), this.channel)).isSameAs(this.createMessage);
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
@@ -107,7 +107,7 @@ class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(this.interceptor.preSend(createMessage(), this.channel)).isSameAs(this.createMessage);
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
@@ -116,7 +116,7 @@ class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(this.interceptor.preSend(createMessage(), this.channel)).isSameAs(this.createMessage);
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
@@ -125,7 +125,7 @@ class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(this.interceptor.preSend(createMessage(), this.channel)).isSameAs(this.createMessage);
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
@@ -209,7 +209,7 @@ class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(this.interceptor.preSend(createMessage(), this.channel)).isSameAs(this.createMessage);
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
@@ -218,14 +218,14 @@ class SessionRepositoryMessageInterceptorTests {
 
 		assertThat(this.interceptor.preSend(createMessage(), this.channel)).isSameAs(this.createMessage);
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
 	void beforeHandshakeNotServletServerHttpRequest() {
 		assertThat(this.interceptor.beforeHandshake(null, null, null, null)).isTrue();
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
@@ -233,7 +233,7 @@ class SessionRepositoryMessageInterceptorTests {
 		ServletServerHttpRequest request = new ServletServerHttpRequest(new MockHttpServletRequest());
 		assertThat(this.interceptor.beforeHandshake(request, null, null, null)).isTrue();
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	@Test
@@ -256,7 +256,7 @@ class SessionRepositoryMessageInterceptorTests {
 	void afterHandshakeDoesNothing() {
 		this.interceptor.afterHandshake(null, null, null, null);
 
-		verifyZeroInteractions(this.sessionRepository);
+		verifyNoMoreInteractions(this.sessionRepository);
 	}
 
 	private void setSessionId(String id) {

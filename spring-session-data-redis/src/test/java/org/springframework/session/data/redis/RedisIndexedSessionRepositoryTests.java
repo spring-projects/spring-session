@@ -63,7 +63,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 class RedisIndexedSessionRepositoryTests {
 
@@ -188,7 +188,7 @@ class RedisIndexedSessionRepositoryTests {
 
 		this.redisRepository.save(session);
 
-		verifyZeroInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.redisOperations);
 	}
 
 	@Test
@@ -511,10 +511,10 @@ class RedisIndexedSessionRepositoryTests {
 		verify(this.boundHashOperations).entries();
 		verify(this.publisher).publishEvent(this.event.capture());
 		assertThat(this.event.getValue().getSessionId()).isEqualTo(deletedId);
-		verifyZeroInteractions(this.defaultSerializer);
-		verifyZeroInteractions(this.publisher);
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.defaultSerializer);
+		verifyNoMoreInteractions(this.publisher);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -534,10 +534,10 @@ class RedisIndexedSessionRepositoryTests {
 
 		verify(this.redisOperations).boundHashOps(eq(getKey(deletedId)));
 		verify(this.boundHashOperations).entries();
-		verifyZeroInteractions(this.defaultSerializer);
-		verifyZeroInteractions(this.publisher);
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.defaultSerializer);
+		verifyNoMoreInteractions(this.publisher);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -561,10 +561,10 @@ class RedisIndexedSessionRepositoryTests {
 		verify(this.boundHashOperations).entries();
 		verify(this.publisher).publishEvent(this.event.capture());
 		assertThat(this.event.getValue().getSessionId()).isEqualTo(expiredId);
-		verifyZeroInteractions(this.defaultSerializer);
-		verifyZeroInteractions(this.publisher);
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.defaultSerializer);
+		verifyNoMoreInteractions(this.publisher);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -584,17 +584,17 @@ class RedisIndexedSessionRepositoryTests {
 
 		verify(this.redisOperations).boundHashOps(eq(getKey(expiredId)));
 		verify(this.boundHashOperations).entries();
-		verifyZeroInteractions(this.defaultSerializer);
-		verifyZeroInteractions(this.publisher);
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.defaultSerializer);
+		verifyNoMoreInteractions(this.publisher);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
 	void flushModeOnSaveCreate() {
 		this.redisRepository.createSession();
 
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -602,7 +602,7 @@ class RedisIndexedSessionRepositoryTests {
 		RedisSession session = this.redisRepository.createSession();
 		session.setAttribute("something", "here");
 
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -610,7 +610,7 @@ class RedisIndexedSessionRepositoryTests {
 		RedisSession session = this.redisRepository.createSession();
 		session.removeAttribute("remove");
 
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -618,7 +618,7 @@ class RedisIndexedSessionRepositoryTests {
 		RedisSession session = this.redisRepository.createSession();
 		session.setLastAccessedTime(Instant.ofEpochMilli(1L));
 
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -626,7 +626,7 @@ class RedisIndexedSessionRepositoryTests {
 		RedisSession session = this.redisRepository.createSession();
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
 
-		verifyZeroInteractions(this.boundHashOperations);
+		verifyNoMoreInteractions(this.boundHashOperations);
 	}
 
 	@Test
@@ -790,7 +790,7 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
 		assertThat(this.event.getAllValues()).isEmpty();
-		verifyZeroInteractions(this.publisher);
+		verifyNoMoreInteractions(this.publisher);
 	}
 
 	@Test
@@ -808,7 +808,7 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
 		assertThat(this.event.getAllValues()).isEmpty();
-		verifyZeroInteractions(this.publisher);
+		verifyNoMoreInteractions(this.publisher);
 	}
 
 	@Test
@@ -826,7 +826,7 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
 		assertThat(this.event.getAllValues()).isEmpty();
-		verifyZeroInteractions(this.publisher);
+		verifyNoMoreInteractions(this.publisher);
 	}
 
 	@Test

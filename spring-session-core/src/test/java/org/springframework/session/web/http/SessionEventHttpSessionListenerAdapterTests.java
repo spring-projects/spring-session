@@ -39,7 +39,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link SessionEventHttpSessionListenerAdapter}.
@@ -97,7 +97,7 @@ class SessionEventHttpSessionListenerAdapterTests {
 
 		this.listener.onApplicationEvent(this.destroyed);
 
-		verifyZeroInteractions(this.destroyed, this.listener1, this.listener2);
+		verifyNoMoreInteractions(this.destroyed, this.listener1, this.listener2);
 	}
 
 	@Test

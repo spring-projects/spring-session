@@ -72,7 +72,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link SessionRepositoryFilter}.
@@ -1260,7 +1260,7 @@ class SessionRepositoryFilterTests {
 			}
 		});
 
-		verifyZeroInteractions(sessionRepository);
+		verifyNoMoreInteractions(sessionRepository);
 	}
 
 	@Test
@@ -1275,7 +1275,7 @@ class SessionRepositoryFilterTests {
 			}
 		});
 
-		verifyZeroInteractions(sessionRepository);
+		verifyNoMoreInteractions(sessionRepository);
 	}
 
 	@Test
@@ -1293,7 +1293,7 @@ class SessionRepositoryFilterTests {
 			}
 		});
 
-		verifyZeroInteractions(sessionRepository);
+		verifyNoMoreInteractions(sessionRepository);
 	}
 
 	@Test
@@ -1318,7 +1318,7 @@ class SessionRepositoryFilterTests {
 		verify(sessionRepository).deleteById(eq(session.getId()));
 		verify(sessionRepository).createSession();
 		verify(sessionRepository).save(any());
-		verifyZeroInteractions(sessionRepository);
+		verifyNoMoreInteractions(sessionRepository);
 	}
 
 	// --- order

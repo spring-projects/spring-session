@@ -43,7 +43,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link ReactiveRedisSessionRepository}.
@@ -137,8 +137,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 
 		Map<String, Object> delta = this.delta.getAllValues().get(0);
 		assertThat(delta.size()).isEqualTo(3);
@@ -160,8 +160,8 @@ class ReactiveRedisSessionRepositoryTests {
 		StepVerifier.create(this.repository.save(session)).verifyComplete();
 
 		verify(this.redisOperations).hasKey(anyString());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 	}
 
 	@Test
@@ -179,8 +179,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0)).isEqualTo(
 				map(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, session.getLastAccessedTime().toEpochMilli()));
@@ -202,8 +202,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0)).isEqualTo(
 				map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), session.getAttribute(attrName)));
@@ -225,8 +225,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0))
 				.isEqualTo(map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), null));
@@ -252,8 +252,8 @@ class ReactiveRedisSessionRepositoryTests {
 		StepVerifier.create(this.repository.deleteById("test")).verifyComplete();
 
 		verify(this.redisOperations).delete(anyString());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 	}
 
 	@Test
@@ -267,8 +267,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).entries(anyString());
 		verify(this.redisOperations).delete(anyString());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 	}
 
 	@Test
@@ -291,8 +291,8 @@ class ReactiveRedisSessionRepositoryTests {
 		StepVerifier.create(this.repository.findById("test")).consumeNextWith((session) -> {
 			verify(this.redisOperations).opsForHash();
 			verify(this.hashOperations).entries(anyString());
-			verifyZeroInteractions(this.redisOperations);
-			verifyZeroInteractions(this.hashOperations);
+			verifyNoMoreInteractions(this.redisOperations);
+			verifyNoMoreInteractions(this.hashOperations);
 
 			assertThat(session.getId()).isEqualTo(expected.getId());
 			assertThat(session.getAttributeNames()).isEqualTo(expected.getAttributeNames());
@@ -320,8 +320,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).entries(anyString());
 		verify(this.redisOperations).delete(anyString());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 	}
 
 	@Test // gh-1120
@@ -357,8 +357,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		assertThat(this.delta.getValue()).hasSize(1);
 		verify(this.redisOperations).expire(anyString(), any());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 	}
 
 	@Test
@@ -381,8 +381,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		assertThat(this.delta.getValue()).hasSize(2);
 		verify(this.redisOperations).expire(anyString(), any());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 	}
 
 	@Test
@@ -405,8 +405,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		assertThat(this.delta.getValue()).hasSize(3);
 		verify(this.redisOperations).expire(anyString(), any());
-		verifyZeroInteractions(this.redisOperations);
-		verifyZeroInteractions(this.hashOperations);
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
 	}
 
 	private Map<String, Object> map(Object... objects) {

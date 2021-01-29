@@ -33,7 +33,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link SpringSessionRememberMeServices}.
@@ -88,7 +88,7 @@ class SpringSessionRememberMeServicesTests {
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.autoLogin(request, response);
-		verifyZeroInteractions(request, response);
+		verifyNoMoreInteractions(request, response);
 	}
 
 	// gh-752
@@ -102,7 +102,7 @@ class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices.loginFail(request, response);
 		verify(request, times(1)).getSession(eq(false));
 		verify(session, times(1)).removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-		verifyZeroInteractions(request, response, session);
+		verifyNoMoreInteractions(request, response, session);
 	}
 
 	@Test
@@ -119,7 +119,7 @@ class SpringSessionRememberMeServicesTests {
 		verify(request, times(1)).getSession();
 		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(2592000));
-		verifyZeroInteractions(request, response, session, authentication);
+		verifyNoMoreInteractions(request, response, session, authentication);
 	}
 
 	@Test
@@ -137,7 +137,7 @@ class SpringSessionRememberMeServicesTests {
 		verify(request, times(1)).getSession();
 		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(2592000));
-		verifyZeroInteractions(request, response, session, authentication);
+		verifyNoMoreInteractions(request, response, session, authentication);
 	}
 
 	@Test
@@ -153,7 +153,7 @@ class SpringSessionRememberMeServicesTests {
 		verify(request, times(1)).getSession();
 		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(2592000));
-		verifyZeroInteractions(request, response, session, authentication);
+		verifyNoMoreInteractions(request, response, session, authentication);
 	}
 
 	@Test
@@ -171,7 +171,7 @@ class SpringSessionRememberMeServicesTests {
 		verify(request, times(1)).getSession();
 		verify(request, times(1)).setAttribute(eq(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR), eq(true));
 		verify(session, times(1)).setMaxInactiveInterval(eq(100000));
-		verifyZeroInteractions(request, response, session, authentication);
+		verifyNoMoreInteractions(request, response, session, authentication);
 	}
 
 }

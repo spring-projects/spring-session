@@ -54,7 +54,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link Hazelcast4IndexedSessionRepository}.
@@ -98,7 +98,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		HazelcastSession session = this.repository.createSession();
 
 		assertThat(session.getMaxInactiveInterval()).isEqualTo(new MapSession().getMaxInactiveInterval());
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -111,7 +111,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		HazelcastSession session = this.repository.createSession();
 
 		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(interval));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -119,12 +119,12 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
 		HazelcastSession session = this.repository.createSession();
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 
 		this.repository.save(session);
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),
 				eq(TimeUnit.SECONDS));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -136,7 +136,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		HazelcastSession session = this.repository.createSession();
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),
 				eq(TimeUnit.SECONDS));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -145,12 +145,12 @@ class Hazelcast4IndexedSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.setAttribute("testName", "testValue");
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 
 		this.repository.save(session);
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),
 				eq(TimeUnit.SECONDS));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -166,7 +166,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()), any(EntryProcessor.class));
 
 		this.repository.save(session);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -175,12 +175,12 @@ class Hazelcast4IndexedSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.removeAttribute("testName");
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 
 		this.repository.save(session);
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),
 				eq(TimeUnit.SECONDS));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -196,7 +196,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()), any(EntryProcessor.class));
 
 		this.repository.save(session);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -205,12 +205,12 @@ class Hazelcast4IndexedSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.setLastAccessedTime(Instant.now());
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 
 		this.repository.save(session);
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),
 				eq(TimeUnit.SECONDS));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -226,7 +226,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		verify(this.sessions, times(1)).executeOnKey(eq(session.getId()), any(EntryProcessor.class));
 
 		this.repository.save(session);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -235,12 +235,12 @@ class Hazelcast4IndexedSessionRepositoryTests {
 
 		HazelcastSession session = this.repository.createSession();
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 
 		this.repository.save(session);
 		verify(this.sessions, times(1)).set(eq(session.getId()), eq(session.getDelegate()), isA(Long.class),
 				eq(TimeUnit.SECONDS));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -258,7 +258,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		verify(this.sessions, times(1)).executeOnKey(eq(sessionId), any(EntryProcessor.class));
 
 		this.repository.save(session);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -271,7 +271,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 				eq(TimeUnit.SECONDS));
 
 		this.repository.save(session);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -285,7 +285,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 				eq(TimeUnit.SECONDS));
 
 		this.repository.save(session);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -298,7 +298,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 
 		assertThat(session).isNull();
 		verify(this.sessions, times(1)).get(eq(sessionId));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -314,7 +314,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		assertThat(session).isNull();
 		verify(this.sessions, times(1)).get(eq(expired.getId()));
 		verify(this.sessions, times(1)).remove(eq(expired.getId()));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -330,7 +330,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		assertThat(session.getId()).isEqualTo(saved.getId());
 		assertThat(session.<String>getAttribute("savedName")).isEqualTo("savedValue");
 		verify(this.sessions, times(1)).get(eq(saved.getId()));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -342,7 +342,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 		this.repository.deleteById(sessionId);
 
 		verify(this.sessions, times(1)).remove(eq(sessionId));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -355,7 +355,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 				indexValue);
 
 		assertThat(sessions).isEmpty();
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -369,7 +369,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 
 		assertThat(sessions).isEmpty();
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -393,7 +393,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 
 		assertThat(sessions).hasSize(2);
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test // gh-1120
@@ -426,7 +426,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 				.forClass(Hazelcast4SessionUpdateEntryProcessor.class);
 		verify(this.sessions).executeOnKey(eq(session.getId()), captor.capture());
 		assertThat((Map<String, Object>) ReflectionTestUtils.getField(captor.getValue(), "delta")).hasSize(1);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -446,7 +446,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 				.forClass(Hazelcast4SessionUpdateEntryProcessor.class);
 		verify(this.sessions).executeOnKey(eq(session.getId()), captor.capture());
 		assertThat((Map<String, Object>) ReflectionTestUtils.getField(captor.getValue(), "delta")).hasSize(2);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 	@Test
@@ -466,7 +466,7 @@ class Hazelcast4IndexedSessionRepositoryTests {
 				.forClass(Hazelcast4SessionUpdateEntryProcessor.class);
 		verify(this.sessions).executeOnKey(eq(session.getId()), captor.capture());
 		assertThat((Map<String, Object>) ReflectionTestUtils.getField(captor.getValue(), "delta")).hasSize(3);
-		verifyZeroInteractions(this.sessions);
+		verifyNoMoreInteractions(this.sessions);
 	}
 
 }
