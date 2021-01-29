@@ -1321,6 +1321,30 @@ class SessionRepositoryFilterTests {
 		verifyNoMoreInteractions(sessionRepository);
 	}
 
+	@Test
+	void committingTwiceHasNoEffect() throws Exception {
+		MapSession session = this.sessionRepository.createSession();
+		this.sessionRepository.save(session);
+		SessionRepository<MapSession> sessionRepository = spy(this.sessionRepository);
+		setSessionCookie(session.getId());
+
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
+					throws ServletException, IOException {
+				wrappedRequest.getSession(false);
+				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
+				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
+			}
+		});
+
+		verify(sessionRepository, times(2)).findById(eq(session.getId()));
+		verify(sessionRepository).save(any());
+		verifyNoMoreInteractions(sessionRepository);
+	}
+
 	// --- order
 
 	@Test

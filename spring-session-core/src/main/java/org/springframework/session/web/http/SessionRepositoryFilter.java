@@ -203,6 +203,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean requestedSessionInvalidated;
 
+		private boolean sessionCommitted;
+
 		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
 			super(request);
 			this.response = response;
@@ -213,6 +215,9 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		 * and persist the Session.
 		 */
 		private void commitSession() {
+			if (this.sessionCommitted) {
+				return;
+			}
 			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if (wrappedSession == null) {
 				if (isInvalidateClientSession()) {
@@ -228,6 +233,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this, this.response, sessionId);
 				}
 			}
+			this.sessionCommitted = true;
 		}
 
 		@SuppressWarnings("unchecked")
