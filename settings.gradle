@@ -1,3 +1,15 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven { url 'https://repo.spring.io/plugins-release' }
+    }
+}
+
+plugins {
+    id "com.gradle.enterprise" version "3.5.1"
+    id "io.spring.ge.conventions" version "0.0.7"
+}
+
 rootProject.name = 'spring-session-build'
 
 include 'spring-session-core'
