@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,16 +54,13 @@ abstract class AbstractHazelcast4IndexedSessionRepositoryITests {
 		IMap<String, MapSession> hazelcastMap = this.hazelcastInstance
 				.getMap(Hazelcast4IndexedSessionRepository.DEFAULT_SESSION_MAP_NAME);
 
-		assertThat(hazelcastMap.size()).isEqualTo(0);
-
 		this.repository.save(sessionToSave);
 
-		assertThat(hazelcastMap.size()).isEqualTo(1);
 		assertThat(hazelcastMap.get(sessionId)).isEqualTo(sessionToSave);
 
 		this.repository.deleteById(sessionId);
 
-		assertThat(hazelcastMap.size()).isEqualTo(0);
+		assertThat(hazelcastMap.get(sessionId)).isNull();
 	}
 
 	@Test
@@ -179,6 +176,8 @@ abstract class AbstractHazelcast4IndexedSessionRepositoryITests {
 		this.repository.save(session);
 
 		assertThat(this.repository.findById(sessionId)).isNotNull();
+
+		this.repository.deleteById(sessionId);
 	}
 
 	@Test
@@ -195,6 +194,8 @@ abstract class AbstractHazelcast4IndexedSessionRepositoryITests {
 		this.repository.save(session);
 
 		assertThat(this.repository.findById(sessionId)).isNotNull();
+
+		this.repository.deleteById(sessionId);
 	}
 
 }
