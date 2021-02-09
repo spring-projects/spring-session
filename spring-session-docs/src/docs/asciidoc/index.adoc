@@ -1302,7 +1302,7 @@ WARNING: You should only match on valid domain characters, since the domain name
 Doing so prevents a malicious user from performing such attacks as https://en.wikipedia.org/wiki/HTTP_response_splitting[HTTP Response Splitting].
 
 [[custom-sessionrepository]]
-== Customing `SessionRepository`
+== Customizing `SessionRepository`
 
 Implementing a custom <<api-sessionrepository,`SessionRepository`>> API should be a fairly straightforward task.
 Coupling the custom implementation with <<api-enablespringhttpsession,`@EnableSpringHttpSession`>> support lets you reuse existing Spring Session configuration facilities and infrastructure.
