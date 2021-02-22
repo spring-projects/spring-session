@@ -1,11 +1,11 @@
-name: CI
+name: 2.4.x CI
 
 on:
   push:
     branches:
       - 2.4.x
   schedule:
-    - cron: '0 10 * * *' # Once per day at 10am UTC
+    - cron: '4 10 * * *' # Once per day at 10:04am UTC
   workflow_dispatch: # Manual trigger
 
 env:
@@ -25,6 +25,8 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: '2.4.x'
       - name: Set up JDK ${{ matrix.jdk }}
         uses: actions/setup-java@v1
         with:
@@ -47,6 +49,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: '2.4.x'
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
@@ -74,6 +78,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: '2.4.x'
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
