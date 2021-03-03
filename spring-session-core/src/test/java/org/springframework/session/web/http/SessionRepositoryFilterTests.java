@@ -1340,7 +1340,7 @@ class SessionRepositoryFilterTests {
 			}
 		});
 
-		verify(sessionRepository, times(2)).findById(eq(session.getId()));
+		verify(sessionRepository, times(1)).findById(eq(session.getId()));
 		verify(sessionRepository).save(any());
 		verifyNoMoreInteractions(sessionRepository);
 	}
