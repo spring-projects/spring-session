@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,6 +162,13 @@ class RedisSessionExpirationPolicyTests {
 		verify(this.valueOperations).append("");
 		verify(this.valueOperations).persist();
 		verify(this.hashOperations).persist();
+	}
+
+	@Test
+	void onDeleteRemoveExpirationEntry() {
+		this.policy.onDelete(this.session);
+
+		verify(this.setOperations).remove("expires:" + this.session.getId());
 	}
 
 }
