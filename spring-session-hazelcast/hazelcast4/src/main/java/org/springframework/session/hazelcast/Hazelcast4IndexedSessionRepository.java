@@ -450,6 +450,7 @@ public class Hazelcast4IndexedSessionRepository
 						.resolveIndexesFor(this);
 				String principal = (attributeValue != null) ? indexes.get(PRINCIPAL_NAME_INDEX_NAME) : null;
 				this.delegate.setAttribute(PRINCIPAL_NAME_INDEX_NAME, principal);
+				this.delta.put(PRINCIPAL_NAME_INDEX_NAME, principal);
 			}
 			flushImmediateIfNecessary();
 		}
