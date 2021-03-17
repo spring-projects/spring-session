@@ -59,6 +59,7 @@ import org.springframework.session.SessionRepository;
  * . The default is to look in a cookie named SESSION.</li>
  * <li>The session id of newly created {@link org.springframework.session.Session} is sent
  * to the client using
+ * {@link HttpSessionIdResolver#setSessionId(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, String)}
  * <li>The client is notified that the session id is no longer valid with
  * {@link HttpSessionIdResolver#expireSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}
  * </li>
