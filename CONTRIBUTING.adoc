@@ -6,7 +6,7 @@ something, or simply want to hack on the code this document should help you get 
 
 == Code of Conduct
 
-Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct]
+Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct].
 
 
 == Reporting Security Vulnerabilities
@@ -24,7 +24,6 @@ tag.
 If you are reporting a bug, please help to speed up problem diagnosis by providing as much
 information as possible. Ideally, that would include a small sample project that
 reproduces the problem.
-
 
 
 == Sign the Contributor License Agreement

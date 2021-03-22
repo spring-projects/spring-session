@@ -13,27 +13,61 @@ It also provides transparent integration with:
 
 == Modules
 
-Spring Session consists of the following modules:
+This Spring Session repository consists of the following modules:
 
 * Spring Session Core - provides core Spring Session functionalities and APIs
 * Spring Session Data Redis - provides `SessionRepository` and `ReactiveSessionRepository` implementation backed by Redis and configuration support
 * Spring Session JDBC - provides `SessionRepository` implementation backed by a relational database and configuration support
 * Spring Session Hazelcast - provides `SessionRepository` implementation backed by Hazelcast and configuration support
 
+Additional Spring Session modules can be found in the https://github.com/spring-projects/spring-session-data-mongodb[spring-session-data-mongodb] repository
+and [https://github.com/spring-projects/spring-session-data-geode]spring-session-data-geode repository.
+
+== Getting Started
+
+We recommend you visit the https://docs.spring.io/spring-session/docs/current/reference/html5/#samples[Spring Session Reference] and look through the "Samples and Guides" section to see which one best suits your needs.
+
+== Samples
+
+Spring Session samples are available in the https://github.com/spring-projects/spring-session/tree/master/spring-session-samples[spring-session-samples] directory.
+
+
+== Contributing
+
+Please see our https://github.com/spring-projects/spring-session/blob/master/CONTRIBUTING.adoc[Contributing guidelines]
+for information on how to report issues, enhancements or security vulnerabilities.
+
+== Building from Source
+
+Spring Session uses a https://gradle.org[Gradle]-based build system.
+In the instructions below, `./gradlew` is invoked from the root of the source tree and serves as
+a cross-platform, self-contained bootstrap mechanism for the build.
+
+Check out sources
+----
+git clone git@github.com:spring-projects/spring-session.git
+----
+
+Install all spring-\* jars into your local Maven cache
+----
+./gradlew install
+----
+
+Compile and test; build all jars, distribution zips, and docs
+----
+./gradlew build
+----
+
+
+== Documentation
+
+You can find the documentation, samples, and guides for using Spring Session on the https://projects.spring.io/spring-session/[Spring Session project site].
+
+For more in depth information, visit the https://docs.spring.io/spring-session/docs/current/reference/html5/[Spring Session Reference].
 
 == Code of Conduct
 
-Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct]
-
-
-== Reporting Security Vulnerabilities
-
-Please see our https://github.com/spring-projects/spring-session/security/policy[Security policy].
-
-
-== Spring Session Project Site
-
-You can find the documentation, issue management, support, samples, and guides for using Spring Session at https://projects.spring.io/spring-session/
+Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct].
 
 == License
 
