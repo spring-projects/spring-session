@@ -62,6 +62,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -425,7 +426,7 @@ class SessionRepositoryFilterTests {
 
 	@Test
 	void doFilterGetSessionNewWhenResponseCommittedThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> doFilter(new DoInFilter() {
+		assertThatIllegalStateException().isThrownBy(() -> doFilter(new DoInFilter() {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
 					throws IOException {
