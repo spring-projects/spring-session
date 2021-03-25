@@ -310,6 +310,10 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			if (!create) {
 				return null;
 			}
+			if (SessionRepositoryFilter.this.httpSessionIdResolver instanceof CookieHttpSessionIdResolver
+					&& this.response.isCommitted()) {
+				throw new IllegalArgumentException("Cannot create a session after the response has been committed");
+			}
 			if (SESSION_LOGGER.isDebugEnabled()) {
 				SESSION_LOGGER.debug(
 						"A new session was created. To help you troubleshoot where the session was created we provided a StackTrace (this is not an error). You can prevent this from appearing by disabling DEBUG logging for "

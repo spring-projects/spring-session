@@ -424,6 +424,18 @@ class SessionRepositoryFilterTests {
 	}
 
 	@Test
+	void doFilterGetSessionNewWhenResponseCommittedThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
+					throws IOException {
+				wrappedResponse.getWriter().flush();
+				wrappedRequest.getSession();
+			}
+		}));
+	}
+
+	@Test
 	void doFilterGetSessionNew() throws Exception {
 		doFilter(new DoInFilter() {
 			@Override
