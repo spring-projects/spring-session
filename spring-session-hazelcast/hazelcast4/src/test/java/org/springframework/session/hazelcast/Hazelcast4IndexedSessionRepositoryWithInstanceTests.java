@@ -58,15 +58,12 @@ public class Hazelcast4IndexedSessionRepositoryWithInstanceTests {
 
 		IMap<String, MapSession> sessionsMap = this.hzInstance.getMap(SESSION_MAP_NAME);
 
-		assertThat(sessionsMap).withFailMessage("SessionsMap is empty")
-				.size().isGreaterThan(0);
+		assertThat(sessionsMap).withFailMessage("SessionsMap is empty").size().isGreaterThan(0);
 
 		assertThat(sessionsMap).withFailMessage("SessionEntry does not contain the expected attributes")
-				.hasValueSatisfying(new Condition<>(session ->
-						session.getAttributeNames().containsAll(Arrays.asList(
-								"org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME",
-								"SPRING_SECURITY_CONTEXT"
-						)), "SessionHasExpectedAttributes"));
+				.hasValueSatisfying(new Condition<>(session -> session.getAttributeNames().containsAll(Arrays.asList(
+						"org.springframework.session.FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME",
+						"SPRING_SECURITY_CONTEXT")), "SessionHasExpectedAttributes"));
 	}
 
 }
