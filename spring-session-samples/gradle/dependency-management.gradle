@@ -1,6 +1,6 @@
 dependencyManagement {
 	imports {
-		mavenBom 'com.fasterxml.jackson:jackson-bom:2.11.3'
+		mavenBom 'com.fasterxml.jackson:jackson-bom:2.11.4'
 	}
 
 	dependencies {
@@ -17,7 +17,7 @@ dependencyManagement {
 		dependency 'org.webjars:jquery:1.12.4'
 		dependency 'org.webjars:knockout:2.3.0'
 		dependency 'org.webjars:sockjs-client:0.3.4'
-		dependency 'org.webjars:stomp-websocket:2.3.3'
+		dependency 'org.webjars:stomp-websocket:2.3.4'
 		dependency 'org.webjars:webjars-taglib:0.3'
 	}
 }
