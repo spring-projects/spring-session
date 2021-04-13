@@ -3,7 +3,7 @@ dependencyManagement {
 		mavenBom 'io.projectreactor:reactor-bom:2020.0.6'
 		mavenBom 'org.junit:junit-bom:5.7.0'
 		mavenBom 'org.springframework:spring-framework-bom:5.3.5'
-		mavenBom 'org.springframework.data:spring-data-bom:2020.0.3'
+		mavenBom 'org.springframework.data:spring-data-bom:2020.0.7'
 		mavenBom 'org.springframework.security:spring-security-bom:5.4.2'
 		mavenBom 'org.testcontainers:testcontainers-bom:1.15.1'
 	}
