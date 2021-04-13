@@ -1,6 +1,6 @@
 dependencyManagement {
 	imports {
-		mavenBom 'com.fasterxml.jackson:jackson-bom:2.12.1'
+		mavenBom 'com.fasterxml.jackson:jackson-bom:2.12.3'
 	}
 
 	dependencies {
@@ -9,7 +9,7 @@ dependencyManagement {
 		dependency 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2'
 		dependency 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
 		dependency 'org.apache.taglibs:taglibs-standard-jstlel:1.2.5'
-		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.44.0'
+		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.49.1'
 		dependency 'org.slf4j:jcl-over-slf4j:1.7.30'
 		dependency 'org.slf4j:log4j-over-slf4j:1.7.30'
 		dependency 'org.webjars:bootstrap:2.3.2'
@@ -17,7 +17,7 @@ dependencyManagement {
 		dependency 'org.webjars:jquery:1.12.4'
 		dependency 'org.webjars:knockout:2.3.0'
 		dependency 'org.webjars:sockjs-client:0.3.4'
-		dependency 'org.webjars:stomp-websocket:2.3.3'
+		dependency 'org.webjars:stomp-websocket:2.3.4'
 		dependency 'org.webjars:webjars-taglib:0.3'
 	}
 }
