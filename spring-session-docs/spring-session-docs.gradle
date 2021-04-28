@@ -48,3 +48,9 @@ asciidoctor {
 			'version-release': releaseBuild,
 			'version-snapshot': snapshotBuild
 }
+
+remotes {
+    docs {
+        host = "docs-ip.spring.io"
+    }
+}
