@@ -2,7 +2,7 @@
 
 image:https://badges.gitter.im/spring-projects/spring-session.svg[link="https://gitter.im/spring-projects/spring-session?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
 
-image:https://github.com/spring-projects/spring-session/workflows/CI/badge.svg?branch=master["Build Status", link="https://github.com/spring-projects/spring-session/actions?query=workflow%3ACI"]
+image:https://github.com/spring-projects/spring-session/workflows/CI/badge.svg?branch=main["Build Status", link="https://github.com/spring-projects/spring-session/actions?query=workflow%3ACI"]
 
 Spring Session provides an API and implementations for managing a user's session information, while also making it trivial to support clustered sessions without being tied to an application container specific solution.
 It also provides transparent integration with:
@@ -29,12 +29,12 @@ We recommend you visit the https://docs.spring.io/spring-session/docs/current/re
 
 == Samples
 
-Spring Session samples are available in the https://github.com/spring-projects/spring-session/tree/master/spring-session-samples[spring-session-samples] directory.
+Spring Session samples are available in the https://github.com/spring-projects/spring-session/tree/main/spring-session-samples[spring-session-samples] directory.
 
 
 == Contributing
 
-Please see our https://github.com/spring-projects/spring-session/blob/master/CONTRIBUTING.adoc[Contributing guidelines]
+Please see our https://github.com/spring-projects/spring-session/blob/main/CONTRIBUTING.adoc[Contributing guidelines]
 for information on how to report issues, enhancements or security vulnerabilities.
 
 == Building from Source
@@ -67,7 +67,7 @@ For more in depth information, visit the https://docs.spring.io/spring-session/d
 
 == Code of Conduct
 
-Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct].
+Please see our https://github.com/spring-projects/.github/blob/main/CODE_OF_CONDUCT.md[code of conduct].
 
 == License
 

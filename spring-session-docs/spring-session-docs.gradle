@@ -41,7 +41,7 @@ asciidoctor {
 }
 
 asciidoctorj {
-	def ghTag = snapshotBuild ? 'master' : project.version
+	def ghTag = snapshotBuild ? 'main' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
 
 	attributes 'docs-itest-dir': "$rootProject.projectDir.path/spring-session-docs/src/integration-test/java/",

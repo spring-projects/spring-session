@@ -6,7 +6,7 @@ something, or simply want to hack on the code this document should help you get 
 
 == Code of Conduct
 
-Please see our https://github.com/spring-projects/.github/blob/master/CODE_OF_CONDUCT.md[code of conduct].
+Please see our https://github.com/spring-projects/.github/blob/main/CODE_OF_CONDUCT.md[code of conduct].
 
 
 == Reporting Security Vulnerabilities
