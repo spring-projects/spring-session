@@ -113,7 +113,7 @@ try {
 					try {
 						withCredentials([file(credentialsId: 'docs.spring.io-jenkins_private_ssh_key', variable: 'DEPLOY_SSH_KEY')]) {
 							withEnv(["JAVA_HOME=${tool 'jdk8'}"]) {
-								sh './gradlew deployDocs --no-daemon --stacktrace -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME'
+								sh './gradlew deployDocs --no-daemon --stacktrace -PdeployDocsSshKeyPath=$DEPLOY_SSH_KEY -PdeployDocsSshUsername=$SPRING_DOCS_USERNAME -PdeployDocsHost=docs-ip.spring.io'
 							}
 						}
 					}
