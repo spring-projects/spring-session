@@ -104,7 +104,7 @@ final class DatabaseContainers {
 	private static class MariaDb10Container extends MariaDBContainer<MariaDb10Container> {
 
 		MariaDb10Container() {
-			super("mariadb:10.4.8");
+			super("mariadb:10.4.18");
 		}
 
 		@Override
