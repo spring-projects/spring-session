@@ -185,7 +185,8 @@ public class JdbcIndexedSessionRepository
 	// @formatter:off
 	private static final String DELETE_SESSION_QUERY = ""
 			+ "DELETE FROM %TABLE_NAME% "
-			+ "WHERE SESSION_ID = ?";
+			+ "WHERE SESSION_ID = ? "
+			+ "AND MAX_INACTIVE_INTERVAL >= 0";
 	// @formatter:on
 
 	// @formatter:off
@@ -701,6 +702,9 @@ public class JdbcIndexedSessionRepository
 		}
 
 		Instant getExpiryTime() {
+			if (getMaxInactiveInterval().isNegative()) {
+				return Instant.ofEpochMilli(Long.MAX_VALUE);
+			}
 			return getLastAccessedTime().plus(getMaxInactiveInterval());
 		}
 

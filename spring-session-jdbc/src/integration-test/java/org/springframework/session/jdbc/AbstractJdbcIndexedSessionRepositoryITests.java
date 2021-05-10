@@ -587,6 +587,18 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 	}
 
 	@Test
+	void cleanupExpiredSessionsWhenMaxInactiveIntervalNegativeThenSessionNotDeleted() {
+		JdbcSession session = this.repository.createSession();
+		session.setMaxInactiveInterval(Duration.ofSeconds(-1));
+		session.setLastAccessedTime(Instant.now().minusSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
+
+		this.repository.save(session);
+		this.repository.cleanUpExpiredSessions();
+
+		assertThat(this.repository.findById(session.getId())).isNotNull();
+	}
+
+	@Test
 	void changeSessionIdWhenOnlyChangeId() {
 		String attrName = "changeSessionId";
 		String attrValue = "changeSessionId-value";
