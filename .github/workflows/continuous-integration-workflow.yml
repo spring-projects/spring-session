@@ -29,13 +29,16 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.jdk }}
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
       - name: Build with Gradle
-
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
@@ -51,6 +54,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '8'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Deploy artifacts
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -78,6 +85,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '8'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
       - name: Deploy Docs
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
