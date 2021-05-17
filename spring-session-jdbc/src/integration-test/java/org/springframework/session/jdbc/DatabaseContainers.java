@@ -42,11 +42,11 @@ final class DatabaseContainers {
 	}
 
 	static MariaDBContainer<?> mariaDb() {
-		return new MariaDBContainer<>("mariadb:10.5.7");
+		return new MariaDBContainer<>("mariadb:10.6.0");
 	}
 
 	static MySQLContainer<?> mySql() {
-		return new MySQLContainer<>("mysql:8.0.22");
+		return new MySQLContainer<>("mysql:8.0.25");
 	}
 
 	static OracleContainer oracle() {
@@ -68,7 +68,7 @@ final class DatabaseContainers {
 	}
 
 	static PostgreSQLContainer<?> postgreSql() {
-		return new PostgreSQLContainer<>("postgres:13.0");
+		return new PostgreSQLContainer<>("postgres:13.3");
 	}
 
 	static MSSQLServerContainer<?> sqlServer() {
