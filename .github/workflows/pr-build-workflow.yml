@@ -1,6 +1,9 @@
-name: PR Build
+name: 2.5.x PR Build
 
-on: pull_request
+on:
+  pull_request:
+    branches:
+      - 2.5.x
 
 jobs:
   build:
