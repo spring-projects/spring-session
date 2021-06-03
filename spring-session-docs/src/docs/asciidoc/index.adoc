@@ -5,6 +5,14 @@ Rob Winch; Vedran Pavić; Jay Bryant; Eleftheria Stein-Kousathana
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
 :toc: left
 
+ifdef::backend-html5[]
+NOTE: This documentation is also available as https://docs.spring.io/spring-session/docs/{spring-session-version}/reference/pdf/spring-session-reference.pdf[PDF].
+endif::[]
+
+ifdef::backend-pdf[]
+NOTE: This documentation is also available as https://docs.spring.io/spring-session/docs/{spring-session-version}/reference/html5/index.html[HTML].
+endif::[]
+
 [[abstract]]
 Spring Session provides an API and implementations for managing a user's session information.
 
