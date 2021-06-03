@@ -93,6 +93,8 @@ class SpringHttpSessionConfigurationTests {
 		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookiePath")).isEqualTo("test-path");
 		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookieMaxAge")).isEqualTo(600);
 		assertThat(ReflectionTestUtils.getField(cookieSerializer, "domainName")).isEqualTo("test-domain");
+		assertThat(ReflectionTestUtils.getField(cookieSerializer, "useHttpOnlyCookie")).isEqualTo(true);
+		assertThat(ReflectionTestUtils.getField(cookieSerializer, "useSecureCookie")).isEqualTo(true);
 	}
 
 	@Test
@@ -143,6 +145,8 @@ class SpringHttpSessionConfigurationTests {
 			servletContext.getSessionCookieConfig().setDomain("test-domain");
 			servletContext.getSessionCookieConfig().setPath("test-path");
 			servletContext.getSessionCookieConfig().setMaxAge(600);
+			servletContext.getSessionCookieConfig().setHttpOnly(true);
+			servletContext.getSessionCookieConfig().setSecure(true);
 			return servletContext;
 		}
 
