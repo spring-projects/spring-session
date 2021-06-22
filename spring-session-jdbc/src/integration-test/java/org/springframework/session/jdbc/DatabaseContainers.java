@@ -118,7 +118,7 @@ final class DatabaseContainers {
 	private static class MySql5Container extends MySQLContainer<MySql5Container> {
 
 		MySql5Container() {
-			super("mysql:5.7.27");
+			super("mysql:5.7.34");
 		}
 
 		@Override
@@ -137,7 +137,7 @@ final class DatabaseContainers {
 	private static class MySql8Container extends MySQLContainer<MySql8Container> {
 
 		MySql8Container() {
-			super("mysql:8.0.17");
+			super("mysql:8.0.25");
 		}
 
 		@Override
@@ -174,7 +174,7 @@ final class DatabaseContainers {
 	private static class PostgreSql9Container extends PostgreSQLContainer<PostgreSql9Container> {
 
 		PostgreSql9Container() {
-			super("postgres:9.6.15");
+			super("postgres:9.6.22");
 		}
 
 	}
