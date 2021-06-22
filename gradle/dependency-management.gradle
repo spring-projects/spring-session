@@ -28,9 +28,9 @@ dependencyManagement {
 		dependency 'mysql:mysql-connector-java:8.0.25'
 		dependency 'org.apache.derby:derby:10.14.2.0'
 		dependency 'org.assertj:assertj-core:3.19.0'
-		dependency 'org.hsqldb:hsqldb:2.5.1'
+		dependency 'org.hsqldb:hsqldb:2.5.2'
 		dependency 'org.mariadb.jdbc:mariadb-java-client:2.7.3'
 		dependency 'org.mockito:mockito-core:3.10.0'
-		dependency 'org.postgresql:postgresql:42.2.20'
+		dependency 'org.postgresql:postgresql:42.2.22'
 	}
 }

@@ -42,7 +42,7 @@ final class DatabaseContainers {
 	}
 
 	static MariaDBContainer<?> mariaDb() {
-		return new MariaDBContainer<>("mariadb:10.6.0");
+		return new MariaDBContainer<>("mariadb:10.6.2");
 	}
 
 	static MySQLContainer<?> mySql() {
