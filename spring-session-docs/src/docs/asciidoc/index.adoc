@@ -26,28 +26,10 @@ It also provides transparent integration with:
 * <<websocket,WebSocket>>: Provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
 * <<websession,WebSession>>: Allows replacing the Spring WebFlux's `WebSession` in an application container-neutral way.
 
-== What's New in 2.0
+== What's New
 
-The following list highlights what is new in Spring Session 2.0:
-
-* Upgraded to Java 8 and Spring Framework 5 as baseline
-* https://github.com/spring-projects/spring-session/issues/683[Added support for managing Spring WebFlux's `WebSession`] with https://github.com/spring-projects/spring-session/issues/816[Redis `ReactiveSessionRepository`]
-* https://github.com/spring-projects/spring-session/issues/768[Extracted `SessionRepository` implementations to separate modules]
-* Improved https://github.com/spring-projects/spring-session/issues/682[`Session`] and https://github.com/spring-projects/spring-session/issues/809[`SessionRepository`] APIs
-* Improved and harmonized configuration support for all supported session stores
-* https://github.com/spring-projects/spring-session/pull/713[Added support for configuring default `CookieSerializer` using `SessionCookieConfig`]
-* Lots of performance improvements and bug fixes
-
-You can find a complete list of what is new by referring to the changelogs of
-
-* https://github.com/spring-projects/spring-session/milestone/17?closed=1[2.0.0.M1]
-* https://github.com/spring-projects/spring-session/milestone/22?closed=1[2.0.0.M2]
-* https://github.com/spring-projects/spring-session/milestone/23?closed=1[2.0.0.M3]
-* https://github.com/spring-projects/spring-session/milestone/24?closed=1[2.0.0.M4]
-* https://github.com/spring-projects/spring-session/milestone/25?closed=1[2.0.0.M5]
-* https://github.com/spring-projects/spring-session/milestone/26?closed=1[2.0.0.RC1]
-* https://github.com/spring-projects/spring-session/milestone/27?closed=1[2.0.0.RC2]
-* https://github.com/spring-projects/spring-session/milestone/30?closed=1[2.0.0.RELEASE]
+Check also the Spring Session BOM https://github.com/spring-projects/spring-session-bom/wiki#release-notes[release notes]
+for a list of new and noteworthy features, as well as upgrade instructions for each release.
 
 [[samples]]
 == Samples and Guides (Start Here)
