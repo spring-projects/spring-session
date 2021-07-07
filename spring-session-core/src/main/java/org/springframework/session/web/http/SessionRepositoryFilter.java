@@ -142,7 +142,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			filterChain.doFilter(wrappedRequest, wrappedResponse);
 		}
 		finally {
-			wrappedRequest.commitSession();
+			wrappedRequest.commitSession(true);
 		}
 	}
 
@@ -177,7 +177,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		@Override
 		protected void onResponseCommitted() {
-			this.request.commitSession();
+			this.request.commitSession(true);
 		}
 
 	}
@@ -204,6 +204,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean requestedSessionInvalidated;
 
+		private boolean sessionCommitted;
+
 		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
 			super(request);
 			this.response = response;
@@ -212,8 +214,13 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		/**
 		 * Uses the {@link HttpSessionIdResolver} to write the session id to the response
 		 * and persist the Session.
+		 * @param clearCache clear the cache in case used when committing before the end
+		 * of the request processing
 		 */
-		private void commitSession() {
+		private void commitSession(boolean clearCache) {
+			if (this.sessionCommitted) {
+				return;
+			}
 			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if (wrappedSession == null) {
 				if (isInvalidateClientSession()) {
@@ -222,13 +229,16 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 			else {
 				S session = wrappedSession.getSession();
-				clearRequestedSessionCache();
+				if (clearCache) {
+					clearRequestedSessionCache();
+				}
 				SessionRepositoryFilter.this.sessionRepository.save(session);
 				String sessionId = session.getId();
 				if (!isRequestedSessionIdValid() || !sessionId.equals(getRequestedSessionId())) {
 					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this, this.response, sessionId);
 				}
 			}
+			this.sessionCommitted = true;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -414,7 +424,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 			@Override
 			public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-				SessionRepositoryRequestWrapper.this.commitSession();
+				SessionRepositoryRequestWrapper.this.commitSession(false);
 				this.delegate.include(request, response);
 			}
 
