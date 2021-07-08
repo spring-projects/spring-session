@@ -1,0 +1,26 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+description = "Spring Session Apache Ignite implementation"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(':spring-session-core')
+    compile "org.apache.ignite:ignite-core"
+    compile "org.apache.ignite:ignite-indexing"
+    compile "javax.annotation:javax.annotation-api"
+    compile "org.springframework:spring-context"
+    compile "com.h2database:h2:1.4.197"
+
+    testCompile "javax.servlet:javax.servlet-api"
+    testCompile "org.springframework:spring-web"
+    testCompile "org.springframework.security:spring-security-core"
+    testCompile "org.junit.jupiter:junit-jupiter-api"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine"
+
+    integrationTestCompile "org.apache.ignite:ignite-core"
+    integrationTestCompile "org.apache.ignite:ignite-indexing"
+    integrationTestCompile "org.testcontainers:testcontainers"
+}
