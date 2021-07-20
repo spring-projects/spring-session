@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -267,7 +267,7 @@ class DefaultCookieSerializerTests {
 	void writeCookieCookiePathDefaultContextPathUsed() {
 		this.request.setContextPath("/context");
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
-		assertThat(getCookie().getPath()).isEqualTo("/context/");
+		assertThat(getCookie().getPath()).isEqualTo("/context");
 	}
 
 	@Test
@@ -275,7 +275,7 @@ class DefaultCookieSerializerTests {
 		this.request.setContextPath("/context");
 		this.serializer.setCookiePath(null);
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
-		assertThat(getCookie().getPath()).isEqualTo("/context/");
+		assertThat(getCookie().getPath()).isEqualTo("/context");
 	}
 
 	@Test
