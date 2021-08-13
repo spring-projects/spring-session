@@ -1,0 +1,17 @@
+<configuration>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%8.-8thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+<!--	<logger name="org.springframework.web" level="TRACE" />-->
+<!--	<logger name="org.springframework.web.reactive" level="TRACE" />-->
+<!--	<logger name="org.springframework.security" level="TRACE" />-->
+<!--	<logger name="org.springframework.session" level="TRACE" />-->
+<!--	<logger name="org.springframework.data.mongodb" level="TRACE" />-->
+
+	<root level="WARN">
+		<appender-ref ref="STDOUT" />
+	</root>
+</configuration>
