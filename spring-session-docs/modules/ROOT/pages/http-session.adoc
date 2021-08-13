@@ -41,6 +41,68 @@ You can read the basic steps for integration in the next few sections, but we en
 
 include::guides/xml-redis.adoc[tags=config,leveloffset=+2]
 
+[[httpsession-mongo]]
+=== HttpSession with Mongo
+
+Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+
+This section describes how to use Mongo to back `HttpSession` using Java based configuration.
+
+NOTE: The <<samples, HttpSession Mongo Sample>> provides a working sample on how to integrate Spring Session and `HttpSession` using Java configuration.
+You can read the basic steps for integration below, but you are encouraged to follow along with the detailed HttpSession Guide when integrating with your own application.
+
+include::guides/boot-mongo.adoc[tags=config,leveloffset=+3]
+
+==== Session serialization mechanisms
+
+To be able to persist session objects in MongoDB we need to provide the serialization/deserialization mechanism.
+
+By default, Spring Session MongoDB will use `JdkMongoSessionConverter`.
+
+However, you may switch to `JacksonMongoSessionConverter` by merely adding the following code to your Boot app:
+
+[source,java]
+----
+@Bean
+JacksonMongoSessionConverter mongoSessionConverter() {
+    return new JacksonMongoSessionConverter();
+}
+----
+
+===== JacksonMongoSessionConverter
+
+This mechanism uses Jackson to serialize session objects to/from JSON.
+
+By creating the following bean:
+
+[source,java]
+----
+@Bean
+JacksonMongoSessionConverter mongoSessionConverter() {
+    return new JacksonMongoSessionConverter();
+}
+----
+
+...you are able to switch from the default (JDK-based serialization) to using Jackson.
+
+IMPORTANT: If you are integrating with Spring Security (by storing your sessions in MongoDB), this configuration will
+register the proper whitelisted components so Spring Security works properly.
+
+If you would like to provide custom Jackson modules you can do it by explicitly registering modules as shown below:
+
+[source,java,indent=0]
+----
+include::{code-dir}/src/test/java/org/springframework/session/data/mongo/integration/MongoRepositoryJacksonITest.java[tag=sample]
+----
+
+===== JdkMongoSessionConverter
+
+`JdkMongoSessionConverter` uses standard Java serialization to persist session attributes map to MongoDB in a binary form.
+However, standard session elements like id, access time, etc are still written as a plain Mongo objects and can be read and queried without additional effort.
+`JdkMongoSessionConverter` is used if no explicit `AbstractMongoSessionConverter` Bean has been defined.
+
+There is also a constructor taking `Serializer` and `Deserializer` objects, allowing you to pass custom implementations, which is especially important when you want to use non-default classloader.
+
 [[httpsession-jdbc]]
 == `HttpSession` with JDBC
 

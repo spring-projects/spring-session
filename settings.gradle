@@ -13,6 +13,7 @@ plugins {
 rootProject.name = 'spring-session-build'
 
 include 'spring-session-core'
+include 'spring-session-data-mongodb'
 include 'spring-session-data-redis'
 include 'spring-session-docs'
 include 'spring-session-hazelcast'
