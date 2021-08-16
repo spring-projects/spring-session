@@ -1,0 +1,11 @@
+name: session
+title: Spring Session
+version: 2.6
+start_page: ROOT:index.adoc
+asciidoc:
+  attributes:
+    page-pagination: true
+    idprefix: ''
+    idseparator: '-'
+nav:
+  - modules/ROOT/nav.adoc

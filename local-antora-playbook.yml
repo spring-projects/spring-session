@@ -1,0 +1,12 @@
+site:
+  title: Spring Session
+  start_page: session::index.adoc
+content:
+  sources:
+    - url: ./
+      branches: HEAD
+      start_path: spring-session-docs
+ui:
+  bundle:
+    url: ../../rwinch/antora-ui-spring/build/ui-bundle.zip
+    snapshot: true
