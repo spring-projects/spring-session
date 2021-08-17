@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 class ClientServerHazelcast4IndexedSessionRepositoryITests extends AbstractHazelcast4IndexedSessionRepositoryITests {
 
-	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:4.2").withExposedPorts(5701)
-			.withCopyFileToContainer(MountableFile.forClasspathResource("/hazelcast-server.xml"),
+	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:4.2.2")
+			.withExposedPorts(5701).withCopyFileToContainer(MountableFile.forClasspathResource("/hazelcast-server.xml"),
 					"/opt/hazelcast/hazelcast.xml");
 
 	@BeforeAll
