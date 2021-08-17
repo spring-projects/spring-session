@@ -4,7 +4,7 @@ dependencyManagement {
 	}
 
 	dependencies {
-		dependency 'ch.qos.logback:logback-classic:1.2.3'
+		dependency 'ch.qos.logback:logback-classic:1.2.5'
 		dependency 'com.maxmind.geoip2:geoip2:2.15.0'
 		dependency 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2'
 		dependency 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
