@@ -7,5 +7,22 @@ asciidoc:
     page-pagination: true
     idprefix: ''
     idseparator: '-'
+    download-url: "https://github.com/spring-projects/spring-session/archive/main.zip"
+    gh-samples-url: "https://github.com/spring-projects/spring-session/tree/main/spring-session-samples/"
+    samples-dir: "example$spring-session-samples/"
+    session-jdbc-main-resources-dir: "example$session-jdbc-main-resources-dir/"
+    docs-test-dir: "example$java/"
+    websocketdoc-test-dir: 'example$java/docs/websocket/'
+    docs-test-resources-dir: "example$resources/"
+    indexdoc-tests: "example$java/docs/IndexDocTests.java"
+    lettuce-version: 6.1.2.RELEASE
+    hazelcast-version: 3.12.12
+    spring-boot-version: 2.4.5
+    spring-data-redis-version: 2.5.1
+    spring-framework-version: 5.3.7
+    spring-security-version: 5.5.0
+    spring-session-version: 2.6.0-SNAPSHOT
+
+
 nav:
   - modules/ROOT/nav.adoc

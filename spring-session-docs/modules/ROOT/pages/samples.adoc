@@ -1,0 +1,100 @@
+[[samples]]
+= Samples and Guides (Start Here)
+
+To get started with Spring Session, the best place to start is our Sample Applications.
+
+.Sample Applications that use Spring Boot
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}spring-session-sample-boot-redis[HttpSession with Redis]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
+| link:guides/boot-redis.html[HttpSession with Redis Guide]
+
+| {gh-samples-url}spring-session-sample-boot-jdbc[HttpSession with JDBC]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
+| link:guides/boot-jdbc.html[HttpSession with JDBC Guide]
+
+| {gh-samples-url}spring-session-sample-boot-hazelcast[HttpSession with Hazelcast]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
+|
+
+| {gh-samples-url}spring-session-sample-boot-findbyusername[Find by Username]
+| Demonstrates how to use Spring Session to find sessions by username.
+| link:guides/boot-findbyusername.html[Find by Username Guide]
+
+| {gh-samples-url}spring-session-sample-boot-websocket[WebSockets]
+| Demonstrates how to use Spring Session with WebSockets.
+| link:guides/boot-websocket.html[WebSockets Guide]
+
+| {gh-samples-url}spring-session-sample-boot-webflux[WebFlux]
+| Demonstrates how to use Spring Session to replace the Spring WebFlux's `WebSession` with Redis.
+|
+
+| {gh-samples-url}spring-session-sample-boot-webflux-custom-cookie[WebFlux with Custom Cookie]
+| Demonstrates how to use Spring Session to customize the Session cookie in a WebFlux based application.
+| link:guides/boot-webflux-custom-cookie.html[WebFlux with Custom Cookie Guide]
+
+| {gh-samples-url}spring-session-sample-boot-redis-json[HttpSession with Redis JSON serialization]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.
+|
+
+| {gh-samples-url}spring-session-sample-boot-redis-simple[HttpSession with simple Redis `SessionRepository`]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using `RedisSessionRepository`.
+|
+
+|===
+
+.Sample Applications that use Spring Java-based configuration
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}spring-session-sample-javaconfig-redis[HttpSession with Redis]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis.
+| link:guides/java-redis.html[HttpSession with Redis Guide]
+
+| {gh-samples-url}spring-session-sample-javaconfig-jdbc[HttpSession with JDBC]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
+| link:guides/java-jdbc.html[HttpSession with JDBC Guide]
+
+| {gh-samples-url}spring-session-sample-javaconfig-hazelcast[HttpSession with Hazelcast]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
+| link:guides/java-hazelcast.html[HttpSession with Hazelcast Guide]
+
+| {gh-samples-url}spring-session-sample-javaconfig-custom-cookie[Custom Cookie]
+| Demonstrates how to use Spring Session and customize the cookie.
+| link:guides/java-custom-cookie.html[Custom Cookie Guide]
+
+| {gh-samples-url}spring-session-sample-javaconfig-security[Spring Security]
+| Demonstrates how to use Spring Session with an existing Spring Security application.
+| link:guides/java-security.html[Spring Security Guide]
+
+| {gh-samples-url}spring-session-sample-javaconfig-rest[REST]
+| Demonstrates how to use Spring Session in a REST application to support authenticating with a header.
+| link:guides/java-rest.html[REST Guide]
+
+|===
+
+.Sample Applications that use Spring XML-based configuration
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}spring-session-sample-xml-redis[HttpSession with Redis]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a Redis store.
+| link:guides/xml-redis.html[HttpSession with Redis Guide]
+
+| {gh-samples-url}spring-session-sample-xml-jdbc[HttpSession with JDBC]
+| Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
+| link:guides/xml-jdbc.html[HttpSession with JDBC Guide]
+
+|===
+
+.Miscellaneous sample Applications
+|===
+| Source | Description | Guide
+
+| {gh-samples-url}spring-session-sample-misc-hazelcast[Hazelcast]
+| Demonstrates how to use Spring Session with Hazelcast in a Java EE application.
+|
+
+|===

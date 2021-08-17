@@ -1,0 +1,194 @@
+[[httpsession]]
+= `HttpSession` Integration
+
+Spring Session provides transparent integration with `HttpSession`.
+This means that developers can switch the `HttpSession` implementation out with an implementation that is backed by Spring Session.
+
+[[httpsession-why]]
+== Why Spring Session and `HttpSession`?
+
+We have already mentioned that Spring Session provides transparent integration with `HttpSession`, but what benefits do we get out of this?
+
+* *Clustered Sessions*: Spring Session makes it trivial to support <<httpsession-redis,clustered sessions>> without being tied to an application container specific solution.
+* *RESTful APIs*: Spring Session lets providing session IDs in headers work with <<httpsession-rest,RESTful APIs>>
+
+[[httpsession-redis]]
+== `HttpSession` with Redis
+
+Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+You can choose from enabling this by using either:
+
+* <<httpsession-redis-jc,Java-based Configuration>>
+* <<httpsession-redis-xml,XML-based Configuration>>
+
+[[httpsession-redis-jc]]
+=== Redis Java-based Configuration
+
+This section describes how to use Redis to back `HttpSession` by using Java based configuration.
+
+NOTE: The <<samples, HttpSession Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
+You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession Guide when integrating with your own application.
+
+include::guides/java-redis.adoc[tags=config,leveloffset=+2]
+
+[[httpsession-redis-xml]]
+=== Redis XML-based Configuration
+
+This section describes how to use Redis to back `HttpSession` by using XML based configuration.
+
+NOTE: The <<samples, HttpSession XML Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` using XML configuration.
+You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession XML Guide when integrating with your own application.
+
+include::guides/xml-redis.adoc[tags=config,leveloffset=+2]
+
+[[httpsession-jdbc]]
+== `HttpSession` with JDBC
+
+You can use Spring Session with `HttpSession` by adding a servlet filter before anything that uses the `HttpSession`.
+You can choose to do in any of the following ways:
+
+* <<httpsession-jdbc-jc,Java-based Configuration>>
+* <<httpsession-jdbc-xml,XML-based Configuration>>
+* <<httpsession-jdbc-boot,Spring Boot-based Configuration>>
+
+[[httpsession-jdbc-jc]]
+=== JDBC Java-based Configuration
+
+This section describes how to use a relational database to back `HttpSession` when you use Java-based configuration.
+
+NOTE: The <<samples, HttpSession JDBC Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
+You can read the basic steps for integration in the next few sections, but we encouraged you to follow along with the detailed HttpSession JDBC Guide when integrating with your own application.
+
+include::guides/java-jdbc.adoc[tags=config,leveloffset=+2]
+
+[[httpsession-jdbc-xml]]
+=== JDBC XML-based Configuration
+
+This section describes how to use a relational database to back `HttpSession` when you use XML based configuration.
+
+NOTE: The <<samples, HttpSession JDBC XML Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using XML configuration.
+You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession JDBC XML Guide when integrating with your own application.
+
+include::guides/xml-jdbc.adoc[tags=config,leveloffset=+2]
+
+[[httpsession-jdbc-boot]]
+=== JDBC Spring Boot-based Configuration
+
+This section describes how to use a relational database to back `HttpSession` when you use Spring Boot.
+
+NOTE: The <<samples, HttpSession JDBC Spring Boot Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Spring Boot.
+You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession JDBC Spring Boot Guide when integrating with your own application.
+
+include::guides/boot-jdbc.adoc[tags=config,leveloffset=+2]
+
+[[httpsession-hazelcast]]
+== HttpSession with Hazelcast
+
+Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
+
+This section describes how to use Hazelcast to back `HttpSession` by using Java-based configuration.
+
+NOTE: The <<samples, Hazelcast Spring Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
+You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed Hazelcast Spring Guide when integrating with your own application.
+
+include::guides/java-hazelcast.adoc[tags=config,leveloffset=+1]
+
+[[httpsession-how]]
+== How `HttpSession` Integration Works
+
+Fortunately, both `HttpSession` and `HttpServletRequest` (the API for obtaining an `HttpSession`) are both interfaces.
+This means that we can provide our own implementations for each of these APIs.
+
+NOTE: This section describes how Spring Session provides transparent integration with `HttpSession`. We offer this content so that you can understand what is happening under the covers. This functionality is already integrated and you do NOT need to implement this logic yourself.
+
+First, we create a custom `HttpServletRequest` that returns a custom implementation of `HttpSession`.
+It looks something like the following:
+
+====
+[source, java]
+----
+public class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
+
+	public SessionRepositoryRequestWrapper(HttpServletRequest original) {
+		super(original);
+	}
+
+	public HttpSession getSession() {
+		return getSession(true);
+	}
+
+	public HttpSession getSession(boolean createNew) {
+		// create an HttpSession implementation from Spring Session
+	}
+
+	// ... other methods delegate to the original HttpServletRequest ...
+}
+----
+====
+
+Any method that returns an `HttpSession` is overridden.
+All other methods are implemented by `HttpServletRequestWrapper` and delegate to the original `HttpServletRequest` implementation.
+
+We replace the `HttpServletRequest` implementation by using a servlet `Filter` called `SessionRepositoryFilter`.
+The following pseudocode shows how it works:
+
+====
+[source, java]
+----
+public class SessionRepositoryFilter implements Filter {
+
+	public doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
+		HttpServletRequest httpRequest = (HttpServletRequest) request;
+		SessionRepositoryRequestWrapper customRequest =
+			new SessionRepositoryRequestWrapper(httpRequest);
+
+		chain.doFilter(customRequest, response, chain);
+	}
+
+	// ...
+}
+----
+====
+
+By passing a custom `HttpServletRequest` implementation into the `FilterChain`, we ensure that anything invoked after our `Filter` uses the custom `HttpSession` implementation.
+This highlights why it is important that Spring Session's `SessionRepositoryFilter` be placed before anything that interacts with the `HttpSession`.
+
+[[httpsession-rest]]
+== `HttpSession` and RESTful APIs
+
+Spring Session can work with RESTful APIs by letting the session be provided in a header.
+
+NOTE: The <<samples, REST Sample>> provides a working sample of how to use Spring Session in a REST application to support authenticating with a header.
+You can follow the basic steps for integration described in the next few sections, but we encourage you to follow along with the detailed REST Guide when integrating with your own application.
+
+include::guides/java-rest.adoc[tags=config,leveloffset=+1]
+
+[[httpsession-httpsessionlistener]]
+== Using `HttpSessionListener`
+
+Spring Session supports `HttpSessionListener` by translating `SessionDestroyedEvent` and `SessionCreatedEvent` into `HttpSessionEvent` by declaring `SessionEventHttpSessionListenerAdapter`.
+To use this support, you need to:
+
+* Ensure your `SessionRepository` implementation supports and is configured to fire `SessionDestroyedEvent` and `SessionCreatedEvent`.
+* Configure `SessionEventHttpSessionListenerAdapter` as a Spring bean.
+* Inject every `HttpSessionListener` into the `SessionEventHttpSessionListenerAdapter`
+
+If you use the configuration support documented in <<httpsession-redis,`HttpSession` with Redis>>, all you need to do is register every `HttpSessionListener` as a bean.
+For example, assume you want to support Spring Security's concurrency control and need to use `HttpSessionEventPublisher`. In that case, you can add `HttpSessionEventPublisher` as a bean.
+In Java configuration, this might look like the following:
+
+====
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/http/RedisHttpSessionConfig.java[tags=config]
+----
+====
+
+In XML configuration, this might look like the following:
+
+====
+[source,xml,indent=0]
+----
+include::{docs-test-resources-dir}docs/http/HttpSessionListenerXmlTests-context.xml[tags=config]
+----
+====

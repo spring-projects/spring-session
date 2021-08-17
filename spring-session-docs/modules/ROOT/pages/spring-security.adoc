@@ -1,0 +1,77 @@
+[[spring-security]]
+= Spring Security Integration
+
+Spring Session provides integration with Spring Security.
+
+[[spring-security-rememberme]]
+== Spring Security Remember-me Support
+
+Spring Session provides integration with https://docs.spring.io/spring-security/site/docs/{spring-security-version}/reference/htmlsingle/#remember-me[Spring Security's Remember-me Authentication].
+The support:
+
+* Changes the session expiration length
+* Ensures that the session cookie expires at `Integer.MAX_VALUE`.
+The cookie expiration is set to the largest possible value, because the cookie is set only when the session is created.
+If it were set to the same value as the session expiration, the session would get renewed when the user used it but the cookie expiration would not be updated (causing the expiration to be fixed).
+
+To configure Spring Session with Spring Security in Java Configuration, you can use the following listing as a guide:
+
+====
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/security/RememberMeSecurityConfiguration.java[tags=http-rememberme]
+	}
+
+include::{docs-test-dir}docs/security/RememberMeSecurityConfiguration.java[tags=rememberme-bean]
+----
+====
+
+An XML-based configuration would look something like the following:
+
+====
+[source,xml,indent=0]
+----
+include::{docs-test-resources-dir}docs/security/RememberMeSecurityConfigurationXmlTests-context.xml[tags=config]
+----
+====
+
+[[spring-security-concurrent-sessions]]
+== Spring Security Concurrent Session Control
+
+
+Spring Session provides integration with Spring Security to support its concurrent session control.
+This allows limiting the number of active sessions that a single user can have concurrently, but, unlike the default
+Spring Security support, this also works in a clustered environment. This is done by providing a custom
+implementation of Spring Security's `SessionRegistry` interface.
+
+When using Spring Security's Java config DSL, you can configure the custom `SessionRegistry` through the
+`SessionManagementConfigurer`, as the following listing shows:
+
+====
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/security/SecurityConfiguration.java[tags=class]
+----
+====
+
+This assumes that you have also configured Spring Session to provide a `FindByIndexNameSessionRepository` that
+returns `Session` instances.
+
+When using XML configuration, it would look something like the following listing:
+
+====
+[source,xml,indent=0]
+----
+include::{docs-test-resources-dir}docs/security/security-config.xml[tags=config]
+----
+====
+
+This assumes that your Spring Session `SessionRegistry` bean is called `sessionRegistry`, which is the name used by all
+`SpringHttpSessionConfiguration` subclasses.
+
+[[spring-security-concurrent-sessions-limitations]]
+== Limitations
+
+Spring Session's implementation of Spring Security's `SessionRegistry` interface does not support the `getAllPrincipals`
+method, as this information cannot be retrieved by using Spring Session. This method is never called by Spring Security,
+so this affects only applications that access the `SessionRegistry` themselves.

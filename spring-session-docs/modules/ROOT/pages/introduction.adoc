@@ -1,0 +1,9 @@
+[[introduction]]
+= Introduction
+
+Spring Session provides an API and implementations for managing a user's session information while also making it trivial to support clustered sessions without being tied to an application container-specific solution.
+It also provides transparent integration with:
+
+* <<httpsession,HttpSession>>: Allows replacing the `HttpSession` in an application container-neutral way, with support for providing session IDs in headers to work with RESTful APIs.
+* <<websocket,WebSocket>>: Provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
+* <<websession,WebSession>>: Allows replacing the Spring WebFlux's `WebSession` in an application container-neutral way.

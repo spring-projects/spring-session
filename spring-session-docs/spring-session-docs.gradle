@@ -23,6 +23,17 @@ dependencies {
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }
 
+sourceSets {
+    test {
+        java {
+            srcDirs = ['modules/ROOT/examples/java']
+        }
+        resources {
+            srcDirs = ['modules/ROOT/examples/resources']
+        }
+    }
+}
+
 def versions = dependencyManagement.managedVersions
 
 asciidoctorPdf {
@@ -65,6 +76,8 @@ asciidoctorj {
 			'highlightjsdir@': "js/highlight",
 			'docinfodir@': "."
 }
+
+println asciidoctorj.attributes
 
 repositories {
     maven { url "https://repo.spring.io/release" }
