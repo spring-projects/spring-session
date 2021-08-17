@@ -31,7 +31,7 @@ artifacts {
 
 dependencies {
     compile project(':spring-session-core')
-    optional "com.hazelcast:hazelcast:4.2"
+    optional "com.hazelcast:hazelcast:4.2.2"
     compile "org.springframework:spring-context"
     compile "javax.annotation:javax.annotation-api"
 
