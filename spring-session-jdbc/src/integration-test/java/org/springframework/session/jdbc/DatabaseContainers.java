@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,11 +42,11 @@ final class DatabaseContainers {
 	}
 
 	static MariaDBContainer<?> mariaDb() {
-		return new MariaDBContainer<>("mariadb:10.6.0");
+		return new MariaDBContainer<>("mariadb:10.6.4");
 	}
 
 	static MySQLContainer<?> mySql() {
-		return new MySQLContainer<>("mysql:8.0.25");
+		return new MySQLContainer<>("mysql:8.0.26");
 	}
 
 	static OracleContainer oracle() {
@@ -68,7 +68,7 @@ final class DatabaseContainers {
 	}
 
 	static PostgreSQLContainer<?> postgreSql() {
-		return new PostgreSQLContainer<>("postgres:13.3");
+		return new PostgreSQLContainer<>("postgres:13.4");
 	}
 
 	static MSSQLServerContainer<?> sqlServer() {

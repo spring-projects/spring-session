@@ -5,7 +5,7 @@ dependencyManagement {
 		mavenBom 'org.springframework:spring-framework-bom:5.3.9'
 		mavenBom 'org.springframework.data:spring-data-bom:2021.1.0-M2'
 		mavenBom 'org.springframework.security:spring-security-bom:5.6.0-M2'
-		mavenBom 'org.testcontainers:testcontainers-bom:1.15.3'
+		mavenBom 'org.testcontainers:testcontainers-bom:1.16.0'
 	}
 
 	dependencies {
@@ -14,23 +14,23 @@ dependencyManagement {
 			entry 'hazelcast-client'
 		}
 
-		dependency 'org.aspectj:aspectjweaver:1.9.6'
+		dependency 'org.aspectj:aspectjweaver:1.9.7'
 		dependency 'com.h2database:h2:1.4.200'
-		dependency 'com.ibm.db2:jcc:11.5.5.0'
-		dependency 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
-		dependency 'com.oracle.database.jdbc:ojdbc8:19.10.0.0'
+		dependency 'com.ibm.db2:jcc:11.5.6.0'
+		dependency 'com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre8'
+		dependency 'com.oracle.database.jdbc:ojdbc8:21.1.0.0'
 		dependency 'com.zaxxer:HikariCP:3.4.5'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
-		dependency 'io.lettuce:lettuce-core:6.1.2.RELEASE'
+		dependency 'io.lettuce:lettuce-core:6.1.4.RELEASE'
 		dependency 'javax.annotation:javax.annotation-api:1.3.2'
 		dependency 'javax.servlet:javax.servlet-api:4.0.1'
 		dependency 'junit:junit:4.13.2'
-		dependency 'mysql:mysql-connector-java:8.0.25'
+		dependency 'mysql:mysql-connector-java:8.0.26'
 		dependency 'org.apache.derby:derby:10.14.2.0'
-		dependency 'org.assertj:assertj-core:3.19.0'
+		dependency 'org.assertj:assertj-core:3.20.2'
 		dependency 'org.hsqldb:hsqldb:2.5.1'
-		dependency 'org.mariadb.jdbc:mariadb-java-client:2.7.3'
-		dependency 'org.mockito:mockito-core:3.10.0'
-		dependency 'org.postgresql:postgresql:42.2.20'
+		dependency 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
+		dependency 'org.mockito:mockito-core:3.11.2'
+		dependency 'org.postgresql:postgresql:42.2.23'
 	}
 }
