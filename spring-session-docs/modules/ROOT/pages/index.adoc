@@ -8,6 +8,15 @@ Rob Winch; Vedran Pavić; Jay Bryant; Eleftheria Stein-Kousathana
 [[abstract]]
 Spring Session provides an API and implementations for managing a user's session information.
 
+[[introduction]]
+Spring Session provides an API and implementations for managing a user's session information while also making it trivial to support clustered sessions without being tied to an application container-specific solution.
+It also provides transparent integration with:
+
+* xref:http-session.adoc#httpsession[HttpSession]: Allows replacing the `HttpSession` in an application container-neutral way, with support for providing session IDs in headers to work with RESTful APIs.
+* xref:web-socket.adoc#websocket[WebSocket]: Provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
+* xref:web-session.adoc#websession[WebSession]: Allows replacing the Spring WebFlux's `WebSession` in an application container-neutral way.
+
+
 [[community]]
 == Spring Session Community
 

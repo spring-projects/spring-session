@@ -1,4 +1,3 @@
-* xref:introduction.adoc[Introduction]
 * xref:whats-new.adoc[What's New]
 * xref:samples.adoc[Samples & Guides (Start Here)]
 * xref:modules.adoc[Modules]
