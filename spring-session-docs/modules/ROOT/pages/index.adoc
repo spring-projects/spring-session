@@ -59,8 +59,8 @@ The minimum requirements for Spring Session are:
 * Java 8+.
 * If you run in a Servlet Container (not required), Servlet 3.1+.
 * If you use other Spring libraries (not required), the minimum required version is Spring 5.0.x.
-* `@EnableRedisHttpSession` requires Redis 2.8+. This is necessary to support <<api-redisindexedsessionrepository-expiration,Session Expiration>>
-* `@EnableHazelcastHttpSession` requires Hazelcast 3.6+. This is necessary to support <<api-enablehazelcasthttpsession-storage,`FindByIndexNameSessionRepository`>>
+* `@EnableRedisHttpSession` requires Redis 2.8+. This is necessary to support xref:api.adoc#api-redisindexedsessionrepository-expiration[Session Expiration]
+* `@EnableHazelcastHttpSession` requires Hazelcast 3.6+. This is necessary to support xref:api.adoc#api-enablehazelcasthttpsession-storage[`FindByIndexNameSessionRepository`]
 
 NOTE: At its core, Spring Session has a required dependency only on `spring-jcl`.
-For an example of using Spring Session without any other Spring dependencies, see the <<samples,hazelcast sample>> application.
+For an example of using Spring Session without any other Spring dependencies, see the xref:samples.adoc#samples[hazelcast sample] application.

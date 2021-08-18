@@ -26,7 +26,7 @@ You can choose from enabling this by using either:
 
 This section describes how to use Redis to back `HttpSession` by using Java based configuration.
 
-NOTE: The <<samples, HttpSession Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
+NOTE: The xref:samples.adoc#samples[ HttpSession Sample] provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
 You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession Guide when integrating with your own application.
 
 include::guides/java-redis.adoc[tags=config,leveloffset=+2]
@@ -36,7 +36,7 @@ include::guides/java-redis.adoc[tags=config,leveloffset=+2]
 
 This section describes how to use Redis to back `HttpSession` by using XML based configuration.
 
-NOTE: The <<samples, HttpSession XML Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` using XML configuration.
+NOTE: The xref:samples.adoc#samples[ HttpSession XML Sample] provides a working sample of how to integrate Spring Session and `HttpSession` using XML configuration.
 You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession XML Guide when integrating with your own application.
 
 include::guides/xml-redis.adoc[tags=config,leveloffset=+2]
@@ -56,7 +56,7 @@ You can choose to do in any of the following ways:
 
 This section describes how to use a relational database to back `HttpSession` when you use Java-based configuration.
 
-NOTE: The <<samples, HttpSession JDBC Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
+NOTE: The xref:samples.adoc#samples[ HttpSession JDBC Sample] provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
 You can read the basic steps for integration in the next few sections, but we encouraged you to follow along with the detailed HttpSession JDBC Guide when integrating with your own application.
 
 include::guides/java-jdbc.adoc[tags=config,leveloffset=+2]
@@ -66,7 +66,7 @@ include::guides/java-jdbc.adoc[tags=config,leveloffset=+2]
 
 This section describes how to use a relational database to back `HttpSession` when you use XML based configuration.
 
-NOTE: The <<samples, HttpSession JDBC XML Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using XML configuration.
+NOTE: The xref:samples.adoc#samples[ HttpSession JDBC XML Sample] provides a working sample of how to integrate Spring Session and `HttpSession` by using XML configuration.
 You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession JDBC XML Guide when integrating with your own application.
 
 include::guides/xml-jdbc.adoc[tags=config,leveloffset=+2]
@@ -76,7 +76,7 @@ include::guides/xml-jdbc.adoc[tags=config,leveloffset=+2]
 
 This section describes how to use a relational database to back `HttpSession` when you use Spring Boot.
 
-NOTE: The <<samples, HttpSession JDBC Spring Boot Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Spring Boot.
+NOTE: The xref:samples.adoc#samples[ HttpSession JDBC Spring Boot Sample] provides a working sample of how to integrate Spring Session and `HttpSession` by using Spring Boot.
 You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed HttpSession JDBC Spring Boot Guide when integrating with your own application.
 
 include::guides/boot-jdbc.adoc[tags=config,leveloffset=+2]
@@ -88,7 +88,7 @@ Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter be
 
 This section describes how to use Hazelcast to back `HttpSession` by using Java-based configuration.
 
-NOTE: The <<samples, Hazelcast Spring Sample>> provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
+NOTE: The xref:samples.adoc#samples[ Hazelcast Spring Sample] provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
 You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed Hazelcast Spring Guide when integrating with your own application.
 
 include::guides/java-hazelcast.adoc[tags=config,leveloffset=+1]
@@ -158,7 +158,7 @@ This highlights why it is important that Spring Session's `SessionRepositoryFilt
 
 Spring Session can work with RESTful APIs by letting the session be provided in a header.
 
-NOTE: The <<samples, REST Sample>> provides a working sample of how to use Spring Session in a REST application to support authenticating with a header.
+NOTE: The xref:samples.adoc#samples[ REST Sample] provides a working sample of how to use Spring Session in a REST application to support authenticating with a header.
 You can follow the basic steps for integration described in the next few sections, but we encourage you to follow along with the detailed REST Guide when integrating with your own application.
 
 include::guides/java-rest.adoc[tags=config,leveloffset=+1]

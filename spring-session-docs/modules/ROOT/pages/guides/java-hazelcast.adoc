@@ -111,7 +111,7 @@ with the same `SerializerConfiguration` of members.
 
 == Servlet Container Initialization
 
-Our <<security-spring-configuration,Spring Configuration>> created a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
+Our xref:guides/java-security.adoc#security-spring-configuration[Spring Configuration] created a Spring bean named `springSessionRepositoryFilter` that implements `Filter`.
 The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
 
 In order for our `Filter` to do its magic, Spring needs to load our `SessionConfig` class.

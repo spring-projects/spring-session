@@ -68,7 +68,7 @@ If the `Session` were expired, the result would be null.
 A `SessionRepository` is in charge of creating, retrieving, and persisting `Session` instances.
 
 If possible, you should not interact directly with a `SessionRepository` or a `Session`.
-Instead, developers should prefer interacting with `SessionRepository` and `Session` indirectly through the <<httpsession,`HttpSession`>> and <<websocket,WebSocket>> integration.
+Instead, developers should prefer interacting with `SessionRepository` and `Session` indirectly through the xref:http-session.adoc#httpsession[`HttpSession`] and xref:web-socket.adoc#websocket[WebSocket] integration.
 
 [[api-findbyindexnamesessionrepository]]
 == Using `FindByIndexNameSessionRepository`
@@ -110,7 +110,7 @@ include::{docs-test-dir}docs/FindByIndexNameSessionRepositoryTests.java[tags=fin
 A `ReactiveSessionRepository` is in charge of creating, retrieving, and persisting `Session` instances in a non-blocking and reactive manner.
 
 If possible, you should not interact directly with a `ReactiveSessionRepository` or a `Session`.
-Instead, you should prefer interacting with `ReactiveSessionRepository` and `Session` indirectly through the <<websession,WebSession>> integration.
+Instead, you should prefer interacting with `ReactiveSessionRepository` and `Session` indirectly through the xref:web-session.adoc#websession[WebSession] integration.
 
 [[api-enablespringhttpsession]]
 == Using `@EnableSpringHttpSession`
@@ -173,7 +173,7 @@ For additional information on how to create a `RedisConnectionFactory`, see the 
 === Using `@EnableRedisHttpSession`
 
 In a web environment, the simplest way to create a new `RedisIndexedSessionRepository` is to use `@EnableRedisHttpSession`.
-You can find complete example usage in the <<samples>>.
+You can find complete example usage in the xref:samples.adoc#samples[].
 You can use the following attributes to customize the configuration:
 
 * *maxInactiveIntervalInSeconds*: The amount of time before the session expires, in seconds.
@@ -493,7 +493,7 @@ include::{indexdoc-tests}[tags=new-mapsessionrepository]
 [[api-mapsessionrepository-hazelcast]]
 === Using Spring Session and Hazlecast
 
-The <<samples,Hazelcast Sample>> is a complete application that demonstrates how to use Spring Session with Hazelcast.
+The xref:samples.adoc#samples[Hazelcast Sample] is a complete application that demonstrates how to use Spring Session with Hazelcast.
 
 To run it, use the following command:
 
@@ -503,7 +503,7 @@ To run it, use the following command:
 ----
 ====
 
-The <<samples,Hazelcast Spring Sample>> is a complete application that demonstrates how to use Spring Session with Hazelcast and Spring Security.
+The xref:samples.adoc#samples[Hazelcast Spring Sample] is a complete application that demonstrates how to use Spring Session with Hazelcast and Spring Security.
 
 It includes example Hazelcast `MapListener` implementations that support firing `SessionCreatedEvent`, `SessionDeletedEvent`, and `SessionExpiredEvent`.
 
@@ -547,7 +547,7 @@ For additional information on how to create and configure `JdbcTemplate` and `Pl
 === Using `@EnableJdbcHttpSession`
 
 In a web environment, the simplest way to create a new `JdbcIndexedSessionRepository` is to use `@EnableJdbcHttpSession`.
-You can find complete example usage in the <<samples>>
+You can find complete example usage in the xref:samples.adoc#samples[]
 You can use the following attributes to customize the configuration:
 
 * *tableName*: The name of database table used by Spring Session to store sessions
@@ -622,7 +622,7 @@ For additional information on how to create and configure Hazelcast instance, se
 To use https://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, you can add the `@EnableHazelcastHttpSession` annotation to a `@Configuration` class.
 Doing so extends the functionality provided by the `@EnableSpringHttpSession` annotation but makes the `SessionRepository` for you in Hazelcast.
 You must provide a single `HazelcastInstance` bean for the configuration to work.
-You can find a complete configuration example in the <<samples>>.
+You can find a complete configuration example in the xref:samples.adoc#samples[].
 
 [[api-enablehazelcasthttpsession-customize]]
 === Basic Customization
@@ -641,7 +641,7 @@ Using a `MapListener` to respond to entries being added, evicted, and removed fr
 
 Sessions are stored in a distributed `IMap` in Hazelcast.
 The `IMap` interface methods are used to `get()` and `put()` Sessions.
-Additionally, the `values()` method supports a `FindByIndexNameSessionRepository#findByIndexNameAndIndexValue` operation, together with appropriate `ValueExtractor` (which needs to be registered with Hazelcast). See the <<samples, Hazelcast Spring Sample>> for more details on this configuration.
+Additionally, the `values()` method supports a `FindByIndexNameSessionRepository#findByIndexNameAndIndexValue` operation, together with appropriate `ValueExtractor` (which needs to be registered with Hazelcast). See the xref:samples.adoc#samples[ Hazelcast Spring Sample] for more details on this configuration.
 The expiration of a session in the `IMap` is handled by Hazelcast's support for setting the time to live on an entry when it is `put()` into the `IMap`. Entries (sessions) that have been idle longer than the time to live are automatically removed from the `IMap`.
 
 You should not need to configure any settings such as `max-idle-seconds` or `time-to-live-seconds` for the `IMap` within the Hazelcast configuration.

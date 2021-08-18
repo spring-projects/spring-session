@@ -21,12 +21,12 @@ This means that, if we are actively chatting in our application and are not usin
 [[websocket-usage]]
 == WebSocket Usage
 
-The <<samples, WebSocket Sample>> provides a working sample of how to integrate Spring Session with WebSockets.
+The xref:samples.adoc#samples[ WebSocket Sample] provides a working sample of how to integrate Spring Session with WebSockets.
 You can follow the basic steps for integration described in the next few headings, but we encourage you to follow along with the detailed WebSocket Guide when integrating with your own application.
 
 [[websocket-httpsession]]
 === `HttpSession` Integration
 
-Before using WebSocket integration, you should be sure that you have <<httpsession>> working first.
+Before using WebSocket integration, you should be sure that you have xref:http-session.adoc#httpsession[] working first.
 
 include::guides/boot-websocket.adoc[tags=config,leveloffset=+2]
