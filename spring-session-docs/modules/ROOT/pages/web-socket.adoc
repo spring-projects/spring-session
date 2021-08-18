@@ -27,6 +27,6 @@ You can follow the basic steps for integration described in the next few heading
 [[websocket-httpsession]]
 === `HttpSession` Integration
 
-Before using WebSocket integration, you should be sure that you have xref:http-session.adoc#httpsession[] working first.
+Before using WebSocket integration, you should be sure that you have xref:http-session.adoc#httpsession[`HttpSession` Integration] working first.
 
 include::guides/boot-websocket.adoc[tags=config,leveloffset=+2]

@@ -173,7 +173,7 @@ For additional information on how to create a `RedisConnectionFactory`, see the 
 === Using `@EnableRedisHttpSession`
 
 In a web environment, the simplest way to create a new `RedisIndexedSessionRepository` is to use `@EnableRedisHttpSession`.
-You can find complete example usage in the xref:samples.adoc#samples[].
+You can find complete example usage in the xref:samples.adoc#samples[Samples and Guides (Start Here)].
 You can use the following attributes to customize the configuration:
 
 * *maxInactiveIntervalInSeconds*: The amount of time before the session expires, in seconds.
@@ -547,7 +547,7 @@ For additional information on how to create and configure `JdbcTemplate` and `Pl
 === Using `@EnableJdbcHttpSession`
 
 In a web environment, the simplest way to create a new `JdbcIndexedSessionRepository` is to use `@EnableJdbcHttpSession`.
-You can find complete example usage in the xref:samples.adoc#samples[]
+You can find complete example usage in the xref:samples.adoc#samples[Samples and Guides (Start Here)]
 You can use the following attributes to customize the configuration:
 
 * *tableName*: The name of database table used by Spring Session to store sessions
@@ -622,7 +622,7 @@ For additional information on how to create and configure Hazelcast instance, se
 To use https://hazelcast.org/[Hazelcast] as your backing source for the `SessionRepository`, you can add the `@EnableHazelcastHttpSession` annotation to a `@Configuration` class.
 Doing so extends the functionality provided by the `@EnableSpringHttpSession` annotation but makes the `SessionRepository` for you in Hazelcast.
 You must provide a single `HazelcastInstance` bean for the configuration to work.
-You can find a complete configuration example in the xref:samples.adoc#samples[].
+You can find a complete configuration example in the xref:samples.adoc#samples[Samples and Guides (Start Here)].
 
 [[api-enablehazelcasthttpsession-customize]]
 === Basic Customization
