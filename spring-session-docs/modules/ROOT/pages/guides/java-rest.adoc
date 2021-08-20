@@ -1,6 +1,5 @@
 = Spring Session - REST
 Rob Winch
-:toc: left
 :stylesdir: ../
 :highlightjsdir: ../js/highlight
 :docinfodir: guides

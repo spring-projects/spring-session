@@ -1,6 +1,5 @@
 = Spring Session - WebSocket
 Rob Winch
-:toc: left
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
 :stylesdir: ../
 :highlightjsdir: ../js/highlight

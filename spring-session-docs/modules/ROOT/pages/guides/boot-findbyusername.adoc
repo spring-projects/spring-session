@@ -1,6 +1,5 @@
 = Spring Session - find by username
 Rob Winch
-:toc: left
 :stylesdir: ../
 :highlightjsdir: ../js/highlight
 :docinfodir: guides

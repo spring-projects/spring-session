@@ -1,6 +1,5 @@
 = Spring Session - HttpSession (Quick Start)
 Rob Winch
-:toc: left
 :version-snapshot: true
 :stylesdir: ../
 :highlightjsdir: ../js/highlight

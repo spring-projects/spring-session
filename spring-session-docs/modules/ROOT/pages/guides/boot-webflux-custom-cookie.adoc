@@ -1,6 +1,5 @@
 = Spring Session - WebFlux with Custom Cookie
 Eleftheria Stein-Kousathana
-:toc: left
 :stylesdir: ../
 :highlightjsdir: ../js/highlight
 :docinfodir: guides

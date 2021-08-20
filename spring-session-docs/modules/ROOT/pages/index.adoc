@@ -3,7 +3,6 @@ Rob Winch; Vedran Pavić; Jay Bryant; Eleftheria Stein-Kousathana
 :doctype: book
 :indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
-:toc: left
 
 [[abstract]]
 Spring Session provides an API and implementations for managing a user's session information.

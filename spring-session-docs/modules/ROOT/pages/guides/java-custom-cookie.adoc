@@ -1,6 +1,5 @@
 = Spring Session - Custom Cookie
 Rob Winch; Eleftheria Stein-Kousathana
-:toc: left
 :stylesdir: ../
 :highlightjsdir: ../js/highlight
 :docinfodir: guides
