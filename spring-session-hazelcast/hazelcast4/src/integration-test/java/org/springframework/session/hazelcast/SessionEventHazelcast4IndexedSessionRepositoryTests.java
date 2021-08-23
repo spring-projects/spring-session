@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,6 +196,29 @@ class SessionEventHazelcast4IndexedSessionRepositoryTests<S extends Session> {
 		assertThat(this.registry.receivedEvent(sessionToUpdate.getId())).isTrue();
 		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToUpdate.getId()))
 				.isInstanceOf(SessionExpiredEvent.class);
+		assertThat(this.repository.findById(sessionToUpdate.getId())).isNull();
+	}
+
+	@Test // gh-1899
+	void updateSessionAndExpireAfterOriginalTimeToLiveTest() throws InterruptedException {
+		S sessionToSave = this.repository.createSession();
+		this.repository.save(sessionToSave);
+
+		assertThat(this.registry.receivedEvent(sessionToSave.getId())).isTrue();
+		assertThat(this.registry.<SessionCreatedEvent>getEvent(sessionToSave.getId()))
+				.isInstanceOf(SessionCreatedEvent.class);
+		this.registry.clear();
+
+		S sessionToUpdate = this.repository.findById(sessionToSave.getId());
+		sessionToUpdate.setLastAccessedTime(Instant.now());
+		this.repository.save(sessionToUpdate);
+
+		assertThat(this.registry.receivedEvent(sessionToUpdate.getId())).isTrue();
+		assertThat(this.registry.<SessionExpiredEvent>getEvent(sessionToUpdate.getId()))
+				.isInstanceOf(SessionExpiredEvent.class);
+		// Assert this after the expired event was received because it would otherwise do
+		// its own expiration check and explicitly delete the session from Hazelcast
+		// regardless of the TTL of the IMap entry.
 		assertThat(this.repository.findById(sessionToUpdate.getId())).isNull();
 	}
 
