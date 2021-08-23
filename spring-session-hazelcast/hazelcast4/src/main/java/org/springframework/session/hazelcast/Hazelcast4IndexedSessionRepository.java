@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,7 +54,6 @@ import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
  * A {@link org.springframework.session.SessionRepository} implementation using Hazelcast
@@ -127,8 +126,6 @@ public class Hazelcast4IndexedSessionRepository
 	public static final String PRINCIPAL_NAME_ATTRIBUTE = "principalName";
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
-	private static final boolean SUPPORTS_SET_TTL = ClassUtils.hasAtLeastOneMethodWithName(IMap.class, "setTtl");
 
 	private static final Log logger = LogFactory.getLog(Hazelcast4IndexedSessionRepository.class);
 
@@ -262,9 +259,6 @@ public class Hazelcast4IndexedSessionRepository
 				entryProcessor.setLastAccessedTime(session.getLastAccessedTime());
 			}
 			if (session.maxInactiveIntervalChanged) {
-				if (SUPPORTS_SET_TTL) {
-					updateTtl(session);
-				}
 				entryProcessor.setMaxInactiveInterval(session.getMaxInactiveInterval());
 			}
 			if (!session.delta.isEmpty()) {
@@ -273,10 +267,6 @@ public class Hazelcast4IndexedSessionRepository
 			this.sessions.executeOnKey(session.getId(), entryProcessor);
 		}
 		session.clearChangeFlags();
-	}
-
-	private void updateTtl(HazelcastSession session) {
-		this.sessions.setTtl(session.getId(), session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -416,6 +406,7 @@ public class Hazelcast4IndexedSessionRepository
 
 		@Override
 		public void setMaxInactiveInterval(Duration interval) {
+			Assert.notNull(interval, "interval must not be null");
 			this.delegate.setMaxInactiveInterval(interval);
 			this.maxInactiveIntervalChanged = true;
 			flushImmediateIfNecessary();
