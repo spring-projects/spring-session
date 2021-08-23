@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,13 +63,8 @@ public class Hazelcast4SessionUpdateEntryProcessor implements EntryProcessor<Str
 				}
 			}
 		}
-		if (this.maxInactiveInterval != null) {
-			((ExtendedMapEntry<String, MapSession>) entry).setValue(value, this.maxInactiveInterval.getSeconds(),
-					TimeUnit.SECONDS);
-		}
-		else {
-			entry.setValue(value);
-		}
+		((ExtendedMapEntry<String, MapSession>) entry).setValue(value, value.getMaxInactiveInterval().getSeconds(),
+				TimeUnit.SECONDS);
 		return Boolean.TRUE;
 	}
 
