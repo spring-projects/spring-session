@@ -24,11 +24,16 @@ import sample.pages.HomePage;
 import sample.pages.LoginPage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.session.SessionsEndpoint;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.context.ApplicationContext;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Ellie Bahadori
@@ -50,6 +55,12 @@ class BootTests {
 	@AfterEach
 	void tearDown() {
 		this.driver.quit();
+	}
+
+	@Test // gh-1905
+	void contextLoads(ApplicationContext context) {
+		assertThat(context.getBeansOfType(HazelcastIndexedSessionRepository.class)).hasSize(1);
+		assertThat(context.getBeansOfType(SessionsEndpoint.class)).hasSize(1);
 	}
 
 	@Test
