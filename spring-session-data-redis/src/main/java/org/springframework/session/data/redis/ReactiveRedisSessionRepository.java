@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
  * A {@link ReactiveSessionRepository} that is implemented using Spring Data's
  * {@link ReactiveRedisOperations}.
  *
- * @author Vedran Pavic
+ * @author Kai Zhao
  * @since 2.2.0
  */
 public class ReactiveRedisSessionRepository
@@ -274,8 +274,13 @@ public class ReactiveRedisSessionRepository
 			String sessionKey = getSessionKey(getId());
 			Mono<Boolean> update = ReactiveRedisSessionRepository.this.sessionRedisOperations.opsForHash()
 					.putAll(sessionKey, new HashMap<>(this.delta));
-			Mono<Boolean> setTtl = ReactiveRedisSessionRepository.this.sessionRedisOperations.expire(sessionKey,
-					getMaxInactiveInterval());
+			Mono<Boolean> setTtl;
+			if (getMaxInactiveInterval().getSeconds() >= 0) {
+				setTtl = org.springframework.session.data.redis.ReactiveRedisSessionRepository.this.sessionRedisOperations.expire(sessionKey,
+						getMaxInactiveInterval());
+			} else {
+				setTtl = org.springframework.session.data.redis.ReactiveRedisSessionRepository.this.sessionRedisOperations.persist(sessionKey);
+			}
 
 			return update.and(setTtl).and((s) -> {
 				this.delta.clear();
