@@ -15,11 +15,11 @@
  */
 package org.springframework.session.mongodb.examples.config;
 
+import java.time.Duration;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.session.data.mongo.JdkMongoSessionConverter;
 import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
-
-import java.time.Duration;
 
 // tag::class[]
 @EnableMongoHttpSession // <1>

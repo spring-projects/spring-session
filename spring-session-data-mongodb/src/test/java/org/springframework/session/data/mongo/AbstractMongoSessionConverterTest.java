@@ -15,16 +15,17 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
+
 import com.mongodb.DBObject;
 import org.bson.Document;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.session.FindByIndexNameSessionRepository;
-
-import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +37,7 @@ public abstract class AbstractMongoSessionConverterTest {
 	abstract AbstractMongoSessionConverter getMongoSessionConverter();
 
 	@Test
-	public void verifyRoundTripSerialization() throws Exception {
+	void verifyRoundTripSerialization() throws Exception {
 
 		// given
 		MongoSession toSerialize = new MongoSession();
@@ -51,7 +52,7 @@ public abstract class AbstractMongoSessionConverterTest {
 	}
 
 	@Test
-	public void verifyRoundTripSecuritySerialization() {
+	void verifyRoundTripSecuritySerialization() {
 
 		// given
 		MongoSession toSerialize = new MongoSession();
@@ -78,7 +79,7 @@ public abstract class AbstractMongoSessionConverterTest {
 	}
 
 	@Test
-	public void shouldExtractPrincipalNameFromAttributes() throws Exception {
+	void shouldExtractPrincipalNameFromAttributes() throws Exception {
 
 		// given
 		MongoSession toSerialize = new MongoSession();
@@ -93,7 +94,7 @@ public abstract class AbstractMongoSessionConverterTest {
 	}
 
 	@Test
-	public void shouldExtractPrincipalNameFromAuthentication() throws Exception {
+	void shouldExtractPrincipalNameFromAuthentication() throws Exception {
 
 		// given
 		MongoSession toSerialize = new MongoSession();
@@ -110,7 +111,7 @@ public abstract class AbstractMongoSessionConverterTest {
 	}
 
 	@Test
-	public void sessionWrapperWithNoMaxIntervalShouldFallbackToDefaultValues() {
+	void sessionWrapperWithNoMaxIntervalShouldFallbackToDefaultValues() {
 
 		// given
 		MongoSession toSerialize = new MongoSession();

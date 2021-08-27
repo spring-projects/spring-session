@@ -16,10 +16,10 @@
 
 package org.springframework.session.data.mongo;
 
-import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
 import java.time.Instant;
+
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MongoSessionTest {
 
 	@Test
-	public void isExpiredWhenIntervalNegativeThenFalse() {
+	void isExpiredWhenIntervalNegativeThenFalse() {
 
 		MongoSession session = new MongoSession();
 		session.setMaxInactiveInterval(Duration.ofSeconds(-1));

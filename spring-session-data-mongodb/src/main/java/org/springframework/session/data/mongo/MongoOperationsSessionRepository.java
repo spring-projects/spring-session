@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
  * This {@link org.springframework.session.FindByIndexNameSessionRepository}
  * implementation is kept to support backwards compatibility.
  *
+ * @author Rob Winch
  * @since 1.2
  * @deprecated since 2.2.0 in favor of {@link MongoIndexedSessionRepository}.
  */

@@ -15,20 +15,20 @@
  */
 package org.springframework.session.data.mongo;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.DBObject;
-import org.assertj.core.api.Assertions;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.junit.jupiter.api.Test;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.util.ReflectionUtils;
-
 import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.HashMap;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.DBObject;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.AssertionsForClassTypes;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.junit.jupiter.api.Test;
+
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * @author Jakub Kubrynski
@@ -44,7 +44,7 @@ public class JacksonMongoSessionConverterTest extends AbstractMongoSessionConver
 	}
 
 	@Test
-	public void shouldSaveIdField() {
+	void shouldSaveIdField() {
 
 		// given
 		MongoSession session = new MongoSession();
@@ -53,22 +53,22 @@ public class JacksonMongoSessionConverterTest extends AbstractMongoSessionConver
 		DBObject convert = this.mongoSessionConverter.convert(session);
 
 		// then
-		assertThat(convert.get("_id")).isEqualTo(session.getId());
-		assertThat(convert.get("id")).isNull();
+		AssertionsForClassTypes.assertThat(convert.get("_id")).isEqualTo(session.getId());
+		AssertionsForClassTypes.assertThat(convert.get("id")).isNull();
 	}
 
 	@Test
-	public void shouldQueryAgainstAttribute() throws Exception {
+	void shouldQueryAgainstAttribute() throws Exception {
 
 		// when
 		Query cart = this.mongoSessionConverter.getQueryForIndex("cart", "my-cart");
 
 		// then
-		assertThat(cart.getQueryObject().get("attrs.cart")).isEqualTo("my-cart");
+		AssertionsForClassTypes.assertThat(cart.getQueryObject().get("attrs.cart")).isEqualTo("my-cart");
 	}
 
 	@Test
-	public void shouldAllowCustomObjectMapper() {
+	void shouldAllowCustomObjectMapper() {
 
 		// given
 		ObjectMapper myMapper = new ObjectMapper();
@@ -81,19 +81,18 @@ public class JacksonMongoSessionConverterTest extends AbstractMongoSessionConver
 		ReflectionUtils.makeAccessible(objectMapperField);
 		ObjectMapper converterMapper = (ObjectMapper) ReflectionUtils.getField(objectMapperField, converter);
 
-		assertThat(converterMapper).isEqualTo(myMapper);
+		AssertionsForClassTypes.assertThat(converterMapper).isEqualTo(myMapper);
 	}
 
 	@Test
-	public void shouldNotAllowNullObjectMapperToBeInjected() {
+	void shouldNotAllowNullObjectMapperToBeInjected() {
 
-		Assertions.assertThatIllegalArgumentException().isThrownBy(() -> {
-			new JacksonMongoSessionConverter((ObjectMapper) null);
-		});
+		Assertions.assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JacksonMongoSessionConverter((ObjectMapper) null));
 	}
 
 	@Test
-	public void shouldSaveExpireAtAsDate() {
+	void shouldSaveExpireAtAsDate() {
 
 		// given
 		MongoSession session = new MongoSession();
@@ -102,12 +101,12 @@ public class JacksonMongoSessionConverterTest extends AbstractMongoSessionConver
 		DBObject convert = this.mongoSessionConverter.convert(session);
 
 		// then
-		assertThat(convert.get("expireAt")).isInstanceOf(Date.class);
-		assertThat(convert.get("expireAt")).isEqualTo(session.getExpireAt());
+		AssertionsForClassTypes.assertThat(convert.get("expireAt")).isInstanceOf(Date.class);
+		AssertionsForClassTypes.assertThat(convert.get("expireAt")).isEqualTo(session.getExpireAt());
 	}
 
 	@Test
-	public void shouldLoadExpireAtFromDocument() {
+	void shouldLoadExpireAtFromDocument() {
 
 		// given
 		Date now = new Date();
@@ -123,8 +122,8 @@ public class JacksonMongoSessionConverterTest extends AbstractMongoSessionConver
 		MongoSession convertedSession = this.mongoSessionConverter.convert(document);
 
 		// then
-		assertThat(convertedSession).isNotNull();
-		assertThat(convertedSession.getExpireAt()).isEqualTo(now);
+		AssertionsForClassTypes.assertThat(convertedSession).isNotNull();
+		AssertionsForClassTypes.assertThat(convertedSession.getExpireAt()).isEqualTo(now);
 	}
 
 }

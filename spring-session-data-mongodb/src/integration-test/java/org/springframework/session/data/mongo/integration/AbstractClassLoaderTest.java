@@ -15,7 +15,11 @@
  */
 package org.springframework.session.data.mongo.integration;
 
+import java.lang.reflect.Field;
+
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.serializer.DefaultDeserializer;
@@ -24,10 +28,6 @@ import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 import org.springframework.session.data.mongo.Assert;
 import org.springframework.session.data.mongo.JdkMongoSessionConverter;
 import org.springframework.util.ReflectionUtils;
-
-import java.lang.reflect.Field;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * Verify container's {@link ClassLoader} is injected into session converter (reactive and
@@ -44,16 +44,16 @@ public abstract class AbstractClassLoaderTest<T> extends AbstractITest {
 	ApplicationContext applicationContext;
 
 	@Test
-	public void verifyContainerClassLoaderLoadedIntoConverter() {
+	void verifyContainerClassLoaderLoadedIntoConverter() {
 
-		Field mongoSessionConverterField = ReflectionUtils.findField(sessionRepository.getClass(),
+		Field mongoSessionConverterField = ReflectionUtils.findField(this.sessionRepository.getClass(),
 				"mongoSessionConverter");
 		ReflectionUtils.makeAccessible(
 				Assert.requireNonNull(mongoSessionConverterField, "mongoSessionConverter must not be null!"));
 		AbstractMongoSessionConverter sessionConverter = (AbstractMongoSessionConverter) ReflectionUtils
 				.getField(mongoSessionConverterField, this.sessionRepository);
 
-		assertThat(sessionConverter).isInstanceOf(JdkMongoSessionConverter.class);
+		AssertionsForClassTypes.assertThat(sessionConverter).isInstanceOf(JdkMongoSessionConverter.class);
 
 		JdkMongoSessionConverter jdkMongoSessionConverter = (JdkMongoSessionConverter) sessionConverter;
 
@@ -63,7 +63,7 @@ public abstract class AbstractClassLoaderTest<T> extends AbstractITest {
 				"deserializer", deserializingConverter);
 		ClassLoader classLoader = (ClassLoader) extractField(DefaultDeserializer.class, "classLoader", deserializer);
 
-		assertThat(classLoader).isEqualTo(applicationContext.getClassLoader());
+		AssertionsForClassTypes.assertThat(classLoader).isEqualTo(this.applicationContext.getClassLoader());
 	}
 
 	private static Object extractField(Class<?> clazz, String fieldName, Object obj) {

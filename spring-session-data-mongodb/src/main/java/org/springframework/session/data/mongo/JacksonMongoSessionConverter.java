@@ -15,6 +15,11 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -31,17 +36,13 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
+
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.lang.Nullable;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.util.Assert;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 
 /**
  * {@code AbstractMongoSessionConverter} implementation using Jackson.
@@ -121,8 +122,8 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 			dbSession.put(EXPIRE_AT_FIELD_NAME, source.getExpireAt());
 			return dbSession;
 		}
-		catch (JsonProcessingException e) {
-			throw new IllegalStateException("Cannot convert MongoExpiringSession", e);
+		catch (JsonProcessingException ex) {
+			throw new IllegalStateException("Cannot convert MongoExpiringSession", ex);
 		}
 	}
 
@@ -139,8 +140,8 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 			mongoSession.setExpireAt(expireAt);
 			return mongoSession;
 		}
-		catch (IOException e) {
-			LOG.error("Error during Mongo Session deserialization", e);
+		catch (IOException ex) {
+			LOG.error("Error during Mongo Session deserialization", ex);
 			return null;
 		}
 	}
@@ -151,7 +152,7 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 	private static class MongoSessionMixin {
 
 		@JsonCreator
-		public MongoSessionMixin(@JsonProperty("_id") String id,
+		MongoSessionMixin(@JsonProperty("_id") String id,
 				@JsonProperty("intervalSeconds") long maxInactiveIntervalInSeconds) {
 		}
 

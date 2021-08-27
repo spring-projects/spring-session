@@ -16,19 +16,20 @@
 
 package org.springframework.session.mongodb.examples;
 
+import java.util.List;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.session.mongodb.examples.pages.HomePage;
 import org.springframework.session.mongodb.examples.pages.HomePage.Attribute;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,31 +47,31 @@ public class AttributeTests {
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setup() {
+	void setup() {
 		this.driver = new HtmlUnitDriver();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void home() {
+	void home() {
 
 		HomePage home = HomePage.go(this.driver, this.port);
 		home.assertAt();
 	}
 
 	@Test
-	public void noAttributes() {
+	void noAttributes() {
 
 		HomePage home = HomePage.go(this.driver, this.port);
 		assertThat(home.attributes()).isEmpty();
 	}
 
 	@Test
-	public void createAttribute() {
+	void createAttribute() {
 
 		HomePage home = HomePage.go(this.driver, this.port);
 		home = home.form().attributeName("a").attributeValue("b").submit(HomePage.class);

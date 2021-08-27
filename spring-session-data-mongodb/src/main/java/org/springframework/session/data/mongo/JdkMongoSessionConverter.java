@@ -16,10 +16,17 @@
 
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.bson.Document;
 import org.bson.types.Binary;
+
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
@@ -29,12 +36,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * {@code AbstractMongoSessionConverter} implementation using standard Java serialization.
@@ -158,7 +159,7 @@ public class JdkMongoSessionConverter extends AbstractMongoSessionConverter {
 
 		Object sessionAttributes = sessionWrapper.get(ATTRIBUTES);
 
-		byte[] attributesBytes = (sessionAttributes instanceof Binary ? ((Binary) sessionAttributes).getData()
+		byte[] attributesBytes = ((sessionAttributes instanceof Binary) ? ((Binary) sessionAttributes).getData()
 				: (byte[]) sessionAttributes);
 
 		Map<String, Object> attributes = (Map<String, Object>) this.deserializer.convert(attributesBytes);

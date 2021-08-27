@@ -16,6 +16,8 @@
 
 package org.springframework.session.data.mongo;
 
+import java.util.UUID;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.result.DeleteResult;
@@ -25,19 +27,23 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.session.events.SessionDeletedEvent;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
-
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.verify;
 
 /**
  * Tests for {@link ReactiveMongoSessionRepository}.
@@ -64,7 +70,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	private ReactiveMongoSessionRepository repository;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 
 		this.repository = new ReactiveMongoSessionRepository(this.mongoOperations);
 		this.repository.setMongoSessionConverter(this.converter);
@@ -72,11 +78,11 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldCreateSession() {
+	void shouldCreateSession() {
 
 		this.repository.createSession() //
 				.as(StepVerifier::create) //
-				.expectNextMatches(mongoSession -> {
+				.expectNextMatches((mongoSession) -> {
 					assertThat(mongoSession.getId()).isNotEmpty();
 					assertThat(mongoSession.getMaxInactiveInterval().getSeconds())
 							.isEqualTo(ReactiveMongoSessionRepository.DEFAULT_INACTIVE_INTERVAL);
@@ -86,7 +92,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() {
+	void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() {
 
 		// when
 		this.repository.setMaxInactiveIntervalInSeconds(null);
@@ -94,7 +100,7 @@ public class ReactiveMongoSessionRepositoryTest {
 		// then
 		this.repository.createSession() //
 				.as(StepVerifier::create) //
-				.expectNextMatches(mongoSession -> {
+				.expectNextMatches((mongoSession) -> {
 					assertThat(mongoSession.getId()).isNotEmpty();
 					assertThat(mongoSession.getMaxInactiveInterval().getSeconds())
 							.isEqualTo(ReactiveMongoSessionRepository.DEFAULT_INACTIVE_INTERVAL);
@@ -104,7 +110,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldSaveSession() {
+	void shouldSaveSession() {
 
 		// given
 		MongoSession session = new MongoSession();
@@ -124,7 +130,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldGetSession() {
+	void shouldGetSession() {
 
 		// given
 		String sessionId = UUID.randomUUID().toString();
@@ -146,7 +152,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldHandleExpiredSession() {
+	void shouldHandleExpiredSession() {
 
 		// given
 		String sessionId = UUID.randomUUID().toString();
@@ -175,7 +181,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldDeleteSession() {
+	void shouldDeleteSession() {
 
 		// given
 		String sessionId = UUID.randomUUID().toString();
@@ -204,7 +210,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldInvokeMethodToCreateIndexesImperatively() {
+	void shouldInvokeMethodToCreateIndexesImperatively() {
 
 		// given
 		IndexOperations indexOperations = mock(IndexOperations.class);

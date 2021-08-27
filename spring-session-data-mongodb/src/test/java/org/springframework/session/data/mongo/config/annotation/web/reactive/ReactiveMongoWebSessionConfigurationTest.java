@@ -15,9 +15,13 @@
  */
 package org.springframework.session.data.mongo.config.annotation.web.reactive;
 
+import java.lang.reflect.Field;
+import java.util.Collections;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -28,17 +32,22 @@ import org.springframework.session.IndexResolver;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
-import org.springframework.session.data.mongo.*;
+import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
+import org.springframework.session.data.mongo.JacksonMongoSessionConverter;
+import org.springframework.session.data.mongo.JdkMongoSessionConverter;
+import org.springframework.session.data.mongo.MongoSession;
+import org.springframework.session.data.mongo.ReactiveMongoSessionRepository;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import org.springframework.web.server.session.WebSessionManager;
 
-import java.lang.reflect.Field;
-import java.util.Collections;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.times;
+import static org.mockito.BDDMockito.verify;
 
 /**
  * Verify various configurations through {@link EnableSpringWebSession}.
@@ -51,7 +60,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	private AnnotationConfigApplicationContext context;
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 
 		if (this.context != null) {
 			this.context.close();
@@ -59,7 +68,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void enableSpringWebSessionConfiguresThings() {
+	void enableSpringWebSessionConfiguresThings() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(GoodConfig.class);
@@ -76,7 +85,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void missingReactorSessionRepositoryBreaksAppContext() {
+	void missingReactorSessionRepositoryBreaksAppContext() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(BadConfig.class);
@@ -88,7 +97,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void defaultSessionConverterShouldBeJdkWhenOnClasspath() throws IllegalAccessException {
+	void defaultSessionConverterShouldBeJdkWhenOnClasspath() throws IllegalAccessException {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(GoodConfig.class);
@@ -102,7 +111,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void overridingMongoSessionConverterWithBeanShouldWork() throws IllegalAccessException {
+	void overridingMongoSessionConverterWithBeanShouldWork() throws IllegalAccessException {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(OverrideSessionConverterConfig.class);
@@ -116,7 +125,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void overridingIntervalAndCollectionNameThroughAnnotationShouldWork() throws IllegalAccessException {
+	void overridingIntervalAndCollectionNameThroughAnnotationShouldWork() throws IllegalAccessException {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(OverrideMongoParametersConfig.class);
@@ -138,7 +147,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void reactiveAndBlockingMongoOperationsShouldEnsureIndexing() {
+	void reactiveAndBlockingMongoOperationsShouldEnsureIndexing() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(ConfigWithReactiveAndImperativeMongoOperations.class);
@@ -153,7 +162,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void overrideCollectionAndInactiveIntervalThroughConfigurationOptions() {
+	void overrideCollectionAndInactiveIntervalThroughConfigurationOptions() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(CustomizedReactiveConfiguration.class);
@@ -166,7 +175,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	public void sessionRepositoryCustomizer() {
+	void sessionRepositoryCustomizer() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(SessionRepositoryCustomizerConfiguration.class);
@@ -213,8 +222,6 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	 * Reflectively extract the {@link AbstractMongoSessionConverter} from the
 	 * {@link ReactiveMongoSessionRepository}. This is to avoid expanding the surface area
 	 * of the API.
-	 * @param repository
-	 * @return
 	 */
 	private AbstractMongoSessionConverter findMongoSessionConverter(ReactiveMongoSessionRepository repository) {
 
@@ -223,8 +230,8 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		try {
 			return (AbstractMongoSessionConverter) field.get(repository);
 		}
-		catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
+		catch (IllegalAccessException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
@@ -303,7 +310,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	@EnableSpringWebSession
 	static class CustomizedReactiveConfiguration extends ReactiveMongoWebSessionConfiguration {
 
-		public CustomizedReactiveConfiguration() {
+		CustomizedReactiveConfiguration() {
 
 			this.setCollectionName("custom-collection");
 			this.setMaxInactiveIntervalInSeconds(123);
@@ -326,14 +333,14 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 		@Bean
 		@Order(0)
-		public ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizerOne() {
-			return sessionRepository -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
+		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizerOne() {
+			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
 		}
 
 		@Bean
 		@Order(1)
-		public ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizerTwo() {
-			return sessionRepository -> sessionRepository.setMaxInactiveIntervalInSeconds(10000);
+		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizerTwo() {
+			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(10000);
 		}
 
 	}
@@ -348,7 +355,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		public IndexResolver<MongoSession> indexResolver() {
+		IndexResolver<MongoSession> indexResolver() {
 			return mock(IndexResolver.class);
 		}
 
@@ -369,7 +376,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		public IndexResolver<MongoSession> indexResolver() {
+		IndexResolver<MongoSession> indexResolver() {
 			return mock(IndexResolver.class);
 		}
 

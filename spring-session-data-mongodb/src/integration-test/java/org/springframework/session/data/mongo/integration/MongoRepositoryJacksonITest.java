@@ -15,7 +15,12 @@
  */
 package org.springframework.session.data.mongo.integration;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.geo.GeoModule;
@@ -24,10 +29,6 @@ import org.springframework.session.data.mongo.JacksonMongoSessionConverter;
 import org.springframework.session.data.mongo.MongoSession;
 import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -44,7 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MongoRepositoryJacksonITest extends AbstractMongoRepositoryITest {
 
 	@Test
-	public void findByCustomIndex() throws Exception {
+	void findByCustomIndex() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		String cartId = "cart-" + UUID.randomUUID();
@@ -64,7 +65,7 @@ public class MongoRepositoryJacksonITest extends AbstractMongoRepositoryITest {
 	static class Config extends BaseConfig {
 
 		@Bean
-		public AbstractMongoSessionConverter mongoSessionConverter() {
+		AbstractMongoSessionConverter mongoSessionConverter() {
 			return new JacksonMongoSessionConverter(Collections.singletonList(new GeoModule()));
 		}
 

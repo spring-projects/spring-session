@@ -16,6 +16,8 @@
 
 package org.springframework.session.mongodb.examples;
 
+import java.util.Set;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,8 +36,6 @@ import org.springframework.session.mongodb.examples.pages.LoginPage;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
-
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,17 +53,17 @@ public class BootTests {
 	private WebDriver driver;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		this.driver = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
 	}
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		this.driver.quit();
 	}
 
 	@Test
-	public void unauthenticatedUserSentToLogInPage() {
+	void unauthenticatedUserSentToLogInPage() {
 
 		HomePage homePage = HomePage.go(this.driver);
 		LoginPage loginPage = homePage.unauthenticated();
@@ -70,7 +71,7 @@ public class BootTests {
 	}
 
 	@Test
-	public void logInViewsHomePage() {
+	void logInViewsHomePage() {
 
 		LoginPage loginPage = LoginPage.go(this.driver);
 		loginPage.assertAt();
@@ -86,7 +87,7 @@ public class BootTests {
 	}
 
 	@Test
-	public void logoutSuccess() {
+	void logoutSuccess() {
 
 		LoginPage loginPage = LoginPage.go(this.driver);
 		HomePage homePage = loginPage.login("user", "password");
@@ -96,7 +97,7 @@ public class BootTests {
 	}
 
 	@Test
-	public void loggedOutUserSentToLoginPage() {
+	void loggedOutUserSentToLoginPage() {
 
 		LoginPage loginPage = LoginPage.go(this.driver);
 		HomePage homePage = loginPage.login("user", "password");

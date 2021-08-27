@@ -15,9 +15,13 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,17 +29,11 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
-import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-import static org.springframework.session.data.mongo.MongoSessionUtils.convertToDBObject;
-import static org.springframework.session.data.mongo.MongoSessionUtils.convertToSession;
 
 /**
  * A {@link ReactiveSessionRepository} implementation that uses Spring Data MongoDB.
@@ -56,7 +54,7 @@ public class ReactiveMongoSessionRepository
 	 */
 	public static final String DEFAULT_COLLECTION_NAME = "sessions";
 
-	private static final Logger logger = LoggerFactory.getLogger(ReactiveMongoSessionRepository.class);
+	private static final Log logger = LogFactory.getLog(ReactiveMongoSessionRepository.class);
 
 	private final ReactiveMongoOperations mongoOperations;
 
@@ -91,7 +89,7 @@ public class ReactiveMongoSessionRepository
 
 		return Mono.justOrEmpty(this.maxInactiveIntervalInSeconds) //
 				.map(MongoSession::new) //
-				.doOnNext(mongoSession -> publishEvent(new SessionCreatedEvent(this, mongoSession))) //
+				.doOnNext((mongoSession) -> publishEvent(new SessionCreatedEvent(this, mongoSession))) //
 				.switchIfEmpty(Mono.just(new MongoSession()));
 	}
 
@@ -99,12 +97,13 @@ public class ReactiveMongoSessionRepository
 	public Mono<Void> save(MongoSession session) {
 
 		return Mono //
-				.justOrEmpty(convertToDBObject(this.mongoSessionConverter, session)) //
-				.flatMap(dbObject -> {
+				.justOrEmpty(MongoSessionUtils.convertToDBObject(this.mongoSessionConverter, session)) //
+				.flatMap((dbObject) -> {
 					if (session.hasChangedSessionId()) {
 
 						return this.mongoOperations
-								.remove(query(where("_id").is(session.getOriginalSessionId())), this.collectionName) //
+								.remove(Query.query(Criteria.where("_id").is(session.getOriginalSessionId())),
+										this.collectionName) //
 								.then(this.mongoOperations.save(dbObject, this.collectionName));
 					}
 					else {
@@ -119,8 +118,8 @@ public class ReactiveMongoSessionRepository
 	public Mono<MongoSession> findById(String id) {
 
 		return findSession(id) //
-				.map(document -> convertToSession(this.mongoSessionConverter, document)) //
-				.filter(mongoSession -> !mongoSession.isExpired()) //
+				.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
+				.filter((mongoSession) -> !mongoSession.isExpired()) //
 				.switchIfEmpty(Mono.defer(() -> this.deleteById(id).then(Mono.empty())));
 	}
 
@@ -128,10 +127,10 @@ public class ReactiveMongoSessionRepository
 	public Mono<Void> deleteById(String id) {
 
 		return findSession(id) //
-				.flatMap(document -> this.mongoOperations.remove(document, this.collectionName) //
+				.flatMap((document) -> this.mongoOperations.remove(document, this.collectionName) //
 						.then(Mono.just(document))) //
-				.map(document -> convertToSession(this.mongoSessionConverter, document)) //
-				.doOnNext(mongoSession -> publishEvent(new SessionDeletedEvent(this, mongoSession))) //
+				.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
+				.doOnNext((mongoSession) -> publishEvent(new SessionDeletedEvent(this, mongoSession))) //
 				.then();
 	}
 

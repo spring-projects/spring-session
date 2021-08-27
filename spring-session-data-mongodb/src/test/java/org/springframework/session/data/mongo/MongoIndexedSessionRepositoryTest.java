@@ -16,6 +16,10 @@
 
 package org.springframework.session.data.mongo;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.bson.Document;
@@ -24,18 +28,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.mock;
+import static org.mockito.BDDMockito.verify;
 
 /**
  * Tests for {@link MongoIndexedSessionRepository}.
@@ -56,14 +61,14 @@ public class MongoIndexedSessionRepositoryTest {
 	private MongoIndexedSessionRepository repository;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 
 		this.repository = new MongoIndexedSessionRepository(this.mongoOperations);
 		this.repository.setMongoSessionConverter(this.converter);
 	}
 
 	@Test
-	public void shouldCreateSession() {
+	void shouldCreateSession() {
 
 		// when
 		MongoSession session = this.repository.createSession();
@@ -75,7 +80,7 @@ public class MongoIndexedSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() {
+	void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() {
 
 		// when
 		this.repository.setMaxInactiveIntervalInSeconds(null);
@@ -88,7 +93,7 @@ public class MongoIndexedSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldSaveSession() {
+	void shouldSaveSession() {
 
 		// given
 		MongoSession session = new MongoSession();
@@ -104,7 +109,7 @@ public class MongoIndexedSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldGetSession() {
+	void shouldGetSession() {
 
 		// given
 		String sessionId = UUID.randomUUID().toString();
@@ -126,7 +131,7 @@ public class MongoIndexedSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldHandleExpiredSession() {
+	void shouldHandleExpiredSession() {
 
 		// given
 		String sessionId = UUID.randomUUID().toString();
@@ -151,7 +156,7 @@ public class MongoIndexedSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldDeleteSession() {
+	void shouldDeleteSession() {
 
 		// given
 		String sessionId = UUID.randomUUID().toString();
@@ -176,7 +181,7 @@ public class MongoIndexedSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldGetSessionsMapByPrincipal() {
+	void shouldGetSessionsMapByPrincipal() {
 
 		// given
 		String principalNameIndexName = FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME;
@@ -205,7 +210,7 @@ public class MongoIndexedSessionRepositoryTest {
 	}
 
 	@Test
-	public void shouldReturnEmptyMapForNotSupportedIndex() {
+	void shouldReturnEmptyMapForNotSupportedIndex() {
 
 		// given
 		String index = "some_not_supported_index_name";

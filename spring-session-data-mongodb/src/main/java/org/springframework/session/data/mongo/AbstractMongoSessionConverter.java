@@ -16,10 +16,14 @@
 
 package org.springframework.session.data.mongo;
 
+import java.util.Collections;
+import java.util.Set;
+
 import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.GenericConverter;
 import org.springframework.data.domain.Sort;
@@ -32,9 +36,6 @@ import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.PrincipalNameIndexResolver;
-
-import java.util.Collections;
-import java.util.Set;
 
 /**
  * Base class for serializing and deserializing session objects. To create custom

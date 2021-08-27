@@ -15,11 +15,17 @@
  */
 package org.springframework.session.data.mongo.integration;
 
+import java.net.URI;
+
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.containers.MongoDBContainer;
+import reactor.test.StepVerifier;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -45,12 +51,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.testcontainers.containers.MongoDBContainer;
-import reactor.test.StepVerifier;
-
-import java.net.URI;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 /**
  * @author Boris Finkelshteyn
@@ -82,7 +82,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 				.exchange() //
 				.returnResult(String.class);
 
-		assertThat(loginResult.getResponseHeaders().getLocation()).isEqualTo(URI.create("/"));
+		AssertionsForClassTypes.assertThat(loginResult.getResponseHeaders().getLocation()).isEqualTo(URI.create("/"));
 
 		String originalSessionId = loginResult.getResponseCookies().getFirst("SESSION").getValue();
 
@@ -105,7 +105,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 				.expectStatus().isFound() //
 				.returnResult(String.class).getResponseCookies().getFirst("SESSION").getValue();
 
-		assertThat(newSessionId).isNotEqualTo(originalSessionId);
+		AssertionsForClassTypes.assertThat(newSessionId).isNotEqualTo(originalSessionId);
 
 		// 4. Verify the new SESSION cookie is not yet authorized.
 
@@ -113,7 +113,8 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 				.cookie("SESSION", newSessionId) //
 				.exchange() //
 				.expectStatus().isFound() //
-				.expectHeader().value(HttpHeaders.LOCATION, value -> assertThat(value).isEqualTo("/login"));
+				.expectHeader()
+				.value(HttpHeaders.LOCATION, (value) -> AssertionsForClassTypes.assertThat(value).isEqualTo("/login"));
 
 		// 5. Verify the original SESSION cookie no longer works.
 
@@ -121,14 +122,15 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 				.cookie("SESSION", originalSessionId) //
 				.exchange() //
 				.expectStatus().isFound() //
-				.expectHeader().value(HttpHeaders.LOCATION, value -> assertThat(value).isEqualTo("/login"));
+				.expectHeader()
+				.value(HttpHeaders.LOCATION, (value) -> AssertionsForClassTypes.assertThat(value).isEqualTo("/login"));
 	}
 
 	@RestController
 	static class TestController {
 
 		@GetMapping("/hello")
-		public ResponseEntity<String> hello() {
+		ResponseEntity<String> hello() {
 			return ResponseEntity.ok("HelloWorld");
 		}
 
@@ -138,7 +140,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 	static class SecurityConfig {
 
 		@Bean
-		public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 			return http //
 					.logout()//
 					/**/.and() //
@@ -152,7 +154,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 		}
 
 		@Bean
-		public MapReactiveUserDetailsService userDetailsService() {
+		MapReactiveUserDetailsService userDetailsService() {
 			return new MapReactiveUserDetailsService(User.withDefaultPasswordEncoder() //
 					.username("admin") //
 					.password("password") //
@@ -161,7 +163,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 		}
 
 		@Bean
-		public AbstractMongoSessionConverter mongoSessionConverter() {
+		AbstractMongoSessionConverter mongoSessionConverter() {
 			return new JacksonMongoSessionConverter();
 		}
 
@@ -175,14 +177,15 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 		private static final String DOCKER_IMAGE = "mongo:4.0.10";
 
 		@Bean(initMethod = "start", destroyMethod = "stop")
-		public MongoDBContainer mongoContainer() {
+		MongoDBContainer mongoContainer() {
 			return new MongoDBContainer(DOCKER_IMAGE).withExposedPorts(27017);
 		}
 
 		@Bean
-		public ReactiveMongoOperations mongoOperations(MongoDBContainer mongoContainer) {
+		ReactiveMongoOperations mongoOperations(MongoDBContainer mongoContainer) {
 
-			MongoClient mongo = MongoClients.create("mongodb://" + mongoContainer.getContainerIpAddress() + ":" + mongoContainer.getFirstMappedPort());
+			MongoClient mongo = MongoClients.create(
+					"mongodb://" + mongoContainer.getContainerIpAddress() + ":" + mongoContainer.getFirstMappedPort());
 			return new ReactiveMongoTemplate(mongo, "DB_Name_DeleteJacksonSessionVerificationTest");
 		}
 

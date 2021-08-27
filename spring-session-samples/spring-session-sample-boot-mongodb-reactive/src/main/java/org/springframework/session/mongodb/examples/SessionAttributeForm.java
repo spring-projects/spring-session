@@ -30,7 +30,7 @@ public class SessionAttributeForm {
 	private String attributeValue;
 
 	public String getAttributeName() {
-		return attributeName;
+		return this.attributeName;
 	}
 
 	public void setAttributeName(String attributeName) {
@@ -38,7 +38,7 @@ public class SessionAttributeForm {
 	}
 
 	public String getAttributeValue() {
-		return attributeValue;
+		return this.attributeValue;
 	}
 
 	public void setAttributeValue(String attributeValue) {
@@ -48,24 +48,27 @@ public class SessionAttributeForm {
 	@Override
 	public boolean equals(Object o) {
 
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (!(o instanceof SessionAttributeForm))
+		}
+		if (!(o instanceof SessionAttributeForm)) {
 			return false;
+		}
 		SessionAttributeForm that = (SessionAttributeForm) o;
-		return Objects.equals(attributeName, that.attributeName) && Objects.equals(attributeValue, that.attributeValue);
+		return Objects.equals(this.attributeName, that.attributeName)
+				&& Objects.equals(this.attributeValue, that.attributeValue);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(attributeName, attributeValue);
+		return Objects.hash(this.attributeName, this.attributeValue);
 	}
 
 	@Override
 	public String toString() {
 
-		return "SessionAttributeForm{" + "attributeName='" + attributeName + '\'' + ", attributeValue='"
-				+ attributeValue + '\'' + '}';
+		return "SessionAttributeForm{" + "attributeName='" + this.attributeName + '\'' + ", attributeValue='"
+				+ this.attributeValue + '\'' + '}';
 	}
 
 }

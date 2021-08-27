@@ -15,7 +15,11 @@
  */
 package org.springframework.session.data.mongo.integration;
 
+import java.time.Duration;
+import java.util.Map;
+
 import org.junit.jupiter.api.Test;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -23,9 +27,6 @@ import org.springframework.session.data.mongo.JdkMongoSessionConverter;
 import org.springframework.session.data.mongo.MongoSession;
 import org.springframework.session.data.mongo.config.annotation.web.http.EnableMongoHttpSession;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.time.Duration;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -42,7 +43,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MongoRepositoryJdkSerializationITest extends AbstractMongoRepositoryITest {
 
 	@Test
-	public void findByDeletedSecurityPrincipalNameReload() throws Exception {
+	void findByDeletedSecurityPrincipalNameReload() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -60,7 +61,7 @@ public class MongoRepositoryJdkSerializationITest extends AbstractMongoRepositor
 	}
 
 	@Test
-	public void findByPrincipalNameNoSecurityPrincipalNameChangeReload() throws Exception {
+	void findByPrincipalNameNoSecurityPrincipalNameChangeReload() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -85,7 +86,7 @@ public class MongoRepositoryJdkSerializationITest extends AbstractMongoRepositor
 	static class Config extends BaseConfig {
 
 		@Bean
-		public AbstractMongoSessionConverter mongoSessionConverter() {
+		AbstractMongoSessionConverter mongoSessionConverter() {
 			return new JdkMongoSessionConverter(Duration.ofMinutes(30));
 		}
 

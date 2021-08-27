@@ -15,13 +15,18 @@
  */
 package org.springframework.session.data.mongo;
 
-import org.springframework.lang.Nullable;
-import org.springframework.session.Session;
-
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.lang.Nullable;
+import org.springframework.session.Session;
 
 /**
  * Session object providing additional information about the datetime of expiration.
@@ -150,10 +155,12 @@ public class MongoSession implements Session {
 	@Override
 	public boolean equals(Object o) {
 
-		if (this == o)
+		if (this == o) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (o == null || getClass() != o.getClass()) {
 			return false;
+		}
 		MongoSession that = (MongoSession) o;
 		return Objects.equals(this.id, that.id);
 	}

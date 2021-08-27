@@ -17,13 +17,19 @@ package org.springframework.session.data.mongo;
 
 import com.mongodb.DBObject;
 import org.bson.Document;
+
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.lang.Nullable;
 
 /**
+ * Utility for MongoSession.
+ *
  * @author Greg Turnquist
  */
 public final class MongoSessionUtils {
+
+	private MongoSessionUtils() {
+	}
 
 	@Nullable
 	static DBObject convertToDBObject(AbstractMongoSessionConverter mongoSessionConverter, MongoSession session) {

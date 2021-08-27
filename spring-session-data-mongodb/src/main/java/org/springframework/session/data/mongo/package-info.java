@@ -15,6 +15,8 @@
  */
 
 /**
+ * Spring Session MongoDB support.
+ *
  * @author Greg Turnquist
  */
 @NonNullApi

@@ -15,11 +15,12 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.Test;
+
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
-
-import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
@@ -32,7 +33,7 @@ public class JdkMongoSessionConverterTest extends AbstractMongoSessionConverterT
 
 	Duration inactiveInterval = Duration.ofMinutes(30);
 
-	JdkMongoSessionConverter mongoSessionConverter = new JdkMongoSessionConverter(inactiveInterval);
+	JdkMongoSessionConverter mongoSessionConverter = new JdkMongoSessionConverter(this.inactiveInterval);
 
 	@Override
 	AbstractMongoSessionConverter getMongoSessionConverter() {
@@ -40,17 +41,15 @@ public class JdkMongoSessionConverterTest extends AbstractMongoSessionConverterT
 	}
 
 	@Test
-	public void constructorNullSerializer() {
-		assertThatIllegalArgumentException().isThrownBy(() -> {
-			new JdkMongoSessionConverter(null, new DeserializingConverter(), inactiveInterval);
-		});
+	void constructorNullSerializer() {
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new JdkMongoSessionConverter(null, new DeserializingConverter(), this.inactiveInterval));
 	}
 
 	@Test
-	public void constructorNullDeserializer() {
-		assertThatIllegalArgumentException().isThrownBy(() -> {
-			new JdkMongoSessionConverter(new SerializingConverter(), null, inactiveInterval);
-		});
+	void constructorNullDeserializer() {
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new JdkMongoSessionConverter(new SerializingConverter(), null, this.inactiveInterval));
 	}
 
 }

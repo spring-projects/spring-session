@@ -15,9 +15,16 @@
  */
 package org.springframework.session.data.mongo.integration;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Map;
+import java.util.UUID;
+
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.MongoDBContainer;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -31,12 +38,6 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.data.mongo.MongoIndexedSessionRepository;
 import org.springframework.session.data.mongo.MongoSession;
-import org.testcontainers.containers.MongoDBContainer;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Vedran Pavic
  * @author Greg Turnquist
  */
-abstract public class AbstractMongoRepositoryITest extends AbstractITest {
+public abstract class AbstractMongoRepositoryITest extends AbstractITest {
 
 	protected static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -57,7 +58,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	protected MongoIndexedSessionRepository repository;
 
 	@Test
-	public void saves() {
+	void saves() {
 
 		String username = "saves-" + System.currentTimeMillis();
 
@@ -88,7 +89,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void putAllOnSingleAttrDoesNotRemoveOld() {
+	void putAllOnSingleAttrDoesNotRemoveOld() {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute("a", "b");
@@ -110,7 +111,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByPrincipalName() throws Exception {
+	void findByPrincipalName() throws Exception {
 
 		String principalName = "findByPrincipalName" + UUID.randomUUID();
 		MongoSession toSave = this.repository.createSession();
@@ -133,12 +134,12 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void nonExistentSessionShouldNotBreakMongo() {
+	void nonExistentSessionShouldNotBreakMongo() {
 		this.repository.deleteById("doesn't exist");
 	}
 
 	@Test
-	public void findByPrincipalNameNoPrincipalNameChange() throws Exception {
+	void findByPrincipalNameNoPrincipalNameChange() throws Exception {
 
 		String principalName = "findByPrincipalNameNoPrincipalNameChange" + UUID.randomUUID();
 		MongoSession toSave = this.repository.createSession();
@@ -157,7 +158,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByPrincipalNameNoPrincipalNameChangeReload() throws Exception {
+	void findByPrincipalNameNoPrincipalNameChangeReload() throws Exception {
 
 		String principalName = "findByPrincipalNameNoPrincipalNameChangeReload" + UUID.randomUUID();
 		MongoSession toSave = this.repository.createSession();
@@ -178,7 +179,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByDeletedPrincipalName() throws Exception {
+	void findByDeletedPrincipalName() throws Exception {
 
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
 		MongoSession toSave = this.repository.createSession();
@@ -196,7 +197,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByChangedPrincipalName() throws Exception {
+	void findByChangedPrincipalName() throws Exception {
 
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
@@ -219,7 +220,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByDeletedPrincipalNameReload() throws Exception {
+	void findByDeletedPrincipalNameReload() throws Exception {
 
 		String principalName = "findByDeletedPrincipalName" + UUID.randomUUID();
 		MongoSession toSave = this.repository.createSession();
@@ -238,7 +239,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByChangedPrincipalNameReload() throws Exception {
+	void findByChangedPrincipalNameReload() throws Exception {
 
 		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
 		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
@@ -263,7 +264,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findBySecurityPrincipalName() throws Exception {
+	void findBySecurityPrincipalName() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -285,7 +286,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByPrincipalNameNoSecurityPrincipalNameChange() throws Exception {
+	void findByPrincipalNameNoSecurityPrincipalNameChange() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -303,7 +304,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByDeletedSecurityPrincipalName() throws Exception {
+	void findByDeletedSecurityPrincipalName() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -320,7 +321,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByChangedSecurityPrincipalName() throws Exception {
+	void findByChangedSecurityPrincipalName() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -341,7 +342,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void findByChangedSecurityPrincipalNameReload() throws Exception {
+	void findByChangedSecurityPrincipalNameReload() throws Exception {
 
 		MongoSession toSave = this.repository.createSession();
 		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
@@ -364,7 +365,7 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 	}
 
 	@Test
-	public void loadExpiredSession() throws Exception {
+	void loadExpiredSession() throws Exception {
 
 		// given
 		MongoSession expiredSession = this.repository.createSession();
@@ -397,9 +398,11 @@ abstract public class AbstractMongoRepositoryITest extends AbstractITest {
 		@Bean
 		public MongoOperations mongoOperations(MongoDBContainer mongoContainer) {
 
-			MongoClient mongo = MongoClients.create("mongodb://" + mongoContainer.getContainerIpAddress() + ":" + mongoContainer.getFirstMappedPort());
+			MongoClient mongo = MongoClients.create(
+					"mongodb://" + mongoContainer.getContainerIpAddress() + ":" + mongoContainer.getFirstMappedPort());
 			return new MongoTemplate(mongo, "test");
 		}
+
 	}
 
 }

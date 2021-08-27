@@ -15,9 +15,16 @@
  */
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
@@ -29,15 +36,6 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
-
-import java.time.Duration;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.springframework.session.data.mongo.MongoSessionUtils.convertToDBObject;
-import static org.springframework.session.data.mongo.MongoSessionUtils.convertToSession;
 
 /**
  * Session repository implementation which stores sessions in Mongo. Uses
@@ -62,7 +60,7 @@ public class MongoIndexedSessionRepository
 	 */
 	public static final String DEFAULT_COLLECTION_NAME = "sessions";
 
-	private static final Logger logger = LoggerFactory.getLogger(MongoIndexedSessionRepository.class);
+	private static final Log logger = LogFactory.getLog(MongoIndexedSessionRepository.class);
 
 	private final MongoOperations mongoOperations;
 
@@ -95,8 +93,9 @@ public class MongoIndexedSessionRepository
 
 	@Override
 	public void save(MongoSession session) {
-		this.mongoOperations.save(Assert.requireNonNull(convertToDBObject(this.mongoSessionConverter, session),
-				"convertToDBObject must not null!"), this.collectionName);
+		this.mongoOperations
+				.save(Assert.requireNonNull(MongoSessionUtils.convertToDBObject(this.mongoSessionConverter, session),
+						"convertToDBObject must not null!"), this.collectionName);
 	}
 
 	@Override
@@ -109,7 +108,7 @@ public class MongoIndexedSessionRepository
 			return null;
 		}
 
-		MongoSession session = convertToSession(this.mongoSessionConverter, sessionWrapper);
+		MongoSession session = MongoSessionUtils.convertToSession(this.mongoSessionConverter, sessionWrapper);
 
 		if (session != null && session.isExpired()) {
 			publishEvent(new SessionExpiredEvent(this, session));
@@ -132,18 +131,18 @@ public class MongoIndexedSessionRepository
 	public Map<String, MongoSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 
 		return Optional.ofNullable(this.mongoSessionConverter.getQueryForIndex(indexName, indexValue))
-				.map(query -> this.mongoOperations.find(query, Document.class, this.collectionName))
+				.map((query) -> this.mongoOperations.find(query, Document.class, this.collectionName))
 				.orElse(Collections.emptyList()).stream()
-				.map(dbSession -> convertToSession(this.mongoSessionConverter, dbSession))
-				.collect(Collectors.toMap(MongoSession::getId, mapSession -> mapSession));
+				.map((dbSession) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, dbSession))
+				.collect(Collectors.toMap(MongoSession::getId, (mapSession) -> mapSession));
 	}
 
 	@Override
 	public void deleteById(String id) {
 
-		Optional.ofNullable(findSession(id)).ifPresent(document -> {
+		Optional.ofNullable(findSession(id)).ifPresent((document) -> {
 
-			MongoSession session = convertToSession(this.mongoSessionConverter, document);
+			MongoSession session = MongoSessionUtils.convertToSession(this.mongoSessionConverter, document);
 			if (session != null) {
 				publishEvent(new SessionDeletedEvent(this, session));
 			}

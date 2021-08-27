@@ -15,13 +15,13 @@
  */
 package org.springframework.session.data.mongo.config.annotation.web.reactive;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.session.data.mongo.ReactiveMongoSessionRepository;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.session.data.mongo.ReactiveMongoSessionRepository;
 
 /**
  * Add this annotation to a {@code @Configuration} class to configure a MongoDB-based

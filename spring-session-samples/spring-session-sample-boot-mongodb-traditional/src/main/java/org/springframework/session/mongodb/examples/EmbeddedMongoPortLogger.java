@@ -15,8 +15,9 @@
  */
 package org.springframework.session.mongodb.examples;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.EnvironmentAware;
@@ -26,15 +27,17 @@ import org.springframework.stereotype.Component;
 @Component
 class EmbeddedMongoPortLogger implements ApplicationRunner, EnvironmentAware {
 
-	private static final Logger logger = LoggerFactory.getLogger(EmbeddedMongoPortLogger.class);
+	private static final Log logger = LogFactory.getLog(EmbeddedMongoPortLogger.class);
 
 	private Environment environment;
 
+	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		String port = this.environment.getProperty("local.mongo.port");
 		logger.info("Embedded Mongo started on port " + port + ", use 'mongo --port " + port + "' command to connect");
 	}
 
+	@Override
 	public void setEnvironment(Environment environment) {
 		this.environment = environment;
 	}

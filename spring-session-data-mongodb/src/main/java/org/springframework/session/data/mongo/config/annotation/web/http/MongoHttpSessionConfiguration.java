@@ -15,6 +15,10 @@
  */
 package org.springframework.session.data.mongo.config.annotation.web.http;
 
+import java.time.Duration;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +40,6 @@ import org.springframework.session.data.mongo.MongoIndexedSessionRepository;
 import org.springframework.session.data.mongo.MongoSession;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Configuration class registering {@code MongoSessionRepository} bean. To import this
@@ -97,7 +97,7 @@ public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 		}
 
 		this.sessionRepositoryCustomizers
-				.forEach(sessionRepositoryCustomizer -> sessionRepositoryCustomizer.customize(repository));
+				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(repository));
 
 		return repository;
 	}
@@ -122,7 +122,7 @@ public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguratio
 			this.maxInactiveIntervalInSeconds = MongoIndexedSessionRepository.DEFAULT_INACTIVE_INTERVAL;
 		}
 
-		String collectionNameValue = attributes != null ? attributes.getString("collectionName") : "";
+		String collectionNameValue = (attributes != null) ? attributes.getString("collectionName") : "";
 		if (StringUtils.hasText(collectionNameValue)) {
 			this.collectionName = this.embeddedValueResolver.resolveStringValue(collectionNameValue);
 		}
