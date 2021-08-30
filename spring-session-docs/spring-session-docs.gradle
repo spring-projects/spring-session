@@ -36,6 +36,44 @@ sourceSets {
 
 def versions = dependencyManagement.managedVersions
 
+
+tasks.register("generateAntora") {
+    group = "Documentation"
+    description = "Generates the antora.yml for dynamic properties"
+    doLast {
+        def dollar = '$'
+        def ghTag = snapshotBuild ? 'main' : project.version
+        def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
+        def outputFile = new File("$buildDir/generateAntora/antora.yml")
+        outputFile.getParentFile().mkdirs()
+        outputFile.createNewFile()
+        outputFile.setText("""name: ''
+title: Spring Session
+version: ~
+display_version: 2.6
+start_page: ROOT:index.adoc
+asciidoc:
+  attributes:
+    download-url: "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip"
+    gh-samples-url: "$ghUrl/spring-session-samples/"
+    samples-dir: "example${dollar}spring-session-samples/"
+    session-jdbc-main-resources-dir: "example${dollar}session-jdbc-main-resources-dir/"
+    docs-test-dir: "example${dollar}java/"
+    websocketdoc-test-dir: 'example${dollar}java/docs/websocket/'
+    docs-test-resources-dir: "example${dollar}resources/"
+    indexdoc-tests: "example${dollar}java/docs/IndexDocTests.java"
+    spring-session-version: ${project.version}
+    version-milestone: $milestoneBuild
+    version-release: $releaseBuild
+    version-snapshot: $snapshotBuild
+    spring-boot-version: ${project.springBootVersion}
+    spring-data-redis-version: ${versions['org.springframework.data:spring-data-redis']}
+    spring-framework-version: ${versions['org.springframework:spring-core']}
+    spring-security-version: ${versions['org.springframework.security:spring-security-core']}
+""")
+    }
+}
+
 asciidoctorPdf {
     clearSources()
     sources {
@@ -76,8 +114,6 @@ asciidoctorj {
 			'highlightjsdir@': "js/highlight",
 			'docinfodir@': "."
 }
-
-println asciidoctorj.attributes
 
 repositories {
     maven { url "https://repo.spring.io/release" }

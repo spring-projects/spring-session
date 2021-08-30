@@ -14,5 +14,14 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
+      - name: Generate antora.yml
+        run: ./gradlew :spring-session-docs:generateAntora
+      - name: Push generated antora files to the spring-security-docs-generated
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: "spring-session/main" # The branch the action should deploy to.
+          folder: "spring-session-docs/build/generateAntora" # The folder the action should deploy.
+          repository-name: "rwinch/spring-security-docs-generated"
+          token: ${{ secrets.GH_TOKEN_DISPATCH }}
       - name: Dispatch Build Request
         run: ${GITHUB_WORKSPACE}/.github/actions/dispatch.sh 'rwinch/spring-reference' "$GH_TOKEN_DISPATCH"
