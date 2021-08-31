@@ -1,12 +1,12 @@
 * xref:whats-new.adoc[What's New]
 * xref:samples.adoc[Samples & Guides (Start Here)]
 ** Boot Samples
-** xref:guides/boot-redis.adoc[HttpSession with Redis]
-** xref:guides/boot-jdbc.adoc[HttpSession with JDBC]
-** {gh-samples-url}spring-session-sample-boot-hazelcast[HttpSession with Hazelcast]
-** xref:guides/boot-findbyusername.adoc[Find by Username]
-** xref:guides/boot-websocket.adoc[WebSockets]
-** {gh-samples-url}spring-session-sample-boot-webflux[WebFlux]
+*** xref:guides/boot-redis.adoc[HttpSession with Redis]
+*** xref:guides/boot-jdbc.adoc[HttpSession with JDBC]
+*** {gh-samples-url}spring-session-sample-boot-hazelcast[HttpSession with Hazelcast]
+*** xref:guides/boot-findbyusername.adoc[Find by Username]
+*** xref:guides/boot-websocket.adoc[WebSockets]
+*** {gh-samples-url}spring-session-sample-boot-webflux[WebFlux]
 ** Java Configuration
 ** XML Configuration
 * xref:modules.adoc[Modules]
