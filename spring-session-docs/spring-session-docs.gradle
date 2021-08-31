@@ -70,6 +70,8 @@ asciidoc:
     spring-data-redis-version: ${versions['org.springframework.data:spring-data-redis']}
     spring-framework-version: ${versions['org.springframework:spring-core']}
     spring-security-version: ${versions['org.springframework.security:spring-security-core']}
+    hazelcast-version: ${versions['com.hazelcast:hazelcast']}
+    lettuce-version: ${versions['io.lettuce:lettuce-core']}
 """)
     }
 }
