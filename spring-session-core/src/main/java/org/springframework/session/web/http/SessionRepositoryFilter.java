@@ -204,6 +204,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean requestedSessionInvalidated;
 
+		private boolean committed;
+
 		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
 			super(request);
 			this.response = response;
@@ -214,6 +216,10 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		 * and persist the Session.
 		 */
 		private void commitSession() {
+			if (this.committed) {
+				return;
+			}
+			this.committed = true;
 			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if (wrappedSession == null) {
 				if (isInvalidateClientSession()) {
@@ -246,7 +252,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		}
 
 		@Override
-		@SuppressWarnings("unused")
 		public String changeSessionId() {
 			HttpSession session = getSession(false);
 
