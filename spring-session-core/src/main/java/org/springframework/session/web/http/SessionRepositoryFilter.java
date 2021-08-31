@@ -76,6 +76,7 @@ import org.springframework.session.SessionRepository;
  * @author Rob Winch
  * @author Vedran Pavic
  * @author Josh Cummings
+ * @author Yanming Zhou
  */
 @Order(SessionRepositoryFilter.DEFAULT_ORDER)
 public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFilter {
@@ -222,10 +223,11 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			}
 			else {
 				S session = wrappedSession.getSession();
+				String requestedSessionId = getRequestedSessionId(); // assign before clearRequestedSessionCache() for later use
 				clearRequestedSessionCache();
 				SessionRepositoryFilter.this.sessionRepository.save(session);
 				String sessionId = session.getId();
-				if (!isRequestedSessionIdValid() || !sessionId.equals(getRequestedSessionId())) {
+				if (!isRequestedSessionIdValid() || !sessionId.equals(requestedSessionId)) {
 					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this, this.response, sessionId);
 				}
 			}
