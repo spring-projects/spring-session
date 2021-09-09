@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,6 +137,33 @@ class ReactiveRedisSessionRepositoryTests {
 		verify(this.redisOperations).opsForHash();
 		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
 		verify(this.redisOperations).expire(anyString(), any());
+		verifyNoMoreInteractions(this.redisOperations);
+		verifyNoMoreInteractions(this.hashOperations);
+
+		Map<String, Object> delta = this.delta.getAllValues().get(0);
+		assertThat(delta.size()).isEqualTo(3);
+		assertThat(delta.get(RedisSessionMapper.CREATION_TIME_KEY))
+				.isEqualTo(newSession.getCreationTime().toEpochMilli());
+		assertThat(delta.get(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY))
+				.isEqualTo((int) newSession.getMaxInactiveInterval().getSeconds());
+		assertThat(delta.get(RedisSessionMapper.LAST_ACCESSED_TIME_KEY))
+				.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
+	}
+
+	@Test
+	void saveCustomNegativeMaxInactiveIntervalNewSession() {
+		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
+		given(this.hashOperations.putAll(anyString(), any())).willReturn(Mono.just(true));
+		given(this.redisOperations.persist(anyString())).willReturn(Mono.just(true));
+
+		MapSession mapSession = new MapSession();
+		mapSession.setMaxInactiveInterval(Duration.ofSeconds(-1));
+		RedisSession newSession = this.repository.new RedisSession(mapSession, true);
+		StepVerifier.create(this.repository.save(newSession)).verifyComplete();
+
+		verify(this.redisOperations).opsForHash();
+		verify(this.hashOperations).putAll(anyString(), this.delta.capture());
+		verify(this.redisOperations).persist(anyString());
 		verifyNoMoreInteractions(this.redisOperations);
 		verifyNoMoreInteractions(this.hashOperations);
 
@@ -324,7 +351,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verifyNoMoreInteractions(this.hashOperations);
 	}
 
-	@Test // gh-1120
+	@Test
+	// gh-1120
 	void getAttributeNamesAndRemove() {
 		RedisSession session = this.repository.new RedisSession(this.cached, false);
 		session.setAttribute("attribute1", "value1");
