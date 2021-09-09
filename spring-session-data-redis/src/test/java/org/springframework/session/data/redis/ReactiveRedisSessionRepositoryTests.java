@@ -49,6 +49,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Tests for {@link ReactiveRedisSessionRepository}.
  *
  * @author Vedran Pavic
+ * @author Kai Zhao
  */
 class ReactiveRedisSessionRepositoryTests {
 
