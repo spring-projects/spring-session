@@ -57,7 +57,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @WebAppConfiguration
 class SessionEventHazelcast4IndexedSessionRepositoryTests<S extends Session> {
 
-	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 1;
+	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 2;
 
 	@Autowired
 	private SessionRepository<S> repository;
