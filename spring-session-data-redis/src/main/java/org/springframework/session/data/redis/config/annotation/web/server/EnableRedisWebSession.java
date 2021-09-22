@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ import org.springframework.web.server.session.WebSessionManager;
  * More advanced configurations can extend {@link RedisWebSessionConfiguration} instead.
  *
  * @author Vedran Pavic
+ * @author Kai Zhao
  * @since 2.0.0
  * @see EnableSpringWebSession
  */
@@ -68,7 +69,7 @@ public @interface EnableRedisWebSession {
 
 	/**
 	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
-	 * This should be a non-negative integer.
+	 * A negative number means permanently valid.
 	 * @return the seconds a session can be inactive before expiring
 	 */
 	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
