@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.util.Assert;
  * {@link ReactiveRedisOperations}.
  *
  * @author Vedran Pavic
+ * @author Kai Zhao
  * @since 2.2.0
  */
 public class ReactiveRedisSessionRepository
@@ -274,8 +275,14 @@ public class ReactiveRedisSessionRepository
 			String sessionKey = getSessionKey(getId());
 			Mono<Boolean> update = ReactiveRedisSessionRepository.this.sessionRedisOperations.opsForHash()
 					.putAll(sessionKey, new HashMap<>(this.delta));
-			Mono<Boolean> setTtl = ReactiveRedisSessionRepository.this.sessionRedisOperations.expire(sessionKey,
-					getMaxInactiveInterval());
+			Mono<Boolean> setTtl;
+			if (getMaxInactiveInterval().getSeconds() >= 0) {
+				setTtl = ReactiveRedisSessionRepository.this.sessionRedisOperations.expire(sessionKey,
+						getMaxInactiveInterval());
+			}
+			else {
+				setTtl = ReactiveRedisSessionRepository.this.sessionRedisOperations.persist(sessionKey);
+			}
 
 			return update.and(setTtl).and((s) -> {
 				this.delta.clear();
