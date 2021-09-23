@@ -1,0 +1,32 @@
+[[websocket]]
+= WebSocket Integration
+
+Spring Session provides transparent integration with Spring's WebSocket support.
+
+include::guides/boot-websocket.adoc[tags=disclaimer,leveloffset=+1]
+
+[[websocket-why]]
+== Why Spring Session and WebSockets?
+
+So why do we need Spring Session when we use WebSockets?
+
+Consider an email application that does much of its work through HTTP requests.
+However, there is also a chat application embedded within it that works over WebSocket APIs.
+If a user is actively chatting with someone, we should not timeout the `HttpSession`, since this would be a pretty poor user experience.
+However, this is exactly what https://java.net/jira/browse/WEBSOCKET_SPEC-175[JSR-356] does.
+
+Another issue is that, according to JSR-356, if the `HttpSession` times out, any WebSocket that was created with that `HttpSession` and an authenticated user should be forcibly closed.
+This means that, if we are actively chatting in our application and are not using the HttpSession, we also do disconnect from our conversation.
+
+[[websocket-usage]]
+== WebSocket Usage
+
+The xref:samples.adoc#samples[ WebSocket Sample] provides a working sample of how to integrate Spring Session with WebSockets.
+You can follow the basic steps for integration described in the next few headings, but we encourage you to follow along with the detailed WebSocket Guide when integrating with your own application.
+
+[[websocket-httpsession]]
+=== `HttpSession` Integration
+
+Before using WebSocket integration, you should be sure that you have xref:http-session.adoc#httpsession[`HttpSession` Integration] working first.
+
+include::guides/boot-websocket.adoc[tags=config,leveloffset=+2]

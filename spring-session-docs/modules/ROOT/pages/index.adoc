@@ -1,0 +1,74 @@
+= Spring Session
+Rob Winch; Vedran Pavić; Jay Bryant; Eleftheria Stein-Kousathana
+:doctype: book
+:indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
+:websocketdoc-test-dir: {docs-test-dir}docs/websocket/
+
+[[abstract]]
+Spring Session provides an API and implementations for managing a user's session information.
+
+[[introduction]]
+Spring Session provides an API and implementations for managing a user's session information while also making it trivial to support clustered sessions without being tied to an application container-specific solution.
+It also provides transparent integration with:
+
+* xref:http-session.adoc#httpsession[HttpSession]: Allows replacing the `HttpSession` in an application container-neutral way, with support for providing session IDs in headers to work with RESTful APIs.
+* xref:web-socket.adoc#websocket[WebSocket]: Provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
+* xref:web-session.adoc#websession[WebSession]: Allows replacing the Spring WebFlux's `WebSession` in an application container-neutral way.
+
+
+[[community]]
+== Spring Session Community
+
+We are glad to consider you a part of our community.
+The following sections provide additional about how to interact with the Spring Session community.
+
+[[community-support]]
+=== Support
+
+You can get help by asking questions on https://stackoverflow.com/questions/tagged/spring-session[Stack Overflow with the `spring-session` tag].
+Similarly, we encourage helping others by answering questions on Stack Overflow.
+
+[[community-source]]
+=== Source Code
+
+You can find the source code on GitHub at https://github.com/spring-projects/spring-session/
+
+[[community-issues]]
+=== Issue Tracking
+
+We track issues in GitHub issues at https://github.com/spring-projects/spring-session/issues
+
+[[community-contributing]]
+=== Contributing
+
+We appreciate https://help.github.com/articles/using-pull-requests/[pull requests].
+
+[[community-license]]
+=== License
+
+Spring Session is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0[Apache 2.0 license].
+
+[[community-extensions]]
+=== Community Extensions
+
+|===
+| Name | Location
+
+| Spring Session Infinispan
+| https://infinispan.org/infinispan-spring-boot/master/spring_boot_starter.html#_enabling_spring_session_support
+
+|===
+
+[[minimum-requirements]]
+== Minimum Requirements
+
+The minimum requirements for Spring Session are:
+
+* Java 8+.
+* If you run in a Servlet Container (not required), Servlet 3.1+.
+* If you use other Spring libraries (not required), the minimum required version is Spring 5.0.x.
+* `@EnableRedisHttpSession` requires Redis 2.8+. This is necessary to support xref:api.adoc#api-redisindexedsessionrepository-expiration[Session Expiration]
+* `@EnableHazelcastHttpSession` requires Hazelcast 3.6+. This is necessary to support xref:api.adoc#api-enablehazelcasthttpsession-storage[`FindByIndexNameSessionRepository`]
+
+NOTE: At its core, Spring Session has a required dependency only on `spring-jcl`.
+For an example of using Spring Session without any other Spring dependencies, see the xref:samples.adoc#samples[hazelcast sample] application.

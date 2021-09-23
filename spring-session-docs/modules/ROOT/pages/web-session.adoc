@@ -1,0 +1,116 @@
+
+[[websession]]
+= WebSession Integration
+
+Spring Session provides transparent integration with Spring WebFlux's `WebSession`.
+This means that you can switch the `WebSession` implementation out with an implementation that is backed by Spring Session.
+
+[[websession-why]]
+== Why Spring Session and WebSession?
+
+We have already mentioned that Spring Session provides transparent integration with Spring WebFlux's `WebSession`, but what benefits do we get out of this?
+As with `HttpSession`, Spring Session makes it trivial to support <<websession-redis,clustered sessions>> without being tied to an application container specific solution.
+
+[[websession-redis]]
+== WebSession with Redis
+
+Using Spring Session with `WebSession` is enabled by registering a `WebSessionManager` implementation backed by Spring Session's `ReactiveSessionRepository`.
+The Spring configuration is responsible for creating a `WebSessionManager` that replaces the `WebSession` implementation with an implementation backed by Spring Session.
+To do so, add the following Spring Configuration:
+
+====
+[source, java]
+----
+@EnableRedisWebSession // <1>
+public class SessionConfiguration {
+
+	@Bean
+	public LettuceConnectionFactory redisConnectionFactory() {
+		return new LettuceConnectionFactory(); // <2>
+	}
+
+}
+----
+
+<1> The `@EnableRedisWebSession` annotation creates a Spring bean with the name of `webSessionManager`. That bean implements the `WebSessionManager`.
+This is what is in charge of replacing the `WebSession` implementation to be backed by Spring Session.
+In this instance, Spring Session is backed by Redis.
+<2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
+We configure the connection to connect to localhost on the default port (6379)
+For more information on configuring Spring Data Redis, see the https://docs.spring.io/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
+====
+
+[[websession-how]]
+== How WebSession Integration Works
+
+It is considerably easier for Spring Session to integrate with Spring WebFlux and its `WebSession`, compared to Servlet API and its `HttpSession`.
+Spring WebFlux provides the `WebSessionStore` API, which presents a strategy for persisting `WebSession`.
+
+NOTE: This section describes how Spring Session provides transparent integration with `WebSession`. We offer this content so that you can understand what is happening under the covers. This functionality is already integrated and you do NOT need to implement this logic yourself.
+
+First, we create a custom `SpringSessionWebSession` that delegates to Spring Session's `Session`.
+It looks something like the following:
+
+====
+[source, java]
+----
+public class SpringSessionWebSession implements WebSession {
+
+	enum State {
+		NEW, STARTED
+	}
+
+	private final S session;
+
+	private AtomicReference<State> state = new AtomicReference<>();
+
+	SpringSessionWebSession(S session, State state) {
+		this.session = session;
+		this.state.set(state);
+	}
+
+	@Override
+	public void start() {
+		this.state.compareAndSet(State.NEW, State.STARTED);
+	}
+
+	@Override
+	public boolean isStarted() {
+		State value = this.state.get();
+		return (State.STARTED.equals(value)
+				|| (State.NEW.equals(value) && !this.session.getAttributes().isEmpty()));
+	}
+
+	@Override
+	public Mono<Void> changeSessionId() {
+		return Mono.defer(() -> {
+			this.session.changeSessionId();
+			return save();
+		});
+	}
+
+	// ... other methods delegate to the original Session
+}
+----
+====
+
+Next, we create a custom `WebSessionStore` that delegates to the `ReactiveSessionRepository` and wraps `Session` into custom `WebSession` implementation, as the following listing shows:
+
+====
+[source, java]
+----
+public class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
+
+	private final ReactiveSessionRepository<S> sessions;
+
+	public SpringSessionWebSessionStore(ReactiveSessionRepository<S> reactiveSessionRepository) {
+		this.sessions = reactiveSessionRepository;
+	}
+
+	// ...
+}
+----
+====
+
+To be detected by Spring WebFlux, this custom `WebSessionStore` needs to be registered with `ApplicationContext` as a bean named `webSessionManager`.
+For additional information on Spring WebFlux, see the https://docs.spring.io/spring-framework/docs/{spring-framework-version}/reference/html/web-reactive.html[Spring Framework Reference Documentation].

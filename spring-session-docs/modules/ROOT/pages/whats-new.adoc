@@ -1,0 +1,4 @@
+= What's New
+
+Check also the Spring Session BOM https://github.com/spring-projects/spring-session-bom/wiki#release-notes[release notes]
+for a list of new and noteworthy features, as well as upgrade instructions for each release.
