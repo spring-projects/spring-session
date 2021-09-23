@@ -38,11 +38,12 @@ import org.springframework.web.server.session.WebSessionManager;
 @Configuration(proxyBeanMethods = false)
 public class SpringWebSessionConfiguration {
 
-	/**
-	 * Optional override of default {@link WebSessionIdResolver}.
-	 */
-	@Autowired(required = false)
 	private WebSessionIdResolver webSessionIdResolver;
+
+	@Autowired(required = false)
+	public void setWebSessionIdResolver(WebSessionIdResolver webSessionIdResolver) {
+		this.webSessionIdResolver = webSessionIdResolver;
+	}
 
 	/**
 	 * Configure a {@link WebSessionManager} using a provided
