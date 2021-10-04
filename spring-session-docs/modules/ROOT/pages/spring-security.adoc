@@ -6,7 +6,7 @@ Spring Session provides integration with Spring Security.
 [[spring-security-rememberme]]
 == Spring Security Remember-me Support
 
-Spring Session provides integration with https://docs.spring.io/spring-security/site/docs/{spring-security-version}/reference/htmlsingle/#remember-me[Spring Security's Remember-me Authentication].
+Spring Session provides integration with https://docs.spring.io/spring-security/site/docs/{spring-security-version}/reference/html5/#servlet-rememberme[Spring Security's Remember-me Authentication].
 The support:
 
 * Changes the session expiration length
