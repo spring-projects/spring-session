@@ -3,10 +3,12 @@ site:
   start_page: session::index.adoc
 content:
   sources:
+    - url: https://github.com/spring-io/spring-generated-docs
+      branches: [spring-session/main]
     - url: ./
       branches: HEAD
       start_path: spring-session-docs
 ui:
   bundle:
-    url: ../../rwinch/antora-ui-spring/build/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
     snapshot: true
