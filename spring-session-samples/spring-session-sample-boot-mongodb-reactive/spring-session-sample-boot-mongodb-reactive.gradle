@@ -5,6 +5,7 @@ dependencies {
 	compile "org.springframework.boot:spring-boot-starter-webflux"
 	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
 	compile "org.springframework.boot:spring-boot-starter-data-mongodb-reactive"
+    compile "de.flapdoodle.embed:de.flapdoodle.embed.mongo"
 
 	testCompile "org.springframework.boot:spring-boot-starter-test"
 	testCompile "org.seleniumhq.selenium:htmlunit-driver"
