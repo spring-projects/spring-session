@@ -1,0 +1,174 @@
+= Spring Session - MongoDB Repositories
+Jakub Kubrynski, Greg Turnquist
+:stylesdir: ../
+:highlightjsdir: ../js/highlight
+:docinfodir: guides
+
+This guide describes how to use Spring Session backed by MongoDB.
+
+NOTE: The completed guide can be found in the <<mongo-sample, mongo sample application>>.
+
+[#index-link]
+link:../index.html[Index]
+
+== Updating Dependencies
+Before you use Spring Session MongoDB, you must ensure to update your dependencies.
+We assume you are working with a working Spring Boot web application.
+If you are using Maven, ensure to add the following dependencies:
+
+====
+[source,xml]
+[subs="verbatim,attributes"]
+.pom.xml
+----
+<dependencies>
+	<!-- ... -->
+	<dependency>
+		<groupId>org.springframework.session</groupId>
+		<artifactId>spring-session-data-mongodb</artifactId>
+	</dependency>
+</dependencies>
+----
+====
+
+ifeval::["{version-snapshot}" == "true"]
+Since We are using a SNAPSHOT version, we need to ensure to add the Spring Snapshot Maven Repository.
+Ensure you have the following in your pom.xml:
+
+====
+[source,xml]
+.pom.xml
+----
+<repositories>
+	<!-- ... -->
+	<repository>
+		<id>spring-snapshot</id>
+		<url>https://repo.spring.io/libs-snapshot</url>
+	</repository>
+</repositories>
+----
+====
+endif::[]
+
+ifeval::["{version-milestone}" == "true"]
+Since We are using a Milestone version, we need to ensure to add the Spring Milestone Maven Repository.
+Ensure you have the following in your pom.xml:
+
+====
+[source,xml]
+.pom.xml
+----
+<repository>
+	<id>spring-milestone</id>
+	<url>https://repo.spring.io/libs-milestone</url>
+</repository>
+----
+====
+endif::[]
+
+[[mongo-spring-configuration]]
+== Spring Configuration
+
+After adding the required dependencies, we can create our Spring configuration.
+The Spring configuration is responsible for creating a Servlet Filter that replaces the `HttpSession` implementation with an implementation backed by Spring Session.
+
+// tag::config[]
+All you have to do is to add the following Spring Configuration:
+
+====
+[source,java]
+----
+include::{samples-dir}spring-session-sample-boot-mongodb-traditional/src/main/java/org/springframework/session/mongodb/examples/config/HttpSessionConfig.java[tag=class]
+----
+<1> The `@EnableMongoHttpSession` annotation creates a Spring Bean with the name of `springSessionRepositoryFilter` that implements Filter.
+This filter is what replaces the default `HttpSession` with the MongoDB-backed bean.
+<2> Configures the session timeout to 30 minutes.
+====
+
+// end::config[]
+
+[[boot-mongo-configuration]]
+== Configuring the MongoDB Connection
+
+Spring Boot automatically creates a `MongoClient` that connects Spring Session to a MongoDB Server on localhost on port 27017 (default port).
+In a production environment you need to ensure to update your configuration to point to your MongoDB server.
+For example, you can include the following in your *application.properties*
+
+====
+.src/main/resources/application.properties
+----
+spring.data.mongodb.host=mongo-srv
+spring.data.mongodb.port=27018
+spring.data.mongodb.database=prod
+----
+====
+
+For more information, refer to https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-connecting-to-mongodb[Connecting to MongoDB] portion of the Spring Boot documentation.
+
+[[boot-servlet-configuration]]
+== Servlet Container Initialization
+
+Our <<boot-mongo-configuration,Spring Configuration>> created a Spring Bean named `springSessionRepositoryFilter` that implements `Filter`.
+The `springSessionRepositoryFilter` bean is responsible for replacing the `HttpSession` with a custom implementation that is backed by Spring Session.
+
+In order for our `Filter` to do its magic, Spring needs to load our `Config` class.
+Last we need to ensure that our Servlet Container (i.e. Tomcat) uses our `springSessionRepositoryFilter` for every request.
+Fortunately, Spring Boot takes care of both of these steps for us.
+
+[[mongo-sample]]
+== MongoDB Sample Application
+
+The MongoDB Sample Application demonstrates how to use Spring Session to transparently leverage MongoDB to back a web application's `HttpSession` when using Spring Boot.
+
+[[mongo-running]]
+=== Running the MongoDB Sample Application
+
+You can run the sample by obtaining the {download-url}[source code] and invoking the following command:
+
+====
+----
+$ ./gradlew :samples:mongo:bootRun
+----
+====
+
+You should now be able to access the application at http://localhost:8080/
+
+[[boot-explore]]
+=== Exploring the security Sample Application
+
+Try using the application. Enter the following to log in:
+
+* **Username** _user_
+* **Password** _password_
+
+Now click the **Login** button.
+You should now see a message indicating your are logged in with the user entered previously.
+The user's information is stored in MongoDB rather than Tomcat's `HttpSession` implementation.
+
+[[mongo-how]]
+=== How does it work?
+
+Instead of using Tomcat's `HttpSession`, we are actually persisting the values in Mongo.
+Spring Session replaces the `HttpSession` with an implementation that is backed by Mongo.
+When Spring Security's `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession` it is then persisted into Mongo.
+
+When a new `HttpSession` is created, Spring Session creates a cookie named SESSION in your browser that contains the id of your session.
+Go ahead and view the cookies (click for help with https://developer.chrome.com/devtools/docs/resources#cookies[Chrome] or https://getfirebug.com/wiki/index.php/Cookies_Panel#Cookies_List[Firefox]).
+
+If you like, you can easily inspect the session using mongo client. For example, on a Linux based system you can type:
+
+[NOTE]
+====
+The sample application uses an embedded MongoDB instance that listens on a randomly allocated port.
+The port used by embedded MongoDB together with exact command to connect to it is logged during application startup.
+====
+
+	$ mongo --port ...
+	> use test
+	> db.sessions.find().pretty()
+
+Alternatively, you can also delete the explicit key. Enter the following into your terminal ensuring to replace `60f17293-839b-477c-bb92-07a9c3658843` with the value of your SESSION cookie:
+
+	> db.sessions.remove({"_id":"60f17293-839b-477c-bb92-07a9c3658843"})
+
+Now visit the application at http://localhost:8080/ and observe that we are no longer authenticated.

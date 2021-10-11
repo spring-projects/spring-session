@@ -6,6 +6,7 @@
 ***** {gh-samples-url}spring-session-sample-boot-redis-json[JSON serialization]
 ***** {gh-samples-url}spring-session-sample-boot-redis-simple[Simple Redis]
 ***** xref:guides/boot-redis.adoc[Redis with Events]
+**** xref:guides/boot-mongo.adoc[MongoDB]
 **** xref:guides/boot-jdbc.adoc[JDBC]
 **** {gh-samples-url}spring-session-sample-boot-hazelcast[HttpSession with Hazelcast]
 *** xref:guides/boot-findbyusername.adoc[Find by Username]
