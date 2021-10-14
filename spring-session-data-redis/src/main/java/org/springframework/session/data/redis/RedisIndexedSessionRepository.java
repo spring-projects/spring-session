@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -858,6 +858,11 @@ public class RedisIndexedSessionRepository
 				catch (NonTransientDataAccessException ex) {
 					handleErrNoSuchKeyError(ex);
 				}
+				String originalPrincipalRedisKey = getPrincipalKey(this.originalPrincipalName);
+				RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
+						.remove(this.originalSessionId);
+				RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
+						.add(sessionId);
 			}
 			this.originalSessionId = sessionId;
 		}
