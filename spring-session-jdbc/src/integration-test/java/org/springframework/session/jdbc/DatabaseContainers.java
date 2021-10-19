@@ -46,7 +46,7 @@ final class DatabaseContainers {
 	}
 
 	static MySQLContainer<?> mySql() {
-		return new MySQLContainer<>("mysql:8.0.26");
+		return new MySQLContainer<>("mysql:8.0.27");
 	}
 
 	static OracleContainer oracle() {
@@ -68,7 +68,7 @@ final class DatabaseContainers {
 	}
 
 	static PostgreSQLContainer<?> postgreSql() {
-		return new PostgreSQLContainer<>("postgres:13.4");
+		return new PostgreSQLContainer<>("postgres:14.0");
 	}
 
 	static MSSQLServerContainer<?> sqlServer() {

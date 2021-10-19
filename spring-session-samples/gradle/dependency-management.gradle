@@ -1,10 +1,10 @@
 dependencyManagement {
 	imports {
-		mavenBom 'com.fasterxml.jackson:jackson-bom:2.12.4'
+		mavenBom 'com.fasterxml.jackson:jackson-bom:2.13.0'
 	}
 
 	dependencies {
-		dependency 'ch.qos.logback:logback-classic:1.2.5'
+		dependency 'ch.qos.logback:logback-classic:1.2.6'
 		dependency 'com.maxmind.geoip2:geoip2:2.15.0'
 		dependency 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2'
 		dependency 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
