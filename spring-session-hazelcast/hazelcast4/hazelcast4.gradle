@@ -42,7 +42,7 @@ dependencies {
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
 
     integrationTestCompile "org.testcontainers:testcontainers"
-    integrationTestCompile "com.hazelcast:hazelcast:4.2"
+    integrationTestCompile "com.hazelcast:hazelcast:4.2.2"
     integrationTestCompile project(":spring-session-hazelcast")
 }
 

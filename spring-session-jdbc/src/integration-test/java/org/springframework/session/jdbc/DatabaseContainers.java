@@ -46,7 +46,7 @@ final class DatabaseContainers {
 	}
 
 	static MySQLContainer<?> mySql() {
-		return new MySQLContainer<>("mysql:8.0.26");
+		return new MySQLContainer<>("mysql:8.0.27");
 	}
 
 	static OracleContainer oracle() {
