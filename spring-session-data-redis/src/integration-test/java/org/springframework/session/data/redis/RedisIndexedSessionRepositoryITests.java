@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -471,6 +471,60 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
+	}
+
+	@Test // gh-1791
+	void changeSessionIdWhenSessionExpiresThenRemovesAllPrincipalIndexIds() {
+		RedisSession toSave = this.repository.createSession();
+		toSave.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
+
+		this.repository.save(toSave);
+		String usernameSessionKey = "RedisIndexedSessionRepositoryITests:index:" + INDEX_NAME + ":" + getSecurityName();
+
+		RedisSession findById = this.repository.findById(toSave.getId());
+		String originalFindById = findById.getId();
+
+		assertThat(this.redis.boundSetOps(usernameSessionKey).members()).contains(originalFindById);
+
+		String changeSessionId = findById.changeSessionId();
+		findById.setAttribute(SPRING_SECURITY_CONTEXT, this.context);
+
+		this.repository.save(findById);
+
+		assertThat(this.redis.boundSetOps(usernameSessionKey).members()).contains(changeSessionId);
+
+		String body = "RedisIndexedSessionRepositoryITests:sessions:expires:" + changeSessionId;
+		String channel = "__keyevent@0__:expired";
+		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8),
+				body.getBytes(StandardCharsets.UTF_8));
+		byte[] pattern = new byte[] {};
+		this.repository.onMessage(message, pattern);
+
+		assertThat(this.redis.boundSetOps(usernameSessionKey).members()).isEmpty();
+	}
+
+	@Test
+	void changeSessionIdWhenPrincipalNameChangesThenNewPrincipalMapsToNewSessionId() {
+		String principalName = "findByChangedPrincipalName" + UUID.randomUUID();
+		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
+		RedisSession toSave = this.repository.createSession();
+		toSave.setAttribute(INDEX_NAME, principalName);
+
+		this.repository.save(toSave);
+
+		RedisSession findById = this.repository.findById(toSave.getId());
+		String changeSessionId = findById.changeSessionId();
+		findById.setAttribute(INDEX_NAME, principalNameChanged);
+		this.repository.save(findById);
+
+		Map<String, RedisSession> findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				principalName);
+		assertThat(findByPrincipalName).isEmpty();
+
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalNameChanged);
+
+		assertThat(findByPrincipalName).hasSize(1);
+		assertThat(findByPrincipalName.keySet()).containsOnly(changeSessionId);
 	}
 
 	@Test
