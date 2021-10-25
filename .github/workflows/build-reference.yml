@@ -16,12 +16,15 @@ jobs:
         uses: actions/checkout@v2
       - name: Generate antora.yml
         run: ./gradlew :spring-session-docs:generateAntora
-      - name: Push generated antora files to the spring-security-docs-generated
+      - name: Extract Branch Name
+        id: extract_branch_name
+        run: echo "##[set-output name=generated_branch_name;]$(echo ${GITHUB_REPOSITORY}/${GITHUB_REF##*/})"
+      - name: Push generated antora files to the spring-generated-docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
-          branch: "spring-session/main" # The branch the action should deploy to.
+          branch:  ${{ steps.extract_branch_name.outputs.generated_branch_name }} # The branch the action should deploy to.
           folder: "spring-session-docs/build/generateAntora" # The folder the action should deploy.
           repository-name: "spring-io/spring-generated-docs"
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
       - name: Dispatch Build Request
-        run: ${GITHUB_WORKSPACE}/.github/actions/dispatch.sh 'rwinch/spring-reference' "$GH_ACTIONS_REPO_TOKEN"
+        run: ${GITHUB_WORKSPACE}/.github/actions/dispatch.sh 'spring-io/spring-reference' "$GH_ACTIONS_REPO_TOKEN"
