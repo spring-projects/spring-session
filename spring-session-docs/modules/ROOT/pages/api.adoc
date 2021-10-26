@@ -1,7 +1,7 @@
 [[api]]
 = API Documentation
 
-You can browse the complete link:../../api/[Javadoc] online. The key APIs are described in the following sections:
+You can browse the complete https://docs.spring.io/spring-session/docs/{spring-session-version}/api/[Javadoc] online. The key APIs are described in the following sections:
 
 * <<api-session>>
 * <<api-sessionrepository>>
