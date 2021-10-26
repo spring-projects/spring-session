@@ -36,8 +36,13 @@ sourceSets {
 
 def versions = dependencyManagement.managedVersions
 
-
 tasks.register("generateAntora") {
+    group = "Documentation"
+    description = "Generates antora files"
+    dependsOn 'generateAntoraYml', 'generateAntoraComponentVersion'
+}
+
+tasks.register("generateAntoraYml") {
     group = "Documentation"
     description = "Generates the antora.yml for dynamic properties"
     doLast {
@@ -49,7 +54,6 @@ tasks.register("generateAntora") {
         outputFile.createNewFile()
         outputFile.setText("""name: session
 title: Spring Session
-version: 2.6
 start_page: ROOT:index.adoc
 asciidoc:
   attributes:
@@ -72,6 +76,18 @@ asciidoc:
     hazelcast-version: ${versions['com.hazelcast:hazelcast']}
     lettuce-version: ${versions['io.lettuce:lettuce-core']}
 """)
+    }
+}
+
+tasks.register("generateAntoraComponentVersion") {
+    group = "Documentation"
+    description = "Generates the antora.component.version file"
+    doLast {
+        def outputFile = new File("$buildDir/generateAntora/antora.component.version")
+        outputFile.getParentFile().mkdirs()
+        outputFile.createNewFile()
+        def antoraVersion = project.version.replaceAll(/^(\d+\.\d+)\.\d+(-\w+)?$/, '$1')
+        outputFile.setText("$antoraVersion")
     }
 }
 

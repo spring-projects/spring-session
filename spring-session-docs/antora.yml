@@ -1,6 +1,5 @@
 name: session
 title: Spring Session
-version: 2.6
 start_page: ROOT:index.adoc
 
 
