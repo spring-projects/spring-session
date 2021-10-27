@@ -92,7 +92,7 @@ If you would like to provide custom Jackson modules you can do it by explicitly 
 
 [source,java,indent=0]
 ----
-include::{code-dir}/src/test/java/org/springframework/session/data/mongo/integration/MongoRepositoryJacksonITest.java[tag=sample]
+include::{spring-session-data-mongodb-dir}src/integration-test/java/org/springframework/session/data/mongo/integration/MongoRepositoryJacksonITest.java[tag=sample]
 ----
 
 ===== JdkMongoSessionConverter

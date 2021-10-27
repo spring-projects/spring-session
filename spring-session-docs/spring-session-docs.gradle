@@ -61,6 +61,7 @@ asciidoc:
     gh-samples-url: "$ghUrl/spring-session-samples/"
     samples-dir: "example${dollar}spring-session-samples/"
     session-jdbc-main-resources-dir: "example${dollar}session-jdbc-main-resources-dir/"
+    spring-session-data-mongodb-dir: "example${dollar}spring-session-data-mongodb-dir/"
     docs-test-dir: "example${dollar}java/"
     websocketdoc-test-dir: 'example${dollar}java/docs/websocket/'
     docs-test-resources-dir: "example${dollar}resources/"
