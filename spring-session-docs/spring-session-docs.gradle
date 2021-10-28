@@ -34,8 +34,6 @@ sourceSets {
     }
 }
 
-def versions = dependencyManagement.managedVersions
-
 tasks.register("generateAntora") {
     group = "Documentation"
     description = "Generates antora files"
@@ -49,6 +47,12 @@ tasks.register("generateAntoraYml") {
         def dollar = '$'
         def ghTag = snapshotBuild ? 'main' : project.version
         def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
+        def versions = resolvedVersions(project.configurations.testRuntimeClasspath)
+        def ymlVersions = ""
+        versions.call().each { name, version ->
+            ymlVersions += """
+    ${name}: ${version}"""
+        }
         def outputFile = new File("$buildDir/generateAntora/antora.yml")
         outputFile.getParentFile().mkdirs()
         outputFile.createNewFile()
@@ -70,12 +74,7 @@ asciidoc:
     version-milestone: $milestoneBuild
     version-release: $releaseBuild
     version-snapshot: $snapshotBuild
-    spring-boot-version: ${project.springBootVersion}
-    spring-data-redis-version: ${versions['org.springframework.data:spring-data-redis']}
-    spring-framework-version: ${versions['org.springframework:spring-core']}
-    spring-security-version: ${versions['org.springframework.security:spring-security-core']}
-    hazelcast-version: ${versions['com.hazelcast:hazelcast']}
-    lettuce-version: ${versions['io.lettuce:lettuce-core']}
+${ymlVersions}
 """)
     }
 }
@@ -90,47 +89,6 @@ tasks.register("generateAntoraComponentVersion") {
         def antoraVersion = project.version.replaceAll(/^(\d+\.\d+)\.\d+(-\w+)?$/, '$1')
         outputFile.setText("$antoraVersion")
     }
-}
-
-asciidoctorPdf {
-    clearSources()
-    sources {
-        include "index.adoc"
-    }
-}
-
-asciidoctor {
-    clearSources()
-    sources {
-        include "index.adoc"
-        include "guides/*.adoc"
-    }
-}
-
-asciidoctorj {
-	def ghTag = snapshotBuild ? 'main' : project.version
-	def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
-
-	attributes 'docs-itest-dir': "$rootProject.projectDir.path/spring-session-docs/src/integration-test/java/",
-			'docs-test-dir': "$rootProject.projectDir.path/spring-session-docs/src/test/java/",
-			'docs-test-resources-dir': "$rootProject.projectDir.path/spring-session-docs/src/test/resources/",
-			'download-url': "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip",
-			'gh-samples-url': "$ghUrl/spring-session-samples/",
-			'gh-url': ghUrl,
-			'hazelcast-version': versions['com.hazelcast:hazelcast'],
-			'lettuce-version': versions['io.lettuce:lettuce-core'],
-			'samples-dir': "$rootProject.projectDir.path/spring-session-samples/",
-			'session-jdbc-main-resources-dir': "${project(':spring-session-jdbc').projectDir.path}/src/main/resources/",
-			'spring-boot-version': project.springBootVersion,
-			'spring-data-redis-version': versions['org.springframework.data:spring-data-redis'],
-			'spring-framework-version': versions['org.springframework:spring-core'],
-			'spring-security-version': versions['org.springframework.security:spring-security-core'],
-			'spring-session-version': project.version,
-			'version-milestone': milestoneBuild,
-			'version-release': releaseBuild,
-			'version-snapshot': snapshotBuild,
-			'highlightjsdir@': "js/highlight",
-			'docinfodir@': "."
 }
 
 repositories {
