@@ -94,3 +94,11 @@ tasks.register("generateAntoraComponentVersion") {
 repositories {
     maven { url "https://repo.spring.io/release" }
 }
+
+def resolvedVersions(Configuration configuration) {
+    return {
+        configuration.resolvedConfiguration
+                .resolvedArtifacts
+                .collectEntries { [(it.name + "-version"): it.moduleVersion.id.version] }
+    }
+}
