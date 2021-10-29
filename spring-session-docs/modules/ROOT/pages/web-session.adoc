@@ -113,4 +113,4 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 ====
 
 To be detected by Spring WebFlux, this custom `WebSessionStore` needs to be registered with `ApplicationContext` as a bean named `webSessionManager`.
-For additional information on Spring WebFlux, see the https://docs.spring.io/spring-framework/docs/{spring-framework-version}/reference/html/web-reactive.html[Spring Framework Reference Documentation].
+For additional information on Spring WebFlux, see the https://docs.spring.io/spring-framework/docs/{spring-core-version}/reference/html/web-reactive.html[Spring Framework Reference Documentation].

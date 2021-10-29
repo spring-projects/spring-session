@@ -33,7 +33,7 @@ If you use Maven, you must add the following dependencies:
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-web</artifactId>
-		<version>{spring-framework-version}</version>
+		<version>{spring-core-version}</version>
 	</dependency>
 </dependencies>
 ----
@@ -100,7 +100,7 @@ We configure the H2 database to create database tables by using the SQL script t
 <3> We create a `transactionManager` that manages transactions for previously configured `dataSource`.
 ====
 
-For additional information on how to configure data access related concerns, see the https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
+For additional information on how to configure data access related concerns, see the https://docs.spring.io/spring/docs/{spring-core-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
 
 == Java Servlet Container Initialization
 

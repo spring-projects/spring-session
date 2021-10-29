@@ -32,12 +32,12 @@ If you use Maven, you must add the following dependencies:
 	<dependency>
 		<groupId>io.lettuce</groupId>
 		<artifactId>lettuce-core</artifactId>
-		<version>{lettuce-version}</version>
+		<version>{lettuce-core-version}</version>
 	</dependency>
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-web</artifactId>
-		<version>{spring-framework-version}</version>
+		<version>{spring-core-version}</version>
 	</dependency>
 </dependencies>
 ----
@@ -122,7 +122,7 @@ include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/we
 ----
 ====
 
-The https://docs.spring.io/spring/docs/{spring-framework-version}/spring-framework-reference/core.html#context-create[`ContextLoaderListener`] reads the contextConfigLocation and picks up our session.xml configuration.
+The https://docs.spring.io/spring/docs/{spring-core-version}/spring-framework-reference/core.html#context-create[`ContextLoaderListener`] reads the contextConfigLocation and picks up our session.xml configuration.
 
 Last, we need to ensure that our Servlet Container (that is, Tomcat) uses our `springSessionRepositoryFilter` for every request.
 The following snippet performs this last step for us:
@@ -135,7 +135,7 @@ include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/we
 ----
 ====
 
-The https://docs.spring.io/spring-framework/docs/{spring-framework-version}/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[`DelegatingFilterProxy`] looks up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
+The https://docs.spring.io/spring-framework/docs/{spring-core-version}/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[`DelegatingFilterProxy`] looks up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
 For every request that `DelegatingFilterProxy` is invoked, the `springSessionRepositoryFilter` is invoked.
 
 // end::config[]
