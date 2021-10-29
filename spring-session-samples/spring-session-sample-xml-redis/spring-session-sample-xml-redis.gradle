@@ -1,4 +1,7 @@
-apply plugin: 'io.spring.convention.spring-sample-war'
+plugins {
+    id "org.gretty" version "3.0.7"
+    id "io.spring.convention.spring-sample-war"
+}
 
 dependencies {
 	compile project(':spring-session-data-redis')
@@ -6,8 +9,12 @@ dependencies {
 	compile "io.lettuce:lettuce-core"
 	compile "org.webjars:bootstrap"
 	compile "org.webjars:webjars-taglib"
-	compile jstlDependencies
-	compile slf4jDependencies
+	compile "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api"
+	compile "org.apache.taglibs:taglibs-standard-jstlel"
+	compile "org.slf4j:slf4j-api"
+	compile "org.slf4j:jcl-over-slf4j"
+	compile "org.slf4j:log4j-over-slf4j"
+	compile "ch.qos.logback:logback-classic"
 	compile "org.testcontainers:testcontainers"
 
 	providedCompile "javax.servlet:javax.servlet-api"
@@ -16,7 +23,8 @@ dependencies {
     testCompile "org.junit.jupiter:junit-jupiter-api"
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
 
-	integrationTestCompile seleniumDependencies
+	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
+	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
 }
 
 gretty {

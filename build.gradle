@@ -22,7 +22,6 @@ buildscript {
 	}
 
 	dependencies {
-		classpath 'io.spring.gradle:spring-build-conventions:0.0.37'
 		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
 	}
 }
@@ -54,4 +53,8 @@ subprojects {
 	tasks.withType(Test) {
 		useJUnitPlatform()
 	}
+}
+
+nohttp {
+    source.exclude "buildSrc/build/**"
 }

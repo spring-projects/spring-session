@@ -19,6 +19,7 @@ dependencies {
 	testCompile "org.junit.jupiter:junit-jupiter-api"
 	testRuntime "org.junit.jupiter:junit-jupiter-engine"
 
-	integrationTestCompile seleniumDependencies
+	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
+	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
 	integrationTestCompile "org.testcontainers:testcontainers"
 }

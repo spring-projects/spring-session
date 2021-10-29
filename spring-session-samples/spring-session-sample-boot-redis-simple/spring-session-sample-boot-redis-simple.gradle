@@ -16,6 +16,7 @@ dependencies {
 	testRuntime 'org.junit.jupiter:junit-jupiter-engine'
 	testCompile 'org.springframework.boot:spring-boot-starter-test'
 
-	integrationTestCompile seleniumDependencies
+	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
+	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
 	integrationTestCompile 'org.testcontainers:testcontainers'
 }

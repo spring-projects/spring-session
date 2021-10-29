@@ -14,6 +14,9 @@ dependencies {
 	compileOnly(project(":hazelcast4"))
 
 	testCompile "javax.servlet:javax.servlet-api"
+	testCompile "org.assertj:assertj-core"
+	testCompile "org.mockito:mockito-core"
+	testCompile "org.springframework:spring-test"
 	testCompile "org.springframework:spring-web"
 	testCompile "org.springframework.security:spring-security-core"
 	testCompile "org.junit.jupiter:junit-jupiter-api"
