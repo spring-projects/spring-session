@@ -9,5 +9,7 @@ repositories {
 }
 
 dependencies {
-	testCompile 'junit:junit:4.12'
+	testImplementation platform('org.junit:junit-bom:5.8.1')
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
 }

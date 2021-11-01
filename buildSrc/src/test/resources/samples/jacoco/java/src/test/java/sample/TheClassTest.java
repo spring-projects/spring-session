@@ -1,19 +1,19 @@
 package sample;
 
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TheClassTest {
 	TheClass theClass = new TheClass();
 
 	@Test
 	public void doStuffWhenTrueThenTrue() {
-		assertTrue(theClass.doStuff(true));
+		assertThat(theClass.doStuff(true)).isTrue();
 	}
 
 	@Test
 	public void doStuffWhenTrueThenFalse() {
-		assertFalse(theClass.doStuff(false));
+		assertThat(theClass.doStuff(false)).isFalse();
 	}
 }

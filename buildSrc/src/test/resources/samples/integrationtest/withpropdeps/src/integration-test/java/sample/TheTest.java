@@ -1,6 +1,6 @@
 package sample;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import javax.servlet.http.HttpServletRequest;
 
 public class TheTest {
