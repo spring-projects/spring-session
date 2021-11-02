@@ -38,6 +38,10 @@ gradlePlugin {
             id = "org.springframework.github.milestone"
             implementationClass = "org.springframework.gradle.github.milestones.GitHubMilestonePlugin"
         }
+        propdeps {
+            id = "org.springframework.propdeps"
+            implementationClass = "org.springframework.gradle.propdeps.PropDepsPlugin"
+        }
     }
 }
 
@@ -54,7 +58,6 @@ dependencies {
 
     implementation 'io.github.gradle-nexus:publish-plugin:1.1.0'
     implementation 'io.spring.gradle:dependency-management-plugin:1.0.10.RELEASE'
-    implementation 'io.spring.gradle:propdeps-plugin:0.0.10.RELEASE'
     implementation 'io.projectreactor:reactor-core:3.4.11'
     implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
     implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
