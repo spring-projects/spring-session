@@ -1,17 +1,17 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-    compile project(':spring-session-data-mongodb')
-    compile "org.springframework.boot:spring-boot-starter-web"
-    compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-    compile "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
-    compile "org.thymeleaf.extras:thymeleaf-extras-springsecurity5"
-    compile "org.springframework.boot:spring-boot-starter-data-mongodb"
-    compile "org.springframework.boot:spring-boot-starter-security"
-    compile "de.flapdoodle.embed:de.flapdoodle.embed.mongo"
+    implementation  project(':spring-session-data-mongodb')
+    implementation  "org.springframework.boot:spring-boot-starter-web"
+    implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation  "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+    implementation  "org.thymeleaf.extras:thymeleaf-extras-springsecurity5"
+    implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "de.flapdoodle.embed:de.flapdoodle.embed.mongo"
 
-    testCompile "org.springframework.boot:spring-boot-starter-test"
-    testCompile "org.seleniumhq.selenium:htmlunit-driver"
-    testCompile "org.seleniumhq.selenium:selenium-support"
-    testCompile "org.springframework.security:spring-security-test"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.seleniumhq.selenium:htmlunit-driver"
+    testImplementation "org.seleniumhq.selenium:selenium-support"
+    testImplementation "org.springframework.security:spring-security-test"
 }

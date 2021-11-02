@@ -20,19 +20,19 @@ artifacts {
 }
 
 dependencies {
-    compile project(':spring-session-core')
+    api project(':spring-session-core')
     optional "com.hazelcast:hazelcast:4.2.2"
-    compile "org.springframework:spring-context"
-    compile "javax.annotation:javax.annotation-api"
+    api "org.springframework:spring-context"
+    api "javax.annotation:javax.annotation-api"
 
-    testCompile "javax.servlet:javax.servlet-api"
-    testCompile "org.assertj:assertj-core"
-    testCompile "org.mockito:mockito-core"
-    testCompile "org.springframework:spring-test"
-    testCompile "org.springframework:spring-web"
-    testCompile "org.junit.jupiter:junit-jupiter-api"
-    testCompile "org.springframework.security:spring-security-core"
-    testRuntime "org.junit.jupiter:junit-jupiter-engine"
+    testImplementation "javax.servlet:javax.servlet-api"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.springframework:spring-test"
+    testImplementation "org.springframework:spring-web"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "org.springframework.security:spring-security-core"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     integrationTestCompile "org.testcontainers:testcontainers"
     integrationTestCompile "com.hazelcast:hazelcast:4.2"

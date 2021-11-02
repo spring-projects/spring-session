@@ -5,23 +5,23 @@ configurations {
 }
 
 dependencies {
-	compile project(':spring-session-core')
-	compile "com.hazelcast:hazelcast"
-	compile "javax.annotation:javax.annotation-api"
-	compile "org.springframework:spring-context"
+	api project(':spring-session-core')
+	api "com.hazelcast:hazelcast"
+	api "javax.annotation:javax.annotation-api"
+	api "org.springframework:spring-context"
 
 	hazelcast4(project(path: ":hazelcast4", configuration: 'classesOnlyElements'))
 	compileOnly(project(":hazelcast4"))
 
-	testCompile "javax.servlet:javax.servlet-api"
-	testCompile "org.assertj:assertj-core"
-	testCompile "org.mockito:mockito-core"
-	testCompile "org.springframework:spring-test"
-	testCompile "org.springframework:spring-web"
-	testCompile "org.springframework.security:spring-security-core"
-	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntime project(':hazelcast4')
-	testRuntime "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "javax.servlet:javax.servlet-api"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.springframework:spring-test"
+	testImplementation "org.springframework:spring-web"
+	testImplementation "org.springframework.security:spring-security-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly project(':hazelcast4')
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "com.hazelcast:hazelcast-client"
 	integrationTestCompile "org.testcontainers:testcontainers"

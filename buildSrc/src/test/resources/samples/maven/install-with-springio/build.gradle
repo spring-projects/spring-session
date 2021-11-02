@@ -10,5 +10,5 @@ dependencies {
 	testImplementation platform('org.junit:junit-bom:5.8.1')
 	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-	compile 'org.springframework:spring-core'
+	implementation  'org.springframework:spring-core'
 }

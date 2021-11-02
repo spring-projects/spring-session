@@ -3,18 +3,18 @@ apply plugin: 'io.spring.convention.spring-module'
 description = "Spring Session and Spring JDBC integration"
 
 dependencies {
-	compile project(':spring-session-core')
-	compile "org.springframework:spring-context"
-	compile "org.springframework:spring-jdbc"
+	api project(':spring-session-core')
+	api "org.springframework:spring-context"
+	api "org.springframework:spring-jdbc"
 
-	testCompile "javax.servlet:javax.servlet-api"
-	testCompile "org.assertj:assertj-core"
-	testCompile "org.mockito:mockito-core"
-	testCompile "org.springframework:spring-test"
-	testCompile "org.springframework:spring-web"
-	testCompile "org.springframework.security:spring-security-core"
-	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "javax.servlet:javax.servlet-api"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.springframework:spring-test"
+	testImplementation "org.springframework:spring-web"
+	testImplementation "org.springframework.security:spring-security-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "com.h2database:h2"
 	integrationTestCompile "com.ibm.db2:jcc"

@@ -3,23 +3,23 @@ apply plugin: 'io.spring.convention.spring-module'
 description = "Spring Session Redis implementation"
 
 dependencies {
-	compile project(':spring-session-core')
-	compile ("org.springframework.data:spring-data-redis") {
+	api project(':spring-session-core')
+	api ("org.springframework.data:spring-data-redis") {
 		exclude group: "org.slf4j", module: 'jcl-over-slf4j'
 	}
 
 	optional "io.projectreactor:reactor-core"
 	optional "org.springframework:spring-web"
 
-	testCompile "org.assertj:assertj-core"
-	testCompile "org.mockito:mockito-core"
-	testCompile "org.springframework:spring-test"
-	testCompile "io.projectreactor:reactor-test"
-	testCompile "javax.servlet:javax.servlet-api"
-	testCompile "org.springframework:spring-web"
-	testCompile "org.springframework.security:spring-security-core"
-	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.springframework:spring-test"
+	testImplementation "io.projectreactor:reactor-test"
+	testImplementation "javax.servlet:javax.servlet-api"
+	testImplementation "org.springframework:spring-web"
+	testImplementation "org.springframework.security:spring-security-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "io.lettuce:lettuce-core"
 	integrationTestCompile "org.testcontainers:testcontainers"

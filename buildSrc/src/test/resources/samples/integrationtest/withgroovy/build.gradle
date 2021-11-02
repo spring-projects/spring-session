@@ -13,6 +13,6 @@ dependencies {
 	testImplementation platform('org.junit:junit-bom:5.8.1')
 	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine'
-	testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+	testImplementation 'org.spockframework:spock-core:1.0-groovy-2.4'
 	integrationTestCompile 'org.springframework:spring-core:4.3.7.RELEASE'
 }

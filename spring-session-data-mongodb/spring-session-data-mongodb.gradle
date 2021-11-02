@@ -4,11 +4,11 @@ description = "Spring Session and Spring MongoDB integration"
 
 dependencies {
 
-    compile project(':spring-session-core')
+    api project(':spring-session-core')
 
     // Spring Data MongoDB
 
-    compile("org.springframework.data:spring-data-mongodb") {
+    api("org.springframework.data:spring-data-mongodb") {
         exclude group: "org.mongodb", module: "mongo-java-driver"
         exclude group: "org.slf4j", module: "jcl-over-slf4j"
     }
@@ -16,30 +16,30 @@ dependencies {
     // MongoDB dependencies
 
     optional "org.mongodb:mongodb-driver-core"
-    testCompile "org.mongodb:mongodb-driver-sync"
-    testCompile "org.mongodb:mongodb-driver-reactivestreams"
+    testImplementation "org.mongodb:mongodb-driver-sync"
+    testImplementation "org.mongodb:mongodb-driver-reactivestreams"
     integrationTestCompile "org.testcontainers:mongodb"
 
     // Everything else
 
-    compile "com.fasterxml.jackson.core:jackson-databind"
-    compile "org.springframework.security:spring-security-core"
-    compile "com.google.code.findbugs:jsr305"
+    api "com.fasterxml.jackson.core:jackson-databind"
+    api "org.springframework.security:spring-security-core"
+    api "com.google.code.findbugs:jsr305"
 
     optional "io.projectreactor:reactor-core"
 
-    testCompile "org.springframework:spring-web"
-    testCompile "org.springframework:spring-webflux"
-    testCompile "org.springframework.security:spring-security-config"
-    testCompile "org.springframework.security:spring-security-web"
-    testCompile "org.assertj:assertj-core"
-    testCompile "org.junit.jupiter:junit-jupiter-engine"
-    testCompile "org.junit.jupiter:junit-jupiter-params"
-    testCompile "org.springframework:spring-test"
-    testCompile "org.hamcrest:hamcrest"
-    testCompile "ch.qos.logback:logback-core"
-    testCompile "org.mockito:mockito-core"
-    testCompile "org.mockito:mockito-junit-jupiter"
-    testCompile "io.projectreactor:reactor-test"
-    testCompile "javax.servlet:javax.servlet-api"
+    testImplementation "org.springframework:spring-web"
+    testImplementation "org.springframework:spring-webflux"
+    testImplementation "org.springframework.security:spring-security-config"
+    testImplementation "org.springframework.security:spring-security-web"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine"
+    testImplementation "org.junit.jupiter:junit-jupiter-params"
+    testImplementation "org.springframework:spring-test"
+    testImplementation "org.hamcrest:hamcrest"
+    testImplementation "ch.qos.logback:logback-core"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.mockito:mockito-junit-jupiter"
+    testImplementation "io.projectreactor:reactor-test"
+    testImplementation "javax.servlet:javax.servlet-api"
 }

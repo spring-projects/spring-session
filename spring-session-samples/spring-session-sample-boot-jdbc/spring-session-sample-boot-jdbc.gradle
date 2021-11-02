@@ -1,21 +1,21 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-	compile project(':spring-session-jdbc')
-	compile "org.springframework.boot:spring-boot-starter-web"
-	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-	compile "org.springframework.boot:spring-boot-starter-security"
-	compile "org.springframework.boot:spring-boot-devtools"
-	compile "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
-	compile "org.webjars:bootstrap"
-	compile "org.webjars:html5shiv"
-	compile "org.webjars:webjars-locator-core"
-	compile "com.h2database:h2"
+	implementation project(':spring-session-jdbc')
+	implementation "org.springframework.boot:spring-boot-starter-web"
+	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation "org.springframework.boot:spring-boot-devtools"
+	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	implementation "org.webjars:bootstrap"
+	implementation "org.webjars:html5shiv"
+	implementation "org.webjars:webjars-locator-core"
+	implementation "com.h2database:h2"
 
-	testCompile "org.springframework.boot:spring-boot-starter-test"
-	testCompile "org.assertj:assertj-core"
-	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.springframework.boot:spring-boot-starter-test"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
 	integrationTestCompile "org.seleniumhq.selenium:selenium-support"

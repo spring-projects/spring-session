@@ -3,7 +3,7 @@ apply plugin: 'io.spring.convention.spring-module'
 description = "Spring Session"
 
 dependencies {
-	compile "org.springframework:spring-jcl"
+	api "org.springframework:spring-jcl"
 
 	optional "io.projectreactor:reactor-core"
 	optional "javax.annotation:javax.annotation-api"
@@ -17,14 +17,14 @@ dependencies {
 	optional "org.springframework.security:spring-security-core"
 	optional "org.springframework.security:spring-security-web"
 
-	testCompile "io.projectreactor:reactor-test"
-	testCompile "org.mockito:mockito-core"
-	testCompile "edu.umd.cs.mtc:multithreadedtc"
-	testCompile "org.springframework:spring-test"
-	testCompile "org.assertj:assertj-core"
-	testCompile "org.springframework.security:spring-security-core"
-	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testCompile "org.junit.jupiter:junit-jupiter-params"
-	testCompile "org.aspectj:aspectjweaver"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "io.projectreactor:reactor-test"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "edu.umd.cs.mtc:multithreadedtc"
+	testImplementation "org.springframework:spring-test"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.springframework.security:spring-security-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.aspectj:aspectjweaver"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 }

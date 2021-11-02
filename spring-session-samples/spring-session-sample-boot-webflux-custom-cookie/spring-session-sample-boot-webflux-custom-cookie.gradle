@@ -1,16 +1,16 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-	compile project(':spring-session-data-redis')
-	compile "org.springframework.boot:spring-boot-starter-webflux"
-	compile "org.springframework.boot:spring-boot-starter-thymeleaf"
-	compile "org.springframework.boot:spring-boot-starter-data-redis"
-	compile "org.springframework.boot:spring-boot-devtools"
-	compile 'org.webjars:bootstrap'
+	implementation  project(':spring-session-data-redis')
+	implementation  "org.springframework.boot:spring-boot-starter-webflux"
+	implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
+	implementation  "org.springframework.boot:spring-boot-starter-data-redis"
+	implementation  "org.springframework.boot:spring-boot-devtools"
+	implementation  'org.webjars:bootstrap'
 
-	testCompile "org.springframework.boot:spring-boot-starter-test"
-	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.springframework.boot:spring-boot-starter-test"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
 	integrationTestCompile "org.seleniumhq.selenium:selenium-support"

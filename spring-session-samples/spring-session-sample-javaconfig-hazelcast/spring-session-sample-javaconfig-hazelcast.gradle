@@ -4,27 +4,27 @@ plugins {
 }
 
 dependencies {
-	compile project(':spring-session-hazelcast')
-	compile project(':hazelcast4')
-	compile "org.springframework:spring-web"
-	compile "org.springframework.security:spring-security-config"
-	compile "org.springframework.security:spring-security-web"
-	compile "org.webjars:bootstrap"
-	compile "org.webjars:webjars-taglib"
-	compile "com.hazelcast:hazelcast-client"
-	compile "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api"
-	compile "org.apache.taglibs:taglibs-standard-jstlel"
-	compile "org.slf4j:slf4j-api"
-	compile "org.slf4j:jcl-over-slf4j"
-	compile "org.slf4j:log4j-over-slf4j"
-	compile "ch.qos.logback:logback-classic"
+	implementation project(':spring-session-hazelcast')
+	implementation project(':hazelcast4')
+	implementation "org.springframework:spring-web"
+	implementation "org.springframework.security:spring-security-config"
+	implementation "org.springframework.security:spring-security-web"
+	implementation "org.webjars:bootstrap"
+	implementation "org.webjars:webjars-taglib"
+	implementation "com.hazelcast:hazelcast-client"
+	implementation "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api"
+	implementation "org.apache.taglibs:taglibs-standard-jstlel"
+	implementation "org.slf4j:slf4j-api"
+	implementation "org.slf4j:jcl-over-slf4j"
+	implementation "org.slf4j:log4j-over-slf4j"
+	implementation "ch.qos.logback:logback-classic"
 
 	providedCompile "javax.servlet:javax.servlet-api"
 	providedCompile "javax.servlet.jsp:javax.servlet.jsp-api"
 
-	testCompile "org.assertj:assertj-core"
-	testCompile "org.junit.jupiter:junit-jupiter-api"
-	testRuntime "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
 	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
 	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
