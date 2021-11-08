@@ -1,7 +1,2 @@
 name: session
-title: Spring Session
-start_page: ROOT:index.adoc
-
-
-nav:
-  - modules/ROOT/nav.adoc
+version: 2.6
