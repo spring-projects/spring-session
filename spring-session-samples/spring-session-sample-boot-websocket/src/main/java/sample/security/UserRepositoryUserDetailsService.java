@@ -44,8 +44,6 @@ public class UserRepositoryUserDetailsService implements UserDetailsService {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 *
 	 * @see
 	 * org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername
 	 * (java.lang.String)

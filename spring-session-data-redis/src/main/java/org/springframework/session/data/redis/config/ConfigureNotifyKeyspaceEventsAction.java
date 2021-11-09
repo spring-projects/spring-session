@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,8 +46,6 @@ public class ConfigureNotifyKeyspaceEventsAction implements ConfigureRedisAction
 	static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
 
 	/*
-	 * (non-Javadoc)
-	 *
 	 * @see
 	 * org.springframework.session.data.redis.config.ConfigureRedisAction#configure(org.
 	 * springframework.data.redis.connection.RedisConnection)

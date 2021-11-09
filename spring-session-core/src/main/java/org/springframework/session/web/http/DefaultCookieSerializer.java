@@ -88,8 +88,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	private String sameSite = "Lax";
 
 	/*
-	 * (non-Javadoc)
-	 *
 	 * @see org.springframework.session.web.http.CookieSerializer#readCookieValues(javax.
 	 * servlet.http.HttpServletRequest)
 	 */
@@ -115,8 +113,6 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 *
 	 * @see org.springframework.session.web.http.CookieWriter#writeCookieValue(org.
 	 * springframework.session.web.http.CookieWriter.CookieValue)
 	 */

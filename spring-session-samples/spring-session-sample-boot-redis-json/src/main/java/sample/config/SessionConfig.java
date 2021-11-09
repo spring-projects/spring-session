@@ -49,8 +49,6 @@ public class SessionConfig implements BeanClassLoaderAware {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 *
 	 * @see
 	 * org.springframework.beans.factory.BeanClassLoaderAware#setBeanClassLoader(java.lang
 	 * .ClassLoader)
