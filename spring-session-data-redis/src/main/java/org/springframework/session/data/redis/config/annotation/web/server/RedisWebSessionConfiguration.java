@@ -54,8 +54,8 @@ import org.springframework.web.server.session.WebSessionManager;
  * Bean.
  *
  * @author Vedran Pavic
- * @see EnableRedisWebSession
  * @since 2.0.0
+ * @see EnableRedisWebSession
  */
 @Configuration(proxyBeanMethods = false)
 public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration

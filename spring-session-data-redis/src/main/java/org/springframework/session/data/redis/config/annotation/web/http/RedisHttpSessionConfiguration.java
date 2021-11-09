@@ -76,8 +76,8 @@ import org.springframework.util.StringValueResolver;
  * @author Rob Winch
  * @author Eddú Meléndez
  * @author Vedran Pavic
- * @see EnableRedisHttpSession
  * @since 1.0
+ * @see EnableRedisHttpSession
  */
 @Configuration(proxyBeanMethods = false)
 public class RedisHttpSessionConfiguration extends SpringHttpSessionConfiguration
