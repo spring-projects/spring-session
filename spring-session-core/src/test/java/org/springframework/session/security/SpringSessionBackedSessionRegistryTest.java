@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,9 @@ import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
-import static org.mockito.BDDMockito.when;
 
 /**
  * Tests for {@link SpringSessionBackedSessionRegistry}.
@@ -74,7 +74,7 @@ class SpringSessionBackedSessionRegistryTest {
 	@Test
 	void sessionInformationForExistingSession() {
 		Session session = createSession(SESSION_ID, USER_NAME, NOW);
-		when(this.sessionRepository.findById(SESSION_ID)).thenReturn(session);
+		given(this.sessionRepository.findById(SESSION_ID)).willReturn(session);
 
 		SessionInformation sessionInfo = this.sessionRegistry.getSessionInformation(SESSION_ID);
 
@@ -89,7 +89,7 @@ class SpringSessionBackedSessionRegistryTest {
 	void sessionInformationForExpiredSession() {
 		Session session = createSession(SESSION_ID, USER_NAME, NOW);
 		session.setAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR, Boolean.TRUE);
-		when(this.sessionRepository.findById(SESSION_ID)).thenReturn(session);
+		given(this.sessionRepository.findById(SESSION_ID)).willReturn(session);
 
 		SessionInformation sessionInfo = this.sessionRegistry.getSessionInformation(SESSION_ID);
 
@@ -140,7 +140,7 @@ class SpringSessionBackedSessionRegistryTest {
 	@Test
 	void expireNow() {
 		Session session = createSession(SESSION_ID, USER_NAME, NOW);
-		when(this.sessionRepository.findById(SESSION_ID)).thenReturn(session);
+		given(this.sessionRepository.findById(SESSION_ID)).willReturn(session);
 
 		SessionInformation sessionInfo = this.sessionRegistry.getSessionInformation(SESSION_ID);
 		assertThat(sessionInfo.isExpired()).isFalse();
@@ -158,7 +158,7 @@ class SpringSessionBackedSessionRegistryTest {
 		MapSession session = new MapSession(sessionId);
 		session.setLastAccessedTime(lastAccessed);
 		Authentication authentication = mock(Authentication.class);
-		when(authentication.getName()).thenReturn(userName);
+		given(authentication.getName()).willReturn(userName);
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);
 		session.setAttribute("SPRING_SECURITY_CONTEXT", securityContext);
@@ -172,7 +172,7 @@ class SpringSessionBackedSessionRegistryTest {
 		Map<String, Session> sessions = new LinkedHashMap<>();
 		sessions.put(session1.getId(), session1);
 		sessions.put(session2.getId(), session2);
-		when(this.sessionRepository.findByPrincipalName(USER_NAME)).thenReturn(sessions);
+		given(this.sessionRepository.findByPrincipalName(USER_NAME)).willReturn(sessions);
 	}
 
 	private static final class TestPrincipal implements Principal {
