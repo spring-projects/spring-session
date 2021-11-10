@@ -1,0 +1,26 @@
+{
+  "index_name": "session-docs",
+  "start_urls": [
+    "https://docs.spring.io/spring-session/"
+  ],
+  "exclusionPatterns": [
+    "https://docs.spring.io/spring-security/docs/**"
+  ],
+  "stop_urls": [
+    "https://docs.spring.io/spring-security/docs/.*"
+  ],
+  "selectors": {
+    "lvl0": {
+      "selector": "//nav[@class='crumbs']//li[@class='crumb'][last()-1]",
+      "type": "xpath",
+      "global": true,
+      "default_value": "Home"
+    },
+    "lvl1": ".doc h1",
+    "lvl2": ".doc h2",
+    "lvl3": ".doc h3",
+    "lvl4": ".doc h4",
+    "text": ".doc p, .doc td.content, .doc th.tableblock"
+  }
+}
+
