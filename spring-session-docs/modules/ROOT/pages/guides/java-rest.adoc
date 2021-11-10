@@ -170,7 +170,7 @@ You can now try to use the application. To do so, use your favorite REST client 
 
 Note that you are prompted for basic authentication. Provide the following information for the username and password:
 
-* *Username* _user-
+* *Username* _user_
 * *Password* _password_
 
 Then run the following command:
