@@ -26,22 +26,10 @@ buildscript {
 	}
 }
 
-plugins {
-	id "io.github.rwinch.antora" version "0.0.2"
-}
-
-
 apply plugin: 'io.spring.convention.root'
 
 group = 'org.springframework.session'
 description = 'Spring Session'
-
-antora {
-    playbookFile = file("local-antora-playbook.yml")
-    // default no version (current version)
-    antoraVersion = "3.0.0-alpha.9"
-    arguments = ["--fetch"]
-}
 
 subprojects {
 	apply plugin: 'io.spring.javaformat'
