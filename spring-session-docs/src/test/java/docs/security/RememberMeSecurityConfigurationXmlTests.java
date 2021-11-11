@@ -19,7 +19,7 @@ package docs.security;
 import java.time.Duration;
 import java.util.Base64;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

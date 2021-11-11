@@ -6,9 +6,9 @@ dependencyManagement {
 	dependencies {
 		dependency 'ch.qos.logback:logback-classic:1.2.6'
 		dependency 'com.maxmind.geoip2:geoip2:2.15.0'
-		dependency 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2'
-		dependency 'javax.servlet.jsp:javax.servlet.jsp-api:2.3.3'
-		dependency 'org.apache.taglibs:taglibs-standard-jstlel:1.2.5'
+		dependency 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0'
+		dependency 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0'
+		dependency 'org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0'
 		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.52.0'
 		dependency 'org.slf4j:jcl-over-slf4j:1.7.32'
 		dependency 'org.slf4j:log4j-over-slf4j:1.7.32'

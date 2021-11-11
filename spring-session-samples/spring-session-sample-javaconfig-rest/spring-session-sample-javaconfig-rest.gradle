@@ -10,15 +10,13 @@ dependencies {
 	implementation "org.springframework.security:spring-security-config"
 	implementation "org.springframework.security:spring-security-web"
 	implementation "com.fasterxml.jackson.core:jackson-databind"
-	implementation "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api"
-	implementation "org.apache.taglibs:taglibs-standard-jstlel"
 	implementation "org.slf4j:slf4j-api"
 	implementation "org.slf4j:jcl-over-slf4j"
 	implementation "org.slf4j:log4j-over-slf4j"
 	implementation "ch.qos.logback:logback-classic"
 	implementation "org.testcontainers:testcontainers"
 
-	providedCompile "javax.servlet:javax.servlet-api"
+	providedCompile "jakarta.servlet:jakarta.servlet-api"
 
 	testImplementation "org.springframework.security:spring-security-test"
 	testImplementation "org.assertj:assertj-core"

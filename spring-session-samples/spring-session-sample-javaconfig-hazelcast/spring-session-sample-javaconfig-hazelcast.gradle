@@ -12,15 +12,14 @@ dependencies {
 	implementation "org.webjars:bootstrap"
 	implementation "org.webjars:webjars-taglib"
 	implementation "com.hazelcast:hazelcast-client"
-	implementation "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api"
-	implementation "org.apache.taglibs:taglibs-standard-jstlel"
 	implementation "org.slf4j:slf4j-api"
 	implementation "org.slf4j:jcl-over-slf4j"
 	implementation "org.slf4j:log4j-over-slf4j"
 	implementation "ch.qos.logback:logback-classic"
 
-	providedCompile "javax.servlet:javax.servlet-api"
-	providedCompile "javax.servlet.jsp:javax.servlet.jsp-api"
+	providedCompile "jakarta.servlet:jakarta.servlet-api"
+	providedCompile "jakarta.servlet.jsp:jakarta.servlet.jsp-api"
+    providedCompile "org.glassfish.web:jakarta.servlet.jsp.jstl"
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

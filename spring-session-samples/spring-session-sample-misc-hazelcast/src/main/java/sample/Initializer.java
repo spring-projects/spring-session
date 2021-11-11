@@ -19,11 +19,11 @@ package sample;
 import java.util.EnumSet;
 import java.util.Map;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterRegistration.Dynamic;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.annotation.WebListener;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.FilterRegistration.Dynamic;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.annotation.WebListener;
 
 import com.hazelcast.config.Config;
 import com.hazelcast.config.NetworkConfig;

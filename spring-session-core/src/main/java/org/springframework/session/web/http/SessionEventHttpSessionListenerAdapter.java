@@ -18,10 +18,10 @@ package org.springframework.session.web.http;
 
 import java.util.List;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionListener;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.session.Session;
@@ -79,9 +79,8 @@ public class SessionEventHttpSessionListenerAdapter
 	}
 
 	/*
-	 * @see
-	 * org.springframework.web.context.ServletContextAware#setServletContext(javax.servlet
-	 * .ServletContext)
+	 * @see org.springframework.web.context.ServletContextAware#setServletContext(jakarta.
+	 * servlet.ServletContext)
 	 */
 	@Override
 	public void setServletContext(ServletContext servletContext) {

@@ -20,16 +20,16 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
 
-import javax.servlet.FilterChain;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -39,29 +39,29 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 
 /**
- * Switches the {@link javax.servlet.http.HttpSession} implementation to be backed by a
+ * Switches the {@link jakarta.servlet.http.HttpSession} implementation to be backed by a
  * {@link org.springframework.session.Session}.
  *
  * The {@link SessionRepositoryFilter} wraps the
- * {@link javax.servlet.http.HttpServletRequest} and overrides the methods to get an
- * {@link javax.servlet.http.HttpSession} to be backed by a
+ * {@link jakarta.servlet.http.HttpServletRequest} and overrides the methods to get an
+ * {@link jakarta.servlet.http.HttpSession} to be backed by a
  * {@link org.springframework.session.Session} returned by the
  * {@link org.springframework.session.SessionRepository}.
  *
  * The {@link SessionRepositoryFilter} uses a {@link HttpSessionIdResolver} (default
  * {@link CookieHttpSessionIdResolver}) to bridge logic between an
- * {@link javax.servlet.http.HttpSession} and the
+ * {@link jakarta.servlet.http.HttpSession} and the
  * {@link org.springframework.session.Session} abstraction. Specifically:
  *
  * <ul>
  * <li>The session id is looked up using
- * {@link HttpSessionIdResolver#resolveSessionIds(javax.servlet.http.HttpServletRequest)}
+ * {@link HttpSessionIdResolver#resolveSessionIds(jakarta.servlet.http.HttpServletRequest)}
  * . The default is to look in a cookie named SESSION.</li>
  * <li>The session id of newly created {@link org.springframework.session.Session} is sent
  * to the client using
- * {@link HttpSessionIdResolver#setSessionId(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, String)}
+ * {@link HttpSessionIdResolver#setSessionId(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse, String)}
  * <li>The client is notified that the session id is no longer valid with
- * {@link HttpSessionIdResolver#expireSession(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)}
+ * {@link HttpSessionIdResolver#expireSession(jakarta.servlet.http.HttpServletRequest, jakarta.servlet.http.HttpServletResponse)}
  * </li>
  * </ul>
  *
@@ -183,8 +183,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	}
 
 	/**
-	 * A {@link javax.servlet.http.HttpServletRequest} that retrieves the
-	 * {@link javax.servlet.http.HttpSession} using a
+	 * A {@link jakarta.servlet.http.HttpServletRequest} that retrieves the
+	 * {@link jakarta.servlet.http.HttpSession} using a
 	 * {@link org.springframework.session.SessionRepository}.
 	 *
 	 * @author Rob Winch

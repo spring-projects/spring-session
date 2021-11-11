@@ -19,10 +19,10 @@ package org.springframework.session.config.annotation.web.http;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.ServletContext;
-import javax.servlet.SessionCookieConfig;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.SessionCookieConfig;
+import jakarta.servlet.http.HttpSessionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
