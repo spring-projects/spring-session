@@ -1,6 +1,6 @@
 site:
   title: Spring Session
-  url: https://docs.spring.io/spring-security/
+  url: https://docs.spring.io/spring-session/
 asciidoc:
   attributes:
     page-pagination: true
