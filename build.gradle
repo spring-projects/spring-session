@@ -35,7 +35,7 @@ subprojects {
 	apply plugin: 'io.spring.javaformat'
 
 	plugins.withType(JavaPlugin) {
-		sourceCompatibility = JavaVersion.VERSION_1_8
+		sourceCompatibility = JavaVersion.VERSION_17
 	}
 
 	tasks.withType(Test) {

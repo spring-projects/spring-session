@@ -22,7 +22,7 @@ jobs:
     if: github.repository == 'spring-projects/spring-session'
     strategy:
       matrix:
-        jdk: [8, 11]
+        jdk: [17]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -55,7 +55,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '17'
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
@@ -83,7 +83,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
-          java-version: '8'
+          java-version: '17'
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle

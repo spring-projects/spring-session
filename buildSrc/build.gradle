@@ -4,7 +4,7 @@ plugins {
     id "groovy"
 }
 
-sourceCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     jcenter()
