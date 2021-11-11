@@ -1,13 +1,7 @@
 {
   "index_name": "session-docs",
   "start_urls": [
-    "https://docs.spring.io/spring-session/"
-  ],
-  "exclusionPatterns": [
-    "https://docs.spring.io/spring-security/docs/**"
-  ],
-  "stop_urls": [
-    "https://docs.spring.io/spring-security/docs/.*"
+    "https://docs.spring.io/spring-session/reference/"
   ],
   "selectors": {
     "lvl0": {
