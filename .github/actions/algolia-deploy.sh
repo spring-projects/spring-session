@@ -16,5 +16,5 @@ SSH_PRIVATE_KEY_PATH=~/.ssh/github-actions-docs
 install -m 600 -D /dev/null "$SSH_PRIVATE_KEY_PATH"
 echo "$SSH_PRIVATE_KEY" > "$SSH_PRIVATE_KEY_PATH"
 echo "$SSH_KNOWN_HOST" > ~/.ssh/known_hosts
-rsync -avze "ssh -i $SSH_PRIVATE_KEY_PATH" spring-session-docs/build/site/ "$HOST:$HOST_PATH"
+rsync --delete -avze "ssh -i $SSH_PRIVATE_KEY_PATH" spring-session-docs/build/site/ "$HOST:$HOST_PATH"
 rm -f "$SSH_PRIVATE_KEY_PATH"
