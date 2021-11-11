@@ -38,12 +38,10 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
-import org.springframework.session.hazelcast.Hazelcast4IndexedSessionRepository;
 import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
 import org.springframework.session.web.http.SessionRepositoryFilter;
-import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -75,23 +73,9 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 
 	private List<SessionRepositoryCustomizer<HazelcastIndexedSessionRepository>> sessionRepositoryCustomizers;
 
-	private List<SessionRepositoryCustomizer<Hazelcast4IndexedSessionRepository>> hazelcast4SessionRepositoryCustomizers;
-
-	private static final boolean hazelcast4;
-
-	static {
-		ClassLoader classLoader = HazelcastHttpSessionConfiguration.class.getClassLoader();
-		hazelcast4 = ClassUtils.isPresent("com.hazelcast.map.IMap", classLoader);
-	}
-
 	@Bean
 	public FindByIndexNameSessionRepository<?> sessionRepository() {
-		if (hazelcast4) {
-			return createHazelcast4IndexedSessionRepository();
-		}
-		else {
-			return createHazelcastIndexedSessionRepository();
-		}
+		return createHazelcastIndexedSessionRepository();
 	}
 
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
@@ -142,13 +126,6 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
 	}
 
-	@Autowired(required = false)
-	public void setHazelcast4SessionRepositoryCustomizer(
-			ObjectProvider<SessionRepositoryCustomizer<Hazelcast4IndexedSessionRepository>> sessionRepositoryCustomizers) {
-		this.hazelcast4SessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream()
-				.collect(Collectors.toList());
-	}
-
 	@Override
 	@SuppressWarnings("deprecation")
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
@@ -183,24 +160,6 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
 		this.sessionRepositoryCustomizers
-				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
-		return sessionRepository;
-	}
-
-	private Hazelcast4IndexedSessionRepository createHazelcast4IndexedSessionRepository() {
-		Hazelcast4IndexedSessionRepository sessionRepository = new Hazelcast4IndexedSessionRepository(
-				this.hazelcastInstance);
-		sessionRepository.setApplicationEventPublisher(this.applicationEventPublisher);
-		if (this.indexResolver != null) {
-			sessionRepository.setIndexResolver(this.indexResolver);
-		}
-		if (StringUtils.hasText(this.sessionMapName)) {
-			sessionRepository.setSessionMapName(this.sessionMapName);
-		}
-		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
-		sessionRepository.setFlushMode(this.flushMode);
-		sessionRepository.setSaveMode(this.saveMode);
-		this.hazelcast4SessionRepositoryCustomizers
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}

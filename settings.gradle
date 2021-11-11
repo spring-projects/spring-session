@@ -18,8 +18,6 @@ include 'spring-session-data-redis'
 include 'spring-session-docs'
 include 'spring-session-hazelcast'
 include 'spring-session-jdbc'
-include 'hazelcast4'
-project(':hazelcast4').projectDir = file('spring-session-hazelcast/hazelcast4')
 
 file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
     include dir.name

@@ -16,9 +16,12 @@
 
 package org.springframework.session.hazelcast;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
-import com.hazelcast.instance.HazelcastInstanceProxy;
+import com.hazelcast.instance.impl.HazelcastInstanceProxy;
+import com.hazelcast.map.IMap;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
@@ -223,6 +226,53 @@ abstract class AbstractHazelcastIndexedSessionRepositoryITests {
 						.hasSize(1);
 
 		this.repository.deleteById(session.getId());
+	}
+
+	@Test
+	void createAndUpdateSessionWhileKeepingOriginalTimeToLiveConfiguredOnRepository() {
+		final Duration defaultSessionTimeout = Duration.ofSeconds(1800);
+
+		final IMap<String, MapSession> hazelcastMap = this.hazelcastInstance
+				.getMap(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME);
+
+		HazelcastSession session = this.repository.createSession();
+		String sessionId = session.getId();
+		this.repository.save(session);
+
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(defaultSessionTimeout);
+		assertThat(hazelcastMap.getEntryView(sessionId).getTtl()).isEqualTo(defaultSessionTimeout.toMillis());
+
+		session = this.repository.findById(sessionId);
+		session.setLastAccessedTime(Instant.now());
+		this.repository.save(session);
+
+		session = this.repository.findById(sessionId);
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(defaultSessionTimeout);
+		assertThat(hazelcastMap.getEntryView(sessionId).getTtl()).isEqualTo(defaultSessionTimeout.toMillis());
+	}
+
+	@Test
+	void createAndUpdateSessionWhileKeepingTimeToLiveSetOnSession() {
+		final Duration individualSessionTimeout = Duration.ofSeconds(23);
+
+		final IMap<String, MapSession> hazelcastMap = this.hazelcastInstance
+				.getMap(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME);
+
+		HazelcastSession session = this.repository.createSession();
+		session.setMaxInactiveInterval(individualSessionTimeout);
+		String sessionId = session.getId();
+		this.repository.save(session);
+
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(individualSessionTimeout);
+		assertThat(hazelcastMap.getEntryView(sessionId).getTtl()).isEqualTo(individualSessionTimeout.toMillis());
+
+		session = this.repository.findById(sessionId);
+		session.setAttribute("attribute", "value");
+		this.repository.save(session);
+
+		session = this.repository.findById(sessionId);
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(individualSessionTimeout);
+		assertThat(hazelcastMap.getEntryView(sessionId).getTtl()).isEqualTo(individualSessionTimeout.toMillis());
 	}
 
 }

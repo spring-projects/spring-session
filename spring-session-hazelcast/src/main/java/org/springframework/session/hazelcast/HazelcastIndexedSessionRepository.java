@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.annotation.PostConstruct;
@@ -30,9 +31,10 @@ import jakarta.annotation.PreDestroy;
 
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import com.hazelcast.map.IMap;
 import com.hazelcast.map.listener.EntryAddedListener;
 import com.hazelcast.map.listener.EntryEvictedListener;
+import com.hazelcast.map.listener.EntryExpiredListener;
 import com.hazelcast.map.listener.EntryRemovedListener;
 import com.hazelcast.query.Predicates;
 import org.apache.commons.logging.Log;
@@ -52,7 +54,6 @@ import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 
 /**
  * A {@link org.springframework.session.SessionRepository} implementation that stores
@@ -80,16 +81,17 @@ import org.springframework.util.ClassUtils;
  * programmatic Hazelcast Configuration:
  *
  * <pre class="code">
- * MapAttributeConfig attributeConfig = new MapAttributeConfig()
+ * AttributeConfig attributeConfig = new AttributeConfig()
  *         .setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
- *         .setExtractor(PrincipalNameExtractor.class.getName());
+ *         .setExtractorClassName(rincipalNameExtractor.class.getName());
  *
  * Config config = new Config();
  *
  * config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
- *         .addMapAttributeConfig(attributeConfig)
- *         .addMapIndexConfig(new MapIndexConfig(
- *                 HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+ *         .addAttributeConfig(attributeConfig)
+ *         .addIndexConfig(new IndexConfig(
+ *                 IndexType.HASH,
+ *                 HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
  *
  * Hazelcast.newHazelcastInstance(config);
  * </pre>
@@ -108,12 +110,13 @@ import org.springframework.util.ClassUtils;
  * @author Tommy Ludwig
  * @author Mark Anderson
  * @author Aleksandar Stojsavljevic
+ * @author Eleftheria Stein
  * @since 2.2.0
  */
 public class HazelcastIndexedSessionRepository
 		implements FindByIndexNameSessionRepository<HazelcastIndexedSessionRepository.HazelcastSession>,
 		EntryAddedListener<String, MapSession>, EntryEvictedListener<String, MapSession>,
-		EntryRemovedListener<String, MapSession> {
+		EntryRemovedListener<String, MapSession>, EntryExpiredListener<String, MapSession> {
 
 	/**
 	 * The default name of map used by Spring Session to store sessions.
@@ -126,8 +129,6 @@ public class HazelcastIndexedSessionRepository
 	public static final String PRINCIPAL_NAME_ATTRIBUTE = "principalName";
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
-
-	private static final boolean SUPPORTS_SET_TTL = ClassUtils.hasAtLeastOneMethodWithName(IMap.class, "setTtl");
 
 	private static final Log logger = LogFactory.getLog(HazelcastIndexedSessionRepository.class);
 
@@ -152,7 +153,7 @@ public class HazelcastIndexedSessionRepository
 
 	private IMap<String, MapSession> sessions;
 
-	private String sessionListenerId;
+	private UUID sessionListenerId;
 
 	/**
 	 * Create a new {@link HazelcastIndexedSessionRepository} instance.
@@ -261,9 +262,6 @@ public class HazelcastIndexedSessionRepository
 				entryProcessor.setLastAccessedTime(session.getLastAccessedTime());
 			}
 			if (session.maxInactiveIntervalChanged) {
-				if (SUPPORTS_SET_TTL) {
-					updateTtl(session);
-				}
 				entryProcessor.setMaxInactiveInterval(session.getMaxInactiveInterval());
 			}
 			if (!session.delta.isEmpty()) {
@@ -272,10 +270,6 @@ public class HazelcastIndexedSessionRepository
 			this.sessions.executeOnKey(session.getId(), entryProcessor);
 		}
 		session.clearChangeFlags();
-	}
-
-	private void updateTtl(HazelcastSession session) {
-		this.sessions.setTtl(session.getId(), session.getMaxInactiveInterval().getSeconds(), TimeUnit.SECONDS);
 	}
 
 	@Override
@@ -337,6 +331,14 @@ public class HazelcastIndexedSessionRepository
 			}
 			this.eventPublisher.publishEvent(new SessionDeletedEvent(this, session));
 		}
+	}
+
+	@Override
+	public void entryExpired(EntryEvent<String, MapSession> event) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("Session expired with id: " + event.getOldValue().getId());
+		}
+		this.eventPublisher.publishEvent(new SessionExpiredEvent(this, event.getOldValue()));
 	}
 
 	/**

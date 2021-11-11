@@ -7,7 +7,7 @@ dependencies {
 	implementation project(':spring-session-core')
 	implementation "org.webjars:bootstrap"
 	implementation "org.webjars:webjars-taglib"
-	implementation "com.hazelcast:hazelcast-client"
+	implementation "com.hazelcast:hazelcast"
 	implementation "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api"
 	implementation "org.apache.taglibs:taglibs-standard-jstlel"
 	implementation "org.slf4j:slf4j-api"

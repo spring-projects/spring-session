@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.IMap;
 import com.hazelcast.map.listener.MapListener;
 import com.hazelcast.query.impl.predicates.EqualPredicate;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -255,7 +254,6 @@ class HazelcastIndexedSessionRepositoryTests {
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
 		verify(this.sessions, times(1)).set(eq(sessionId), eq(session.getDelegate()), isA(Long.class),
 				eq(TimeUnit.SECONDS));
-		verify(this.sessions).setTtl(eq(sessionId), anyLong(), any());
 		verify(this.sessions, times(1)).executeOnKey(eq(sessionId), any(EntryProcessor.class));
 
 		this.repository.save(session);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,21 @@ package org.springframework.session.hazelcast;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import com.hazelcast.core.Offloadable;
-import com.hazelcast.map.AbstractEntryProcessor;
 import com.hazelcast.map.EntryProcessor;
+import com.hazelcast.map.ExtendedMapEntry;
 
 import org.springframework.session.MapSession;
-import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository.HazelcastSession;
 
 /**
  * Hazelcast {@link EntryProcessor} responsible for handling updates to session.
  *
  * @author Vedran Pavic
+ * @author Eleftheria Stein
  * @since 1.3.4
- * @see HazelcastIndexedSessionRepository#save(HazelcastSession)
  */
-public class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, MapSession> implements Offloadable {
+public class SessionUpdateEntryProcessor implements EntryProcessor<String, MapSession, Object> {
 
 	private Instant lastAccessedTime;
 
@@ -64,13 +63,9 @@ public class SessionUpdateEntryProcessor extends AbstractEntryProcessor<String, 
 				}
 			}
 		}
-		entry.setValue(value);
+		((ExtendedMapEntry<String, MapSession>) entry).setValue(value, value.getMaxInactiveInterval().getSeconds(),
+				TimeUnit.SECONDS);
 		return Boolean.TRUE;
-	}
-
-	@Override
-	public String getExecutorName() {
-		return OFFLOADABLE_EXECUTOR;
 	}
 
 	void setLastAccessedTime(Instant lastAccessedTime) {

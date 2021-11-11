@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,10 @@
 
 package org.springframework.session.hazelcast;
 
+import com.hazelcast.config.AttributeConfig;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.MapAttributeConfig;
-import com.hazelcast.config.MapIndexConfig;
+import com.hazelcast.config.IndexConfig;
+import com.hazelcast.config.IndexType;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.SerializerConfig;
 import com.hazelcast.core.Hazelcast;
@@ -45,12 +46,12 @@ final class HazelcastITestUtils {
 		NetworkConfig networkConfig = config.getNetworkConfig();
 		networkConfig.setPort(0);
 		networkConfig.getJoin().getMulticastConfig().setEnabled(false);
-		MapAttributeConfig attributeConfig = new MapAttributeConfig()
+		AttributeConfig attributeConfig = new AttributeConfig()
 				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
-				.setExtractor(PrincipalNameExtractor.class.getName());
+				.setExtractorClassName(PrincipalNameExtractor.class.getName());
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
-				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
-						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+				.addAttributeConfig(attributeConfig).addIndexConfig(
+						new IndexConfig(IndexType.HASH, HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
 		SerializerConfig serializerConfig = new SerializerConfig();
 		serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
 		config.getSerializationConfig().addSerializerConfig(serializerConfig);

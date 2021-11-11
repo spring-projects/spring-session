@@ -16,9 +16,10 @@
 
 package sample.config;
 
+import com.hazelcast.config.AttributeConfig;
 import com.hazelcast.config.Config;
-import com.hazelcast.config.MapAttributeConfig;
-import com.hazelcast.config.MapIndexConfig;
+import com.hazelcast.config.IndexConfig;
+import com.hazelcast.config.IndexType;
 import com.hazelcast.config.NetworkConfig;
 import com.hazelcast.config.SerializerConfig;
 
@@ -39,12 +40,12 @@ public class SessionConfig {
 		NetworkConfig networkConfig = config.getNetworkConfig();
 		networkConfig.setPort(0);
 		networkConfig.getJoin().getMulticastConfig().setEnabled(false);
-		MapAttributeConfig attributeConfig = new MapAttributeConfig()
+		AttributeConfig attributeConfig = new AttributeConfig()
 				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
-				.setExtractor(PrincipalNameExtractor.class.getName());
+				.setExtractorClassName(PrincipalNameExtractor.class.getName());
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
-				.addMapAttributeConfig(attributeConfig).addMapIndexConfig(
-						new MapIndexConfig(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE, false));
+				.addAttributeConfig(attributeConfig).addIndexConfig(
+						new IndexConfig(IndexType.HASH, HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
 		SerializerConfig serializerConfig = new SerializerConfig();
 		serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
 		config.getSerializationConfig().addSerializerConfig(serializerConfig);

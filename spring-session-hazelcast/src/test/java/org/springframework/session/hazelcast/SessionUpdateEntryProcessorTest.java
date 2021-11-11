@@ -32,13 +32,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-class Hazelcast4SessionUpdateEntryProcessorTest {
+class SessionUpdateEntryProcessorTest {
 
-	private Hazelcast4SessionUpdateEntryProcessor processor;
+	private SessionUpdateEntryProcessor processor;
 
 	@BeforeEach
 	void setUp() {
-		this.processor = new Hazelcast4SessionUpdateEntryProcessor();
+		this.processor = new SessionUpdateEntryProcessor();
 	}
 
 	@Test

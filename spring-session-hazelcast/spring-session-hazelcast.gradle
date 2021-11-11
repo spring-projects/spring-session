@@ -1,17 +1,10 @@
 apply plugin: 'io.spring.convention.spring-module'
 
-configurations {
-	hazelcast4
-}
-
 dependencies {
 	api project(':spring-session-core')
 	api "com.hazelcast:hazelcast"
 	api "jakarta.annotation:jakarta.annotation-api"
 	api "org.springframework:spring-context"
-
-	hazelcast4(project(path: ":hazelcast4", configuration: 'classesOnlyElements'))
-	compileOnly(project(":hazelcast4"))
 
 	testImplementation "jakarta.servlet:jakarta.servlet-api"
 	testImplementation "org.assertj:assertj-core"
@@ -20,13 +13,7 @@ dependencies {
 	testImplementation "org.springframework:spring-web"
 	testImplementation "org.springframework.security:spring-security-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
-	testRuntimeOnly project(':hazelcast4')
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
-	integrationTestCompile "com.hazelcast:hazelcast-client"
 	integrationTestCompile "org.testcontainers:testcontainers"
-}
-
-jar {
-	from configurations.hazelcast4
 }

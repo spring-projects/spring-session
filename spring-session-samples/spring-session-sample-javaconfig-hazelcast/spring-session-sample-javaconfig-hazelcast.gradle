@@ -11,7 +11,7 @@ dependencies {
 	implementation "org.springframework.security:spring-security-web"
 	implementation "org.webjars:bootstrap"
 	implementation "org.webjars:webjars-taglib"
-	implementation "com.hazelcast:hazelcast-client"
+	implementation "com.hazelcast:hazelcast"
 	implementation "org.slf4j:slf4j-api"
 	implementation "org.slf4j:jcl-over-slf4j"
 	implementation "org.slf4j:log4j-over-slf4j"

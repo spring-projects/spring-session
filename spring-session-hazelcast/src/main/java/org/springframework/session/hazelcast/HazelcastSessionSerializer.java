@@ -29,7 +29,7 @@ import org.springframework.session.MapSession;
 
 /**
  * A {@link com.hazelcast.nio.serialization.Serializer} implementation that handles the
- * (de)serialization of {@link MapSession} stored on {@link com.hazelcast.core.IMap}.
+ * (de)serialization of {@link MapSession} stored on {@link com.hazelcast.map.IMap}.
  *
  * <p>
  * The use of this serializer is optional and provides faster serialization of sessions.
