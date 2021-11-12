@@ -1,46 +1,20 @@
-[[upgrading-2.0]]
-= Upgrading to 2.x
+[[upgrading-3.0]]
+= Upgrading to 3.x
 
 With the new major release version, the Spring Session team took the opportunity to make some non-passive changes.
 The focus of these changes is to improve and harmonize Spring Session's APIs as well as remove the deprecated components.
 
 == Baseline Update
 
-Spring Session 2.0 requires Java 8 and Spring Framework 5.0 as a baseline, since its entire codebase is now based on Java 8 source code.
+Spring Session 3.0 requires Java 17 and Spring Framework 6.0 as a baseline, since its entire codebase is now based on Java 17 source code.
 See https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-5.x[Upgrading to Spring Framework 5.x] for more on upgrading Spring Framework.
-
-== Replaced and Removed Modules
-
-As a part of the project's splitting of the modules, the existing `spring-session` has been replaced with the `spring-session-core` module.
-The `spring-session-core` module holds only the common set of APIs and components, while other modules contain the implementation of the appropriate `SessionRepository` and functionality related to that data store.
-This applies to several existing modules that were previously a simple dependency aggregator helper module.
-With new module arrangement, the following modules actually carry the implementation:
-
-* Spring Session for MongoDB
-* Spring Session for Redis
-* Spring Session JDBC
-* Spring Session Hazelcast
-
-Also, the following were removed from the main project repository:
-
-* Spring Session Data GemFire
-** https://github.com/spring-projects/spring-session-data-geode[`spring-session-data-geode`]
 
 == Replaced and Removed Packages, Classes, and Methods
 
 The following changes were made to packages, classes, and methods:
 
-* `ExpiringSession` API has been merged into the `Session` API.
-* The `Session` API has been enhanced to make full use of Java 8.
-* The `Session` API has been extended with `changeSessionId` support.
-* The `SessionRepository` API has been updated to better align with Spring Data method naming conventions.
-* `AbstractSessionEvent` and its subclasses are no longer constructable without an underlying `Session` object.
-* The Redis namespace used by `RedisOperationsSessionRepository` is now fully configurable, instead of being partially configurable.
-* Redis configuration support has been updated to avoid registering a Spring Session-specific `RedisTemplate` bean.
-* JDBC configuration support has been updated to avoid registering a Spring Session-specific `JdbcTemplate` bean.
-* Previously deprecated classes and methods have been removed across the codebase
+
 
 == Dropped Support
 
-As a part of the changes to `HttpSessionStrategy` and its alignment to the counterpart from the reactive world, the support for managing multiple users' sessions in a single browser instance has been removed.
-The introduction of a new API to replace this functionality is under consideration for future releases.
+
