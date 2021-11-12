@@ -1,5 +1,5 @@
 plugins {
-    id "org.gretty" version "3.0.7"
+    id "org.gretty" version "4.0.0"
     id "io.spring.convention.spring-sample-war"
 }
 
@@ -27,5 +27,5 @@ dependencies {
 
 gretty {
 	jvmArgs = ['-Dspring.profiles.active=embedded-redis']
-	servletContainer = 'tomcat9'
+	servletContainer = 'tomcat10'
 }
