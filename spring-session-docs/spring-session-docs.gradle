@@ -8,7 +8,7 @@ apply plugin: 'io.spring.convention.spring-test'
 dependencies {
 	testImplementation project(':spring-session-core')
 	testImplementation project(':spring-session-data-redis')
-	testImplementation project(':spring-session-hazelcast')
+//	testImplementation project(':spring-session-hazelcast')
 	testImplementation project(':spring-session-jdbc')
 	testImplementation 'org.springframework:spring-jdbc'
 	testImplementation 'org.springframework:spring-messaging'
