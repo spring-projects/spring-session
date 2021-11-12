@@ -18,6 +18,5 @@ dependencyManagement {
 		dependency 'org.webjars:knockout:3.5.1'
 		dependency 'org.webjars:sockjs-client:1.5.1'
 		dependency 'org.webjars:stomp-websocket:2.3.4'
-		dependency 'org.webjars:webjars-taglib:0.3'
 	}
 }

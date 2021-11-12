@@ -6,8 +6,6 @@ plugins {
 dependencies {
 	implementation project(':spring-session-jdbc')
 	implementation  "org.springframework:spring-web"
-	implementation "org.webjars:bootstrap"
-	implementation "org.webjars:webjars-taglib"
 	implementation "com.h2database:h2"
 	implementation "org.slf4j:slf4j-api"
 	implementation "org.slf4j:jcl-over-slf4j"

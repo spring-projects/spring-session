@@ -9,8 +9,6 @@ dependencies {
 	implementation "org.springframework.security:spring-security-config"
 	implementation "org.springframework.security:spring-security-web"
 	implementation "io.lettuce:lettuce-core"
-	implementation "org.webjars:bootstrap"
-	implementation "org.webjars:webjars-taglib"
 	implementation "org.slf4j:slf4j-api"
 	implementation "org.slf4j:jcl-over-slf4j"
 	implementation "org.slf4j:log4j-over-slf4j"
