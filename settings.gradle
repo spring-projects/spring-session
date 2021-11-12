@@ -19,10 +19,21 @@ include 'spring-session-docs'
 //include 'spring-session-hazelcast'
 include 'spring-session-jdbc'
 
-file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
-    include dir.name
-    project(":$dir.name").projectDir = dir
-}
+include 'spring-session-sample-javaconfig-custom-cookie'
+project(':spring-session-sample-javaconfig-custom-cookie').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-custom-cookie')
+include 'spring-session-sample-javaconfig-jdbc'
+project(':spring-session-sample-javaconfig-jdbc').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-jdbc')
+include 'spring-session-sample-javaconfig-redis'
+project(':spring-session-sample-javaconfig-redis').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-redis')
+include 'spring-session-sample-xml-redis'
+project(':spring-session-sample-xml-redis').projectDir = file('spring-session-samples/spring-session-sample-xml-redis')
+include 'spring-session-sample-xml-jdbc'
+project(':spring-session-sample-xml-jdbc').projectDir = file('spring-session-samples/spring-session-sample-xml-jdbc')
+
+//file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
+//    include dir.name
+//    project(":$dir.name").projectDir = dir
+//}
 
 rootProject.children.each { project ->
     project.buildFileName = "${project.name}.gradle"
