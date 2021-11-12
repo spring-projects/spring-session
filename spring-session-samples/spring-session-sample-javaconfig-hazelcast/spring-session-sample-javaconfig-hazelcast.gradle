@@ -5,7 +5,6 @@ plugins {
 
 dependencies {
 	implementation project(':spring-session-hazelcast')
-	implementation project(':hazelcast4')
 	implementation "org.springframework:spring-web"
 	implementation "org.springframework.security:spring-security-config"
 	implementation "org.springframework.security:spring-security-web"

@@ -21,6 +21,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.utility.MountableFile;
@@ -44,6 +45,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
+@Disabled("Re-enable when Hazelcast image uses JDK 17")
 class ClientServerHazelcastIndexedSessionRepositoryITests extends AbstractHazelcastIndexedSessionRepositoryITests {
 
 	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:5.0").withExposedPorts(5701)
