@@ -64,7 +64,7 @@ dependencies {
     implementation 'com.github.spullara.mustache.java:compiler:0.9.10'
     implementation 'io.spring.javaformat:spring-javaformat-gradle-plugin:0.0.15'
     implementation 'io.spring.nohttp:nohttp-gradle:0.0.9'
-    implementation 'net.sourceforge.htmlunit:htmlunit:2.37.0'
+    implementation 'net.sourceforge.htmlunit:htmlunit:2.55.0'
     implementation 'org.hidetake:gradle-ssh-plugin:2.10.1'
     implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.24.20'
     implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
