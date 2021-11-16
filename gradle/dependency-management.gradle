@@ -3,10 +3,10 @@ dependencyManagement {
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.11.2'
 		mavenBom 'io.projectreactor:reactor-bom:2020.0.13'
 		mavenBom 'org.junit:junit-bom:5.8.1'
-		mavenBom 'org.springframework.data:spring-data-bom:2021.1.0-RC1'
 		mavenBom 'org.springframework.security:spring-security-bom:5.6.0-RC1'
 		mavenBom 'org.testcontainers:testcontainers-bom:1.16.0'
 		mavenBom 'org.springframework:spring-framework-bom:5.3.13'
+		mavenBom 'org.springframework.data:spring-data-bom:2021.1.0'
 	}
 
 	dependencies {
