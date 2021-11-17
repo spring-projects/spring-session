@@ -10,6 +10,7 @@ content:
       branches: [spring-projects/spring-session/*]
     - url: https://github.com/spring-projects/spring-session
       branches: [main]
+      tags: ['2.6.*','!2.6.0-M*']
       start_path: spring-session-docs
 urls:
   latest_version_segment_strategy: redirect:to
