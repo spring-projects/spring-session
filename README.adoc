@@ -1,3 +1,9 @@
+[NOTE]
+======
+This branch of Spring Session has reached its https://github.com/spring-projects/spring-boot/wiki/Supported-Versions[End of Life], meaning that there are no further maintenance releases or security patches planned.
+Please migrate to a supported branch as soon as possible.
+======
+
 = Spring Session
 
 image:https://badges.gitter.im/spring-projects/spring-session.svg[link="https://gitter.im/spring-projects/spring-session?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
