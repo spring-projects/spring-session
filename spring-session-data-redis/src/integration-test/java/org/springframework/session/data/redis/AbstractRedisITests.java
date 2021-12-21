@@ -29,7 +29,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
  */
 public abstract class AbstractRedisITests {
 
-	private static final String DOCKER_IMAGE = "redis:5.0.10";
+	private static final String DOCKER_IMAGE = "redis:5.0.14";
 
 	protected static class BaseConfig {
 
