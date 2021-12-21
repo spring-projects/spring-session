@@ -29,3 +29,7 @@ dependencies {
 	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
 	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}
