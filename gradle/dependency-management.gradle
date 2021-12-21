@@ -2,7 +2,7 @@ dependencyManagement {
 	imports {
 		mavenBom 'io.projectreactor:reactor-bom:2020.0.14'
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.13.0'
-		mavenBom 'org.junit:junit-bom:5.8.1'
+		mavenBom 'org.junit:junit-bom:5.8.2'
 		mavenBom 'org.springframework:spring-framework-bom:5.3.14'
 		mavenBom 'org.springframework.data:spring-data-bom:2021.1.0'
 		mavenBom 'org.springframework.security:spring-security-bom:5.6.1'
@@ -16,11 +16,11 @@ dependencyManagement {
 		}
 
 		dependency 'org.aspectj:aspectjweaver:1.9.7'
-		dependency 'ch.qos.logback:logback-core:1.2.3'
+		dependency 'ch.qos.logback:logback-core:1.2.9'
 		dependency 'com.google.code.findbugs:jsr305:3.0.2'
 		dependency 'com.h2database:h2:1.4.200'
 		dependency 'com.ibm.db2:jcc:11.5.6.0'
-		dependency 'com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre8'
+		dependency 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre8'
 		dependency 'com.oracle.database.jdbc:ojdbc8:21.3.0.0'
 		dependency 'com.zaxxer:HikariCP:3.4.5'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
