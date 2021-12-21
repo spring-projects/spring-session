@@ -21,7 +21,7 @@ artifacts {
 
 dependencies {
     api project(':spring-session-core')
-    optional "com.hazelcast:hazelcast:4.2.2"
+    optional "com.hazelcast:hazelcast:4.2.3"
     api "org.springframework:spring-context"
     api "javax.annotation:javax.annotation-api"
 
@@ -35,7 +35,7 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     integrationTestCompile "org.testcontainers:testcontainers"
-    integrationTestCompile "com.hazelcast:hazelcast:4.2"
+    integrationTestCompile "com.hazelcast:hazelcast:4.2.3"
     integrationTestCompile project(":spring-session-hazelcast")
 }
 

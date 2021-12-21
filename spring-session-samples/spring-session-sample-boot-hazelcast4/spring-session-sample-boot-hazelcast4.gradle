@@ -7,7 +7,7 @@ dependencies {
 	implementation  "org.springframework.boot:spring-boot-starter-actuator"
 	implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
 	implementation  "org.springframework.boot:spring-boot-starter-security"
-	implementation  "com.hazelcast:hazelcast:4.2.2"
+	implementation  "com.hazelcast:hazelcast:4.2.3"
 	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
 	implementation "org.webjars:bootstrap"
 	implementation "org.webjars:html5shiv"
