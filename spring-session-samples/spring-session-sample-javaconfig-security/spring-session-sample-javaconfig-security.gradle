@@ -25,4 +25,5 @@ dependencies {
 
 gretty {
 	jvmArgs = ['-Dspring.profiles.active=embedded-redis']
+	logbackConfigFile = "src/main/resources/logback.xml"
 }

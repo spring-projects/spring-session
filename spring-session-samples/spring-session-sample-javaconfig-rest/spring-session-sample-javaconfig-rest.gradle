@@ -23,4 +23,5 @@ dependencies {
 gretty {
 	jvmArgs = ['-Dspring.profiles.active=embedded-redis']
 	servletContainer = 'tomcat9'
+	logbackConfigFile = "src/main/resources/logback.xml"
 }
