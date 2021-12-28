@@ -527,6 +527,30 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(changeSessionId);
 	}
 
+	@Test // gh-1987
+	void changeSessionIdWhenPrincipalNameChangesFromNullThenIndexShouldNotBeCreated() {
+		String principalName = null;
+		String principalNameChanged = "findByChangedPrincipalName" + UUID.randomUUID();
+		RedisSession toSave = this.repository.createSession();
+		toSave.setAttribute(INDEX_NAME, principalName);
+
+		this.repository.save(toSave);
+
+		RedisSession findById = this.repository.findById(toSave.getId());
+		String changeSessionId = findById.changeSessionId();
+		findById.setAttribute(INDEX_NAME, principalNameChanged);
+		this.repository.save(findById);
+
+		Map<String, RedisSession> findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME,
+				principalName);
+		assertThat(findByPrincipalName).isEmpty();
+
+		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalNameChanged);
+
+		assertThat(findByPrincipalName).hasSize(1);
+		assertThat(findByPrincipalName.keySet()).containsOnly(changeSessionId);
+	}
+
 	@Test
 	void changeSessionIdWhenOnlyChangeId() {
 		String attrName = "changeSessionId";
