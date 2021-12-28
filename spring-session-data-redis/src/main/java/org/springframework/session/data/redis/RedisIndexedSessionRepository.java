@@ -858,11 +858,13 @@ public class RedisIndexedSessionRepository
 				catch (NonTransientDataAccessException ex) {
 					handleErrNoSuchKeyError(ex);
 				}
-				String originalPrincipalRedisKey = getPrincipalKey(this.originalPrincipalName);
-				RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
-						.remove(this.originalSessionId);
-				RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
-						.add(sessionId);
+				if (this.originalPrincipalName != null) {
+					String originalPrincipalRedisKey = getPrincipalKey(this.originalPrincipalName);
+					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
+							.remove(this.originalSessionId);
+					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
+							.add(sessionId);
+				}
 			}
 			this.originalSessionId = sessionId;
 		}
