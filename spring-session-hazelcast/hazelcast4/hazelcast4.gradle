@@ -25,7 +25,7 @@ dependencies {
     api "org.springframework:spring-context"
     api "jakarta.annotation:jakarta.annotation-api"
 
-    testImplementation "javax.servlet:javax.servlet-api"
+    testImplementation "jakarta.servlet:jakarta.servlet-api"
     testImplementation "org.assertj:assertj-core"
     testImplementation "org.mockito:mockito-core"
     testImplementation "org.springframework:spring-test"
