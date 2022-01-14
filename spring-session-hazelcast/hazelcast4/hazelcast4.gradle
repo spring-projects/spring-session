@@ -23,7 +23,7 @@ dependencies {
     api project(':spring-session-core')
     optional "com.hazelcast:hazelcast:4.2.3"
     api "org.springframework:spring-context"
-    api "javax.annotation:javax.annotation-api"
+    api "jakarta.annotation:jakarta.annotation-api"
 
     testImplementation "javax.servlet:javax.servlet-api"
     testImplementation "org.assertj:assertj-core"
