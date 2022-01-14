@@ -7,7 +7,7 @@ dependencies {
 	compile "org.springframework:spring-context"
 	compile "org.springframework:spring-jdbc"
 
-	testCompile "javax.servlet:javax.servlet-api"
+	testCompile "jakarta.servlet:jakarta.servlet-api"
 	testCompile "org.springframework:spring-web"
 	testCompile "org.springframework.security:spring-security-core"
 	testCompile "org.junit.jupiter:junit-jupiter-api"

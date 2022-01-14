@@ -13,7 +13,7 @@ dependencies {
 	hazelcast4(project(path: ":hazelcast4", configuration: 'classesOnlyElements'))
 	compileOnly(project(":hazelcast4"))
 
-	testCompile "javax.servlet:javax.servlet-api"
+	testCompile "jakarta.servlet:jakarta.servlet-api"
 	testCompile "org.springframework:spring-web"
 	testCompile "org.springframework.security:spring-security-core"
 	testCompile "org.junit.jupiter:junit-jupiter-api"

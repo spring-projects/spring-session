@@ -18,7 +18,7 @@ dependencies {
 	testCompile 'org.assertj:assertj-core'
 	testCompile 'com.hazelcast:hazelcast'
 	testCompile 'io.lettuce:lettuce-core'
-	testCompile 'javax.servlet:javax.servlet-api'
+	testCompile 'jakarta.servlet:jakarta.servlet-api'
 	testCompile 'org.junit.jupiter:junit-jupiter-api'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }

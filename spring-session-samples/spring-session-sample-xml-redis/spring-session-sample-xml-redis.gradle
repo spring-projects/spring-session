@@ -10,7 +10,7 @@ dependencies {
 	compile slf4jDependencies
 	compile "org.testcontainers:testcontainers"
 
-	providedCompile "javax.servlet:javax.servlet-api"
+	providedCompile "jakarta.servlet:jakarta.servlet-api"
 
 	testCompile "org.assertj:assertj-core"
     testCompile "org.junit.jupiter:junit-jupiter-api"

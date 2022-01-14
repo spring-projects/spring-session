@@ -7,7 +7,7 @@ dependencies {
 
 	optional "io.projectreactor:reactor-core"
 	optional "jakarta.annotation:jakarta.annotation-api"
-	optional "javax.servlet:javax.servlet-api"
+	optional "jakarta.servlet:jakarta.servlet-api"
 	optional "org.springframework:spring-context"
 	optional "org.springframework:spring-jdbc"
 	optional "org.springframework:spring-messaging"
