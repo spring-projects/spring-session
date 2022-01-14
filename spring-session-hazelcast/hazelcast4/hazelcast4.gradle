@@ -33,7 +33,7 @@ dependencies {
     compile project(':spring-session-core')
     optional "com.hazelcast:hazelcast:4.2.3"
     compile "org.springframework:spring-context"
-    compile "javax.annotation:javax.annotation-api"
+    compile "jakarta.annotation:jakarta.annotation-api"
 
     testCompile "javax.servlet:javax.servlet-api"
     testCompile "org.springframework:spring-web"

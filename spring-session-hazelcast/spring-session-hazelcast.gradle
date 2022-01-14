@@ -7,7 +7,7 @@ configurations {
 dependencies {
 	compile project(':spring-session-core')
 	compile "com.hazelcast:hazelcast"
-	compile "javax.annotation:javax.annotation-api"
+	compile "jakarta.annotation:jakarta.annotation-api"
 	compile "org.springframework:spring-context"
 
 	hazelcast4(project(path: ":hazelcast4", configuration: 'classesOnlyElements'))
