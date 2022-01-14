@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api:4.0.4'
     testImplementation 'commons-io:commons-io:2.11.0'
     testImplementation 'org.assertj:assertj-core:3.21.0'
     testImplementation platform('org.junit:junit-bom:5.8.1')

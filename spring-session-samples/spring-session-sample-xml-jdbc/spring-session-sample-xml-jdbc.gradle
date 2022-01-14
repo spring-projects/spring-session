@@ -16,7 +16,7 @@ dependencies {
 	implementation "org.slf4j:log4j-over-slf4j"
 	implementation "ch.qos.logback:logback-classic"
 
-	providedCompile "javax.servlet:javax.servlet-api"
+	providedCompile "jakarta.servlet:jakarta.servlet-api"
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

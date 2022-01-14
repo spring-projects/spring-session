@@ -22,7 +22,7 @@ dependencies {
 	testImplementation 'org.assertj:assertj-core'
 	testImplementation 'com.hazelcast:hazelcast'
 	testImplementation 'io.lettuce:lettuce-core'
-	testImplementation 'javax.servlet:javax.servlet-api'
+	testImplementation 'jakarta.servlet:jakarta.servlet-api'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 }

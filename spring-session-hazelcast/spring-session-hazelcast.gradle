@@ -13,7 +13,7 @@ dependencies {
 	hazelcast4(project(path: ":hazelcast4", configuration: 'classesOnlyElements'))
 	compileOnly(project(":hazelcast4"))
 
-	testImplementation "javax.servlet:javax.servlet-api"
+	testImplementation "jakarta.servlet:jakarta.servlet-api"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.springframework:spring-test"

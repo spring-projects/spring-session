@@ -41,5 +41,5 @@ dependencies {
     testImplementation "org.mockito:mockito-core"
     testImplementation "org.mockito:mockito-junit-jupiter"
     testImplementation "io.projectreactor:reactor-test"
-    testImplementation "javax.servlet:javax.servlet-api"
+    testImplementation "jakarta.servlet:jakarta.servlet-api"
 }
