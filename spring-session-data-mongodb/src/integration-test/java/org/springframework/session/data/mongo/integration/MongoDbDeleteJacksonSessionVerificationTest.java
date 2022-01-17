@@ -175,7 +175,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 	@EnableMongoWebSession
 	static class Config {
 
-		private static final String DOCKER_IMAGE = "mongo:4.0.10";
+		private static final String DOCKER_IMAGE = "mongo:4.4.1";
 
 		@Bean(initMethod = "start", destroyMethod = "stop")
 		MongoDBContainer mongoContainer() {

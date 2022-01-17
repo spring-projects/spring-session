@@ -389,7 +389,7 @@ public abstract class AbstractMongoRepositoryITest extends AbstractITest {
 
 	protected static class BaseConfig {
 
-		private static final String DOCKER_IMAGE = "mongo:4.0.10";
+		private static final String DOCKER_IMAGE = "mongo:4.4.1";
 
 		@Bean(initMethod = "start", destroyMethod = "stop")
 		public MongoDBContainer mongoContainer() {
