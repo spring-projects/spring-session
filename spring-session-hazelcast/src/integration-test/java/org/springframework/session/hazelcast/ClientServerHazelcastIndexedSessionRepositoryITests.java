@@ -48,8 +48,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @Disabled("Re-enable when Hazelcast image uses JDK 17")
 class ClientServerHazelcastIndexedSessionRepositoryITests extends AbstractHazelcastIndexedSessionRepositoryITests {
 
-	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:5.0").withExposedPorts(5701)
-			.withCopyFileToContainer(MountableFile.forClasspathResource("/hazelcast-server.xml"),
+	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:5.0.2")
+			.withExposedPorts(5701).withCopyFileToContainer(MountableFile.forClasspathResource("/hazelcast-server.xml"),
 					"/opt/hazelcast/hazelcast.xml")
 			.withEnv("HAZELCAST_CONFIG", "hazelcast.xml");
 
