@@ -34,7 +34,7 @@ dependencyManagement {
 			entry 'mockito-junit-jupiter'
 		}
 
-		dependencySet(group: 'org.mongodb', version: '4.4.0') {
+		dependencySet(group: 'org.mongodb', version: '4.4.1') {
 			entry 'mongodb-driver-core'
 			entry 'mongodb-driver-sync'
 			entry 'mongodb-driver-reactivestreams'
