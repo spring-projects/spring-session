@@ -45,7 +45,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 class ClientServerHazelcast4IndexedSessionRepositoryITests extends AbstractHazelcast4IndexedSessionRepositoryITests {
 
-	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:4.2.2")
+	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:4.2.4")
 			.withExposedPorts(5701).withCopyFileToContainer(MountableFile.forClasspathResource("/hazelcast-server.xml"),
 					"/opt/hazelcast/hazelcast.xml");
 
