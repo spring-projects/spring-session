@@ -1,0 +1,101 @@
+== 1. Update Dependencies
+
+Dependencies are declared in `gradle/dependency-management.gradle`.
+Update Spring Framework, Spring Security and Spring Data at a minimum.
+
+Run all the checks:
+
+[source,bash]
+----
+$ ./gradlew check
+----
+
+Create separate issues for each dependency update, aside from test dependencies which can be combined into a single commit.
+
+== 2. Check All Issues are Closed
+
+You can manually check at https://github.com/spring-projects/spring-session/milestones
+
+== 3. Update Release Version
+
+Update the version number in `gradle.properties` for the release, for example `2.6.0-M1`, `2.6.0-RC1`, `2.6.3`
+
+== 4. Update Antora Version
+
+You will need to update the antora.yml version.
+
+== 5. Build Locally
+
+Run the build using
+
+[source,bash]
+----
+$ ./gradlew check
+----
+
+== 6. Push the Release Commit
+
+Push the commit and GitHub actions will build and deploy the artifacts.
+Wait for the artifact to appear in https://repo1.maven.org/maven2/org/springframework/session/spring-session-core/
+
+== 7. Tag the release
+
+Tag the release and then push the tag
+
+....
+git tag 2.6.3
+git push origin 2.6.3
+....
+
+== 8. Update to Next Development Version
+
+Update `gradle.properties` version to next `+SNAPSHOT+` version, update antora.yml and then push
+
+== 9. Update version on project pages
+
+Update the versions on https://spring.io/projects for Spring Session Core, Spring Session Data Redis, Spring Session JDBC, Spring Session Hazelcast, and Spring Session MongoDB.
+
+== 10. Update Release Notes on GitHub
+
+Download
+https://github.com/spring-io/github-changelog-generator/releases/latest[the
+GitHub release notes generator]
+
+* Generate the release notes
+
+....
+java -jar github-changelog-generator.jar \
+    --changelog.repository=spring-projects/spring-session \
+    $MILESTONE release-notes
+....
+
+Note 1: `+$MILESTONE+` is something like `+2.6.1+` or `+2.6.0-M1+`. +
+Note 2: This will create a file on your filesystem
+called `+release-notes+`.
+
+* Copy the release notes to your clipboard (your mileage may vary with
+the following command)
+
+....
+cat release-notes | xclip -selection clipboard
+....
+
+* Create the
+https://github.com/spring-projects/spring-session/releases[release on
+GitHub], associate it with the tag, and paste the generated notes.
+
+== 11. Close / Create Milestone
+
+* In
+https://github.com/spring-projects/spring-session/milestones[GitHub
+Milestones], create a new milestone for the next release version
+* Move any open issues from the existing milestone you just released to
+the new milestone.
+* Close the milestone for the release.
+
+== 12. Announce the release
+
+* Announce via Slack on https://pivotal.slack.com/messages/spring-session[#spring-session], and tag any downstream Spring Session projects (e.g Spring Session for Apache Geode).
+
+Note: Do not post on #spring-release or create a blog post. Those steps happen after the Spring Session BOM is released.
+
