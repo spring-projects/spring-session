@@ -1,8 +1,8 @@
 'use strict'
 
-module.exports.register = (pipeline, { config }) => {
+module.exports.register = function({ config }) {
 
-    pipeline.on('contentAggregated', ({ contentAggregate }) => {
+    this.on('contentAggregated', ({ contentAggregate }) => {
         contentAggregate.forEach(aggregate => {
             if (aggregate.version === "2.6.2" &&
                 aggregate.prerelease == "-SNAPSHOT") {
