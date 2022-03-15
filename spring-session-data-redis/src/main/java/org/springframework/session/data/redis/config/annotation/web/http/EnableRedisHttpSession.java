@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
@@ -54,7 +55,8 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * }
  * </pre>
  *
- * More advanced configurations can extend {@link RedisHttpSessionConfiguration} instead.
+ * More advanced configurations can extend {@link RedisHttpSessionConfiguration} or
+ * {@link RedisIndexedHttpSessionConfiguration} instead.
  *
  * @author Rob Winch
  * @author Vedran Pavic
@@ -64,7 +66,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(RedisHttpSessionConfiguration.class)
+@Import(RedisHttpSessionConfigurationSelector.class)
 @Configuration(proxyBeanMethods = false)
 public @interface EnableRedisHttpSession {
 
@@ -114,18 +116,20 @@ public @interface EnableRedisHttpSession {
 	FlushMode flushMode() default FlushMode.ON_SAVE;
 
 	/**
-	 * The cron expression for expired session cleanup job. By default runs every minute.
-	 * @return the session cleanup cron expression
-	 * @since 2.0.0
-	 */
-	String cleanupCron() default RedisHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
-
-	/**
 	 * Save mode for the session. The default is {@link SaveMode#ON_SET_ATTRIBUTE}, which
 	 * only saves changes made to session.
 	 * @return the save mode
 	 * @since 2.2.0
 	 */
 	SaveMode saveMode() default SaveMode.ON_SET_ATTRIBUTE;
+
+	/**
+	 * Indicate whether the {@link SessionRepository} should publish session events and
+	 * support fetching sessions by index. If true, a
+	 * {@link RedisIndexedSessionRepository} will be used in place of
+	 * {@link RedisSessionRepository}. This will result in slower performance.
+	 * @return true if indexing and events should be enabled, false otherwise
+	 */
+	boolean enableIndexingAndEvents() default false;
 
 }

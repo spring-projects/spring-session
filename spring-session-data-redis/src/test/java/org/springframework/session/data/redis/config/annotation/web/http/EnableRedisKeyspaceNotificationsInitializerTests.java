@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,14 +49,14 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	@Captor
 	ArgumentCaptor<String> options;
 
-	private RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
+	private RedisIndexedHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
 
 	@BeforeEach
 	void setup() {
 		MockitoAnnotations.initMocks(this);
 		given(this.connectionFactory.getConnection()).willReturn(this.connection);
 
-		this.initializer = new RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(
+		this.initializer = new RedisIndexedHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(
 				this.connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
 	}
 
