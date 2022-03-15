@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,10 @@ import org.springframework.util.Assert;
  */
 public class RedisSessionRepository implements SessionRepository<RedisSessionRepository.RedisSession> {
 
-	private static final String DEFAULT_KEY_NAMESPACE = "spring:session";
+	/**
+	 * The default namespace for each key and channel in Redis used by Spring Session.
+	 */
+	public static final String DEFAULT_KEY_NAMESPACE = "spring:session";
 
 	private final RedisOperations<String, Object> sessionRedisOperations;
 
