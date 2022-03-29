@@ -2,3 +2,7 @@ logging:
   level:
     org.springframework.data.mongodb: DEBUG
     org.springframework.session: DEBUG
+spring:
+  mongodb:
+    embedded:
+      version: 3.4.3
