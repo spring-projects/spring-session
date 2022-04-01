@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.scheduling.SchedulingAwareRunnable;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -36,6 +36,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -62,7 +63,7 @@ class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 
 	@Test
 	void overrideSessionTaskExecutors() {
-		verify(this.springSessionRedisSubscriptionExecutor, times(1)).execute(any(SchedulingAwareRunnable.class));
+		verify(this.springSessionRedisSubscriptionExecutor, times(1)).execute(any(Runnable.class));
 		verify(this.springSessionRedisTaskExecutor, never()).execute(any(Runnable.class));
 	}
 
@@ -72,12 +73,24 @@ class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 
 		@Bean
 		Executor springSessionRedisTaskExecutor() {
-			return mock(Executor.class);
+			Executor executor = mock(Executor.class);
+			willAnswer((it) -> {
+				Runnable r = it.getArgument(0);
+				new Thread(r).start();
+				return null;
+			}).given(executor).execute(any());
+			return executor;
 		}
 
 		@Bean
 		Executor springSessionRedisSubscriptionExecutor() {
-			return mock(Executor.class);
+			Executor executor = mock(Executor.class);
+			willAnswer((it) -> {
+				Runnable r = it.getArgument(0);
+				new Thread(r).start();
+				return null;
+			}).given(executor).execute(any());
+			return executor;
 		}
 
 		@Bean
@@ -86,6 +99,15 @@ class RedisHttpSessionConfigurationOverrideSessionTaskExecutors {
 			RedisConnection connection = mock(RedisConnection.class);
 			given(factory.getConnection()).willReturn(connection);
 			given(connection.getConfig(anyString())).willReturn(new Properties());
+
+			willAnswer((it) -> {
+				SubscriptionListener listener = it.getArgument(0);
+				listener.onPatternSubscribed(it.getArgument(1), 0);
+				listener.onChannelSubscribed("__keyevent@0__:del".getBytes(), 0);
+				listener.onChannelSubscribed("__keyevent@0__:expired".getBytes(), 0);
+
+				return null;
+			}).given(connection).pSubscribe(any(), any());
 
 			return factory;
 		}
