@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
@@ -47,8 +48,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -264,11 +266,24 @@ class RedisHttpSessionConfigurationTests {
 	}
 
 	private static RedisConnectionFactory mockRedisConnectionFactory() {
-		RedisConnectionFactory connectionFactory = mock(RedisConnectionFactory.class);
-		RedisConnection connection = mock(RedisConnection.class);
-		given(connectionFactory.getConnection()).willReturn(connection);
-		given(connection.getConfig(anyString())).willReturn(new Properties());
-		return connectionFactory;
+		RedisConnectionFactory connectionFactoryMock = mock(RedisConnectionFactory.class);
+		RedisConnection connectionMock = mock(RedisConnection.class);
+		given(connectionFactoryMock.getConnection()).willReturn(connectionMock);
+
+		Properties keyspaceEventsConfig = new Properties();
+		keyspaceEventsConfig.put("notify-keyspace-events", "KEA");
+		given(connectionMock.getConfig("notify-keyspace-events")).willReturn(keyspaceEventsConfig);
+
+		willAnswer((it) -> {
+			SubscriptionListener listener = it.getArgument(0);
+			listener.onPatternSubscribed(it.getArgument(1), 0);
+			listener.onChannelSubscribed("__keyevent@0__:del".getBytes(), 0);
+			listener.onChannelSubscribed("__keyevent@0__:expired".getBytes(), 0);
+
+			return null;
+		}).given(connectionMock).pSubscribe(any(), any());
+
+		return connectionFactoryMock;
 	}
 
 	@Configuration
@@ -445,7 +460,7 @@ class RedisHttpSessionConfigurationTests {
 
 		@Bean
 		RedisMessageListenerContainer redisMessageListenerContainer() {
-			return new RedisMessageListenerContainer();
+			return mock(RedisMessageListenerContainer.class);
 		}
 
 	}
