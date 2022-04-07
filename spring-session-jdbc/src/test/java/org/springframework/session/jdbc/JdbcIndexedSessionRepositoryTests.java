@@ -656,6 +656,20 @@ class JdbcIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void saveWithSaveModeOnGetAttributeAndNewAttributeSetAndGet() {
+		this.repository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
+		MapSession delegate = new MapSession();
+		delegate.setAttribute("attribute1", (Supplier<String>) () -> "value1");
+		JdbcSession session = this.repository.new JdbcSession(delegate, UUID.randomUUID().toString(), false);
+		session.setAttribute("attribute2", "value2");
+		session.getAttribute("attribute2");
+		this.repository.save(session);
+		verify(this.jdbcOperations, times(1)).update(startsWith("INSERT INTO SPRING_SESSION_ATTRIBUTES ("),
+				isA(PreparedStatementSetter.class));
+		verifyNoMoreInteractions(this.jdbcOperations);
+	}
+
+	@Test
 	void saveWithSaveModeAlways() {
 		this.repository.setSaveMode(SaveMode.ALWAYS);
 		MapSession delegate = new MapSession();
