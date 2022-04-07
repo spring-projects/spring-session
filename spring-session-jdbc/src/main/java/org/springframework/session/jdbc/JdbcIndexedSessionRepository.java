@@ -728,7 +728,8 @@ public class JdbcIndexedSessionRepository
 			T attributeValue = supplier.get();
 			if (attributeValue != null
 					&& JdbcIndexedSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
-				this.delta.put(attributeName, DeltaValue.UPDATED);
+				this.delta.merge(attributeName, DeltaValue.UPDATED, (oldDeltaValue,
+						deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : deltaValue);
 			}
 			return attributeValue;
 		}
