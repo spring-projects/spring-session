@@ -16,18 +16,13 @@
 
 package org.springframework.session.data.mongo;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.lang.Nullable;
 import org.springframework.session.Session;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Session object providing additional information about the datetime of expiration.
@@ -39,10 +34,15 @@ import org.springframework.session.Session;
 public class MongoSession implements Session {
 
 	/**
-	 * Mongo doesn't support {@literal dot} in field names. We replace it with a very
-	 * rarely used character
+	 * Mongo doesn't support {@literal dot} in field names. We replace it with a unicode character from the Private Use Area.
+	 * <p>
+	 * NOTE: This was originally stored in unicode format. Delomboking the code caused it to get converted to another encoding,
+	 * which isn't supported on all systems, so we migrated back to unicode. The same character is being represented ensuring
+	 * binary compatibility.
+	 *
+	 * @see https://www.compart.com/en/unicode/U+F607
 	 */
-	private static final char DOT_COVER_CHAR = '';
+	private static final char DOT_COVER_CHAR = '\uF607';
 
 	private String id;
 
@@ -106,8 +106,7 @@ public class MongoSession implements Session {
 
 		if (attributeValue == null) {
 			removeAttribute(coverDot(attributeName));
-		}
-		else {
+		} else {
 			this.attrs.put(coverDot(attributeName), attributeValue);
 		}
 	}
