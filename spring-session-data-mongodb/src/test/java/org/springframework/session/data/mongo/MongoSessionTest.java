@@ -39,4 +39,14 @@ public class MongoSessionTest {
 		assertThat(session.isExpired()).isFalse();
 	}
 
+	@Test
+	void delombokedDotCoverCharMatchesOriginalUnicodeDotCoverChar() {
+
+		char originalDotCoverChar = '\uF607';
+		char delombokedDotCoverChar = '';
+
+		assertThat(MongoSession.DOT_COVER_CHAR).isEqualTo(delombokedDotCoverChar);
+		assertThat(MongoSession.DOT_COVER_CHAR).isEqualTo(originalDotCoverChar);
+	}
+
 }

@@ -16,18 +16,13 @@
 
 package org.springframework.session.data.mongo;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
 import org.springframework.lang.Nullable;
 import org.springframework.session.Session;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Session object providing additional information about the datetime of expiration.
@@ -42,7 +37,7 @@ public class MongoSession implements Session {
 	 * Mongo doesn't support {@literal dot} in field names. We replace it with a very
 	 * rarely used character
 	 */
-	private static final char DOT_COVER_CHAR = '';
+	static final char DOT_COVER_CHAR = '';
 
 	private String id;
 
@@ -106,8 +101,7 @@ public class MongoSession implements Session {
 
 		if (attributeValue == null) {
 			removeAttribute(coverDot(attributeName));
-		}
-		else {
+		} else {
 			this.attrs.put(coverDot(attributeName), attributeValue);
 		}
 	}
