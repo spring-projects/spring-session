@@ -4,7 +4,7 @@ dependencyManagement {
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.13.2.20220328'
 		mavenBom 'org.junit:junit-bom:5.8.2'
 		mavenBom 'org.springframework:spring-framework-bom:5.3.19'
-		mavenBom 'org.springframework.data:spring-data-bom:2021.1.2'
+		mavenBom 'org.springframework.data:spring-data-bom:2021.1.4'
 		mavenBom 'org.springframework.security:spring-security-bom:5.6.3'
 		mavenBom 'org.testcontainers:testcontainers-bom:1.16.3'
 	}
