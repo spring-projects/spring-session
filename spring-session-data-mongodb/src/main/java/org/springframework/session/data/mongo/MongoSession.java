@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,18 @@
 
 package org.springframework.session.data.mongo;
 
-import org.springframework.lang.Nullable;
-import org.springframework.session.Session;
-
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import org.springframework.lang.Nullable;
+import org.springframework.session.Session;
 
 /**
  * Session object providing additional information about the datetime of expiration.
@@ -34,13 +39,15 @@ import java.util.stream.Collectors;
 public class MongoSession implements Session {
 
 	/**
-	 * Mongo doesn't support {@literal dot} in field names. We replace it with a unicode character from the Private Use Area.
+	 * Mongo doesn't support {@literal dot} in field names. We replace it with a unicode
+	 * character from the Private Use Area.
 	 * <p>
-	 * NOTE: This was originally stored in unicode format. Delomboking the code caused it to get converted to another encoding,
-	 * which isn't supported on all systems, so we migrated back to unicode. The same character is being represented ensuring
-	 * binary compatibility.
+	 * NOTE: This was originally stored in unicode format. Delomboking the code caused it
+	 * to get converted to another encoding, which isn't supported on all systems, so we
+	 * migrated back to unicode. The same character is being represented ensuring binary
+	 * compatibility.
 	 *
-	 * @see https://www.compart.com/en/unicode/U+F607
+	 * See https://www.compart.com/en/unicode/U+F607
 	 */
 	private static final char DOT_COVER_CHAR = '\uF607';
 
@@ -106,7 +113,8 @@ public class MongoSession implements Session {
 
 		if (attributeValue == null) {
 			removeAttribute(coverDot(attributeName));
-		} else {
+		}
+		else {
 			this.attrs.put(coverDot(attributeName), attributeValue);
 		}
 	}
