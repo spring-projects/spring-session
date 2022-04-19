@@ -1,3 +1,4 @@
 name: ROOT
-version: '2.7.0'
-prerelease: '-SNAPSHOT'
+version: '2.7.0-RC1'
+prerelease: 'true'
+display_version: '2.7.0-RC1'
