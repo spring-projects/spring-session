@@ -57,6 +57,9 @@ Spring Session is Open Source software released under the https://www.apache.org
 | Spring Session Infinispan
 | https://infinispan.org/docs/stable/titles/spring/spring.html
 
+| Spring Session Caffeine
+| https://github.com/gotson/spring-session-caffeine
+
 |===
 
 [[minimum-requirements]]
