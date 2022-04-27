@@ -55,7 +55,7 @@ Spring Session is Open Source software released under the https://www.apache.org
 | Name | Location
 
 | Spring Session Infinispan
-| https://infinispan.org/infinispan-spring-boot/master/spring_boot_starter.html#_enabling_spring_session_support
+| https://infinispan.org/docs/stable/titles/spring/spring.html
 
 |===
 
