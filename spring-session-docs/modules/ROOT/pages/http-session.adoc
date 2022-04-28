@@ -235,7 +235,7 @@ To use this support, you need to:
 * Configure `SessionEventHttpSessionListenerAdapter` as a Spring bean.
 * Inject every `HttpSessionListener` into the `SessionEventHttpSessionListenerAdapter`
 
-If you use the configuration support documented in <<httpsession-redis,`HttpSession` with Redis>>, all you need to do is register every `HttpSessionListener` as a bean.
+If you use the Redis support with `enableIndexingAndEvents` set to `true`, `@EnableRedisHttpSession(enableIndexingAndEvents = true)`, all you need to do is register every `HttpSessionListener` as a bean.
 For example, assume you want to support Spring Security's concurrency control and need to use `HttpSessionEventPublisher`. In that case, you can add `HttpSessionEventPublisher` as a bean.
 In Java configuration, this might look like the following:
 

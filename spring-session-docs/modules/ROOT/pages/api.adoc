@@ -148,6 +148,78 @@ Note that no infrastructure for session expirations is configured for you.
 This is because things such as session expiration are highly implementation-dependent.
 This means that, if you require cleaning up expired sessions, you are responsible for cleaning up the expired sessions.
 
+[[api-redissessionrepository]]
+== Using `RedisSessionRepository`
+
+`RedisSessionRepository` is a `SessionRepository` that is implemented by using Spring Data's `RedisOperations`.
+In a web environment, this is typically used in combination with `SessionRepositoryFilter`.
+Note that this implementation does not support publishing of session events.
+
+[[api-redissessionrepository-new]]
+=== Instantiating a `RedisSessionRepository`
+
+You can see a typical example of how to create a new instance in the following listing:
+
+====
+[source,java,indent=0]
+----
+include::{indexdoc-tests}[tags=new-redissessionrepository]
+----
+====
+
+For additional information on how to create a `RedisConnectionFactory`, see the Spring Data Redis Reference.
+
+[[api-redissessionrepository-config]]
+=== Using `@EnableRedisHttpSession`
+
+In a web environment, the simplest way to create a new `RedisSessionRepository` is to use `@EnableRedisHttpSession`.
+You can find complete example usage in the xref:samples.adoc#samples[Samples and Guides (Start Here)].
+You can use the following attributes to customize the configuration:
+
+enableIndexingAndEvents
+* *enableIndexingAndEvents*: Whether to use a `RedisIndexedSessionRepository` instead of a `RedisSessionRepository`. The default is `false`.
+* *maxInactiveIntervalInSeconds*: The amount of time before the session expires, in seconds.
+* *redisNamespace*: Allows configuring an application specific namespace for the sessions. Redis keys and channel IDs start with the prefix of `<redisNamespace>:`.
+* *flushMode*: Allows specifying when data is written to Redis. The default is only when `save` is invoked on `SessionRepository`.
+A value of `FlushMode.IMMEDIATE` writes to Redis as soon as possible.
+
+==== Custom `RedisSerializer`
+
+You can customize the serialization by creating a bean named `springSessionDefaultRedisSerializer` that implements `RedisSerializer<Object>`.
+
+[[api-redissessionrepository-cli]]
+=== Viewing the Session in Redis
+
+After https://redis.io/topics/quickstart[installing redis-cli], you can inspect the values in Redis https://redis.io/commands#hash[using the redis-cli].
+For example, you can enter the following command into a terminal window:
+
+====
+[source,bash]
+----
+$ redis-cli
+redis 127.0.0.1:6379> keys *
+1) "spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021" <1>
+----
+
+<1> The suffix of this key is the session identifier of the Spring Session.
+====
+
+You can also view the attributes of each session by using the `hkeys` command.
+The following example shows how to do so:
+
+====
+[source,bash]
+----
+redis 127.0.0.1:6379> hkeys spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021
+1) "lastAccessedTime"
+2) "creationTime"
+3) "maxInactiveInterval"
+4) "sessionAttr:username"
+redis 127.0.0.1:6379> hget spring:session:sessions:4fc39ce3-63b3-4e17-b1c4-5e1ed96fb021 sessionAttr:username
+"\xac\xed\x00\x05t\x00\x03rob"
+----
+====
+
 [[api-redisindexedsessionrepository]]
 == Using `RedisIndexedSessionRepository`
 
@@ -170,12 +242,13 @@ include::{indexdoc-tests}[tags=new-redisindexedsessionrepository]
 For additional information on how to create a `RedisConnectionFactory`, see the Spring Data Redis Reference.
 
 [[api-redisindexedsessionrepository-config]]
-=== Using `@EnableRedisHttpSession`
+=== Using `@EnableRedisHttpSession(enableIndexingAndEvents = true)`
 
-In a web environment, the simplest way to create a new `RedisIndexedSessionRepository` is to use `@EnableRedisHttpSession`.
+In a web environment, the simplest way to create a new `RedisIndexedSessionRepository` is to use `@EnableRedisHttpSession(enableIndexingAndEvents = true)`.
 You can find complete example usage in the xref:samples.adoc#samples[Samples and Guides (Start Here)].
 You can use the following attributes to customize the configuration:
 
+* *enableIndexingAndEvents*: Whether to use a `RedisIndexedSessionRepository` instead of a `RedisSessionRepository`. The default is `false`.
 * *maxInactiveIntervalInSeconds*: The amount of time before the session expires, in seconds.
 * *redisNamespace*: Allows configuring an application specific namespace for the sessions. Redis keys and channel IDs start with the prefix of `<redisNamespace>:`.
 * *flushMode*: Allows specifying when data is written to Redis. The default is only when `save` is invoked on `SessionRepository`.
@@ -335,7 +408,7 @@ redis-cli config set notify-keyspace-events Egx
 ----
 ====
 
-If you use `@EnableRedisHttpSession`, managing the `SessionMessageListener` and enabling the necessary Redis Keyspace events is done automatically.
+If you use `@EnableRedisHttpSession(enableIndexingAndEvents = true)`, managing the `SessionMessageListener` and enabling the necessary Redis Keyspace events is done automatically.
 However, in a secured Redis enviornment, the config command is disabled.
 This means that Spring Session cannot configure Redis Keyspace events for you.
 To disable the automatic configuration, add `ConfigureRedisAction.NO_OP` as a bean.

@@ -35,6 +35,7 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -112,6 +113,18 @@ class IndexDocTests {
 
 	}
 	// end::expire-repository-demo[]
+
+	@Test
+	@SuppressWarnings("unused")
+	void newRedisSessionRepository() {
+		// tag::new-redissessionrepository[]
+		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+
+		// ... configure redisTemplate ...
+
+		SessionRepository<? extends Session> repository = new RedisSessionRepository(redisTemplate);
+		// end::new-redissessionrepository[]
+	}
 
 	@Test
 	@SuppressWarnings("unused")
