@@ -9,7 +9,7 @@ dependencyManagement {
 		dependency 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0'
 		dependency 'jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0'
 		dependency 'org.glassfish.web:jakarta.servlet.jsp.jstl:2.0.0'
-		dependency 'org.seleniumhq.selenium:htmlunit-driver:2.52.0'
+		dependency 'org.seleniumhq.selenium:htmlunit-driver:3.56.0'
 		dependency 'org.slf4j:jcl-over-slf4j:1.7.33'
 		dependency 'org.slf4j:log4j-over-slf4j:1.7.33'
 		dependency 'org.webjars:bootstrap:2.3.2'
