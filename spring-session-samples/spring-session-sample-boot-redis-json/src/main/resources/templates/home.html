@@ -23,9 +23,9 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr th:each="name : ${T(java.util.Collections).list(#httpSession.getAttributeNames())}">
+				<tr th:each="name : ${T(org.springframework.util.CollectionUtils).toIterator(httpSession?.getAttributeNames())}">
 					<td th:text="${name}"></td>
-					<td th:text="${#httpSession.getAttribute(name)}"></td>
+					<td th:text="${httpSession.getAttribute(name)}"></td>
 				</tr>
 			</tbody>
 		</table>

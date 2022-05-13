@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,22 @@
 
 package sample.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import java.security.Principal;
 
-@Configuration
-public class WebMvcConfig implements WebMvcConfigurer {
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
-	@Override
-	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/").setViewName("index");
+/**
+ * {@link ControllerAdvice} to expose user related attributes.
+ *
+ * @author Rob Winch
+ */
+@ControllerAdvice
+public class UserControllerAdvise {
+
+	@ModelAttribute("currentUserName")
+	String currentUser(Principal principal) {
+		return (principal != null) ? principal.getName() : null;
 	}
 
 }

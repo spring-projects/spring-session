@@ -7,7 +7,7 @@
 		<h1>Secured Page</h1>
 		<p>This page is secured using Spring Boot, Spring Session, and Spring Security.</p>
 
-		<p>Your current session id is <span id="session-id" th:text="${#httpSession.id}"></span></p>
+		<p>Your current session id is <span id="session-id" th:text="${httpSessionId}"></span></p>
 
 		<table class="table table-stripped">
 			<tr>
@@ -26,7 +26,7 @@
 				<td th:text="${details?.accessType}"></td>
 				<td>
 					<form th:action="@{'/sessions/' + ${sessionElement.id}}" th:method="post">
-						<input th:id="'terminate-' + ${sessionElement.id}" type="submit" value="Terminate" th:disabled="${sessionElement.id == #httpSession.id}"/>
+						<input th:id="'terminate-' + ${sessionElement.id}" type="submit" value="Terminate" th:disabled="${sessionElement.id == httpSessionId}"/>
 					</form>
 				</td>
 			</tr>

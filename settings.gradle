@@ -19,35 +19,10 @@ include 'spring-session-docs'
 include 'spring-session-hazelcast'
 include 'spring-session-jdbc'
 
-include 'spring-session-sample-javaconfig-custom-cookie'
-project(':spring-session-sample-javaconfig-custom-cookie').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-custom-cookie')
-include 'spring-session-sample-javaconfig-jdbc'
-project(':spring-session-sample-javaconfig-jdbc').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-jdbc')
-include 'spring-session-sample-javaconfig-redis'
-project(':spring-session-sample-javaconfig-redis').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-redis')
-include 'spring-session-sample-javaconfig-rest'
-project(':spring-session-sample-javaconfig-rest').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-rest')
-include 'spring-session-sample-javaconfig-hazelcast'
-project(':spring-session-sample-javaconfig-hazelcast').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-hazelcast')
-include 'spring-session-sample-javaconfig-security'
-project(':spring-session-sample-javaconfig-security').projectDir = file('spring-session-samples/spring-session-sample-javaconfig-security')
-include 'spring-session-sample-misc-hazelcast'
-project(':spring-session-sample-misc-hazelcast').projectDir = file('spring-session-samples/spring-session-sample-misc-hazelcast')
-include 'spring-session-sample-xml-redis'
-project(':spring-session-sample-xml-redis').projectDir = file('spring-session-samples/spring-session-sample-xml-redis')
-include 'spring-session-sample-xml-jdbc'
-project(':spring-session-sample-xml-jdbc').projectDir = file('spring-session-samples/spring-session-sample-xml-jdbc')
-include 'spring-session-sample-boot-webflux'
-project(':spring-session-sample-boot-webflux').projectDir = file('spring-session-samples/spring-session-sample-boot-webflux')
-include 'spring-session-sample-boot-webflux-custom-cookie'
-project(':spring-session-sample-boot-webflux-custom-cookie').projectDir = file('spring-session-samples/spring-session-sample-boot-webflux-custom-cookie')
-include 'spring-session-sample-boot-mongodb-reactive'
-project(':spring-session-sample-boot-mongodb-reactive').projectDir = file('spring-session-samples/spring-session-sample-boot-mongodb-reactive')
-
-//file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
-//    include dir.name
-//    project(":$dir.name").projectDir = dir
-//}
+file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
+    include dir.name
+    project(":$dir.name").projectDir = dir
+}
 
 rootProject.children.each { project ->
     project.buildFileName = "${project.name}.gradle"
