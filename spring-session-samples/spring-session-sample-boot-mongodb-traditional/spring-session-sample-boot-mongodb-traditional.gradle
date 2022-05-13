@@ -8,7 +8,8 @@ dependencies {
     implementation  "org.thymeleaf.extras:thymeleaf-extras-springsecurity5"
     implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
     implementation "org.springframework.boot:spring-boot-starter-security"
-    implementation "de.flapdoodle.embed:de.flapdoodle.embed.mongo"
+    implementation "org.testcontainers:mongodb"
+
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.seleniumhq.selenium:htmlunit-driver"

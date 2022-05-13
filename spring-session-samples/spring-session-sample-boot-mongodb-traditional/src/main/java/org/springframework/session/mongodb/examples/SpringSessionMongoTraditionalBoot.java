@@ -18,6 +18,15 @@ package org.springframework.session.mongodb.examples;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.utility.DockerImageName;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Rob Winch
@@ -25,8 +34,34 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SpringSessionMongoTraditionalBoot {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringSessionMongoTraditionalBoot.class, args);
+	/**
+	 * Use Testcontainers to managed MongoDB through Docker.
+	 * <p>
+	 * @see https://bsideup.github.io/posts/local_development_with_testcontainers/
+	 */
+	static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+		static MongoDBContainer mongo = new MongoDBContainer(DockerImageName.parse("mongo:5.0"));
+
+		public static Map<String, String> getProperties() {
+			mongo.start();
+
+			HashMap<String, String> properties = new HashMap<>();
+			properties.put("spring.data.mongodb.host", mongo.getHost());
+			properties.put("spring.data.mongodb.port", mongo.getFirstMappedPort() + "");
+			return properties;
+		}
+
+		@Override
+		public void initialize(ConfigurableApplicationContext context) {
+			ConfigurableEnvironment env = context.getEnvironment();
+			env.getPropertySources().addFirst(new MapPropertySource("testcontainers", (Map) getProperties()));
+		}
 	}
 
+	public static void main(String[] args) {
+		SpringApplication application = new SpringApplication(SpringSessionMongoTraditionalBoot.class);
+		application.addInitializers(new Initializer());
+		application.run(args);
+	}
 }

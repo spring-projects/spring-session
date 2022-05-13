@@ -5,7 +5,7 @@ dependencies {
 	implementation  "org.springframework.boot:spring-boot-starter-webflux"
 	implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
 	implementation  "org.springframework.boot:spring-boot-starter-data-mongodb-reactive"
-	implementation  "de.flapdoodle.embed:de.flapdoodle.embed.mongo"
+    implementation  "org.testcontainers:mongodb"
 
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation "org.seleniumhq.selenium:htmlunit-driver"
