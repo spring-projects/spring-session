@@ -16,10 +16,10 @@
 
 package org.springframework.session.mongodb.examples.mvc;
 
+import java.security.Principal;
+
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
-
-import java.security.Principal;
 
 /**
  * {@link ControllerAdvice} to expose user related attributes.
