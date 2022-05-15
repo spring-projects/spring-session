@@ -66,8 +66,7 @@ class ClientServerHazelcast4IndexedSessionRepositoryITests extends AbstractHazel
 		@Bean
 		HazelcastInstance hazelcastInstance() {
 			ClientConfig clientConfig = new ClientConfig();
-			clientConfig.getNetworkConfig()
-					.addAddress(container.getContainerIpAddress() + ":" + container.getFirstMappedPort());
+			clientConfig.getNetworkConfig().addAddress(container.getHost() + ":" + container.getFirstMappedPort());
 			clientConfig.getUserCodeDeploymentConfig().setEnabled(true).addClass(Session.class)
 					.addClass(MapSession.class).addClass(Hazelcast4SessionUpdateEntryProcessor.class);
 			return HazelcastClient.newHazelcastClient(clientConfig);
