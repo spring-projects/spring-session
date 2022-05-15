@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package org.springframework.session.jdbc;
 
-import java.time.Duration;
-
 import org.testcontainers.containers.Db2Container;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
@@ -25,7 +23,6 @@ import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
 
 /**
  * Factories for various {@link JdbcDatabaseContainer}s.
@@ -50,21 +47,7 @@ final class DatabaseContainers {
 	}
 
 	static OracleContainer oracle() {
-		return new OracleContainer() {
-
-			@Override
-			protected void configure() {
-				this.waitStrategy = new LogMessageWaitStrategy().withRegEx(".*DATABASE IS READY TO USE!.*\\s")
-						.withStartupTimeout(Duration.ofMinutes(10));
-				addEnv("ORACLE_PWD", getPassword());
-			}
-
-			@Override
-			protected void waitUntilContainerStarted() {
-				getWaitStrategy().waitUntilReady(this);
-			}
-
-		};
+		return new OracleContainer("gvenzl/oracle-xe:18.4.0-slim");
 	}
 
 	static PostgreSQLContainer<?> postgreSql() {
