@@ -19,10 +19,10 @@ include 'spring-session-docs'
 include 'spring-session-hazelcast'
 include 'spring-session-jdbc'
 
-//file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
-//    include dir.name
-//    project(":$dir.name").projectDir = dir
-//}
+file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir ->
+    include dir.name
+    project(":$dir.name").projectDir = dir
+}
 
 rootProject.children.each { project ->
     project.buildFileName = "${project.name}.gradle"
