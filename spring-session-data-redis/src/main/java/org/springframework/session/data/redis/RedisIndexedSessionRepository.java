@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.util.ByteUtils;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -454,7 +455,15 @@ public class RedisIndexedSessionRepository
 	 * @return the Redis session
 	 */
 	private RedisSession getSession(String id, boolean allowExpired) {
-		Map<Object, Object> entries = getSessionBoundHashOperations(id).entries();
+		Map<Object, Object> entries;
+		try {
+			entries = getSessionBoundHashOperations(id).entries();
+		}
+		catch (SerializationException ex) {
+			// An error deserializing is equivalent to not having any information at all.
+			logger.warn("exception getting session " + id, ex);
+			return null;
+		}
 		if (entries.isEmpty()) {
 			return null;
 		}
