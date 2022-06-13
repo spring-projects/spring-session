@@ -25,7 +25,7 @@ Additional Spring Session modules can be found in the https://github.com/spring-
 
 == Getting Started
 
-We recommend you visit the https://docs.spring.io/spring-session/docs/current/reference/html5/#samples[Spring Session Reference] and look through the "Samples and Guides" section to see which one best suits your needs.
+We recommend you visit the https://docs.spring.io/spring-session/reference/index.html[Spring Session Reference] and look through the "Samples and Guides" section to see which one best suits your needs.
 
 == Samples
 
