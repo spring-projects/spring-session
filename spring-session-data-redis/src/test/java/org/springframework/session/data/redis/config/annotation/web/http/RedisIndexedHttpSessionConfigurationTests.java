@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -219,6 +220,7 @@ class RedisIndexedHttpSessionConfigurationTests {
 	void multipleConnectionFactoryRedisConfig() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class))
+				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).havingRootCause()
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 

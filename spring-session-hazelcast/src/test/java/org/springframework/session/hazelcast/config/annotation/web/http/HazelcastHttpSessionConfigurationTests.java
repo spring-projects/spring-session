@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,6 +70,7 @@ class HazelcastHttpSessionConfigurationTests {
 	void noHazelcastInstanceConfiguration() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class))
+				.withCauseInstanceOf(NoSuchBeanDefinitionException.class).havingCause()
 				.withMessageContaining("HazelcastInstance");
 	}
 
@@ -222,6 +225,7 @@ class HazelcastHttpSessionConfigurationTests {
 	void multipleHazelcastInstanceConfiguration() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
+				.withCauseInstanceOf(NoUniqueBeanDefinitionException.class).havingCause()
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 
