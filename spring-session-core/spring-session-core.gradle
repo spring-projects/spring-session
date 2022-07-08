@@ -19,6 +19,7 @@ dependencies {
 
 	testImplementation "io.projectreactor:reactor-test"
 	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.mockito:mockito-inline"
 	testImplementation "edu.umd.cs.mtc:multithreadedtc"
 	testImplementation "org.springframework:spring-test"
 	testImplementation "org.assertj:assertj-core"
