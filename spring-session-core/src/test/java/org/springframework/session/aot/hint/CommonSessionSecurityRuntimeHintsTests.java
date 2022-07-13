@@ -27,6 +27,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
+import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -47,28 +48,28 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link CommonSessionSecurityHints}
+ * Tests for {@link CommonSessionSecurityRuntimeHints}
  *
  * @author Marcus Da Coregio
  */
-class CommonSessionSecurityHintsTests {
+class CommonSessionSecurityRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 
-	private final CommonSessionSecurityHints commonSessionSecurityHints = new CommonSessionSecurityHints();
+	private final CommonSessionSecurityRuntimeHints commonSessionSecurityRuntimeHints = new CommonSessionSecurityRuntimeHints();
 
 	@ParameterizedTest
 	@MethodSource("getSerializationHintTypes")
 	void coreTypesHasHints(TypeReference typeReference) {
-		this.commonSessionSecurityHints.registerHints(this.hints, getClass().getClassLoader());
-		assertThat(new SerializationHintsPredicates().onType(typeReference)).accepts(this.hints);
+		this.commonSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
+		assertThat(RuntimeHintsPredicates.serialization().onType(typeReference)).accepts(this.hints);
 	}
 
 	@Test
 	void aotFactoriesContainsRegistrar() {
 		boolean match = SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
 				.load(RuntimeHintsRegistrar.class).stream()
-				.anyMatch((registrar) -> registrar instanceof CommonSessionSecurityHints);
+				.anyMatch((registrar) -> registrar instanceof CommonSessionSecurityRuntimeHints);
 		assertThat(match).isTrue();
 	}
 

@@ -19,42 +19,42 @@ package org.springframework.session.jdbc.aot.hint;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aot.hint.RuntimeHints;
-import org.springframework.aot.hint.RuntimeHintsPredicates;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
+import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link SessionJdbcSecurityHints}
+ * Tests for {@link SessionJdbcRuntimeHints}
  *
  * @author Marcus Da Coregio
  */
-class SessionJdbcSecurityHintsTests {
+class SessionJdbcRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 
-	private final SessionJdbcSecurityHints sessionJdbcSecurityHints = new SessionJdbcSecurityHints();
+	private final SessionJdbcRuntimeHints sessionJdbcRuntimeHints = new SessionJdbcRuntimeHints();
 
 	@Test
 	void aotFactoriesContainsRegistrar() {
 		boolean match = SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
 				.load(RuntimeHintsRegistrar.class).stream()
-				.anyMatch((registrar) -> registrar instanceof SessionJdbcSecurityHints);
+				.anyMatch((registrar) -> registrar instanceof SessionJdbcRuntimeHints);
 		assertThat(match).isTrue();
 	}
 
 	@Test
 	void jdbcSchemasHasHints() {
-		this.sessionJdbcSecurityHints.registerHints(this.hints, getClass().getClassLoader());
+		this.sessionJdbcRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 		assertThat(RuntimeHintsPredicates.resource().forResource("org/springframework/session/jdbc/schema.sql"))
 				.accepts(this.hints);
 	}
 
 	@Test
 	void dataSourceHasHints() {
-		this.sessionJdbcSecurityHints.registerHints(this.hints, getClass().getClassLoader());
+		this.sessionJdbcRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 		assertThat(RuntimeHintsPredicates.reflection().onType(TypeReference.of("javax.sql.DataSource")))
 				.accepts(this.hints);
 	}

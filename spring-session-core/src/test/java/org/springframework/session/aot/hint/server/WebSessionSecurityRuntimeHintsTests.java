@@ -21,9 +21,9 @@ import org.mockito.MockedStatic;
 
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.web.server.csrf.DefaultCsrfToken;
-import org.springframework.session.aot.hint.SerializationHintsPredicates;
 import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,20 +32,20 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 
 /**
- * Tests for {@link WebSessionSecurityHints}
+ * Tests for {@link WebSessionSecurityRuntimeHints}
  *
  * @author Marcus Da Coregio
  */
-class WebSessionSecurityHintsTests {
+class WebSessionSecurityRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 
-	private final WebSessionSecurityHints webSessionSecurityHints = new WebSessionSecurityHints();
+	private final WebSessionSecurityRuntimeHints webSessionSecurityRuntimeHints = new WebSessionSecurityRuntimeHints();
 
 	@Test
 	void defaultCsrfTokenHasHints() {
-		this.webSessionSecurityHints.registerHints(this.hints, getClass().getClassLoader());
-		assertThat(new SerializationHintsPredicates().onType(DefaultCsrfToken.class)).accepts(this.hints);
+		this.webSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
+		assertThat(RuntimeHintsPredicates.serialization().onType(DefaultCsrfToken.class)).accepts(this.hints);
 	}
 
 	@Test
@@ -53,7 +53,7 @@ class WebSessionSecurityHintsTests {
 		try (MockedStatic<ClassUtils> classUtilsMock = mockStatic(ClassUtils.class)) {
 			classUtilsMock.when(() -> ClassUtils.isPresent(eq("org.springframework.web.server.WebSession"), any()))
 					.thenReturn(false);
-			this.webSessionSecurityHints.registerHints(this.hints, getClass().getClassLoader());
+			this.webSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 			assertThat(this.hints.serialization().javaSerialization()).isEmpty();
 		}
 	}
@@ -65,7 +65,7 @@ class WebSessionSecurityHintsTests {
 					.when(() -> ClassUtils
 							.isPresent(eq("org.springframework.security.web.server.csrf.DefaultCsrfToken"), any()))
 					.thenReturn(false);
-			this.webSessionSecurityHints.registerHints(this.hints, getClass().getClassLoader());
+			this.webSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 			assertThat(this.hints.serialization().javaSerialization()).isEmpty();
 		}
 	}
@@ -74,7 +74,7 @@ class WebSessionSecurityHintsTests {
 	void aotFactoriesContainsRegistrar() {
 		boolean match = SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
 				.load(RuntimeHintsRegistrar.class).stream()
-				.anyMatch((registrar) -> registrar instanceof WebSessionSecurityHints);
+				.anyMatch((registrar) -> registrar instanceof WebSessionSecurityRuntimeHints);
 		assertThat(match).isTrue();
 	}
 

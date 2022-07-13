@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package org.springframework.session.aot.hint.server;
+package org.springframework.session.jdbc.aot.hint;
 
+import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
-import org.springframework.security.web.server.csrf.DefaultCsrfToken;
-import org.springframework.util.ClassUtils;
+import org.springframework.aot.hint.TypeReference;
 
 /**
- * {@link RuntimeHintsRegistrar} for Reactive Session hints.
+ * A {@link RuntimeHintsRegistrar} for JDBC Session hints.
  *
  * @author Marcus Da Coregio
  */
-public class WebSessionSecurityHints implements RuntimeHintsRegistrar {
+class SessionJdbcRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-		if (!ClassUtils.isPresent("org.springframework.web.server.WebSession", classLoader) || !ClassUtils
-				.isPresent("org.springframework.security.web.server.csrf.DefaultCsrfToken", classLoader)) {
-			return;
-		}
-		hints.serialization().registerType(DefaultCsrfToken.class);
+		hints.reflection().registerType(TypeReference.of("javax.sql.DataSource"),
+				(hint) -> hint.withMembers(MemberCategory.INVOKE_DECLARED_METHODS));
+		hints.resources().registerPattern("org/springframework/session/jdbc/*.sql");
 	}
 
 }

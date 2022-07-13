@@ -28,12 +28,12 @@ import org.mockito.MockedStatic;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
+import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.savedrequest.DefaultSavedRequest;
 import org.springframework.security.web.savedrequest.SavedCookie;
-import org.springframework.session.aot.hint.SerializationHintsPredicates;
 import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,21 +42,21 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
 
 /**
- * Tests for {@link HttpSessionSecurityHints}
+ * Tests for {@link HttpSessionSecurityRuntimeHints}
  *
  * @author Marcus Da Coregio
  */
-class HttpSessionSecurityHintsTests {
+class HttpSessionSecurityRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 
-	private final HttpSessionSecurityHints httpSessionSecurityHints = new HttpSessionSecurityHints();
+	private final HttpSessionSecurityRuntimeHints httpSessionSecurityRuntimeHints = new HttpSessionSecurityRuntimeHints();
 
 	@ParameterizedTest
 	@MethodSource("getSerializationHintTypes")
 	void httpSessionHasHints(TypeReference typeReference) {
-		this.httpSessionSecurityHints.registerHints(this.hints, getClass().getClassLoader());
-		assertThat(new SerializationHintsPredicates().onType(typeReference)).accepts(this.hints);
+		this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
+		assertThat(RuntimeHintsPredicates.serialization().onType(typeReference)).accepts(this.hints);
 	}
 
 	@Test
@@ -64,7 +64,7 @@ class HttpSessionSecurityHintsTests {
 		try (MockedStatic<ClassUtils> classUtilsMock = mockStatic(ClassUtils.class)) {
 			classUtilsMock.when(() -> ClassUtils.isPresent(eq("jakarta.servlet.http.HttpSession"), any()))
 					.thenReturn(false);
-			this.httpSessionSecurityHints.registerHints(this.hints, getClass().getClassLoader());
+			this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 			assertThat(this.hints.serialization().javaSerialization()).isEmpty();
 		}
 	}
@@ -75,7 +75,7 @@ class HttpSessionSecurityHintsTests {
 			classUtilsMock.when(
 					() -> ClassUtils.isPresent(eq("org.springframework.security.web.csrf.DefaultCsrfToken"), any()))
 					.thenReturn(false);
-			this.httpSessionSecurityHints.registerHints(this.hints, getClass().getClassLoader());
+			this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 			assertThat(this.hints.serialization().javaSerialization()).isEmpty();
 		}
 	}
@@ -84,7 +84,7 @@ class HttpSessionSecurityHintsTests {
 	void aotFactoriesContainsRegistrar() {
 		boolean match = SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
 				.load(RuntimeHintsRegistrar.class).stream()
-				.anyMatch((registrar) -> registrar instanceof HttpSessionSecurityHints);
+				.anyMatch((registrar) -> registrar instanceof HttpSessionSecurityRuntimeHints);
 		assertThat(match).isTrue();
 	}
 

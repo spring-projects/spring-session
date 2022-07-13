@@ -1,2 +1,2 @@
 org.springframework.aot.hint.RuntimeHintsRegistrar=\
-org.springframework.session.jdbc.aot.hint.SessionJdbcSecurityHints
+org.springframework.session.jdbc.aot.hint.SessionJdbcRuntimeHints

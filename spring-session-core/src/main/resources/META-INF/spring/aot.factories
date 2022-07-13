@@ -1,4 +1,4 @@
 org.springframework.aot.hint.RuntimeHintsRegistrar=\
-org.springframework.session.aot.hint.CommonSessionSecurityHints,\
-org.springframework.session.aot.hint.servlet.HttpSessionSecurityHints,\
-org.springframework.session.aot.hint.server.WebSessionSecurityHints
+org.springframework.session.aot.hint.CommonSessionSecurityRuntimeHints,\
+org.springframework.session.aot.hint.servlet.HttpSessionSecurityRuntimeHints,\
+org.springframework.session.aot.hint.server.WebSessionSecurityRuntimeHints

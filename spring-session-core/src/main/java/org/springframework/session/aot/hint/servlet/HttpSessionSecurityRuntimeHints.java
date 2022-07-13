@@ -34,7 +34,7 @@ import org.springframework.util.ClassUtils;
  *
  * @author Marcus Da Coregio
  */
-public class HttpSessionSecurityHints implements RuntimeHintsRegistrar {
+class HttpSessionSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
