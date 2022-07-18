@@ -32,6 +32,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
@@ -298,6 +300,16 @@ class JdbcHttpSessionConfigurationTests {
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
 		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
 				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+	}
+
+	@Test
+	void defaultConfigurationJdbcTemplateHasExpectedExceptionTranslator() {
+		registerAndRefresh(DataSourceConfiguration.class, DefaultConfiguration.class);
+
+		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
+		JdbcTemplate jdbcTemplate = (JdbcTemplate) ReflectionTestUtils.getField(repository, "jdbcOperations");
+		assertThat(jdbcTemplate).isNotNull();
+		assertThat(jdbcTemplate.getExceptionTranslator()).isInstanceOf(SQLErrorCodeSQLExceptionTranslator.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
