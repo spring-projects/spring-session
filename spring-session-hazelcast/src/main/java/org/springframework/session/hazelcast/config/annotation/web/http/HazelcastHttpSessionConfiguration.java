@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
-import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -86,11 +85,6 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		this.sessionMapName = sessionMapName;
 	}
 
-	@Deprecated
-	public void setHazelcastFlushMode(HazelcastFlushMode hazelcastFlushMode) {
-		setFlushMode(hazelcastFlushMode.getFlushMode());
-	}
-
 	public void setFlushMode(FlushMode flushMode) {
 		this.flushMode = flushMode;
 	}
@@ -127,7 +121,6 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
@@ -137,12 +130,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		if (StringUtils.hasText(sessionMapNameValue)) {
 			this.sessionMapName = sessionMapNameValue;
 		}
-		FlushMode flushMode = attributes.getEnum("flushMode");
-		HazelcastFlushMode hazelcastFlushMode = attributes.getEnum("hazelcastFlushMode");
-		if (flushMode == FlushMode.ON_SAVE && hazelcastFlushMode != HazelcastFlushMode.ON_SAVE) {
-			flushMode = hazelcastFlushMode.getFlushMode();
-		}
-		this.flushMode = flushMode;
+		this.flushMode = attributes.getEnum("flushMode");
 		this.saveMode = attributes.getEnum("saveMode");
 	}
 

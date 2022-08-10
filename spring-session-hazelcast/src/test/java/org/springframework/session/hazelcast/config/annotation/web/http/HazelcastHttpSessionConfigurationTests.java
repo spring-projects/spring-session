@@ -34,7 +34,6 @@ import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
-import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -131,26 +130,8 @@ class HazelcastHttpSessionConfigurationTests {
 	}
 
 	@Test
-	void customFlushImmediatelyLegacy() {
-		registerAndRefresh(CustomFlushImmediatelyLegacyConfiguration.class);
-
-		HazelcastIndexedSessionRepository repository = this.context.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
-	}
-
-	@Test
 	void setCustomFlushImmediately() {
 		registerAndRefresh(BaseConfiguration.class, CustomFlushImmediatelySetConfiguration.class);
-
-		HazelcastIndexedSessionRepository repository = this.context.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
-	}
-
-	@Test
-	void setCustomFlushImmediatelyLegacy() {
-		registerAndRefresh(BaseConfiguration.class, CustomFlushImmediatelySetLegacyConfiguration.class);
 
 		HazelcastIndexedSessionRepository repository = this.context.getBean(HazelcastIndexedSessionRepository.class);
 		assertThat(repository).isNotNull();
@@ -319,16 +300,6 @@ class HazelcastHttpSessionConfigurationTests {
 
 	}
 
-	@Configuration
-	@SuppressWarnings("deprecation")
-	static class CustomFlushImmediatelySetLegacyConfiguration extends HazelcastHttpSessionConfiguration {
-
-		CustomFlushImmediatelySetLegacyConfiguration() {
-			setHazelcastFlushMode(HazelcastFlushMode.IMMEDIATE);
-		}
-
-	}
-
 	@EnableHazelcastHttpSession(saveMode = SaveMode.ALWAYS)
 	static class CustomSaveModeExpressionAnnotationConfiguration {
 
@@ -346,13 +317,6 @@ class HazelcastHttpSessionConfigurationTests {
 	@Configuration
 	@EnableHazelcastHttpSession(flushMode = FlushMode.IMMEDIATE)
 	static class CustomFlushImmediatelyConfiguration extends BaseConfiguration {
-
-	}
-
-	@Configuration
-	@EnableHazelcastHttpSession(hazelcastFlushMode = HazelcastFlushMode.IMMEDIATE)
-	@SuppressWarnings("deprecation")
-	static class CustomFlushImmediatelyLegacyConfiguration extends BaseConfiguration {
 
 	}
 
