@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,7 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
-import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
 import org.springframework.web.server.session.WebSessionManager;
@@ -97,11 +95,6 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 
 	public void setRedisNamespace(String namespace) {
 		this.redisNamespace = namespace;
-	}
-
-	@Deprecated
-	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
-		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
 	}
 
 	public void setSaveMode(SaveMode saveMode) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,33 +97,15 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	void setKeyNamespace_ValidNamespace_ShouldSetNamespace() {
-		this.sessionRepository.setKeyNamespace("test:");
-		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "keyNamespace")).isEqualTo("test:");
-	}
-
-	@Test
 	void setRedisKeyNamespace_ValidNamespace_ShouldSetNamespace() {
 		this.sessionRepository.setRedisKeyNamespace("test");
 		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "keyNamespace")).isEqualTo("test:");
 	}
 
 	@Test
-	void setKeyNamespace_NullNamespace_ShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setKeyNamespace(null))
-				.withMessage("keyNamespace must not be empty");
-	}
-
-	@Test
 	void setRedisKeyNamespace_NullNamespace_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setRedisKeyNamespace(null))
 				.withMessage("namespace must not be empty");
-	}
-
-	@Test
-	void setKeyNamespace_EmptyNamespace_ShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setKeyNamespace(" "))
-				.withMessage("keyNamespace must not be empty");
 	}
 
 	@Test

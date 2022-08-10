@@ -77,17 +77,6 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	}
 
 	/**
-	 * Set the key namespace.
-	 * @param keyNamespace the key namespace
-	 * @deprecated since 2.4.0 in favor of {@link #setRedisKeyNamespace(String)}
-	 */
-	@Deprecated
-	public void setKeyNamespace(String keyNamespace) {
-		Assert.hasText(keyNamespace, "keyNamespace must not be empty");
-		this.keyNamespace = keyNamespace;
-	}
-
-	/**
 	 * Set the Redis key namespace.
 	 * @param namespace the Redis key namespace
 	 */
