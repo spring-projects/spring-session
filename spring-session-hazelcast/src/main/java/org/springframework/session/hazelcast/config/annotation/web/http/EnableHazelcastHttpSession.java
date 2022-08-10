@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
-import org.springframework.session.hazelcast.HazelcastFlushMode;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
@@ -84,21 +83,6 @@ public @interface EnableHazelcastHttpSession {
 	 * @return the name of the Map to store the sessions in Hazelcast
 	 */
 	String sessionMapName() default "spring:session:sessions";
-
-	/**
-	 * Flush mode for the Hazelcast sessions. The default is {@code ON_SAVE} which only
-	 * updates the backing Hazelcast when {@link SessionRepository#save(Session)} is
-	 * invoked. In a web environment this happens just before the HTTP response is
-	 * committed.
-	 * <p>
-	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
-	 * Session are immediately written to the Hazelcast instance.
-	 * @return the {@link HazelcastFlushMode} to use
-	 * @since 1.3.0
-	 * @deprecated since 2.2.0 in favor of {@link #flushMode()}
-	 */
-	@Deprecated
-	HazelcastFlushMode hazelcastFlushMode() default HazelcastFlushMode.ON_SAVE;
 
 	/**
 	 * Flush mode for the Hazelcast sessions. The default is {@code ON_SAVE} which only
