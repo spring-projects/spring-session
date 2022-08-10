@@ -31,7 +31,6 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
-import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -88,20 +87,6 @@ public @interface EnableRedisHttpSession {
 	 * @return the unique namespace for keys
 	 */
 	String redisNamespace() default RedisIndexedSessionRepository.DEFAULT_NAMESPACE;
-
-	/**
-	 * Flush mode for the Redis sessions. The default is {@code ON_SAVE} which only
-	 * updates the backing Redis when {@link SessionRepository#save(Session)} is invoked.
-	 * In a web environment this happens just before the HTTP response is committed.
-	 * <p>
-	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
-	 * Session are immediately written to the Redis instance.
-	 * @return the {@link RedisFlushMode} to use
-	 * @since 1.1
-	 * @deprecated since 2.2.0 in favor of {@link #flushMode()}
-	 */
-	@Deprecated
-	RedisFlushMode redisFlushMode() default RedisFlushMode.ON_SAVE;
 
 	/**
 	 * Flush mode for the Redis sessions. The default is {@code ON_SAVE} which only

@@ -57,7 +57,6 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
-import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
@@ -168,12 +167,6 @@ public class RedisIndexedHttpSessionConfiguration extends SpringHttpSessionConfi
 		this.redisNamespace = namespace;
 	}
 
-	@Deprecated
-	public void setRedisFlushMode(RedisFlushMode redisFlushMode) {
-		Assert.notNull(redisFlushMode, "redisFlushMode cannot be null");
-		setFlushMode(redisFlushMode.getFlushMode());
-	}
-
 	public void setFlushMode(FlushMode flushMode) {
 		Assert.notNull(flushMode, "flushMode cannot be null");
 		this.flushMode = flushMode;
@@ -253,7 +246,6 @@ public class RedisIndexedHttpSessionConfiguration extends SpringHttpSessionConfi
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
@@ -263,12 +255,7 @@ public class RedisIndexedHttpSessionConfiguration extends SpringHttpSessionConfi
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
 		}
-		FlushMode flushMode = attributes.getEnum("flushMode");
-		RedisFlushMode redisFlushMode = attributes.getEnum("redisFlushMode");
-		if (flushMode == FlushMode.ON_SAVE && redisFlushMode != RedisFlushMode.ON_SAVE) {
-			flushMode = redisFlushMode.getFlushMode();
-		}
-		this.flushMode = flushMode;
+		this.flushMode = attributes.getEnum("flushMode");
 		this.saveMode = attributes.getEnum("saveMode");
 	}
 

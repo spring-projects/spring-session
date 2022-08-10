@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,12 +26,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.session.MapSession;
-import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SaveMode;
-import org.springframework.session.Session;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
-import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.web.server.session.WebSessionManager;
 
 /**
@@ -85,20 +82,6 @@ public @interface EnableRedisWebSession {
 	 * @return the unique namespace for keys
 	 */
 	String redisNamespace() default ReactiveRedisSessionRepository.DEFAULT_NAMESPACE;
-
-	/**
-	 * Flush mode for the Redis sessions. The default is {@code ON_SAVE} which only
-	 * updates the backing Redis when {@link ReactiveSessionRepository#save(Session)} is
-	 * invoked. In a web environment this happens just before the HTTP response is
-	 * committed.
-	 * <p>
-	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
-	 * Session are immediately written to the Redis instance.
-	 * @return the {@link RedisFlushMode} to use
-	 * @deprecated since 2.2.0 as support {@code IMMEDIATE} is removed
-	 */
-	@Deprecated
-	RedisFlushMode redisFlushMode() default RedisFlushMode.ON_SAVE;
 
 	/**
 	 * Save mode for the session. The default is {@link SaveMode#ON_SET_ATTRIBUTE}, which

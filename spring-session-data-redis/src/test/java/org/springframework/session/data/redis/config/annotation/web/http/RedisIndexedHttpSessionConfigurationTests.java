@@ -42,7 +42,6 @@ import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
-import org.springframework.session.data.redis.RedisFlushMode;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -105,24 +104,8 @@ class RedisIndexedHttpSessionConfigurationTests {
 	}
 
 	@Test
-	void customFlushImmediatelyLegacy() {
-		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelyLegacyConfiguration.class);
-		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
-		assertThat(sessionRepository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
-	}
-
-	@Test
 	void setCustomFlushImmediately() {
 		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelySetConfiguration.class);
-		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
-		assertThat(sessionRepository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
-	}
-
-	@Test
-	void setCustomFlushImmediatelyLegacy() {
-		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelySetLegacyConfiguration.class);
 		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
@@ -308,25 +291,8 @@ class RedisIndexedHttpSessionConfigurationTests {
 	}
 
 	@Configuration
-	@SuppressWarnings("deprecation")
-	static class CustomFlushImmediatelySetLegacyConfiguration extends RedisIndexedHttpSessionConfiguration {
-
-		CustomFlushImmediatelySetLegacyConfiguration() {
-			setRedisFlushMode(RedisFlushMode.IMMEDIATE);
-		}
-
-	}
-
-	@Configuration
 	@EnableRedisHttpSession(flushMode = FlushMode.IMMEDIATE, enableIndexingAndEvents = true)
 	static class CustomFlushImmediatelyConfiguration {
-
-	}
-
-	@Configuration
-	@EnableRedisHttpSession(redisFlushMode = RedisFlushMode.IMMEDIATE, enableIndexingAndEvents = true)
-	@SuppressWarnings("deprecation")
-	static class CustomFlushImmediatelyLegacyConfiguration {
 
 	}
 
