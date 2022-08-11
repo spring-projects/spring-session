@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ final class HazelcastITestUtils {
 		Config config = new Config();
 		NetworkConfig networkConfig = config.getNetworkConfig();
 		networkConfig.setPort(0);
-		networkConfig.getJoin().getMulticastConfig().setEnabled(false);
+		networkConfig.getJoin().getAutoDetectionConfig().setEnabled(false);
 		AttributeConfig attributeConfig = new AttributeConfig()
 				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
 				.setExtractorClassName(PrincipalNameExtractor.class.getName());
