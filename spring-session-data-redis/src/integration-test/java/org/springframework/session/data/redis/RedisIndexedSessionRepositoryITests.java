@@ -691,7 +691,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisNamespace = "RedisIndexedSessionRepositoryITests", enableIndexingAndEvents = true)
+	@EnableRedisHttpSession(redisNamespace = "RedisIndexedSessionRepositoryITests")
 	static class Config extends BaseConfig {
 
 		@Bean

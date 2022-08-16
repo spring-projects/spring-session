@@ -113,7 +113,7 @@ class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> exten
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1, enableIndexingAndEvents = true)
+	@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1)
 	static class Config extends BaseConfig {
 
 		@Bean

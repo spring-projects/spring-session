@@ -101,7 +101,7 @@ class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisNamespace = "RedisListenerContainerTaskExecutorITests", enableIndexingAndEvents = true)
+	@EnableRedisHttpSession(redisNamespace = "RedisListenerContainerTaskExecutorITests")
 	static class Config extends BaseConfig {
 
 		@Bean
