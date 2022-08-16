@@ -16,7 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
-import java.time.Duration;
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.jupiter.api.AfterEach;
@@ -36,11 +36,14 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
+import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
-import org.springframework.session.data.redis.RedisSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -60,7 +63,9 @@ import static org.mockito.Mockito.mock;
  */
 class RedisHttpSessionConfigurationTests {
 
-	private static final Duration MAX_INACTIVE_INTERVAL_DURATION = Duration.ofSeconds(600);
+	private static final int MAX_INACTIVE_INTERVAL_IN_SECONDS = 600;
+
+	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
 
 	private AnnotationConfigApplicationContext context;
 
@@ -96,7 +101,7 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void customFlushImmediately() {
 		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelyConfiguration.class);
-		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
@@ -104,22 +109,40 @@ class RedisHttpSessionConfigurationTests {
 	@Test
 	void setCustomFlushImmediately() {
 		registerAndRefresh(RedisConfig.class, CustomFlushImmediatelySetConfiguration.class);
-		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(ReflectionTestUtils.getField(sessionRepository, "flushMode")).isEqualTo(FlushMode.IMMEDIATE);
 	}
 
 	@Test
+	void customCleanupCronAnnotation() {
+		registerAndRefresh(RedisConfig.class, CustomCleanupCronExpressionAnnotationConfiguration.class);
+
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
+	}
+
+	@Test
+	void customCleanupCronSetter() {
+		registerAndRefresh(RedisConfig.class, CustomCleanupCronExpressionSetterConfiguration.class);
+
+		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
+		assertThat(configuration).isNotNull();
+		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
+	}
+
+	@Test
 	void customSaveModeAnnotation() {
 		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionAnnotationConfiguration.class);
-		assertThat(this.context.getBean(RedisSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+		assertThat(this.context.getBean(RedisIndexedSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
 				SaveMode.ALWAYS);
 	}
 
 	@Test
 	void customSaveModeSetter() {
 		registerAndRefresh(RedisConfig.class, CustomSaveModeExpressionSetterConfiguration.class);
-		assertThat(this.context.getBean(RedisSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
+		assertThat(this.context.getBean(RedisIndexedSessionRepository.class)).hasFieldOrPropertyWithValue("saveMode",
 				SaveMode.ALWAYS);
 	}
 
@@ -127,7 +150,7 @@ class RedisHttpSessionConfigurationTests {
 	void qualifiedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, QualifiedConnectionFactoryRedisConfig.class);
 
-		RedisSessionRepository repository = this.context.getBean(RedisSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -143,7 +166,7 @@ class RedisHttpSessionConfigurationTests {
 	void primaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, PrimaryConnectionFactoryRedisConfig.class);
 
-		RedisSessionRepository repository = this.context.getBean(RedisSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("primaryRedisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -159,7 +182,7 @@ class RedisHttpSessionConfigurationTests {
 	void qualifiedAndPrimaryConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, QualifiedAndPrimaryConnectionFactoryRedisConfig.class);
 
-		RedisSessionRepository repository = this.context.getBean(RedisSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("qualifiedRedisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -175,7 +198,7 @@ class RedisHttpSessionConfigurationTests {
 	void namedConnectionFactoryRedisConfig() {
 		registerAndRefresh(RedisConfig.class, NamedConnectionFactoryRedisConfig.class);
 
-		RedisSessionRepository repository = this.context.getBean(RedisSessionRepository.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisConnectionFactory redisConnectionFactory = this.context.getBean("redisConnectionFactory",
 				RedisConnectionFactory.class);
 		assertThat(repository).isNotNull();
@@ -196,11 +219,31 @@ class RedisHttpSessionConfigurationTests {
 	}
 
 	@Test
+	void customIndexResolverConfiguration() {
+		registerAndRefresh(RedisConfig.class, CustomIndexResolverConfiguration.class);
+		RedisIndexedSessionRepository repository = this.context.getBean(RedisIndexedSessionRepository.class);
+		@SuppressWarnings("unchecked")
+		IndexResolver<Session> indexResolver = this.context.getBean(IndexResolver.class);
+		assertThat(repository).isNotNull();
+		assertThat(indexResolver).isNotNull();
+		assertThat(repository).hasFieldOrPropertyWithValue("indexResolver", indexResolver);
+	}
+
+	@Test // gh-1252
+	void customRedisMessageListenerContainerConfig() {
+		registerAndRefresh(RedisConfig.class, CustomRedisMessageListenerContainerConfig.class);
+		Map<String, RedisMessageListenerContainer> beans = this.context
+				.getBeansOfType(RedisMessageListenerContainer.class);
+		assertThat(beans).hasSize(2);
+		assertThat(beans).containsKeys("springSessionRedisMessageListenerContainer", "redisMessageListenerContainer");
+	}
+
+	@Test
 	void sessionRepositoryCustomizer() {
 		registerAndRefresh(RedisConfig.class, SessionRepositoryCustomizerConfiguration.class);
-		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
-				MAX_INACTIVE_INTERVAL_DURATION);
+				MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -263,6 +306,20 @@ class RedisHttpSessionConfigurationTests {
 	@Configuration
 	@EnableRedisHttpSession(flushMode = FlushMode.IMMEDIATE)
 	static class CustomFlushImmediatelyConfiguration {
+
+	}
+
+	@EnableRedisHttpSession(cleanupCron = CLEANUP_CRON_EXPRESSION)
+	static class CustomCleanupCronExpressionAnnotationConfiguration {
+
+	}
+
+	@Configuration
+	static class CustomCleanupCronExpressionSetterConfiguration extends RedisHttpSessionConfiguration {
+
+		CustomCleanupCronExpressionSetterConfiguration() {
+			setCleanupCron(CLEANUP_CRON_EXPRESSION);
+		}
 
 	}
 
@@ -356,20 +413,43 @@ class RedisHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration
+	@EnableRedisHttpSession
+	static class CustomIndexResolverConfiguration {
+
+		@Bean
+		@SuppressWarnings("unchecked")
+		IndexResolver<Session> indexResolver() {
+			return mock(IndexResolver.class);
+		}
+
+	}
+
+	@Configuration
+	@EnableRedisHttpSession
+	static class CustomRedisMessageListenerContainerConfig {
+
+		@Bean
+		RedisMessageListenerContainer redisMessageListenerContainer() {
+			return mock(RedisMessageListenerContainer.class);
+		}
+
+	}
+
 	@EnableRedisHttpSession
 	static class SessionRepositoryCustomizerConfiguration {
 
 		@Bean
 		@Order(0)
-		SessionRepositoryCustomizer<RedisSessionRepository> sessionRepositoryCustomizerOne() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerOne() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 		@Bean
 		@Order(1)
-		SessionRepositoryCustomizer<RedisSessionRepository> sessionRepositoryCustomizerTwo() {
+		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
-					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_DURATION);
+					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
 		}
 
 	}

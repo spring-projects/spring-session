@@ -39,19 +39,17 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
  * @author Vladimir Tsanev
- * @author Mark Paluch
  *
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-class RedisIndexedHttpSessionConfigurationOverrideSessionTaskExecutors {
+class RedisHttpSessionConfigurationOverrideSessionTaskExecutor {
 
 	@Autowired
 	RedisMessageListenerContainer redisMessageListenerContainer;
@@ -59,32 +57,17 @@ class RedisIndexedHttpSessionConfigurationOverrideSessionTaskExecutors {
 	@Autowired
 	Executor springSessionRedisTaskExecutor;
 
-	@Autowired
-	Executor springSessionRedisSubscriptionExecutor;
-
 	@Test
-	void overrideSessionTaskExecutors() {
-		verify(this.springSessionRedisSubscriptionExecutor, times(1)).execute(any(Runnable.class));
-		verify(this.springSessionRedisTaskExecutor, never()).execute(any(Runnable.class));
+	void overrideSessionTaskExecutor() {
+		verify(this.springSessionRedisTaskExecutor, times(1)).execute(any(Runnable.class));
 	}
 
-	@EnableRedisHttpSession(enableIndexingAndEvents = true)
+	@EnableRedisHttpSession
 	@Configuration
 	static class Config {
 
 		@Bean
 		Executor springSessionRedisTaskExecutor() {
-			Executor executor = mock(Executor.class);
-			willAnswer((it) -> {
-				Runnable r = it.getArgument(0);
-				new Thread(r).start();
-				return null;
-			}).given(executor).execute(any());
-			return executor;
-		}
-
-		@Bean
-		Executor springSessionRedisSubscriptionExecutor() {
 			Executor executor = mock(Executor.class);
 			willAnswer((it) -> {
 				Runnable r = it.getArgument(0);

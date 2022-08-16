@@ -55,14 +55,14 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	@Captor
 	ArgumentCaptor<String> options;
 
-	private RedisIndexedHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
+	private RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer initializer;
 
 	@BeforeEach
 	void setup() {
 		given(this.connectionFactory.getConnection()).willReturn(this.connection);
 		given(this.connection.serverCommands()).willReturn(this.commands);
 
-		this.initializer = new RedisIndexedHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(
+		this.initializer = new RedisHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(
 				this.connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
 	}
 
