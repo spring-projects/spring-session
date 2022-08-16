@@ -7,7 +7,7 @@
 
 	<context:annotation-config/>
 
-	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"/>
+	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisIndexedHttpSessionConfiguration"/>
 
 	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfigurationXmlTests"
 		factory-method="connectionFactory"/>

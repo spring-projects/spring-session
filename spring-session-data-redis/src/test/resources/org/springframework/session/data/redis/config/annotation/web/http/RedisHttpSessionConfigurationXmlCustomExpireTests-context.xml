@@ -8,7 +8,7 @@
 
 	<context:annotation-config/>
 
-	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration"
+	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisIndexedHttpSessionConfiguration"
 		p:maxInactiveIntervalInSeconds="3600"/>
 
 	<bean class="org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfigurationXmlCustomExpireTests"

@@ -50,16 +50,16 @@ class RedisSessionExpirationPolicyTests {
 	private static final Long ONE_MINUTE_AGO = 1429111652346L;
 
 	@Mock(lenient = true)
-	RedisOperations<Object, Object> sessionRedisOperations;
+	RedisOperations<String, Object> sessionRedisOperations;
 
 	@Mock
-	BoundSetOperations<Object, Object> setOperations;
+	BoundSetOperations<String, Object> setOperations;
 
 	@Mock
-	BoundHashOperations<Object, Object, Object> hashOperations;
+	BoundHashOperations<String, Object, Object> hashOperations;
 
 	@Mock
-	BoundValueOperations<Object, Object> valueOperations;
+	BoundValueOperations<String, Object> valueOperations;
 
 	private RedisSessionExpirationPolicy policy;
 

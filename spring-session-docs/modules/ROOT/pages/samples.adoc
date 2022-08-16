@@ -39,10 +39,6 @@ To get started with Spring Session, the best place to start is our Sample Applic
 | Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using JSON serialization.
 |
 
-| {gh-samples-url}spring-session-sample-boot-redis-simple[HttpSession with simple Redis `SessionRepository`]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with Redis using `RedisSessionRepository`.
-|
-
 | {gh-samples-url}spring-session-sample-boot-mongodb-traditional[Spring Session with MongoDB Repositories (servlet-based)]
 | Demonstrates how to back Spring Session with traditional MongoDB repositories.
 | link:guides/boot-mongo.html[Spring Session with MongoDB Repositories]
