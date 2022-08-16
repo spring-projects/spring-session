@@ -32,7 +32,7 @@ import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.data.redis.AbstractRedisITests;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisIndexedHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -101,7 +101,7 @@ class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisNamespace = "RedisListenerContainerTaskExecutorITests")
+	@EnableRedisIndexedHttpSession(redisNamespace = "RedisListenerContainerTaskExecutorITests")
 	static class Config extends BaseConfig {
 
 		@Bean

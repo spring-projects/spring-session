@@ -44,7 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> extends AbstractRedisITests {
+class EnableRedisIndexedHttpSessionExpireSessionDestroyedTests<S extends Session> extends AbstractRedisITests {
 
 	@Autowired
 	private SessionRepository<S> repository;
@@ -113,7 +113,7 @@ class EnableRedisHttpSessionExpireSessionDestroyedTests<S extends Session> exten
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 1)
+	@EnableRedisIndexedHttpSession(maxInactiveIntervalInSeconds = 1)
 	static class Config extends BaseConfig {
 
 		@Bean

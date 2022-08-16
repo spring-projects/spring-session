@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -288,7 +288,7 @@ public class RedisIndexedSessionRepository
 
 	private byte[] expiredKeyPrefixBytes;
 
-	private final RedisOperations<Object, Object> sessionRedisOperations;
+	private final RedisOperations<String, Object> sessionRedisOperations;
 
 	private final RedisSessionExpirationPolicy expirationPolicy;
 
@@ -314,7 +314,7 @@ public class RedisIndexedSessionRepository
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
 	 * sessions. Cannot be null.
 	 */
-	public RedisIndexedSessionRepository(RedisOperations<Object, Object> sessionRedisOperations) {
+	public RedisIndexedSessionRepository(RedisOperations<String, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
 		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, this::getExpirationsKey,
@@ -406,7 +406,7 @@ public class RedisIndexedSessionRepository
 	 * Returns the {@link RedisOperations} used for sessions.
 	 * @return the {@link RedisOperations} used for sessions
 	 */
-	public RedisOperations<Object, Object> getSessionRedisOperations() {
+	public RedisOperations<String, Object> getSessionRedisOperations() {
 		return this.sessionRedisOperations;
 	}
 
@@ -454,7 +454,7 @@ public class RedisIndexedSessionRepository
 	 * @return the Redis session
 	 */
 	private RedisSession getSession(String id, boolean allowExpired) {
-		Map<Object, Object> entries = getSessionBoundHashOperations(id).entries();
+		Map<String, Object> entries = getSessionBoundHashOperations(id).entries();
 		if (entries.isEmpty()) {
 			return null;
 		}
@@ -467,10 +467,10 @@ public class RedisIndexedSessionRepository
 		return result;
 	}
 
-	private MapSession loadSession(String id, Map<Object, Object> entries) {
+	private MapSession loadSession(String id, Map<String, Object> entries) {
 		MapSession loaded = new MapSession(id);
-		for (Map.Entry<Object, Object> entry : entries.entrySet()) {
-			String key = (String) entry.getKey();
+		for (Map.Entry<String, Object> entry : entries.entrySet()) {
+			String key = entry.getKey();
 			if (RedisSessionMapper.CREATION_TIME_KEY.equals(key)) {
 				loaded.setCreationTime(Instant.ofEpochMilli((long) entry.getValue()));
 			}
@@ -522,7 +522,7 @@ public class RedisIndexedSessionRepository
 		if (ByteUtils.startsWith(messageChannel, this.sessionCreatedChannelPrefixBytes)) {
 			// TODO: is this thread safe?
 			@SuppressWarnings("unchecked")
-			Map<Object, Object> loaded = (Map<Object, Object>) this.defaultSerializer.deserialize(message.getBody());
+			Map<String, Object> loaded = (Map<String, Object>) this.defaultSerializer.deserialize(message.getBody());
 			handleCreated(loaded, new String(messageChannel));
 			return;
 		}
@@ -571,7 +571,7 @@ public class RedisIndexedSessionRepository
 		}
 	}
 
-	private void handleCreated(Map<Object, Object> loaded, String channel) {
+	private void handleCreated(Map<String, Object> loaded, String channel) {
 		String id = channel.substring(channel.lastIndexOf(":") + 1);
 		Session session = loadSession(id, loaded);
 		publishEvent(new SessionCreatedEvent(this, session));
@@ -661,7 +661,7 @@ public class RedisIndexedSessionRepository
 	 * @param sessionId the id of the {@link Session} to work with
 	 * @return the {@link BoundHashOperations} to operate on a {@link Session}
 	 */
-	private BoundHashOperations<Object, Object, Object> getSessionBoundHashOperations(String sessionId) {
+	private BoundHashOperations<String, String, Object> getSessionBoundHashOperations(String sessionId) {
 		String key = getSessionKey(sessionId);
 		return this.sessionRedisOperations.boundHashOps(key);
 	}

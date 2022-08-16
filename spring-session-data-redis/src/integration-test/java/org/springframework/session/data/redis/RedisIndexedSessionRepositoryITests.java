@@ -39,7 +39,7 @@ import org.springframework.session.Session;
 import org.springframework.session.data.SessionEventRegistry;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
-import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisIndexedHttpSession;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
@@ -691,7 +691,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Configuration
-	@EnableRedisHttpSession(redisNamespace = "RedisIndexedSessionRepositoryITests")
+	@EnableRedisIndexedHttpSession(redisNamespace = "RedisIndexedSessionRepositoryITests")
 	static class Config extends BaseConfig {
 
 		@Bean

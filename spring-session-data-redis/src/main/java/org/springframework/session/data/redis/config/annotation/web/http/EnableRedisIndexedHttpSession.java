@@ -31,18 +31,18 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
-import org.springframework.session.data.redis.RedisSessionRepository;
+import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
  * {@link SessionRepositoryFilter} as a bean named {@code springSessionRepositoryFilter}
- * and backed by {@link RedisSessionRepository}. In order to leverage the annotation, a
- * single {@link RedisConnectionFactory} must be provided. For example:
+ * and backed by {@link RedisIndexedSessionRepository}. In order to leverage the
+ * annotation, a single {@link RedisConnectionFactory} must be provided. For example:
  *
  * <pre class="code">
  * &#064;Configuration
- * &#064;EnableRedisHttpSession
+ * &#064;EnableRedisIndexedHttpSession
  * public class RedisHttpSessionConfig {
  *
  *     &#064;Bean
@@ -53,19 +53,19 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * }
  * </pre>
  *
- * More advanced configurations can extend {@link RedisHttpSessionConfiguration} instead.
+ * More advanced configurations can extend {@link RedisIndexedHttpSessionConfiguration}
+ * instead.
  *
- * @author Rob Winch
  * @author Vedran Pavic
- * @since 1.0
+ * @since 3.0.0
  * @see EnableSpringHttpSession
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(RedisHttpSessionConfiguration.class)
+@Import(RedisIndexedHttpSessionConfiguration.class)
 @Configuration(proxyBeanMethods = false)
-public @interface EnableRedisHttpSession {
+public @interface EnableRedisIndexedHttpSession {
 
 	/**
 	 * The session timeout in seconds. By default, it is set to 1800 seconds (30 minutes).
@@ -84,7 +84,7 @@ public @interface EnableRedisHttpSession {
 	 * the applications and they could function within the same Redis instance.
 	 * @return the unique namespace for keys
 	 */
-	String redisNamespace() default RedisSessionRepository.DEFAULT_KEY_NAMESPACE;
+	String redisNamespace() default RedisIndexedSessionRepository.DEFAULT_NAMESPACE;
 
 	/**
 	 * Flush mode for the Redis sessions. The default is {@code ON_SAVE} which only
@@ -94,7 +94,6 @@ public @interface EnableRedisHttpSession {
 	 * Setting the value to {@code IMMEDIATE} will ensure that the any updates to the
 	 * Session are immediately written to the Redis instance.
 	 * @return the {@link FlushMode} to use
-	 * @since 2.2.0
 	 */
 	FlushMode flushMode() default FlushMode.ON_SAVE;
 
@@ -102,8 +101,13 @@ public @interface EnableRedisHttpSession {
 	 * Save mode for the session. The default is {@link SaveMode#ON_SET_ATTRIBUTE}, which
 	 * only saves changes made to session.
 	 * @return the save mode
-	 * @since 2.2.0
 	 */
 	SaveMode saveMode() default SaveMode.ON_SET_ATTRIBUTE;
+
+	/**
+	 * The cron expression for expired session cleanup job. By default runs every minute.
+	 * @return the session cleanup cron expression
+	 */
+	String cleanupCron() default RedisIndexedHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
 
 }

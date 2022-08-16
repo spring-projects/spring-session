@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,13 +52,13 @@ final class RedisSessionExpirationPolicy {
 
 	private static final String SESSION_EXPIRES_PREFIX = "expires:";
 
-	private final RedisOperations<Object, Object> redis;
+	private final RedisOperations<String, Object> redis;
 
 	private final Function<Long, String> lookupExpirationKey;
 
 	private final Function<String, String> lookupSessionKey;
 
-	RedisSessionExpirationPolicy(RedisOperations<Object, Object> sessionRedisOperations,
+	RedisSessionExpirationPolicy(RedisOperations<String, Object> sessionRedisOperations,
 			Function<Long, String> lookupExpirationKey, Function<String, String> lookupSessionKey) {
 		super();
 		this.redis = sessionRedisOperations;
@@ -96,7 +96,7 @@ final class RedisSessionExpirationPolicy {
 		}
 
 		String expireKey = getExpirationKey(toExpire);
-		BoundSetOperations<Object, Object> expireOperations = this.redis.boundSetOps(expireKey);
+		BoundSetOperations<String, Object> expireOperations = this.redis.boundSetOps(expireKey);
 		expireOperations.add(keyToExpire);
 
 		long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);

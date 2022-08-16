@@ -26,13 +26,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.session.MapSession;
-import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.data.redis.RedisSessionRepository.RedisSession;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -223,16 +220,8 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 	}
 
 	@Configuration
-	@EnableSpringHttpSession
+	@EnableRedisHttpSession
 	static class Config extends BaseConfig {
-
-		@Bean
-		RedisSessionRepository sessionRepository(RedisConnectionFactory redisConnectionFactory) {
-			RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-			redisTemplate.setConnectionFactory(redisConnectionFactory);
-			redisTemplate.afterPropertiesSet();
-			return new RedisSessionRepository(redisTemplate);
-		}
 
 	}
 
