@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package docs.security;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -32,6 +33,7 @@ import org.springframework.session.security.web.authentication.SpringSessionReme
 /**
  * @author rwinch
  */
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 @EnableSpringHttpSession
 public class RememberMeSecurityConfiguration extends WebSecurityConfigurerAdapter {
