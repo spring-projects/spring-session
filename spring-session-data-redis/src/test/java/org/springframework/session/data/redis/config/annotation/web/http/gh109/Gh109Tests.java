@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
@@ -76,8 +77,10 @@ class Gh109Tests {
 		RedisConnectionFactory redisConnectionFactory() {
 			RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 			RedisConnection connection = mock(RedisConnection.class);
+			RedisServerCommands commands = mock(RedisServerCommands.class);
 			given(factory.getConnection()).willReturn(connection);
-			given(connection.getConfig(anyString())).willReturn(new Properties());
+			given(connection.serverCommands()).willReturn(commands);
+			given(commands.getConfig(anyString())).willReturn(new Properties());
 			willAnswer((it) -> {
 				SubscriptionListener listener = it.getArgument(0);
 				listener.onPatternSubscribed(it.getArgument(1), 0);

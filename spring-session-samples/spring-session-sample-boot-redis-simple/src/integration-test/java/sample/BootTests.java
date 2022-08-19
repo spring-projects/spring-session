@@ -93,8 +93,7 @@ class BootTests {
 
 		@Bean
 		LettuceConnectionFactory redisConnectionFactory() {
-			return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
-					redisContainer().getFirstMappedPort());
+			return new LettuceConnectionFactory(redisContainer().getHost(), redisContainer().getFirstMappedPort());
 		}
 
 	}

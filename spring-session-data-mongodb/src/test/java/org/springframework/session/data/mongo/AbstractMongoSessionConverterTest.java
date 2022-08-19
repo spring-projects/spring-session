@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public abstract class AbstractMongoSessionConverterTest {
 		MongoSession deserialized = convertToSession(dbObject);
 
 		// then
-		assertThat(deserialized).isEqualToComparingFieldByField(toSerialize);
+		assertThat(deserialized).usingRecursiveComparison().isEqualTo(toSerialize);
 	}
 
 	@Test
@@ -67,14 +67,12 @@ public abstract class AbstractMongoSessionConverterTest {
 		MongoSession deserialized = convertToSession(serialized);
 
 		// then
-		assertThat(deserialized).isEqualToComparingOnlyGivenFields(toSerialize, "id", "createdMillis", "accessedMillis",
-				"intervalSeconds", "expireAt");
+		assertThat(deserialized).usingRecursiveComparison().isEqualTo(toSerialize);
 
 		SecurityContextImpl springSecurityContextBefore = toSerialize.getAttribute("SPRING_SECURITY_CONTEXT");
 		SecurityContextImpl springSecurityContextAfter = deserialized.getAttribute("SPRING_SECURITY_CONTEXT");
 
-		assertThat(springSecurityContextBefore).isEqualToComparingOnlyGivenFields(springSecurityContextAfter,
-				"authentication.principal", "authentication.authorities", "authentication.authenticated");
+		assertThat(springSecurityContextBefore).usingRecursiveComparison().isEqualTo(springSecurityContextAfter);
 		assertThat(springSecurityContextAfter.getAuthentication().getPrincipal()).isEqualTo("john_the_springer");
 		assertThat(springSecurityContextAfter.getAuthentication().getCredentials()).isNull();
 	}

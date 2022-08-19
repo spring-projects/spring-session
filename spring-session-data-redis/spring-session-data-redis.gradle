@@ -13,6 +13,7 @@ dependencies {
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
 	testImplementation "io.projectreactor:reactor-test"
 	testImplementation "jakarta.servlet:jakarta.servlet-api"

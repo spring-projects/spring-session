@@ -18,6 +18,7 @@ package sample;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.WebSocketSession;
@@ -67,7 +67,7 @@ class ApplicationTests {
 		transports.add(new RestTemplateXhrTransport());
 
 		SockJsClient sockJsClient = new SockJsClient(transports);
-		ListenableFuture<WebSocketSession> wsSession = sockJsClient.doHandshake(this.webSocketHandler,
+		CompletableFuture<WebSocketSession> wsSession = sockJsClient.execute(this.webSocketHandler,
 				"ws://localhost:" + this.port + "/sockjs");
 
 		assertThatExceptionOfType(ExecutionException.class)
@@ -86,8 +86,7 @@ class ApplicationTests {
 
 		@Bean
 		LettuceConnectionFactory redisConnectionFactory() {
-			return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
-					redisContainer().getFirstMappedPort());
+			return new LettuceConnectionFactory(redisContainer().getHost(), redisContainer().getFirstMappedPort());
 		}
 
 	}

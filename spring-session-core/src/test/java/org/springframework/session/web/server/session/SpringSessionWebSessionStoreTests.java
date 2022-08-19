@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.session.ReactiveSessionRepository;
@@ -43,9 +44,10 @@ import static org.mockito.Mockito.verify;
  * @author Rob Winch
  * @author Vedran Pavic
  */
+@ExtendWith(MockitoExtension.class)
 class SpringSessionWebSessionStoreTests<S extends Session> {
 
-	@Mock
+	@Mock(lenient = true)
 	private ReactiveSessionRepository<S> sessionRepository;
 
 	@Mock
@@ -58,7 +60,6 @@ class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
 		this.webSessionStore = new SpringSessionWebSessionStore<>(this.sessionRepository);
 		given(this.sessionRepository.findById(any())).willReturn(Mono.just(this.findByIdSession));
 		given(this.sessionRepository.createSession()).willReturn(Mono.just(this.createSession));

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2018 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,19 @@ package sample.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
 	// @formatter:off
 	@Autowired
@@ -42,24 +43,25 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	// @formatter:on
 
 	// @formatter:off
-	@Override
-	public void configure(WebSecurity web) {
-		web
+	@Bean
+	WebSecurityCustomizer ignoringCustomizer() {
+		return (web) -> web
 			.ignoring().requestMatchers(PathRequest.toH2Console());
 	}
 	// @formatter:on
 
 	// @formatter:off
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		return http
 			.authorizeRequests((authorize) -> authorize
 				.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 				.anyRequest().authenticated()
 			)
 			.formLogin((formLogin) -> formLogin
 				.permitAll()
-			);
+			)
+			.build();
 	}
 	// @formatter:on
 

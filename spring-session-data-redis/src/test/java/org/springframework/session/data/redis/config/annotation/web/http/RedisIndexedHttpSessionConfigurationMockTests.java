@@ -18,8 +18,9 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -33,9 +34,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+@ExtendWith(MockitoExtension.class)
 class RedisIndexedHttpSessionConfigurationMockTests {
 
-	@Mock
+	@Mock(lenient = true)
 	RedisConnectionFactory factory;
 
 	@Mock
@@ -43,7 +45,6 @@ class RedisIndexedHttpSessionConfigurationMockTests {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
 		given(this.factory.getConnection()).willReturn(this.connection);
 	}
 

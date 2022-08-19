@@ -16,6 +16,7 @@
 
 package org.springframework.session.jdbc.config.annotation.web.http;
 
+import java.sql.DatabaseMetaData;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -152,7 +153,8 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 
 	private static boolean requiresTemporaryLob(DataSource dataSource) {
 		try {
-			String productName = JdbcUtils.extractDatabaseMetaData(dataSource, "getDatabaseProductName");
+			String productName = JdbcUtils.extractDatabaseMetaData(dataSource,
+					DatabaseMetaData::getDatabaseProductName);
 			return "Oracle".equalsIgnoreCase(JdbcUtils.commonDatabaseName(productName));
 		}
 		catch (MetaDataAccessException ex) {

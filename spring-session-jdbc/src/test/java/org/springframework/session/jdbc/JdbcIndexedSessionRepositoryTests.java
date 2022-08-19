@@ -27,9 +27,10 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -68,6 +69,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Vedran Pavic
  * @author Craig Andrews
  */
+@ExtendWith(MockitoExtension.class)
 class JdbcIndexedSessionRepositoryTests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
@@ -79,7 +81,6 @@ class JdbcIndexedSessionRepositoryTests {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		this.repository = new JdbcIndexedSessionRepository(this.jdbcOperations,
 				TransactionOperations.withoutTransaction());
 	}

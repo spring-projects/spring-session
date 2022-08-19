@@ -23,9 +23,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.config.annotation.web.http.EnableSpringHttpSession;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
@@ -36,12 +36,12 @@ import org.springframework.session.security.web.authentication.SpringSessionReme
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 @EnableSpringHttpSession
-public class RememberMeSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class RememberMeSecurityConfiguration {
 
 	// @formatter:off
 	// tag::http-rememberme[]
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			// ... additional configuration ...
 			.rememberMe((rememberMe) -> rememberMe
@@ -49,11 +49,11 @@ public class RememberMeSecurityConfiguration extends WebSecurityConfigurerAdapte
 			);
 		// end::http-rememberme[]
 
-		http
+		return http
 			.formLogin(Customizer.withDefaults())
 			.authorizeRequests((authorize) -> authorize
 				.anyRequest().authenticated()
-			);
+			).build();
 	}
 
 	// tag::rememberme-bean[]
@@ -68,7 +68,6 @@ public class RememberMeSecurityConfiguration extends WebSecurityConfigurerAdapte
 	// end::rememberme-bean[]
 	// @formatter:on
 
-	@Override
 	@Bean
 	public InMemoryUserDetailsManager userDetailsService() {
 		return new InMemoryUserDetailsManager(

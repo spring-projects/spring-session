@@ -40,8 +40,7 @@ public class EmbeddedRedisConfig {
 	@Bean
 	@Primary
 	public LettuceConnectionFactory redisConnectionFactory() {
-		return new LettuceConnectionFactory(redisContainer().getContainerIpAddress(),
-				redisContainer().getFirstMappedPort());
+		return new LettuceConnectionFactory(redisContainer().getHost(), redisContainer().getFirstMappedPort());
 	}
 
 }

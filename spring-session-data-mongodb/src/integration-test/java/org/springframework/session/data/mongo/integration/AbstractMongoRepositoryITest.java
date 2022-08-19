@@ -401,8 +401,8 @@ public abstract class AbstractMongoRepositoryITest extends AbstractITest {
 		@Bean
 		public MongoOperations mongoOperations(MongoDBContainer mongoContainer) {
 
-			MongoClient mongo = MongoClients.create(
-					"mongodb://" + mongoContainer.getContainerIpAddress() + ":" + mongoContainer.getFirstMappedPort());
+			MongoClient mongo = MongoClients
+					.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
 			return new MongoTemplate(mongo, "test");
 		}
 

@@ -157,9 +157,8 @@ public class MongoDbLogoutVerificationTest {
 		@Bean
 		MapReactiveUserDetailsService userDetailsService() {
 
-			return new MapReactiveUserDetailsService(User.withDefaultPasswordEncoder() //
-					.username("admin") //
-					.password("password") //
+			return new MapReactiveUserDetailsService(User.withUsername("admin") //
+					.password("{noop}password") //
 					.roles("USER,ADMIN") //
 					.build());
 		}
@@ -183,8 +182,8 @@ public class MongoDbLogoutVerificationTest {
 		@Bean
 		ReactiveMongoOperations mongoOperations(MongoDBContainer mongoContainer) {
 
-			MongoClient mongo = MongoClients.create(
-					"mongodb://" + mongoContainer.getContainerIpAddress() + ":" + mongoContainer.getFirstMappedPort());
+			MongoClient mongo = MongoClients
+					.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
 			return new ReactiveMongoTemplate(mongo, "test");
 		}
 
