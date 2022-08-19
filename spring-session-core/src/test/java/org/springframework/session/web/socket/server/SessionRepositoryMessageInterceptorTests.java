@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,10 @@ import jakarta.servlet.http.HttpSession;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.Message;
@@ -51,9 +52,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+@ExtendWith(MockitoExtension.class)
 class SessionRepositoryMessageInterceptorTests {
 
-	@Mock
+	@Mock(lenient = true)
 	SessionRepository<Session> sessionRepository;
 
 	@Mock
@@ -70,7 +72,6 @@ class SessionRepositoryMessageInterceptorTests {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
 		this.interceptor = new SessionRepositoryMessageInterceptor<>(this.sessionRepository);
 		this.headers = SimpMessageHeaderAccessor.create();
 		this.headers.setSessionId("session");

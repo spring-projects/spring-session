@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundSetOperations;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Rob Winch
  */
+@ExtendWith(MockitoExtension.class)
 class RedisSessionExpirationPolicyTests {
 
 	// Wed Apr 15 10:28:32 CDT 2015
@@ -47,7 +49,7 @@ class RedisSessionExpirationPolicyTests {
 	// Wed Apr 15 10:27:32 CDT 2015
 	private static final Long ONE_MINUTE_AGO = 1429111652346L;
 
-	@Mock
+	@Mock(lenient = true)
 	RedisOperations<Object, Object> sessionRedisOperations;
 
 	@Mock
@@ -65,7 +67,6 @@ class RedisSessionExpirationPolicyTests {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
 		RedisIndexedSessionRepository repository = new RedisIndexedSessionRepository(this.sessionRedisOperations);
 		this.policy = new RedisSessionExpirationPolicy(this.sessionRedisOperations, repository::getExpirationsKey,
 				repository::getSessionKey);

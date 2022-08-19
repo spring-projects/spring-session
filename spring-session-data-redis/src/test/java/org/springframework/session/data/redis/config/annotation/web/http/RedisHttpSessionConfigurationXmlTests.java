@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -46,8 +47,10 @@ public class RedisHttpSessionConfigurationXmlTests {
 	static RedisConnectionFactory connectionFactory() {
 		RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
 		RedisConnection connection = mock(RedisConnection.class);
+		RedisServerCommands commands = mock(RedisServerCommands.class);
 		given(factory.getConnection()).willReturn(connection);
-		given(connection.getConfig(anyString())).willReturn(new Properties());
+		given(connection.serverCommands()).willReturn(commands);
+		given(commands.getConfig(anyString())).willReturn(new Properties());
 
 		willAnswer((it) -> {
 			SubscriptionListener listener = it.getArgument(0);

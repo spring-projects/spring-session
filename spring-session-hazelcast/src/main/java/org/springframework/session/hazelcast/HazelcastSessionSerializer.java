@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,15 +87,15 @@ public class HazelcastSessionSerializer implements StreamSerializer<MapSession> 
 
 	@Override
 	public void write(ObjectDataOutput out, MapSession session) throws IOException {
-		out.writeUTF(session.getOriginalId());
-		out.writeUTF(session.getId());
+		out.writeString(session.getOriginalId());
+		out.writeString(session.getId());
 		writeInstant(out, session.getCreationTime());
 		writeInstant(out, session.getLastAccessedTime());
 		writeDuration(out, session.getMaxInactiveInterval());
 		for (String attrName : session.getAttributeNames()) {
 			Object attrValue = session.getAttribute(attrName);
 			if (attrValue != null) {
-				out.writeUTF(attrName);
+				out.writeString(attrName);
 				out.writeObject(attrValue);
 			}
 		}
@@ -113,9 +113,9 @@ public class HazelcastSessionSerializer implements StreamSerializer<MapSession> 
 
 	@Override
 	public MapSession read(ObjectDataInput in) throws IOException {
-		String originalId = in.readUTF();
+		String originalId = in.readString();
 		MapSession cached = new MapSession(originalId);
-		cached.setId(in.readUTF());
+		cached.setId(in.readString());
 		cached.setCreationTime(readInstant(in));
 		cached.setLastAccessedTime(readInstant(in));
 		cached.setMaxInactiveInterval(readDuration(in));
@@ -125,7 +125,7 @@ public class HazelcastSessionSerializer implements StreamSerializer<MapSession> 
 				// number of non-null attributes without an extra
 				// iteration. Hence the attributes are read until
 				// EOF here.
-				String attrName = in.readUTF();
+				String attrName = in.readString();
 				Object attrValue = in.readObject();
 				cached.setAttribute(attrName, attrValue);
 			}

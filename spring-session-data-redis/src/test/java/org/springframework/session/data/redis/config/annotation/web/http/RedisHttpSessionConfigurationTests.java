@@ -33,6 +33,7 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.mock.env.MockEnvironment;
@@ -210,11 +211,13 @@ class RedisHttpSessionConfigurationTests {
 	private static RedisConnectionFactory mockRedisConnectionFactory() {
 		RedisConnectionFactory connectionFactoryMock = mock(RedisConnectionFactory.class);
 		RedisConnection connectionMock = mock(RedisConnection.class);
+		RedisServerCommands commandsMock = mock(RedisServerCommands.class);
 		given(connectionFactoryMock.getConnection()).willReturn(connectionMock);
+		given(connectionMock.serverCommands()).willReturn(commandsMock);
 
 		Properties keyspaceEventsConfig = new Properties();
 		keyspaceEventsConfig.put("notify-keyspace-events", "KEA");
-		given(connectionMock.getConfig("notify-keyspace-events")).willReturn(keyspaceEventsConfig);
+		given(commandsMock.getConfig("notify-keyspace-events")).willReturn(keyspaceEventsConfig);
 
 		willAnswer((it) -> {
 			SubscriptionListener listener = it.getArgument(0);

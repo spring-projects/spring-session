@@ -26,10 +26,11 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisOperations;
@@ -52,13 +53,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Vedran Pavic
  */
+@ExtendWith(MockitoExtension.class)
 class RedisSessionRepositoryTests {
 
 	private static final String TEST_SESSION_ID = "session-id";
 
 	private static final String TEST_SESSION_KEY = getSessionKey(TEST_SESSION_ID);
 
-	@Mock
+	@Mock(lenient = true)
 	private RedisOperations<String, Object> sessionRedisOperations;
 
 	@Mock
@@ -71,7 +73,6 @@ class RedisSessionRepositoryTests {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
 		given(this.sessionRedisOperations.<String, Object>opsForHash()).willReturn(this.sessionHashOperations);
 		this.sessionRepository = new RedisSessionRepository(this.sessionRedisOperations);
 	}

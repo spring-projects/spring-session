@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,8 +45,9 @@ import jakarta.servlet.http.HttpSessionContext;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
@@ -78,6 +79,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 /**
  * Tests for {@link SessionRepositoryFilter}.
  */
+@ExtendWith(MockitoExtension.class)
 @SuppressWarnings("deprecation")
 class SessionRepositoryFilterTests {
 
@@ -98,7 +100,6 @@ class SessionRepositoryFilterTests {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
 		this.sessions = new HashMap<>();
 		this.sessionRepository = new MapSessionRepository(this.sessions);
 		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);

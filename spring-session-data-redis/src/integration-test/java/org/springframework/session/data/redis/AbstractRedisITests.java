@@ -42,8 +42,8 @@ public abstract class AbstractRedisITests {
 
 		@Bean
 		public LettuceConnectionFactory redisConnectionFactory() {
-			RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(
-					redisContainer().getContainerIpAddress(), redisContainer().getFirstMappedPort());
+			RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(redisContainer().getHost(),
+					redisContainer().getFirstMappedPort());
 			return new LettuceConnectionFactory(configuration);
 		}
 

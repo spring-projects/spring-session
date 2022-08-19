@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
@@ -44,10 +44,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Tests for {@link SpringSessionBackedSessionRegistry}.
  */
+@ExtendWith(MockitoExtension.class)
 class SpringSessionBackedSessionRegistryTest {
 
 	private static final String SESSION_ID = "sessionId";
@@ -65,11 +67,6 @@ class SpringSessionBackedSessionRegistryTest {
 
 	@InjectMocks
 	private SpringSessionBackedSessionRegistry<Session> sessionRegistry;
-
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.initMocks(this);
-	}
 
 	@Test
 	void sessionInformationForExistingSession() {
@@ -157,7 +154,7 @@ class SpringSessionBackedSessionRegistryTest {
 	private Session createSession(String sessionId, String userName, Instant lastAccessed) {
 		MapSession session = new MapSession(sessionId);
 		session.setLastAccessedTime(lastAccessed);
-		Authentication authentication = mock(Authentication.class);
+		Authentication authentication = mock(Authentication.class, withSettings().lenient());
 		given(authentication.getName()).willReturn(userName);
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);

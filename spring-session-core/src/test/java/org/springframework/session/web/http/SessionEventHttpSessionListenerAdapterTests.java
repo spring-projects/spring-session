@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,11 @@ import jakarta.servlet.http.HttpSessionListener;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSession;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Rob Winch
  * @since 1.1
  */
+@ExtendWith(MockitoExtension.class)
 class SessionEventHttpSessionListenerAdapterTests {
 
 	@Mock
@@ -69,7 +71,6 @@ class SessionEventHttpSessionListenerAdapterTests {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
 		this.listener = new SessionEventHttpSessionListenerAdapter(Arrays.asList(this.listener1, this.listener2));
 		this.listener.setServletContext(new MockServletContext());
 

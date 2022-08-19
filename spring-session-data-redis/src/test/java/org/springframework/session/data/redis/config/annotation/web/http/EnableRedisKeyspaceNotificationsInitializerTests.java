@@ -20,13 +20,15 @@ import java.util.Properties;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisServerCommands;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,6 +38,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+@ExtendWith(MockitoExtension.class)
 class EnableRedisKeyspaceNotificationsInitializerTests {
 
 	private static final String CONFIG_NOTIFY_KEYSPACE_EVENTS = "notify-keyspace-events";
@@ -46,6 +49,9 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	@Mock
 	RedisConnection connection;
 
+	@Mock
+	RedisServerCommands commands;
+
 	@Captor
 	ArgumentCaptor<String> options;
 
@@ -53,8 +59,8 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 
 	@BeforeEach
 	void setup() {
-		MockitoAnnotations.initMocks(this);
 		given(this.connectionFactory.getConnection()).willReturn(this.connection);
+		given(this.connection.serverCommands()).willReturn(this.commands);
 
 		this.initializer = new RedisIndexedHttpSessionConfiguration.EnableRedisKeyspaceNotificationsInitializer(
 				this.connectionFactory, new ConfigureNotifyKeyspaceEventsAction());
@@ -102,7 +108,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 
 		this.initializer.afterPropertiesSet();
 
-		verify(this.connection, never()).setConfig(anyString(), anyString());
+		verify(this.commands, never()).setConfig(anyString(), anyString());
 	}
 
 	@Test
@@ -156,11 +162,11 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 
 		this.initializer.afterPropertiesSet();
 
-		verify(this.connection, never()).setConfig(anyString(), anyString());
+		verify(this.commands, never()).setConfig(anyString(), anyString());
 	}
 
 	private void assertOptionsContains(String... expectedValues) {
-		verify(this.connection).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS), this.options.capture());
+		verify(this.commands).setConfig(eq(CONFIG_NOTIFY_KEYSPACE_EVENTS), this.options.capture());
 		for (String expectedValue : expectedValues) {
 			assertThat(this.options.getValue()).contains(expectedValue);
 		}
@@ -170,7 +176,7 @@ class EnableRedisKeyspaceNotificationsInitializerTests {
 	private void setConfigNotification(String value) {
 		Properties properties = new Properties();
 		properties.setProperty(CONFIG_NOTIFY_KEYSPACE_EVENTS, value);
-		given(this.connection.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS)).willReturn(properties);
+		given(this.commands.getConfig(CONFIG_NOTIFY_KEYSPACE_EVENTS)).willReturn(properties);
 	}
 
 }

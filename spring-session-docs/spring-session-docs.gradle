@@ -18,6 +18,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-web'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
 	testImplementation 'org.springframework:spring-test'
 	testImplementation 'org.assertj:assertj-core'
 	testImplementation 'com.hazelcast:hazelcast'

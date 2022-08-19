@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
@@ -168,7 +168,7 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 
 	}
 
-	private static class MongoIdNamingStrategy extends PropertyNamingStrategy.PropertyNamingStrategyBase {
+	private static class MongoIdNamingStrategy extends PropertyNamingStrategies.NamingBase {
 
 		@Override
 		public String translate(String propertyName) {

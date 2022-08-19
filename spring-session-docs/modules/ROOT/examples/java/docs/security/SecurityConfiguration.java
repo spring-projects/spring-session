@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.security.SpringSessionBackedSessionRegistry;
@@ -30,20 +30,21 @@ import org.springframework.session.security.SpringSessionBackedSessionRegistry;
  */
 // tag::class[]
 @Configuration
-public class SecurityConfiguration<S extends Session> extends WebSecurityConfigurerAdapter {
+public class SecurityConfiguration<S extends Session> {
 
 	@Autowired
 	private FindByIndexNameSessionRepository<S> sessionRepository;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		// @formatter:off
-		http
+		return http
 			// other config goes here...
 			.sessionManagement((sessionManagement) -> sessionManagement
 				.maximumSessions(2)
 				.sessionRegistry(sessionRegistry())
-			);
+			)
+			.build();
 		// @formatter:on
 	}
 
