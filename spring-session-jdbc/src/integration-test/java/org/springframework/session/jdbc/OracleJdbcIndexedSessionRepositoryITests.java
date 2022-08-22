@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,8 @@
 
 package org.springframework.session.jdbc;
 
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.utility.TestcontainersConfiguration;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,9 +28,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 
 /**
  * Integration tests for {@link JdbcIndexedSessionRepository} using Oracle database.
- * <p>
- * This test is conditional on Testcontainers property {@code oracle.container.image}
- * being set.
  *
  * @author Vedran Pavic
  */
@@ -42,19 +36,12 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ContextConfiguration
 class OracleJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
 
-	@BeforeAll
-	static void setUpClass() {
-		Assumptions.assumeTrue(
-				TestcontainersConfiguration.getInstance().getProperties().containsKey("oracle.container.image"),
-				"Testcontainers property `oracle.container.image` is set");
-	}
-
 	@Configuration
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		OracleContainer databaseContainer() {
-			OracleContainer databaseContainer = DatabaseContainers.oracle();
+		JdbcDatabaseContainer<?> databaseContainer() {
+			JdbcDatabaseContainer<?> databaseContainer = DatabaseContainers.oracle();
 			databaseContainer.start();
 			return databaseContainer;
 		}

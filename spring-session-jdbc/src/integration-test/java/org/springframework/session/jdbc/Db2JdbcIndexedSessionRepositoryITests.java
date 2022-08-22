@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.springframework.session.jdbc;
 
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.Db2Container;
+import org.testcontainers.containers.JdbcDatabaseContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -40,8 +40,8 @@ class Db2JdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexed
 	static class Config extends BaseContainerConfig {
 
 		@Bean
-		Db2Container databaseContainer() {
-			Db2Container databaseContainer = DatabaseContainers.db2();
+		JdbcDatabaseContainer<?> databaseContainer() {
+			JdbcDatabaseContainer<?> databaseContainer = DatabaseContainers.db2();
 			databaseContainer.start();
 			return databaseContainer;
 		}

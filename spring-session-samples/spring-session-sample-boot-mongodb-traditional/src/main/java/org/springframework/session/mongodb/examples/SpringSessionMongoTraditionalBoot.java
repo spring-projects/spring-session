@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.utility.DockerImageName;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -51,7 +50,7 @@ public class SpringSessionMongoTraditionalBoot {
 	 */
 	static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-		static MongoDBContainer mongo = new MongoDBContainer(DockerImageName.parse("mongo:5.0"));
+		static MongoDBContainer mongo = new MongoDBContainer("mongo:5.0.11");
 
 		private static Map<String, String> getProperties() {
 			mongo.start();

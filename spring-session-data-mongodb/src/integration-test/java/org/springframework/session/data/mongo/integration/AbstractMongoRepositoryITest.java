@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -389,11 +389,13 @@ public abstract class AbstractMongoRepositoryITest extends AbstractITest {
 
 	protected static class BaseConfig {
 
-		private static final String DOCKER_IMAGE = "mongo:4.0.10";
+		private static final String DOCKER_IMAGE = "mongo:5.0.11";
 
-		@Bean(initMethod = "start", destroyMethod = "stop")
-		public MongoDBContainer mongoContainer() {
-			return new MongoDBContainer(DOCKER_IMAGE).withExposedPorts(27017);
+		@Bean
+		public MongoDBContainer mongoDbContainer() {
+			MongoDBContainer mongoDbContainer = new MongoDBContainer(DOCKER_IMAGE);
+			mongoDbContainer.start();
+			return mongoDbContainer;
 		}
 
 		@Bean
