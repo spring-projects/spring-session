@@ -176,11 +176,13 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 	@EnableMongoWebSession
 	static class Config {
 
-		private static final String DOCKER_IMAGE = "mongo:4.0.10";
+		private static final String DOCKER_IMAGE = "mongo:5.0.11";
 
-		@Bean(initMethod = "start", destroyMethod = "stop")
-		MongoDBContainer mongoContainer() {
-			return new MongoDBContainer(DOCKER_IMAGE).withExposedPorts(27017);
+		@Bean
+		MongoDBContainer mongoDbContainer() {
+			MongoDBContainer mongoDbContainer = new MongoDBContainer(DOCKER_IMAGE);
+			mongoDbContainer.start();
+			return mongoDbContainer;
 		}
 
 		@Bean

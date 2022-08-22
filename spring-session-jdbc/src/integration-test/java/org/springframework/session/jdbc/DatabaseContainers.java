@@ -16,16 +16,13 @@
 
 package org.springframework.session.jdbc;
 
-import java.time.Duration;
-
-import org.testcontainers.containers.Db2Container;
+import org.testcontainers.containers.Db2ContainerProvider;
 import org.testcontainers.containers.JdbcDatabaseContainer;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.MariaDBContainer;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.LogMessageWaitStrategy;
+import org.testcontainers.containers.MSSQLServerContainerProvider;
+import org.testcontainers.containers.MariaDBContainerProvider;
+import org.testcontainers.containers.MySQLContainerProvider;
+import org.testcontainers.containers.OracleContainerProvider;
+import org.testcontainers.containers.PostgreSQLContainerProvider;
 
 /**
  * Factories for various {@link JdbcDatabaseContainer}s.
@@ -37,42 +34,28 @@ final class DatabaseContainers {
 	private DatabaseContainers() {
 	}
 
-	static Db2Container db2() {
-		return new Db2Container("ibmcom/db2:11.5.7.0");
+	static JdbcDatabaseContainer<?> db2() {
+		return new Db2ContainerProvider().newInstance("11.5.7.0a");
 	}
 
-	static MariaDBContainer<?> mariaDb() {
-		return new MariaDBContainer<>("mariadb:10.6.4");
+	static JdbcDatabaseContainer<?> mariaDb() {
+		return new MariaDBContainerProvider().newInstance("10.8.3");
 	}
 
-	static MySQLContainer<?> mySql() {
-		return new MySQLContainer<>("mysql:8.0.27");
+	static JdbcDatabaseContainer<?> mySql() {
+		return new MySQLContainerProvider().newInstance("8.0.30");
 	}
 
-	static OracleContainer oracle() {
-		return new OracleContainer() {
-
-			@Override
-			protected void configure() {
-				this.waitStrategy = new LogMessageWaitStrategy().withRegEx(".*DATABASE IS READY TO USE!.*\\s")
-						.withStartupTimeout(Duration.ofMinutes(10));
-				addEnv("ORACLE_PWD", getPassword());
-			}
-
-			@Override
-			protected void waitUntilContainerStarted() {
-				getWaitStrategy().waitUntilReady(this);
-			}
-
-		};
+	static JdbcDatabaseContainer<?> oracle() {
+		return new OracleContainerProvider().newInstance("21.3.0-slim");
 	}
 
-	static PostgreSQLContainer<?> postgreSql() {
-		return new PostgreSQLContainer<>("postgres:14.0");
+	static JdbcDatabaseContainer<?> postgreSql() {
+		return new PostgreSQLContainerProvider().newInstance("14.5-alpine");
 	}
 
-	static MSSQLServerContainer<?> sqlServer() {
-		return new MSSQLServerContainer<>("mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-16.04");
+	static JdbcDatabaseContainer<?> sqlServer() {
+		return new MSSQLServerContainerProvider().newInstance("2019-CU17-ubuntu-20.04");
 	}
 
 }
