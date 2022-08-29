@@ -45,4 +45,6 @@ subprojects {
 
 nohttp {
     source.exclude "buildSrc/build/**"
+	source.exclude "spring-session-docs/.gradle/nodejs/**"
+	source.exclude "spring-session-docs/modules/ROOT/examples/**/build/**"
 }
