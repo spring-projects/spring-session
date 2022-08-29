@@ -14,3 +14,5 @@ out
 !etc/eclipse/.checkstyle
 !**/src/**/build
 .DS_Store
+spring-session-docs/package-lock.json
+spring-session-docs/node_modules/
