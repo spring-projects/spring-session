@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,13 +28,12 @@ import org.springframework.session.config.SessionRepositoryCustomizer;
 public class PostgreSqlJdbcIndexedSessionRepositoryCustomizer
 		implements SessionRepositoryCustomizer<JdbcIndexedSessionRepository> {
 
-	// @formatter:off
-	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = ""
-			+ "INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
-			+ "VALUES (?, ?, ?) "
-			+ "ON CONFLICT (SESSION_PRIMARY_ID, ATTRIBUTE_NAME) "
-			+ "DO UPDATE SET ATTRIBUTE_BYTES = EXCLUDED.ATTRIBUTE_BYTES";
-	// @formatter:on
+	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = """
+			INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
+			VALUES (?, ?, ?)
+			ON CONFLICT (SESSION_PRIMARY_ID, ATTRIBUTE_NAME)
+			DO UPDATE SET ATTRIBUTE_BYTES = EXCLUDED.ATTRIBUTE_BYTES
+			""";
 
 	@Override
 	public void customize(JdbcIndexedSessionRepository sessionRepository) {

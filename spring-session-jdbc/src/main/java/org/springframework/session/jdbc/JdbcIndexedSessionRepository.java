@@ -140,68 +140,59 @@ public class JdbcIndexedSessionRepository
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	// @formatter:off
-	private static final String CREATE_SESSION_QUERY = ""
-			+ "INSERT INTO %TABLE_NAME% (PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME) "
-			+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
-	// @formatter:on
+	private static final String CREATE_SESSION_QUERY = """
+			INSERT INTO %TABLE_NAME% (PRIMARY_ID, SESSION_ID, CREATION_TIME, LAST_ACCESS_TIME, MAX_INACTIVE_INTERVAL, EXPIRY_TIME, PRINCIPAL_NAME)
+			VALUES (?, ?, ?, ?, ?, ?, ?)
+			""";
 
-	// @formatter:off
-	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = ""
-			+ "INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
-			+ "VALUES (?, ?, ?)";
-	// @formatter:on
+	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = """
+			INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
+			VALUES (?, ?, ?)
+			""";
 
-	// @formatter:off
-	private static final String GET_SESSION_QUERY = ""
-			+ "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES "
-			+ "FROM %TABLE_NAME% S "
-			+ "LEFT JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID "
-			+ "WHERE S.SESSION_ID = ?";
-	// @formatter:on
+	private static final String GET_SESSION_QUERY = """
+			SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES
+			FROM %TABLE_NAME% S
+			LEFT JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID
+			WHERE S.SESSION_ID = ?
+			""";
 
-	// @formatter:off
-	private static final String UPDATE_SESSION_QUERY = ""
-			+ "UPDATE %TABLE_NAME% "
-			+ "SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, EXPIRY_TIME = ?, PRINCIPAL_NAME = ? "
-			+ "WHERE PRIMARY_ID = ?";
-	// @formatter:on
+	private static final String UPDATE_SESSION_QUERY = """
+			UPDATE %TABLE_NAME%
+			SET SESSION_ID = ?, LAST_ACCESS_TIME = ?, MAX_INACTIVE_INTERVAL = ?, EXPIRY_TIME = ?, PRINCIPAL_NAME = ?
+			WHERE PRIMARY_ID = ?
+			""";
 
-	// @formatter:off
-	private static final String UPDATE_SESSION_ATTRIBUTE_QUERY = ""
-			+ "UPDATE %TABLE_NAME%_ATTRIBUTES "
-			+ "SET ATTRIBUTE_BYTES = ? "
-			+ "WHERE SESSION_PRIMARY_ID = ? "
-			+ "AND ATTRIBUTE_NAME = ?";
-	// @formatter:on
+	private static final String UPDATE_SESSION_ATTRIBUTE_QUERY = """
+			UPDATE %TABLE_NAME%_ATTRIBUTES
+			SET ATTRIBUTE_BYTES = ?
+			WHERE SESSION_PRIMARY_ID = ?
+			AND ATTRIBUTE_NAME = ?
+			""";
 
-	// @formatter:off
-	private static final String DELETE_SESSION_ATTRIBUTE_QUERY = ""
-			+ "DELETE FROM %TABLE_NAME%_ATTRIBUTES "
-			+ "WHERE SESSION_PRIMARY_ID = ? "
-			+ "AND ATTRIBUTE_NAME = ?";
-	// @formatter:on
+	private static final String DELETE_SESSION_ATTRIBUTE_QUERY = """
+			DELETE FROM %TABLE_NAME%_ATTRIBUTES
+			WHERE SESSION_PRIMARY_ID = ?
+			AND ATTRIBUTE_NAME = ?
+			""";
 
-	// @formatter:off
-	private static final String DELETE_SESSION_QUERY = ""
-			+ "DELETE FROM %TABLE_NAME% "
-			+ "WHERE SESSION_ID = ? "
-			+ "AND MAX_INACTIVE_INTERVAL >= 0";
-	// @formatter:on
+	private static final String DELETE_SESSION_QUERY = """
+			DELETE FROM %TABLE_NAME%
+			WHERE SESSION_ID = ?
+			AND MAX_INACTIVE_INTERVAL >= 0
+			""";
 
-	// @formatter:off
-	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = ""
-			+ "SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES "
-			+ "FROM %TABLE_NAME% S "
-			+ "LEFT JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID "
-			+ "WHERE S.PRINCIPAL_NAME = ?";
-	// @formatter:on
+	private static final String LIST_SESSIONS_BY_PRINCIPAL_NAME_QUERY = """
+			SELECT S.PRIMARY_ID, S.SESSION_ID, S.CREATION_TIME, S.LAST_ACCESS_TIME, S.MAX_INACTIVE_INTERVAL, SA.ATTRIBUTE_NAME, SA.ATTRIBUTE_BYTES
+			FROM %TABLE_NAME% S
+			LEFT JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID
+			WHERE S.PRINCIPAL_NAME = ?
+			""";
 
-	// @formatter:off
-	private static final String DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY = ""
-			+ "DELETE FROM %TABLE_NAME% "
-			+ "WHERE EXPIRY_TIME < ?";
-	// @formatter:on
+	private static final String DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY = """
+			DELETE FROM %TABLE_NAME%
+			WHERE EXPIRY_TIME < ?
+			""";
 
 	private static final Log logger = LogFactory.getLog(JdbcIndexedSessionRepository.class);
 
