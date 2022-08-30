@@ -174,12 +174,12 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 		public String translate(String propertyName) {
 
 			switch (propertyName) {
-			case "id":
-				return "_id";
-			case "_id":
-				return "id";
-			default:
-				return propertyName;
+				case "id":
+					return "_id";
+				case "_id":
+					return "id";
+				default:
+					return propertyName;
 			}
 		}
 
