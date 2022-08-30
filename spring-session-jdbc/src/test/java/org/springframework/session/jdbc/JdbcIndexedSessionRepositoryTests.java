@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -350,7 +351,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).update(startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+		verify(this.jdbcOperations, times(1)).update(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -367,7 +368,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).batchUpdate(startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+		verify(this.jdbcOperations, times(1)).batchUpdate(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
 				isA(BatchPreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -382,7 +383,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).update(startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
+		verify(this.jdbcOperations, times(1)).update(matches("^DELETE FROM SPRING_SESSION_ATTRIBUTES\\s*WHERE.*"),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -410,7 +411,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).batchUpdate(startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
+		verify(this.jdbcOperations, times(1)).batchUpdate(matches("^DELETE FROM SPRING_SESSION_ATTRIBUTES\\s*WHERE.*"),
 				isA(BatchPreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -452,7 +453,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations).update(startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
+		verify(this.jdbcOperations).update(matches("^DELETE FROM SPRING_SESSION_ATTRIBUTES\\s*WHERE.*"),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -468,7 +469,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations).update(startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+		verify(this.jdbcOperations).update(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -481,7 +482,7 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		assertThat(session.isNew()).isFalse();
-		verify(this.jdbcOperations, times(1)).update(startsWith("UPDATE SPRING_SESSION SET"),
+		verify(this.jdbcOperations, times(1)).update(matches("^UPDATE SPRING_SESSION\\s*SET.*"),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -632,7 +633,7 @@ class JdbcIndexedSessionRepositoryTests {
 		session.getAttribute("attribute2");
 		session.setAttribute("attribute3", "value4");
 		this.repository.save(session);
-		verify(this.jdbcOperations).update(startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"),
+		verify(this.jdbcOperations).update(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -650,7 +651,8 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 		ArgumentCaptor<BatchPreparedStatementSetter> captor = ArgumentCaptor
 				.forClass(BatchPreparedStatementSetter.class);
-		verify(this.jdbcOperations).batchUpdate(startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"), captor.capture());
+		verify(this.jdbcOperations).batchUpdate(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
+				captor.capture());
 		assertThat(captor.getValue().getBatchSize()).isEqualTo(2);
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -682,7 +684,8 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 		ArgumentCaptor<BatchPreparedStatementSetter> captor = ArgumentCaptor
 				.forClass(BatchPreparedStatementSetter.class);
-		verify(this.jdbcOperations).batchUpdate(startsWith("UPDATE SPRING_SESSION_ATTRIBUTES SET"), captor.capture());
+		verify(this.jdbcOperations).batchUpdate(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
+				captor.capture());
 		assertThat(captor.getValue().getBatchSize()).isEqualTo(3);
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -705,7 +708,7 @@ class JdbcIndexedSessionRepositoryTests {
 		cached.setAttribute("attribute1", "value1");
 		JdbcSession session = this.repository.new JdbcSession(cached, "primaryKey", false);
 		session.removeAttribute("attribute1");
-		verify(this.jdbcOperations).update(startsWith("DELETE FROM SPRING_SESSION_ATTRIBUTES WHERE"),
+		verify(this.jdbcOperations).update(matches("^DELETE FROM SPRING_SESSION_ATTRIBUTES\\s*WHERE.*"),
 				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
@@ -715,7 +718,8 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setMaxInactiveInterval(Duration.ofSeconds(1));
-		verify(this.jdbcOperations).update(startsWith("UPDATE SPRING_SESSION SET"), isA(PreparedStatementSetter.class));
+		verify(this.jdbcOperations).update(matches("^UPDATE SPRING_SESSION\\s*SET.*"),
+				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
 
@@ -724,7 +728,8 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.setFlushMode(FlushMode.IMMEDIATE);
 		JdbcSession session = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		session.setLastAccessedTime(Instant.now());
-		verify(this.jdbcOperations).update(startsWith("UPDATE SPRING_SESSION SET"), isA(PreparedStatementSetter.class));
+		verify(this.jdbcOperations).update(matches("^UPDATE SPRING_SESSION\\s*SET.*"),
+				isA(PreparedStatementSetter.class));
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
 

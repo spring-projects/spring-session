@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2020 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,19 +28,18 @@ import org.springframework.session.config.SessionRepositoryCustomizer;
 public class SqlServerJdbcIndexedSessionRepositoryCustomizer
 		implements SessionRepositoryCustomizer<JdbcIndexedSessionRepository> {
 
-	// @formatter:off
-	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = ""
-			+ "MERGE INTO %TABLE_NAME%_ATTRIBUTES SA "
-			+ "USING ( "
-			+ "    VALUES (?, ?, ?) "
-			+ ") A (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
-			+ "ON (SA.SESSION_PRIMARY_ID = A.SESSION_PRIMARY_ID and SA.ATTRIBUTE_NAME = A.ATTRIBUTE_NAME) "
-			+ "WHEN MATCHED THEN "
-			+ "    UPDATE SET ATTRIBUTE_BYTES = A.ATTRIBUTE_BYTES "
-			+ "WHEN NOT MATCHED THEN "
-			+ "    INSERT (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) "
-			+ "    VALUES (A.SESSION_PRIMARY_ID, A.ATTRIBUTE_NAME, A.ATTRIBUTE_BYTES);";
-	// @formatter:on
+	private static final String CREATE_SESSION_ATTRIBUTE_QUERY = """
+			MERGE INTO %TABLE_NAME%_ATTRIBUTES SA
+			USING (
+				VALUES (?, ?, ?)
+			) A (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
+			ON (SA.SESSION_PRIMARY_ID = A.SESSION_PRIMARY_ID and SA.ATTRIBUTE_NAME = A.ATTRIBUTE_NAME)
+			WHEN MATCHED THEN
+				UPDATE SET ATTRIBUTE_BYTES = A.ATTRIBUTE_BYTES
+			WHEN NOT MATCHED THEN
+				INSERT (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
+				VALUES (A.SESSION_PRIMARY_ID, A.ATTRIBUTE_NAME, A.ATTRIBUTE_BYTES);
+			""";
 
 	@Override
 	public void customize(JdbcIndexedSessionRepository sessionRepository) {
