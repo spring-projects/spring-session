@@ -7,9 +7,10 @@ asciidoc:
 content:
   sources:
     - url: https://github.com/spring-io/spring-generated-docs
-      branches: [spring-projects/spring-session/*]
+      branches: [spring-projects/spring-session/3.0.0-M3,spring-projects/spring-session/main,'spring-projects/spring-session/2.6.*', 'spring-projects/spring-session/2.7.*']
     - url: https://github.com/spring-projects/spring-session
-      branches: [main]
+      branches: [main,2.6.x,2.7.x]
+      tags: ['3.*','2.6.*','2.7.*','!2.6.0-M*','!2.6.0-R*','!2.7.0-M*','!3.0.0-M1','!3.0.0-M2']
       start_path: spring-session-docs
 urls:
   latest_version_segment_strategy: redirect:to
