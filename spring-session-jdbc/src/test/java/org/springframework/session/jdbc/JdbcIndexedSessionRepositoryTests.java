@@ -38,6 +38,7 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.TemporaryLobCreator;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -241,6 +242,25 @@ class JdbcIndexedSessionRepositoryTests {
 	void setSaveModeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSaveMode(null))
 				.withMessage("saveMode must not be null");
+	}
+
+	@Test
+	void setCleanupCronNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCleanupCron(null))
+				.withMessage("cleanupCron must not be null");
+	}
+
+	@Test
+	void setCleanupCronInvalid() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCleanupCron("test"))
+				.withMessage("cleanupCron must be valid");
+	}
+
+	@Test
+	void setCleanupCronDisabled() {
+		this.repository.setCleanupCron(Scheduled.CRON_DISABLED);
+		this.repository.afterPropertiesSet();
+		assertThat(this.repository).extracting("taskScheduler").isNull();
 	}
 
 	@Test

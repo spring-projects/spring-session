@@ -117,10 +117,8 @@ class RedisIndexedHttpSessionConfigurationTests {
 	void customCleanupCronAnnotation() {
 		registerAndRefresh(RedisConfig.class, CustomCleanupCronExpressionAnnotationConfiguration.class);
 
-		RedisIndexedHttpSessionConfiguration configuration = this.context
-				.getBean(RedisIndexedHttpSessionConfiguration.class);
-		assertThat(configuration).isNotNull();
-		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("cleanupCron").isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	@Test

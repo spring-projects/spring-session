@@ -108,6 +108,6 @@ public @interface EnableRedisIndexedHttpSession {
 	 * The cron expression for expired session cleanup job. By default runs every minute.
 	 * @return the session cleanup cron expression
 	 */
-	String cleanupCron() default RedisIndexedHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
+	String cleanupCron() default RedisIndexedSessionRepository.DEFAULT_CLEANUP_CRON;
 
 }
