@@ -15,7 +15,6 @@ dependencies {
 	implementation "ch.qos.logback:logback-classic"
 
 	providedCompile "jakarta.servlet:jakarta.servlet-api"
-	providedCompile "jakarta.servlet.jsp:jakarta.servlet.jsp-api"
     providedCompile "org.glassfish.web:jakarta.servlet.jsp.jstl"
 
 	testImplementation "org.assertj:assertj-core"
