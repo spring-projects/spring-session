@@ -27,6 +27,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.NestedExceptionUtils;
@@ -38,6 +40,10 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.util.ByteUtils;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronExpression;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
@@ -249,11 +255,17 @@ import org.springframework.util.Assert;
  * @since 2.2.0
  */
 public class RedisIndexedSessionRepository
-		implements FindByIndexNameSessionRepository<RedisIndexedSessionRepository.RedisSession>, MessageListener {
+		implements FindByIndexNameSessionRepository<RedisIndexedSessionRepository.RedisSession>, MessageListener,
+		InitializingBean, DisposableBean {
 
 	private static final Log logger = LogFactory.getLog(RedisIndexedSessionRepository.class);
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
+
+	/**
+	 * The default cron expression used for expired session cleanup job.
+	 */
+	public static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
 	/**
 	 * The default Redis database used by Spring Session.
@@ -309,6 +321,10 @@ public class RedisIndexedSessionRepository
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
+	private String cleanupCron = DEFAULT_CLEANUP_CRON;
+
+	private ThreadPoolTaskScheduler taskScheduler;
+
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
@@ -320,6 +336,28 @@ public class RedisIndexedSessionRepository
 		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, this::getExpirationsKey,
 				this::getSessionKey);
 		configureSessionChannels();
+	}
+
+	@Override
+	public void afterPropertiesSet() {
+		if (!Scheduled.CRON_DISABLED.equals(this.cleanupCron)) {
+			this.taskScheduler = createTaskScheduler();
+			this.taskScheduler.initialize();
+			this.taskScheduler.schedule(this::cleanUpExpiredSessions, new CronTrigger(this.cleanupCron));
+		}
+	}
+
+	private static ThreadPoolTaskScheduler createTaskScheduler() {
+		ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+		taskScheduler.setThreadNamePrefix("spring-session-");
+		return taskScheduler;
+	}
+
+	@Override
+	public void destroy() {
+		if (this.taskScheduler != null) {
+			this.taskScheduler.destroy();
+		}
 	}
 
 	/**
@@ -383,6 +421,21 @@ public class RedisIndexedSessionRepository
 	}
 
 	/**
+	 * Set the cleanup cron expression.
+	 * @param cleanupCron the cleanup cron expression
+	 * @since 3.0.0
+	 * @see CronExpression
+	 * @see Scheduled#CRON_DISABLED
+	 */
+	public void setCleanupCron(String cleanupCron) {
+		Assert.notNull(cleanupCron, "cleanupCron must not be null");
+		if (!Scheduled.CRON_DISABLED.equals(cleanupCron)) {
+			Assert.isTrue(CronExpression.isValidExpression(cleanupCron), "cleanupCron must be valid");
+		}
+		this.cleanupCron = cleanupCron;
+	}
+
+	/**
 	 * Sets the database index to use. Defaults to {@link #DEFAULT_DATABASE}.
 	 * @param database the database index to use
 	 */
@@ -420,7 +473,7 @@ public class RedisIndexedSessionRepository
 		}
 	}
 
-	public void cleanupExpiredSessions() {
+	public void cleanUpExpiredSessions() {
 		this.expirationPolicy.cleanExpiredSessions();
 	}
 

@@ -43,9 +43,6 @@ import org.springframework.jdbc.support.MetaDataAccessException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
@@ -80,13 +77,11 @@ import org.springframework.util.StringValueResolver;
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
-	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
-
 	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	private String tableName = JdbcIndexedSessionRepository.DEFAULT_TABLE_NAME;
 
-	private String cleanupCron = DEFAULT_CLEANUP_CRON;
+	private String cleanupCron = JdbcIndexedSessionRepository.DEFAULT_CLEANUP_CRON;
 
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
@@ -126,6 +121,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
 		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
+		sessionRepository.setCleanupCron(this.cleanupCron);
 		if (this.indexResolver != null) {
 			sessionRepository.setIndexResolver(this.indexResolver);
 		}
@@ -279,27 +275,6 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		conversionService.addConverter(Object.class, byte[].class, new SerializingConverter());
 		conversionService.addConverter(byte[].class, Object.class, new DeserializingConverter(classLoader));
 		return conversionService;
-	}
-
-	/**
-	 * Configuration of scheduled job for cleaning up expired sessions.
-	 */
-	@EnableScheduling
-	@Configuration(proxyBeanMethods = false)
-	class SessionCleanupConfiguration implements SchedulingConfigurer {
-
-		private final JdbcIndexedSessionRepository sessionRepository;
-
-		SessionCleanupConfiguration(JdbcIndexedSessionRepository sessionRepository) {
-			this.sessionRepository = sessionRepository;
-		}
-
-		@Override
-		public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-			taskRegistrar.addCronTask(this.sessionRepository::cleanUpExpiredSessions,
-					JdbcHttpSessionConfiguration.this.cleanupCron);
-		}
-
 	}
 
 }

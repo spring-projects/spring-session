@@ -34,6 +34,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.support.GenericConversionService;
@@ -48,6 +50,10 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobCreator;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.scheduling.support.CronExpression;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
@@ -130,13 +136,18 @@ import org.springframework.util.StringUtils;
  * @author Craig Andrews
  * @since 2.2.0
  */
-public class JdbcIndexedSessionRepository
-		implements FindByIndexNameSessionRepository<JdbcIndexedSessionRepository.JdbcSession> {
+public class JdbcIndexedSessionRepository implements
+		FindByIndexNameSessionRepository<JdbcIndexedSessionRepository.JdbcSession>, InitializingBean, DisposableBean {
 
 	/**
 	 * The default name of database table used by Spring Session to store sessions.
 	 */
 	public static final String DEFAULT_TABLE_NAME = "SPRING_SESSION";
+
+	/**
+	 * The default cron expression used for expired session cleanup job.
+	 */
+	public static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
@@ -241,6 +252,10 @@ public class JdbcIndexedSessionRepository
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
+	private String cleanupCron = DEFAULT_CLEANUP_CRON;
+
+	private ThreadPoolTaskScheduler taskScheduler;
+
 	/**
 	 * Create a new {@link JdbcIndexedSessionRepository} instance which uses the provided
 	 * {@link JdbcOperations} and {@link TransactionOperations} to manage sessions.
@@ -253,6 +268,28 @@ public class JdbcIndexedSessionRepository
 		this.jdbcOperations = jdbcOperations;
 		this.transactionOperations = transactionOperations;
 		prepareQueries();
+	}
+
+	@Override
+	public void afterPropertiesSet() {
+		if (!Scheduled.CRON_DISABLED.equals(this.cleanupCron)) {
+			this.taskScheduler = createTaskScheduler();
+			this.taskScheduler.initialize();
+			this.taskScheduler.schedule(this::cleanUpExpiredSessions, new CronTrigger(this.cleanupCron));
+		}
+	}
+
+	private static ThreadPoolTaskScheduler createTaskScheduler() {
+		ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
+		taskScheduler.setThreadNamePrefix("spring-session-");
+		return taskScheduler;
+	}
+
+	@Override
+	public void destroy() {
+		if (this.taskScheduler != null) {
+			this.taskScheduler.destroy();
+		}
 	}
 
 	/**
@@ -395,6 +432,21 @@ public class JdbcIndexedSessionRepository
 	public void setSaveMode(SaveMode saveMode) {
 		Assert.notNull(saveMode, "saveMode must not be null");
 		this.saveMode = saveMode;
+	}
+
+	/**
+	 * Set the cleanup cron expression.
+	 * @param cleanupCron the cleanup cron expression
+	 * @since 3.0.0
+	 * @see CronExpression
+	 * @see Scheduled#CRON_DISABLED
+	 */
+	public void setCleanupCron(String cleanupCron) {
+		Assert.notNull(cleanupCron, "cleanupCron must not be null");
+		if (!Scheduled.CRON_DISABLED.equals(cleanupCron)) {
+			Assert.isTrue(CronExpression.isValidExpression(cleanupCron), "cleanupCron must be valid");
+		}
+		this.cleanupCron = cleanupCron;
 	}
 
 	@Override

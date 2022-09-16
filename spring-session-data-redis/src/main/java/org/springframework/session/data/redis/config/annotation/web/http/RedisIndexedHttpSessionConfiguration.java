@@ -41,9 +41,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.SchedulingConfigurer;
-import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
@@ -68,9 +65,7 @@ public class RedisIndexedHttpSessionConfiguration
 		extends AbstractRedisHttpSessionConfiguration<RedisIndexedSessionRepository>
 		implements EmbeddedValueResolverAware, ImportAware {
 
-	static final String DEFAULT_CLEANUP_CRON = "0 * * * * *";
-
-	private String cleanupCron = DEFAULT_CLEANUP_CRON;
+	private String cleanupCron = RedisIndexedSessionRepository.DEFAULT_CLEANUP_CRON;
 
 	private ConfigureRedisAction configureRedisAction = new ConfigureNotifyKeyspaceEventsAction();
 
@@ -102,6 +97,7 @@ public class RedisIndexedHttpSessionConfiguration
 		}
 		sessionRepository.setFlushMode(getFlushMode());
 		sessionRepository.setSaveMode(getSaveMode());
+		sessionRepository.setCleanupCron(this.cleanupCron);
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
 		getSessionRepositoryCustomizers()
@@ -243,27 +239,6 @@ public class RedisIndexedHttpSessionConfiguration
 					LogFactory.getLog(getClass()).error("Error closing RedisConnection", ex);
 				}
 			}
-		}
-
-	}
-
-	/**
-	 * Configuration of scheduled job for cleaning up expired sessions.
-	 */
-	@EnableScheduling
-	@Configuration(proxyBeanMethods = false)
-	class SessionCleanupConfiguration implements SchedulingConfigurer {
-
-		private final RedisIndexedSessionRepository sessionRepository;
-
-		SessionCleanupConfiguration(RedisIndexedSessionRepository sessionRepository) {
-			this.sessionRepository = sessionRepository;
-		}
-
-		@Override
-		public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-			taskRegistrar.addCronTask(this.sessionRepository::cleanupExpiredSessions,
-					RedisIndexedHttpSessionConfiguration.this.cleanupCron);
 		}
 
 	}

@@ -44,6 +44,7 @@ import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
@@ -451,7 +452,7 @@ class RedisIndexedSessionRepositoryTests {
 		Set<Object> expiredIds = new HashSet<>(Arrays.asList("expired-key1", "expired-key2"));
 		given(this.boundSetOperations.members()).willReturn(expiredIds);
 
-		this.redisRepository.cleanupExpiredSessions();
+		this.redisRepository.cleanUpExpiredSessions();
 
 		for (Object id : expiredIds) {
 			String expiredKey = "spring:session:sessions:" + id;
@@ -742,6 +743,25 @@ class RedisIndexedSessionRepositoryTests {
 	void setFlushModeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setFlushMode(null))
 				.withMessage("flushMode cannot be null");
+	}
+
+	@Test
+	void setCleanupCronNull() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setCleanupCron(null))
+				.withMessage("cleanupCron must not be null");
+	}
+
+	@Test
+	void setCleanupCronInvalid() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setCleanupCron("test"))
+				.withMessage("cleanupCron must be valid");
+	}
+
+	@Test
+	void setCleanupCronDisabled() {
+		this.redisRepository.setCleanupCron(Scheduled.CRON_DISABLED);
+		this.redisRepository.afterPropertiesSet();
+		assertThat(this.redisRepository).extracting("taskScheduler").isNull();
 	}
 
 	@Test

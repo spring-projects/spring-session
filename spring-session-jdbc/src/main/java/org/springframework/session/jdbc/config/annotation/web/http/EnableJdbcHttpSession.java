@@ -96,7 +96,7 @@ public @interface EnableJdbcHttpSession {
 	 * @return the session cleanup cron expression
 	 * @since 2.0.0
 	 */
-	String cleanupCron() default JdbcHttpSessionConfiguration.DEFAULT_CLEANUP_CRON;
+	String cleanupCron() default JdbcIndexedSessionRepository.DEFAULT_CLEANUP_CRON;
 
 	/**
 	 * Flush mode for the sessions. The default is {@code ON_SAVE} which only updates the

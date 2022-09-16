@@ -136,18 +136,16 @@ class JdbcHttpSessionConfigurationTests {
 	void customCleanupCronAnnotation() {
 		registerAndRefresh(DataSourceConfiguration.class, CustomCleanupCronExpressionAnnotationConfiguration.class);
 
-		JdbcHttpSessionConfiguration configuration = this.context.getBean(JdbcHttpSessionConfiguration.class);
-		assertThat(configuration).isNotNull();
-		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
+		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
+		assertThat(repository).extracting("cleanupCron").isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	@Test
 	void customCleanupCronSetter() {
 		registerAndRefresh(DataSourceConfiguration.class, CustomCleanupCronExpressionSetterConfiguration.class);
 
-		JdbcHttpSessionConfiguration configuration = this.context.getBean(JdbcHttpSessionConfiguration.class);
-		assertThat(configuration).isNotNull();
-		assertThat(ReflectionTestUtils.getField(configuration, "cleanupCron")).isEqualTo(CLEANUP_CRON_EXPRESSION);
+		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
+		assertThat(repository).extracting("cleanupCron").isEqualTo(CLEANUP_CRON_EXPRESSION);
 	}
 
 	@Test
