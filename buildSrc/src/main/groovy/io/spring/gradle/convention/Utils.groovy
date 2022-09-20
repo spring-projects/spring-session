@@ -14,16 +14,29 @@ public class Utils {
 
 	static boolean isSnapshot(Project project) {
 		String projectVersion = projectVersion(project)
-		return projectVersion.matches('^.*([.-]BUILD)?-SNAPSHOT$')
+		return isSnapshot(projectVersion)
 	}
 
 	static boolean isMilestone(Project project) {
 		String projectVersion = projectVersion(project)
-		return projectVersion.matches('^.*[.-]M\\d+$') || projectVersion.matches('^.*[.-]RC\\d+$')
+		return isMilestone(projectVersion)
 	}
 
 	static boolean isRelease(Project project) {
-		return !(isSnapshot(project) || isMilestone(project))
+		String projectVersion = projectVersion(project)
+		return isRelease(projectVersion)
+	}
+
+	static boolean isSnapshot(String projectVersion) {
+		return projectVersion.matches('^.*([.-]BUILD)?-SNAPSHOT$')
+	}
+
+	static boolean isMilestone(String projectVersion) {
+		return projectVersion.matches('^.*[.-]M\\d+$') || projectVersion.matches('^.*[.-]RC\\d+$')
+	}
+
+	static boolean isRelease(String projectVersion) {
+		return !(isSnapshot(projectVersion) || isMilestone(projectVersion))
 	}
 
 	private static String projectVersion(Project project) {

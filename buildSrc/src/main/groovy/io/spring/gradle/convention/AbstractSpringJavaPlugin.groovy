@@ -35,6 +35,7 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 
 	@Override
 	public final void apply(Project project) {
+		initialPlugins(project);
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(JavaPlugin.class);
 		pluginManager.apply(ManagementConfigurationPlugin.class)
@@ -68,6 +69,8 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
         }
 		additionalPlugins(project);
 	}
+
+	protected void initialPlugins(Project project) {}
 
 	protected abstract void additionalPlugins(Project project);
 }

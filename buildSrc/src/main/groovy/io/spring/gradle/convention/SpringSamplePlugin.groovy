@@ -30,4 +30,19 @@ public class SpringSamplePlugin extends AbstractSpringJavaPlugin {
             project.sonarqube.skipProject = true
         }
     }
+
+	@Override
+	protected void initialPlugins(Project project) {
+		if (project.hasProperty('springBootVersion')) {
+			String springBootVersion = project.springBootVersion
+
+			if (Utils.isSnapshot(springBootVersion)) {
+				project.ext.forceMavenRepositories = 'snapshot'
+			}
+			else if (Utils.isMilestone(springBootVersion)) {
+				project.ext.forceMavenRepositories = 'milestone'
+			}
+		}
+
+	}
 }
