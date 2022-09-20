@@ -15,7 +15,7 @@ dependencyManagement {
 		dependency 'org.aspectj:aspectjweaver:1.9.9.1'
 		dependency 'ch.qos.logback:logback-core:1.2.11'
 		dependency 'com.google.code.findbugs:jsr305:3.0.2'
-		dependency 'com.h2database:h2:2.1.212'
+		dependency 'com.h2database:h2:2.1.214'
 		dependency 'com.ibm.db2:jcc:11.5.6.0'
 		dependency 'com.microsoft.sqlserver:mssql-jdbc:9.4.1.jre8'
 		dependency 'com.oracle.database.jdbc:ojdbc8:21.4.0.0.1'
