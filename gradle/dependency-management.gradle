@@ -24,7 +24,7 @@ dependencyManagement {
 		dependency 'io.lettuce:lettuce-core:6.2.0.RELEASE'
 		dependency 'jakarta.annotation:jakarta.annotation-api:2.0.0'
 		dependency 'jakarta.servlet:jakarta.servlet-api:5.0.0'
-		dependency 'mysql:mysql-connector-java:8.0.27'
+		dependency 'mysql:mysql-connector-java:8.0.30'
 		dependency 'org.apache.derby:derby:10.14.2.0'
 		dependency 'org.assertj:assertj-core:3.22.0'
 		dependency 'org.hamcrest:hamcrest:2.2'
