@@ -26,7 +26,7 @@ dependencyManagement {
 		dependency 'jakarta.servlet:jakarta.servlet-api:5.0.0'
 		dependency 'mysql:mysql-connector-java:8.0.30'
 		dependency 'org.apache.derby:derby:10.14.2.0'
-		dependency 'org.assertj:assertj-core:3.22.0'
+		dependency 'org.assertj:assertj-core:3.23.1'
 		dependency 'org.hamcrest:hamcrest:2.2'
 		dependency 'org.hsqldb:hsqldb:2.6.1'
 		dependency 'org.mariadb.jdbc:mariadb-java-client:2.7.4'
