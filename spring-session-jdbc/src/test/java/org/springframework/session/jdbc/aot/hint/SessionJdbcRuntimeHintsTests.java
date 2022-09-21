@@ -16,12 +16,20 @@
 
 package org.springframework.session.jdbc.aot.hint;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,11 +53,19 @@ class SessionJdbcRuntimeHintsTests {
 		assertThat(match).isTrue();
 	}
 
-	@Test
-	void jdbcSchemasHasHints() {
+	@ParameterizedTest
+	@MethodSource("getSchemaFileNames")
+	void jdbcSchemasHasHints(String schemaFileName) {
 		this.sessionJdbcRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
-		assertThat(RuntimeHintsPredicates.resource().forResource("org/springframework/session/jdbc/schema.sql"))
+		assertThat(RuntimeHintsPredicates.resource().forResource("org/springframework/session/jdbc/" + schemaFileName))
 				.accepts(this.hints);
+	}
+
+	private static Stream<String> getSchemaFileNames() throws IOException {
+		return Arrays
+				.stream(new PathMatchingResourcePatternResolver()
+						.getResources("classpath*:org/springframework/session/jdbc/schema-*.sql"))
+				.map(Resource::getFilename);
 	}
 
 	@Test
