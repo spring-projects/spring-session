@@ -24,7 +24,6 @@ import java.lang.annotation.Target;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
@@ -41,7 +40,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * {@link HazelcastInstance} must be provided. For example:
  *
  * <pre class="code">
- * &#064;Configuration
+ * &#064;Configuration(proxyBeanMethods = false)
  * &#064;EnableHazelcastHttpSession
  * public class HazelcastHttpSessionConfig {
  *
@@ -67,7 +66,6 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Target(ElementType.TYPE)
 @Documented
 @Import(HazelcastHttpSessionConfiguration.class)
-@Configuration(proxyBeanMethods = false)
 public @interface EnableHazelcastHttpSession {
 
 	/**

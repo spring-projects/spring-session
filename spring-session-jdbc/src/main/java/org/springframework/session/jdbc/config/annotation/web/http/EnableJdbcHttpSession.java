@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.lang.annotation.Target;
 
 import javax.sql.DataSource;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
@@ -42,7 +41,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * {@link DataSource} must be provided. For example:
  *
  * <pre class="code">
- * &#064;Configuration
+ * &#064;Configuration(proxyBeanMethods = false)
  * &#064;EnableJdbcHttpSession
  * public class JdbcHttpSessionConfig {
  *
@@ -77,7 +76,6 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Target(ElementType.TYPE)
 @Documented
 @Import(JdbcHttpSessionConfiguration.class)
-@Configuration(proxyBeanMethods = false)
 public @interface EnableJdbcHttpSession {
 
 	/**

@@ -317,6 +317,7 @@ class JdbcHttpSessionConfigurationTests {
 		this.context.refresh();
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class NoDataSourceConfiguration {
 
@@ -337,11 +338,13 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class DefaultConfiguration {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession(tableName = TABLE_NAME)
 	static class CustomTableNameAnnotationConfiguration {
 
@@ -356,6 +359,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalInSecondsAnnotationConfiguration {
 
@@ -370,6 +374,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession(cleanupCron = CLEANUP_CRON_EXPRESSION)
 	static class CustomCleanupCronExpressionAnnotationConfiguration {
 
@@ -384,6 +389,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession(flushMode = FlushMode.IMMEDIATE)
 	static class CustomFlushModeExpressionAnnotationConfiguration {
 
@@ -398,6 +404,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession(saveMode = SaveMode.ALWAYS)
 	static class CustomSaveModeExpressionAnnotationConfiguration {
 
@@ -412,6 +419,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class QualifiedDataSourceConfiguration {
 
@@ -423,6 +431,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class PrimaryDataSourceConfiguration {
 
@@ -434,6 +443,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class QualifiedAndPrimaryDataSourceConfiguration {
 
@@ -451,6 +461,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class NamedDataSourceConfiguration {
 
@@ -461,6 +472,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class MultipleDataSourceConfiguration {
 
@@ -471,6 +483,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class CustomTransactionOperationsConfiguration {
 
@@ -481,6 +494,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class CustomIndexResolverConfiguration {
 
@@ -492,6 +506,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class CustomLobHandlerConfiguration {
 
@@ -502,6 +517,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class CustomConversionServiceConfiguration {
 
@@ -512,6 +528,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession(tableName = "${session.jdbc.tableName}")
 	static class CustomJdbcHttpSessionConfiguration {
 
@@ -522,6 +539,7 @@ class JdbcHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
 	static class SessionRepositoryCustomizerConfiguration {
 

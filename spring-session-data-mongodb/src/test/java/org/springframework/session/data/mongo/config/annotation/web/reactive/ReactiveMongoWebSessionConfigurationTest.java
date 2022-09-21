@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
@@ -239,6 +240,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	/**
 	 * A configuration with all the right parts.
 	 */
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
 	static class GoodConfig {
 
@@ -252,11 +254,13 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	/**
 	 * A configuration where no {@link ReactiveMongoOperations} is defined. It's BAD!
 	 */
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
 	static class BadConfig {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
 	static class OverrideSessionConverterConfig {
 
@@ -272,6 +276,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession(maxInactiveIntervalInSeconds = 123, collectionName = "test-case")
 	static class OverrideMongoParametersConfig {
 
@@ -282,6 +287,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
 	static class ConfigWithReactiveAndImperativeMongoOperations {
 
@@ -308,6 +314,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableSpringWebSession
 	static class CustomizedReactiveConfiguration extends ReactiveMongoWebSessionConfiguration {
 
@@ -324,6 +331,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
 	static class SessionRepositoryCustomizerConfiguration {
 
@@ -346,6 +354,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
 	static class CustomIndexResolverConfigurationWithDefaultMongoSessionConverter {
 
@@ -362,6 +371,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
 	static class CustomIndexResolverConfigurationWithProvidedtMongoSessionConverter {
 
