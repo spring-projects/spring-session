@@ -22,7 +22,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.session.MapSession;
@@ -38,7 +37,7 @@ import org.springframework.web.server.session.WebSessionManager;
  * {@link ReactiveRedisConnectionFactory} must be provided. For example:
  *
  * <pre class="code">
- * &#064;Configuration
+ * &#064;Configuration(proxyBeanMethods = false)
  * &#064;EnableRedisWebSession
  * public class RedisWebSessionConfig {
  *
@@ -61,7 +60,6 @@ import org.springframework.web.server.session.WebSessionManager;
 @Target(ElementType.TYPE)
 @Documented
 @Import(RedisWebSessionConfiguration.class)
-@Configuration(proxyBeanMethods = false)
 public @interface EnableRedisWebSession {
 
 	/**

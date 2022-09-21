@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -34,7 +33,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
  *
  * <pre>
  * <code>
- * {@literal @Configuration}
+ * {@literal @Configuration(proxyBeanMethods = false)}
  * {@literal @EnableSpringHttpSession}
  * public class SpringHttpSessionConfig {
  *
@@ -74,7 +73,6 @@ import org.springframework.session.events.SessionDestroyedEvent;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Documented
 @Import(SpringHttpSessionConfiguration.class)
-@Configuration(proxyBeanMethods = false)
 public @interface EnableSpringHttpSession {
 
 }

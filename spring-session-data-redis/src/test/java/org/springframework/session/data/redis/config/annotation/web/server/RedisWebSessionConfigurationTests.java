@@ -240,11 +240,13 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class DefaultConfig {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class SpringSessionRedisOperationsResolvingConfig {
 
@@ -257,16 +259,19 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession(redisNamespace = REDIS_NAMESPACE)
 	static class CustomNamespaceConfig {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession(maxInactiveIntervalInSeconds = MAX_INACTIVE_INTERVAL_IN_SECONDS)
 	static class CustomMaxInactiveIntervalConfig {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession(saveMode = SaveMode.ALWAYS)
 	static class CustomSaveModeExpressionAnnotationConfiguration {
 
@@ -281,6 +286,7 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class QualifiedConnectionFactoryRedisConfig {
 
@@ -292,6 +298,7 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class PrimaryConnectionFactoryRedisConfig {
 
@@ -303,6 +310,7 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class QualifiedAndPrimaryConnectionFactoryRedisConfig {
 
@@ -320,6 +328,7 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class NamedConnectionFactoryRedisConfig {
 
@@ -330,6 +339,7 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class MultipleConnectionFactoryRedisConfig {
 
@@ -340,6 +350,7 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class CustomRedisSerializerConfig {
 
@@ -351,6 +362,7 @@ class RedisWebSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisWebSession
 	static class SessionRepositoryCustomizerConfiguration {
 

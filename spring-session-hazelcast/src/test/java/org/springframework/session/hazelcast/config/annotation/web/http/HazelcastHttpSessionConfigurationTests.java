@@ -300,6 +300,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableHazelcastHttpSession(saveMode = SaveMode.ALWAYS)
 	static class CustomSaveModeExpressionAnnotationConfiguration {
 
@@ -414,6 +415,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableHazelcastHttpSession
 	static class CustomIndexResolverConfiguration extends BaseConfiguration {
 
@@ -425,6 +427,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableHazelcastHttpSession
 	static class SessionRepositoryCustomizerConfiguration extends BaseConfiguration {
 

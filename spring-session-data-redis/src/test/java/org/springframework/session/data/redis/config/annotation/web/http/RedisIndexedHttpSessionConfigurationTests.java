@@ -296,11 +296,13 @@ class RedisIndexedHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisIndexedHttpSession(cleanupCron = CLEANUP_CRON_EXPRESSION)
 	static class CustomCleanupCronExpressionAnnotationConfiguration {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisIndexedHttpSession(saveMode = SaveMode.ALWAYS)
 	static class CustomSaveModeExpressionAnnotationConfiguration {
 
@@ -405,6 +407,7 @@ class RedisIndexedHttpSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisIndexedHttpSession
 	static class SessionRepositoryCustomizerConfiguration {
 

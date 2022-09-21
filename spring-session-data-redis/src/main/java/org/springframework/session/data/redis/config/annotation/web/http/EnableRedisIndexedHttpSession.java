@@ -22,7 +22,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.session.FlushMode;
@@ -41,7 +40,7 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
  * annotation, a single {@link RedisConnectionFactory} must be provided. For example:
  *
  * <pre class="code">
- * &#064;Configuration
+ * &#064;Configuration(proxyBeanMethods = false)
  * &#064;EnableRedisIndexedHttpSession
  * public class RedisHttpSessionConfig {
  *
@@ -64,7 +63,6 @@ import org.springframework.session.web.http.SessionRepositoryFilter;
 @Target(ElementType.TYPE)
 @Documented
 @Import(RedisIndexedHttpSessionConfiguration.class)
-@Configuration(proxyBeanMethods = false)
 public @interface EnableRedisIndexedHttpSession {
 
 	/**

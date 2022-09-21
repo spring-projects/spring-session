@@ -261,6 +261,7 @@ class RedisHttpsSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisHttpSession(saveMode = SaveMode.ALWAYS)
 	static class CustomSaveModeExpressionAnnotationConfiguration {
 
@@ -342,6 +343,7 @@ class RedisHttpsSessionConfigurationTests {
 
 	}
 
+	@Configuration(proxyBeanMethods = false)
 	@EnableRedisHttpSession
 	static class SessionRepositoryCustomizerConfiguration {
 
