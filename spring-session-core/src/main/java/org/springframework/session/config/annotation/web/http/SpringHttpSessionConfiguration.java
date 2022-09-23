@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.session.config.annotation.web.http;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.SessionCookieConfig;
 import jakarta.servlet.http.HttpSessionListener;
@@ -28,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -91,7 +91,7 @@ import org.springframework.util.ObjectUtils;
  * @see EnableSpringHttpSession
  */
 @Configuration(proxyBeanMethods = false)
-public class SpringHttpSessionConfiguration implements ApplicationContextAware {
+public class SpringHttpSessionConfiguration implements InitializingBean, ApplicationContextAware {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -107,8 +107,8 @@ public class SpringHttpSessionConfiguration implements ApplicationContextAware {
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<>();
 
-	@PostConstruct
-	public void init() {
+	@Override
+	public void afterPropertiesSet() {
 		CookieSerializer cookieSerializer = (this.cookieSerializer != null) ? this.cookieSerializer
 				: createDefaultCookieSerializer();
 		this.defaultHttpSessionIdResolver.setCookieSerializer(cookieSerializer);

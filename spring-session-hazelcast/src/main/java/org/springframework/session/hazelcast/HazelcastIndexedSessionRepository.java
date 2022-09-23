@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
@@ -40,6 +37,8 @@ import com.hazelcast.query.Predicates;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -116,7 +115,8 @@ import org.springframework.util.Assert;
 public class HazelcastIndexedSessionRepository
 		implements FindByIndexNameSessionRepository<HazelcastIndexedSessionRepository.HazelcastSession>,
 		EntryAddedListener<String, MapSession>, EntryEvictedListener<String, MapSession>,
-		EntryRemovedListener<String, MapSession>, EntryExpiredListener<String, MapSession> {
+		EntryRemovedListener<String, MapSession>, EntryExpiredListener<String, MapSession>, InitializingBean,
+		DisposableBean {
 
 	/**
 	 * The default name of map used by Spring Session to store sessions.
@@ -164,14 +164,14 @@ public class HazelcastIndexedSessionRepository
 		this.hazelcastInstance = hazelcastInstance;
 	}
 
-	@PostConstruct
-	public void init() {
+	@Override
+	public void afterPropertiesSet() {
 		this.sessions = this.hazelcastInstance.getMap(this.sessionMapName);
 		this.sessionListenerId = this.sessions.addEntryListener(this, true);
 	}
 
-	@PreDestroy
-	public void close() {
+	@Override
+	public void destroy() {
 		this.sessions.removeEntryListener(this.sessionListenerId);
 	}
 
