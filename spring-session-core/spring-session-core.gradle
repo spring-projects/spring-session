@@ -6,7 +6,6 @@ dependencies {
 	api "org.springframework:spring-jcl"
 
 	optional "io.projectreactor:reactor-core"
-	optional "jakarta.annotation:jakarta.annotation-api"
 	optional "jakarta.servlet:jakarta.servlet-api"
 	optional "org.springframework:spring-context"
 	optional "org.springframework:spring-jdbc"

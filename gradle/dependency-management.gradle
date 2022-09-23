@@ -22,7 +22,6 @@ dependencyManagement {
 		dependency 'com.zaxxer:HikariCP:5.0.1'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
 		dependency 'io.lettuce:lettuce-core:6.2.0.RELEASE'
-		dependency 'jakarta.annotation:jakarta.annotation-api:2.0.0'
 		dependency 'jakarta.servlet:jakarta.servlet-api:5.0.0'
 		dependency 'mysql:mysql-connector-java:8.0.30'
 		dependency 'org.apache.derby:derby:10.14.2.0'
