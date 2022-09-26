@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.MapSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -76,20 +77,7 @@ public class MongoIndexedSessionRepositoryTest {
 		// then
 		assertThat(session.getId()).isNotEmpty();
 		assertThat(session.getMaxInactiveInterval().getSeconds())
-				.isEqualTo(MongoIndexedSessionRepository.DEFAULT_INACTIVE_INTERVAL);
-	}
-
-	@Test
-	void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() {
-
-		// when
-		this.repository.setMaxInactiveIntervalInSeconds(null);
-		MongoSession session = this.repository.createSession();
-
-		// then
-		assertThat(session.getId()).isNotEmpty();
-		assertThat(session.getMaxInactiveInterval().getSeconds())
-				.isEqualTo(MongoIndexedSessionRepository.DEFAULT_INACTIVE_INTERVAL);
+				.isEqualTo(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
 	@Test
@@ -164,8 +152,7 @@ public class MongoIndexedSessionRepositoryTest {
 		Document sessionDocument = new Document();
 		sessionDocument.put("id", sessionId);
 
-		MongoSession mongoSession = new MongoSession(sessionId,
-				MongoIndexedSessionRepository.DEFAULT_INACTIVE_INTERVAL);
+		MongoSession mongoSession = new MongoSession(sessionId, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
 				TypeDescriptor.valueOf(MongoSession.class))).willReturn(mongoSession);

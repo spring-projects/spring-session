@@ -16,6 +16,7 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -56,7 +57,7 @@ import org.springframework.util.StringUtils;
 @Configuration(proxyBeanMethods = false)
 public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfiguration implements ImportAware {
 
-	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+	private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
 	private String sessionMapName = HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME;
 
@@ -77,8 +78,13 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		return createHazelcastIndexedSessionRepository();
 	}
 
+	public void setMaxInactiveInterval(Duration maxInactiveInterval) {
+		this.maxInactiveInterval = maxInactiveInterval;
+	}
+
+	@Deprecated
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+		setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
 	}
 
 	public void setSessionMapName(String sessionMapName) {
@@ -128,7 +134,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		if (attributes == null) {
 			return;
 		}
-		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveInterval = Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
 		String sessionMapNameValue = attributes.getString("sessionMapName");
 		if (StringUtils.hasText(sessionMapNameValue)) {
 			this.sessionMapName = sessionMapNameValue;
@@ -147,7 +153,7 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		if (StringUtils.hasText(this.sessionMapName)) {
 			sessionRepository.setSessionMapName(this.sessionMapName);
 		}
-		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveInterval);
 		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
 		this.sessionRepositoryCustomizers

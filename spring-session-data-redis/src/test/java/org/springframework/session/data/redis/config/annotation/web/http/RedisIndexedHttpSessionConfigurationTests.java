@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
 
@@ -228,15 +229,15 @@ class RedisIndexedHttpSessionConfigurationTests {
 	void sessionRepositoryCustomizer() {
 		registerAndRefresh(RedisConfig.class, SessionRepositoryCustomizerConfiguration.class);
 		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
-		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
-				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
 	void importConfigAndCustomize() {
 		registerAndRefresh(RedisConfig.class, ImportConfigAndCustomizeConfiguration.class);
 		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
-		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(0);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -420,14 +421,14 @@ class RedisIndexedHttpSessionConfigurationTests {
 		@Bean
 		@Order(0)
 		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerOne() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 		@Bean
 		@Order(1)
 		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
-					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+					.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}
@@ -438,7 +439,7 @@ class RedisIndexedHttpSessionConfigurationTests {
 
 		@Bean
 		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizer() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 	}

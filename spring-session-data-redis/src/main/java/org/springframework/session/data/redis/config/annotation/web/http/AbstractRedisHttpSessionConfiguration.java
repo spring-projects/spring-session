@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,7 +54,7 @@ import org.springframework.util.Assert;
 public abstract class AbstractRedisHttpSessionConfiguration<T extends SessionRepository<? extends Session>>
 		extends SpringHttpSessionConfiguration implements BeanClassLoaderAware {
 
-	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+	private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
 	private String redisNamespace = RedisSessionRepository.DEFAULT_KEY_NAMESPACE;
 
@@ -71,12 +72,17 @@ public abstract class AbstractRedisHttpSessionConfiguration<T extends SessionRep
 
 	public abstract T sessionRepository();
 
-	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	public void setMaxInactiveInterval(Duration maxInactiveInterval) {
+		this.maxInactiveInterval = maxInactiveInterval;
 	}
 
-	protected Integer getMaxInactiveIntervalInSeconds() {
-		return this.maxInactiveIntervalInSeconds;
+	@Deprecated
+	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
+		setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
+	}
+
+	protected Duration getMaxInactiveInterval() {
+		return this.maxInactiveInterval;
 	}
 
 	public void setRedisNamespace(String namespace) {

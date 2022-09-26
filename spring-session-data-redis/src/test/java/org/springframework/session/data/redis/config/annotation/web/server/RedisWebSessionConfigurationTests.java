@@ -16,6 +16,8 @@
 
 package org.springframework.session.data.redis.config.annotation.web.server;
 
+import java.time.Duration;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -103,9 +105,8 @@ class RedisWebSessionConfigurationTests {
 		registerAndRefresh(RedisConfig.class, CustomMaxInactiveIntervalConfig.class);
 
 		ReactiveRedisSessionRepository repository = this.context.getBean(ReactiveRedisSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(repository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -222,15 +223,15 @@ class RedisWebSessionConfigurationTests {
 	void sessionRepositoryCustomizer() {
 		registerAndRefresh(RedisConfig.class, SessionRepositoryCustomizerConfiguration.class);
 		ReactiveRedisSessionRepository sessionRepository = this.context.getBean(ReactiveRedisSessionRepository.class);
-		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
-				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
 	void importConfigAndCustomize() {
 		registerAndRefresh(RedisConfig.class, ImportConfigAndCustomizeConfiguration.class);
 		ReactiveRedisSessionRepository sessionRepository = this.context.getBean(ReactiveRedisSessionRepository.class);
-		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(0);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -377,14 +378,14 @@ class RedisWebSessionConfigurationTests {
 		@Bean
 		@Order(0)
 		ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerOne() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 		@Bean
 		@Order(1)
 		ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
-					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+					.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}
@@ -395,7 +396,7 @@ class RedisWebSessionConfigurationTests {
 
 		@Bean
 		ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizer() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 	}

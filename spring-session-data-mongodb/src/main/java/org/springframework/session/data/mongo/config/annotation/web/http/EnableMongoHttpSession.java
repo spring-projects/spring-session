@@ -23,6 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.session.MapSession;
 import org.springframework.session.data.mongo.MongoIndexedSessionRepository;
 
 /**
@@ -58,7 +59,7 @@ public @interface EnableMongoHttpSession {
 	 * The maximum time a session will be kept if it is inactive.
 	 * @return default max inactive interval in seconds
 	 */
-	int maxInactiveIntervalInSeconds() default MongoIndexedSessionRepository.DEFAULT_INACTIVE_INTERVAL;
+	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	/**
 	 * The collection name to use.

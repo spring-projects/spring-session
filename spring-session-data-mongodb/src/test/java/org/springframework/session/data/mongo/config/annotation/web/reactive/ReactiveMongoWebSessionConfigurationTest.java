@@ -17,6 +17,7 @@
 package org.springframework.session.data.mongo.config.annotation.web.reactive;
 
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.Collections;
 
 import org.junit.jupiter.api.AfterEach;
@@ -56,7 +57,7 @@ import static org.mockito.BDDMockito.verify;
  * Verify various configurations through {@link EnableSpringWebSession}.
  *
  * @author Greg Turnquist
- * @author Vedran Pavić
+ * @author Vedran Pavic
  */
 public class ReactiveMongoWebSessionConfigurationTest {
 
@@ -128,7 +129,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	}
 
 	@Test
-	void overridingIntervalAndCollectionNameThroughAnnotationShouldWork() throws IllegalAccessException {
+	void overridingIntervalAndCollectionNameThroughAnnotationShouldWork() {
 
 		this.context = new AnnotationConfigApplicationContext();
 		this.context.register(OverrideMongoParametersConfig.class);
@@ -136,17 +137,8 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 		ReactiveMongoSessionRepository repository = this.context.getBean(ReactiveMongoSessionRepository.class);
 
-		Field inactiveField = ReflectionUtils.findField(ReactiveMongoSessionRepository.class,
-				"maxInactiveIntervalInSeconds");
-		ReflectionUtils.makeAccessible(inactiveField);
-		Integer inactiveSeconds = (Integer) inactiveField.get(repository);
-
-		Field collectionNameField = ReflectionUtils.findField(ReactiveMongoSessionRepository.class, "collectionName");
-		ReflectionUtils.makeAccessible(collectionNameField);
-		String collectionName = (String) collectionNameField.get(repository);
-
-		assertThat(inactiveSeconds).isEqualTo(123);
-		assertThat(collectionName).isEqualTo("test-case");
+		assertThat(repository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ofSeconds(123));
+		assertThat(repository).extracting("collectionName").isEqualTo("test-case");
 	}
 
 	@Test
@@ -174,7 +166,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		ReactiveMongoSessionRepository repository = this.context.getBean(ReactiveMongoSessionRepository.class);
 
 		assertThat(repository.getCollectionName()).isEqualTo("custom-collection");
-		assertThat(repository.getMaxInactiveIntervalInSeconds()).isEqualTo(123);
+		assertThat(repository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ofSeconds(123));
 	}
 
 	@Test
@@ -186,7 +178,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 		ReactiveMongoSessionRepository repository = this.context.getBean(ReactiveMongoSessionRepository.class);
 
-		assertThat(repository).hasFieldOrPropertyWithValue("maxInactiveIntervalInSeconds", 10000);
+		assertThat(repository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ofSeconds(10000));
 	}
 
 	@Test
@@ -227,7 +219,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		this.context.register(ImportConfigAndCustomizeConfiguration.class);
 		this.context.refresh();
 		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
-		assertThat(sessionRepository).extracting("maxInactiveIntervalInSeconds").isEqualTo(0);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
 	/**
@@ -331,7 +323,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		CustomizedReactiveConfiguration() {
 
 			this.setCollectionName("custom-collection");
-			this.setMaxInactiveIntervalInSeconds(123);
+			this.setMaxInactiveInterval(Duration.ofSeconds(123));
 		}
 
 		@Bean
@@ -353,13 +345,13 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		@Bean
 		@Order(0)
 		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizerOne() {
-			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 		@Bean
 		@Order(1)
 		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizerTwo() {
-			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(10000);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ofSeconds(10000));
 		}
 
 	}
@@ -414,7 +406,7 @@ public class ReactiveMongoWebSessionConfigurationTest {
 
 		@Bean
 		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizer() {
-			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 	}

@@ -274,13 +274,13 @@ class JdbcIndexedSessionRepositoryTests {
 
 	@Test
 	void createSessionCustomMaxInactiveInterval() {
-		int interval = 1;
+		Duration interval = Duration.ofSeconds(1);
 		this.repository.setDefaultMaxInactiveInterval(interval);
 
 		JdbcSession session = this.repository.createSession();
 
 		assertThat(session.isNew()).isTrue();
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(interval));
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(interval);
 		verifyNoMoreInteractions(this.jdbcOperations);
 	}
 

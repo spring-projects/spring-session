@@ -17,6 +17,7 @@
 package org.springframework.session.data.mongo.config.annotation.web.http;
 
 import java.net.UnknownHostException;
+import java.time.Duration;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Order;
@@ -112,9 +113,8 @@ public class MongoHttpSessionConfigurationTest {
 
 		MongoIndexedSessionRepository repository = this.context.getBean(MongoIndexedSessionRepository.class);
 
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "maxInactiveIntervalInSeconds"))
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(repository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -124,9 +124,8 @@ public class MongoHttpSessionConfigurationTest {
 
 		MongoIndexedSessionRepository repository = this.context.getBean(MongoIndexedSessionRepository.class);
 
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "maxInactiveIntervalInSeconds"))
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(repository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -161,7 +160,7 @@ public class MongoHttpSessionConfigurationTest {
 
 		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
 
-		assertThat(sessionRepository).hasFieldOrPropertyWithValue("maxInactiveIntervalInSeconds", 10000);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ofSeconds(10000));
 	}
 
 	@Test
@@ -198,7 +197,7 @@ public class MongoHttpSessionConfigurationTest {
 	void importConfigAndCustomize() {
 		registerAndRefresh(ImportConfigAndCustomizeConfiguration.class);
 		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
-		assertThat(sessionRepository).extracting("maxInactiveIntervalInSeconds").isEqualTo(0);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -266,7 +265,7 @@ public class MongoHttpSessionConfigurationTest {
 	static class CustomMaxInactiveIntervalInSecondsSetConfiguration extends MongoHttpSessionConfiguration {
 
 		CustomMaxInactiveIntervalInSecondsSetConfiguration() {
-			setMaxInactiveIntervalInSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+			setMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}
@@ -300,13 +299,13 @@ public class MongoHttpSessionConfigurationTest {
 		@Bean
 		@Order(0)
 		SessionRepositoryCustomizer<MongoIndexedSessionRepository> sessionRepositoryCustomizerOne() {
-			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 		@Bean
 		@Order(1)
 		SessionRepositoryCustomizer<MongoIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
-			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(10000);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ofSeconds(10000));
 		}
 
 	}
@@ -346,7 +345,7 @@ public class MongoHttpSessionConfigurationTest {
 
 		@Bean
 		SessionRepositoryCustomizer<MongoIndexedSessionRepository> sessionRepositoryCustomizer() {
-			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 	}

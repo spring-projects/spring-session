@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.server;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -59,7 +60,7 @@ import org.springframework.web.server.session.WebSessionManager;
 public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
-	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+	private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
 	private String redisNamespace = ReactiveRedisSessionRepository.DEFAULT_NAMESPACE;
 
@@ -79,7 +80,7 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 	public ReactiveRedisSessionRepository sessionRepository() {
 		ReactiveRedisTemplate<String, Object> reactiveRedisTemplate = createReactiveRedisTemplate();
 		ReactiveRedisSessionRepository sessionRepository = new ReactiveRedisSessionRepository(reactiveRedisTemplate);
-		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveInterval);
 		if (StringUtils.hasText(this.redisNamespace)) {
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
@@ -89,8 +90,13 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		return sessionRepository;
 	}
 
+	public void setMaxInactiveInterval(Duration maxInactiveInterval) {
+		this.maxInactiveInterval = maxInactiveInterval;
+	}
+
+	@Deprecated
 	public void setMaxInactiveIntervalInSeconds(int maxInactiveIntervalInSeconds) {
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+		setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
 	}
 
 	public void setRedisNamespace(String namespace) {
@@ -143,7 +149,7 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		if (attributes == null) {
 			return;
 		}
-		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveInterval = Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
 		String redisNamespaceValue = attributes.getString("redisNamespace");
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);

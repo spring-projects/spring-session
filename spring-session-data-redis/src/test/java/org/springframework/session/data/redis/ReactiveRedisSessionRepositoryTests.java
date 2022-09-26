@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -103,9 +103,10 @@ class ReactiveRedisSessionRepositoryTests {
 
 	@Test
 	void customMaxInactiveInterval() {
-		this.repository.setDefaultMaxInactiveInterval(600);
+		Duration interval = Duration.ofMinutes(10);
+		this.repository.setDefaultMaxInactiveInterval(interval);
 
-		assertThat(ReflectionTestUtils.getField(this.repository, "defaultMaxInactiveInterval")).isEqualTo(600);
+		assertThat(this.repository).extracting("defaultMaxInactiveInterval").isEqualTo(interval);
 	}
 
 	@Test
@@ -118,11 +119,11 @@ class ReactiveRedisSessionRepositoryTests {
 
 	@Test
 	void createSessionCustomMaxInactiveInterval() {
-		this.repository.setDefaultMaxInactiveInterval(600);
+		Duration interval = Duration.ofMinutes(10);
+		this.repository.setDefaultMaxInactiveInterval(interval);
 
 		StepVerifier.create(this.repository.createSession())
-				.consumeNextWith(
-						(session) -> assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(600)))
+				.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval()).isEqualTo(interval))
 				.verifyComplete();
 	}
 

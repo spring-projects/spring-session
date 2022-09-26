@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,9 +49,15 @@ import java.util.UUID;
 public final class MapSession implements Session, Serializable {
 
 	/**
-	 * Default {@link #setMaxInactiveInterval(Duration)} (30 minutes).
+	 * Default {@link #setMaxInactiveInterval(Duration)} (30 minutes) in seconds.
 	 */
 	public static final int DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS = 1800;
+
+	/**
+	 * Default {@link #setMaxInactiveInterval(Duration)} (30 minutes).
+	 */
+	public static final Duration DEFAULT_MAX_INACTIVE_INTERVAL = Duration
+			.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private String id;
 
@@ -66,7 +72,7 @@ public final class MapSession implements Session, Serializable {
 	/**
 	 * Defaults to 30 minutes.
 	 */
-	private Duration maxInactiveInterval = Duration.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+	private Duration maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL;
 
 	/**
 	 * Creates a new instance with a secure randomly generated identifier.

@@ -27,6 +27,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.lang.Nullable;
+import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 
 /**
@@ -66,7 +67,7 @@ public class MongoSession implements Session {
 	private Map<String, Object> attrs = new HashMap<>();
 
 	public MongoSession() {
-		this(MongoIndexedSessionRepository.DEFAULT_INACTIVE_INTERVAL);
+		this(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
 	public MongoSession(long maxInactiveIntervalInSeconds) {

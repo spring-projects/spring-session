@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,11 +55,7 @@ public class ReactiveRedisSessionRepository
 	 */
 	private String namespace = DEFAULT_NAMESPACE + ":";
 
-	/**
-	 * If non-null, this value is used to override the default value for
-	 * {@link RedisSession#setMaxInactiveInterval(Duration)}.
-	 */
-	private Integer defaultMaxInactiveInterval;
+	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
@@ -79,13 +75,13 @@ public class ReactiveRedisSessionRepository
 	}
 
 	/**
-	 * Sets the maximum inactive interval in seconds between requests before newly created
+	 * Set the maximum inactive interval in seconds between requests before newly created
 	 * sessions will be invalidated. A negative time indicates that the session will never
-	 * timeout. The default is 1800 (30 minutes).
-	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
-	 * should be kept alive between client requests.
+	 * time out. The default is 30 minutes.
+	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
 	 */
-	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
+		Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
@@ -110,9 +106,7 @@ public class ReactiveRedisSessionRepository
 	public Mono<RedisSession> createSession() {
 		return Mono.defer(() -> {
 			MapSession cached = new MapSession();
-			if (this.defaultMaxInactiveInterval != null) {
-				cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-			}
+			cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 			RedisSession session = new RedisSession(cached, true);
 			return Mono.just(session);
 		});
