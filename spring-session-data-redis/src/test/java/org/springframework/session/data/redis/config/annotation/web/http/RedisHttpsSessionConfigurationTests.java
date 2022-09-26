@@ -27,6 +27,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
@@ -198,6 +199,13 @@ class RedisHttpsSessionConfigurationTests {
 				Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
+	@Test
+	void importConfigAndCustomize() {
+		registerAndRefresh(RedisConfig.class, ImportConfigAndCustomizeConfiguration.class);
+		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -358,6 +366,17 @@ class RedisHttpsSessionConfigurationTests {
 		SessionRepositoryCustomizer<RedisSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Import(RedisHttpSessionConfiguration.class)
+	static class ImportConfigAndCustomizeConfiguration {
+
+		@Bean
+		SessionRepositoryCustomizer<RedisSessionRepository> sessionRepositoryCustomizer() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 	}

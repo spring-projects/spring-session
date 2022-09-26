@@ -243,6 +243,9 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		if (attributes == null) {
+			return;
+		}
 		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
 		String tableNameValue = attributes.getString("tableName");
 		if (StringUtils.hasText(tableNameValue)) {
