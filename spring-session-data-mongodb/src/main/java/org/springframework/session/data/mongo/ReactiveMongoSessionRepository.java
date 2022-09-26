@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,14 +32,17 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveSessionRepository} implementation that uses Spring Data MongoDB.
  *
  * @author Greg Turnquist
+ * @author Vedran Pavic
  * @since 2.2.0
  */
 public class ReactiveMongoSessionRepository
@@ -47,8 +50,11 @@ public class ReactiveMongoSessionRepository
 
 	/**
 	 * The default time period in seconds in which a session will expire.
+	 * @deprecated since 3.0.0 in favor of
+	 * {@link MapSession#DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS}
 	 */
-	public static final int DEFAULT_INACTIVE_INTERVAL = 1800;
+	@Deprecated
+	public static final int DEFAULT_INACTIVE_INTERVAL = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	/**
 	 * The default collection name for storing session.
@@ -59,12 +65,12 @@ public class ReactiveMongoSessionRepository
 
 	private final ReactiveMongoOperations mongoOperations;
 
-	private Integer maxInactiveIntervalInSeconds = DEFAULT_INACTIVE_INTERVAL;
+	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private String collectionName = DEFAULT_COLLECTION_NAME;
 
 	private AbstractMongoSessionConverter mongoSessionConverter = new JdkMongoSessionConverter(
-			Duration.ofSeconds(this.maxInactiveIntervalInSeconds));
+			this.defaultMaxInactiveInterval);
 
 	private MongoOperations blockingMongoOperations;
 
@@ -88,7 +94,7 @@ public class ReactiveMongoSessionRepository
 	@Override
 	public Mono<MongoSession> createSession() {
 
-		return Mono.justOrEmpty(this.maxInactiveIntervalInSeconds) //
+		return Mono.justOrEmpty(this.defaultMaxInactiveInterval.toSeconds()) //
 				.map(MongoSession::new) //
 				.doOnNext((mongoSession) -> publishEvent(new SessionCreatedEvent(this, mongoSession))) //
 				.switchIfEmpty(Mono.just(new MongoSession()));
@@ -170,12 +176,15 @@ public class ReactiveMongoSessionRepository
 		}
 	}
 
-	public Integer getMaxInactiveIntervalInSeconds() {
-		return this.maxInactiveIntervalInSeconds;
-	}
-
-	public void setMaxInactiveIntervalInSeconds(final Integer maxInactiveIntervalInSeconds) {
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+	/**
+	 * Set the maximum inactive interval in seconds between requests before newly created
+	 * sessions will be invalidated. A negative time indicates that the session will never
+	 * time out. The default is 30 minutes.
+	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
+	 */
+	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
+		Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
+		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
 	public String getCollectionName() {

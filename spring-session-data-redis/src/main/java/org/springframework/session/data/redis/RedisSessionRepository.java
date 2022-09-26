@@ -18,7 +18,6 @@ package org.springframework.session.data.redis;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -68,7 +67,9 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	}
 
 	/**
-	 * Set the default maxInactiveInterval.
+	 * Set the maximum inactive interval in seconds between requests before newly created
+	 * sessions will be invalidated. A negative time indicates that the session will never
+	 * time out. The default is 30 minutes.
 	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
 	 */
 	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
@@ -296,8 +297,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 			String key = getSessionKey(getId());
 			RedisSessionRepository.this.sessionRedisOperations.opsForHash().putAll(key, new HashMap<>(this.delta));
 			RedisSessionRepository.this.sessionRedisOperations.expireAt(key,
-					Date.from(Instant.ofEpochMilli(getLastAccessedTime().toEpochMilli())
-							.plusSeconds(getMaxInactiveInterval().getSeconds())));
+					Instant.ofEpochMilli(getLastAccessedTime().toEpochMilli())
+							.plusSeconds(getMaxInactiveInterval().getSeconds()));
 			this.delta.clear();
 		}
 

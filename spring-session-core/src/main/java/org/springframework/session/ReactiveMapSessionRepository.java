@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveSessionRepository} backed by a {@link Map} and that uses a
@@ -40,11 +41,7 @@ import org.springframework.session.events.SessionExpiredEvent;
  */
 public class ReactiveMapSessionRepository implements ReactiveSessionRepository<MapSession> {
 
-	/**
-	 * If non-null, this value is used to override
-	 * {@link Session#setMaxInactiveInterval(Duration)}.
-	 */
-	private Integer defaultMaxInactiveInterval;
+	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private final Map<String, Session> sessions;
 
@@ -61,12 +58,13 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	}
 
 	/**
-	 * If non-null, this value is used to override
-	 * {@link Session#setMaxInactiveInterval(Duration)}.
-	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
-	 * should be kept alive between client requests.
+	 * Set the maximum inactive interval in seconds between requests before newly created
+	 * sessions will be invalidated. A negative time indicates that the session will never
+	 * time out. The default is 30 minutes.
+	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
 	 */
-	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
+		Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
@@ -99,9 +97,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	public Mono<MapSession> createSession() {
 		return Mono.defer(() -> {
 			MapSession result = new MapSession();
-			if (this.defaultMaxInactiveInterval != null) {
-				result.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-			}
+			result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 			return Mono.just(result);
 		});
 	}

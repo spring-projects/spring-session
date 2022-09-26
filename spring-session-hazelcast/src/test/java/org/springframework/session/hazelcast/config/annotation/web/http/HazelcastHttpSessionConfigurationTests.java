@@ -16,6 +16,8 @@
 
 package org.springframework.session.hazelcast.config.annotation.web.http;
 
+import java.time.Duration;
+
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.map.IMap;
 import org.junit.jupiter.api.AfterEach;
@@ -106,9 +108,8 @@ class HazelcastHttpSessionConfigurationTests {
 		registerAndRefresh(BaseConfiguration.class, CustomMaxInactiveIntervalInSecondsSetConfiguration.class);
 
 		HazelcastIndexedSessionRepository repository = this.context.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(repository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -116,9 +117,8 @@ class HazelcastHttpSessionConfigurationTests {
 		registerAndRefresh(CustomMaxInactiveIntervalInSecondsConfiguration.class);
 
 		HazelcastIndexedSessionRepository repository = this.context.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(repository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -227,8 +227,8 @@ class HazelcastHttpSessionConfigurationTests {
 		registerAndRefresh(SessionRepositoryCustomizerConfiguration.class);
 		HazelcastIndexedSessionRepository sessionRepository = this.context
 				.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
-				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -236,7 +236,7 @@ class HazelcastHttpSessionConfigurationTests {
 		registerAndRefresh(ImportConfigAndCustomizeConfiguration.class);
 		HazelcastIndexedSessionRepository sessionRepository = this.context
 				.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(0);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -289,7 +289,7 @@ class HazelcastHttpSessionConfigurationTests {
 	static class CustomMaxInactiveIntervalInSecondsSetConfiguration extends HazelcastHttpSessionConfiguration {
 
 		CustomMaxInactiveIntervalInSecondsSetConfiguration() {
-			setMaxInactiveIntervalInSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+			setMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}
@@ -443,14 +443,14 @@ class HazelcastHttpSessionConfigurationTests {
 		@Bean
 		@Order(0)
 		SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizerOne() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 		@Bean
 		@Order(1)
 		SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
-					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+					.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}
@@ -461,7 +461,7 @@ class HazelcastHttpSessionConfigurationTests {
 
 		@Bean
 		SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizer() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 	}

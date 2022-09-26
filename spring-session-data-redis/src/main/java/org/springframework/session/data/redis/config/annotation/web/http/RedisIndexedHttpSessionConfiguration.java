@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -91,7 +92,7 @@ public class RedisIndexedHttpSessionConfiguration
 		if (getDefaultRedisSerializer() != null) {
 			sessionRepository.setDefaultSerializer(getDefaultRedisSerializer());
 		}
-		sessionRepository.setDefaultMaxInactiveInterval(getMaxInactiveIntervalInSeconds());
+		sessionRepository.setDefaultMaxInactiveInterval(getMaxInactiveInterval());
 		if (StringUtils.hasText(getRedisNamespace())) {
 			sessionRepository.setRedisKeyNamespace(getRedisNamespace());
 		}
@@ -178,7 +179,7 @@ public class RedisIndexedHttpSessionConfiguration
 		if (attributes == null) {
 			return;
 		}
-		setMaxInactiveIntervalInSeconds(attributes.getNumber("maxInactiveIntervalInSeconds"));
+		setMaxInactiveInterval(Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds")));
 		String redisNamespaceValue = attributes.getString("redisNamespace");
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			setRedisNamespace(this.embeddedValueResolver.resolveStringValue(redisNamespaceValue));

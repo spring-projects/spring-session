@@ -137,11 +137,7 @@ public class HazelcastIndexedSessionRepository
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
 
-	/**
-	 * If non-null, this value is used to override
-	 * {@link MapSession#setMaxInactiveInterval(Duration)}.
-	 */
-	private Integer defaultMaxInactiveInterval;
+	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
@@ -190,10 +186,11 @@ public class HazelcastIndexedSessionRepository
 	/**
 	 * Set the maximum inactive interval in seconds between requests before newly created
 	 * sessions will be invalidated. A negative time indicates that the session will never
-	 * timeout. The default is 1800 (30 minutes).
-	 * @param defaultMaxInactiveInterval the maximum inactive interval in seconds
+	 * time out. The default is 30 minutes.
+	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
 	 */
-	public void setDefaultMaxInactiveInterval(Integer defaultMaxInactiveInterval) {
+	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
+		Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
@@ -236,9 +233,7 @@ public class HazelcastIndexedSessionRepository
 	@Override
 	public HazelcastSession createSession() {
 		MapSession cached = new MapSession();
-		if (this.defaultMaxInactiveInterval != null) {
-			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-		}
+		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		HazelcastSession session = new HazelcastSession(cached, true);
 		session.flushImmediateIfNecessary();
 		return session;

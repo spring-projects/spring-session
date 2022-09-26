@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -378,9 +377,9 @@ class RedisSessionRepositoryTests {
 		return "spring:session:sessions:" + sessionId;
 	}
 
-	private static Date getExpiry(RedisSession session) {
-		return Date.from(Instant.ofEpochMilli(session.getLastAccessedTime().toEpochMilli())
-				.plusSeconds(session.getMaxInactiveInterval().getSeconds()));
+	private static Instant getExpiry(RedisSession session) {
+		return Instant.ofEpochMilli(session.getLastAccessedTime().toEpochMilli())
+				.plusSeconds(session.getMaxInactiveInterval().getSeconds());
 	}
 
 	private static Map mapOf(Object... objects) {

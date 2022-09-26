@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 the original author or authors.
+ * Copyright 2016-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.session.IndexResolver;
+import org.springframework.session.MapSession;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -56,7 +57,7 @@ public class ReactiveMongoWebSessionConfiguration extends SpringWebSessionConfig
 
 	private AbstractMongoSessionConverter mongoSessionConverter;
 
-	private Integer maxInactiveIntervalInSeconds;
+	private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
 	private String collectionName;
 
@@ -87,7 +88,7 @@ public class ReactiveMongoWebSessionConfiguration extends SpringWebSessionConfig
 		else {
 			JdkMongoSessionConverter mongoSessionConverter = new JdkMongoSessionConverter(new SerializingConverter(),
 					new DeserializingConverter(this.classLoader),
-					Duration.ofSeconds(ReactiveMongoSessionRepository.DEFAULT_INACTIVE_INTERVAL));
+					Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
 
 			if (this.indexResolver != null) {
 				mongoSessionConverter.setIndexResolver(this.indexResolver);
@@ -96,9 +97,7 @@ public class ReactiveMongoWebSessionConfiguration extends SpringWebSessionConfig
 			repository.setMongoSessionConverter(mongoSessionConverter);
 		}
 
-		if (this.maxInactiveIntervalInSeconds != null) {
-			repository.setMaxInactiveIntervalInSeconds(this.maxInactiveIntervalInSeconds);
-		}
+		repository.setDefaultMaxInactiveInterval(this.maxInactiveInterval);
 
 		if (this.collectionName != null) {
 			repository.setCollectionName(this.collectionName);
@@ -126,10 +125,8 @@ public class ReactiveMongoWebSessionConfiguration extends SpringWebSessionConfig
 				.fromMap(importMetadata.getAnnotationAttributes(EnableMongoWebSession.class.getName()));
 
 		if (attributes != null) {
-			this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
-		}
-		else {
-			this.maxInactiveIntervalInSeconds = ReactiveMongoSessionRepository.DEFAULT_INACTIVE_INTERVAL;
+			this.maxInactiveInterval = Duration
+					.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
 		}
 
 		String collectionNameValue = (attributes != null) ? attributes.getString("collectionName") : "";
@@ -149,12 +146,17 @@ public class ReactiveMongoWebSessionConfiguration extends SpringWebSessionConfig
 		this.embeddedValueResolver = embeddedValueResolver;
 	}
 
-	public Integer getMaxInactiveIntervalInSeconds() {
-		return this.maxInactiveIntervalInSeconds;
+	public Duration getMaxInactiveInterval() {
+		return this.maxInactiveInterval;
 	}
 
+	public void setMaxInactiveInterval(Duration maxInactiveInterval) {
+		this.maxInactiveInterval = maxInactiveInterval;
+	}
+
+	@Deprecated
 	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+		setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
 	}
 
 	public String getCollectionName() {

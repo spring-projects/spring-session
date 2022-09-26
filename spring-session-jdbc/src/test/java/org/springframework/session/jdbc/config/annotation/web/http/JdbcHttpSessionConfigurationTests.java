@@ -16,6 +16,8 @@
 
 package org.springframework.session.jdbc.config.annotation.web.http;
 
+import java.time.Duration;
+
 import javax.sql.DataSource;
 
 import org.junit.jupiter.api.AfterEach;
@@ -118,9 +120,8 @@ class JdbcHttpSessionConfigurationTests {
 				CustomMaxInactiveIntervalInSecondsAnnotationConfiguration.class);
 
 		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(repository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -128,9 +129,8 @@ class JdbcHttpSessionConfigurationTests {
 		registerAndRefresh(DataSourceConfiguration.class, CustomMaxInactiveIntervalInSecondsSetterConfiguration.class);
 
 		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
-		assertThat(repository).isNotNull();
-		assertThat(ReflectionTestUtils.getField(repository, "defaultMaxInactiveInterval"))
-				.isEqualTo(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(repository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -297,8 +297,8 @@ class JdbcHttpSessionConfigurationTests {
 	void sessionRepositoryCustomizer() {
 		registerAndRefresh(DataSourceConfiguration.class, SessionRepositoryCustomizerConfiguration.class);
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
-		assertThat(sessionRepository).hasFieldOrPropertyWithValue("defaultMaxInactiveInterval",
-				MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval")
+				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -315,7 +315,7 @@ class JdbcHttpSessionConfigurationTests {
 	void importConfigAndCustomize() {
 		registerAndRefresh(DataSourceConfiguration.class, ImportConfigAndCustomizeConfiguration.class);
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
-		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(0);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -552,14 +552,14 @@ class JdbcHttpSessionConfigurationTests {
 		@Bean
 		@Order(0)
 		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerOne() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 		@Bean
 		@Order(1)
 		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
-					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+					.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}
@@ -570,7 +570,7 @@ class JdbcHttpSessionConfigurationTests {
 
 		@Bean
 		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizer() {
-			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
 		}
 
 	}

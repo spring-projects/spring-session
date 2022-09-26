@@ -307,11 +307,7 @@ public class RedisIndexedSessionRepository
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
 
-	/**
-	 * If non-null, this value is used to override the default value for
-	 * {@link RedisSession#setMaxInactiveInterval(Duration)}.
-	 */
-	private Integer defaultMaxInactiveInterval;
+	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
@@ -373,13 +369,13 @@ public class RedisIndexedSessionRepository
 	}
 
 	/**
-	 * Sets the maximum inactive interval in seconds between requests before newly created
+	 * Set the maximum inactive interval in seconds between requests before newly created
 	 * sessions will be invalidated. A negative time indicates that the session will never
-	 * timeout. The default is 1800 (30 minutes).
-	 * @param defaultMaxInactiveInterval the number of seconds that the {@link Session}
-	 * should be kept alive between client requests.
+	 * time out. The default is 30 minutes.
+	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
 	 */
-	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
+		Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
@@ -560,9 +556,7 @@ public class RedisIndexedSessionRepository
 	@Override
 	public RedisSession createSession() {
 		MapSession cached = new MapSession();
-		if (this.defaultMaxInactiveInterval != null) {
-			cached.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-		}
+		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushImmediateIfNecessary();
 		return session;

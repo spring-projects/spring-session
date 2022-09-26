@@ -105,12 +105,12 @@ class HazelcastIndexedSessionRepositoryTests {
 	void createSessionCustomMaxInactiveInterval() {
 		verify(this.sessions, times(1)).addEntryListener(any(MapListener.class), anyBoolean());
 
-		int interval = 1;
+		Duration interval = Duration.ofSeconds(1);
 		this.repository.setDefaultMaxInactiveInterval(interval);
 
 		HazelcastSession session = this.repository.createSession();
 
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(interval));
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(interval);
 		verifyNoMoreInteractions(this.sessions);
 	}
 

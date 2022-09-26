@@ -236,11 +236,7 @@ public class JdbcIndexedSessionRepository implements
 
 	private String deleteSessionsByExpiryTimeQuery;
 
-	/**
-	 * If non-null, this value is used to override the default value for
-	 * {@link JdbcSession#setMaxInactiveInterval(Duration)}.
-	 */
-	private Integer defaultMaxInactiveInterval;
+	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
@@ -386,10 +382,11 @@ public class JdbcIndexedSessionRepository implements
 	/**
 	 * Set the maximum inactive interval in seconds between requests before newly created
 	 * sessions will be invalidated. A negative time indicates that the session will never
-	 * timeout. The default is 1800 (30 minutes).
-	 * @param defaultMaxInactiveInterval the maximum inactive interval in seconds
+	 * time out. The default is 30 minutes.
+	 * @param defaultMaxInactiveInterval the default maxInactiveInterval
 	 */
-	public void setDefaultMaxInactiveInterval(Integer defaultMaxInactiveInterval) {
+	public void setDefaultMaxInactiveInterval(Duration defaultMaxInactiveInterval) {
+		Assert.notNull(defaultMaxInactiveInterval, "defaultMaxInactiveInterval must not be null");
 		this.defaultMaxInactiveInterval = defaultMaxInactiveInterval;
 	}
 
@@ -452,9 +449,7 @@ public class JdbcIndexedSessionRepository implements
 	@Override
 	public JdbcSession createSession() {
 		MapSession delegate = new MapSession();
-		if (this.defaultMaxInactiveInterval != null) {
-			delegate.setMaxInactiveInterval(Duration.ofSeconds(this.defaultMaxInactiveInterval));
-		}
+		delegate.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		JdbcSession session = new JdbcSession(delegate, UUID.randomUUID().toString(), true);
 		session.flushIfRequired();
 		return session;

@@ -21,6 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.Import;
+import org.springframework.session.MapSession;
 import org.springframework.session.data.mongo.ReactiveMongoSessionRepository;
 
 /**
@@ -44,7 +45,7 @@ import org.springframework.session.data.mongo.ReactiveMongoSessionRepository;
  * </code> </pre>
  *
  * @author Greg Turnquist
- * @author Vedran Pavić
+ * @author Vedran Pavic
  * @since 2.0
  */
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
@@ -57,7 +58,7 @@ public @interface EnableMongoWebSession {
 	 * The maximum time a session will be kept if it is inactive.
 	 * @return default max inactive interval in seconds
 	 */
-	int maxInactiveIntervalInSeconds() default ReactiveMongoSessionRepository.DEFAULT_INACTIVE_INTERVAL;
+	int maxInactiveIntervalInSeconds() default MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
 
 	/**
 	 * The collection name to use.

@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.redis.config.annotation.web.http.gh109;
 
+import java.time.Duration;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ class Gh109Tests {
 	@Configuration
 	static class Config extends RedisHttpSessionConfiguration {
 
-		int sessionTimeout = 100;
+		Duration sessionTimeout = Duration.ofSeconds(100);
 
 		/**
 		 * override sessionRepository construction to set the custom session-timeout

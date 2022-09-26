@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2017 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import com.mongodb.BasicDBObject;
@@ -35,6 +36,7 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.session.MapSession;
 import org.springframework.session.events.SessionDeletedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,26 +86,8 @@ public class ReactiveMongoSessionRepositoryTest {
 				.as(StepVerifier::create) //
 				.expectNextMatches((mongoSession) -> {
 					assertThat(mongoSession.getId()).isNotEmpty();
-					assertThat(mongoSession.getMaxInactiveInterval().getSeconds())
-							.isEqualTo(ReactiveMongoSessionRepository.DEFAULT_INACTIVE_INTERVAL);
-					return true;
-				}) //
-				.verifyComplete();
-	}
-
-	@Test
-	void shouldCreateSessionWhenMaxInactiveIntervalNotDefined() {
-
-		// when
-		this.repository.setMaxInactiveIntervalInSeconds(null);
-
-		// then
-		this.repository.createSession() //
-				.as(StepVerifier::create) //
-				.expectNextMatches((mongoSession) -> {
-					assertThat(mongoSession.getId()).isNotEmpty();
-					assertThat(mongoSession.getMaxInactiveInterval().getSeconds())
-							.isEqualTo(ReactiveMongoSessionRepository.DEFAULT_INACTIVE_INTERVAL);
+					assertThat(mongoSession.getMaxInactiveInterval())
+							.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
 					return true;
 				}) //
 				.verifyComplete();

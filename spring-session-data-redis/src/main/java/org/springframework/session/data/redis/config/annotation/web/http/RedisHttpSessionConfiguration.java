@@ -54,7 +54,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 	public RedisSessionRepository sessionRepository() {
 		RedisTemplate<String, Object> redisTemplate = createRedisTemplate();
 		RedisSessionRepository sessionRepository = new RedisSessionRepository(redisTemplate);
-		sessionRepository.setDefaultMaxInactiveInterval(Duration.ofSeconds(getMaxInactiveIntervalInSeconds()));
+		sessionRepository.setDefaultMaxInactiveInterval(getMaxInactiveInterval());
 		if (StringUtils.hasText(getRedisNamespace())) {
 			sessionRepository.setRedisKeyNamespace(getRedisNamespace());
 		}
@@ -78,7 +78,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 		if (attributes == null) {
 			return;
 		}
-		setMaxInactiveIntervalInSeconds(attributes.getNumber("maxInactiveIntervalInSeconds"));
+		setMaxInactiveInterval(Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds")));
 		String redisNamespaceValue = attributes.getString("redisNamespace");
 		if (StringUtils.hasText(redisNamespaceValue)) {
 			setRedisNamespace(this.embeddedValueResolver.resolveStringValue(redisNamespaceValue));

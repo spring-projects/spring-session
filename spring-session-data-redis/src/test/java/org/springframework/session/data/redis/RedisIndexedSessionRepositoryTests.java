@@ -158,10 +158,10 @@ class RedisIndexedSessionRepositoryTests {
 
 	@Test
 	void createSessionCustomMaxInactiveInterval() {
-		int interval = 1;
+		Duration interval = Duration.ofSeconds(1);
 		this.redisRepository.setDefaultMaxInactiveInterval(interval);
 		Session session = this.redisRepository.createSession();
-		assertThat(session.getMaxInactiveInterval()).isEqualTo(Duration.ofSeconds(interval));
+		assertThat(session.getMaxInactiveInterval()).isEqualTo(interval);
 	}
 
 	@Test
@@ -663,7 +663,7 @@ class RedisIndexedSessionRepositoryTests {
 		given(this.redisOperations.<String, Object>boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
-		this.redisRepository.setDefaultMaxInactiveInterval(60);
+		this.redisRepository.setDefaultMaxInactiveInterval(Duration.ofSeconds(60));
 		this.redisRepository.setFlushMode(FlushMode.IMMEDIATE);
 		this.redisRepository.createSession();
 		Map<String, Object> delta = getDelta();

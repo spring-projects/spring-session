@@ -17,6 +17,7 @@
 package org.springframework.session.jdbc.config.annotation.web.http;
 
 import java.sql.DatabaseMetaData;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,7 +78,7 @@ import org.springframework.util.StringValueResolver;
 public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
-	private Integer maxInactiveIntervalInSeconds = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS;
+	private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
 	private String tableName = JdbcIndexedSessionRepository.DEFAULT_TABLE_NAME;
 
@@ -118,7 +119,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		if (StringUtils.hasText(this.tableName)) {
 			sessionRepository.setTableName(this.tableName);
 		}
-		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveIntervalInSeconds);
+		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveInterval);
 		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
 		sessionRepository.setCleanupCron(this.cleanupCron);
@@ -158,8 +159,13 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		}
 	}
 
+	public void setMaxInactiveInterval(Duration maxInactiveInterval) {
+		this.maxInactiveInterval = maxInactiveInterval;
+	}
+
+	@Deprecated
 	public void setMaxInactiveIntervalInSeconds(Integer maxInactiveIntervalInSeconds) {
-		this.maxInactiveIntervalInSeconds = maxInactiveIntervalInSeconds;
+		setMaxInactiveInterval(Duration.ofSeconds(maxInactiveIntervalInSeconds));
 	}
 
 	public void setTableName(String tableName) {
@@ -246,7 +252,7 @@ public class JdbcHttpSessionConfiguration extends SpringHttpSessionConfiguration
 		if (attributes == null) {
 			return;
 		}
-		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
+		this.maxInactiveInterval = Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
 		String tableNameValue = attributes.getString("tableName");
 		if (StringUtils.hasText(tableNameValue)) {
 			this.tableName = this.embeddedValueResolver.resolveStringValue(tableNameValue);
