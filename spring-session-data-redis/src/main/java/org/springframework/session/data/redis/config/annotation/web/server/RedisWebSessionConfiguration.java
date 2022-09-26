@@ -140,6 +140,9 @@ public class RedisWebSessionConfiguration extends SpringWebSessionConfiguration
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableRedisWebSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		if (attributes == null) {
+			return;
+		}
 		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
 		String redisNamespaceValue = attributes.getString("redisNamespace");
 		if (StringUtils.hasText(redisNamespaceValue)) {

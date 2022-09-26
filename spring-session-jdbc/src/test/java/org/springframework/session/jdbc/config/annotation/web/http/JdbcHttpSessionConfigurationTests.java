@@ -27,6 +27,7 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
@@ -310,6 +311,13 @@ class JdbcHttpSessionConfigurationTests {
 		assertThat(jdbcTemplate.getExceptionTranslator()).isInstanceOf(SQLErrorCodeSQLExceptionTranslator.class);
 	}
 
+	@Test
+	void importConfigAndCustomize() {
+		registerAndRefresh(DataSourceConfiguration.class, ImportConfigAndCustomizeConfiguration.class);
+		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(0);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -552,6 +560,17 @@ class JdbcHttpSessionConfigurationTests {
 		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Import(JdbcHttpSessionConfiguration.class)
+	static class ImportConfigAndCustomizeConfiguration {
+
+		@Bean
+		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizer() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 	}

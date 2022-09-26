@@ -125,6 +125,9 @@ public class HazelcastHttpSessionConfiguration extends SpringHttpSessionConfigur
 		Map<String, Object> attributeMap = importMetadata
 				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
+		if (attributes == null) {
+			return;
+		}
 		this.maxInactiveIntervalInSeconds = attributes.getNumber("maxInactiveIntervalInSeconds");
 		String sessionMapNameValue = attributes.getString("sessionMapName");
 		if (StringUtils.hasText(sessionMapNameValue)) {

@@ -194,6 +194,13 @@ public class MongoHttpSessionConfigurationTest {
 				indexResolver);
 	}
 
+	@Test
+	void importConfigAndCustomize() {
+		registerAndRefresh(ImportConfigAndCustomizeConfiguration.class);
+		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("maxInactiveIntervalInSeconds").isEqualTo(0);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 
 		this.context.register(annotatedClasses);
@@ -329,6 +336,17 @@ public class MongoHttpSessionConfigurationTest {
 		@SuppressWarnings("unchecked")
 		IndexResolver<MongoSession> indexResolver() {
 			return mock(IndexResolver.class);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Import(MongoHttpSessionConfiguration.class)
+	static class ImportConfigAndCustomizeConfiguration extends BaseConfiguration {
+
+		@Bean
+		SessionRepositoryCustomizer<MongoIndexedSessionRepository> sessionRepositoryCustomizer() {
+			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
 		}
 
 	}

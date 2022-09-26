@@ -27,6 +27,7 @@ import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
@@ -220,6 +221,15 @@ public class ReactiveMongoWebSessionConfigurationTest {
 				indexResolver);
 	}
 
+	@Test
+	void importConfigAndCustomize() {
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(ImportConfigAndCustomizeConfiguration.class);
+		this.context.refresh();
+		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
+		assertThat(sessionRepository).extracting("maxInactiveIntervalInSeconds").isEqualTo(0);
+	}
+
 	/**
 	 * Reflectively extract the {@link AbstractMongoSessionConverter} from the
 	 * {@link ReactiveMongoSessionRepository}. This is to avoid expanding the surface area
@@ -389,6 +399,22 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		@SuppressWarnings("unchecked")
 		IndexResolver<MongoSession> indexResolver() {
 			return mock(IndexResolver.class);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Import(ReactiveMongoWebSessionConfiguration.class)
+	static class ImportConfigAndCustomizeConfiguration {
+
+		@Bean
+		ReactiveMongoOperations operations() {
+			return mock(ReactiveMongoOperations.class);
+		}
+
+		@Bean
+		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizer() {
+			return (sessionRepository) -> sessionRepository.setMaxInactiveIntervalInSeconds(0);
 		}
 
 	}

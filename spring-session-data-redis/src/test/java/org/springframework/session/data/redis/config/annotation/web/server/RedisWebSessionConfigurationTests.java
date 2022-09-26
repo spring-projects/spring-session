@@ -25,6 +25,7 @@ import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
@@ -225,6 +226,13 @@ class RedisWebSessionConfigurationTests {
 				MAX_INACTIVE_INTERVAL_IN_SECONDS);
 	}
 
+	@Test
+	void importConfigAndCustomize() {
+		registerAndRefresh(RedisConfig.class, ImportConfigAndCustomizeConfiguration.class);
+		ReactiveRedisSessionRepository sessionRepository = this.context.getBean(ReactiveRedisSessionRepository.class);
+		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(0);
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -377,6 +385,17 @@ class RedisWebSessionConfigurationTests {
 		ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
 					.setDefaultMaxInactiveInterval(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@Import(RedisWebSessionConfiguration.class)
+	static class ImportConfigAndCustomizeConfiguration {
+
+		@Bean
+		ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> sessionRepositoryCustomizer() {
+			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(0);
 		}
 
 	}
