@@ -311,7 +311,6 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void delete() {
 		String attrName = "attrName";
 		MapSession expected = new MapSession();
@@ -319,10 +318,11 @@ class RedisIndexedSessionRepositoryTests {
 		expected.setAttribute(attrName, "attrValue");
 		given(this.redisOperations.<String, Object>boundHashOps(anyString())).willReturn(this.boundHashOperations);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
-		Map map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), expected.getAttribute(attrName),
-				RedisSessionMapper.CREATION_TIME_KEY, expected.getCreationTime().toEpochMilli(),
-				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) expected.getMaxInactiveInterval().getSeconds(),
-				RedisSessionMapper.LAST_ACCESSED_TIME_KEY, expected.getLastAccessedTime().toEpochMilli());
+		Map<String, Object> map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName),
+				expected.getAttribute(attrName), RedisSessionMapper.CREATION_TIME_KEY,
+				expected.getCreationTime().toEpochMilli(), RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+				(int) expected.getMaxInactiveInterval().getSeconds(), RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				expected.getLastAccessedTime().toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 
@@ -345,7 +345,6 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void getSessionNotFound() {
 		String id = "abc";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(id))).willReturn(this.boundHashOperations);
@@ -355,7 +354,6 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void getSessionFound() {
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";
@@ -365,7 +363,7 @@ class RedisIndexedSessionRepositoryTests {
 		expected.setAttribute(attribute2, null);
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(expected.getId())))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attribute1),
+		Map<String, Object> map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attribute1),
 				expected.getAttribute(attribute1), RedisIndexedSessionRepository.getSessionAttrNameKey(attribute2),
 				expected.getAttribute(attribute2), RedisSessionMapper.CREATION_TIME_KEY,
 				expected.getCreationTime().toEpochMilli(), RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
@@ -386,12 +384,12 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void getSessionExpired() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(expiredId)))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
 
@@ -399,14 +397,14 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void findByPrincipalNameExpired() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
 		given(this.boundSetOperations.members()).willReturn(Collections.singleton(expiredId));
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(expiredId)))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
 
@@ -416,7 +414,6 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void findByPrincipalName() {
 		Instant lastAccessed = Instant.now().minusMillis(10);
 		Instant createdTime = lastAccessed.minusMillis(10);
@@ -426,7 +423,7 @@ class RedisIndexedSessionRepositoryTests {
 		given(this.boundSetOperations.members()).willReturn(Collections.singleton(sessionId));
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(sessionId)))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisSessionMapper.CREATION_TIME_KEY, createdTime.toEpochMilli(),
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, createdTime.toEpochMilli(),
 				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) maxInactive.getSeconds(),
 				RedisSessionMapper.LAST_ACCESSED_TIME_KEY, lastAccessed.toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
@@ -468,7 +465,10 @@ class RedisIndexedSessionRepositoryTests {
 		String channel = "spring:session:event:0:created:" + session.getId();
 		JdkSerializationRedisSerializer defaultSerailizer = new JdkSerializationRedisSerializer();
 		this.redisRepository.setDefaultSerializer(defaultSerailizer);
-		byte[] body = defaultSerailizer.serialize(new HashMap());
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 0, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		byte[] body = defaultSerailizer.serialize(map);
 		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8), body);
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
@@ -485,7 +485,10 @@ class RedisIndexedSessionRepositoryTests {
 		byte[] pattern = "".getBytes(StandardCharsets.UTF_8);
 		byte[] body = new byte[0];
 		String channel = "spring:session:event:0:created:" + session.getId();
-		given(this.defaultSerializer.deserialize(body)).willReturn(new HashMap<String, Object>());
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 0, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+		given(this.defaultSerializer.deserialize(body)).willReturn(map);
 		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8), body);
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
 
@@ -497,12 +500,12 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void onMessageDeletedSessionFound() {
 		String deletedId = "deleted-id";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(deletedId)))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 0, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 0, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
 		given(this.boundHashOperations.entries()).willReturn(map);
 
@@ -525,7 +528,6 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void onMessageDeletedSessionNotFound() {
 		String deletedId = "deleted-id";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(deletedId)))
@@ -549,12 +551,12 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void onMessageExpiredSessionFound() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(expiredId)))
 				.willReturn(this.boundHashOperations);
-		Map map = map(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
 		given(this.boundHashOperations.entries()).willReturn(map);
 
@@ -577,7 +579,6 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void onMessageExpiredSessionNotFound() {
 		String expiredId = "expired-id";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(expiredId)))
@@ -813,7 +814,7 @@ class RedisIndexedSessionRepositoryTests {
 
 		MapSession session = this.cached;
 		String channel = "spring:session:event:created:1:" + session.getId();
-		byte[] body = serializer.serialize(new HashMap());
+		byte[] body = serializer.serialize(new HashMap<>());
 		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8), body);
 
 		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
@@ -913,7 +914,7 @@ class RedisIndexedSessionRepositoryTests {
 		return "spring:session:sessions:" + id;
 	}
 
-	private Map map(Object... objects) {
+	private Map<String, Object> map(Object... objects) {
 		Map<String, Object> result = new HashMap<>();
 		if (objects == null) {
 			return result;

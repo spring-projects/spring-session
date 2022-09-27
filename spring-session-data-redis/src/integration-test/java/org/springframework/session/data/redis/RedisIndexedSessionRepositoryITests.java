@@ -111,10 +111,10 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.save(toSave);
 
 		assertThat(this.registry.receivedEvent(toSave.getId())).isTrue();
-		assertThat(this.registry.<SessionCreatedEvent>getEvent(toSave.getId())).isInstanceOf(SessionCreatedEvent.class);
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members()).contains(toSave.getId());
 
-		Session session = this.repository.findById(toSave.getId());
+		SessionCreatedEvent createdEvent = this.registry.getEvent(toSave.getId());
+		Session session = createdEvent.getSession();
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
