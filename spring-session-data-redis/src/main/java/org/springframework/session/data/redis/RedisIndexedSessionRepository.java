@@ -462,11 +462,6 @@ public class RedisIndexedSessionRepository
 	@Override
 	public void save(RedisSession session) {
 		session.save();
-		if (session.isNew) {
-			String sessionCreatedKey = getSessionCreatedChannel(session.getId());
-			this.sessionRedisOperations.convertAndSend(sessionCreatedKey, session.delta);
-			session.isNew = false;
-		}
 	}
 
 	public void cleanUpExpiredSessions() {
@@ -507,33 +502,13 @@ public class RedisIndexedSessionRepository
 		if (entries.isEmpty()) {
 			return null;
 		}
-		MapSession loaded = loadSession(id, entries);
+		MapSession loaded = new RedisSessionMapper(id).apply(entries);
 		if (!allowExpired && loaded.isExpired()) {
 			return null;
 		}
 		RedisSession result = new RedisSession(loaded, false);
 		result.originalLastAccessTime = loaded.getLastAccessedTime();
 		return result;
-	}
-
-	private MapSession loadSession(String id, Map<String, Object> entries) {
-		MapSession loaded = new MapSession(id);
-		for (Map.Entry<String, Object> entry : entries.entrySet()) {
-			String key = entry.getKey();
-			if (RedisSessionMapper.CREATION_TIME_KEY.equals(key)) {
-				loaded.setCreationTime(Instant.ofEpochMilli((long) entry.getValue()));
-			}
-			else if (RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY.equals(key)) {
-				loaded.setMaxInactiveInterval(Duration.ofSeconds((int) entry.getValue()));
-			}
-			else if (RedisSessionMapper.LAST_ACCESSED_TIME_KEY.equals(key)) {
-				loaded.setLastAccessedTime(Instant.ofEpochMilli((long) entry.getValue()));
-			}
-			else if (key.startsWith(RedisSessionMapper.ATTRIBUTE_PREFIX)) {
-				loaded.setAttribute(key.substring(RedisSessionMapper.ATTRIBUTE_PREFIX.length()), entry.getValue());
-			}
-		}
-		return loaded;
 	}
 
 	@Override
@@ -568,9 +543,13 @@ public class RedisIndexedSessionRepository
 
 		if (ByteUtils.startsWith(messageChannel, this.sessionCreatedChannelPrefixBytes)) {
 			// TODO: is this thread safe?
+			String channel = new String(messageChannel);
+			String sessionId = channel.substring(channel.lastIndexOf(":") + 1);
 			@SuppressWarnings("unchecked")
-			Map<String, Object> loaded = (Map<String, Object>) this.defaultSerializer.deserialize(message.getBody());
-			handleCreated(loaded, new String(messageChannel));
+			Map<String, Object> entries = (Map<String, Object>) this.defaultSerializer.deserialize(message.getBody());
+			MapSession loaded = new RedisSessionMapper(sessionId).apply(entries);
+			RedisSession session = new RedisSession(loaded, false);
+			handleCreated(session);
 			return;
 		}
 
@@ -618,9 +597,7 @@ public class RedisIndexedSessionRepository
 		}
 	}
 
-	private void handleCreated(Map<String, Object> loaded, String channel) {
-		String id = channel.substring(channel.lastIndexOf(":") + 1);
-		Session session = loadSession(id, loaded);
+	private void handleCreated(RedisSession session) {
 		publishEvent(new SessionCreatedEvent(this, session));
 	}
 
@@ -874,9 +851,12 @@ public class RedisIndexedSessionRepository
 							.add(sessionId);
 				}
 			}
-
+			if (this.isNew) {
+				String sessionCreatedKey = getSessionCreatedChannel(getId());
+				RedisIndexedSessionRepository.this.sessionRedisOperations.convertAndSend(sessionCreatedKey, this.delta);
+				this.isNew = false;
+			}
 			this.delta = new HashMap<>(this.delta.size());
-
 			Long originalExpiration = (this.originalLastAccessTime != null)
 					? this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli() : null;
 			RedisIndexedSessionRepository.this.expirationPolicy.onExpirationUpdated(originalExpiration, this);
