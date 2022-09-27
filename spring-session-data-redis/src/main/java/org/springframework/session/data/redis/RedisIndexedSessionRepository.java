@@ -484,6 +484,9 @@ public class RedisIndexedSessionRepository
 		}
 		String principalKey = getPrincipalKey(indexValue);
 		Set<Object> sessionIds = this.sessionRedisOperations.boundSetOps(principalKey).members();
+		if (sessionIds == null) {
+			return Collections.emptyMap();
+		}
 		Map<String, RedisSession> sessions = new HashMap<>(sessionIds.size());
 		for (Object id : sessionIds) {
 			RedisSession session = findById((String) id);
@@ -503,7 +506,7 @@ public class RedisIndexedSessionRepository
 	 */
 	private RedisSession getSession(String id, boolean allowExpired) {
 		Map<String, Object> entries = getSessionBoundHashOperations(id).entries();
-		if (entries.isEmpty()) {
+		if ((entries == null) || entries.isEmpty()) {
 			return null;
 		}
 		MapSession loaded = new RedisSessionMapper(id).apply(entries);
