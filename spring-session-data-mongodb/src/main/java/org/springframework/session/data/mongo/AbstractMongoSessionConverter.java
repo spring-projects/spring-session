@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2016 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.PrincipalNameIndexResolver;
+import org.springframework.util.Assert;
 
 /**
  * Base class for serializing and deserializing session objects. To create custom
@@ -123,7 +124,8 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 	protected abstract MongoSession convert(Document sessionWrapper);
 
 	public void setIndexResolver(IndexResolver<MongoSession> indexResolver) {
-		this.indexResolver = Assert.requireNonNull(indexResolver, "indexResolver must not be null!");
+		Assert.notNull(indexResolver, "indexResolver must not be null");
+		this.indexResolver = indexResolver;
 	}
 
 }
