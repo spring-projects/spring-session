@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.mongodb.DBObject;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
@@ -38,6 +39,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
+import org.springframework.util.Assert;
 
 /**
  * Session repository implementation which stores sessions in Mongo. Uses
@@ -97,9 +99,9 @@ public class MongoIndexedSessionRepository
 
 	@Override
 	public void save(MongoSession session) {
-		this.mongoOperations
-				.save(Assert.requireNonNull(MongoSessionUtils.convertToDBObject(this.mongoSessionConverter, session),
-						"convertToDBObject must not null!"), this.collectionName);
+		DBObject dbObject = MongoSessionUtils.convertToDBObject(this.mongoSessionConverter, session);
+		Assert.notNull(dbObject, "dbObject must not be null");
+		this.mongoOperations.save(dbObject, this.collectionName);
 	}
 
 	@Override
