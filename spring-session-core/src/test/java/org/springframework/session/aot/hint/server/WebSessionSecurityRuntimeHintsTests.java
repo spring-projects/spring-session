@@ -54,7 +54,7 @@ class WebSessionSecurityRuntimeHintsTests {
 			classUtilsMock.when(() -> ClassUtils.isPresent(eq("org.springframework.web.server.WebSession"), any()))
 					.thenReturn(false);
 			this.webSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
-			assertThat(this.hints.serialization().javaSerialization()).isEmpty();
+			assertThat(this.hints.serialization().javaSerializationHints()).isEmpty();
 		}
 	}
 
@@ -66,7 +66,7 @@ class WebSessionSecurityRuntimeHintsTests {
 							.isPresent(eq("org.springframework.security.web.server.csrf.DefaultCsrfToken"), any()))
 					.thenReturn(false);
 			this.webSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
-			assertThat(this.hints.serialization().javaSerialization()).isEmpty();
+			assertThat(this.hints.serialization().javaSerializationHints()).isEmpty();
 		}
 	}
 
