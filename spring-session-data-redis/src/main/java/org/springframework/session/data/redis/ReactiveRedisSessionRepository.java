@@ -86,6 +86,19 @@ public class ReactiveRedisSessionRepository
 	}
 
 	/**
+	 * Set the maximum inactive interval in seconds between requests before newly created
+	 * sessions will be invalidated. A negative time indicates that the session will never
+	 * time out. The default is 1800 (30 minutes).
+	 * @param defaultMaxInactiveInterval the default maxInactiveInterval in seconds
+	 * @deprecated since 3.0.0, in favor of
+	 * {@link #setDefaultMaxInactiveInterval(Duration)}
+	 */
+	@Deprecated(since = "3.0.0")
+	public void setDefaultMaxInactiveInterval(int defaultMaxInactiveInterval) {
+		setDefaultMaxInactiveInterval(Duration.ofSeconds(defaultMaxInactiveInterval));
+	}
+
+	/**
 	 * Set the save mode.
 	 * @param saveMode the save mode
 	 */
