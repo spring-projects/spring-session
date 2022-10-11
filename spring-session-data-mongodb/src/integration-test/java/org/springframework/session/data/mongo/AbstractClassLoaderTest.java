@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.data.mongo.integration;
+package org.springframework.session.data.mongo;
 
 import java.lang.reflect.Field;
 
@@ -25,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.serializer.DefaultDeserializer;
 import org.springframework.core.serializer.support.DeserializingConverter;
-import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
-import org.springframework.session.data.mongo.JdkMongoSessionConverter;
 import org.springframework.util.ReflectionUtils;
 
 /**

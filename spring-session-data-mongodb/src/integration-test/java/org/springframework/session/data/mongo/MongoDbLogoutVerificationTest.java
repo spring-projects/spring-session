@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.data.mongo.integration;
+package org.springframework.session.data.mongo;
 
 import java.net.URI;
 
@@ -41,8 +41,6 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
-import org.springframework.session.data.mongo.JacksonMongoSessionConverter;
 import org.springframework.session.data.mongo.config.annotation.web.reactive.EnableMongoWebSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -54,11 +52,11 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
 
 /**
- * @author Boris Finkelshteyn
+ * @author Greg Turnquist
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
-public class MongoDbDeleteJacksonSessionVerificationTest {
+public class MongoDbLogoutVerificationTest {
 
 	@Autowired
 	ApplicationContext ctx;
@@ -143,6 +141,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 
 		@Bean
 		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+
 			return http //
 					.logout()//
 					/**/.and() //
@@ -157,15 +156,11 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 
 		@Bean
 		MapReactiveUserDetailsService userDetailsService() {
+
 			return new MapReactiveUserDetailsService(User.withUsername("admin") //
 					.password("{noop}password") //
 					.roles("USER,ADMIN") //
 					.build());
-		}
-
-		@Bean
-		AbstractMongoSessionConverter mongoSessionConverter() {
-			return new JacksonMongoSessionConverter();
 		}
 
 	}
@@ -189,7 +184,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 
 			MongoClient mongo = MongoClients
 					.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
-			return new ReactiveMongoTemplate(mongo, "DB_Name_DeleteJacksonSessionVerificationTest");
+			return new ReactiveMongoTemplate(mongo, "test");
 		}
 
 		@Bean

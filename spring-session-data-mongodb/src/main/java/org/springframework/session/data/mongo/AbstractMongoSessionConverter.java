@@ -36,6 +36,7 @@ import org.springframework.session.DelegatingIndexResolver;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.PrincipalNameIndexResolver;
+import org.springframework.session.Session;
 import org.springframework.util.Assert;
 
 /**
@@ -55,8 +56,7 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private IndexResolver<MongoSession> indexResolver = new DelegatingIndexResolver<>(
-			new PrincipalNameIndexResolver<>());
+	private IndexResolver<Session> indexResolver = new DelegatingIndexResolver<>(new PrincipalNameIndexResolver<>());
 
 	/**
 	 * Returns query to be executed to return sessions based on a particular index.
@@ -123,7 +123,7 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 
 	protected abstract MongoSession convert(Document sessionWrapper);
 
-	public void setIndexResolver(IndexResolver<MongoSession> indexResolver) {
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
 		Assert.notNull(indexResolver, "indexResolver must not be null");
 		this.indexResolver = indexResolver;
 	}

@@ -36,11 +36,11 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 import org.springframework.session.data.mongo.JdkMongoSessionConverter;
-import org.springframework.session.data.mongo.MongoSession;
 import org.springframework.session.data.mongo.ReactiveMongoSessionRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.util.StringValueResolver;
@@ -72,7 +72,7 @@ public class ReactiveMongoWebSessionConfiguration
 
 	private ClassLoader classLoader;
 
-	private IndexResolver<MongoSession> indexResolver;
+	private IndexResolver<Session> indexResolver;
 
 	@Bean
 	public ReactiveMongoSessionRepository reactiveMongoSessionRepository(ReactiveMongoOperations operations) {
@@ -176,7 +176,7 @@ public class ReactiveMongoWebSessionConfiguration
 	}
 
 	@Autowired(required = false)
-	public void setIndexResolver(IndexResolver<MongoSession> indexResolver) {
+	public void setIndexResolver(IndexResolver<Session> indexResolver) {
 		this.indexResolver = indexResolver;
 	}
 

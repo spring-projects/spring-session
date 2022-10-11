@@ -37,7 +37,7 @@ import org.springframework.session.Session;
  * @author Greg Turnquist
  * @since 1.2
  */
-public class MongoSession implements Session {
+class MongoSession implements Session {
 
 	/**
 	 * Mongo doesn't support {@literal dot} in field names. We replace it with a unicode
@@ -66,15 +66,15 @@ public class MongoSession implements Session {
 
 	private Map<String, Object> attrs = new HashMap<>();
 
-	public MongoSession() {
+	MongoSession() {
 		this(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
-	public MongoSession(long maxInactiveIntervalInSeconds) {
+	MongoSession(long maxInactiveIntervalInSeconds) {
 		this(UUID.randomUUID().toString(), maxInactiveIntervalInSeconds);
 	}
 
-	public MongoSession(String id, long maxInactiveIntervalInSeconds) {
+	MongoSession(String id, long maxInactiveIntervalInSeconds) {
 
 		this.id = id;
 		this.originalSessionId = id;
@@ -130,7 +130,7 @@ public class MongoSession implements Session {
 		return Instant.ofEpochMilli(this.createdMillis);
 	}
 
-	public void setCreationTime(long created) {
+	void setCreationTime(long created) {
 		this.createdMillis = created;
 	}
 
@@ -184,11 +184,11 @@ public class MongoSession implements Session {
 		return this.id;
 	}
 
-	public Date getExpireAt() {
+	Date getExpireAt() {
 		return this.expireAt;
 	}
 
-	public void setExpireAt(final Date expireAt) {
+	void setExpireAt(final Date expireAt) {
 		this.expireAt = expireAt;
 	}
 
