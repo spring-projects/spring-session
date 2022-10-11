@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.data.mongo.integration;
+package org.springframework.session.data.mongo;
 
 import java.net.URI;
 
@@ -52,11 +52,11 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 import org.springframework.web.reactive.function.BodyInserters;
 
 /**
- * @author Greg Turnquist
+ * @author Boris Finkelshteyn
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
-public class MongoDbLogoutVerificationTest {
+public class MongoDbDeleteJacksonSessionVerificationTest {
 
 	@Autowired
 	ApplicationContext ctx;
@@ -141,7 +141,6 @@ public class MongoDbLogoutVerificationTest {
 
 		@Bean
 		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-
 			return http //
 					.logout()//
 					/**/.and() //
@@ -156,11 +155,15 @@ public class MongoDbLogoutVerificationTest {
 
 		@Bean
 		MapReactiveUserDetailsService userDetailsService() {
-
 			return new MapReactiveUserDetailsService(User.withUsername("admin") //
 					.password("{noop}password") //
 					.roles("USER,ADMIN") //
 					.build());
+		}
+
+		@Bean
+		AbstractMongoSessionConverter mongoSessionConverter() {
+			return new JacksonMongoSessionConverter();
 		}
 
 	}
@@ -184,7 +187,7 @@ public class MongoDbLogoutVerificationTest {
 
 			MongoClient mongo = MongoClients
 					.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
-			return new ReactiveMongoTemplate(mongo, "test");
+			return new ReactiveMongoTemplate(mongo, "DB_Name_DeleteJacksonSessionVerificationTest");
 		}
 
 		@Bean

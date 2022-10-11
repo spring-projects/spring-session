@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.session.data.mongo.integration;
+package org.springframework.session.data.mongo;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -37,8 +37,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.data.mongo.MongoIndexedSessionRepository;
-import org.springframework.session.data.mongo.MongoSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

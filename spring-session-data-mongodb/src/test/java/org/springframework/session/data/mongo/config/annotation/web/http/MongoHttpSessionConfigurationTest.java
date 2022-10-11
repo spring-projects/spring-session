@@ -33,11 +33,11 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.IndexResolver;
+import org.springframework.session.Session;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 import org.springframework.session.data.mongo.JacksonMongoSessionConverter;
 import org.springframework.session.data.mongo.MongoIndexedSessionRepository;
-import org.springframework.session.data.mongo.MongoSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -170,7 +170,7 @@ public class MongoHttpSessionConfigurationTest {
 				CustomIndexResolverConfigurationWithDefaultMongoSessionConverter.class);
 
 		MongoIndexedSessionRepository repository = this.context.getBean(MongoIndexedSessionRepository.class);
-		IndexResolver<MongoSession> indexResolver = this.context.getBean(IndexResolver.class);
+		IndexResolver<Session> indexResolver = this.context.getBean(IndexResolver.class);
 
 		assertThat(repository).isNotNull();
 		assertThat(indexResolver).isNotNull();
@@ -185,7 +185,7 @@ public class MongoHttpSessionConfigurationTest {
 				CustomIndexResolverConfigurationWithProvidedMongoSessionConverter.class);
 
 		MongoIndexedSessionRepository repository = this.context.getBean(MongoIndexedSessionRepository.class);
-		IndexResolver<MongoSession> indexResolver = this.context.getBean(IndexResolver.class);
+		IndexResolver<Session> indexResolver = this.context.getBean(IndexResolver.class);
 
 		assertThat(repository).isNotNull();
 		assertThat(indexResolver).isNotNull();
@@ -316,7 +316,7 @@ public class MongoHttpSessionConfigurationTest {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		IndexResolver<MongoSession> indexResolver() {
+		IndexResolver<Session> indexResolver() {
 			return mock(IndexResolver.class);
 		}
 
@@ -333,7 +333,7 @@ public class MongoHttpSessionConfigurationTest {
 
 		@Bean
 		@SuppressWarnings("unchecked")
-		IndexResolver<MongoSession> indexResolver() {
+		IndexResolver<Session> indexResolver() {
 			return mock(IndexResolver.class);
 		}
 
