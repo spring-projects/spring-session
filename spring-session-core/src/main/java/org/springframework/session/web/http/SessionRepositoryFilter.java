@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -267,14 +267,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				if (requestedSession != null) {
 					requestedSession.setLastAccessedTime(Instant.now());
 				}
-				return isRequestedSessionIdValid(requestedSession);
-			}
-			return this.requestedSessionIdValid;
-		}
-
-		private boolean isRequestedSessionIdValid(S session) {
-			if (this.requestedSessionIdValid == null) {
-				this.requestedSessionIdValid = session != null;
+				this.requestedSessionIdValid = (requestedSession != null);
 			}
 			return this.requestedSessionIdValid;
 		}
@@ -358,7 +351,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 					S session = SessionRepositoryFilter.this.sessionRepository.findById(sessionId);
 					if (session != null) {
 						this.requestedSession = session;
-						this.requestedSessionId = sessionId;
 						break;
 					}
 				}
