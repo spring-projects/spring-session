@@ -71,9 +71,8 @@ class HazelcastHttpSessionConfigurationTests {
 	@Test
 	void noHazelcastInstanceConfiguration() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class))
-				.withCauseInstanceOf(NoSuchBeanDefinitionException.class).havingCause()
-				.withMessageContaining("HazelcastInstance");
+				.isThrownBy(() -> registerAndRefresh(NoHazelcastInstanceConfiguration.class)).havingRootCause()
+				.isInstanceOf(NoSuchBeanDefinitionException.class).withMessageContaining("HazelcastInstance");
 	}
 
 	@Test
@@ -206,8 +205,8 @@ class HazelcastHttpSessionConfigurationTests {
 	@Test
 	void multipleHazelcastInstanceConfiguration() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class))
-				.withCauseInstanceOf(NoUniqueBeanDefinitionException.class).havingCause()
+				.isThrownBy(() -> registerAndRefresh(MultipleHazelcastInstanceConfiguration.class)).havingRootCause()
+				.isInstanceOf(NoUniqueBeanDefinitionException.class)
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 

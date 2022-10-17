@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.serializer.support.DeserializingConverter;
@@ -49,10 +50,11 @@ import org.springframework.util.StringValueResolver;
  * {@link ReactiveMongoOperations}.
  *
  * @author Greg Turnquist
- * @author Vedran Pavić
+ * @author Vedran Pavic
  */
 @Configuration(proxyBeanMethods = false)
-public class ReactiveMongoWebSessionConfiguration extends SpringWebSessionConfiguration
+@Import(SpringWebSessionConfiguration.class)
+public class ReactiveMongoWebSessionConfiguration
 		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
 	private AbstractMongoSessionConverter mongoSessionConverter;

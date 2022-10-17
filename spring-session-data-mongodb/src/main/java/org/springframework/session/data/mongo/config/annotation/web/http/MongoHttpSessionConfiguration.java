@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.serializer.support.DeserializingConverter;
@@ -52,8 +53,8 @@ import org.springframework.util.StringValueResolver;
  * @since 1.2
  */
 @Configuration(proxyBeanMethods = false)
-public class MongoHttpSessionConfiguration extends SpringHttpSessionConfiguration
-		implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
+@Import(SpringHttpSessionConfiguration.class)
+public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, EmbeddedValueResolverAware, ImportAware {
 
 	private AbstractMongoSessionConverter mongoSessionConverter;
 

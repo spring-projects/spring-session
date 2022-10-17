@@ -191,7 +191,7 @@ class RedisWebSessionConfigurationTests {
 	void multipleConnectionFactoryRedisConfig() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class))
-				.withCauseInstanceOf(NoUniqueBeanDefinitionException.class).havingCause()
+				.havingRootCause().isInstanceOf(NoUniqueBeanDefinitionException.class)
 				.withMessageContaining("expected single matching bean but found 2");
 	}
 

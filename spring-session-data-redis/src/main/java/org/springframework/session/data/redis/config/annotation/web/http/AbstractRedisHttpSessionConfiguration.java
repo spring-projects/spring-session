@@ -25,6 +25,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -51,8 +52,9 @@ import org.springframework.util.Assert;
  * @see SpringSessionRedisConnectionFactory
  */
 @Configuration(proxyBeanMethods = false)
+@Import(SpringHttpSessionConfiguration.class)
 public abstract class AbstractRedisHttpSessionConfiguration<T extends SessionRepository<? extends Session>>
-		extends SpringHttpSessionConfiguration implements BeanClassLoaderAware {
+		implements BeanClassLoaderAware {
 
 	private Duration maxInactiveInterval = MapSession.DEFAULT_MAX_INACTIVE_INTERVAL;
 
