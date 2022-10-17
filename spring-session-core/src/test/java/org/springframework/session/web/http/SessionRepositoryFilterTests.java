@@ -1327,7 +1327,7 @@ class SessionRepositoryFilterTests {
 			}
 		});
 
-		// 2 invocations expected: initial resolution, after invalidation, after commit
+		// 2 invocations expected: initial resolution, after invalidation
 		verify(sessionRepository, times(2)).findById(eq(session.getId()));
 		verify(sessionRepository).deleteById(eq(session.getId()));
 		verify(sessionRepository).createSession();
