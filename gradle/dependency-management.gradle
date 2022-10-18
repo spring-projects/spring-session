@@ -32,7 +32,7 @@ dependencyManagement {
 		dependency 'org.hamcrest:hamcrest:2.2'
 		dependency 'org.hsqldb:hsqldb:2.7.0'
 		dependency 'org.mariadb.jdbc:mariadb-java-client:3.0.7'
-		dependencySet(group: 'org.mongodb', version: '4.7.1') {
+		dependencySet(group: 'org.mongodb', version: '4.8.0-beta0') {
 			entry 'mongodb-driver-core'
 			entry 'mongodb-driver-sync'
 			entry 'mongodb-driver-reactivestreams'
