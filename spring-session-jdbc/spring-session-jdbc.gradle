@@ -25,6 +25,7 @@ dependencies {
 	integrationTestCompile "com.zaxxer:HikariCP"
 	integrationTestCompile "mysql:mysql-connector-java"
 	integrationTestCompile "org.apache.derby:derby"
+	integrationTestCompile "org.apache.derby:derbytools"
 	integrationTestCompile "org.hsqldb:hsqldb"
 	integrationTestCompile "org.mariadb.jdbc:mariadb-java-client"
 	integrationTestCompile "org.postgresql:postgresql"

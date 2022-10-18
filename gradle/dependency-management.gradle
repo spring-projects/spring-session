@@ -24,7 +24,10 @@ dependencyManagement {
 		dependency 'io.lettuce:lettuce-core:6.2.1.RELEASE'
 		dependency 'jakarta.servlet:jakarta.servlet-api:5.0.0'
 		dependency 'mysql:mysql-connector-java:8.0.30'
-		dependency 'org.apache.derby:derby:10.14.2.0'
+		dependencySet(group: 'org.apache.derby', version: '10.16.1.1') {
+			entry 'derby'
+			entry 'derbytools'
+		}
 		dependency 'org.assertj:assertj-core:3.23.1'
 		dependency 'org.hamcrest:hamcrest:2.2'
 		dependency 'org.hsqldb:hsqldb:2.7.0'
