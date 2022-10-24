@@ -63,7 +63,7 @@ Compile and test; build all jars, distribution zips, and docs
 
 You can find the documentation, samples, and guides for using Spring Session on the https://projects.spring.io/spring-session/[Spring Session project site].
 
-For more in depth information, visit the https://docs.spring.io/spring-session/docs/current/reference/html5/[Spring Session Reference].
+For more in depth information, visit the https://docs.spring.io/spring-session/reference/[Spring Session Reference].
 
 == Code of Conduct
 
