@@ -15,7 +15,6 @@
 *** xref:guides/boot-webflux-custom-cookie.adoc[Custom Cookie]
 ** Java Configuration
 ** XML Configuration
-* xref:modules.adoc[Modules]
 * xref:http-session.adoc[HttpSession Integration]
 * xref:web-socket.adoc[WebSocket Integration]
 * xref:web-session.adoc[WebSession Integration]

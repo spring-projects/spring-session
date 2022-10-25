@@ -12,6 +12,7 @@ plugins {
 
 rootProject.name = 'spring-session-build'
 
+include 'spring-session-bom'
 include 'spring-session-core'
 include 'spring-session-data-mongodb'
 include 'spring-session-data-redis'
