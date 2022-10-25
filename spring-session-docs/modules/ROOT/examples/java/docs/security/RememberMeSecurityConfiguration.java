@@ -51,7 +51,7 @@ public class RememberMeSecurityConfiguration {
 
 		return http
 			.formLogin(Customizer.withDefaults())
-			.authorizeRequests((authorize) -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 				.anyRequest().authenticated()
 			).build();
 	}
