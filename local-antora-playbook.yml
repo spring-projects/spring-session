@@ -1,0 +1,28 @@
+antora:
+  extensions:
+  - ./lib/antora/extensions/inject-collector-config.js
+  - '@antora/collector-extension'
+  - ./lib/antora/extensions/version-fix.js
+  - '@opendevise/antora-release-line-extension'
+site:
+  title: Spring Session
+  url: https://docs.spring.io/spring-session/reference
+git:
+  ensure_git_suffix: false
+content:
+  sources:
+  - url: .
+    branches: [ main, '2.{6..9}+.{0..9}+.x' ]
+    tags: [ '2.{6..9}.*', '3.+({0..9}).+({0..9})?(-{RC,M}*)', '!2.6.0-M*','!2.6.0-RC*','!2.7.0-M1','!3.0.0-M1' ]
+    start_path: spring-session-docs
+    worktrees: true # automatically discovers worktrees, if present; otherwise, will use git tree
+asciidoc:
+  attributes:
+    page-pagination: ''
+    hide-uri-scheme: '@'
+urls:
+  latest_version_segment: ''
+ui:
+  bundle:
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
+    snapshot: true

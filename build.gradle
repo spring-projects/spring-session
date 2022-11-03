@@ -1,0 +1,18 @@
+plugins {
+	id 'base'
+	id 'org.antora' version '1.0.0-alpha.3'
+}
+
+antora {
+    version = '3.2.0-alpha.1'
+	options = ['--clean', '--fetch', '--stacktrace']
+	environment = [
+		'ALGOLIA_API_KEY': '82c7ead946afbac3cf98c32446154691',
+		'ALGOLIA_APP_ID': '244V8V9FGG',
+		'ALGOLIA_INDEX_NAME': 'session-docs'
+    ]
+	dependencies = [
+		'@antora/collector-extension': '1.0.0-alpha.2',
+		'@opendevise/antora-release-line-extension': '1.0.0-alpha.1'
+	]
+}
