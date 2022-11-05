@@ -24,7 +24,6 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,7 +39,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionBindingListener;
-import jakarta.servlet.http.HttpSessionContext;
 
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
@@ -312,52 +310,6 @@ class SessionRepositoryFilterTests {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				assertThat(wrappedRequest.getSession().getAttribute(ATTR)).isNull();
-			}
-		});
-	}
-
-	@Test
-	void doFilterValue() throws Exception {
-		final String ATTR = "ATTR";
-		final String VALUE = "VALUE";
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				wrappedRequest.getSession().putValue(ATTR, VALUE);
-				assertThat(wrappedRequest.getSession().getValue(ATTR)).isEqualTo(VALUE);
-				assertThat(Arrays.asList(wrappedRequest.getSession().getValueNames())).containsOnly(ATTR);
-			}
-		});
-
-		nextRequest();
-
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				assertThat(wrappedRequest.getSession().getValue(ATTR)).isEqualTo(VALUE);
-				assertThat(Arrays.asList(wrappedRequest.getSession().getValueNames())).containsOnly(ATTR);
-			}
-		});
-
-		nextRequest();
-
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				assertThat(wrappedRequest.getSession().getValue(ATTR)).isEqualTo(VALUE);
-
-				wrappedRequest.getSession().removeValue(ATTR);
-
-				assertThat(wrappedRequest.getSession().getValue(ATTR)).isNull();
-			}
-		});
-
-		nextRequest();
-
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				assertThat(wrappedRequest.getSession().getValue(ATTR)).isNull();
 			}
 		});
 	}
@@ -637,27 +589,6 @@ class SessionRepositoryFilterTests {
 		assertThat(session.getSecure()).describedAs("Session Cookie should be marked as Secure").isTrue();
 	}
 
-	@Test
-	void doFilterSessionContext() throws Exception {
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				HttpSessionContext sessionContext = wrappedRequest.getSession().getSessionContext();
-				assertThat(sessionContext).isNotNull();
-				assertThat(sessionContext.getSession("a")).isNull();
-				assertThat(sessionContext.getIds()).isNotNull();
-				assertThat(sessionContext.getIds().hasMoreElements()).isFalse();
-
-				try {
-					sessionContext.getIds().nextElement();
-					fail("Expected Exception");
-				}
-				catch (NoSuchElementException ignored) {
-				}
-			}
-		});
-	}
-
 	// --- saving
 
 	@Test
@@ -742,23 +673,6 @@ class SessionRepositoryFilterTests {
 	}
 
 	@Test
-	void doFilterInvalidateValueIllegalState() throws Exception {
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				HttpSession session = wrappedRequest.getSession();
-				session.invalidate();
-				try {
-					session.getValue("attr");
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
-			}
-		});
-	}
-
-	@Test
 	void doFilterInvalidateAttributeNamesIllegalState() throws Exception {
 		doFilter(new DoInFilter() {
 			@Override
@@ -767,23 +681,6 @@ class SessionRepositoryFilterTests {
 				session.invalidate();
 				try {
 					session.getAttributeNames();
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
-			}
-		});
-	}
-
-	@Test
-	void doFilterInvalidateValueNamesIllegalState() throws Exception {
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				HttpSession session = wrappedRequest.getSession();
-				session.invalidate();
-				try {
-					session.getValueNames();
 					fail("Expected Exception");
 				}
 				catch (IllegalStateException ignored) {
@@ -810,23 +707,6 @@ class SessionRepositoryFilterTests {
 	}
 
 	@Test
-	void doFilterInvalidatePutValueIllegalState() throws Exception {
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				HttpSession session = wrappedRequest.getSession();
-				session.invalidate();
-				try {
-					session.putValue("a", "b");
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
-			}
-		});
-	}
-
-	@Test
 	void doFilterInvalidateRemoveAttributeIllegalState() throws Exception {
 		doFilter(new DoInFilter() {
 			@Override
@@ -835,23 +715,6 @@ class SessionRepositoryFilterTests {
 				session.invalidate();
 				try {
 					session.removeAttribute("name");
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
-			}
-		});
-	}
-
-	@Test
-	void doFilterInvalidateRemoveValueIllegalState() throws Exception {
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				HttpSession session = wrappedRequest.getSession();
-				session.invalidate();
-				try {
-					session.removeValue("name");
 					fail("Expected Exception");
 				}
 				catch (IllegalStateException ignored) {
@@ -917,20 +780,6 @@ class SessionRepositoryFilterTests {
 
 				// no exception
 				session.getServletContext();
-			}
-		});
-	}
-
-	@Test
-	void doFilterInvalidateSessionContext() throws Exception {
-		doFilter(new DoInFilter() {
-			@Override
-			public void doFilter(HttpServletRequest wrappedRequest) {
-				HttpSession session = wrappedRequest.getSession();
-				session.invalidate();
-
-				// no exception
-				session.getSessionContext();
 			}
 		});
 	}
