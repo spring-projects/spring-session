@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,11 @@ package org.springframework.session.web.http;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.NoSuchElementException;
-import java.util.Set;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionBindingListener;
-import jakarta.servlet.http.HttpSessionContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +38,6 @@ import org.springframework.session.Session;
  * @author Vedran Pavic
  * @since 1.1
  */
-@SuppressWarnings("deprecation")
 class HttpSessionAdapter<S extends Session> implements HttpSession {
 
 	private static final Log logger = LogFactory.getLog(HttpSessionAdapter.class);
@@ -102,32 +98,15 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	}
 
 	@Override
-	public HttpSessionContext getSessionContext() {
-		return NOOP_SESSION_CONTEXT;
-	}
-
-	@Override
 	public Object getAttribute(String name) {
 		checkState();
 		return this.session.getAttribute(name);
 	}
 
 	@Override
-	public Object getValue(String name) {
-		return getAttribute(name);
-	}
-
-	@Override
 	public Enumeration<String> getAttributeNames() {
 		checkState();
 		return Collections.enumeration(this.session.getAttributeNames());
-	}
-
-	@Override
-	public String[] getValueNames() {
-		checkState();
-		Set<String> attrs = this.session.getAttributeNames();
-		return attrs.toArray(new String[0]);
 	}
 
 	@Override
@@ -157,11 +136,6 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	}
 
 	@Override
-	public void putValue(String name, Object value) {
-		setAttribute(name, value);
-	}
-
-	@Override
 	public void removeAttribute(String name) {
 		checkState();
 		Object oldValue = this.session.getAttribute(name);
@@ -174,11 +148,6 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 				logger.error("Error invoking session binding event listener", th);
 			}
 		}
-	}
-
-	@Override
-	public void removeValue(String name) {
-		removeAttribute(name);
 	}
 
 	@Override
@@ -202,33 +171,5 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 			throw new IllegalStateException("The HttpSession has already be invalidated.");
 		}
 	}
-
-	private static final HttpSessionContext NOOP_SESSION_CONTEXT = new HttpSessionContext() {
-
-		@Override
-		public HttpSession getSession(String sessionId) {
-			return null;
-		}
-
-		@Override
-		public Enumeration<String> getIds() {
-			return EMPTY_ENUMERATION;
-		}
-
-	};
-
-	private static final Enumeration<String> EMPTY_ENUMERATION = new Enumeration<String>() {
-
-		@Override
-		public boolean hasMoreElements() {
-			return false;
-		}
-
-		@Override
-		public String nextElement() {
-			throw new NoSuchElementException("a");
-		}
-
-	};
 
 }

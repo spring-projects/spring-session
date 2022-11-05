@@ -22,7 +22,7 @@ dependencyManagement {
 		dependency 'com.zaxxer:HikariCP:5.0.1'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
 		dependency 'io.lettuce:lettuce-core:6.2.1.RELEASE'
-		dependency 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+		dependency 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 		dependency 'mysql:mysql-connector-java:8.0.30'
 		dependencySet(group: 'org.apache.derby', version: '10.16.1.1') {
 			entry 'derby'
