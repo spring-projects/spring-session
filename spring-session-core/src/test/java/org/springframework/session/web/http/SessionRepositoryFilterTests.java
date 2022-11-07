@@ -78,7 +78,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Tests for {@link SessionRepositoryFilter}.
  */
 @ExtendWith(MockitoExtension.class)
-@SuppressWarnings("deprecation")
 class SessionRepositoryFilterTests {
 
 	@Mock
@@ -1188,8 +1187,9 @@ class SessionRepositoryFilterTests {
 
 	@Test
 	void order() {
-		assertThat(AnnotationAwareOrderComparator.INSTANCE.compare(this.filter,
-				new SessionRepositoryFilterDefaultOrder()));
+		assertThat(
+				AnnotationAwareOrderComparator.INSTANCE.compare(this.filter, new SessionRepositoryFilterDefaultOrder()))
+						.isZero();
 	}
 
 	// We want the filter to work without any dependencies on Spring
@@ -1401,7 +1401,7 @@ class SessionRepositoryFilterTests {
 
 	}
 
-	private abstract class DoInFilter {
+	private abstract static class DoInFilter {
 
 		void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
 				throws ServletException, IOException {
