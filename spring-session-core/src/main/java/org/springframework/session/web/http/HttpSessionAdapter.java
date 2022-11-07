@@ -42,7 +42,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 
 	private static final Log logger = LogFactory.getLog(HttpSessionAdapter.class);
 
-	private S session;
+	private final S session;
 
 	private final ServletContext servletContext;
 
