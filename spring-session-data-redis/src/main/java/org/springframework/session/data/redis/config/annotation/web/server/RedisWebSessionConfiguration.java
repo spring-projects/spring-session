@@ -37,7 +37,6 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
@@ -54,6 +53,7 @@ import org.springframework.web.server.session.WebSessionManager;
  * Bean.
  *
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 2.0.0
  * @see EnableRedisWebSession
  */
@@ -159,7 +159,7 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 	}
 
 	private ReactiveRedisTemplate<String, Object> createReactiveRedisTemplate() {
-		RedisSerializer<String> keySerializer = new StringRedisSerializer();
+		RedisSerializer<String> keySerializer = RedisSerializer.string();
 		RedisSerializer<Object> defaultSerializer = (this.defaultRedisSerializer != null) ? this.defaultRedisSerializer
 				: new JdkSerializationRedisSerializer(this.classLoader);
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
