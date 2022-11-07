@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
@@ -46,6 +45,7 @@ import org.springframework.util.Assert;
  *
  * @param <T> the {@link SessionRepository} type
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 3.0.0
  * @see RedisHttpSessionConfiguration
  * @see RedisIndexedHttpSessionConfiguration
@@ -153,8 +153,8 @@ public abstract class AbstractRedisHttpSessionConfiguration<T extends SessionRep
 
 	protected RedisTemplate<String, Object> createRedisTemplate() {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+		redisTemplate.setKeySerializer(RedisSerializer.string());
+		redisTemplate.setHashKeySerializer(RedisSerializer.string());
 		if (getDefaultRedisSerializer() != null) {
 			redisTemplate.setDefaultSerializer(getDefaultRedisSerializer());
 		}
