@@ -22,8 +22,7 @@ jobs:
       # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
       # Restoring these files from a GitHub Actions cache might cause problems for future builds.
       run: |
-        rm -f /home/runner/.gradle/caches/modules-2/modules-2.lock
-        rm -f /home/runner/.gradle/caches/modules-2/gc.properties
+        rm -rf /home/runner/.gradle/
     - name: Run Antora
       run: ./gradlew antora
     - name: Publish Docs
