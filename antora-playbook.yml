@@ -28,3 +28,5 @@ ui:
   bundle:
     url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
     snapshot: true
+runtime:
+  cache_dir: ./.cache/antora
