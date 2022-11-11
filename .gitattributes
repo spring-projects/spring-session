@@ -1,9 +1,6 @@
 *       text eol=lf
-
 *.bat   text eol=crlf
-
 *.jar   binary
-
+*.jpg   binary
 *.png   binary
-
 *.mmdb  binary
