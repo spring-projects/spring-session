@@ -12,7 +12,7 @@ antora {
 		'ALGOLIA_INDEX_NAME': 'session-docs'
     ]
 	dependencies = [
-		'@antora/collector-extension': '1.0.0-alpha.2',
+		'@antora/collector-extension': '1.0.0-alpha.3',
 		'@opendevise/antora-release-line-extension': '1.0.0-alpha.1'
 	]
 }
