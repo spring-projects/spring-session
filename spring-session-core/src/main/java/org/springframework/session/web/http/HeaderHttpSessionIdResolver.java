@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,6 @@ public class HeaderHttpSessionIdResolver implements HttpSessionIdResolver {
 	@Override
 	public List<String> resolveSessionIds(HttpServletRequest request) {
 		String headerValue = request.getHeader(this.headerName);
-		System.out.println(headerValue);
 		return (headerValue != null) ? Collections.singletonList(headerValue) : Collections.emptyList();
 	}
 
