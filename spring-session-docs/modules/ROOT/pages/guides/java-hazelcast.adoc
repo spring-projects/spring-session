@@ -100,7 +100,7 @@ Spring Session provides `PrincipalNameExtractor` for this purpose.
 is not set, Hazelcast will serialize sessions using native Java serialization.
 <4> We create a `HazelcastInstance` that connects Spring Session to Hazelcast.
 By default, the application starts and connects to an embedded instance of Hazelcast.
-For more information on configuring Hazelcast, see the https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
+For more information on configuring Hazelcast, see the https://docs.hazelcast.com/hazelcast/latest/[reference documentation].
 ====
 
 NOTE: If `HazelcastSessionSerializer` is preferred, it needs to be configured for all Hazelcast cluster members before they start.
@@ -161,7 +161,7 @@ $ ./gradlew :spring-session-sample-javaconfig-hazelcast:tomcatRun
 ====
 
 NOTE: By default, Hazelcast runs in embedded mode with your application.
-However, if you want to connect to a standalone instance instead, you can configure it by following the instructions in the https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-configuration[reference documentation].
+However, if you want to connect to a standalone instance instead, you can configure it by following the instructions in the https://docs.hazelcast.com/hazelcast/latest/getting-started/get-started-cli[reference documentation].
 
 You should now be able to access the application at http://localhost:8080/
 
@@ -188,9 +188,9 @@ You can view the cookies (with https://developers.google.com/web/tools/chrome-de
 
 === Interacting with the Data Store
 
-You can remove the session by using https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#hazelcast-java-client[a Java client],
-https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#other-client-implementations[one of the other clients], or the
-https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#management-center[management center].
+You can remove the session by using https://docs.hazelcast.com/hazelcast/latest/clients/java[a Java client],
+https://hazelcast.com/clients/[one of the other clients], or the
+https://docs.hazelcast.com/management-center/latest/getting-started/overview[management center].
 
 ==== Using the Console
 
@@ -203,7 +203,7 @@ For example, to remove the session by using the management center console after 
 ----
 ====
 
-TIP: The Hazelcast documentation has instructions for https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#executing-console-commands[the console].
+TIP: The Hazelcast documentation has instructions for https://docs.hazelcast.com/hazelcast/latest/clients/clc[the console].
 
 Alternatively, you can also delete the explicit key. Enter the following into the console, being sure to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your `SESSION` cookie:
 
@@ -218,7 +218,7 @@ Now visit the application at http://localhost:8080/ and observe that we are no l
 ==== Using the REST API
 
 As described in the section of the documentation that cover other clients, there is a
-https://docs.hazelcast.org/docs/{hazelcast-version}/manual/html-single/index.html#rest-client[REST API]
+https://docs.hazelcast.com/hazelcast/latest/clients/rest[REST API]
 provided by the Hazelcast node(s).
 
 For example, you could delete an individual key as follows (being sure to replace `7e8383a4-082c-4ffe-a4bc-c40fd3363c5e` with the value of your SESSION cookie):
