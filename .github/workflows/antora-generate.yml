@@ -24,7 +24,7 @@ jobs:
         run: ./gradlew :spring-session-docs:generateAntora
       - name: Extract Branch Name
         id: extract_branch_name
-        run: echo "##[set-output name=generated_branch_name;]$(echo ${GITHUB_REPOSITORY}/${GITHUB_REF##*/})"
+        run: echo "generated_branch_name=${GITHUB_REPOSITORY}/${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
       - name: Push generated antora files to the spring-generated-docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
