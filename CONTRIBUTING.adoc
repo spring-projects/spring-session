@@ -25,6 +25,13 @@ If you are reporting a bug, please help to speed up problem diagnosis by providi
 information as possible. Ideally, that would include a small sample project that
 reproduces the problem.
 
+== Create your branch from the oldest maintenance branch
+
+Create your topic branch to be submitted as a pull request from the oldest impacted and supported maintenance branch.
+You can find the supported versions by looking at the https://github.com/spring-projects/spring-session/milestones[milestones page].
+Switch to a branch named `<major>.<minor>.x` from the smallest milestone in the format of `<major>.<minor>.<patch>(-<prerelease>)`.
+The spring team will ensure the code gets merged forward into additional branches.
+
 
 == Sign the Contributor License Agreement
 If you have not previously done so, please fill out and
