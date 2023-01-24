@@ -75,9 +75,9 @@ For example, you can include the following in your application.properties:
 ====
 .src/main/resources/application.properties
 ----
-spring.redis.host=localhost # Redis server host.
-spring.redis.password= # Login password of the redis server.
-spring.redis.port=6379 # Redis server port.
+spring.data.redis.host=localhost # Redis server host.
+spring.data.redis.password= # Login password of the redis server.
+spring.data.redis.port=6379 # Redis server port.
 ----
 ====
 
