@@ -1,9 +1,17 @@
 antora:
   extensions:
-  - ./lib/antora/extensions/inject-collector-config.js
-  - '@antora/collector-extension'
-  - ./lib/antora/extensions/version-fix.js
-  - '@opendevise/antora-release-line-extension'
+    - '@springio/antora-extensions/partial-build-extension'
+    - ./lib/antora/extensions/inject-collector-config.js
+    - '@antora/collector-extension'
+    - ./lib/antora/extensions/version-fix.js
+    - '@antora/atlas-extension'
+    - '@opendevise/antora-release-line-extension'
+    - require: '@springio/antora-extensions/tabs-migration-extension'
+      # uncomment this option to save the migrated content to the worktree
+      #save_result: true
+      unwrap_example_block: always
+    - require: ./lib/antora/extensions/publish-docsearch-config
+      template_path: ./.github/actions/docsearch-config.json.hbs
 site:
   title: Spring Session
   url: https://docs.spring.io/spring-session/reference
@@ -20,6 +28,10 @@ asciidoc:
   attributes:
     page-pagination: ''
     hide-uri-scheme: '@'
+    tabs-sync-option: '@'
+  extensions:
+    - '@asciidoctor/tabs'
+    - '@springio/asciidoctor-extensions'
 urls:
   latest_version_segment_strategy: redirect:to
   latest_version_segment: ''
@@ -28,5 +40,3 @@ ui:
   bundle:
     url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
     snapshot: true
-runtime:
-  cache_dir: ./.cache/antora
