@@ -43,7 +43,7 @@ dependencyManagement {
 			entry 'mongodb-driver-sync'
 			entry 'mongodb-driver-reactivestreams'
 		}
-		dependency 'org.postgresql:postgresql:42.3.4'
+		dependency 'org.postgresql:postgresql:42.3.8'
 	}
 }
 
