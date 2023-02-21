@@ -33,7 +33,7 @@ dependencyManagement {
 		dependency 'org.hamcrest:hamcrest:2.2'
 		dependency 'org.hsqldb:hsqldb:2.5.2'
 		dependency 'org.mariadb.jdbc:mariadb-java-client:3.0.10'
-		dependencySet(group: 'org.mockito', version: '4.4.0') {
+		dependencySet(group: 'org.mockito', version: '4.5.1') {
         	entry 'mockito-core'
 			entry 'mockito-junit-jupiter'
 		}
