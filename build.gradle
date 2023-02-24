@@ -38,6 +38,10 @@ subprojects {
 		sourceCompatibility = JavaVersion.VERSION_17
 	}
 
+	tasks.withType(JavaCompile) {
+		options.compilerArgs << '-parameters'
+	}
+
 	tasks.withType(Test) {
 		useJUnitPlatform()
 	}
