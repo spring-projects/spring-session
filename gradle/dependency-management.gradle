@@ -32,7 +32,7 @@ dependencyManagement {
 		dependency 'org.assertj:assertj-core:3.22.0'
 		dependency 'org.hamcrest:hamcrest:2.2'
 		dependency 'org.hsqldb:hsqldb:2.5.2'
-		dependency 'org.mariadb.jdbc:mariadb-java-client:3.0.10'
+		dependency 'org.mariadb.jdbc:mariadb-java-client:2.7.5'
 		dependencySet(group: 'org.mockito', version: '4.5.1') {
         	entry 'mockito-core'
 			entry 'mockito-junit-jupiter'
