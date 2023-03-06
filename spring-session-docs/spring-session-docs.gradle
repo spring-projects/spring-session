@@ -1,6 +1,5 @@
 plugins {
-	id 'org.antora' version '1.0.0'
-	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
+    id "io.github.rwinch.antora" version "0.0.2"
 }
 
 apply plugin: 'io.spring.convention.docs'
@@ -29,54 +28,16 @@ dependencies {
 }
 
 antora {
-	playbook = 'cached-antora-playbook.yml'
-	playbookProvider {
-		repository = 'spring-projects/spring-session'
-		branch = 'docs-build'
-		path = 'lib/antora/templates/per-branch-antora-playbook.yml'
-		checkLocalBranch = true
-	}
-	options = [clean: true, fetch: !project.gradle.startParameter.offline, stacktrace: true]
+    antoraVersion = "3.0.1"
+    arguments = ["--fetch"]
 }
 
-tasks.named("generateAntoraYml") {
-	asciidocAttributes = project.provider( { generateAttributes() } )
-}
-
-def generateAttributes() {
-	def dollar = '$'
-	def ghTag = snapshotBuild ? 'main' : project.version
-	def ghUrl = "https://github.com/spring-projects/spring-session/tree/${ghTag.toString()}"
-	def snapshotBuild = project.version.contains("SNAPSHOT")
-	def milestoneBuild = project.version.contains("-M")
-	def releaseBuild = (!snapshotBuild && !milestoneBuild)
-	def springBootVersion = "2.7.0"
-	def downloadUrl = "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip"
-	def ghSamplesUrl = "$ghUrl/spring-session-samples/"
-	def samplesDir = "example${dollar}spring-session-samples/"
-	def sessionJdbcMainResourcesDir = "example${dollar.toString()}session-jdbc-main-resources-dir/"
-	def springSessionDataMongoDbDir = "example${dollar.toString()}spring-session-data-mongodb-dir/"
-	def docsTestDir = "example${dollar.toString()}java/"
-	def websocketdocTestDir = "example${dollar.toString()}java/docs/websocket/"
-	def docsTestResourcesDir = "example${dollar.toString()}resources/"
-	def indexdocTests = "example${dollar.toString()}java/docs/IndexDocTests.java"
-
-	return [
-			'download-url': downloadUrl.toString(),
-			'gh-samples-url': ghSamplesUrl.toString(),
-			'samples-dir': samplesDir.toString(),
-			'session-jdbc-main-resources-dir': sessionJdbcMainResourcesDir.toString(),
-			'spring-session-data-mongodb-dir': springSessionDataMongoDbDir.toString(),
-			'docs-test-dir': docsTestDir.toString(),
-			'websocketdoc-test-dir': websocketdocTestDir.toString(),
-			'docs-test-resources-dir': docsTestResourcesDir.toString(),
-			'indexdoc-tests': indexdocTests.toString(),
-			'spring-session-version': project.version,
-			'version-milestone': milestoneBuild,
-			'version-release': releaseBuild,
-			'version-snapshot': snapshotBuild,
-			'spring-boot-version': springBootVersion
-	] + resolvedVersions(project.configurations.testRuntimeClasspath)
+tasks.antora {
+    environment = [
+            "ALGOLIA_API_KEY" : "82c7ead946afbac3cf98c32446154691",
+            "ALGOLIA_APP_ID" : "244V8V9FGG",
+            "ALGOLIA_INDEX_NAME" : "session-docs"
+    ]
 }
 
 sourceSets {
@@ -90,16 +51,58 @@ sourceSets {
     }
 }
 
+tasks.register("generateAntora") {
+    group = "Documentation"
+    description = "Generates the antora.yml for dynamic properties"
+    doLast {
+        def dollar = '$'
+        def ghTag = snapshotBuild ? 'main' : project.version
+        def ghUrl = "https://github.com/spring-projects/spring-session/tree/$ghTag"
+        def versions = resolvedVersions(project.configurations.testRuntimeClasspath)
+        def ymlVersions = ""
+        versions.call().each { name, version ->
+            ymlVersions += """
+    ${name}: ${version}"""
+        }
+        def outputFile = new File("$buildDir/generateAntora/antora.yml")
+        outputFile.getParentFile().mkdirs()
+        outputFile.createNewFile()
+        def antoraYmlText = file("antora.yml").getText()
+        outputFile.setText("""$antoraYmlText
+title: Spring Session
+start_page: ROOT:index.adoc
+nav:
+  - modules/ROOT/nav.adoc
+
+asciidoc:
+  attributes:
+    download-url: "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip"
+    gh-samples-url: "$ghUrl/spring-session-samples/"
+    samples-dir: "example${dollar}spring-session-samples/"
+    session-jdbc-main-resources-dir: "example${dollar}session-jdbc-main-resources-dir/"
+    spring-session-data-mongodb-dir: "example${dollar}spring-session-data-mongodb-dir/"
+    docs-test-dir: "example${dollar}java/"
+    websocketdoc-test-dir: 'example${dollar}java/docs/websocket/'
+    docs-test-resources-dir: "example${dollar}resources/"
+    indexdoc-tests: "example${dollar}java/docs/IndexDocTests.java"
+    spring-session-version: ${project.version}
+    version-milestone: $milestoneBuild
+    version-release: $releaseBuild
+    version-snapshot: $snapshotBuild
+    spring-boot-version: ${springBootVersion}
+${ymlVersions}
+""")
+    }
+}
+
 repositories {
-	mavenCentral()
-	maven { url 'https://repo.spring.io/release' }
-	maven { url 'https://repo.spring.io/milestone' }
-	maven { url 'https://repo.spring.io/snapshot' }
+    maven { url "https://repo.spring.io/release" }
 }
 
 def resolvedVersions(Configuration configuration) {
-    return configuration.resolvedConfiguration
+    return {
+        configuration.resolvedConfiguration
                 .resolvedArtifacts
                 .collectEntries { [(it.name + "-version"): it.moduleVersion.id.version] }
-
+    }
 }
