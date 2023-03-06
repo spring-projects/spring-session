@@ -32,6 +32,6 @@ jobs:
           echo BUILD_REFNAME=${{ github.event.inputs.build-refname }} >> $GITHUB_ENV
           echo BUILD_VERSION=$(git cat-file --textconv FETCH_HEAD:gradle.properties | sed -n '/^version=/ { s/^version=//;p }') >> $GITHUB_ENV
       - name: Run Antora
-        run: ./gradlew antora
+        run: ./gradlew antora --stacktrace
       - name: Publish Docs
         run: $GITHUB_WORKSPACE/.github/actions/publish-docs.sh "${{ secrets.DOCS_USERNAME }}@${{ secrets.DOCS_HOST }}" /opt/www/domains/spring.io/docs/htdocs/spring-session/reference/ "${{ secrets.DOCS_SSH_KEY }}" "${{ secrets.DOCS_SSH_HOST_KEY }}" "${{ secrets.CLOUDFLARE_ZONE_ID }}" "${{ secrets.CLOUDFLARE_CACHE_TOKEN }}"
