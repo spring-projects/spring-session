@@ -17,6 +17,7 @@
 ** XML Configuration
 * xref:configurations.adoc[Configurations]
 ** xref:configuration/redis.adoc[Redis]
+** xref:configuration/common.adoc[Common Configurations]
 * xref:http-session.adoc[HttpSession Integration]
 * xref:web-socket.adoc[WebSocket Integration]
 * xref:web-session.adoc[WebSession Integration]

@@ -35,6 +35,8 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -222,6 +224,28 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
+	@Test
+	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
+		registerAndRefresh(GoodConfig.class, SessionIdGenerationStrategyConfiguration.class);
+		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(TestSessionIdGenerationStrategy.class);
+	}
+
+	@Test
+	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
+		registerAndRefresh(GoodConfig.class);
+		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(UuidSessionIdGenerationStrategy.class);
+	}
+
+	private void registerAndRefresh(Class<?>... annotatedClasses) {
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(annotatedClasses);
+		this.context.refresh();
+	}
+
 	/**
 	 * Reflectively extract the {@link AbstractMongoSessionConverter} from the
 	 * {@link ReactiveMongoSessionRepository}. This is to avoid expanding the surface area
@@ -407,6 +431,25 @@ public class ReactiveMongoWebSessionConfigurationTest {
 		@Bean
 		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class SessionIdGenerationStrategyConfiguration {
+
+		@Bean
+		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
+			return new TestSessionIdGenerationStrategy();
+		}
+
+	}
+
+	static class TestSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+		@Override
+		public String generate() {
+			return "test";
 		}
 
 	}

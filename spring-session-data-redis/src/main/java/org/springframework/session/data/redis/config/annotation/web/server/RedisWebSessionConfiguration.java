@@ -39,6 +39,8 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
@@ -77,6 +79,8 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private StringValueResolver embeddedValueResolver;
 
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+
 	@Bean
 	public ReactiveRedisSessionRepository sessionRepository() {
 		ReactiveRedisTemplate<String, Object> reactiveRedisTemplate = createReactiveRedisTemplate();
@@ -86,6 +90,7 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 			sessionRepository.setRedisKeyNamespace(this.redisNamespace);
 		}
 		sessionRepository.setSaveMode(this.saveMode);
+		sessionRepository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
 		this.sessionRepositoryCustomizers
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -166,6 +171,11 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 				.<String, Object>newSerializationContext(defaultSerializer).key(keySerializer).hashKey(keySerializer)
 				.build();
 		return new ReactiveRedisTemplate<>(this.redisConnectionFactory, serializationContext);
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 }

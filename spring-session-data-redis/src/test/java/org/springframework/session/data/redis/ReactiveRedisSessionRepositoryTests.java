@@ -438,6 +438,46 @@ class ReactiveRedisSessionRepositoryTests {
 		verifyNoMoreInteractions(this.hashOperations);
 	}
 
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+
+		this.repository.createSession().as(StepVerifier::create).assertNext((redisSession) -> {
+			assertThat(redisSession.getId()).isEqualTo("test");
+			assertThat(redisSession.changeSessionId()).isEqualTo("test");
+		}).verifyComplete();
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.repository.setSessionIdGenerationStrategy(() -> "changed-session-id");
+		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
+		String attribute1 = "attribute1";
+		String attribute2 = "attribute2";
+		MapSession expected = new MapSession("test");
+		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
+		expected.setAttribute(attribute1, "test");
+		expected.setAttribute(attribute2, null);
+		Map map = map(RedisSessionMapper.ATTRIBUTE_PREFIX + attribute1, expected.getAttribute(attribute1),
+				RedisSessionMapper.ATTRIBUTE_PREFIX + attribute2, expected.getAttribute(attribute2),
+				RedisSessionMapper.CREATION_TIME_KEY, expected.getCreationTime().toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) expected.getMaxInactiveInterval().getSeconds(),
+				RedisSessionMapper.LAST_ACCESSED_TIME_KEY, expected.getLastAccessedTime().toEpochMilli());
+		given(this.hashOperations.entries(anyString())).willReturn(Flux.fromIterable(map.entrySet()));
+
+		StepVerifier.create(this.repository.findById("test")).consumeNextWith((session) -> {
+			assertThat(session.getId()).isEqualTo(expected.getId());
+			assertThat(session.changeSessionId()).isEqualTo("changed-session-id");
+		}).verifyComplete();
+	}
+
 	private Map<String, Object> map(Object... objects) {
 		Map<String, Object> result = new HashMap<>();
 		if (objects == null) {

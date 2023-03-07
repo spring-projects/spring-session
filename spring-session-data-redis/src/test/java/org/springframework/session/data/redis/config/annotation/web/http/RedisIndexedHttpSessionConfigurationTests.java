@@ -43,6 +43,8 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -238,6 +240,22 @@ class RedisIndexedHttpSessionConfigurationTests {
 		registerAndRefresh(RedisConfig.class, ImportConfigAndCustomizeConfiguration.class);
 		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
+	}
+
+	@Test
+	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
+		registerAndRefresh(RedisConfig.class, SessionIdGenerationStrategyConfiguration.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(TestSessionIdGenerationStrategy.class);
+	}
+
+	@Test
+	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
+		registerAndRefresh(RedisConfig.class, DefaultConfiguration.class);
+		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(UuidSessionIdGenerationStrategy.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -440,6 +458,32 @@ class RedisIndexedHttpSessionConfigurationTests {
 		@Bean
 		SessionRepositoryCustomizer<RedisIndexedSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableRedisIndexedHttpSession
+	static class SessionIdGenerationStrategyConfiguration {
+
+		@Bean
+		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
+			return new TestSessionIdGenerationStrategy();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableRedisIndexedHttpSession
+	static class DefaultConfiguration {
+
+	}
+
+	static class TestSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+		@Override
+		public String generate() {
+			return "test";
 		}
 
 	}

@@ -45,6 +45,8 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 
 	private final Map<String, Session> sessions;
 
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+
 	/**
 	 * Creates a new instance backed by the provided {@link Map}. This allows injecting a
 	 * distributed {@link Map}.
@@ -84,6 +86,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		return Mono.defer(() -> Mono.justOrEmpty(this.sessions.get(id))
 				.filter((session) -> !session.isExpired())
 				.map(MapSession::new)
+				.doOnNext((session) -> session.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy))
 				.switchIfEmpty(deleteById(id).then(Mono.empty())));
 		// @formatter:on
 	}
@@ -96,10 +99,21 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	@Override
 	public Mono<MapSession> createSession() {
 		return Mono.defer(() -> {
-			MapSession result = new MapSession();
+			MapSession result = new MapSession(this.sessionIdGenerationStrategy);
 			result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 			return Mono.just(result);
 		});
+	}
+
+	/**
+	 * Sets the {@link SessionIdGenerationStrategy} to use.
+	 * @param sessionIdGenerationStrategy the non-null {@link SessionIdGenerationStrategy}
+	 * to use
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 }

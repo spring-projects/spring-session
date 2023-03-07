@@ -19,6 +19,7 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 import java.time.Duration;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EmbeddedValueResolverAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,8 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.StringUtils;
@@ -49,6 +52,8 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 
 	private StringValueResolver embeddedValueResolver;
 
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+
 	@Bean
 	@Override
 	public RedisSessionRepository sessionRepository() {
@@ -60,6 +65,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 		}
 		sessionRepository.setFlushMode(getFlushMode());
 		sessionRepository.setSaveMode(getSaveMode());
+		sessionRepository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
 		getSessionRepositoryCustomizers()
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -85,6 +91,11 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 		}
 		setFlushMode(attributes.getEnum("flushMode"));
 		setSaveMode(attributes.getEnum("saveMode"));
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 }

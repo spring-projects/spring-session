@@ -48,6 +48,8 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -151,6 +153,8 @@ public class HazelcastIndexedSessionRepository
 
 	private UUID sessionListenerId;
 
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+
 	/**
 	 * Create a new {@link HazelcastIndexedSessionRepository} instance.
 	 * @param hazelcastInstance the {@link HazelcastInstance} to use for managing sessions
@@ -245,7 +249,7 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public HazelcastSession createSession() {
-		MapSession cached = new MapSession();
+		MapSession cached = new MapSession(this.sessionIdGenerationStrategy);
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		HazelcastSession session = new HazelcastSession(cached, true);
 		session.flushImmediateIfNecessary();
@@ -350,6 +354,16 @@ public class HazelcastIndexedSessionRepository
 	}
 
 	/**
+	 * Set the {@link SessionIdGenerationStrategy} to use to generate session ids.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	}
+
+	/**
 	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
 	 * basis for its mapping. It keeps track if changes have been made since last save.
 	 *
@@ -405,7 +419,8 @@ public class HazelcastIndexedSessionRepository
 
 		@Override
 		public String changeSessionId() {
-			String newSessionId = this.delegate.changeSessionId();
+			String newSessionId = HazelcastIndexedSessionRepository.this.sessionIdGenerationStrategy.generate();
+			this.delegate.setId(newSessionId);
 			this.sessionIdChanged = true;
 			return newSessionId;
 		}

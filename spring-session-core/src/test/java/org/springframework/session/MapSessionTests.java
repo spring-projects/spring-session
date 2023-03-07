@@ -19,6 +19,7 @@ package org.springframework.session;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,19 @@ class MapSessionTests {
 	void constructorNullSession() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new MapSession((Session) null))
 				.withMessage("session cannot be null");
+	}
+
+	@Test
+	void constructorWhenSessionIdGenerationStrategyThenUsesStrategy() {
+		MapSession session = new MapSession(new FixedSessionIdGenerationStrategy("my-id"));
+		assertThat(session.getId()).isEqualTo("my-id");
+	}
+
+	@Test
+	void constructorWhenDefaultThenUuid() {
+		String id = this.session.getId();
+		UUID uuid = UUID.fromString(id);
+		assertThat(uuid).isNotNull();
 	}
 
 	@Test
@@ -141,6 +155,41 @@ class MapSessionTests {
 		}
 
 		assertThat(this.session.getAttributeNames()).isEmpty();
+	}
+
+	@Test
+	void changeSessionIdWhenSessionIdStrategyThenUsesStrategy() {
+		MapSession session = new MapSession(new IncrementalSessionIdGenerationStrategy());
+		String idBeforeChange = session.getId();
+		String idAfterChange = session.changeSessionId();
+		assertThat(idBeforeChange).isEqualTo("1");
+		assertThat(idAfterChange).isEqualTo("2");
+	}
+
+	static class FixedSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+		private final String id;
+
+		FixedSessionIdGenerationStrategy(String id) {
+			this.id = id;
+		}
+
+		@Override
+		public String generate() {
+			return this.id;
+		}
+
+	}
+
+	static class IncrementalSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+		private int counter = 1;
+
+		@Override
+		public String generate() {
+			return String.valueOf(this.counter++);
+		}
+
 	}
 
 	static class CustomSession implements Session {

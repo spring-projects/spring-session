@@ -62,6 +62,8 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -251,6 +253,8 @@ public class JdbcIndexedSessionRepository implements
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
 	private ThreadPoolTaskScheduler taskScheduler;
+
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
 
 	/**
 	 * Create a new {@link JdbcIndexedSessionRepository} instance which uses the provided
@@ -461,7 +465,7 @@ public class JdbcIndexedSessionRepository implements
 
 	@Override
 	public JdbcSession createSession() {
-		MapSession delegate = new MapSession();
+		MapSession delegate = new MapSession(this.sessionIdGenerationStrategy);
 		delegate.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		JdbcSession session = new JdbcSession(delegate, UUID.randomUUID().toString(), true);
 		session.flushIfRequired();
@@ -686,6 +690,16 @@ public class JdbcIndexedSessionRepository implements
 				TypeDescriptor.valueOf(Object.class));
 	}
 
+	/**
+	 * Set the {@link SessionIdGenerationStrategy} to use to generate session ids.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	}
+
 	private enum DeltaValue {
 
 		ADDED, UPDATED, REMOVED
@@ -721,7 +735,7 @@ public class JdbcIndexedSessionRepository implements
 	 */
 	final class JdbcSession implements Session {
 
-		private final Session delegate;
+		private final MapSession delegate;
 
 		private final String primaryKey;
 
@@ -773,7 +787,9 @@ public class JdbcIndexedSessionRepository implements
 		@Override
 		public String changeSessionId() {
 			this.changed = true;
-			return this.delegate.changeSessionId();
+			String newSessionId = JdbcIndexedSessionRepository.this.sessionIdGenerationStrategy.generate();
+			this.delegate.setId(newSessionId);
+			return newSessionId;
 		}
 
 		@Override

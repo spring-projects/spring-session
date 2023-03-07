@@ -1,0 +1,57 @@
+[[common-configurations]]
+= Common Configurations
+
+This section contains common configurations that applies to all or most Spring Session modules.
+It contains configuration examples for the following use cases:
+
+- I need to <<changing-how-session-ids-are-generated,change the way that Session IDs are generated>>
+
+[[changing-how-session-ids-are-generated]]
+== Changing How Session IDs Are Generated
+
+By default, Spring Session uses `UuidSessionIdGenerationStrategy` which, in turn, uses a `java.util.UUID` to generate a session id.
+There might be scenarios where it may be better to include other characters to increase entropy, or you may want to use a different algorithm to generate the session id.
+To change this, you can provide a custom `SessionIdGenerationStrategy` bean:
+
+.Changing How Session IDs Are Generated
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public SessionIdGenerationStrategy sessionIdGenerationStrategy() {
+    return new MySessionIdGenerationStrategy();
+}
+
+class MySessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+    @Override
+    public String generate() {
+        // ...
+    }
+
+}
+----
+======
+
+After exposing your `SessionIdGenerationStrategy` bean, Spring Session will use it to generate session ids.
+
+If you are manually configuring your `SessionRepository` bean (instead of using `@EnableRedisHttpSession`, for example), you can set the `SessionIdGenerationStrategy` directly on the `SessionRepository` implementation:
+
+.Setting `SessionIdGenerationStrategy` directly into `SessionRepository` implementation
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public RedisSessionRepository redisSessionRepository(RedisOperations redisOperations) {
+    RedisSessionRepository repository = new RedisSessionRepository(redisOperations)
+    repository.setSessionIdGenerationStrategy(new MySessionIdGenerationStrategy());
+    return repository;
+}
+----
+======

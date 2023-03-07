@@ -910,6 +910,46 @@ class RedisIndexedSessionRepositoryTests {
 		assertThat(getDelta()).hasSize(3);
 	}
 
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.redisRepository.setSessionIdGenerationStrategy(() -> "test");
+		RedisSession session = this.redisRepository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.redisRepository.setSessionIdGenerationStrategy(() -> "test");
+		String attribute1 = "attribute1";
+		String attribute2 = "attribute2";
+		MapSession expected = new MapSession("original");
+		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
+		expected.setAttribute(attribute1, "test");
+		expected.setAttribute(attribute2, null);
+		given(this.redisOperations.<String, Object>boundHashOps(getKey(expected.getId())))
+				.willReturn(this.boundHashOperations);
+		Map<String, Object> map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attribute1),
+				expected.getAttribute(attribute1), RedisIndexedSessionRepository.getSessionAttrNameKey(attribute2),
+				expected.getAttribute(attribute2), RedisSessionMapper.CREATION_TIME_KEY,
+				expected.getCreationTime().toEpochMilli(), RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+				(int) expected.getMaxInactiveInterval().getSeconds(), RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				expected.getLastAccessedTime().toEpochMilli());
+		given(this.boundHashOperations.entries()).willReturn(map);
+
+		RedisSession session = this.redisRepository.findById(expected.getId());
+		String oldSessionId = session.getId();
+		String newSessionId = session.changeSessionId();
+		assertThat(oldSessionId).isEqualTo("original");
+		assertThat(newSessionId).isEqualTo("test");
+	}
+
 	private String getKey(String id) {
 		return "spring:session:sessions:" + id;
 	}

@@ -38,6 +38,8 @@ import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
@@ -74,6 +76,8 @@ public class HazelcastHttpSessionConfiguration implements ImportAware {
 	private IndexResolver<Session> indexResolver;
 
 	private List<SessionRepositoryCustomizer<HazelcastIndexedSessionRepository>> sessionRepositoryCustomizers;
+
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
 
 	@Bean
 	public FindByIndexNameSessionRepository<?> sessionRepository() {
@@ -158,9 +162,15 @@ public class HazelcastHttpSessionConfiguration implements ImportAware {
 		sessionRepository.setDefaultMaxInactiveInterval(this.maxInactiveInterval);
 		sessionRepository.setFlushMode(this.flushMode);
 		sessionRepository.setSaveMode(this.saveMode);
+		sessionRepository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
 		this.sessionRepositoryCustomizers
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 }

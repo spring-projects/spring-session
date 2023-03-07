@@ -264,6 +264,12 @@ class JdbcIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void setSessionIdGenerationStrategyWhenNullThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
 	void createSessionDefaultMaxInactiveInterval() {
 		JdbcSession session = this.repository.createSession();
 
@@ -767,6 +773,34 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		verify(lobCreator, atLeastOnce()).close();
+	}
+
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		JdbcSession session = this.repository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		Session saved = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
+		saved.setAttribute("savedName", "savedValue");
+		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
+				isA(ResultSetExtractor.class))).willReturn(Collections.singletonList(saved));
+
+		JdbcSession session = this.repository.findById(saved.getId());
+
+		assertThat(session.getId()).isEqualTo(saved.getId());
+		assertThat(session.changeSessionId()).isEqualTo("test");
 	}
 
 }
