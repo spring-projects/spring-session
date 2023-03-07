@@ -44,6 +44,8 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
@@ -80,6 +82,8 @@ public class RedisIndexedHttpSessionConfiguration
 
 	private StringValueResolver embeddedValueResolver;
 
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+
 	@Bean
 	@Override
 	public RedisIndexedSessionRepository sessionRepository() {
@@ -101,6 +105,7 @@ public class RedisIndexedHttpSessionConfiguration
 		sessionRepository.setCleanupCron(this.cleanupCron);
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
+		sessionRepository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
 		getSessionRepositoryCustomizers()
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -202,6 +207,11 @@ public class RedisIndexedHttpSessionConfiguration
 			return ((JedisConnectionFactory) getRedisConnectionFactory()).getDatabase();
 		}
 		return RedisIndexedSessionRepository.DEFAULT_DATABASE;
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	/**

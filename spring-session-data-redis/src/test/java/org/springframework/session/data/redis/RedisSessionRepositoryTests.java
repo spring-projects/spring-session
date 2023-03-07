@@ -373,6 +373,35 @@ class RedisSessionRepositoryTests {
 		verifyNoMoreInteractions(this.sessionHashOperations);
 	}
 
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.sessionRepository.setSessionIdGenerationStrategy(() -> "test");
+		RedisSessionRepository.RedisSession session = this.sessionRepository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.sessionRepository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.sessionRepository.setSessionIdGenerationStrategy(() -> "test");
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
+				.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+						RedisSessionMapper.LAST_ACCESSED_TIME_KEY, now.toEpochMilli(),
+						RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS,
+						RedisSessionMapper.ATTRIBUTE_PREFIX + "attribute1", "value1"));
+		RedisSession session = this.sessionRepository.findById(TEST_SESSION_ID);
+		assertThat(session.getId()).isEqualTo(TEST_SESSION_ID);
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
 	private static String getSessionKey(String sessionId) {
 		return "spring:session:sessions:" + sessionId;
 	}

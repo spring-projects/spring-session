@@ -36,6 +36,8 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
@@ -236,6 +238,24 @@ class HazelcastHttpSessionConfigurationTests {
 		HazelcastIndexedSessionRepository sessionRepository = this.context
 				.getBean(HazelcastIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
+	}
+
+	@Test
+	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
+		registerAndRefresh(DefaultConfiguration.class, SessionIdGenerationStrategyConfiguration.class);
+		HazelcastIndexedSessionRepository sessionRepository = this.context
+				.getBean(HazelcastIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(TestSessionIdGenerationStrategy.class);
+	}
+
+	@Test
+	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
+		registerAndRefresh(DefaultConfiguration.class);
+		HazelcastIndexedSessionRepository sessionRepository = this.context
+				.getBean(HazelcastIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(UuidSessionIdGenerationStrategy.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -461,6 +481,25 @@ class HazelcastHttpSessionConfigurationTests {
 		@Bean
 		SessionRepositoryCustomizer<HazelcastIndexedSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class SessionIdGenerationStrategyConfiguration {
+
+		@Bean
+		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
+			return new TestSessionIdGenerationStrategy();
+		}
+
+	}
+
+	static class TestSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+		@Override
+		public String generate() {
+			return "test";
 		}
 
 	}

@@ -465,4 +465,31 @@ class HazelcastIndexedSessionRepositoryTests {
 		verifyNoMoreInteractions(this.sessions);
 	}
 
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		HazelcastSession session = this.repository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		MapSession saved = new MapSession("original");
+		saved.setAttribute("savedName", "savedValue");
+		given(this.sessions.get(eq(saved.getId()))).willReturn(saved);
+
+		HazelcastSession session = this.repository.findById(saved.getId());
+
+		assertThat(session.getId()).isEqualTo(saved.getId());
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
 }

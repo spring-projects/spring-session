@@ -23,12 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.lang.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.util.Assert;
 
 /**
  * Session object providing additional information about the datetime of expiration.
@@ -66,12 +68,24 @@ class MongoSession implements Session {
 
 	private Map<String, Object> attrs = new HashMap<>();
 
+	private transient SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy
+			.getInstance();
+
+	/**
+	 * Constructs a new instance using the provided session id.
+	 * @param sessionId the session id to use
+	 * @since 3.2
+	 */
+	MongoSession(String sessionId) {
+		this(sessionId, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+	}
+
 	MongoSession() {
 		this(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
 	MongoSession(long maxInactiveIntervalInSeconds) {
-		this(UUID.randomUUID().toString(), maxInactiveIntervalInSeconds);
+		this(UuidSessionIdGenerationStrategy.getInstance().generate(), maxInactiveIntervalInSeconds);
 	}
 
 	MongoSession(String id, long maxInactiveIntervalInSeconds) {
@@ -80,6 +94,28 @@ class MongoSession implements Session {
 		this.originalSessionId = id;
 		this.intervalSeconds = maxInactiveIntervalInSeconds;
 		setLastAccessedTime(Instant.ofEpochMilli(this.createdMillis));
+	}
+
+	/**
+	 * Constructs a new instance using the provided {@link SessionIdGenerationStrategy}.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * @since 3.2
+	 */
+	MongoSession(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this(sessionIdGenerationStrategy.generate(), MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	}
+
+	/**
+	 * Constructs a new instance using the provided {@link SessionIdGenerationStrategy}
+	 * and max inactive interval.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
+	 * @since 3.2
+	 */
+	MongoSession(SessionIdGenerationStrategy sessionIdGenerationStrategy, long maxInactiveIntervalInSeconds) {
+		this(sessionIdGenerationStrategy.generate(), maxInactiveIntervalInSeconds);
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	static String coverDot(String attributeName) {
@@ -93,7 +129,7 @@ class MongoSession implements Session {
 	@Override
 	public String changeSessionId() {
 
-		String changedId = UUID.randomUUID().toString();
+		String changedId = this.sessionIdGenerationStrategy.generate();
 		this.id = changedId;
 		return changedId;
 	}
@@ -141,7 +177,6 @@ class MongoSession implements Session {
 
 	@Override
 	public void setLastAccessedTime(Instant lastAccessedTime) {
-
 		this.accessedMillis = lastAccessedTime.toEpochMilli();
 		this.expireAt = Date.from(lastAccessedTime.plus(Duration.ofSeconds(this.intervalSeconds)));
 	}
@@ -198,6 +233,25 @@ class MongoSession implements Session {
 
 	String getOriginalSessionId() {
 		return this.originalSessionId;
+	}
+
+	/**
+	 * Sets the session id.
+	 * @param id the id to set
+	 * @since 3.2
+	 */
+	void setId(String id) {
+		this.id = id;
+	}
+
+	/**
+	 * Sets the {@link SessionIdGenerationStrategy} to use.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * @since 3.2
+	 */
+	void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 }

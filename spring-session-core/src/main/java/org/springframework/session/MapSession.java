@@ -74,11 +74,25 @@ public final class MapSession implements Session, Serializable {
 	 */
 	private Duration maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL;
 
+	private transient SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy
+			.getInstance();
+
 	/**
 	 * Creates a new instance with a secure randomly generated identifier.
 	 */
 	public MapSession() {
 		this(generateId());
+	}
+
+	/**
+	 * Creates a new instance using the specified {@link SessionIdGenerationStrategy} to
+	 * generate the session id.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use.
+	 * @since 3.2
+	 */
+	public MapSession(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this(sessionIdGenerationStrategy.generate());
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	/**
@@ -141,7 +155,7 @@ public final class MapSession implements Session, Serializable {
 
 	@Override
 	public String changeSessionId() {
-		String changedId = generateId();
+		String changedId = this.sessionIdGenerationStrategy.generate();
 		setId(changedId);
 		return changedId;
 	}
@@ -230,6 +244,16 @@ public final class MapSession implements Session, Serializable {
 
 	private static String generateId() {
 		return UUID.randomUUID().toString();
+	}
+
+	/**
+	 * Sets the {@link SessionIdGenerationStrategy} to use when generating a new session
+	 * id.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use.
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;

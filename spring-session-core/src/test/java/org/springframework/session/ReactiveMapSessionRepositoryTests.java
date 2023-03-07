@@ -152,4 +152,31 @@ class ReactiveMapSessionRepositoryTests {
 		assertThat(session.getAttributeNames()).isEmpty();
 	}
 
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		MapSession session = this.repository.createSession().block();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+
+		MapSession session = this.repository.createSession().block();
+		this.repository.save(session).block();
+
+		MapSession savedSession = this.repository.findById("test").block();
+
+		assertThat(savedSession.getId()).isEqualTo("test");
+		assertThat(savedSession.changeSessionId()).isEqualTo("test");
+	}
+
 }

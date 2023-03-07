@@ -1,1 +1,3 @@
 = What's New
+
+- xref:configuration/common.adoc#changing-how-session-ids-are-generated[docs] - https://github.com/spring-projects/spring-session/issues/11[gh-11] - Introduce `SessionIdGenerationStrategy` to allow custom session id generation

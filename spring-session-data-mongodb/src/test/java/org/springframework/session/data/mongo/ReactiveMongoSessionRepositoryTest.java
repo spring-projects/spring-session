@@ -40,6 +40,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.events.SessionDeletedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.eq;
 import static org.mockito.BDDMockito.given;
@@ -208,6 +209,45 @@ public class ReactiveMongoSessionRepositoryTest {
 		// then
 		verify(this.blockingMongoOperations, times(1)).indexOps((String) any());
 		verify(this.converter, times(1)).ensureIndexes(indexOperations);
+	}
+
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+
+		this.repository.createSession().as(StepVerifier::create).assertNext((mongoSession) -> {
+			assertThat(mongoSession.getId()).isEqualTo("test");
+			assertThat(mongoSession.changeSessionId()).isEqualTo("test");
+		}).verifyComplete();
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
+				.withMessage("sessionIdGenerationStrategy cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.repository.setSessionIdGenerationStrategy(() -> "test");
+
+		String sessionId = UUID.randomUUID().toString();
+		Document sessionDocument = new Document();
+
+		given(this.mongoOperations.findById(sessionId, Document.class,
+				ReactiveMongoSessionRepository.DEFAULT_COLLECTION_NAME)).willReturn(Mono.just(sessionDocument));
+
+		MongoSession session = new MongoSession(sessionId);
+
+		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
+				TypeDescriptor.valueOf(MongoSession.class))).willReturn(session);
+
+		this.repository.findById(sessionId).as(StepVerifier::create).assertNext((mongoSession) -> {
+			String oldId = mongoSession.getId();
+			String newId = mongoSession.changeSessionId();
+			assertThat(oldId).isEqualTo(sessionId);
+			assertThat(newId).isEqualTo("test");
+		}).verifyComplete();
 	}
 
 }

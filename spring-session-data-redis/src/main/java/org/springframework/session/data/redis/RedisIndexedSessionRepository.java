@@ -52,6 +52,8 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -322,6 +324,8 @@ public class RedisIndexedSessionRepository
 
 	private ThreadPoolTaskScheduler taskScheduler;
 
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
@@ -547,7 +551,7 @@ public class RedisIndexedSessionRepository
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession();
+		MapSession cached = new MapSession(this.sessionIdGenerationStrategy);
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushImmediateIfNecessary();
@@ -717,6 +721,16 @@ public class RedisIndexedSessionRepository
 	}
 
 	/**
+	 * Set the {@link SessionIdGenerationStrategy} to use to generate session ids.
+	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	}
+
+	/**
 	 * A custom implementation of {@link Session} that uses a {@link MapSession} as the
 	 * basis for its mapping. It keeps track of any attributes that have changed. When
 	 * {@link RedisIndexedSessionRepository.RedisSession#saveDelta()} is invoked all the
@@ -780,7 +794,9 @@ public class RedisIndexedSessionRepository
 
 		@Override
 		public String changeSessionId() {
-			return this.cached.changeSessionId();
+			String newSessionId = RedisIndexedSessionRepository.this.sessionIdGenerationStrategy.generate();
+			this.cached.setId(newSessionId);
+			return newSessionId;
 		}
 
 		@Override

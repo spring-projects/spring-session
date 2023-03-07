@@ -50,6 +50,8 @@ import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
@@ -109,6 +111,8 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private StringValueResolver embeddedValueResolver;
 
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+
 	@Bean
 	public JdbcIndexedSessionRepository sessionRepository() {
 		JdbcTemplate jdbcTemplate = createJdbcTemplate(this.dataSource);
@@ -144,6 +148,7 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 		else {
 			sessionRepository.setConversionService(createConversionServiceWithBeanClassLoader(this.classLoader));
 		}
+		sessionRepository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
 		this.sessionRepositoryCustomizers
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -233,6 +238,11 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 	public void setSessionRepositoryCustomizer(
 			ObjectProvider<SessionRepositoryCustomizer<JdbcIndexedSessionRepository>> sessionRepositoryCustomizers) {
 		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	@Override

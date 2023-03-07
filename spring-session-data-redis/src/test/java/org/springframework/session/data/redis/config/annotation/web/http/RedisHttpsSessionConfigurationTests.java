@@ -39,6 +39,8 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
+import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -204,6 +206,22 @@ class RedisHttpsSessionConfigurationTests {
 		registerAndRefresh(RedisConfig.class, ImportConfigAndCustomizeConfiguration.class);
 		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
+	}
+
+	@Test
+	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
+		registerAndRefresh(RedisConfig.class, SessionIdGenerationStrategyConfiguration.class);
+		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(TestSessionIdGenerationStrategy.class);
+	}
+
+	@Test
+	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
+		registerAndRefresh(RedisConfig.class, DefaultConfiguration.class);
+		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
+				.isInstanceOf(UuidSessionIdGenerationStrategy.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -377,6 +395,32 @@ class RedisHttpsSessionConfigurationTests {
 		@Bean
 		SessionRepositoryCustomizer<RedisSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableRedisHttpSession
+	static class SessionIdGenerationStrategyConfiguration {
+
+		@Bean
+		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
+			return new TestSessionIdGenerationStrategy();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableRedisHttpSession
+	static class DefaultConfiguration {
+
+	}
+
+	static class TestSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+		@Override
+		public String generate() {
+			return "test";
 		}
 
 	}

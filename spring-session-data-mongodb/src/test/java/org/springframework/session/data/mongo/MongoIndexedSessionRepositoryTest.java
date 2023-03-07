@@ -34,8 +34,10 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionIdGenerationStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -207,6 +209,54 @@ public class MongoIndexedSessionRepositoryTest {
 
 		// then
 		assertThat(sessionsMap).isEmpty();
+	}
+
+	@Test
+	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+		this.repository.setSessionIdGenerationStrategy(new FixedSessionIdGenerationStrategy("123"));
+		MongoSession session = this.repository.createSession();
+		assertThat(session.getId()).isEqualTo("123");
+		assertThat(session.changeSessionId()).isEqualTo("123");
+	}
+
+	@Test
+	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null));
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+		this.repository.setSessionIdGenerationStrategy(new FixedSessionIdGenerationStrategy("456"));
+
+		Document sessionDocument = new Document();
+
+		given(this.mongoOperations.findById("123", Document.class,
+				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME)).willReturn(sessionDocument);
+
+		MongoSession session = new MongoSession("123");
+
+		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
+				TypeDescriptor.valueOf(MongoSession.class))).willReturn(session);
+
+		MongoSession retrievedSession = this.repository.findById("123");
+		assertThat(retrievedSession.getId()).isEqualTo("123");
+		String newSessionId = retrievedSession.changeSessionId();
+		assertThat(newSessionId).isEqualTo("456");
+	}
+
+	static class FixedSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+
+		private final String id;
+
+		FixedSessionIdGenerationStrategy(String id) {
+			this.id = id;
+		}
+
+		@Override
+		public String generate() {
+			return this.id;
+		}
+
 	}
 
 }
