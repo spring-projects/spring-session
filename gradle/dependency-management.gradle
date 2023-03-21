@@ -7,7 +7,7 @@ dependencyManagement {
 		mavenBom 'org.springframework:spring-framework-bom:6.0.0'
 		mavenBom 'org.springframework.data:spring-data-bom:2022.0.0'
 		mavenBom 'org.springframework.security:spring-security-bom:6.0.0'
-		mavenBom 'org.testcontainers:testcontainers-bom:1.17.3'
+		mavenBom 'org.testcontainers:testcontainers-bom:1.17.6'
 	}
 
 	dependencies {
