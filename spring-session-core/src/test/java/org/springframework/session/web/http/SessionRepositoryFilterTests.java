@@ -1320,6 +1320,32 @@ class SessionRepositoryFilterTests {
 		assertThat(bindingListener.getCounter()).isEqualTo(1);
 	}
 
+	@Test // gh-2284
+	void doFilterIncludeCommitSessionOnce() throws Exception {
+		MapSession session = this.sessionRepository.createSession();
+		this.sessionRepository.save(session);
+		SessionRepository<MapSession> sessionRepository = spy(this.sessionRepository);
+		setSessionCookie(session.getId());
+		
+		given(sessionRepository.findById(session.getId())).willReturn(session);
+
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
+		
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
+					throws IOException, ServletException {
+				String id = wrappedRequest.getSession().getId();
+				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
+				assertThat(SessionRepositoryFilterTests.this.sessionRepository.findById(id)).isNotNull();
+				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
+				verify(sessionRepository).findById(session.getId());
+				verify(sessionRepository).save(session);
+				verifyNoMoreInteractions(sessionRepository);
+			}
+		});
+	}
+
 	// --- helper methods
 
 	private void assertNewSession() {

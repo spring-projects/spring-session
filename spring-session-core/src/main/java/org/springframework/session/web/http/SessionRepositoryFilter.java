@@ -205,6 +205,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean requestedSessionInvalidated;
 
+		private boolean hasCommitedInInclude;
+
 		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
 			super(request);
 			this.response = response;
@@ -338,7 +340,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		@Override
 		public RequestDispatcher getRequestDispatcher(String path) {
 			RequestDispatcher requestDispatcher = super.getRequestDispatcher(path);
-			return new SessionCommittingRequestDispatcher(requestDispatcher);
+			return new SessionCommittingRequestDispatcher(requestDispatcher, this);
 		}
 
 		private S getRequestedSession() {
@@ -397,8 +399,11 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 			private final RequestDispatcher delegate;
 
-			SessionCommittingRequestDispatcher(RequestDispatcher delegate) {
+			private final SessionRepositoryRequestWrapper wrapper;
+
+			SessionCommittingRequestDispatcher(RequestDispatcher delegate, SessionRepositoryRequestWrapper wrapper) {
 				this.delegate = delegate;
+				this.wrapper = wrapper;
 			}
 
 			@Override
@@ -408,7 +413,10 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 			@Override
 			public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-				SessionRepositoryRequestWrapper.this.commitSession();
+				if (!this.wrapper.hasCommitedInInclude) {
+					SessionRepositoryRequestWrapper.this.commitSession();
+					this.wrapper.hasCommitedInInclude = true;
+				}
 				this.delegate.include(request, response);
 			}
 
