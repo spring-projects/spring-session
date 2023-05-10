@@ -1,5 +1,7 @@
 = Spring Session
+
 Rob Winch; Vedran Pavić; Jay Bryant; Eleftheria Stein-Kousathana
+
 :doctype: book
 :indexdoc-tests: {docs-test-dir}docs/IndexDocTests.java
 :websocketdoc-test-dir: {docs-test-dir}docs/websocket/
@@ -15,6 +17,44 @@ It also provides transparent integration with:
 * xref:web-socket.adoc#websocket[WebSocket]: Provides the ability to keep the `HttpSession` alive when receiving WebSocket messages
 * xref:web-session.adoc#websession[WebSession]: Allows replacing the Spring WebFlux's `WebSession` in an application container-neutral way.
 
+== Understanding the Problem That Spring Session Solves
+
+When a user interacts with a web application, the server creates a session to keep track of their activity.
+This session may store information such as user preferences, login status, and shopping cart contents.
+However, sessions can be problematic in a distributed environment, as they are typically stored on the server's memory.
+
+To better understand the problem that Spring Session solves, let's first visualize the following diagram:
+
+.In-Memory Sessions
+image::inmemory-sessions.png[In-Memory Sessions]
+
+In the diagram above, each Spring application is storing its sessions in a place where only themselves can access them, usually in the server's memory, but this can be a problem in a distributed environment.
+Imagine a situation where Spring App #2 receives a request with Session #3, the application will not be able to read the session data because it is stored in Spring App #1's memory.
+To solve this problem we need to implement some kind of Shared Session Storage as we can see in the diagram below:
+
+.Shared Session Storage
+image::shared-session-storage.png[Shared Session Storage]
+
+With the above setup, the sessions become available for every application that has access to the session storage.
+
+Spring Session provides a layer of abstraction between the application and the session management.
+It allows the session data to be stored in various persistent stores, such as relational databases, NoSQL databases, and others.
+
+With Spring Session, you can use the same API to manage sessions, regardless of the persistent store used.
+This makes it easier to switch between stores without changing the application code.
+Spring Session also provides features such as session expiry and cross-context communication between different web applications.
+
+Overall, Spring Session simplifies the management of user sessions in web applications, making it easier for you to focus on building the core features of their applications.
+
+Here are some common use cases for Spring Session:
+
+- Distributed web applications: If you have a web application distributed across multiple servers, managing user sessions can be challenging.
+Spring Session can help by storing the session data in a shared database or Redis, allowing all servers to access and update session data.
+
+- Session scalability: In a large web application with many concurrent users, storing sessions in memory on the server can lead to scalability issues.
+Spring Session allows you to store session data in a persistent store, improving scalability and reducing the risk of out-of-memory errors.
+
+- Session backup and recovery: Storing session data in a persistent store can also provide a mechanism for backing up and recovering session data in case of server failure or downtime.
 
 [[community]]
 == Spring Session Community
