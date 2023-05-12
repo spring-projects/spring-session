@@ -20,18 +20,7 @@ You can manually check at https://github.com/spring-projects/spring-session/mile
 
 Update the version number in `gradle.properties` for the release, for example `3.0.0-M1`, `3.0.0-RC1`, `3.0.4`
 
-== 4. Update Antora Version
-
-You will need to update the antora.yml version.
-
-For milestone / release candidate releases you should follow this format:
-----
-version: '3.0.0-RC1'
-prerelease: 'true'
-display_version: '3.0.0-RC1'
-----
-
-== 5. Build Locally
+== 4. Build Locally
 
 Run the build using
 
@@ -40,12 +29,12 @@ Run the build using
 $ ./gradlew check
 ----
 
-== 6. Push the Release Commit
+== 5. Push the Release Commit
 
 Push the commit and GitHub actions will build and deploy the artifacts.
 Wait for the artifact to appear in https://repo1.maven.org/maven2/org/springframework/session/spring-session-core/
 
-== 7. Tag the release
+== 6. Tag the release
 
 Tag the release and then push the tag
 
@@ -54,15 +43,15 @@ git tag 3.0.0-RC1
 git push origin 3.0.0-RC1
 ....
 
-== 8. Update to Next Development Version
+== 7. Update to Next Development Version
 
 Update `gradle.properties` version to next `+SNAPSHOT+` version, update antora.yml and then push
 
-== 9. Update version on project pages
+== 8. Update version on project pages
 
 Update the versions on https://spring.io/projects for Spring Session Core, Spring Session Data Redis, Spring Session JDBC, Spring Session Hazelcast, and Spring Session MongoDB.
 
-== 10. Update Release Notes on GitHub
+== 9. Update Release Notes on GitHub
 
 Download
 https://github.com/spring-io/github-changelog-generator/releases/latest[the
@@ -91,7 +80,7 @@ cat release-notes | xclip -selection clipboard
 https://github.com/spring-projects/spring-session/releases[release on
 GitHub], associate it with the tag, and paste the generated notes.
 
-== 11. Close / Create Milestone
+== 10. Close / Create Milestone
 
 * In
 https://github.com/spring-projects/spring-session/milestones[GitHub
@@ -102,9 +91,6 @@ the new milestone.
 
 Note: Spring Session typically releases only one milestone (M1) and one release candidate (RC1).
 
-== 12. Announce the release
+== 11. Announce the release
 
 * Announce via Slack on https://pivotal.slack.com/messages/spring-session[#spring-session], and tag any downstream Spring Session projects (e.g Spring Session for Apache Geode).
-
-Note: Do not post on #spring-release or create a blog post. Those steps happen after the Spring Session BOM is released.
-
