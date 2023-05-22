@@ -1,4 +1,10 @@
 * xref:whats-new.adoc[What's New]
+* xref:getting-started.adoc[Getting Started]
+** xref:getting-started/using-redis.adoc[Using Redis]
+** xref:getting-started/using-jdbc.adoc[Using JDBC]
+** xref:getting-started/using-mongodb.adoc[Using MongoDB]
+** xref:getting-started/using-hazelcast.adoc[Using Hazelcast]
+** xref:getting-started/using-custom-implementation.adoc[Using Your Own Implementation]
 * xref:samples.adoc[Samples & Guides (Start Here)]
 ** Boot Samples
 *** HttpSession
