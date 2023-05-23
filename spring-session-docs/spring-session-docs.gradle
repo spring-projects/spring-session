@@ -51,7 +51,7 @@ def generateAttributes() {
 	def snapshotBuild = project.version.contains("SNAPSHOT")
 	def milestoneBuild = project.version.contains("-M")
 	def releaseBuild = (!snapshotBuild && !milestoneBuild)
-	def springBootVersion = "2.7.0"
+	def springBootVersion = project.springBootVersion
 	def downloadUrl = "https://github.com/spring-projects/spring-session/archive/${ghTag}.zip"
 	def ghSamplesUrl = "$ghUrl/spring-session-samples/"
 	def samplesDir = "example${dollar}spring-session-samples/"
@@ -61,6 +61,7 @@ def generateAttributes() {
 	def websocketdocTestDir = "example${dollar.toString()}java/docs/websocket/"
 	def docsTestResourcesDir = "example${dollar.toString()}resources/"
 	def indexdocTests = "example${dollar.toString()}java/docs/IndexDocTests.java"
+	def springBootRefDocs =  "https://docs.spring.io/spring-boot/docs/${springBootVersion}/reference/html"
 
 	return [
 			'download-url': downloadUrl.toString(),
@@ -76,7 +77,8 @@ def generateAttributes() {
 			'version-milestone': milestoneBuild,
 			'version-release': releaseBuild,
 			'version-snapshot': snapshotBuild,
-			'spring-boot-version': springBootVersion
+			'spring-boot-version': springBootVersion,
+			'spring-boot-ref-docs': springBootRefDocs.toString()
 	] + resolvedVersions(project.configurations.testRuntimeClasspath)
 }
 

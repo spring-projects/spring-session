@@ -28,6 +28,7 @@ import org.springframework.security.jackson2.SecurityJackson2Modules;
 /**
  * @author jitendra on 3/3/16.
  */
+// tag::class[]
 @Configuration
 public class SessionConfig implements BeanClassLoaderAware {
 
@@ -60,3 +61,4 @@ public class SessionConfig implements BeanClassLoaderAware {
 	}
 
 }
+// end::class[]

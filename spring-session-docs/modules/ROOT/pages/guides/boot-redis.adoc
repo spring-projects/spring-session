@@ -13,13 +13,12 @@ link:../index.html[Index]
 
 == Updating Dependencies
 
-Before you use Spring Session, you must ensure your dependencies.
+Before you use Spring Session with Redis, you must ensure that you have the right dependencies.
 We assume you are working with a working Spring Boot web application.
-If you are using Maven, you must add the following dependencies:
 
 ====
 .pom.xml
-[source,xml]
+[source,xml,role="primary"]
 [subs="verbatim,attributes"]
 ----
 <dependencies>
@@ -31,6 +30,12 @@ If you are using Maven, you must add the following dependencies:
 	</dependency>
 </dependencies>
 ----
+
+.build.gradle
+[source,groovy,role="secondary"]
+----
+implementation("org.springframework.session:spring-session-data-redis")
+----
 ====
 
 Spring Boot provides dependency management for Spring Session modules, so you need not explicitly declare dependency version.
@@ -39,7 +44,7 @@ Spring Boot provides dependency management for Spring Session modules, so you ne
 == Spring Boot Configuration
 
 After adding the required dependencies, we can create our Spring Boot configuration.
-Thanks to first-class auto configuration support, setting up Spring Session backed by Redis is as simple as adding a single configuration property to your `application.properties`, as the following listing shows:
+Thanks to first-class auto-configuration support, setting up Spring Session backed by Redis is as simple as adding a single configuration property to your `application.properties`, as the following listing shows:
 
 ====
 .src/main/resources/application.properties
@@ -124,7 +129,7 @@ Now you can try using the application. Enter the following to log in:
 * *Password* _password_
 
 Now click the *Login* button.
-You should now see a message indicating your are logged in with the user entered previously.
+You should now see a message indicating you are logged in with the user entered previously.
 The user's information is stored in Redis rather than Tomcat's `HttpSession` implementation.
 
 [[boot-how]]
