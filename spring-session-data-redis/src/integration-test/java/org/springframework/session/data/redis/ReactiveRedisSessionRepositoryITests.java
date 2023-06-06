@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,21 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.endsWith;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 
 /**
  * Integration tests for {@link ReactiveRedisSessionRepository}.
@@ -213,6 +219,30 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 
 		assertThat(this.repository.findById(sessionId).block()).isNull();
 		assertThat(this.repository.findById(session.getId()).block()).isNotNull();
+	}
+
+	// gh-2281
+	@Test
+	@SuppressWarnings("unchecked")
+	void saveChangeSessionIdAfterCheckWhenOriginalKeyDoesNotExistsThenIgnoreError() {
+		ReactiveRedisOperations<String, Object> sessionRedisOperations = (ReactiveRedisOperations<String, Object>) ReflectionTestUtils
+				.getField(this.repository, "sessionRedisOperations");
+		ReactiveRedisOperations<String, Object> spyOperations = spy(sessionRedisOperations);
+		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", spyOperations);
+
+		RedisSession toSave = this.repository.createSession().block();
+		String sessionId = toSave.getId();
+
+		given(spyOperations.hasKey(endsWith(sessionId))).willReturn(Mono.just(true));
+
+		this.repository.save(toSave).block();
+		RedisSession session = this.repository.findById(sessionId).block();
+		this.repository.deleteById(sessionId).block();
+		String newSessionId = session.changeSessionId();
+		this.repository.save(session).block();
+		assertThat(this.repository.findById(sessionId).block()).isNull();
+		assertThat(this.repository.findById(newSessionId).block()).isNull();
+		reset(spyOperations);
 	}
 
 	@Configuration
