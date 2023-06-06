@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * <p>
@@ -870,7 +871,8 @@ public class RedisIndexedSessionRepository
 		}
 
 		private void handleErrNoSuchKeyError(NonTransientDataAccessException ex) {
-			if (!"ERR no such key".equals(NestedExceptionUtils.getMostSpecificCause(ex).getMessage())) {
+			String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
+			if (!StringUtils.startsWithIgnoreCase(message, "ERR no such key")) {
 				throw ex;
 			}
 		}
