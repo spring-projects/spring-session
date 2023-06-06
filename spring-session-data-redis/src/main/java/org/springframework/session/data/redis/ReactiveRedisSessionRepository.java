@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,14 @@ import java.util.Set;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link ReactiveSessionRepository} that is implemented using Spring Data's
@@ -317,7 +319,10 @@ public class ReactiveRedisSessionRepository
 				String sessionKey = getSessionKey(sessionId);
 
 				return ReactiveRedisSessionRepository.this.sessionRedisOperations.rename(originalSessionKey, sessionKey)
-						.and(replaceSessionId);
+						.and(replaceSessionId).onErrorResume((ex) -> {
+							String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
+							return StringUtils.startsWithIgnoreCase(message, "ERR no such key");
+						}, (ex) -> Mono.empty());
 			}
 		}
 
