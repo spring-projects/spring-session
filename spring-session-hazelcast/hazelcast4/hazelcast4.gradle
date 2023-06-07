@@ -32,6 +32,7 @@ dependencies {
     testImplementation "org.springframework:spring-web"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.springframework.security:spring-security-core"
+    testImplementation "org.springframework.security:spring-security-web"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     integrationTestCompile "org.testcontainers:testcontainers"
