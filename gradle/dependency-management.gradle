@@ -13,7 +13,7 @@ dependencyManagement {
 	dependencies {
 		dependency 'com.hazelcast:hazelcast:5.1.4'
 		dependency 'org.aspectj:aspectjweaver:1.9.9.1'
-		dependency 'ch.qos.logback:logback-core:1.4.4'
+		dependency 'ch.qos.logback:logback-core:1.4.7'
 		dependency 'com.google.code.findbugs:jsr305:3.0.2'
 		dependency 'com.h2database:h2:2.1.214'
 		dependency 'com.ibm.db2:jcc:11.5.7.0'
