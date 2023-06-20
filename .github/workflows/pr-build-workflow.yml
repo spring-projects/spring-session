@@ -9,7 +9,7 @@ jobs:
     if: github.repository == 'spring-projects/spring-session'
     strategy:
       matrix:
-        jdk: [8, 11]
+        jdk: [17]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2

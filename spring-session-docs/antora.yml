@@ -1,3 +1,25 @@
-name: ROOT
-version: '2.6.4'
-prerelease: '-SNAPSHOT'
+name: session
+version: true
+title: Spring Session
+start_page: ROOT:index.adoc
+nav:
+  - modules/ROOT/nav.adoc
+ext:
+  collector:
+    run:
+      command: gradlew -q -PbuildSrc.skipTests=true "-Dorg.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError" :spring-session-docs:generateAntoraYml
+      local: true
+    scan:
+      dir: ./build/generated-antora-resources
+asciidoc:
+  attributes:
+    gh-url: "https://github.com/spring-projects/spring-session/tree/{gh-tag}"
+    download-url: "https://github.com/spring-projects/spring-session/archive/{gh-tag}.zip"
+    gh-samples-url: "{gh-url}/spring-session-samples/"
+    samples-dir: "example$spring-session-samples/"
+    session-jdbc-main-resources-dir: "example$session-jdbc-main-resources-dir/"
+    spring-session-data-mongodb-dir: "example$spring-session-data-mongodb-dir/"
+    docs-test-dir: "example$java/"
+    websocketdoc-test-dir: 'example$java/docs/websocket/'
+    docs-test-resources-dir: "example$resources/"
+    indexdoc-tests: "example$java/docs/IndexDocTests.java"
