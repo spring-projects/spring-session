@@ -16,7 +16,7 @@ content:
   sources:
     - url: ./..
       branches: HEAD
-      start_path: docs
+      start_path: spring-session-docs
       worktrees: true
 asciidoc:
   attributes:
