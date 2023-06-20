@@ -10,6 +10,8 @@ antora:
     - '@opendevise/antora-release-line-extension'
     - require: '@springio/antora-extensions/tabs-migration-extension'
       unwrap_example_block: always
+    - require: '@springio/antora-extensions/root-component-extension'
+      root_component_name: 'session'
 site:
   title: Spring Session Reference
 content:

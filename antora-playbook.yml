@@ -1,6 +1,7 @@
 antora:
   extensions:
     - '@springio/antora-extensions/partial-build-extension'
+    - require: '@springio/antora-extensions/latest-version-extension'
     - ./lib/antora/extensions/inject-collector-config.js
     - '@antora/collector-extension'
     - ./lib/antora/extensions/version-fix.js
@@ -12,6 +13,8 @@ antora:
       unwrap_example_block: always
     - require: ./lib/antora/extensions/publish-docsearch-config
       template_path: ./.github/actions/docsearch-config.json.hbs
+    - require: '@springio/antora-extensions/root-component-extension'
+      root_component_name: 'session'
 site:
   title: Spring Session
   url: https://docs.spring.io/spring-session/reference
@@ -21,7 +24,7 @@ git:
 content:
   sources:
   - url: https://github.com/spring-projects/spring-session
-    branches: [main, '2.{6..9}+.{0..9}+.x']
+    branches: [main, '*.x', '!(1.*.x)', '!(2.{0..5}.x)']
     tags: ['2.{6..9}.*', '3.+({0..9}).+({0..9})?(-{RC,M}*)?', '!2.6.0-M*','!2.6.0-RC*','!2.7.0-M1','!3.0.0-M1']
     start_path: spring-session-docs
 asciidoc:
@@ -38,5 +41,5 @@ urls:
   redirect_facility: httpd
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.1.1/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.0/ui-bundle.zip
     snapshot: true
