@@ -1,6 +1,6 @@
 name: session
 version: true
-title: Documentation
+title: Spring Session
 nav:
   - modules/ROOT/nav.adoc
 ext:
