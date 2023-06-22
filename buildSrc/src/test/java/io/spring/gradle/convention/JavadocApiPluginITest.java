@@ -28,7 +28,7 @@ public class JavadocApiPluginITest {
 				.build();
 		assertThat(result.task(":api").getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
         File allClasses = new File(testKit.getRootDir(), "build/api/allclasses-noframe.html");
-		File index = new File(testKit.getRootDir(), "build/api/allclasses.html");
+		File index = new File(testKit.getRootDir(), "build/api/allclasses-index.html");
 		File listing = allClasses.exists() ? allClasses : index;
 		String listingText = FileUtils.readFileToString(listing);
 		assertThat(listingText).contains("sample/Api.html");
