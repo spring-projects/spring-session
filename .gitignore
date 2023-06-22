@@ -16,3 +16,4 @@ out
 .DS_Store
 spring-session-docs/package-lock.json
 spring-session-docs/node_modules/
+cached-antora-playbook.yml
