@@ -3,4 +3,4 @@
 # See https://sdkman.io/usage#config
 # A summary is to add the following to ~/.sdkman/etc/config
 # sdkman_auto_env=true
-java=8.0.332-zulu
+java=17.0.2-tem

@@ -14,3 +14,4 @@ out
 !etc/eclipse/.checkstyle
 !**/src/**/build
 .DS_Store
+cached-antora-playbook.yml
