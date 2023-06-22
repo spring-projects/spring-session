@@ -31,12 +31,16 @@ jobs:
           git fetch --depth 1 https://github.com/$GITHUB_REPOSITORY ${{ github.event.inputs.build-refname }}
           echo BUILD_REFNAME=${{ github.event.inputs.build-refname }} >> $GITHUB_ENV
           echo BUILD_VERSION=$(git cat-file --textconv FETCH_HEAD:gradle.properties | sed -n '/^version=/ { s/^version=//;p }') >> $GITHUB_ENV
+      - name: ls existing cache
+        run:  ls ~/.cache/antora/collector-cache/spring-session-* || true
       - name: Run Antora
         run: ./gradlew antora
       - name: Copy the cache to be included in the site
         run: cp -rf build/antora/inject-collector-cache-config-extension/.cache build/site/
       - name: Output the cache
         run: ls build/site/.cache
+      - name: ls existing cache
+        run:  ls ~/.cache/antora/collector-cache/spring-session-* || true
       - name: Publish Docs
         uses: spring-io/spring-doc-actions/rsync-antora-reference@v0.0.10
         with:
