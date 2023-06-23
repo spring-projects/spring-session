@@ -1,0 +1,4 @@
+[[using-mongodb]]
+= Using Spring Session with MongoDB
+
+This section is still a work in progress, please refer to this xref:guides/boot-mongo.adoc[other section].
