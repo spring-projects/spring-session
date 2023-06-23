@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1326,11 +1326,11 @@ class SessionRepositoryFilterTests {
 		this.sessionRepository.save(session);
 		SessionRepository<MapSession> sessionRepository = spy(this.sessionRepository);
 		setSessionCookie(session.getId());
-		
+
 		given(sessionRepository.findById(session.getId())).willReturn(session);
 
 		this.filter = new SessionRepositoryFilter<>(sessionRepository);
-		
+
 		doFilter(new DoInFilter() {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
@@ -1339,8 +1339,8 @@ class SessionRepositoryFilterTests {
 				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository.findById(id)).isNotNull();
 				wrappedRequest.getRequestDispatcher("/").include(wrappedRequest, wrappedResponse);
-				verify(sessionRepository).findById(session.getId());
-				verify(sessionRepository).save(session);
+				verify(sessionRepository, times(1)).findById(session.getId());
+				verify(sessionRepository, times(1)).save(session);
 				verifyNoMoreInteractions(sessionRepository);
 			}
 		});

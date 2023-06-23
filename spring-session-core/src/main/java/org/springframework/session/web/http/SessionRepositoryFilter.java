@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -205,7 +204,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean requestedSessionInvalidated;
 
-		private boolean hasCommitedInInclude;
+		private boolean hasCommittedInInclude;
 
 		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
 			super(request);
@@ -340,7 +339,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		@Override
 		public RequestDispatcher getRequestDispatcher(String path) {
 			RequestDispatcher requestDispatcher = super.getRequestDispatcher(path);
-			return new SessionCommittingRequestDispatcher(requestDispatcher, this);
+			return new SessionCommittingRequestDispatcher(requestDispatcher);
 		}
 
 		private S getRequestedSession() {
@@ -399,11 +398,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 			private final RequestDispatcher delegate;
 
-			private final SessionRepositoryRequestWrapper wrapper;
-
-			SessionCommittingRequestDispatcher(RequestDispatcher delegate, SessionRepositoryRequestWrapper wrapper) {
+			SessionCommittingRequestDispatcher(RequestDispatcher delegate) {
 				this.delegate = delegate;
-				this.wrapper = wrapper;
 			}
 
 			@Override
@@ -413,9 +409,9 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 			@Override
 			public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-				if (!this.wrapper.hasCommitedInInclude) {
+				if (!SessionRepositoryRequestWrapper.this.hasCommittedInInclude) {
 					SessionRepositoryRequestWrapper.this.commitSession();
-					this.wrapper.hasCommitedInInclude = true;
+					SessionRepositoryRequestWrapper.this.hasCommittedInInclude = true;
 				}
 				this.delegate.include(request, response);
 			}
