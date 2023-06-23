@@ -19,4 +19,4 @@ Now that you have chosen the persistence store that best fit your needs, you can
 - xref:getting-started/using-jdbc.adoc[I want to use JDBC]
 - xref:getting-started/using-hazelcast.adoc[I want to use Hazelcast]
 - xref:getting-started/using-mongodb.adoc[I want to use MongoDB]
-- xref:getting-started/using-custom-implementation.adoc[I want to use my own implementation]
+- xref:getting-started/using-custom-session-repository.adoc[I want to use my own implementation]

@@ -4,7 +4,7 @@
 ** xref:getting-started/using-jdbc.adoc[Using JDBC]
 ** xref:getting-started/using-mongodb.adoc[Using MongoDB]
 ** xref:getting-started/using-hazelcast.adoc[Using Hazelcast]
-** xref:getting-started/using-custom-implementation.adoc[Using Your Own Implementation]
+** xref:getting-started/using-custom-session-repository.adoc[Using Your Own Session Repository]
 * xref:samples.adoc[Samples & Guides (Start Here)]
 ** Boot Samples
 *** HttpSession
