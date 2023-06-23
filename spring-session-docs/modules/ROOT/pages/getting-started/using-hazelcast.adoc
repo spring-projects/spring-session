@@ -1,0 +1,4 @@
+[[using-hazelcast]]
+= Using Spring Session with Hazelcast
+
+This section is still a work in progress, please refer to this xref:http-session.adoc#httpsession-hazelcast[other section].
