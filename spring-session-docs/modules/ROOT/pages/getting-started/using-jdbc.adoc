@@ -1,4 +1,0 @@
-[[using-jdbc]]
-= Using Spring Session with JDBC
-
-This section is still a work in progress, please refer to this xref:guides/boot-jdbc.adoc[other section].

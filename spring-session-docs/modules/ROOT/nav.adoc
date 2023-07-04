@@ -1,10 +1,4 @@
 * xref:whats-new.adoc[What's New]
-* xref:getting-started.adoc[Getting Started]
-** xref:getting-started/using-redis.adoc[Using Redis]
-** xref:getting-started/using-jdbc.adoc[Using JDBC]
-** xref:getting-started/using-mongodb.adoc[Using MongoDB]
-** xref:getting-started/using-hazelcast.adoc[Using Hazelcast]
-** xref:getting-started/using-custom-session-repository.adoc[Using Your Own Session Repository]
 * xref:samples.adoc[Samples & Guides (Start Here)]
 ** Boot Samples
 *** HttpSession
@@ -21,6 +15,8 @@
 *** xref:guides/boot-webflux-custom-cookie.adoc[Custom Cookie]
 ** Java Configuration
 ** XML Configuration
+* xref:configurations.adoc[Configurations]
+** xref:configuration/redis.adoc[Redis]
 * xref:http-session.adoc[HttpSession Integration]
 * xref:web-socket.adoc[WebSocket Integration]
 * xref:web-session.adoc[WebSession Integration]

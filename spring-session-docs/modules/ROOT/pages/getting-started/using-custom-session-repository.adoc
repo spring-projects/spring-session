@@ -1,4 +1,0 @@
-[[using-custom-session-repository]]
-= Using Spring Session with Custom Session Repository
-
-This section is still a work in progress, please refer to this xref:api.adoc#custom-sessionrepository[other section].
