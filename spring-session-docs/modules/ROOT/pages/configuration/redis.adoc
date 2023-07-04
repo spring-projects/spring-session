@@ -1,0 +1,271 @@
+[[redis-configurations]]
+= Redis Configurations
+
+Now that you have your application configured, you might want to start customizing things:
+
+- I want to {spring-boot-ref-docs}/application-properties.html#application-properties.data.spring.data.redis.host[customize the Redis configuration] using Spring Boot properties
+- I want <<choosing-between-regular-and-indexed,help in choosing>> `RedisSessionRepository` or `RedisIndexedSessionRepository`.
+- I want to <<serializing-session-using-json,serialize the session using JSON>>.
+- I want to <<using-a-different-namespace,specify a different namespace>>.
+- I want to <<listening-session-events,know when a session is created, deleted, destroyed or expires>>.
+- I want to <<finding-all-user-sessions, find all sessions of a specific user>>
+
+[[serializing-session-using-json]]
+== Serializing the Session using JSON
+
+By default, Spring Session uses Java Serialization to serialize the session attributes.
+Sometimes it might be problematic, especially when you have multiple applications that use the same Redis instance but have different versions of the same class.
+You can provide a `RedisSerializer` bean to customize how the session is serialized into Redis.
+Spring Data Redis provides the `GenericJackson2JsonRedisSerializer` that serializes and deserializes objects using Jackson's `ObjectMapper`.
+
+====
+.Configuring the RedisSerializer
+[source,java]
+----
+include::{samples-dir}spring-session-sample-boot-redis-json/src/main/java/sample/config/SessionConfig.java[tags=class]
+----
+====
+
+The above code snippet is using Spring Security, therefore we are creating a custom `ObjectMapper` that uses Spring Security's Jackson modules.
+If you do not need Spring Security Jackson modules, you can inject your application's `ObjectMapper` bean and use it like so:
+
+====
+[source,java]
+----
+@Bean
+public RedisSerializer<Object> springSessionDefaultRedisSerializer(ObjectMapper objectMapper) {
+    return new GenericJackson2JsonRedisSerializer(objectMapper);
+}
+----
+====
+
+[[using-a-different-namespace]]
+== Specifying a Different Namespace
+
+It is not uncommon to have multiple applications that use the same Redis instance.
+For that reason, Spring Session uses a `namespace` (defaults to `spring:session`) to keep the session data separated if needed.
+
+=== Using Spring Boot Properties
+
+You can specify it by setting the `spring.session.redis.namespace` property.
+
+====
+.application.properties
+[source,properties,role="primary"]
+----
+spring.session.redis.namespace=spring:session:myapplication
+----
+
+.application.yml
+[source,yml,role="secondary"]
+----
+spring:
+  session:
+    redis:
+      namespace: "spring:session:myapplication"
+----
+====
+
+=== Using the Annotation's Attributes
+
+You can specify the `namespace` by setting the `redisNamespace` property in the `@EnableRedisHttpSession`, `@EnableRedisIndexedHttpSession`, or `@EnableRedisWebSession` annotations:
+
+====
+.@EnableRedisHttpSession
+[source,java,role="primary"]
+----
+@Configuration
+@EnableRedisHttpSession(redisNamespace = "spring:session:myapplication")
+public class SessionConfig {
+    // ...
+}
+----
+
+.@EnableRedisIndexedHttpSession
+[source,java,role="secondary"]
+----
+@Configuration
+@EnableRedisIndexedHttpSession(redisNamespace = "spring:session:myapplication")
+public class SessionConfig {
+    // ...
+}
+----
+
+.@EnableRedisWebSession
+[source,java,role="secondary"]
+----
+@Configuration
+@EnableRedisWebSession(redisNamespace = "spring:session:myapplication")
+public class SessionConfig {
+    // ...
+}
+----
+====
+
+[[choosing-between-regular-and-indexed]]
+== Choosing Between `RedisSessionRepository` and `RedisIndexedSessionRepository`
+
+When working with Spring Session Redis, you will likely have to choose between the `RedisSessionRepository` and the `RedisIndexedSessionRepository`.
+Both are implementations of the `SessionRepository` interface that store session data in Redis.
+However, they differ in how they handle session indexing and querying.
+
+- `RedisSessionRepository`: `RedisSessionRepository` is a basic implementation that stores session data in Redis without any additional indexing.
+It uses a simple key-value structure to store session attributes.
+Each session is assigned a unique session ID, and the session data is stored under a Redis key associated with that ID.
+When a session needs to be retrieved, the repository queries Redis using the session ID to fetch the associated session data.
+Since there is no indexing, querying sessions based on attributes or criteria other than the session ID can be inefficient.
+
+- `RedisIndexedSessionRepository`: `RedisIndexedSessionRepository` is an extended implementation that provides indexing capabilities for sessions stored in Redis.
+It introduces additional data structures in Redis to efficiently query sessions based on attributes or criteria.
+In addition to the key-value structure used by `RedisSessionRepository`, it maintains additional indexes to enable fast lookups.
+For example, it may create indexes based on session attributes like user ID or last access time.
+These indexes allow for efficient querying of sessions based on specific criteria, enhancing performance and enabling advanced session management features.
+In addition to that, `RedisIndexedSessionRepository` also supports session expiration and deletion.
+
+=== Configuring the `RedisSessionRepository`
+
+==== Using Spring Boot Properties
+
+If you are using Spring Boot, the `RedisSessionRepository` is the default implementation.
+However, if you want to be explicit about it, you can set the following property in your application:
+
+====
+.application.properties
+[source,properties,role="primary"]
+----
+spring.session.redis.repository-type=default
+----
+
+.application.yml
+[source,yml,role="secondary"]
+----
+spring:
+  session:
+    redis:
+      repository-type: default
+----
+====
+
+==== Using Annotations
+
+You can configure the `RedisSessionRepository` by using the `@EnableRedisHttpSession` annotation:
+
+====
+[source,java,role="primary"]
+----
+@Configuration
+@EnableRedisHttpSession
+public class SessionConfig {
+    // ...
+}
+----
+====
+
+[[configuring-redisindexedsessionrepository]]
+=== Configuring the `RedisIndexedSessionRepository`
+
+==== Using Spring Boot Properties
+
+You can configure the `RedisIndexedSessionRepository` by setting the following properties in your application:
+
+====
+.application.properties
+[source,properties,role="primary"]
+----
+spring.session.redis.repository-type=indexed
+----
+
+.application.yml
+[source,yml,role="secondary"]
+----
+spring:
+  session:
+    redis:
+      repository-type: indexed
+----
+====
+
+==== Using Annotations
+
+You can configure the `RedisIndexedSessionRepository` by using the `@EnableRedisIndexedHttpSession` annotation:
+
+====
+[source,java,role="primary"]
+----
+@Configuration
+@EnableRedisIndexedHttpSession
+public class SessionConfig {
+    // ...
+}
+----
+====
+
+[[listening-session-events]]
+== Listening to Session Events
+
+Often times it is valuable to react to session events, for example, you might want to do some kind of processing depending on the session lifecycle.
+In order to be able to do that, you must be using the <<configuring-redisindexedsessionrepository,indexed repository>>.
+If you do not know the difference between the indexed and the default repository, you can go to <<choosing-between-regular-and-indexed,this section>>.
+
+With the indexed repository configured, you can now start to listen to `SessionCreatedEvent`, `SessionDeletedEvent`, `SessionDestroyedEvent` and `SessionExpiredEvent` events.
+There are a https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events[few ways to listen to application events] in Spring, we are going to use the `@EventListener` annotation.
+
+====
+[source,java]
+----
+@Component
+public class SessionEventListener {
+
+    @EventListener
+    public void processSessionCreatedEvent(SessionCreatedEvent event) {
+        // do the necessary work
+    }
+
+    @EventListener
+    public void processSessionDeletedEvent(SessionDeletedEvent event) {
+        // do the necessary work
+    }
+
+    @EventListener
+    public void processSessionDestroyedEvent(SessionDestroyedEvent event) {
+        // do the necessary work
+    }
+
+    @EventListener
+    public void processSessionExpiredEvent(SessionExpiredEvent event) {
+        // do the necessary work
+    }
+
+}
+----
+====
+
+[[finding-all-user-sessions]]
+== Finding All Sessions of a Specific User
+
+By retrieving all sessions of a specific user, you can track the user's active sessions across devices or browsers.
+For example, you can use this information session management purposes, such as allowing the user to invalidate or logout from specific sessions or performing actions based on the user's session activity.
+
+To do that, first you must be using the <<configuring-redisindexedsessionrepository,indexed repository>>, and then you can inject the `FindByIndexNameSessionRepository` interface, like so:
+
+====
+[source,java]
+----
+@Autowired
+public FindByIndexNameSessionRepository<? extends Session> sessions;
+
+public Collection<? extends Session> getSessions(Principal principal) {
+    Collection<? extends Session> usersSessions = this.sessions.findByPrincipalName(principal.getName()).values();
+    return usersSessions;
+}
+
+public void removeSession(Principal principal, String sessionIdToDelete) {
+    Set<String> usersSessionIds = this.sessions.findByPrincipalName(principal.getName()).keySet();
+    if (usersSessionIds.contains(sessionIdToDelete)) {
+        this.sessions.deleteById(sessionIdToDelete);
+    }
+}
+----
+====
+
+In the example above, you can use the `getSessions` method to find all sessions of a specific user, and the `removeSession` method to remove a specific session of a user.
