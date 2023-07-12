@@ -22,6 +22,7 @@ content:
       worktrees: true
 asciidoc:
   attributes:
+    page-stackoverflow-url: https://stackoverflow.com/tags/spring-session
     hide-uri-scheme: '@'
     page-pagination: ''
     primary-site-url: https://docs.spring.io/spring-session/reference
@@ -33,5 +34,5 @@ urls:
   latest_version_segment: ''
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.0/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.1/ui-bundle.zip
     snapshot: true

@@ -35,6 +35,7 @@ content:
     start_path: spring-session-docs
 asciidoc:
   attributes:
+    page-stackoverflow-url: https://stackoverflow.com/tags/spring-session
     page-pagination: ''
     hide-uri-scheme: '@'
     tabs-sync-option: '@'
@@ -47,7 +48,7 @@ urls:
   redirect_facility: httpd
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.0/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.1/ui-bundle.zip
     snapshot: true
 runtime:
   log:
