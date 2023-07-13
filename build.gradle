@@ -25,6 +25,7 @@ buildscript {
 }
 
 apply plugin: 'io.spring.convention.root'
+apply plugin: 'org.springframework.security.update-dependencies'
 
 group = 'org.springframework.session'
 description = 'Spring Session'
@@ -45,4 +46,22 @@ nohttp {
     source.exclude "buildSrc/build/**"
 	source.exclude "spring-session-docs/.gradle/nodejs/**"
 	source.exclude "spring-session-docs/modules/ROOT/examples/**/build/**"
+}
+
+updateDependenciesSettings {
+	gitHub {
+		organization = "spring-projects"
+		repository = "spring-session"
+	}
+	dependencyExcludes {
+		majorVersionBump()
+		minorVersionBump()
+		alphaBetaVersions()
+		snapshotVersions()
+	}
+	addFiles({
+		return [
+				project.file("gradle/dependency-management.gradle")
+		]
+	})
 }
