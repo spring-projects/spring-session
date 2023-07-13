@@ -2,6 +2,7 @@ plugins {
     id "java-gradle-plugin"
     id "java"
     id "groovy"
+    id 'com.apollographql.apollo' version '2.4.5'
 }
 
 sourceCompatibility = JavaVersion.VERSION_11
@@ -45,6 +46,10 @@ gradlePlugin {
         propdeps {
             id = "org.springframework.propdeps"
             implementationClass = "org.springframework.gradle.propdeps.PropDepsPlugin"
+        }
+        updateDependencies {
+            id = "org.springframework.security.update-dependencies"
+            implementationClass = "org.springframework.security.convention.versions.UpdateDependenciesPlugin"
         }
     }
 }
