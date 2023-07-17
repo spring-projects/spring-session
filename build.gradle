@@ -40,6 +40,11 @@ subprojects {
 	tasks.withType(Test) {
 		useJUnitPlatform()
 	}
+
+	// Spring Framework 6.1 requires -parameters to be able to introspect method parameter names
+	tasks.withType(JavaCompile) {
+		options.compilerArgs.add("-parameters")
+	}
 }
 
 nohttp {
