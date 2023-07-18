@@ -30,7 +30,7 @@ dependencyManagement {
 			entry 'derby'
 			entry 'derbytools'
 		}
-		dependency 'org.assertj:assertj-core:3.23.1'
+		dependency 'org.assertj:assertj-core:3.24.2'
 		dependency 'org.hamcrest:hamcrest:2.2'
 		dependency 'org.hsqldb:hsqldb:2.7.0'
 		dependency 'org.mariadb.jdbc:mariadb-java-client:3.0.7'
