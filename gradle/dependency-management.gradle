@@ -21,7 +21,7 @@ dependencyManagement {
 		dependency 'com.oracle.database.jdbc:ojdbc8:21.10.0.0'
 		dependency 'com.zaxxer:HikariCP:5.0.1'
 		dependency 'edu.umd.cs.mtc:multithreadedtc:1.01'
-		dependency 'io.lettuce:lettuce-core:6.2.1.RELEASE'
+		dependency 'io.lettuce:lettuce-core:6.2.5.RELEASE'
 		dependency 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 		dependency 'jakarta.websocket:jakarta.websocket-api:2.1.0'
 		dependency 'jakarta.websocket:jakarta.websocket-client-api:2.1.0'
