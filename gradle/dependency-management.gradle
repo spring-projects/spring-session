@@ -3,7 +3,7 @@ dependencyManagement {
 		mavenBom "io.projectreactor:reactor-bom:$reactorVersion"
 		mavenBom 'com.fasterxml.jackson:jackson-bom:2.14.2'
 		mavenBom 'org.junit:junit-bom:5.10.0-RC1'
-		mavenBom 'org.mockito:mockito-bom:4.8.1'
+		mavenBom 'org.mockito:mockito-bom:4.11.0'
 		mavenBom 'org.springframework:spring-framework-bom:6.1.0-M2'
 		mavenBom 'org.springframework.data:spring-data-bom:2023.1.0-M1'
 		mavenBom 'org.springframework.security:spring-security-bom:6.2.0-M1'
