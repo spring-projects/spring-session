@@ -25,7 +25,7 @@ dependencyManagement {
 		dependency 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 		dependency 'jakarta.websocket:jakarta.websocket-api:2.1.1'
 		dependency 'jakarta.websocket:jakarta.websocket-client-api:2.1.1'
-		dependency 'mysql:mysql-connector-java:8.0.30'
+		dependency 'mysql:mysql-connector-java:8.0.33'
 		dependencySet(group: 'org.apache.derby', version: '10.16.1.1') {
 			entry 'derby'
 			entry 'derbytools'
