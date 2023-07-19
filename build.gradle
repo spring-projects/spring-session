@@ -48,6 +48,11 @@ nohttp {
 	source.exclude "spring-session-docs/modules/ROOT/examples/**/build/**"
 }
 
+tasks.named("updateDependencies") {
+	// we aren't Gradle 8 compatible yet
+	checkForGradleUpdate = false
+}
+
 updateDependenciesSettings {
 	gitHub {
 		organization = "spring-projects"
@@ -59,9 +64,10 @@ updateDependenciesSettings {
 		alphaBetaVersions()
 		snapshotVersions()
 	}
-	addFiles({
+	setFiles({
 		return [
-				project.file("gradle/dependency-management.gradle")
+				project.file("gradle/dependency-management.gradle"),
+				project.file("buildSrc/src/main/groovy/io/spring/gradle/convention/CheckstylePlugin.groovy")
 		]
 	})
 }
