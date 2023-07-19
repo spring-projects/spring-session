@@ -59,7 +59,7 @@ updateDependenciesSettings {
 		alphaBetaVersions()
 		snapshotVersions()
 	}
-	addFiles({
+	setFiles({
 		return [
 				project.file("gradle/dependency-management.gradle")
 		]
