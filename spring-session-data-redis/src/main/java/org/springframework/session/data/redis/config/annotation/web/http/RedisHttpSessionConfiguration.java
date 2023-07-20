@@ -28,8 +28,8 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.StringUtils;
@@ -52,7 +52,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 
 	private StringValueResolver embeddedValueResolver;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = Session.DEFAULT_SESSION_ID_GENERATION_STRATEGY;
 
 	@Bean
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,6 @@ import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
@@ -111,7 +110,7 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private StringValueResolver embeddedValueResolver;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = Session.DEFAULT_SESSION_ID_GENERATION_STRATEGY;
 
 	@Bean
 	public JdbcIndexedSessionRepository sessionRepository() {

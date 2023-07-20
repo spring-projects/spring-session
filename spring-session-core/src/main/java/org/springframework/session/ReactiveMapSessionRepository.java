@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 
 	private final Map<String, Session> sessions;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = Session.DEFAULT_SESSION_ID_GENERATION_STRATEGY;
 
 	/**
 	 * Creates a new instance backed by the provided {@link Map}. This allows injecting a
@@ -85,8 +85,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		// @formatter:off
 		return Mono.defer(() -> Mono.justOrEmpty(this.sessions.get(id))
 				.filter((session) -> !session.isExpired())
-				.map(MapSession::new)
-				.doOnNext((session) -> session.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy))
+				.map((session) -> new MapSession(session, this.sessionIdGenerationStrategy))
 				.switchIfEmpty(deleteById(id).then(Mono.empty())));
 		// @formatter:on
 	}

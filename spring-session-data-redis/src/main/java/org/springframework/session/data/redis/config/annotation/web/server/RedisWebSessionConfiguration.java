@@ -39,8 +39,8 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
@@ -79,7 +79,7 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private StringValueResolver embeddedValueResolver;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = Session.DEFAULT_SESSION_ID_GENERATION_STRATEGY;
 
 	@Bean
 	public ReactiveRedisSessionRepository sessionRepository() {

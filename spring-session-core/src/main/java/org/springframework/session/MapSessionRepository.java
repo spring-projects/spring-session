@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	private final Map<String, Session> sessions;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = Session.DEFAULT_SESSION_ID_GENERATION_STRATEGY;
 
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
@@ -73,8 +73,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		if (!session.getId().equals(session.getOriginalId())) {
 			this.sessions.remove(session.getOriginalId());
 		}
-		MapSession saved = new MapSession(session);
-		saved.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		MapSession saved = new MapSession(session, this.sessionIdGenerationStrategy);
 		this.sessions.put(session.getId(), saved);
 	}
 
@@ -88,8 +87,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 			deleteById(saved.getId());
 			return null;
 		}
-		MapSession result = new MapSession(saved);
-		result.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		MapSession result = new MapSession(saved, this.sessionIdGenerationStrategy);
 		return result;
 	}
 

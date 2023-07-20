@@ -74,14 +74,13 @@ public final class MapSession implements Session, Serializable {
 	 */
 	private Duration maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL;
 
-	private transient SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy
-			.getInstance();
+	private final transient SessionIdGenerationStrategy sessionIdGenerationStrategy;
 
 	/**
 	 * Creates a new instance with a secure randomly generated identifier.
 	 */
 	public MapSession() {
-		this(UuidSessionIdGenerationStrategy.getInstance());
+		this(DEFAULT_SESSION_ID_GENERATION_STRATEGY);
 	}
 
 	/**
@@ -91,8 +90,7 @@ public final class MapSession implements Session, Serializable {
 	 * @since 3.2
 	 */
 	public MapSession(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this(sessionIdGenerationStrategy.generate());
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+		this(sessionIdGenerationStrategy.generate(), sessionIdGenerationStrategy);
 	}
 
 	/**
@@ -102,8 +100,13 @@ public final class MapSession implements Session, Serializable {
 	 * @param id the identifier to use
 	 */
 	public MapSession(String id) {
+		this(id, DEFAULT_SESSION_ID_GENERATION_STRATEGY);
+	}
+
+	public MapSession(String id, SessionIdGenerationStrategy sessionIdGenerationStrategy) {
 		this.id = id;
 		this.originalId = id;
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	/**
@@ -112,6 +115,10 @@ public final class MapSession implements Session, Serializable {
 	 * be null.
 	 */
 	public MapSession(Session session) {
+		this(session, DEFAULT_SESSION_ID_GENERATION_STRATEGY);
+	}
+
+	public MapSession(Session session, SessionIdGenerationStrategy sessionIdGenerationStrategy) {
 		if (session == null) {
 			throw new IllegalArgumentException("session cannot be null");
 		}
@@ -127,6 +134,7 @@ public final class MapSession implements Session, Serializable {
 		this.lastAccessedTime = session.getLastAccessedTime();
 		this.creationTime = session.getCreationTime();
 		this.maxInactiveInterval = session.getMaxInactiveInterval();
+		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	@Override
@@ -240,16 +248,6 @@ public final class MapSession implements Session, Serializable {
 	@Override
 	public int hashCode() {
 		return this.id.hashCode();
-	}
-
-	/**
-	 * Sets the {@link SessionIdGenerationStrategy} to use when generating a new session
-	 * id.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use.
-	 * @since 3.2
-	 */
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;

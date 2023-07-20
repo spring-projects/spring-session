@@ -31,6 +31,11 @@ import java.util.Set;
 public interface Session {
 
 	/**
+	 * Default instance of the {@link SessionIdGenerationStrategy}.
+	 */
+	SessionIdGenerationStrategy DEFAULT_SESSION_ID_GENERATION_STRATEGY = UuidSessionIdGenerationStrategy.getInstance();
+
+	/**
 	 * Gets a unique string that identifies the {@link Session}.
 	 * @return a unique string that identifies the {@link Session}
 	 */

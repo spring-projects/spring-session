@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerationStrategy;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -58,7 +57,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = Session.DEFAULT_SESSION_ID_GENERATION_STRATEGY;
 
 	/**
 	 * Create a new {@link RedisSessionRepository} instance.

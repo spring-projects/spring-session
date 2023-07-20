@@ -62,7 +62,6 @@ import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -135,7 +134,6 @@ import org.springframework.util.StringUtils;
  *
  * @author Vedran Pavic
  * @author Craig Andrews
- * @author Yanming Zhou
  * @since 2.2.0
  */
 public class JdbcIndexedSessionRepository implements
@@ -254,7 +252,7 @@ public class JdbcIndexedSessionRepository implements
 
 	private ThreadPoolTaskScheduler taskScheduler;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerationStrategy sessionIdGenerationStrategy = Session.DEFAULT_SESSION_ID_GENERATION_STRATEGY;
 
 	/**
 	 * Create a new {@link JdbcIndexedSessionRepository} instance which uses the provided
