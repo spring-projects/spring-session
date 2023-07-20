@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * <p>
@@ -44,6 +43,7 @@ import java.util.UUID;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 1.0
  */
 public final class MapSession implements Session, Serializable {
@@ -81,7 +81,7 @@ public final class MapSession implements Session, Serializable {
 	 * Creates a new instance with a secure randomly generated identifier.
 	 */
 	public MapSession() {
-		this(generateId());
+		this(UuidSessionIdGenerationStrategy.getInstance());
 	}
 
 	/**
@@ -240,10 +240,6 @@ public final class MapSession implements Session, Serializable {
 	@Override
 	public int hashCode() {
 		return this.id.hashCode();
-	}
-
-	private static String generateId() {
-		return UUID.randomUUID().toString();
 	}
 
 	/**

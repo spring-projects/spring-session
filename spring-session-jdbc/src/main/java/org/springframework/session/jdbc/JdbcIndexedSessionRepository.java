@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -136,6 +135,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Vedran Pavic
  * @author Craig Andrews
+ * @author Yanming Zhou
  * @since 2.2.0
  */
 public class JdbcIndexedSessionRepository implements
@@ -467,7 +467,7 @@ public class JdbcIndexedSessionRepository implements
 	public JdbcSession createSession() {
 		MapSession delegate = new MapSession(this.sessionIdGenerationStrategy);
 		delegate.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
-		JdbcSession session = new JdbcSession(delegate, UUID.randomUUID().toString(), true);
+		JdbcSession session = new JdbcSession(delegate, delegate.getId(), true);
 		session.flushIfRequired();
 		return session;
 	}
