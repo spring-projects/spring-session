@@ -111,6 +111,7 @@ import org.springframework.util.Assert;
  * @author Mark Anderson
  * @author Aleksandar Stojsavljevic
  * @author Eleftheria Stein
+ * @author Yanming Zhou
  * @since 2.2.0
  */
 public class HazelcastIndexedSessionRepository
@@ -248,7 +249,7 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public HazelcastSession createSession() {
-		MapSession cached = new MapSession(this.sessionIdGenerator);
+		MapSession cached = new MapSession(this.sessionIdGenerator.generate());
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		HazelcastSession session = new HazelcastSession(cached, true);
 		session.flushImmediateIfNecessary();
@@ -417,8 +418,8 @@ public class HazelcastIndexedSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
-			String newSessionId = HazelcastIndexedSessionRepository.this.sessionIdGenerator.generate();
+		public String changeSessionId(SessionIdGenerator sessionIdGenerator) {
+			String newSessionId = sessionIdGenerator.regenerate(this);
 			this.delegate.setId(newSessionId);
 			this.sessionIdChanged = true;
 			return newSessionId;

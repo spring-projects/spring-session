@@ -255,6 +255,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 2.2.0
  */
 public class RedisIndexedSessionRepository
@@ -553,7 +554,7 @@ public class RedisIndexedSessionRepository
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession(this.sessionIdGenerator);
+		MapSession cached = new MapSession(this.sessionIdGenerator.generate());
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushImmediateIfNecessary();
@@ -808,8 +809,8 @@ public class RedisIndexedSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
-			String newSessionId = RedisIndexedSessionRepository.this.sessionIdGenerator.generate();
+		public String changeSessionId(SessionIdGenerator sessionIdGenerator) {
+			String newSessionId = sessionIdGenerator.regenerate(this);
 			this.cached.setId(newSessionId);
 			return newSessionId;
 		}

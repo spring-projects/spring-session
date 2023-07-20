@@ -33,6 +33,7 @@ import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository.RedisSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Vedran Pavic
  * @author Kai Zhao
+ * @author Yanming Zhou
  */
 class ReactiveRedisSessionRepositoryTests {
 
@@ -440,11 +442,12 @@ class ReactiveRedisSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGeneratorThenUses() {
-		this.repository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = () -> "test";
+		this.repository.setSessionIdGenerator(generator);
 
 		this.repository.createSession().as(StepVerifier::create).assertNext((redisSession) -> {
 			assertThat(redisSession.getId()).isEqualTo("test");
-			assertThat(redisSession.changeSessionId()).isEqualTo("test");
+			assertThat(redisSession.changeSessionId(generator)).isEqualTo("test");
 		}).verifyComplete();
 	}
 
@@ -457,7 +460,8 @@ class ReactiveRedisSessionRepositoryTests {
 	@Test
 	@SuppressWarnings("unchecked")
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
-		this.repository.setSessionIdGenerator(() -> "changed-session-id");
+		SessionIdGenerator generator = () -> "changed-session-id";
+		this.repository.setSessionIdGenerator(generator);
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";
@@ -474,7 +478,7 @@ class ReactiveRedisSessionRepositoryTests {
 
 		StepVerifier.create(this.repository.findById("test")).consumeNextWith((session) -> {
 			assertThat(session.getId()).isEqualTo(expected.getId());
-			assertThat(session.changeSessionId()).isEqualTo("changed-session-id");
+			assertThat(session.changeSessionId(generator)).isEqualTo("changed-session-id");
 		}).verifyComplete();
 	}
 

@@ -36,6 +36,8 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.data.redis.RedisSessionRepository.RedisSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -51,6 +53,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * Tests for {@link RedisSessionRepository}.
  *
  * @author Vedran Pavic
+ * @author Yanming Zhou
  */
 @ExtendWith(MockitoExtension.class)
 class RedisSessionRepositoryTests {
@@ -373,10 +376,21 @@ class RedisSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGeneratorThenUses() {
-		this.sessionRepository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = new SessionIdGenerator() {
+			@Override
+			public String generate() {
+				return "test";
+			}
+
+			@Override
+			public String regenerate(Session session) {
+				return "test2";
+			}
+		};
+		this.sessionRepository.setSessionIdGenerator(generator);
 		RedisSessionRepository.RedisSession session = this.sessionRepository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
-		assertThat(session.changeSessionId()).isEqualTo("test");
+		assertThat(session.changeSessionId(generator)).isEqualTo("test2");
 	}
 
 	@Test
@@ -387,7 +401,8 @@ class RedisSessionRepositoryTests {
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
-		this.sessionRepository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = () -> "test";
+		this.sessionRepository.setSessionIdGenerator(generator);
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
 			.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
@@ -396,7 +411,7 @@ class RedisSessionRepositoryTests {
 					RedisSessionMapper.ATTRIBUTE_PREFIX + "attribute1", "value1"));
 		RedisSession session = this.sessionRepository.findById(TEST_SESSION_ID);
 		assertThat(session.getId()).isEqualTo(TEST_SESSION_ID);
-		assertThat(session.changeSessionId()).isEqualTo("test");
+		assertThat(session.changeSessionId(generator)).isEqualTo("test");
 	}
 
 	private static String getSessionKey(String sessionId) {

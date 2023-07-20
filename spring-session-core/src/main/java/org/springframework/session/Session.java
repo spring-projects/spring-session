@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import java.util.Set;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 1.0
  */
 public interface Session {
@@ -37,11 +38,23 @@ public interface Session {
 	String getId();
 
 	/**
-	 * Changes the session id. After invoking the {@link #getId()} will return a new
-	 * identifier.
+	 * Changes the session id with the {@link SessionIdGenerator#DEFAULT}. After invoking
+	 * the {@link #getId()} will return a new identifier.
+	 * @return the new session id which {@link #getId()} will now return
+	 * @deprecated use {@link #changeSessionId(SessionIdGenerator)} instead
+	 */
+	@Deprecated
+	default String changeSessionId() {
+		return changeSessionId(SessionIdGenerator.DEFAULT);
+	}
+
+	/**
+	 * Changes the session id with the supplied {@link SessionIdGenerator}. After invoking
+	 * the {@link #getId()} will return a new identifier.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @return the new session id which {@link #getId()} will now return
 	 */
-	String changeSessionId();
+	String changeSessionId(SessionIdGenerator sessionIdGenerator);
 
 	/**
 	 * Gets the Object associated with the specified name or null if no Object is

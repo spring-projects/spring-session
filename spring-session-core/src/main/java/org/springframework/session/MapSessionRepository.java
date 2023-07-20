@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Rob Winch
+ * @author Yanming Zhou
  * @since 1.0
  */
 public class MapSessionRepository implements SessionRepository<MapSession> {
@@ -73,9 +74,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		if (!session.getId().equals(session.getOriginalId())) {
 			this.sessions.remove(session.getOriginalId());
 		}
-		MapSession saved = new MapSession(session);
-		saved.setSessionIdGenerator(this.sessionIdGenerator);
-		this.sessions.put(session.getId(), saved);
+		this.sessions.put(session.getId(), new MapSession(session));
 	}
 
 	@Override
@@ -88,9 +87,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 			deleteById(saved.getId());
 			return null;
 		}
-		MapSession result = new MapSession(saved);
-		result.setSessionIdGenerator(this.sessionIdGenerator);
-		return result;
+		return new MapSession(saved);
 	}
 
 	@Override
@@ -100,7 +97,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	@Override
 	public MapSession createSession() {
-		MapSession result = new MapSession(this.sessionIdGenerator);
+		MapSession result = new MapSession(this.sessionIdGenerator.generate());
 		result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		return result;
 	}

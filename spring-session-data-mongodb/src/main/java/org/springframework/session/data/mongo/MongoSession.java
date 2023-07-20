@@ -29,13 +29,13 @@ import org.springframework.lang.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.util.Assert;
 
 /**
  * Session object providing additional information about the datetime of expiration.
  *
  * @author Jakub Kubrynski
  * @author Greg Turnquist
+ * @author Yanming Zhou
  * @since 1.2
  */
 class MongoSession implements Session {
@@ -66,8 +66,6 @@ class MongoSession implements Session {
 
 	private final Map<String, Object> attrs = new HashMap<>();
 
-	private transient SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
-
 	/**
 	 * Constructs a new instance using the provided session id.
 	 * @param sessionId the session id to use
@@ -93,28 +91,6 @@ class MongoSession implements Session {
 		setLastAccessedTime(Instant.ofEpochMilli(this.createdMillis));
 	}
 
-	/**
-	 * Constructs a new instance using the provided {@link SessionIdGenerator}.
-	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
-	 * @since 3.2
-	 */
-	MongoSession(SessionIdGenerator sessionIdGenerator) {
-		this(sessionIdGenerator.generate(), MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
-		this.sessionIdGenerator = sessionIdGenerator;
-	}
-
-	/**
-	 * Constructs a new instance using the provided {@link SessionIdGenerator} and max
-	 * inactive interval.
-	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
-	 * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
-	 * @since 3.2
-	 */
-	MongoSession(SessionIdGenerator sessionIdGenerator, long maxInactiveIntervalInSeconds) {
-		this(sessionIdGenerator.generate(), maxInactiveIntervalInSeconds);
-		this.sessionIdGenerator = sessionIdGenerator;
-	}
-
 	static String coverDot(String attributeName) {
 		return attributeName.replace('.', DOT_COVER_CHAR);
 	}
@@ -124,11 +100,10 @@ class MongoSession implements Session {
 	}
 
 	@Override
-	public String changeSessionId() {
-
-		String changedId = this.sessionIdGenerator.generate();
-		this.id = changedId;
-		return changedId;
+	public String changeSessionId(SessionIdGenerator sessionIdGenerator) {
+		String newSessionId = sessionIdGenerator.regenerate(this);
+		setId(newSessionId);
+		return newSessionId;
 	}
 
 	@Override
@@ -240,16 +215,6 @@ class MongoSession implements Session {
 	 */
 	void setId(String id) {
 		this.id = id;
-	}
-
-	/**
-	 * Sets the {@link SessionIdGenerator} to use.
-	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
-	 * @since 3.2
-	 */
-	void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
-		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
-		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

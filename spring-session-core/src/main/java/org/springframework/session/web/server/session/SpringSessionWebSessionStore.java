@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.lang.Nullable;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.util.Assert;
 import org.springframework.web.server.WebSession;
 import org.springframework.web.server.session.WebSessionStore;
@@ -47,17 +48,23 @@ import org.springframework.web.server.session.WebSessionStore;
  * @param <S> the {@link Session} type
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 2.0
  */
 public class SpringSessionWebSessionStore<S extends Session> implements WebSessionStore {
 
 	private final ReactiveSessionRepository<S> sessions;
 
+	private final SessionIdGenerator sessionIdGenerator;
+
 	private Clock clock = Clock.system(ZoneOffset.UTC);
 
-	public SpringSessionWebSessionStore(ReactiveSessionRepository<S> reactiveSessionRepository) {
+	public SpringSessionWebSessionStore(ReactiveSessionRepository<S> reactiveSessionRepository,
+			SessionIdGenerator sessionIdGenerator) {
 		Assert.notNull(reactiveSessionRepository, "reactiveSessionRepository cannot be null");
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
 		this.sessions = reactiveSessionRepository;
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**
@@ -135,7 +142,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		@Override
 		public Mono<Void> changeSessionId() {
 			return Mono.defer(() -> {
-				this.session.changeSessionId();
+				this.session.changeSessionId(SpringSessionWebSessionStore.this.sessionIdGenerator);
 				return save();
 			});
 		}

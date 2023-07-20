@@ -43,6 +43,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Vedran Pavic
  * @author Kai Zhao
+ * @author Yanming Zhou
  * @since 2.2.0
  */
 public class ReactiveRedisSessionRepository
@@ -237,8 +238,8 @@ public class ReactiveRedisSessionRepository
 		}
 
 		@Override
-		public String changeSessionId() {
-			String newSessionId = ReactiveRedisSessionRepository.this.sessionIdGenerator.generate();
+		public String changeSessionId(SessionIdGenerator sessionIdGenerator) {
+			String newSessionId = sessionIdGenerator.regenerate(this);
 			this.cached.setId(newSessionId);
 			return newSessionId;
 		}

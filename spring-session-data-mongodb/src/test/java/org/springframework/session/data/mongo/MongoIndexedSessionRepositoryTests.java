@@ -34,6 +34,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,6 +52,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Jakub Kubrynski
  * @author Vedran Pavic
  * @author Greg Turnquist
+ * @author Yanming Zhou
  */
 @ExtendWith(MockitoExtension.class)
 public class MongoIndexedSessionRepositoryTests {
@@ -221,10 +223,21 @@ public class MongoIndexedSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGeneratorThenUses() {
-		this.repository.setSessionIdGenerator(new FixedSessionIdGenerator("123"));
+		SessionIdGenerator generator = new SessionIdGenerator() {
+			@Override
+			public String generate() {
+				return "test";
+			}
+
+			@Override
+			public String regenerate(Session session) {
+				return "test2";
+			}
+		};
+		this.repository.setSessionIdGenerator(generator);
 		MongoSession session = this.repository.createSession();
-		assertThat(session.getId()).isEqualTo("123");
-		assertThat(session.changeSessionId()).isEqualTo("123");
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId(generator)).isEqualTo("test2");
 	}
 
 	@Test
@@ -234,7 +247,8 @@ public class MongoIndexedSessionRepositoryTests {
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
-		this.repository.setSessionIdGenerator(new FixedSessionIdGenerator("456"));
+		SessionIdGenerator generator = new FixedSessionIdGenerator("456");
+		this.repository.setSessionIdGenerator(generator);
 
 		Document sessionDocument = new Document();
 
@@ -250,7 +264,7 @@ public class MongoIndexedSessionRepositoryTests {
 
 		MongoSession retrievedSession = this.repository.findById("123");
 		assertThat(retrievedSession.getId()).isEqualTo("123");
-		String newSessionId = retrievedSession.changeSessionId();
+		String newSessionId = retrievedSession.changeSessionId(generator);
 		assertThat(newSessionId).isEqualTo("456");
 	}
 

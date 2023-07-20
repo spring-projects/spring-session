@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -86,6 +87,7 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 1.1
  * @see EnableSpringHttpSession
  */
@@ -106,6 +108,8 @@ public class SpringHttpSessionConfiguration implements InitializingBean, Applica
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<>();
 
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
+
 	@Override
 	public void afterPropertiesSet() {
 		CookieSerializer cookieSerializer = (this.cookieSerializer != null) ? this.cookieSerializer
@@ -123,6 +127,7 @@ public class SpringHttpSessionConfiguration implements InitializingBean, Applica
 			SessionRepository<S> sessionRepository) {
 		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(sessionRepository);
 		sessionRepositoryFilter.setHttpSessionIdResolver(this.httpSessionIdResolver);
+		sessionRepositoryFilter.setSessionIdGenerator(this.sessionIdGenerator);
 		return sessionRepositoryFilter;
 	}
 
@@ -152,6 +157,11 @@ public class SpringHttpSessionConfiguration implements InitializingBean, Applica
 	@Autowired(required = false)
 	public void setHttpSessionListeners(List<HttpSessionListener> listeners) {
 		this.httpSessionListeners = listeners;
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	private CookieSerializer createDefaultCookieSerializer() {

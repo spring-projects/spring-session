@@ -33,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link ReactiveMapSessionRepository}.
  *
  * @author Rob Winch
+ * @author Yanming Zhou
  * @since 2.0
  */
 class ReactiveMapSessionRepositoryTests {
@@ -154,10 +155,21 @@ class ReactiveMapSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGeneratorThenUses() {
-		this.repository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = new SessionIdGenerator() {
+			@Override
+			public String generate() {
+				return "test";
+			}
+
+			@Override
+			public String regenerate(Session session) {
+				return "test2";
+			}
+		};
+		this.repository.setSessionIdGenerator(generator);
 		MapSession session = this.repository.createSession().block();
 		assertThat(session.getId()).isEqualTo("test");
-		assertThat(session.changeSessionId()).isEqualTo("test");
+		assertThat(session.changeSessionId(generator)).isEqualTo("test2");
 	}
 
 	@Test
@@ -168,7 +180,8 @@ class ReactiveMapSessionRepositoryTests {
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
-		this.repository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = () -> "test";
+		this.repository.setSessionIdGenerator(generator);
 
 		MapSession session = this.repository.createSession().block();
 		this.repository.save(session).block();
@@ -176,7 +189,7 @@ class ReactiveMapSessionRepositoryTests {
 		MapSession savedSession = this.repository.findById("test").block();
 
 		assertThat(savedSession.getId()).isEqualTo("test");
-		assertThat(savedSession.changeSessionId()).isEqualTo("test");
+		assertThat(savedSession.changeSessionId(generator)).isEqualTo("test");
 	}
 
 }

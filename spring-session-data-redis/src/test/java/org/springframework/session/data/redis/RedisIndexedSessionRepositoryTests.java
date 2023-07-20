@@ -50,6 +50,7 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository.RedisSession;
 import org.springframework.session.events.AbstractSessionEvent;
 
@@ -912,10 +913,21 @@ class RedisIndexedSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGeneratorThenUses() {
-		this.redisRepository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = new SessionIdGenerator() {
+			@Override
+			public String generate() {
+				return "test";
+			}
+
+			@Override
+			public String regenerate(Session session) {
+				return "test2";
+			}
+		};
+		this.redisRepository.setSessionIdGenerator(generator);
 		RedisSession session = this.redisRepository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
-		assertThat(session.changeSessionId()).isEqualTo("test");
+		assertThat(session.changeSessionId(generator)).isEqualTo("test2");
 	}
 
 	@Test
@@ -926,7 +938,8 @@ class RedisIndexedSessionRepositoryTests {
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
-		this.redisRepository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = () -> "test";
+		this.redisRepository.setSessionIdGenerator(generator);
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";
 		MapSession expected = new MapSession("original");
@@ -945,7 +958,7 @@ class RedisIndexedSessionRepositoryTests {
 
 		RedisSession session = this.redisRepository.findById(expected.getId());
 		String oldSessionId = session.getId();
-		String newSessionId = session.changeSessionId();
+		String newSessionId = session.changeSessionId(generator);
 		assertThat(oldSessionId).isEqualTo("original");
 		assertThat(newSessionId).isEqualTo("test");
 	}

@@ -112,7 +112,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession(this.sessionIdGenerator);
+		MapSession cached = new MapSession(this.sessionIdGenerator.generate());
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushIfRequired();
@@ -224,8 +224,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		}
 
 		@Override
-		public String changeSessionId() {
-			String newSessionId = RedisSessionRepository.this.sessionIdGenerator.generate();
+		public String changeSessionId(SessionIdGenerator sessionIdGenerator) {
+			String newSessionId = sessionIdGenerator.regenerate(this);
 			this.cached.setId(newSessionId);
 			return newSessionId;
 		}

@@ -45,6 +45,7 @@ import org.springframework.util.Assert;
  *
  * @author Greg Turnquist
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 2.2.0
  */
 public class ReactiveMongoSessionRepository
@@ -101,10 +102,8 @@ public class ReactiveMongoSessionRepository
 		return Mono.fromSupplier(() -> this.sessionIdGenerator.generate())
 				.map(MongoSession::new)
 				.doOnNext((mongoSession) -> mongoSession.setMaxInactiveInterval(this.defaultMaxInactiveInterval))
-				.doOnNext(
-						(mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
 				.doOnNext((mongoSession) -> publishEvent(new SessionCreatedEvent(this, mongoSession)))
-				.switchIfEmpty(Mono.just(new MongoSession(this.sessionIdGenerator)))
+				.switchIfEmpty(Mono.just(new MongoSession(this.sessionIdGenerator.generate())))
 				.subscribeOn(Schedulers.boundedElastic())
 				.publishOn(Schedulers.parallel());
 		// @formatter:on
@@ -137,7 +136,6 @@ public class ReactiveMongoSessionRepository
 		return findSession(id) //
 			.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
 			.filter((mongoSession) -> !mongoSession.isExpired()) //
-			.doOnNext((mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
 			.switchIfEmpty(Mono.defer(() -> this.deleteById(id).then(Mono.empty())));
 	}
 

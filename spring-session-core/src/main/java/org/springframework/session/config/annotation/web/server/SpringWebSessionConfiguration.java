@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.web.server.session.SpringSessionWebSessionStore;
 import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import org.springframework.web.server.session.DefaultWebSessionManager;
@@ -33,6 +34,7 @@ import org.springframework.web.server.session.WebSessionManager;
  *
  * @author Greg Turnquist
  * @author Rob Winch
+ * @author Yanming Zhou
  * @since 2.0
  * @see EnableSpringWebSession
  */
@@ -41,9 +43,16 @@ public class SpringWebSessionConfiguration {
 
 	private WebSessionIdResolver webSessionIdResolver;
 
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
+
 	@Autowired(required = false)
 	public void setWebSessionIdResolver(WebSessionIdResolver webSessionIdResolver) {
 		this.webSessionIdResolver = webSessionIdResolver;
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**
@@ -55,7 +64,8 @@ public class SpringWebSessionConfiguration {
 	 */
 	@Bean(WebHttpHandlerBuilder.WEB_SESSION_MANAGER_BEAN_NAME)
 	public WebSessionManager webSessionManager(ReactiveSessionRepository<? extends Session> repository) {
-		SpringSessionWebSessionStore<? extends Session> sessionStore = new SpringSessionWebSessionStore<>(repository);
+		SpringSessionWebSessionStore<? extends Session> sessionStore = new SpringSessionWebSessionStore<>(repository,
+				SpringWebSessionConfiguration.this.sessionIdGenerator);
 		DefaultWebSessionManager manager = new DefaultWebSessionManager();
 		manager.setSessionStore(sessionStore);
 

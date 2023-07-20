@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.SessionRepository;
 
 /**
@@ -105,6 +106,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 	private HttpSessionIdResolver httpSessionIdResolver = new CookieHttpSessionIdResolver();
 
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
+
 	/**
 	 * Creates a new instance.
 	 * @param sessionRepository the <code>SessionRepository</code> to use. Cannot be null.
@@ -127,6 +130,18 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			throw new IllegalArgumentException("httpSessionIdResolver cannot be null");
 		}
 		this.httpSessionIdResolver = httpSessionIdResolver;
+	}
+
+	/**
+	 * Sets the {@link SessionIdGenerator} to be used. The default is a
+	 * {@link SessionIdGenerator#DEFAULT}.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use. Cannot be null.
+	 */
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		if (sessionIdGenerator == null) {
+			throw new IllegalArgumentException("sessionIdGenerator cannot be null");
+		}
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	@Override
@@ -258,7 +273,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 						"Cannot change session ID. There is no session associated with this request.");
 			}
 
-			return getCurrentSession().getSession().changeSessionId();
+			return getCurrentSession().getSession().changeSessionId(SessionRepositoryFilter.this.sessionIdGenerator);
 		}
 
 		@Override

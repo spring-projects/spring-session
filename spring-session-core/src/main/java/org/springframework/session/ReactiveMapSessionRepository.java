@@ -88,7 +88,6 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		return Mono.defer(() -> Mono.justOrEmpty(this.sessions.get(id))
 				.filter((session) -> !session.isExpired())
 				.map(MapSession::new)
-				.doOnNext((session) -> session.setSessionIdGenerator(this.sessionIdGenerator))
 				.switchIfEmpty(deleteById(id).then(Mono.empty())));
 		// @formatter:on
 	}
@@ -107,7 +106,6 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 				.map((sessionId) -> {
 					MapSession result = new MapSession(sessionId);
 					result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
-					result.setSessionIdGenerator(this.sessionIdGenerator);
 					return result;
 				});
 		// @formatter:on

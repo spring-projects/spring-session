@@ -51,6 +51,7 @@ import org.springframework.util.Assert;
  * @author Jakub Kubrynski
  * @author Greg Turnquist
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 2.2.0
  */
 public class MongoIndexedSessionRepository
@@ -91,7 +92,7 @@ public class MongoIndexedSessionRepository
 	@Override
 	public MongoSession createSession() {
 
-		MongoSession session = new MongoSession(this.sessionIdGenerator);
+		MongoSession session = new MongoSession(this.sessionIdGenerator.generate());
 
 		session.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 
@@ -125,7 +126,6 @@ public class MongoIndexedSessionRepository
 				deleteById(id);
 				return null;
 			}
-			session.setSessionIdGenerator(this.sessionIdGenerator);
 		}
 
 		return session;
@@ -147,7 +147,6 @@ public class MongoIndexedSessionRepository
 			.orElse(Collections.emptyList())
 			.stream()
 			.map((dbSession) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, dbSession))
-			.peek((session) -> session.setSessionIdGenerator(this.sessionIdGenerator))
 			.collect(Collectors.toMap(MongoSession::getId, (mapSession) -> mapSession));
 	}
 

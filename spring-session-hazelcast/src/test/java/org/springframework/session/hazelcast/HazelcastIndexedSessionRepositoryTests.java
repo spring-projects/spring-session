@@ -39,6 +39,8 @@ import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
+import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository.HazelcastSession;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -60,6 +62,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  *
  * @author Vedran Pavic
  * @author Aleksandar Stojsavljevic
+ * @author Yanming Zhou
  */
 @SuppressWarnings("unchecked")
 class HazelcastIndexedSessionRepositoryTests {
@@ -468,10 +471,21 @@ class HazelcastIndexedSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGeneratorThenUses() {
-		this.repository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = new SessionIdGenerator() {
+			@Override
+			public String generate() {
+				return "test";
+			}
+
+			@Override
+			public String regenerate(Session session) {
+				return "test2";
+			}
+		};
+		this.repository.setSessionIdGenerator(generator);
 		HazelcastSession session = this.repository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
-		assertThat(session.changeSessionId()).isEqualTo("test");
+		assertThat(session.changeSessionId(generator)).isEqualTo("test2");
 	}
 
 	@Test
@@ -482,7 +496,8 @@ class HazelcastIndexedSessionRepositoryTests {
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
-		this.repository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = () -> "test";
+		this.repository.setSessionIdGenerator(generator);
 		MapSession saved = new MapSession("original");
 		saved.setAttribute("savedName", "savedValue");
 		given(this.sessions.get(eq(saved.getId()))).willReturn(saved);
@@ -490,7 +505,7 @@ class HazelcastIndexedSessionRepositoryTests {
 		HazelcastSession session = this.repository.findById(saved.getId());
 
 		assertThat(session.getId()).isEqualTo(saved.getId());
-		assertThat(session.changeSessionId()).isEqualTo("test");
+		assertThat(session.changeSessionId(generator)).isEqualTo("test");
 	}
 
 }

@@ -22,6 +22,7 @@ import org.springframework.lang.NonNull;
  * An interface for specifying a strategy for generating session identifiers.
  *
  * @author Marcus da Coregio
+ * @author Yanming Zhou
  * @since 3.2
  */
 public interface SessionIdGenerator {
@@ -31,7 +32,22 @@ public interface SessionIdGenerator {
 	 */
 	SessionIdGenerator DEFAULT = new UuidSessionIdGenerator();
 
+	/**
+	 * Generate identifier for creating new session.
+	 * @return the generated session identifier
+	 */
 	@NonNull
 	String generate();
+
+	/**
+	 * Generate identifier for changing id of existing session.
+	 * @param session the existing {@link Session} object
+	 * @return the generated session identifier
+	 * @see Session#changeSessionId(SessionIdGenerator)
+	 */
+	@NonNull
+	default String regenerate(Session session) {
+		return generate();
+	}
 
 }

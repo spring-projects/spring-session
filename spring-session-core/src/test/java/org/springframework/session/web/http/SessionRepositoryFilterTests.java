@@ -54,6 +54,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -446,6 +447,18 @@ class SessionRepositoryFilterTests {
 	// gh-152
 	@Test
 	void doFilterChangeSessionId() throws Exception {
+		this.filter.setSessionIdGenerator(new SessionIdGenerator() {
+			@Override
+			public String generate() {
+				return SessionIdGenerator.DEFAULT.generate();
+			}
+
+			@Override
+			public String regenerate(Session session) {
+				return session.getId() + '$';
+			}
+		});
+
 		final String ATTR = "ATTRIBUTE";
 		final String VALUE = "VALUE";
 
@@ -467,7 +480,7 @@ class SessionRepositoryFilterTests {
 				assertThat(originalSession.getId()).isEqualTo(originalSessionId);
 
 				String changeSessionId = ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId");
-				assertThat(changeSessionId).isNotEqualTo(originalSessionId);
+				assertThat(changeSessionId).isEqualTo(originalSessionId + '$');
 				// gh-227
 				assertThat(originalSession.getId()).isEqualTo(changeSessionId);
 			}

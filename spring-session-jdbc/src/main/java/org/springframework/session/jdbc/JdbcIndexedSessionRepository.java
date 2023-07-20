@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -135,6 +134,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Vedran Pavic
  * @author Craig Andrews
+ * @author Yanming Zhou
  * @since 2.2.0
  */
 public class JdbcIndexedSessionRepository implements
@@ -464,9 +464,9 @@ public class JdbcIndexedSessionRepository implements
 
 	@Override
 	public JdbcSession createSession() {
-		MapSession delegate = new MapSession(this.sessionIdGenerator);
+		MapSession delegate = new MapSession(this.sessionIdGenerator.generate());
 		delegate.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
-		JdbcSession session = new JdbcSession(delegate, UUID.randomUUID().toString(), true);
+		JdbcSession session = new JdbcSession(delegate, delegate.getId(), true);
 		session.flushIfRequired();
 		return session;
 	}
@@ -784,10 +784,10 @@ public class JdbcIndexedSessionRepository implements
 		}
 
 		@Override
-		public String changeSessionId() {
-			this.changed = true;
-			String newSessionId = JdbcIndexedSessionRepository.this.sessionIdGenerator.generate();
+		public String changeSessionId(SessionIdGenerator sessionIdGenerator) {
+			String newSessionId = sessionIdGenerator.regenerate(this);
 			this.delegate.setId(newSessionId);
+			this.changed = true;
 			return newSessionId;
 		}
 

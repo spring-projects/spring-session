@@ -30,6 +30,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.web.server.WebSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,14 +61,14 @@ class SpringSessionWebSessionStoreTests<S extends Session> {
 
 	@BeforeEach
 	void setup() {
-		this.webSessionStore = new SpringSessionWebSessionStore<>(this.sessionRepository);
+		this.webSessionStore = new SpringSessionWebSessionStore<>(this.sessionRepository, SessionIdGenerator.DEFAULT);
 		given(this.sessionRepository.findById(any())).willReturn(Mono.just(this.findByIdSession));
 		given(this.sessionRepository.createSession()).willReturn(Mono.just(this.createSession));
 	}
 
 	@Test
 	void constructorWhenNullRepositoryThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new SpringSessionWebSessionStore<S>(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new SpringSessionWebSessionStore<S>(null, null))
 			.withMessage("reactiveSessionRepository cannot be null");
 	}
 

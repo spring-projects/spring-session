@@ -44,12 +44,6 @@ class MapSessionTests {
 	}
 
 	@Test
-	void constructorWhenSessionIdGeneratorThenUsesStrategy() {
-		MapSession session = new MapSession(new FixedSessionIdGenerator("my-id"));
-		assertThat(session.getId()).isEqualTo("my-id");
-	}
-
-	@Test
 	void constructorWhenDefaultThenUuid() {
 		String id = this.session.getId();
 		UUID uuid = UUID.fromString(id);
@@ -157,15 +151,6 @@ class MapSessionTests {
 		assertThat(this.session.getAttributeNames()).isEmpty();
 	}
 
-	@Test
-	void changeSessionIdWhenSessionIdStrategyThenUsesStrategy() {
-		MapSession session = new MapSession(new IncrementalSessionIdGenerator());
-		String idBeforeChange = session.getId();
-		String idAfterChange = session.changeSessionId();
-		assertThat(idBeforeChange).isEqualTo("1");
-		assertThat(idAfterChange).isEqualTo("2");
-	}
-
 	static class FixedSessionIdGenerator implements SessionIdGenerator {
 
 		private final String id;
@@ -200,7 +185,7 @@ class MapSessionTests {
 		}
 
 		@Override
-		public String changeSessionId() {
+		public String changeSessionId(SessionIdGenerator sessionIdGenerator) {
 			throw new UnsupportedOperationException();
 		}
 

@@ -37,6 +37,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.events.SessionDeletedEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +55,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Jakub Kubrynski
  * @author Vedran Pavic
  * @author Greg Turnquist
+ * @author Yanming Zhou
  */
 @ExtendWith(MockitoExtension.class)
 public class ReactiveMongoSessionRepositoryTests {
@@ -220,11 +222,12 @@ public class ReactiveMongoSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGeneratorThenUses() {
-		this.repository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = () -> "test";
+		this.repository.setSessionIdGenerator(generator);
 
 		this.repository.createSession().as(StepVerifier::create).assertNext((mongoSession) -> {
 			assertThat(mongoSession.getId()).isEqualTo("test");
-			assertThat(mongoSession.changeSessionId()).isEqualTo("test");
+			assertThat(mongoSession.changeSessionId(generator)).isEqualTo("test");
 		}).verifyComplete();
 	}
 
@@ -236,7 +239,8 @@ public class ReactiveMongoSessionRepositoryTests {
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
-		this.repository.setSessionIdGenerator(() -> "test");
+		SessionIdGenerator generator = () -> "test";
+		this.repository.setSessionIdGenerator(generator);
 
 		String sessionId = UUID.randomUUID().toString();
 		Document sessionDocument = new Document();
@@ -253,7 +257,7 @@ public class ReactiveMongoSessionRepositoryTests {
 
 		this.repository.findById(sessionId).as(StepVerifier::create).assertNext((mongoSession) -> {
 			String oldId = mongoSession.getId();
-			String newId = mongoSession.changeSessionId();
+			String newId = mongoSession.changeSessionId(generator);
 			assertThat(oldId).isEqualTo(sessionId);
 			assertThat(newId).isEqualTo("test");
 		}).verifyComplete();
