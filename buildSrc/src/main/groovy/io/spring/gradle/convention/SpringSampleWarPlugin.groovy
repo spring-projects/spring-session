@@ -38,7 +38,6 @@ public class SpringSampleWarPlugin extends SpringSamplePlugin {
         project.gretty {
             servletContainer = 'tomcat10'
             contextPath = '/'
-            fileLogEnabled = false
         }
 
         Task prepareAppServerForIntegrationTests = project.tasks.create('prepareAppServerForIntegrationTests') {
