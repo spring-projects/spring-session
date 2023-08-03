@@ -34,7 +34,7 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
-import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -213,7 +213,7 @@ public class MongoIndexedSessionRepositoryTest {
 
 	@Test
 	void createSessionWhenSessionIdGenerationStrategyThenUses() {
-		this.repository.setSessionIdGenerationStrategy(new FixedSessionIdGenerationStrategy("123"));
+		this.repository.setSessionIdGenerator(new FixedSessionIdGenerator("123"));
 		MongoSession session = this.repository.createSession();
 		assertThat(session.getId()).isEqualTo("123");
 		assertThat(session.changeSessionId()).isEqualTo("123");
@@ -221,12 +221,12 @@ public class MongoIndexedSessionRepositoryTest {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null));
 	}
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
-		this.repository.setSessionIdGenerationStrategy(new FixedSessionIdGenerationStrategy("456"));
+		this.repository.setSessionIdGenerator(new FixedSessionIdGenerator("456"));
 
 		Document sessionDocument = new Document();
 
@@ -244,11 +244,11 @@ public class MongoIndexedSessionRepositoryTest {
 		assertThat(newSessionId).isEqualTo("456");
 	}
 
-	static class FixedSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+	static class FixedSessionIdGenerator implements SessionIdGenerator {
 
 		private final String id;
 
-		FixedSessionIdGenerationStrategy(String id) {
+		FixedSessionIdGenerator(String id) {
 			this.id = id;
 		}
 

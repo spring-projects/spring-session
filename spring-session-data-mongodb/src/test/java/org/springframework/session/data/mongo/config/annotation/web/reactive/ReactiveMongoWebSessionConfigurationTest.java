@@ -35,8 +35,8 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -228,16 +228,14 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
 		registerAndRefresh(GoodConfig.class, SessionIdGenerationStrategyConfiguration.class);
 		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
-		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
-				.isInstanceOf(TestSessionIdGenerationStrategy.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
 	}
 
 	@Test
 	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
 		registerAndRefresh(GoodConfig.class);
 		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
-		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
-				.isInstanceOf(UuidSessionIdGenerationStrategy.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -439,13 +437,13 @@ public class ReactiveMongoWebSessionConfigurationTest {
 	static class SessionIdGenerationStrategyConfiguration {
 
 		@Bean
-		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
-			return new TestSessionIdGenerationStrategy();
+		SessionIdGenerator sessionIdGenerationStrategy() {
+			return new TestSessionIdGenerator();
 		}
 
 	}
 
-	static class TestSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+	static class TestSessionIdGenerator implements SessionIdGenerator {
 
 		@Override
 		public String generate() {

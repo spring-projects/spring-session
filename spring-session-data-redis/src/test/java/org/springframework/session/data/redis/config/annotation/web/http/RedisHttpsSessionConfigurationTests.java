@@ -39,8 +39,8 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -212,16 +212,14 @@ class RedisHttpsSessionConfigurationTests {
 	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
 		registerAndRefresh(RedisConfig.class, SessionIdGenerationStrategyConfiguration.class);
 		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
-		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
-				.isInstanceOf(TestSessionIdGenerationStrategy.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
 	}
 
 	@Test
 	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
 		registerAndRefresh(RedisConfig.class, DefaultConfiguration.class);
 		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
-		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
-				.isInstanceOf(UuidSessionIdGenerationStrategy.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -404,8 +402,8 @@ class RedisHttpsSessionConfigurationTests {
 	static class SessionIdGenerationStrategyConfiguration {
 
 		@Bean
-		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
-			return new TestSessionIdGenerationStrategy();
+		SessionIdGenerator sessionIdGenerationStrategy() {
+			return new TestSessionIdGenerator();
 		}
 
 	}
@@ -416,7 +414,7 @@ class RedisHttpsSessionConfigurationTests {
 
 	}
 
-	static class TestSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+	static class TestSessionIdGenerator implements SessionIdGenerator {
 
 		@Override
 		public String generate() {

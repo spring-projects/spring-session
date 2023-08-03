@@ -21,17 +21,16 @@ import java.util.UUID;
 import org.springframework.lang.NonNull;
 
 /**
- * A {@link SessionIdGenerationStrategy} that generates a random UUID to be used as the
- * session id.
+ * A {@link SessionIdGenerator} that generates a random UUID to be used as the session id.
  *
  * @author Marcus da Coregio
  * @since 3.2
  */
-public final class UuidSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+public final class UuidSessionIdGenerator implements SessionIdGenerator {
 
-	private static final UuidSessionIdGenerationStrategy INSTANCE = new UuidSessionIdGenerationStrategy();
+	private static final UuidSessionIdGenerator INSTANCE = new UuidSessionIdGenerator();
 
-	private UuidSessionIdGenerationStrategy() {
+	private UuidSessionIdGenerator() {
 	}
 
 	@Override
@@ -41,10 +40,10 @@ public final class UuidSessionIdGenerationStrategy implements SessionIdGeneratio
 	}
 
 	/**
-	 * Returns the singleton instance of {@link UuidSessionIdGenerationStrategy}.
-	 * @return the singleton instance of {@link UuidSessionIdGenerationStrategy}
+	 * Returns the singleton instance of {@link UuidSessionIdGenerator}.
+	 * @return the singleton instance of {@link UuidSessionIdGenerator}
 	 */
-	public static UuidSessionIdGenerationStrategy getInstance() {
+	public static UuidSessionIdGenerator getInstance() {
 		return INSTANCE;
 	}
 

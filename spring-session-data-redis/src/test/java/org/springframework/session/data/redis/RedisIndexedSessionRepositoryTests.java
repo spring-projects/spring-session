@@ -912,7 +912,7 @@ class RedisIndexedSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGenerationStrategyThenUses() {
-		this.redisRepository.setSessionIdGenerationStrategy(() -> "test");
+		this.redisRepository.setSessionIdGenerator(() -> "test");
 		RedisSession session = this.redisRepository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
 		assertThat(session.changeSessionId()).isEqualTo("test");
@@ -920,13 +920,13 @@ class RedisIndexedSessionRepositoryTests {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setSessionIdGenerationStrategy(null))
-				.withMessage("sessionIdGenerationStrategy cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setSessionIdGenerator(null))
+				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
-		this.redisRepository.setSessionIdGenerationStrategy(() -> "test");
+		this.redisRepository.setSessionIdGenerator(() -> "test");
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";
 		MapSession expected = new MapSession("original");

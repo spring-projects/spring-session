@@ -31,8 +31,8 @@ import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -63,7 +63,7 @@ public class ReactiveRedisSessionRepository
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	/**
 	 * Create a new {@link ReactiveRedisSessionRepository} instance.
@@ -124,7 +124,7 @@ public class ReactiveRedisSessionRepository
 	@Override
 	public Mono<RedisSession> createSession() {
 		return Mono.defer(() -> {
-			MapSession cached = new MapSession(this.sessionIdGenerationStrategy);
+			MapSession cached = new MapSession(this.sessionIdGenerator);
 			cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 			RedisSession session = new RedisSession(cached, true);
 			return Mono.just(session);
@@ -172,13 +172,13 @@ public class ReactiveRedisSessionRepository
 	}
 
 	/**
-	 * Set the {@link SessionIdGenerationStrategy} to use to generate session ids.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * Set the {@link SessionIdGenerator} to use to generate session ids.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @since 3.2
 	 */
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**
@@ -220,7 +220,7 @@ public class ReactiveRedisSessionRepository
 
 		@Override
 		public String changeSessionId() {
-			String newSessionId = ReactiveRedisSessionRepository.this.sessionIdGenerationStrategy.generate();
+			String newSessionId = ReactiveRedisSessionRepository.this.sessionIdGenerator.generate();
 			this.cached.setId(newSessionId);
 			return newSessionId;
 		}

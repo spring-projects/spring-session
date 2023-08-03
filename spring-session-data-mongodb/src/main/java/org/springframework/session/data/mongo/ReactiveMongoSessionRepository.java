@@ -35,8 +35,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.util.Assert;
@@ -79,7 +79,7 @@ public class ReactiveMongoSessionRepository
 
 	private ApplicationEventPublisher eventPublisher;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	public ReactiveMongoSessionRepository(ReactiveMongoOperations mongoOperations) {
 		this.mongoOperations = mongoOperations;
@@ -99,13 +99,13 @@ public class ReactiveMongoSessionRepository
 	@Override
 	public Mono<MongoSession> createSession() {
 		// @formatter:off
-		return Mono.fromSupplier(() -> this.sessionIdGenerationStrategy.generate())
+		return Mono.fromSupplier(() -> this.sessionIdGenerator.generate())
 				.map(MongoSession::new)
 				.doOnNext((mongoSession) -> mongoSession.setMaxInactiveInterval(this.defaultMaxInactiveInterval))
 				.doOnNext(
-						(mongoSession) -> mongoSession.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy))
+						(mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
 				.doOnNext((mongoSession) -> publishEvent(new SessionCreatedEvent(this, mongoSession)))
-				.switchIfEmpty(Mono.just(new MongoSession(this.sessionIdGenerationStrategy)))
+				.switchIfEmpty(Mono.just(new MongoSession(this.sessionIdGenerator)))
 				.subscribeOn(Schedulers.boundedElastic())
 				.publishOn(Schedulers.parallel());
 		// @formatter:on
@@ -138,8 +138,7 @@ public class ReactiveMongoSessionRepository
 		return findSession(id) //
 				.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
 				.filter((mongoSession) -> !mongoSession.isExpired()) //
-				.doOnNext(
-						(mongoSession) -> mongoSession.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy))
+				.doOnNext((mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
 				.switchIfEmpty(Mono.defer(() -> this.deleteById(id).then(Mono.empty())));
 	}
 
@@ -229,9 +228,9 @@ public class ReactiveMongoSessionRepository
 		this.blockingMongoOperations = blockingMongoOperations;
 	}
 
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

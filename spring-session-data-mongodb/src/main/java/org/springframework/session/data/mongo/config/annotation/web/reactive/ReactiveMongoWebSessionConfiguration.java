@@ -37,8 +37,8 @@ import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.SpringWebSessionConfiguration;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -76,7 +76,7 @@ public class ReactiveMongoWebSessionConfiguration
 
 	private IndexResolver<Session> indexResolver;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	@Bean
 	public ReactiveMongoSessionRepository reactiveMongoSessionRepository(ReactiveMongoOperations operations) {
@@ -116,7 +116,7 @@ public class ReactiveMongoWebSessionConfiguration
 		this.sessionRepositoryCustomizers
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(repository));
 
-		repository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		repository.setSessionIdGenerator(this.sessionIdGenerator);
 
 		return repository;
 	}
@@ -187,8 +187,8 @@ public class ReactiveMongoWebSessionConfiguration
 	}
 
 	@Autowired(required = false)
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

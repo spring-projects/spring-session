@@ -43,10 +43,10 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
-import org.springframework.session.jdbc.FixedSessionIdGenerationStrategy;
+import org.springframework.session.jdbc.FixedSessionIdGenerator;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -325,18 +325,18 @@ class JdbcHttpSessionConfigurationTests {
 	void sessionIdGenerationStrategyWhenCustomBeanThenUses() {
 		registerAndRefresh(DataSourceConfiguration.class, CustomSessionIdGenerationStrategyConfiguration.class);
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
-		SessionIdGenerationStrategy sessionIdGenerationStrategy = (SessionIdGenerationStrategy) ReflectionTestUtils
-				.getField(sessionRepository, "sessionIdGenerationStrategy");
-		assertThat(sessionIdGenerationStrategy).isInstanceOf(FixedSessionIdGenerationStrategy.class);
+		SessionIdGenerator sessionIdGenerator = (SessionIdGenerator) ReflectionTestUtils.getField(sessionRepository,
+				"sessionIdGenerator");
+		assertThat(sessionIdGenerator).isInstanceOf(FixedSessionIdGenerator.class);
 	}
 
 	@Test
 	void sessionIdGenerationStrategyWhenNoBeanThenDefault() {
 		registerAndRefresh(DataSourceConfiguration.class, DefaultConfiguration.class);
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
-		SessionIdGenerationStrategy sessionIdGenerationStrategy = (SessionIdGenerationStrategy) ReflectionTestUtils
-				.getField(sessionRepository, "sessionIdGenerationStrategy");
-		assertThat(sessionIdGenerationStrategy).isInstanceOf(UuidSessionIdGenerationStrategy.class);
+		SessionIdGenerator sessionIdGenerator = (SessionIdGenerator) ReflectionTestUtils.getField(sessionRepository,
+				"sessionIdGenerator");
+		assertThat(sessionIdGenerator).isInstanceOf(UuidSessionIdGenerator.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -349,8 +349,8 @@ class JdbcHttpSessionConfigurationTests {
 	static class CustomSessionIdGenerationStrategyConfiguration {
 
 		@Bean
-		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
-			return new FixedSessionIdGenerationStrategy("my-id");
+		SessionIdGenerator sessionIdGenerationStrategy() {
+			return new FixedSessionIdGenerator("my-id");
 		}
 
 	}

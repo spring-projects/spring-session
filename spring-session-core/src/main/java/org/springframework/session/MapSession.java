@@ -74,8 +74,7 @@ public final class MapSession implements Session, Serializable {
 	 */
 	private Duration maxInactiveInterval = DEFAULT_MAX_INACTIVE_INTERVAL;
 
-	private transient SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy
-			.getInstance();
+	private transient SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	/**
 	 * Creates a new instance with a secure randomly generated identifier.
@@ -85,14 +84,14 @@ public final class MapSession implements Session, Serializable {
 	}
 
 	/**
-	 * Creates a new instance using the specified {@link SessionIdGenerationStrategy} to
-	 * generate the session id.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use.
+	 * Creates a new instance using the specified {@link SessionIdGenerator} to generate
+	 * the session id.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use.
 	 * @since 3.2
 	 */
-	public MapSession(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this(sessionIdGenerationStrategy.generate());
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public MapSession(SessionIdGenerator sessionIdGenerator) {
+		this(sessionIdGenerator.generate());
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**
@@ -155,7 +154,7 @@ public final class MapSession implements Session, Serializable {
 
 	@Override
 	public String changeSessionId() {
-		String changedId = this.sessionIdGenerationStrategy.generate();
+		String changedId = this.sessionIdGenerator.generate();
 		setId(changedId);
 		return changedId;
 	}
@@ -247,13 +246,12 @@ public final class MapSession implements Session, Serializable {
 	}
 
 	/**
-	 * Sets the {@link SessionIdGenerationStrategy} to use when generating a new session
-	 * id.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use.
+	 * Sets the {@link SessionIdGenerator} to use when generating a new session id.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use.
 	 * @since 3.2
 	 */
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	private static final long serialVersionUID = 7160779239673823561L;

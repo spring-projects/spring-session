@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 import org.springframework.lang.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 
 /**
@@ -68,8 +68,7 @@ class MongoSession implements Session {
 
 	private Map<String, Object> attrs = new HashMap<>();
 
-	private transient SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy
-			.getInstance();
+	private transient SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	/**
 	 * Constructs a new instance using the provided session id.
@@ -85,7 +84,7 @@ class MongoSession implements Session {
 	}
 
 	MongoSession(long maxInactiveIntervalInSeconds) {
-		this(UuidSessionIdGenerationStrategy.getInstance().generate(), maxInactiveIntervalInSeconds);
+		this(UuidSessionIdGenerator.getInstance().generate(), maxInactiveIntervalInSeconds);
 	}
 
 	MongoSession(String id, long maxInactiveIntervalInSeconds) {
@@ -97,25 +96,25 @@ class MongoSession implements Session {
 	}
 
 	/**
-	 * Constructs a new instance using the provided {@link SessionIdGenerationStrategy}.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * Constructs a new instance using the provided {@link SessionIdGenerator}.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @since 3.2
 	 */
-	MongoSession(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this(sessionIdGenerationStrategy.generate(), MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	MongoSession(SessionIdGenerator sessionIdGenerator) {
+		this(sessionIdGenerator.generate(), MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**
-	 * Constructs a new instance using the provided {@link SessionIdGenerationStrategy}
-	 * and max inactive interval.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * Constructs a new instance using the provided {@link SessionIdGenerator} and max
+	 * inactive interval.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
 	 * @since 3.2
 	 */
-	MongoSession(SessionIdGenerationStrategy sessionIdGenerationStrategy, long maxInactiveIntervalInSeconds) {
-		this(sessionIdGenerationStrategy.generate(), maxInactiveIntervalInSeconds);
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	MongoSession(SessionIdGenerator sessionIdGenerator, long maxInactiveIntervalInSeconds) {
+		this(sessionIdGenerator.generate(), maxInactiveIntervalInSeconds);
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	static String coverDot(String attributeName) {
@@ -129,7 +128,7 @@ class MongoSession implements Session {
 	@Override
 	public String changeSessionId() {
 
-		String changedId = this.sessionIdGenerationStrategy.generate();
+		String changedId = this.sessionIdGenerator.generate();
 		this.id = changedId;
 		return changedId;
 	}
@@ -245,13 +244,13 @@ class MongoSession implements Session {
 	}
 
 	/**
-	 * Sets the {@link SessionIdGenerationStrategy} to use.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * Sets the {@link SessionIdGenerator} to use.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @since 3.2
 	 */
-	void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

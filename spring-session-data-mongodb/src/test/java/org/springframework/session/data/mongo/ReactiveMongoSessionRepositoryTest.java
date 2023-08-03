@@ -213,7 +213,7 @@ public class ReactiveMongoSessionRepositoryTest {
 
 	@Test
 	void createSessionWhenSessionIdGenerationStrategyThenUses() {
-		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		this.repository.setSessionIdGenerator(() -> "test");
 
 		this.repository.createSession().as(StepVerifier::create).assertNext((mongoSession) -> {
 			assertThat(mongoSession.getId()).isEqualTo("test");
@@ -223,13 +223,13 @@ public class ReactiveMongoSessionRepositoryTest {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
-				.withMessage("sessionIdGenerationStrategy cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
-		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		this.repository.setSessionIdGenerator(() -> "test");
 
 		String sessionId = UUID.randomUUID().toString();
 		Document sessionDocument = new Document();

@@ -44,8 +44,8 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
@@ -82,7 +82,7 @@ public class RedisIndexedHttpSessionConfiguration
 
 	private StringValueResolver embeddedValueResolver;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	@Bean
 	@Override
@@ -105,7 +105,7 @@ public class RedisIndexedHttpSessionConfiguration
 		sessionRepository.setCleanupCron(this.cleanupCron);
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
-		sessionRepository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
 		getSessionRepositoryCustomizers()
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -210,8 +210,8 @@ public class RedisIndexedHttpSessionConfiguration
 	}
 
 	@Autowired(required = false)
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**

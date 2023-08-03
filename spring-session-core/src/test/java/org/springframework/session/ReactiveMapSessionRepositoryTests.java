@@ -154,7 +154,7 @@ class ReactiveMapSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGenerationStrategyThenUses() {
-		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		this.repository.setSessionIdGenerator(() -> "test");
 		MapSession session = this.repository.createSession().block();
 		assertThat(session.getId()).isEqualTo("test");
 		assertThat(session.changeSessionId()).isEqualTo("test");
@@ -162,13 +162,13 @@ class ReactiveMapSessionRepositoryTests {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
-				.withMessage("sessionIdGenerationStrategy cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
-		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		this.repository.setSessionIdGenerator(() -> "test");
 
 		MapSession session = this.repository.createSession().block();
 		this.repository.save(session).block();

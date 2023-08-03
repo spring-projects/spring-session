@@ -45,7 +45,7 @@ class MapSessionTests {
 
 	@Test
 	void constructorWhenSessionIdGenerationStrategyThenUsesStrategy() {
-		MapSession session = new MapSession(new FixedSessionIdGenerationStrategy("my-id"));
+		MapSession session = new MapSession(new FixedSessionIdGenerator("my-id"));
 		assertThat(session.getId()).isEqualTo("my-id");
 	}
 
@@ -159,18 +159,18 @@ class MapSessionTests {
 
 	@Test
 	void changeSessionIdWhenSessionIdStrategyThenUsesStrategy() {
-		MapSession session = new MapSession(new IncrementalSessionIdGenerationStrategy());
+		MapSession session = new MapSession(new IncrementalSessionIdGenerator());
 		String idBeforeChange = session.getId();
 		String idAfterChange = session.changeSessionId();
 		assertThat(idBeforeChange).isEqualTo("1");
 		assertThat(idAfterChange).isEqualTo("2");
 	}
 
-	static class FixedSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+	static class FixedSessionIdGenerator implements SessionIdGenerator {
 
 		private final String id;
 
-		FixedSessionIdGenerationStrategy(String id) {
+		FixedSessionIdGenerator(String id) {
 			this.id = id;
 		}
 
@@ -181,7 +181,7 @@ class MapSessionTests {
 
 	}
 
-	static class IncrementalSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+	static class IncrementalSessionIdGenerator implements SessionIdGenerator {
 
 		private int counter = 1;
 

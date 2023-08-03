@@ -36,8 +36,8 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -72,7 +72,7 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
 
 	private IndexResolver<Session> indexResolver;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	@Bean
 	public MongoIndexedSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {
@@ -102,7 +102,7 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
 		if (StringUtils.hasText(this.collectionName)) {
 			repository.setCollectionName(this.collectionName);
 		}
-		repository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		repository.setSessionIdGenerator(this.sessionIdGenerator);
 
 		this.sessionRepositoryCustomizers
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(repository));
@@ -166,8 +166,8 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
 	}
 
 	@Autowired(required = false)
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

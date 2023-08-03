@@ -375,7 +375,7 @@ class RedisSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGenerationStrategyThenUses() {
-		this.sessionRepository.setSessionIdGenerationStrategy(() -> "test");
+		this.sessionRepository.setSessionIdGenerator(() -> "test");
 		RedisSessionRepository.RedisSession session = this.sessionRepository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
 		assertThat(session.changeSessionId()).isEqualTo("test");
@@ -383,14 +383,13 @@ class RedisSessionRepositoryTests {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.sessionRepository.setSessionIdGenerationStrategy(null))
-				.withMessage("sessionIdGenerationStrategy cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setSessionIdGenerator(null))
+				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
-		this.sessionRepository.setSessionIdGenerationStrategy(() -> "test");
+		this.sessionRepository.setSessionIdGenerator(() -> "test");
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
 				.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),

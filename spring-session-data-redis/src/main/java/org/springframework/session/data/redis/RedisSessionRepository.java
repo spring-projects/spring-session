@@ -27,9 +27,9 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 
 /**
@@ -58,7 +58,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	/**
 	 * Create a new {@link RedisSessionRepository} instance.
@@ -110,7 +110,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession(this.sessionIdGenerationStrategy);
+		MapSession cached = new MapSession(this.sessionIdGenerator);
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushIfRequired();
@@ -167,13 +167,13 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	}
 
 	/**
-	 * Set the {@link SessionIdGenerationStrategy} to use to generate session ids.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * Set the {@link SessionIdGenerator} to use to generate session ids.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @since 3.2
 	 */
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**
@@ -212,7 +212,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 		@Override
 		public String changeSessionId() {
-			String newSessionId = RedisSessionRepository.this.sessionIdGenerationStrategy.generate();
+			String newSessionId = RedisSessionRepository.this.sessionIdGenerator.generate();
 			this.cached.setId(newSessionId);
 			return newSessionId;
 		}

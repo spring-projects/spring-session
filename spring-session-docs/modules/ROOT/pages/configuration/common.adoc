@@ -9,9 +9,9 @@ It contains configuration examples for the following use cases:
 [[changing-how-session-ids-are-generated]]
 == Changing How Session IDs Are Generated
 
-By default, Spring Session uses `UuidSessionIdGenerationStrategy` which, in turn, uses a `java.util.UUID` to generate a session id.
+By default, Spring Session uses `UuidSessionIdGenerator` which, in turn, uses a `java.util.UUID` to generate a session id.
 There might be scenarios where it may be better to include other characters to increase entropy, or you may want to use a different algorithm to generate the session id.
-To change this, you can provide a custom `SessionIdGenerationStrategy` bean:
+To change this, you can provide a custom `SessionIdGenerator` bean:
 
 .Changing How Session IDs Are Generated
 [tabs]
@@ -21,11 +21,11 @@ Java::
 [source,java,role="primary"]
 ----
 @Bean
-public SessionIdGenerationStrategy sessionIdGenerationStrategy() {
-    return new MySessionIdGenerationStrategy();
+public SessionIdGenerator sessionIdGenerator() {
+    return new MySessionIdGenerator();
 }
 
-class MySessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+class MySessionIdGenerator implements SessionIdGenerator {
 
     @Override
     public String generate() {
@@ -36,11 +36,11 @@ class MySessionIdGenerationStrategy implements SessionIdGenerationStrategy {
 ----
 ======
 
-After exposing your `SessionIdGenerationStrategy` bean, Spring Session will use it to generate session ids.
+After exposing your `SessionIdGenerator` bean, Spring Session will use it to generate session ids.
 
-If you are manually configuring your `SessionRepository` bean (instead of using `@EnableRedisHttpSession`, for example), you can set the `SessionIdGenerationStrategy` directly on the `SessionRepository` implementation:
+If you are manually configuring your `SessionRepository` bean (instead of using `@EnableRedisHttpSession`, for example), you can set the `SessionIdGenerator` directly on the `SessionRepository` implementation:
 
-.Setting `SessionIdGenerationStrategy` directly into `SessionRepository` implementation
+.Setting `SessionIdGenerator` directly into `SessionRepository` implementation
 [tabs]
 ======
 Java::
@@ -50,7 +50,7 @@ Java::
 @Bean
 public RedisSessionRepository redisSessionRepository(RedisOperations redisOperations) {
     RedisSessionRepository repository = new RedisSessionRepository(redisOperations)
-    repository.setSessionIdGenerationStrategy(new MySessionIdGenerationStrategy());
+    repository.setSessionIdGenerator(new MySessionIdGenerator());
     return repository;
 }
 ----

@@ -28,8 +28,8 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.StringUtils;
@@ -52,7 +52,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 
 	private StringValueResolver embeddedValueResolver;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	@Bean
 	@Override
@@ -65,7 +65,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 		}
 		sessionRepository.setFlushMode(getFlushMode());
 		sessionRepository.setSaveMode(getSaveMode());
-		sessionRepository.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
 		getSessionRepositoryCustomizers()
 				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -94,8 +94,8 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 	}
 
 	@Autowired(required = false)
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

@@ -43,7 +43,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	private final Map<String, Session> sessions;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
@@ -74,7 +74,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 			this.sessions.remove(session.getOriginalId());
 		}
 		MapSession saved = new MapSession(session);
-		saved.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		saved.setSessionIdGenerator(this.sessionIdGenerator);
 		this.sessions.put(session.getId(), saved);
 	}
 
@@ -89,7 +89,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 			return null;
 		}
 		MapSession result = new MapSession(saved);
-		result.setSessionIdGenerationStrategy(this.sessionIdGenerationStrategy);
+		result.setSessionIdGenerator(this.sessionIdGenerator);
 		return result;
 	}
 
@@ -100,14 +100,14 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	@Override
 	public MapSession createSession() {
-		MapSession result = new MapSession(this.sessionIdGenerationStrategy);
+		MapSession result = new MapSession(this.sessionIdGenerator);
 		result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		return result;
 	}
 
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

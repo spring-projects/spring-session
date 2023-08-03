@@ -36,8 +36,8 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.hazelcast.config.annotation.SpringSessionHazelcastInstance;
@@ -245,8 +245,7 @@ class HazelcastHttpSessionConfigurationTests {
 		registerAndRefresh(DefaultConfiguration.class, SessionIdGenerationStrategyConfiguration.class);
 		HazelcastIndexedSessionRepository sessionRepository = this.context
 				.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
-				.isInstanceOf(TestSessionIdGenerationStrategy.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
 	}
 
 	@Test
@@ -254,8 +253,7 @@ class HazelcastHttpSessionConfigurationTests {
 		registerAndRefresh(DefaultConfiguration.class);
 		HazelcastIndexedSessionRepository sessionRepository = this.context
 				.getBean(HazelcastIndexedSessionRepository.class);
-		assertThat(sessionRepository).extracting("sessionIdGenerationStrategy")
-				.isInstanceOf(UuidSessionIdGenerationStrategy.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -489,13 +487,13 @@ class HazelcastHttpSessionConfigurationTests {
 	static class SessionIdGenerationStrategyConfiguration {
 
 		@Bean
-		SessionIdGenerationStrategy sessionIdGenerationStrategy() {
-			return new TestSessionIdGenerationStrategy();
+		SessionIdGenerator sessionIdGenerationStrategy() {
+			return new TestSessionIdGenerator();
 		}
 
 	}
 
-	static class TestSessionIdGenerationStrategy implements SessionIdGenerationStrategy {
+	static class TestSessionIdGenerator implements SessionIdGenerator {
 
 		@Override
 		public String generate() {

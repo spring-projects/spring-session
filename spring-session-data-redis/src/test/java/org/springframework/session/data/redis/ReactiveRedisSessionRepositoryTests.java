@@ -440,7 +440,7 @@ class ReactiveRedisSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGenerationStrategyThenUses() {
-		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		this.repository.setSessionIdGenerator(() -> "test");
 
 		this.repository.createSession().as(StepVerifier::create).assertNext((redisSession) -> {
 			assertThat(redisSession.getId()).isEqualTo("test");
@@ -450,14 +450,14 @@ class ReactiveRedisSessionRepositoryTests {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
-				.withMessage("sessionIdGenerationStrategy cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
-		this.repository.setSessionIdGenerationStrategy(() -> "changed-session-id");
+		this.repository.setSessionIdGenerator(() -> "changed-session-id");
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";

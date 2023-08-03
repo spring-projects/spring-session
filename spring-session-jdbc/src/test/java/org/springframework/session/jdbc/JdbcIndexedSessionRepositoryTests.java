@@ -265,8 +265,8 @@ class JdbcIndexedSessionRepositoryTests {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
-				.withMessage("sessionIdGenerationStrategy cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
@@ -777,7 +777,7 @@ class JdbcIndexedSessionRepositoryTests {
 
 	@Test
 	void createSessionWhenSessionIdGenerationStrategyThenUses() {
-		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		this.repository.setSessionIdGenerator(() -> "test");
 		JdbcSession session = this.repository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
 		assertThat(session.changeSessionId()).isEqualTo("test");
@@ -785,13 +785,13 @@ class JdbcIndexedSessionRepositoryTests {
 
 	@Test
 	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerationStrategy(null))
-				.withMessage("sessionIdGenerationStrategy cannot be null");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
-		this.repository.setSessionIdGenerationStrategy(() -> "test");
+		this.repository.setSessionIdGenerator(() -> "test");
 		Session saved = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		saved.setAttribute("savedName", "savedValue");
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),

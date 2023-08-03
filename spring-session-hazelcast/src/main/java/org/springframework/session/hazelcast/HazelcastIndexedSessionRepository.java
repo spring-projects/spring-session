@@ -48,8 +48,8 @@ import org.springframework.session.MapSession;
 import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
-import org.springframework.session.SessionIdGenerationStrategy;
-import org.springframework.session.UuidSessionIdGenerationStrategy;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.events.AbstractSessionEvent;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
@@ -153,7 +153,7 @@ public class HazelcastIndexedSessionRepository
 
 	private UUID sessionListenerId;
 
-	private SessionIdGenerationStrategy sessionIdGenerationStrategy = UuidSessionIdGenerationStrategy.getInstance();
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	/**
 	 * Create a new {@link HazelcastIndexedSessionRepository} instance.
@@ -249,7 +249,7 @@ public class HazelcastIndexedSessionRepository
 
 	@Override
 	public HazelcastSession createSession() {
-		MapSession cached = new MapSession(this.sessionIdGenerationStrategy);
+		MapSession cached = new MapSession(this.sessionIdGenerator);
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		HazelcastSession session = new HazelcastSession(cached, true);
 		session.flushImmediateIfNecessary();
@@ -354,13 +354,13 @@ public class HazelcastIndexedSessionRepository
 	}
 
 	/**
-	 * Set the {@link SessionIdGenerationStrategy} to use to generate session ids.
-	 * @param sessionIdGenerationStrategy the {@link SessionIdGenerationStrategy} to use
+	 * Set the {@link SessionIdGenerator} to use to generate session ids.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @since 3.2
 	 */
-	public void setSessionIdGenerationStrategy(SessionIdGenerationStrategy sessionIdGenerationStrategy) {
-		Assert.notNull(sessionIdGenerationStrategy, "sessionIdGenerationStrategy cannot be null");
-		this.sessionIdGenerationStrategy = sessionIdGenerationStrategy;
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**
@@ -419,7 +419,7 @@ public class HazelcastIndexedSessionRepository
 
 		@Override
 		public String changeSessionId() {
-			String newSessionId = HazelcastIndexedSessionRepository.this.sessionIdGenerationStrategy.generate();
+			String newSessionId = HazelcastIndexedSessionRepository.this.sessionIdGenerator.generate();
 			this.delegate.setId(newSessionId);
 			this.sessionIdChanged = true;
 			return newSessionId;

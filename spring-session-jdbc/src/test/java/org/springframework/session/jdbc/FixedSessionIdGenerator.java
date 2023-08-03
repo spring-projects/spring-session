@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package org.springframework.session;
+package org.springframework.session.jdbc;
 
-import org.springframework.lang.NonNull;
+import org.springframework.session.SessionIdGenerator;
 
-/**
- * An interface for specifying a strategy for generating session identifiers.
- *
- * @author Marcus da Coregio
- * @since 3.2
- */
-public interface SessionIdGenerationStrategy {
+public class FixedSessionIdGenerator implements SessionIdGenerator {
 
-	@NonNull
-	String generate();
+	private final String id;
+
+	public FixedSessionIdGenerator(String id) {
+		this.id = id;
+	}
+
+	@Override
+	public String generate() {
+		return this.id;
+	}
 
 }
