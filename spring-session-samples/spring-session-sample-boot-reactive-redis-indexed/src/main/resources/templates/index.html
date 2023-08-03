@@ -1,0 +1,16 @@
+<html xmlns:th="https://www.thymeleaf.org" xmlns:layout="https://github.com/ultraq/thymeleaf-layout-dialect" layout:decorate="~{layout}">
+<head>
+	<title>Secured Content</title>
+</head>
+<body>
+<div layout:fragment="content">
+	<h1>Secured Page</h1>
+	<p>This page is secured using Spring Boot, Spring Session, and Spring Security.</p>
+	<table class="table table-stripped">
+		<tr th:each="sess : ${sessions}">
+			<td th:text="${sess.id}"></td>
+		</tr>
+	</table>
+</div>
+</body>
+</html>
