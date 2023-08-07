@@ -34,7 +34,6 @@ import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -65,7 +64,7 @@ public class ReactiveRedisSessionRepository
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	private BiFunction<String, Map<String, Object>, Mono<MapSession>> redisSessionMapper = new RedisSessionMapperAdapter();
 

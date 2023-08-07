@@ -30,7 +30,6 @@ import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.SessionRepository;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 
 /**
@@ -59,7 +58,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
 
