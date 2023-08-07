@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -439,7 +439,7 @@ class ReactiveRedisSessionRepositoryTests {
 	}
 
 	@Test
-	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+	void createSessionWhenSessionIdGeneratorThenUses() {
 		this.repository.setSessionIdGenerator(() -> "test");
 
 		this.repository.createSession().as(StepVerifier::create).assertNext((redisSession) -> {
@@ -449,14 +449,14 @@ class ReactiveRedisSessionRepositoryTests {
 	}
 
 	@Test
-	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
 				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
 	@SuppressWarnings("unchecked")
-	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
 		this.repository.setSessionIdGenerator(() -> "changed-session-id");
 		given(this.redisOperations.opsForHash()).willReturn(this.hashOperations);
 		String attribute1 = "attribute1";

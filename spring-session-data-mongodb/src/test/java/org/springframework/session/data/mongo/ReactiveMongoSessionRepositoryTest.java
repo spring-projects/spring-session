@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -212,7 +212,7 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+	void createSessionWhenSessionIdGeneratorThenUses() {
 		this.repository.setSessionIdGenerator(() -> "test");
 
 		this.repository.createSession().as(StepVerifier::create).assertNext((mongoSession) -> {
@@ -222,13 +222,13 @@ public class ReactiveMongoSessionRepositoryTest {
 	}
 
 	@Test
-	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
 				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
-	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
 		this.repository.setSessionIdGenerator(() -> "test");
 
 		String sessionId = UUID.randomUUID().toString();

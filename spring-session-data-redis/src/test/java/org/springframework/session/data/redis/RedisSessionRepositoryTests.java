@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -374,7 +374,7 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+	void createSessionWhenSessionIdGeneratorThenUses() {
 		this.sessionRepository.setSessionIdGenerator(() -> "test");
 		RedisSessionRepository.RedisSession session = this.sessionRepository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
@@ -382,13 +382,13 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setSessionIdGenerator(null))
 				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
-	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
 		this.sessionRepository.setSessionIdGenerator(() -> "test");
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))

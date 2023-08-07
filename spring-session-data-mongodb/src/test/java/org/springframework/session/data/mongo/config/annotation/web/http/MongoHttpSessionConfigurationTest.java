@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -203,14 +203,14 @@ public class MongoHttpSessionConfigurationTest {
 	}
 
 	@Test
-	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
-		registerAndRefresh(SessionIdGenerationStrategyConfiguration.class);
+	void registerWhenSessionIdGeneratorBeanThenUses() {
+		registerAndRefresh(SessionIdGeneratorConfiguration.class);
 		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
 	}
 
 	@Test
-	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
+	void registerWhenNoSessionIdGeneratorBeanThenDefault() {
 		registerAndRefresh(DefaultConfiguration.class);
 		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
@@ -369,10 +369,10 @@ public class MongoHttpSessionConfigurationTest {
 	@Configuration(proxyBeanMethods = false)
 	@EnableMongoHttpSession
 	@Import(MongoConfiguration.class)
-	static class SessionIdGenerationStrategyConfiguration {
+	static class SessionIdGeneratorConfiguration {
 
 		@Bean
-		SessionIdGenerator sessionIdGenerationStrategy() {
+		SessionIdGenerator sessionIdGenerator() {
 			return new TestSessionIdGenerator();
 		}
 
