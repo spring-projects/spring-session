@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -241,15 +241,15 @@ class HazelcastHttpSessionConfigurationTests {
 	}
 
 	@Test
-	void registerWhenSessionIdGenerationStrategyBeanThenUses() {
-		registerAndRefresh(DefaultConfiguration.class, SessionIdGenerationStrategyConfiguration.class);
+	void registerWhenSessionIdGeneratorBeanThenUses() {
+		registerAndRefresh(DefaultConfiguration.class, SessionIdGeneratorConfiguration.class);
 		HazelcastIndexedSessionRepository sessionRepository = this.context
 				.getBean(HazelcastIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
 	}
 
 	@Test
-	void registerWhenNoSessionIdGenerationStrategyBeanThenDefault() {
+	void registerWhenNoSessionIdGeneratorBeanThenDefault() {
 		registerAndRefresh(DefaultConfiguration.class);
 		HazelcastIndexedSessionRepository sessionRepository = this.context
 				.getBean(HazelcastIndexedSessionRepository.class);
@@ -484,10 +484,10 @@ class HazelcastHttpSessionConfigurationTests {
 	}
 
 	@Configuration(proxyBeanMethods = false)
-	static class SessionIdGenerationStrategyConfiguration {
+	static class SessionIdGeneratorConfiguration {
 
 		@Bean
-		SessionIdGenerator sessionIdGenerationStrategy() {
+		SessionIdGenerator sessionIdGenerator() {
 			return new TestSessionIdGenerator();
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -911,7 +911,7 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+	void createSessionWhenSessionIdGeneratorThenUses() {
 		this.redisRepository.setSessionIdGenerator(() -> "test");
 		RedisSession session = this.redisRepository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
@@ -919,13 +919,13 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setSessionIdGenerator(null))
 				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
-	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
 		this.redisRepository.setSessionIdGenerator(() -> "test");
 		String attribute1 = "attribute1";
 		String attribute2 = "attribute2";

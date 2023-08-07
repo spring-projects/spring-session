@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -264,7 +264,7 @@ class JdbcIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	void setSessionIdGenerationStrategyWhenNullThenException() {
+	void setSessionIdGeneratorWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
 				.withMessage("sessionIdGenerator cannot be null");
 	}
@@ -776,7 +776,7 @@ class JdbcIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	void createSessionWhenSessionIdGenerationStrategyThenUses() {
+	void createSessionWhenSessionIdGeneratorThenUses() {
 		this.repository.setSessionIdGenerator(() -> "test");
 		JdbcSession session = this.repository.createSession();
 		assertThat(session.getId()).isEqualTo("test");
@@ -784,13 +784,13 @@ class JdbcIndexedSessionRepositoryTests {
 	}
 
 	@Test
-	void setSessionIdGenerationStrategyWhenNullThenThrowsException() {
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
 				.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
-	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerationStrategy() {
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
 		this.repository.setSessionIdGenerator(() -> "test");
 		Session saved = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		saved.setAttribute("savedName", "savedValue");

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -322,8 +322,8 @@ class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
-	void sessionIdGenerationStrategyWhenCustomBeanThenUses() {
-		registerAndRefresh(DataSourceConfiguration.class, CustomSessionIdGenerationStrategyConfiguration.class);
+	void sessionIdGeneratorWhenCustomBeanThenUses() {
+		registerAndRefresh(DataSourceConfiguration.class, CustomSessionIdGeneratorConfiguration.class);
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
 		SessionIdGenerator sessionIdGenerator = (SessionIdGenerator) ReflectionTestUtils.getField(sessionRepository,
 				"sessionIdGenerator");
@@ -331,7 +331,7 @@ class JdbcHttpSessionConfigurationTests {
 	}
 
 	@Test
-	void sessionIdGenerationStrategyWhenNoBeanThenDefault() {
+	void sessionIdGeneratorWhenNoBeanThenDefault() {
 		registerAndRefresh(DataSourceConfiguration.class, DefaultConfiguration.class);
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
 		SessionIdGenerator sessionIdGenerator = (SessionIdGenerator) ReflectionTestUtils.getField(sessionRepository,
@@ -346,10 +346,10 @@ class JdbcHttpSessionConfigurationTests {
 
 	@Configuration(proxyBeanMethods = false)
 	@EnableJdbcHttpSession
-	static class CustomSessionIdGenerationStrategyConfiguration {
+	static class CustomSessionIdGeneratorConfiguration {
 
 		@Bean
-		SessionIdGenerator sessionIdGenerationStrategy() {
+		SessionIdGenerator sessionIdGenerator() {
 			return new FixedSessionIdGenerator("my-id");
 		}
 
