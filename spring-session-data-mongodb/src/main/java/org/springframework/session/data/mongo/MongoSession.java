@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 
 /**
@@ -68,7 +67,7 @@ class MongoSession implements Session {
 
 	private Map<String, Object> attrs = new HashMap<>();
 
-	private transient SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private transient SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	/**
 	 * Constructs a new instance using the provided session id.
@@ -84,7 +83,7 @@ class MongoSession implements Session {
 	}
 
 	MongoSession(long maxInactiveIntervalInSeconds) {
-		this(UuidSessionIdGenerator.getInstance().generate(), maxInactiveIntervalInSeconds);
+		this(SessionIdGenerator.DEFAULT.generate(), maxInactiveIntervalInSeconds);
 	}
 
 	MongoSession(String id, long maxInactiveIntervalInSeconds) {

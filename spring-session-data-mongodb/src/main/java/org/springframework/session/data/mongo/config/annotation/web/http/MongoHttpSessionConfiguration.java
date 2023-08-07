@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -72,7 +71,7 @@ public class MongoHttpSessionConfiguration implements BeanClassLoaderAware, Embe
 
 	private IndexResolver<Session> indexResolver;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	@Bean
 	public MongoIndexedSessionRepository mongoSessionRepository(MongoOperations mongoOperations) {

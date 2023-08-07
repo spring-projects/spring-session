@@ -26,6 +26,11 @@ import org.springframework.lang.NonNull;
  */
 public interface SessionIdGenerator {
 
+	/**
+	 * The default instance.
+	 */
+	SessionIdGenerator DEFAULT = new UuidSessionIdGenerator();
+
 	@NonNull
 	String generate();
 

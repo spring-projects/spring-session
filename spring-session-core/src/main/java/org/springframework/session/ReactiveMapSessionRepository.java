@@ -47,7 +47,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 
 	private final Map<String, Session> sessions;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	/**
 	 * Creates a new instance backed by the provided {@link Map}. This allows injecting a

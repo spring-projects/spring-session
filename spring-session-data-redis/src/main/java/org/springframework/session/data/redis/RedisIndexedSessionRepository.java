@@ -53,7 +53,6 @@ import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
@@ -324,7 +323,7 @@ public class RedisIndexedSessionRepository
 
 	private ThreadPoolTaskScheduler taskScheduler;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.

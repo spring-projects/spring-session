@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.springframework.lang.Nullable;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
@@ -83,7 +82,7 @@ public class MongoIndexedSessionRepository
 
 	private ApplicationEventPublisher eventPublisher;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	public MongoIndexedSessionRepository(MongoOperations mongoOperations) {
 		this.mongoOperations = mongoOperations;

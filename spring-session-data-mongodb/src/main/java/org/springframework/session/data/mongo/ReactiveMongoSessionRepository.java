@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.util.Assert;
@@ -79,7 +78,7 @@ public class ReactiveMongoSessionRepository
 
 	private ApplicationEventPublisher eventPublisher;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	public ReactiveMongoSessionRepository(ReactiveMongoOperations mongoOperations) {
 		this.mongoOperations = mongoOperations;

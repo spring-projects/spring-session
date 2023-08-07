@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,6 @@ import org.springframework.session.PrincipalNameIndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
-import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.transaction.support.TransactionOperations;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -254,7 +253,7 @@ public class JdbcIndexedSessionRepository implements
 
 	private ThreadPoolTaskScheduler taskScheduler;
 
-	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+	private SessionIdGenerator sessionIdGenerator = SessionIdGenerator.DEFAULT;
 
 	/**
 	 * Create a new {@link JdbcIndexedSessionRepository} instance which uses the provided

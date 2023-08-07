@@ -24,27 +24,15 @@ import org.springframework.lang.NonNull;
  * A {@link SessionIdGenerator} that generates a random UUID to be used as the session id.
  *
  * @author Marcus da Coregio
+ * @author Yanming Zhou
  * @since 3.2
  */
 public final class UuidSessionIdGenerator implements SessionIdGenerator {
-
-	private static final UuidSessionIdGenerator INSTANCE = new UuidSessionIdGenerator();
-
-	private UuidSessionIdGenerator() {
-	}
 
 	@Override
 	@NonNull
 	public String generate() {
 		return UUID.randomUUID().toString();
-	}
-
-	/**
-	 * Returns the singleton instance of {@link UuidSessionIdGenerator}.
-	 * @return the singleton instance of {@link UuidSessionIdGenerator}
-	 */
-	public static UuidSessionIdGenerator getInstance() {
-		return INSTANCE;
 	}
 
 }
