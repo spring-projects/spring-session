@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -123,12 +124,16 @@ public class ReactiveRedisSessionRepository
 
 	@Override
 	public Mono<RedisSession> createSession() {
-		return Mono.defer(() -> {
-			MapSession cached = new MapSession(this.sessionIdGenerator);
-			cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
-			RedisSession session = new RedisSession(cached, true);
-			return Mono.just(session);
-		});
+		// @formatter:off
+		return Mono.fromSupplier(() -> this.sessionIdGenerator.generate())
+				.subscribeOn(Schedulers.boundedElastic())
+				.publishOn(Schedulers.parallel())
+				.map((sessionId) -> {
+					MapSession cached = new MapSession(sessionId);
+					cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
+					return new RedisSession(cached, true);
+				});
+		// @formatter:on
 	}
 
 	@Override
