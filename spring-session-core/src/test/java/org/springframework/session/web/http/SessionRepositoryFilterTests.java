@@ -44,6 +44,8 @@ import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -1344,6 +1346,34 @@ class SessionRepositoryFilterTests {
 				verifyNoMoreInteractions(sessionRepository);
 			}
 		});
+	}
+
+	@ParameterizedTest
+	@ValueSource(booleans = { false, true })
+	void commitSessionOncePerRequest(boolean commitSessionOncePerRequest) throws Exception {
+		MapSession session = this.sessionRepository.createSession();
+		this.sessionRepository.save(session);
+		SessionRepository<MapSession> sessionRepository = spy(this.sessionRepository);
+		setSessionCookie(session.getId());
+
+		given(sessionRepository.findById(session.getId())).willReturn(session);
+
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
+		this.filter.setCommitSessionOncePerRequest(commitSessionOncePerRequest);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
+					throws IOException, ServletException {
+				String id = wrappedRequest.getSession().getId();
+				wrappedResponse.getOutputStream().close(); // trigger commitSession()
+				assertThat(SessionRepositoryFilterTests.this.sessionRepository.findById(id)).isNotNull();
+			}
+		});
+		int times = commitSessionOncePerRequest ? 1 : 2;
+		verify(sessionRepository, times(times)).findById(session.getId());
+		verify(sessionRepository, times(times)).save(session);
+		verifyNoMoreInteractions(sessionRepository);
 	}
 
 	// --- helper methods

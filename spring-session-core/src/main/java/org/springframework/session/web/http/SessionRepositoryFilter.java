@@ -106,6 +106,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 	private HttpSessionIdResolver httpSessionIdResolver = new CookieHttpSessionIdResolver();
 
+	private boolean commitSessionOncePerRequest = false;
+
 	/**
 	 * Creates a new instance.
 	 * @param sessionRepository the <code>SessionRepository</code> to use. Cannot be null.
@@ -128,6 +130,15 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			throw new IllegalArgumentException("httpSessionIdResolver cannot be null");
 		}
 		this.httpSessionIdResolver = httpSessionIdResolver;
+	}
+
+	/**
+	 * Sets the {@link #commitSessionOncePerRequest} to be used. The default is a
+	 * {@code false}.
+	 * @param commitSessionOncePerRequest the value to use.
+	 */
+	public void setCommitSessionOncePerRequest(boolean commitSessionOncePerRequest) {
+		this.commitSessionOncePerRequest = commitSessionOncePerRequest;
 	}
 
 	@Override
@@ -207,6 +218,8 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private boolean hasCommittedInInclude;
 
+		private boolean committed;
+
 		private SessionRepositoryRequestWrapper(HttpServletRequest request, HttpServletResponse response) {
 			super(request);
 			this.response = response;
@@ -217,6 +230,10 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		 * and persist the Session.
 		 */
 		private void commitSession() {
+			if (this.committed && SessionRepositoryFilter.this.commitSessionOncePerRequest) {
+				return;
+			}
+			this.committed = true;
 			HttpSessionWrapper wrappedSession = getCurrentSession();
 			if (wrappedSession == null) {
 				if (isInvalidateClientSession()) {
