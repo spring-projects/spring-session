@@ -21,7 +21,6 @@ import java.util.Set;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
@@ -30,11 +29,8 @@ import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.session.mongodb.examples.pages.HomePage;
 import org.springframework.session.mongodb.examples.pages.LoginPage;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
 
@@ -42,11 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Pool Dolorier
+ * @author Yanming Zhou
  */
-@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = WebEnvironment.MOCK)
-@ContextConfiguration(initializers = SpringSessionMongoTraditionalBoot.Initializer.class)
+@SpringBootTest
 public class BootTests {
 
 	@Autowired
