@@ -16,17 +16,8 @@
 
 package org.springframework.session.mongodb.examples;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.testcontainers.containers.MongoDBContainer;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContextInitializer;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.env.ConfigurableEnvironment;
-import org.springframework.core.env.MapPropertySource;
 import org.springframework.session.data.mongo.config.annotation.web.reactive.EnableMongoWebSession;
 
 /**
@@ -35,44 +26,14 @@ import org.springframework.session.data.mongo.config.annotation.web.reactive.Ena
  *
  * @author Rob Winch
  * @author Greg Turnquist
+ * @author Yanming Zhou
  */
 @SpringBootApplication
 @EnableMongoWebSession
 public class SpringSessionMongoReactiveApplication {
 
 	public static void main(String[] args) {
-		SpringApplication application = new SpringApplication(SpringSessionMongoReactiveApplication.class);
-		application.addInitializers(new Initializer());
-		application.run(args);
-	}
-
-	/**
-	 * Use Testcontainers to managed MongoDB through Docker.
-	 * <p>
-	 *
-	 * @see <a href=
-	 * "https://bsideup.github.io/posts/local_development_with_testcontainers/">Local
-	 * Development with Testcontainers</a>
-	 */
-	static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-		static MongoDBContainer mongo = new MongoDBContainer("mongo:5.0.11");
-
-		private static Map<String, String> getProperties() {
-			mongo.start();
-
-			HashMap<String, String> properties = new HashMap<>();
-			properties.put("spring.data.mongodb.host", mongo.getHost());
-			properties.put("spring.data.mongodb.port", mongo.getFirstMappedPort() + "");
-			return properties;
-		}
-
-		@Override
-		public void initialize(ConfigurableApplicationContext context) {
-			ConfigurableEnvironment env = context.getEnvironment();
-			env.getPropertySources().addFirst(new MapPropertySource("testcontainers", (Map) getProperties()));
-		}
-
+		SpringApplication.run(SpringSessionMongoReactiveApplication.class, args);
 	}
 
 }

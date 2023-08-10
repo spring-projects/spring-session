@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package org.springframework.session.mongodb.examples;
+package org.springframework.session.mongodb.examples.config;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.testcontainers.containers.MongoDBContainer;
+
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 /**
- * @author Rob Winch
  * @author Yanming Zhou
  */
-@SpringBootApplication
-public class SpringSessionMongoTraditionalBoot {
+@Configuration(proxyBeanMethods = false)
+public class MongoDbConfig {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringSessionMongoTraditionalBoot.class, args);
+	@Bean
+	@ServiceConnection
+	MongoDBContainer mongoDbContainer() {
+		return new MongoDBContainer("mongo:5.0.11");
 	}
 
 }
