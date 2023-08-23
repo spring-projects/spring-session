@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
@@ -56,6 +57,6 @@ public class SpringMavenPluginITest {
 	}
 
     public String getSigningKey() throws Exception {
-		return IOUtils.toString(getClass().getResource("/test-private.pgp"));
+		return IOUtils.toString(getClass().getResource("/test-private.pgp"), Charset.defaultCharset());
 	}
 }

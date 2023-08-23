@@ -72,13 +72,11 @@ class JdbcHttpSessionConfigurationTests {
 
 	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
 
-	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@AfterEach
 	void closeContext() {
-		if (this.context != null) {
-			this.context.close();
-		}
+		this.context.close();
 	}
 
 	@Test
@@ -407,7 +405,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class CustomMaxInactiveIntervalInSecondsSetterConfiguration extends JdbcHttpSessionConfiguration {
 
 		CustomMaxInactiveIntervalInSecondsSetterConfiguration() {
-			setMaxInactiveIntervalInSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+			setMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}

@@ -790,6 +790,7 @@ class JdbcIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	@SuppressWarnings("unchecked")
 	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
 		this.repository.setSessionIdGenerator(() -> "test");
 		Session saved = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);

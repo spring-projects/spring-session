@@ -30,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
 
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
@@ -154,7 +155,7 @@ class SpringSessionBackedSessionRegistryTest {
 	private Session createSession(String sessionId, String userName, Instant lastAccessed) {
 		MapSession session = new MapSession(sessionId);
 		session.setLastAccessedTime(lastAccessed);
-		Authentication authentication = mock(Authentication.class, withSettings().lenient());
+		Authentication authentication = mock(Authentication.class, withSettings().strictness(Strictness.LENIENT));
 		given(authentication.getName()).willReturn(userName);
 		SecurityContextImpl securityContext = new SecurityContextImpl();
 		securityContext.setAuthentication(authentication);

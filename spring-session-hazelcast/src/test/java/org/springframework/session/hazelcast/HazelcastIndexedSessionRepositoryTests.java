@@ -61,14 +61,15 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Vedran Pavic
  * @author Aleksandar Stojsavljevic
  */
+@SuppressWarnings("unchecked")
 class HazelcastIndexedSessionRepositoryTests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
+	private final HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 
 	@SuppressWarnings("unchecked")
-	private IMap<String, MapSession> sessions = mock(IMap.class);
+	private final IMap<String, MapSession> sessions = mock(IMap.class);
 
 	private HazelcastIndexedSessionRepository repository;
 

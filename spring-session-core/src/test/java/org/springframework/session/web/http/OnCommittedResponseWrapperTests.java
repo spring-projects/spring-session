@@ -39,7 +39,7 @@ class OnCommittedResponseWrapperTests {
 
 	private static final String NL = "\r\n";
 
-	@Mock(lenient = true)
+	@Mock(strictness = Mock.Strictness.LENIENT)
 	HttpServletResponse delegate;
 
 	@Mock

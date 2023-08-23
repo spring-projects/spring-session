@@ -49,7 +49,7 @@ class RedisSessionExpirationPolicyTests {
 	// Wed Apr 15 10:27:32 CDT 2015
 	private static final Long ONE_MINUTE_AGO = 1429111652346L;
 
-	@Mock(lenient = true)
+	@Mock(strictness = Mock.Strictness.LENIENT)
 	RedisOperations<String, Object> sessionRedisOperations;
 
 	@Mock
