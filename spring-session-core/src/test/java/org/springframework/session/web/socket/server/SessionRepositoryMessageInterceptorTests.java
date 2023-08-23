@@ -55,7 +55,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 class SessionRepositoryMessageInterceptorTests {
 
-	@Mock(lenient = true)
+	@Mock(strictness = Mock.Strictness.LENIENT)
 	SessionRepository<Session> sessionRepository;
 
 	@Mock

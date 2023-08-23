@@ -59,7 +59,7 @@ class RedisSessionRepositoryTests {
 
 	private static final String TEST_SESSION_KEY = getSessionKey(TEST_SESSION_ID);
 
-	@Mock(lenient = true)
+	@Mock(strictness = Mock.Strictness.LENIENT)
 	private RedisOperations<String, Object> sessionRedisOperations;
 
 	@Mock
@@ -311,7 +311,6 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void findById_SessionExists_ShouldReturnSession() {
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
@@ -334,7 +333,6 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void findById_SessionExistsAndIsExpired_ShouldReturnNull() {
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
 				.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
@@ -410,7 +408,7 @@ class RedisSessionRepositoryTests {
 				.plusSeconds(session.getMaxInactiveInterval().getSeconds());
 	}
 
-	private static Map mapOf(Object... objects) {
+	private static Map<String, Object> mapOf(Object... objects) {
 		Map<String, Object> result = new HashMap<>();
 		if (objects != null) {
 			for (int i = 0; i < objects.length; i += 2) {

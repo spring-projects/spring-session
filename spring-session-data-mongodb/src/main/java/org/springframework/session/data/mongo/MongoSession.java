@@ -48,15 +48,14 @@ class MongoSession implements Session {
 	 * NOTE: This was originally stored in unicode format. Delomboking the code caused it
 	 * to get converted to another encoding, which isn't supported on all systems, so we
 	 * migrated back to unicode. The same character is being represented ensuring binary
-	 * compatibility.
-	 *
-	 * See https://www.compart.com/en/unicode/U+F607
+	 * compatibility. See <a href=
+	 * "https://www.compart.com/en/unicode/U+F607">https://www.compart.com/en/unicode/U+F607</a>
 	 */
 	private static final char DOT_COVER_CHAR = '\uF607';
 
 	private String id;
 
-	private String originalSessionId;
+	private final String originalSessionId;
 
 	private long createdMillis = System.currentTimeMillis();
 
@@ -66,7 +65,7 @@ class MongoSession implements Session {
 
 	private Date expireAt;
 
-	private Map<String, Object> attrs = new HashMap<>();
+	private final Map<String, Object> attrs = new HashMap<>();
 
 	private transient SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -135,6 +134,7 @@ class MongoSession implements Session {
 
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String attributeName) {
 		return (T) this.attrs.get(coverDot(attributeName));
 	}
