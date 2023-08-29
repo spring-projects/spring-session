@@ -22,6 +22,8 @@ artifacts {
 dependencies {
     api project(':spring-session-core')
     optional "com.hazelcast:hazelcast:4.2.4"
+    optional "io.projectreactor:reactor-core"
+    optional "org.springframework:spring-web"
     api "org.springframework:spring-context"
     api "jakarta.annotation:jakarta.annotation-api"
 
@@ -32,10 +34,11 @@ dependencies {
     testImplementation "org.springframework:spring-web"
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testImplementation "org.springframework.security:spring-security-core"
+    testImplementation "io.projectreactor:reactor-test"
+    testImplementation "com.hazelcast:hazelcast:4.2.4"
+    testImplementation project(":spring-session-hazelcast")
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
     integrationTestCompile "org.testcontainers:testcontainers"
-    integrationTestCompile "com.hazelcast:hazelcast:4.2.4"
-    integrationTestCompile project(":spring-session-hazelcast")
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.session.hazelcast;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import com.hazelcast.map.EntryProcessor;
@@ -31,6 +32,7 @@ import org.springframework.session.MapSession;
  * Hazelcast 4.
  *
  * @author Eleftheria Stein
+ * @author Didier Loiseau
  * @since 2.4.0
  */
 public class Hazelcast4SessionUpdateEntryProcessor implements EntryProcessor<String, MapSession, Object> {
@@ -78,6 +80,27 @@ public class Hazelcast4SessionUpdateEntryProcessor implements EntryProcessor<Str
 
 	void setDelta(Map<String, Object> delta) {
 		this.delta = delta;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		Hazelcast4SessionUpdateEntryProcessor that = (Hazelcast4SessionUpdateEntryProcessor) o;
+		// @formatter:off
+		return Objects.equals(this.lastAccessedTime, that.lastAccessedTime)
+				&& Objects.equals(this.maxInactiveInterval, that.maxInactiveInterval)
+				&& Objects.equals(this.delta, that.delta);
+		// @formatter:on
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.lastAccessedTime, this.maxInactiveInterval, this.delta);
 	}
 
 }

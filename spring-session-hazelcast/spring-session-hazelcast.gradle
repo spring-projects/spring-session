@@ -9,6 +9,7 @@ dependencies {
 	api "com.hazelcast:hazelcast"
 	api "jakarta.annotation:jakarta.annotation-api"
 	api "org.springframework:spring-context"
+	optional "org.springframework:spring-web"
 
 	hazelcast4(project(path: ":hazelcast4", configuration: 'classesOnlyElements'))
 	compileOnly(project(":hazelcast4"))
