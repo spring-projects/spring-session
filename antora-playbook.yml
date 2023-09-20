@@ -21,6 +21,7 @@ antora:
       template_path: ./.github/actions/docsearch-config.json.hbs
     - require: '@springio/antora-extensions/root-component-extension'
       root_component_name: 'session'
+    - '@springio/antora-extensions/static-page-extension'
 site:
   title: Spring Session
   url: https://docs.spring.io/spring-session/reference
@@ -48,7 +49,7 @@ urls:
   redirect_facility: httpd
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.7/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.4.1/ui-bundle.zip
     snapshot: true
 runtime:
   log:
