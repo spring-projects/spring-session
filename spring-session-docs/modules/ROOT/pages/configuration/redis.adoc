@@ -9,6 +9,7 @@ Now that you have your application configured, you might want to start customizi
 - I want to <<using-a-different-namespace,specify a different namespace>>.
 - I want to <<listening-session-events,know when a session is created, deleted, destroyed or expires>>.
 - I want to <<finding-all-user-sessions, find all sessions of a specific user>>
+- I want to <<configuring-redis-session-mapper,safe deserialize Redis sessions>>
 
 [[serializing-session-using-json]]
 == Serializing the Session using JSON
@@ -269,3 +270,138 @@ public void removeSession(Principal principal, String sessionIdToDelete) {
 ====
 
 In the example above, you can use the `getSessions` method to find all sessions of a specific user, and the `removeSession` method to remove a specific session of a user.
+
+[[configuring-redis-session-mapper]]
+== Configuring Redis Session Mapper
+
+
+Spring Session Redis retrieves session information from Redis and stores it in a `Map<String, Object>`.
+This map needs to undergo a mapping process to be transformed into a `MapSession` object, which is then utilized within `RedisSession`.
+
+The default mapper used for this purpose is called `RedisSessionMapper`.
+If the session map doesn't contain the minimum necessary keys to construct the session, like `creationTime`, this mapper will throw an exception.
+One possible scenario for the absence of required keys is when the session key is deleted concurrently, usually due to expiration, while the save process is in progress.
+This occurs because the https://redis.io/commands/hset/[HSET command] is employed to set fields within the key, and if the key doesn't exist, this command will create it.
+
+If you want to customize the mapping process, you can create your implementation of `BiFunction<String, Map<String, Object>, MapSession>` and set it into the session repository.
+The following example shows how to delegate the mapping process to the default mapper, but if an exception is thrown, the session is deleted from Redis:
+
+[tabs]
+======
+RedisSessionRepository::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableRedisHttpSession
+public class SessionConfig {
+
+    @Bean
+    SessionRepositoryCustomizer<RedisSessionRepository> redisSessionRepositoryCustomizer() {
+        return (redisSessionRepository) -> redisSessionRepository
+                .setRedisSessionMapper(new SafeRedisSessionMapper(redisSessionRepository));
+    }
+
+    static class SafeRedisSessionMapper implements BiFunction<String, Map<String, Object>, MapSession> {
+
+        private final RedisSessionMapper delegate = new RedisSessionMapper();
+
+        private final RedisSessionRepository sessionRepository;
+
+        SafeRedisSessionMapper(RedisSessionRepository sessionRepository) {
+            this.sessionRepository = sessionRepository;
+        }
+
+        @Override
+        public MapSession apply(String sessionId, Map<String, Object> map) {
+            try {
+                return this.delegate.apply(sessionId, map);
+            }
+            catch (IllegalStateException ex) {
+                this.sessionRepository.deleteById(sessionId);
+                return null;
+            }
+        }
+
+    }
+
+}
+----
+
+RedisIndexedSessionRepository::
++
+[source,java,role="secondary"]
+----
+@Configuration
+@EnableRedisIndexedHttpSession
+public class SessionConfig {
+
+    @Bean
+    SessionRepositoryCustomizer<RedisIndexedSessionRepository> redisSessionRepositoryCustomizer() {
+        return (redisSessionRepository) -> redisSessionRepository.setRedisSessionMapper(
+                new SafeRedisSessionMapper(redisSessionRepository.getSessionRedisOperations()));
+    }
+
+    static class SafeRedisSessionMapper implements BiFunction<String, Map<String, Object>, MapSession> {
+
+        private final RedisSessionMapper delegate = new RedisSessionMapper();
+
+        private final RedisOperations<String, Object> redisOperations;
+
+        SafeRedisSessionMapper(RedisOperations<String, Object> redisOperations) {
+            this.redisOperations = redisOperations;
+        }
+
+        @Override
+        public MapSession apply(String sessionId, Map<String, Object> map) {
+            try {
+                return this.delegate.apply(sessionId, map);
+            }
+            catch (IllegalStateException ex) {
+                // if you use a different redis namespace, change the key accordingly
+                this.redisOperations.delete("spring:session:sessions:" + sessionId); // we do not invoke RedisIndexedSessionRepository#deleteById to avoid an infinite loop because the method also invokes this mapper
+                return null;
+            }
+        }
+
+    }
+
+}
+----
+
+ReactiveRedisSessionRepository::
++
+[source,java,role="tertiary"]
+----
+@Configuration
+@EnableRedisWebSession
+public class SessionConfig {
+
+    @Bean
+    ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository> redisSessionRepositoryCustomizer() {
+        return (redisSessionRepository) -> redisSessionRepository
+                .setRedisSessionMapper(new SafeRedisSessionMapper(redisSessionRepository));
+    }
+
+    static class SafeRedisSessionMapper implements BiFunction<String, Map<String, Object>, Mono<MapSession>> {
+
+        private final RedisSessionMapper delegate = new RedisSessionMapper();
+
+        private final ReactiveRedisSessionRepository sessionRepository;
+
+        SafeRedisSessionMapper(ReactiveRedisSessionRepository sessionRepository) {
+            this.sessionRepository = sessionRepository;
+        }
+
+        @Override
+        public Mono<MapSession> apply(String sessionId, Map<String, Object> map) {
+            return Mono.fromSupplier(() -> this.delegate.apply(sessionId, map))
+                .onErrorResume(IllegalStateException.class,
+                    (ex) -> this.sessionRepository.deleteById(sessionId).then(Mono.empty()));
+        }
+
+    }
+
+}
+----
+======

@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -326,6 +327,8 @@ public class RedisIndexedSessionRepository
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
+	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
+
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
@@ -523,8 +526,8 @@ public class RedisIndexedSessionRepository
 		if ((entries == null) || entries.isEmpty()) {
 			return null;
 		}
-		MapSession loaded = new RedisSessionMapper(id).apply(entries);
-		if (!allowExpired && loaded.isExpired()) {
+		MapSession loaded = this.redisSessionMapper.apply(id, entries);
+		if (loaded == null || (!allowExpired && loaded.isExpired())) {
 			return null;
 		}
 		RedisSession result = new RedisSession(loaded, false);
@@ -568,9 +571,11 @@ public class RedisIndexedSessionRepository
 			String sessionId = channel.substring(channel.lastIndexOf(":") + 1);
 			@SuppressWarnings("unchecked")
 			Map<String, Object> entries = (Map<String, Object>) this.defaultSerializer.deserialize(message.getBody());
-			MapSession loaded = new RedisSessionMapper(sessionId).apply(entries);
-			RedisSession session = new RedisSession(loaded, false);
-			handleCreated(session);
+			MapSession loaded = this.redisSessionMapper.apply(sessionId, entries);
+			if (loaded != null) {
+				RedisSession session = new RedisSession(loaded, false);
+				handleCreated(session);
+			}
 			return;
 		}
 
@@ -728,6 +733,17 @@ public class RedisIndexedSessionRepository
 	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
 		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
 		this.sessionIdGenerator = sessionIdGenerator;
+	}
+
+	/**
+	 * Set the {@link BiFunction} used to map {@link MapSession} to a
+	 * {@link ReactiveRedisSessionRepository.RedisSession}.
+	 * @param redisSessionMapper the mapper to use, cannot be null
+	 * @since 3.2
+	 */
+	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper) {
+		Assert.notNull(redisSessionMapper, "redisSessionMapper cannot be null");
+		this.redisSessionMapper = redisSessionMapper;
 	}
 
 	/**

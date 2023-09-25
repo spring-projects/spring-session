@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.session.MapSession;
@@ -38,34 +37,29 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  */
 class RedisSessionMapperTests {
 
-	private RedisSessionMapper mapper;
-
-	@BeforeEach
-	void setUp() {
-		this.mapper = new RedisSessionMapper("id");
-	}
+	private RedisSessionMapper mapper = new RedisSessionMapper();
 
 	@Test
-	void constructor_NullId_ShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new RedisSessionMapper(null))
+	void apply_NullId_ShouldThrowException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply(null, Collections.emptyMap()))
 				.withMessage("sessionId must not be empty");
 	}
 
 	@Test
-	void constructor_EmptyId_ShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> new RedisSessionMapper(" "))
+	void apply_EmptyId_ShouldThrowException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply(" ", Collections.emptyMap()))
 				.withMessage("sessionId must not be empty");
 	}
 
 	@Test
 	void apply_NullMap_ShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply("1234", null))
 				.withMessage("map must not be empty");
 	}
 
 	@Test
 	void apply_EmptyMap_ShouldThrowException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply(Collections.emptyMap()))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply("1234", Collections.emptyMap()))
 				.withMessage("map must not be empty");
 	}
 
@@ -74,7 +68,7 @@ class RedisSessionMapperTests {
 		Map<String, Object> sessionMap = new HashMap<>();
 		sessionMap.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, 0L);
 		sessionMap.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1800);
-		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply(sessionMap))
+		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply("id", sessionMap))
 				.withMessage(RedisSessionMapper.CREATION_TIME_KEY + " key must not be null");
 	}
 
@@ -83,7 +77,7 @@ class RedisSessionMapperTests {
 		Map<String, Object> sessionMap = new HashMap<>();
 		sessionMap.put(RedisSessionMapper.CREATION_TIME_KEY, 0L);
 		sessionMap.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1800);
-		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply(sessionMap))
+		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply("id", sessionMap))
 				.withMessage(RedisSessionMapper.LAST_ACCESSED_TIME_KEY + " key must not be null");
 	}
 
@@ -92,7 +86,7 @@ class RedisSessionMapperTests {
 		Map<String, Object> sessionMap = new HashMap<>();
 		sessionMap.put(RedisSessionMapper.CREATION_TIME_KEY, 0L);
 		sessionMap.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, 0L);
-		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply(sessionMap))
+		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply("id", sessionMap))
 				.withMessage(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY + " key must not be null");
 	}
 
@@ -104,7 +98,7 @@ class RedisSessionMapperTests {
 		sessionMap.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1800);
 		sessionMap.put(RedisSessionMapper.ATTRIBUTE_PREFIX + "existing", "value");
 		sessionMap.put(RedisSessionMapper.ATTRIBUTE_PREFIX + "missing", null);
-		MapSession session = this.mapper.apply(sessionMap);
+		MapSession session = this.mapper.apply("id", sessionMap);
 		assertThat(session.getId()).isEqualTo("id");
 		assertThat(session.getCreationTime()).isEqualTo(Instant.ofEpochMilli(0));
 		assertThat(session.getLastAccessedTime()).isEqualTo(Instant.ofEpochMilli(0));

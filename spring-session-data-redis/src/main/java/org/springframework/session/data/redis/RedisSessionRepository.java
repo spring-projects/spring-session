@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.FlushMode;
@@ -59,6 +60,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+
+	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
 
 	/**
 	 * Create a new {@link RedisSessionRepository} instance.
@@ -136,8 +139,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		if (entries.isEmpty()) {
 			return null;
 		}
-		MapSession session = new RedisSessionMapper(sessionId).apply(entries);
-		if (session.isExpired()) {
+		MapSession session = this.redisSessionMapper.apply(sessionId, entries);
+		if (session == null || session.isExpired()) {
 			deleteById(sessionId);
 			return null;
 		}
@@ -174,6 +177,17 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
 		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
 		this.sessionIdGenerator = sessionIdGenerator;
+	}
+
+	/**
+	 * Set the {@link BiFunction} used to map {@link MapSession} to a
+	 * {@link ReactiveRedisSessionRepository.RedisSession}.
+	 * @param redisSessionMapper the mapper to use, cannot be null
+	 * @since 3.2
+	 */
+	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper) {
+		Assert.notNull(redisSessionMapper, "redisSessionMapper cannot be null");
+		this.redisSessionMapper = redisSessionMapper;
 	}
 
 	/**
