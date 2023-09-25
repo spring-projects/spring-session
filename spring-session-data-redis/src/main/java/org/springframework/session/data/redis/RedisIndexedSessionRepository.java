@@ -102,7 +102,7 @@ import org.springframework.util.StringUtils;
  * APPEND spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe ""
  * EXPIRE spring:session:sessions:expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe 1800
  * SADD spring:session:expirations:1439245080000 expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe
- * EXPIRE spring:session:expirations1439245080000 2100
+ * EXPIRE spring:session:expirations:1439245080000 2100
  * </pre>
  *
  * <h3>Saving a Session</h3>
@@ -237,7 +237,7 @@ import org.springframework.util.StringUtils;
  *
  * <pre>
  * SADD spring:session:expirations:1439245080000 expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe
- * EXPIRE spring:session:expirations1439245080000 2100
+ * EXPIRE spring:session:expirations:1439245080000 2100
  * </pre>
  *
  * <p>
