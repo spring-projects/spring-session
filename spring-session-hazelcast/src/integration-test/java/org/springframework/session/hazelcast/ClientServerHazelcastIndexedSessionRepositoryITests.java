@@ -21,15 +21,16 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 import org.testcontainers.utility.MountableFile;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -45,13 +46,20 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-@Disabled("Re-enable when Hazelcast image uses JDK 17")
 class ClientServerHazelcastIndexedSessionRepositoryITests extends AbstractHazelcastIndexedSessionRepositoryITests {
 
-	private static GenericContainer container = new GenericContainer<>("hazelcast/hazelcast:5.0.3-slim")
+	// @formatter:off
+	private static GenericContainer container = new GenericContainer<>(new ImageFromDockerfile()
+			.withDockerfileFromBuilder((builder) -> builder
+					.from("hazelcast/hazelcast:5.3.2-slim")
+					.user("root")
+					.run("apk del --no-cache openjdk11-jre-headless")
+					.run("apk add --no-cache openjdk17-jre-headless")
+					.user("hazelcast")))
 			.withExposedPorts(5701).withCopyFileToContainer(MountableFile.forClasspathResource("/hazelcast-server.xml"),
 					"/opt/hazelcast/hazelcast.xml")
 			.withEnv("HAZELCAST_CONFIG", "hazelcast.xml");
+	// @formatter:on
 
 	@BeforeAll
 	static void setUpClass() {
@@ -72,7 +80,8 @@ class ClientServerHazelcastIndexedSessionRepositoryITests extends AbstractHazelc
 			ClientConfig clientConfig = new ClientConfig();
 			clientConfig.getNetworkConfig().addAddress(container.getHost() + ":" + container.getFirstMappedPort());
 			clientConfig.getUserCodeDeploymentConfig().setEnabled(true).addClass(Session.class)
-					.addClass(MapSession.class).addClass(SessionUpdateEntryProcessor.class);
+					.addClass(MapSession.class).addClass(SessionUpdateEntryProcessor.class)
+					.addClass(SessionIdGenerator.class);
 			return HazelcastClient.newHazelcastClient(clientConfig);
 		}
 
