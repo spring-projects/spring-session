@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,44 +16,41 @@
 
 package docs.http;
 
-// import com.hazelcast.config.AttributeConfig;
-// import com.hazelcast.config.Config;
-// import com.hazelcast.config.IndexConfig;
-// import com.hazelcast.config.IndexType;
-// import com.hazelcast.config.SerializerConfig;
-// import com.hazelcast.core.Hazelcast;
-// import com.hazelcast.core.HazelcastInstance;
-//
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
-// import org.springframework.session.MapSession;
-// import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
-// import org.springframework.session.hazelcast.HazelcastSessionSerializer;
-// import org.springframework.session.hazelcast.PrincipalNameExtractor;
-// import
-// org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
+import com.hazelcast.config.AttributeConfig;
+import com.hazelcast.config.Config;
+import com.hazelcast.config.IndexConfig;
+import com.hazelcast.config.IndexType;
+import com.hazelcast.config.SerializerConfig;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.session.MapSession;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
+import org.springframework.session.hazelcast.HazelcastSessionSerializer;
+import org.springframework.session.hazelcast.PrincipalNameExtractor;
+import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 
 // tag::config[]
-// @EnableHazelcastHttpSession // <1>
-// @Configuration
-// public class HazelcastHttpSessionConfig {
-//
-// @Bean
-// public HazelcastInstance hazelcastInstance() {
-// Config config = new Config();
-// AttributeConfig attributeConfig = new AttributeConfig()
-// .setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
-// .setExtractorClassName(PrincipalNameExtractor.class.getName());
-// config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME) // <2>
-// .addAttributeConfig(attributeConfig).addIndexConfig(
-// new IndexConfig(IndexType.HASH,
-// HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
-// SerializerConfig serializerConfig = new SerializerConfig();
-// serializerConfig.setImplementation(new
-// HazelcastSessionSerializer()).setTypeClass(MapSession.class);
-// config.getSerializationConfig().addSerializerConfig(serializerConfig); // <3>
-// return Hazelcast.newHazelcastInstance(config); // <4>
-// }
-//
-// }
+@EnableHazelcastHttpSession // <1>
+@Configuration
+public class HazelcastHttpSessionConfig {
+
+	@Bean
+	public HazelcastInstance hazelcastInstance() {
+		Config config = new Config();
+		AttributeConfig attributeConfig = new AttributeConfig()
+				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+				.setExtractorClassName(PrincipalNameExtractor.class.getName());
+		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME) // <2>
+				.addAttributeConfig(attributeConfig).addIndexConfig(
+						new IndexConfig(IndexType.HASH, HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
+		SerializerConfig serializerConfig = new SerializerConfig();
+		serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
+		config.getSerializationConfig().addSerializerConfig(serializerConfig); // <3>
+		return Hazelcast.newHazelcastInstance(config); // <4>
+	}
+
+}
 // end::config[]
