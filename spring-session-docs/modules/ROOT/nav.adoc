@@ -14,7 +14,15 @@
 *** {gh-samples-url}spring-session-sample-boot-webflux[Redis]
 *** xref:guides/boot-webflux-custom-cookie.adoc[Custom Cookie]
 ** Java Configuration
+*** xref:guides/java-custom-cookie.adoc[Custom Cookie]
+*** xref:guides/java-redis.adoc[Redis]
+*** xref:guides/java-jdbc.adoc[JDBC]
+*** xref:guides/java-hazelcast.adoc[Hazelcast]
+*** xref:guides/java-rest.adoc[REST]
+*** xref:guides/java-security.adoc[Spring Security]
 ** XML Configuration
+*** xref:guides/xml-redis.adoc[Redis]
+*** xref:guides/xml-jdbc.adoc[JDBC]
 * xref:configurations.adoc[Configurations]
 ** xref:configuration/redis.adoc[Redis]
 ** xref:configuration/common.adoc[Common Configurations]

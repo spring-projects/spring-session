@@ -5,6 +5,7 @@ This section contains common configurations that applies to all or most Spring S
 It contains configuration examples for the following use cases:
 
 - I need to <<changing-how-session-ids-are-generated,change the way that Session IDs are generated>>
+- I need to <<customizing-session-cookie,customize the session cookie properties>>
 
 [[changing-how-session-ids-are-generated]]
 == Changing How Session IDs Are Generated
@@ -55,3 +56,76 @@ public RedisSessionRepository redisSessionRepository(RedisOperations redisOperat
 }
 ----
 ======
+
+[[customizing-session-cookie]]
+== Customizing Session Cookie
+
+Once you have set up Spring Session, you can customize how the session cookie is written by exposing a `CookieSerializer` as a Spring bean.
+Spring Session comes with `DefaultCookieSerializer`.
+Exposing the `DefaultCookieSerializer` as a Spring bean augments the existing configuration when you use configurations like `@EnableRedisHttpSession`.
+The following example shows how to customize Spring Session's cookie:
+
+====
+[source,java]
+----
+include::{samples-dir}spring-session-sample-javaconfig-custom-cookie/src/main/java/sample/Config.java[tags=cookie-serializer]
+----
+
+<1> We customize the name of the cookie to be `JSESSIONID`.
+<2> We customize the path of the cookie to be `/` (rather than the default of the context root).
+<3> We customize the domain name pattern (a regular expression) to be `^.+?\\.(\\w+\\.[a-z]+)$`.
+This allows sharing a session across domains and applications.
+If the regular expression does not match, no domain is set and the existing domain is used.
+If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] is used as the domain.
+This means that a request to https://child.example.com sets the domain to `example.com`.
+However, a request to http://localhost:8080/ or https://192.168.1.100:8080/ leaves the cookie unset and, thus, still works in development without any changes being necessary for production.
+====
+
+WARNING: You should only match on valid domain characters, since the domain name is reflected in the response.
+Doing so prevents a malicious user from performing such attacks as https://en.wikipedia.org/wiki/HTTP_response_splitting[HTTP Response Splitting].
+
+[[custom-cookie-options]]
+=== Configuration Options
+
+The following configuration options are available:
+
+* `cookieName`: The name of the cookie to use.
+Default: `SESSION`.
+* `useSecureCookie`: Specifies whether a secure cookie should be used.
+Default: Use the value of `HttpServletRequest.isSecure()` at the time of creation.
+* `cookiePath`: The path of the cookie.
+Default: The context root.
+* `cookieMaxAge`: Specifies the max age of the cookie to be set at the time the session is created.
+Default: `-1`, which indicates the cookie should be removed when the browser is closed.
+* `jvmRoute`: Specifies a suffix to be appended to the session ID and included in the cookie.
+Used to identify which JVM to route to for session affinity.
+With some implementations (that is, Redis) this option provides no performance benefit.
+However, it can help with tracing logs of a particular user.
+* `domainName`: Allows specifying a specific domain name to be used for the cookie.
+This option is simple to understand but often requires a different configuration between development and production environments.
+See `domainNamePattern` as an alternative.
+* `domainNamePattern`: A case-insensitive pattern used to extract the domain name from the `HttpServletRequest#getServerName()`.
+The pattern should provide a single grouping that is used to extract the value of the cookie domain.
+If the regular expression does not match, no domain is set and the existing domain is used.
+If the regular expression matches, the first https://docs.oracle.com/javase/tutorial/essential/regex/groups.html[grouping] is used as the domain.
+* `sameSite`: The value for the `SameSite` cookie directive.
+To disable the serialization of the `SameSite` cookie directive, you may set this value to `null`.
+Default: `Lax`
+
+[[custom-cookie-in-webflux]]
+=== Custom Cookie in WebFlux
+
+You can customize how the session cookie is written in a WebFlux application by exposing a `WebSessionIdResolver` as a Spring bean.
+Spring Session uses a `CookieWebSessionIdResolver` by default.
+The following example shows how to customize Spring Session's cookie:
+
+====
+[source,java]
+----
+include::{samples-dir}spring-session-sample-boot-webflux-custom-cookie/src/main/java/sample/CookieConfig.java[tags=webflux-cookie-serializer]
+----
+
+<1> We customize the name of the cookie to be `JSESSIONID`.
+<2> We customize the path of the cookie to be `/` (rather than the default of the context root).
+<3> We customize the `SameSite` cookie directive to be `Strict`.
+====
