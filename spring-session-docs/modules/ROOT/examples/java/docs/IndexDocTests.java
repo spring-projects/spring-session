@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,9 @@ package docs;
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -36,6 +39,7 @@ import org.springframework.session.SessionRepository;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
 import org.springframework.session.data.redis.RedisSessionRepository;
+import org.springframework.session.hazelcast.HazelcastIndexedSessionRepository;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -180,21 +184,20 @@ class IndexDocTests {
 		// end::new-jdbcindexedsessionrepository[]
 	}
 
-	// @Test
-	// @SuppressWarnings("unused")
-	// void newHazelcastIndexedSessionRepository() {
-	// // tag::new-hazelcastindexedsessionrepository[]
-	//
-	// Config config = new Config();
-	//
-	// // ... configure Hazelcast ...
-	//
-	// HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
-	//
-	// HazelcastIndexedSessionRepository repository = new
-	// HazelcastIndexedSessionRepository(hazelcastInstance);
-	// // end::new-hazelcastindexedsessionrepository[]
-	// }
+	@Test
+	@SuppressWarnings("unused")
+	void newHazelcastIndexedSessionRepository() {
+		// tag::new-hazelcastindexedsessionrepository[]
+
+		Config config = new Config();
+
+		// ... configure Hazelcast ...
+
+		HazelcastInstance hazelcastInstance = Hazelcast.newHazelcastInstance(config);
+
+		HazelcastIndexedSessionRepository repository = new HazelcastIndexedSessionRepository(hazelcastInstance);
+		// end::new-hazelcastindexedsessionrepository[]
+	}
 
 	@Test
 	void runSpringHttpSessionConfig() {
