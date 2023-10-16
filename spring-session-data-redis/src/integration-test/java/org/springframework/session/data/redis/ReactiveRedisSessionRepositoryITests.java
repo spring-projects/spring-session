@@ -281,6 +281,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 
 		assertThat(expireDuration).isNotEqualTo(Duration.ZERO);
 		reset(spy);
+		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", this.sessionRedisOperations);
 	}
 
 	@Configuration
