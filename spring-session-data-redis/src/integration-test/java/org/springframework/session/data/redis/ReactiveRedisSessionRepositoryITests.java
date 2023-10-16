@@ -16,14 +16,17 @@
 
 package org.springframework.session.data.redis;
 
+import java.time.Duration;
 import java.time.Instant;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository.RedisSession;
@@ -35,8 +38,11 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.endsWith;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 
@@ -52,6 +58,13 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 
 	@Autowired
 	private ReactiveRedisSessionRepository repository;
+
+	private ReactiveRedisOperations<String, Object> sessionRedisOperations;
+
+	@BeforeEach
+	void setup() {
+		this.sessionRedisOperations = this.repository.getSessionRedisOperations();
+	}
 
 	@Test
 	void saves() {
@@ -75,7 +88,8 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(this.repository.findById(toSave.getId()).block()).isNull();
 	}
 
-	@Test // gh-1399
+	@Test
+	// gh-1399
 	void saveMultipleTimes() {
 		RedisSession session = this.repository.createSession().block();
 		session.setAttribute("attribute1", "value1");
@@ -243,6 +257,30 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(this.repository.findById(sessionId).block()).isNull();
 		assertThat(this.repository.findById(newSessionId).block()).isNull();
 		reset(spyOperations);
+	}
+
+	// gh-2464
+	@Test
+	void saveWhenPutAllIsDelayedThenExpireShouldBeSet() {
+		ReactiveRedisOperations<String, Object> spy = spy(this.sessionRedisOperations);
+		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", spy);
+		ReactiveHashOperations<String, Object, Object> opsForHash = spy(this.sessionRedisOperations.opsForHash());
+		given(spy.opsForHash()).willReturn(opsForHash);
+		willAnswer((invocation) -> Mono.delay(Duration.ofSeconds(1)).then((Mono<Void>) invocation.callRealMethod()))
+				.given(opsForHash).putAll(anyString(), any());
+		RedisSession toSave = this.repository.createSession().block();
+
+		String expectedAttributeName = "a";
+		String expectedAttributeValue = "b";
+
+		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
+		this.repository.save(toSave).block();
+
+		String id = toSave.getId();
+		Duration expireDuration = this.sessionRedisOperations.getExpire("spring:session:sessions:" + id).block();
+
+		assertThat(expireDuration).isNotEqualTo(Duration.ZERO);
+		reset(spy);
 	}
 
 	@Configuration

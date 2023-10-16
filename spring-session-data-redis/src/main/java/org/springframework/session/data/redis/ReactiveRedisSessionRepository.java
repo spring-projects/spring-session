@@ -327,10 +327,11 @@ public class ReactiveRedisSessionRepository
 				setTtl = ReactiveRedisSessionRepository.this.sessionRedisOperations.persist(sessionKey);
 			}
 
-			return update.and(setTtl).and((s) -> {
+			Mono<Object> clearDelta = Mono.fromDirect((s) -> {
 				this.delta.clear();
 				s.onComplete();
-			}).then();
+			});
+			return update.flatMap((unused) -> setTtl).flatMap((unused) -> clearDelta).then();
 		}
 
 		private Mono<Void> saveChangeSessionId() {
@@ -353,7 +354,7 @@ public class ReactiveRedisSessionRepository
 				String sessionKey = getSessionKey(sessionId);
 
 				return ReactiveRedisSessionRepository.this.sessionRedisOperations.rename(originalSessionKey, sessionKey)
-						.and(replaceSessionId).onErrorResume((ex) -> {
+						.flatMap((unused) -> Mono.fromDirect(replaceSessionId)).onErrorResume((ex) -> {
 							String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
 							return StringUtils.startsWithIgnoreCase(message, "ERR no such key");
 						}, (ex) -> Mono.empty());
