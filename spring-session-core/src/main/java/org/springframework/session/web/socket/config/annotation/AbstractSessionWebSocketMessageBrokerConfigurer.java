@@ -163,6 +163,11 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 			return this.registry.setErrorHandler(errorHandler);
 		}
 
+		@Override
+		public WebMvcStompEndpointRegistry setPreserveReceiveOrder(boolean preserveReceiveOrder) {
+			return this.registry.setPreserveReceiveOrder(preserveReceiveOrder);
+		}
+
 	}
 
 }
