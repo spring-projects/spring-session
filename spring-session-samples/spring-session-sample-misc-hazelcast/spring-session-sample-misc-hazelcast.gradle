@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+	management platform(project(":spring-session-dependencies"))
 	implementation project(':spring-session-core')
 	implementation "com.hazelcast:hazelcast"
 	implementation "org.slf4j:slf4j-api"

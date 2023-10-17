@@ -3,6 +3,7 @@ apply plugin: 'io.spring.convention.spring-module'
 description = "Spring Session and Spring JDBC integration"
 
 dependencies {
+	management platform(project(":spring-session-dependencies"))
 	api project(':spring-session-core')
 	api "org.springframework:spring-context"
 	api "org.springframework:spring-jdbc"

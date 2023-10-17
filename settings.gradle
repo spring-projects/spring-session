@@ -12,6 +12,7 @@ plugins {
 
 rootProject.name = 'spring-session-build'
 
+include 'spring-session-dependencies'
 include 'spring-session-bom'
 include 'spring-session-core'
 include 'spring-session-data-mongodb'
@@ -28,3 +29,4 @@ file('spring-session-samples').eachDirMatch(~/spring-session-sample-.*/) { dir -
 rootProject.children.each { project ->
     project.buildFileName = "${project.name}.gradle"
 }
+
