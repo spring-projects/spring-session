@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+	management platform(project(":spring-session-dependencies"))
 	implementation project(':spring-session-jdbc')
 	implementation "org.springframework:spring-web"
 	implementation "com.h2database:h2"

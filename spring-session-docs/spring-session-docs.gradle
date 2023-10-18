@@ -7,6 +7,7 @@ apply plugin: 'io.spring.convention.docs'
 apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
+	management platform(project(":spring-session-dependencies"))
 	testImplementation project(':spring-session-core')
 	testImplementation project(':spring-session-data-redis')
 	testImplementation project(':spring-session-hazelcast')

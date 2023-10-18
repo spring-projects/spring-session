@@ -4,6 +4,7 @@ plugins {
 }
 
 dependencies {
+	management platform(project(":spring-session-dependencies"))
 	implementation project(':spring-session-data-redis')
 	implementation "io.lettuce:lettuce-core"
 	implementation "org.springframework:spring-webmvc"

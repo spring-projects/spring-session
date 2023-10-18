@@ -1,6 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
+	management platform(project(":spring-session-dependencies"))
 	implementation  project(':spring-session-data-mongodb')
 	implementation  "org.springframework.boot:spring-boot-starter-webflux"
 	implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
