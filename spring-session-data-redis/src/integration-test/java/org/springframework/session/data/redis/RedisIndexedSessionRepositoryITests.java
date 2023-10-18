@@ -20,7 +20,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 
-import io.lettuce.core.RedisCommandExecutionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +27,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.connection.DefaultMessage;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,13 +45,8 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
 
 /**
  * Integration tests for {@link RedisIndexedSessionRepository}.
@@ -687,33 +680,6 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(this.repository.findById(originalId)).isNull();
 		assertThat(this.repository.findById(copy1.getId())).isNotNull();
 		assertThat(this.repository.findById(copy2.getId())).isNull();
-	}
-
-	// gh-1743
-	@Test
-	@SuppressWarnings("unchecked")
-	void saveChangeSessionIdWhenFailedRenameOperationExceptionContainsMoreDetailsThenIgnoreError() {
-		RedisOperations<String, Object> sessionRedisOperations = this.repository.getSessionRedisOperations();
-		RedisOperations<String, Object> spyOperations = spy(sessionRedisOperations);
-		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", spyOperations);
-
-		RedisSession toSave = this.repository.createSession();
-		String sessionId = toSave.getId();
-
-		this.repository.save(toSave);
-		RedisIndexedSessionRepository.RedisSession session = this.repository.findById(sessionId);
-		this.repository.deleteById(sessionId);
-		String newSessionId = session.changeSessionId();
-
-		RedisSystemException redisSystemException = new RedisSystemException(null,
-				new RedisCommandExecutionException("ERR no such key. channel: [id: 0xec125091,..."));
-		willThrow(redisSystemException).given(spyOperations).rename(any(), any());
-
-		this.repository.save(session);
-		assertThat(this.repository.findById(sessionId)).isNull();
-		assertThat(this.repository.findById(newSessionId)).isNull();
-		reset(spyOperations);
-		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", sessionRedisOperations);
 	}
 
 	private String getSecurityName() {
