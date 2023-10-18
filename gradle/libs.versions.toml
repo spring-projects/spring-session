@@ -11,7 +11,7 @@ org-mongodb = "4.8.2"
 org-slf4j = "2.0.7"
 org-springframework-boot = "3.0.7"
 org-springframework = "6.0.13"
-org-testcontainers = "1.17.3"
+org-testcontainers = "1.17.6"
 org-junit = "5.9.3"
 
 [libraries]
