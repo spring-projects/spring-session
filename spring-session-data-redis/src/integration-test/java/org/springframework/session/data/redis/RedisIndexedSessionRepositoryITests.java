@@ -693,9 +693,8 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 	@Test
 	@SuppressWarnings("unchecked")
 	void saveChangeSessionIdWhenFailedRenameOperationExceptionContainsMoreDetailsThenIgnoreError() {
-		RedisOperations<Object, Object> sessionRedisOperations = (RedisOperations<Object, Object>) ReflectionTestUtils
-				.getField(this.repository, "sessionRedisOperations");
-		RedisOperations<Object, Object> spyOperations = spy(sessionRedisOperations);
+		RedisOperations<String, Object> sessionRedisOperations = this.repository.getSessionRedisOperations();
+		RedisOperations<String, Object> spyOperations = spy(sessionRedisOperations);
 		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", spyOperations);
 
 		RedisSession toSave = this.repository.createSession();
@@ -714,6 +713,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(this.repository.findById(sessionId)).isNull();
 		assertThat(this.repository.findById(newSessionId)).isNull();
 		reset(spyOperations);
+		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", sessionRedisOperations);
 	}
 
 	private String getSecurityName() {
