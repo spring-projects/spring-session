@@ -9,6 +9,7 @@ updates:
 
   - package-ecosystem: "gradle"
     target-branch: "main"
+    milestone: 152
     directory: "/"
     schedule:
       interval: "daily"
@@ -27,6 +28,7 @@ updates:
 
   - package-ecosystem: "gradle"
     target-branch: "3.1.x"
+    milestone: 151
     directory: "/"
     schedule:
       interval: "daily"
@@ -43,6 +45,7 @@ updates:
 
   - package-ecosystem: "gradle"
     target-branch: "3.0.x"
+    milestone: 150
     directory: "/"
     schedule:
       interval: "daily"
