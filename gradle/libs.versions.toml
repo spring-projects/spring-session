@@ -31,7 +31,7 @@ edu-umd-cs-mtc-multithreadedtc = "edu.umd.cs.mtc:multithreadedtc:1.01"
 io-lettuce-lettuce-core = "io.lettuce:lettuce-core:6.2.1.RELEASE"
 io-projectreactor-reactor-bom = { module = "io.projectreactor:reactor-bom", version = "2022.0.12" }
 io-spring-javaformat-spring-javaformat-checkstyle = "io.spring.javaformat:spring-javaformat-checkstyle:0.0.29"
-io-spring-nohttp-nohttp-checkstyle = "io.spring.nohttp:nohttp-checkstyle:0.0.3.RELEASE"
+io-spring-nohttp-nohttp-checkstyle = "io.spring.nohttp:nohttp-checkstyle:0.0.11"
 jakarta-servlet-jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.0.0"
 jakarta-servlet-jsp-jstl-jakarta-servlet-jsp-jstl-api = "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0"
 jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket" }
