@@ -34,7 +34,7 @@ jakarta-servlet-jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.0.0
 jakarta-servlet-jsp-jstl-jakarta-servlet-jsp-jstl-api = "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.0"
 jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket" }
 jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:jakarta.websocket-client-api", version.ref = "jakarta-websocket" }
-mysql-mysql-connector-java = "mysql:mysql-connector-java:8.0.30"
+mysql-mysql-connector-java = "mysql:mysql-connector-java:8.0.33"
 nz-net-ultraq-thymeleaf-thymeleaf-layout-dialect = "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.1.0"
 org-apache-derby-derby = { module = "org.apache.derby:derby", version.ref = "org-apache-derby" }
 org-apache-derby-derbytools = { module = "org.apache.derby:derbytools", version.ref = "org-apache-derby" }
