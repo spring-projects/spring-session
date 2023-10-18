@@ -7,7 +7,7 @@ org-codehaus-groovy = "3.0.17"
 org-gretty = "4.1.0"
 org-mongodb = "4.8.2"
 org-slf4j = "2.0.7"
-org-springframework-boot = "3.0.7"
+org-springframework-boot = "3.0.11"
 org-testcontainers = "1.17.6"
 
 [libraries]
