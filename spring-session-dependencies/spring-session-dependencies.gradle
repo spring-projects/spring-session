@@ -1,0 +1,46 @@
+plugins {
+    id 'java-platform'
+}
+
+javaPlatform {
+    allowDependencies()
+}
+
+dependencies {
+    api platform(libs.io.projectreactor.reactor.bom)
+    api platform(libs.com.fasterxml.jackson.jackson.bom)
+    api platform(libs.org.junit.junit.bom)
+    api platform(libs.org.mockito.mockito.bom)
+    api platform(libs.org.springframework.spring.framework.bom)
+    api platform(libs.org.springframework.data.spring.data.bom)
+    api platform(libs.org.springframework.security.spring.security.bom)
+    api platform(libs.org.testcontainers.testcontainers.bom)
+    constraints {
+        api libs.com.hazelcast
+        api libs.org.aspectj.aspectjweaver
+        api libs.ch.qos.logback.logback.core
+        api libs.com.google.code.findbugs.jsr305
+        api libs.com.h2database.h2
+        api libs.com.ibm.db2.jcc
+        api libs.com.microsoft.sqlserver.mssql.jdbc
+        api libs.com.oracle.database.jdbc.ojdbc8
+        api libs.com.zaxxer.hikariCP
+        api libs.edu.umd.cs.mtc.multithreadedtc
+        api libs.io.lettuce.lettuce.core
+        api libs.jakarta.servlet.jakarta.servlet.api
+        api libs.jakarta.websocket.jakarta.websocket.api
+        api libs.jakarta.websocket.jakarta.websocket.client.api
+        api libs.mysql.mysql.connector.java
+        api libs.org.apache.derby.derby
+        api libs.org.apache.derby.derbytools
+        api libs.org.assertj.assertj.core
+        api libs.org.hamcrest
+        api libs.org.hsqldb
+        api libs.org.mariadb.jdbc.mariadb.java.client
+        api libs.org.mongodb.mongodb.driver.core
+        api libs.org.mongodb.mongodb.driver.sync
+        api libs.org.mongodb.mongodb.driver.reactivestreams
+        api libs.org.postgresql
+    }
+}
+

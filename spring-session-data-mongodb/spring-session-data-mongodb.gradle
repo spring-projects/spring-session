@@ -3,6 +3,7 @@ apply plugin: 'io.spring.convention.spring-module'
 description = "Spring Session and Spring MongoDB integration"
 
 dependencies {
+    management platform(project(":spring-session-dependencies"))
 
     api project(':spring-session-core')
 

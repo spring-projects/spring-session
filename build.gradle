@@ -24,6 +24,11 @@ buildscript {
 	}
 }
 
+plugins {
+	id "com.github.ben-manes.versions"
+	id "nl.littlerobots.version-catalog-update" version "0.8.1"
+}
+
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'org.springframework.security.update-dependencies'
 

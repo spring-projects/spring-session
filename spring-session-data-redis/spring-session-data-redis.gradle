@@ -3,6 +3,7 @@ apply plugin: 'io.spring.convention.spring-module'
 description = "Spring Session Redis implementation"
 
 dependencies {
+	management platform(project(":spring-session-dependencies"))
 	api project(':spring-session-core')
 	api ("org.springframework.data:spring-data-redis") {
 		exclude group: "org.slf4j", module: 'jcl-over-slf4j'

@@ -1,11 +1,12 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
 dependencies {
-    implementation project(':spring-session-data-mongodb')
-    implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
-    implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
-    implementation "org.thymeleaf.extras:thymeleaf-extras-springsecurity6"
+    management platform(project(":spring-session-dependencies"))
+    implementation  project(':spring-session-data-mongodb')
+    implementation  "org.springframework.boot:spring-boot-starter-web"
+    implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
+    implementation  "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+    implementation  "org.thymeleaf.extras:thymeleaf-extras-springsecurity6"
     implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-testcontainers"
