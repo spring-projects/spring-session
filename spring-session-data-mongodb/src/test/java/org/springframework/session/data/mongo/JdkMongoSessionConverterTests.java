@@ -30,7 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rob Winch
  * @author Greg Turnquist
  */
-public class JdkMongoSessionConverterTest extends AbstractMongoSessionConverterTest {
+public class JdkMongoSessionConverterTests extends AbstractMongoSessionConverterTests {
 
 	Duration inactiveInterval = Duration.ofMinutes(30);
 

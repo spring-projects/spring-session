@@ -55,7 +55,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Greg Turnquist
  */
 @ExtendWith(MockitoExtension.class)
-public class ReactiveMongoSessionRepositoryTest {
+public class ReactiveMongoSessionRepositoryTests {
 
 	@Mock
 	private AbstractMongoSessionConverter converter;
