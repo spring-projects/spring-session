@@ -31,7 +31,7 @@ class WebSessionSecurityRuntimeHints implements RuntimeHintsRegistrar {
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
 		if (!ClassUtils.isPresent("org.springframework.web.server.WebSession", classLoader) || !ClassUtils
-				.isPresent("org.springframework.security.web.server.csrf.DefaultCsrfToken", classLoader)) {
+			.isPresent("org.springframework.security.web.server.csrf.DefaultCsrfToken", classLoader)) {
 			return;
 		}
 		hints.serialization().registerType(DefaultCsrfToken.class);

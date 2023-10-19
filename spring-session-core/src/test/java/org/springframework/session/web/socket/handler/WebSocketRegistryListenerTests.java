@@ -150,7 +150,7 @@ class WebSocketRegistryListenerTests {
 		this.listener.onApplicationEvent(this.disconnect);
 
 		Map<String, Map<String, WebSocketSession>> httpSessionIdToWsSessions = (Map<String, Map<String, WebSocketSession>>) ReflectionTestUtils
-				.getField(this.listener, "httpSessionIdToWsSessions");
+			.getField(this.listener, "httpSessionIdToWsSessions");
 		assertThat(httpSessionIdToWsSessions).isEmpty();
 	}
 

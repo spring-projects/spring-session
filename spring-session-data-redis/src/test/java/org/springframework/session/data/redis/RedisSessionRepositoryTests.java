@@ -79,21 +79,21 @@ class RedisSessionRepositoryTests {
 	@Test
 	void constructor_NullRedisOperations_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveRedisSessionRepository(null))
-				.withMessageContaining("sessionRedisOperations cannot be null");
+			.withMessageContaining("sessionRedisOperations cannot be null");
 	}
 
 	@Test
 	void setDefaultMaxInactiveInterval_ValidInterval_ShouldSetInterval() {
 		this.sessionRepository.setDefaultMaxInactiveInterval(Duration.ofMinutes(10));
 		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "defaultMaxInactiveInterval"))
-				.isEqualTo(Duration.ofMinutes(10));
+			.isEqualTo(Duration.ofMinutes(10));
 	}
 
 	@Test
 	void setDefaultMaxInactiveInterval_NullInterval_ShouldThrowException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.sessionRepository.setDefaultMaxInactiveInterval(null))
-				.withMessage("defaultMaxInactiveInterval must not be null");
+			.isThrownBy(() -> this.sessionRepository.setDefaultMaxInactiveInterval(null))
+			.withMessage("defaultMaxInactiveInterval must not be null");
 	}
 
 	@Test
@@ -105,13 +105,13 @@ class RedisSessionRepositoryTests {
 	@Test
 	void setRedisKeyNamespace_NullNamespace_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setRedisKeyNamespace(null))
-				.withMessage("namespace must not be empty");
+			.withMessage("namespace must not be empty");
 	}
 
 	@Test
 	void setRedisKeyNamespace_EmptyNamespace_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setRedisKeyNamespace(" "))
-				.withMessage("namespace must not be empty");
+			.withMessage("namespace must not be empty");
 	}
 
 	@Test
@@ -123,27 +123,27 @@ class RedisSessionRepositoryTests {
 	@Test
 	void setFlushMode_NullFlushMode_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setFlushMode(null))
-				.withMessage("flushMode must not be null");
+			.withMessage("flushMode must not be null");
 	}
 
 	@Test
 	void setSaveMode_ValidSaveMode_ShouldSetSaveMode() {
 		this.sessionRepository.setSaveMode(SaveMode.ON_GET_ATTRIBUTE);
 		assertThat(ReflectionTestUtils.getField(this.sessionRepository, "saveMode"))
-				.isEqualTo(SaveMode.ON_GET_ATTRIBUTE);
+			.isEqualTo(SaveMode.ON_GET_ATTRIBUTE);
 	}
 
 	@Test
 	void setSaveMode_NullSaveMode_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setSaveMode(null))
-				.withMessage("saveMode must not be null");
+			.withMessage("saveMode must not be null");
 	}
 
 	@Test
 	void createSession_DefaultMaxInactiveInterval_ShouldCreateSession() {
 		RedisSession redisSession = this.sessionRepository.createSession();
 		assertThat(redisSession.getMaxInactiveInterval())
-				.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
+			.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
 		verifyNoMoreInteractions(this.sessionRedisOperations);
 		verifyNoMoreInteractions(this.sessionHashOperations);
 	}
@@ -304,7 +304,7 @@ class RedisSessionRepositoryTests {
 	void save_SessionNotExists_ShouldThrowException() {
 		RedisSession session = createTestSession();
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(session))
-				.withMessage("Session was invalidated");
+			.withMessage("Session was invalidated");
 		verify(this.sessionRedisOperations).hasKey(eq(TEST_SESSION_KEY));
 		verifyNoMoreInteractions(this.sessionRedisOperations);
 		verifyNoMoreInteractions(this.sessionHashOperations);
@@ -315,16 +315,16 @@ class RedisSessionRepositoryTests {
 	void findById_SessionExists_ShouldReturnSession() {
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
-				.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
-						RedisSessionMapper.LAST_ACCESSED_TIME_KEY, now.toEpochMilli(),
-						RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS,
-						RedisSessionMapper.ATTRIBUTE_PREFIX + "attribute1", "value1"));
+			.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+					RedisSessionMapper.LAST_ACCESSED_TIME_KEY, now.toEpochMilli(),
+					RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS,
+					RedisSessionMapper.ATTRIBUTE_PREFIX + "attribute1", "value1"));
 		RedisSession session = this.sessionRepository.findById(TEST_SESSION_ID);
 		assertThat(session.getId()).isEqualTo(TEST_SESSION_ID);
 		assertThat(session.getCreationTime()).isEqualTo(Instant.EPOCH);
 		assertThat(session.getLastAccessedTime()).isEqualTo(now);
 		assertThat(session.getMaxInactiveInterval())
-				.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
+			.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
 		assertThat(session.getAttributeNames()).isEqualTo(Collections.singleton("attribute1"));
 		assertThat(session.<String>getAttribute("attribute1")).isEqualTo("value1");
 		verify(this.sessionRedisOperations).opsForHash();
@@ -337,10 +337,10 @@ class RedisSessionRepositoryTests {
 	@SuppressWarnings("unchecked")
 	void findById_SessionExistsAndIsExpired_ShouldReturnNull() {
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
-				.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
-						RedisSessionMapper.LAST_ACCESSED_TIME_KEY, Instant.EPOCH.toEpochMilli(),
-						RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS,
-						RedisSessionMapper.ATTRIBUTE_PREFIX + "attribute1", "value1"));
+			.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+					RedisSessionMapper.LAST_ACCESSED_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+					RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS,
+					RedisSessionMapper.ATTRIBUTE_PREFIX + "attribute1", "value1"));
 		assertThat(this.sessionRepository.findById(TEST_SESSION_ID)).isNull();
 		verify(this.sessionRedisOperations).opsForHash();
 		verify(this.sessionHashOperations).entries(eq(TEST_SESSION_KEY));
@@ -379,7 +379,7 @@ class RedisSessionRepositoryTests {
 
 	private static Instant getExpiry(RedisSession session) {
 		return Instant.ofEpochMilli(session.getLastAccessedTime().toEpochMilli())
-				.plusSeconds(session.getMaxInactiveInterval().getSeconds());
+			.plusSeconds(session.getMaxInactiveInterval().getSeconds());
 	}
 
 	private static Map mapOf(Object... objects) {

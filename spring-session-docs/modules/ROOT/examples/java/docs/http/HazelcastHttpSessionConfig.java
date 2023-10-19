@@ -41,11 +41,12 @@ public class HazelcastHttpSessionConfig {
 	public HazelcastInstance hazelcastInstance() {
 		Config config = new Config();
 		AttributeConfig attributeConfig = new AttributeConfig()
-				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
-				.setExtractorClassName(PrincipalNameExtractor.class.getName());
+			.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+			.setExtractorClassName(PrincipalNameExtractor.class.getName());
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME) // <2>
-				.addAttributeConfig(attributeConfig).addIndexConfig(
-						new IndexConfig(IndexType.HASH, HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
+			.addAttributeConfig(attributeConfig)
+			.addIndexConfig(
+					new IndexConfig(IndexType.HASH, HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
 		SerializerConfig serializerConfig = new SerializerConfig();
 		serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
 		config.getSerializationConfig().addSerializerConfig(serializerConfig); // <3>

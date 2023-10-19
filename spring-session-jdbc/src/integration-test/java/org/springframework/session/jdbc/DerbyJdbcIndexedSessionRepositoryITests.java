@@ -43,7 +43,8 @@ class DerbyJdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSession
 		@Bean
 		EmbeddedDatabase dataSource() {
 			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.DERBY)
-					.addScript("org/springframework/session/jdbc/schema-derby.sql").build();
+				.addScript("org/springframework/session/jdbc/schema-derby.sql")
+				.build();
 		}
 
 	}

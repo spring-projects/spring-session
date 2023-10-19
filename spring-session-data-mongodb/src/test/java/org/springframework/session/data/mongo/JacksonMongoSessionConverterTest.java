@@ -89,7 +89,7 @@ public class JacksonMongoSessionConverterTest extends AbstractMongoSessionConver
 	void shouldNotAllowNullObjectMapperToBeInjected() {
 
 		Assertions.assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JacksonMongoSessionConverter((ObjectMapper) null));
+			.isThrownBy(() -> new JacksonMongoSessionConverter((ObjectMapper) null));
 	}
 
 	@Test

@@ -200,7 +200,7 @@ class DefaultCookieSerializerTests {
 	void setDomainNameAndDomainNamePatternThrows() {
 		this.serializer.setDomainName("example.com");
 		assertThatIllegalStateException().isThrownBy(() -> this.serializer.setDomainNamePattern(".*"))
-				.withMessage("Cannot set both domainName and domainNamePattern");
+			.withMessage("Cannot set both domainName and domainNamePattern");
 	}
 
 	// --- domainNamePattern ---
@@ -229,7 +229,7 @@ class DefaultCookieSerializerTests {
 	void setDomainNamePatternAndDomainNameThrows() {
 		this.serializer.setDomainNamePattern(".*");
 		assertThatIllegalStateException().isThrownBy(() -> this.serializer.setDomainName("example.com"))
-				.withMessage("Cannot set both domainName and domainNamePattern");
+			.withMessage("Cannot set both domainName and domainNamePattern");
 	}
 
 	// --- cookieName ---
@@ -251,7 +251,7 @@ class DefaultCookieSerializerTests {
 	@Test
 	void setCookieNameNullThrows() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.serializer.setCookieName(null))
-				.withMessage("cookieName cannot be null");
+			.withMessage("cookieName cannot be null");
 	}
 
 	// --- cookiePath ---

@@ -49,7 +49,7 @@ class RedisSerializerTest {
 		assertThat(this.sessionRedisTemplate).isNotNull();
 		assertThat(this.sessionRedisTemplate.getDefaultSerializer()).isNotNull();
 		assertThat(this.sessionRedisTemplate.getDefaultSerializer())
-				.isInstanceOf(GenericJackson2JsonRedisSerializer.class);
+			.isInstanceOf(GenericJackson2JsonRedisSerializer.class);
 	}
 
 	@TestConfiguration

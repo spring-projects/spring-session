@@ -131,7 +131,7 @@ public class SpringHttpSessionConfiguration implements InitializingBean, Applica
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		if (ClassUtils.isPresent("org.springframework.security.web.authentication.RememberMeServices", null)) {
 			this.usesSpringSessionRememberMeServices = !ObjectUtils
-					.isEmpty(applicationContext.getBeanNamesForType(SpringSessionRememberMeServices.class));
+				.isEmpty(applicationContext.getBeanNamesForType(SpringSessionRememberMeServices.class));
 		}
 	}
 

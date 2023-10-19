@@ -47,11 +47,12 @@ final class HazelcastITestUtils {
 		networkConfig.setPort(0);
 		networkConfig.getJoin().getAutoDetectionConfig().setEnabled(false);
 		AttributeConfig attributeConfig = new AttributeConfig()
-				.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
-				.setExtractorClassName(PrincipalNameExtractor.class.getName());
+			.setName(HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE)
+			.setExtractorClassName(PrincipalNameExtractor.class.getName());
 		config.getMapConfig(HazelcastIndexedSessionRepository.DEFAULT_SESSION_MAP_NAME)
-				.addAttributeConfig(attributeConfig).addIndexConfig(
-						new IndexConfig(IndexType.HASH, HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
+			.addAttributeConfig(attributeConfig)
+			.addIndexConfig(
+					new IndexConfig(IndexType.HASH, HazelcastIndexedSessionRepository.PRINCIPAL_NAME_ATTRIBUTE));
 		SerializerConfig serializerConfig = new SerializerConfig();
 		serializerConfig.setImplementation(new HazelcastSessionSerializer()).setTypeClass(MapSession.class);
 		config.getSerializationConfig().addSerializerConfig(serializerConfig);

@@ -54,7 +54,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 	void save_NewSession_ShouldSaveSession() {
 		RedisSession session = createAndSaveSession(Instant.now());
 		assertThat(session.getMaxInactiveInterval())
-				.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
+			.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
 		assertThat(session.getAttributeNames()).isEqualTo(Collections.singleton("attribute1"));
 		assertThat(session.<String>getAttribute("attribute1")).isEqualTo("value1");
 	}
@@ -69,7 +69,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		RedisSession session = createAndSaveSession(Instant.now());
 		this.sessionRepository.deleteById(session.getId());
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(session))
-				.withMessage("Session was invalidated");
+			.withMessage("Session was invalidated");
 	}
 
 	@Test
@@ -160,7 +160,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		updateSession(session, Instant.now(), "attribute1", "value1");
 		String newSessionId = session.changeSessionId();
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(session))
-				.withMessage("Session was invalidated");
+			.withMessage("Session was invalidated");
 		assertThat(this.sessionRepository.findById(newSessionId)).isNull();
 		assertThat(this.sessionRepository.findById(originalSessionId)).isNull();
 	}
@@ -177,7 +177,7 @@ class RedisSessionRepositoryITests extends AbstractRedisITests {
 		updateSession(copy2, now.plusSeconds(2L), "attribute3", "value3");
 		String newSessionId2 = copy2.changeSessionId();
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.save(copy2))
-				.withMessage("Session was invalidated");
+			.withMessage("Session was invalidated");
 		assertThat(this.sessionRepository.findById(newSessionId1)).isNotNull();
 		assertThat(this.sessionRepository.findById(newSessionId2)).isNull();
 		assertThat(this.sessionRepository.findById(originalSessionId)).isNull();

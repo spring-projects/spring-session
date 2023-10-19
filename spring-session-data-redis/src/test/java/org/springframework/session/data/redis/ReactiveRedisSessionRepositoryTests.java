@@ -79,7 +79,7 @@ class ReactiveRedisSessionRepositoryTests {
 	@Test
 	void constructorWithNullReactiveRedisOperations() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveRedisSessionRepository(null))
-				.withMessageContaining("sessionRedisOperations cannot be null");
+			.withMessageContaining("sessionRedisOperations cannot be null");
 	}
 
 	@Test
@@ -92,13 +92,13 @@ class ReactiveRedisSessionRepositoryTests {
 	@Test
 	void nullRedisKeyNamespace() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setRedisKeyNamespace(null))
-				.withMessage("namespace cannot be null or empty");
+			.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
 	void emptyRedisKeyNamespace() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setRedisKeyNamespace(""))
-				.withMessage("namespace cannot be null or empty");
+			.withMessage("namespace cannot be null or empty");
 	}
 
 	@Test
@@ -112,9 +112,9 @@ class ReactiveRedisSessionRepositoryTests {
 	@Test
 	void createSessionDefaultMaxInactiveInterval() {
 		StepVerifier.create(this.repository.createSession())
-				.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval())
-						.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)))
-				.verifyComplete();
+			.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval())
+				.isEqualTo(Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS)))
+			.verifyComplete();
 	}
 
 	@Test
@@ -123,8 +123,8 @@ class ReactiveRedisSessionRepositoryTests {
 		this.repository.setDefaultMaxInactiveInterval(interval);
 
 		StepVerifier.create(this.repository.createSession())
-				.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval()).isEqualTo(interval))
-				.verifyComplete();
+			.consumeNextWith((session) -> assertThat(session.getMaxInactiveInterval()).isEqualTo(interval))
+			.verifyComplete();
 	}
 
 	@Test
@@ -145,11 +145,11 @@ class ReactiveRedisSessionRepositoryTests {
 		Map<String, Object> delta = this.delta.getAllValues().get(0);
 		assertThat(delta.size()).isEqualTo(3);
 		assertThat(delta.get(RedisSessionMapper.CREATION_TIME_KEY))
-				.isEqualTo(newSession.getCreationTime().toEpochMilli());
+			.isEqualTo(newSession.getCreationTime().toEpochMilli());
 		assertThat(delta.get(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY))
-				.isEqualTo((int) newSession.getMaxInactiveInterval().getSeconds());
+			.isEqualTo((int) newSession.getMaxInactiveInterval().getSeconds());
 		assertThat(delta.get(RedisSessionMapper.LAST_ACCESSED_TIME_KEY))
-				.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
+			.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
 	}
 
 	@Test
@@ -172,11 +172,11 @@ class ReactiveRedisSessionRepositoryTests {
 		Map<String, Object> delta = this.delta.getAllValues().get(0);
 		assertThat(delta.size()).isEqualTo(3);
 		assertThat(delta.get(RedisSessionMapper.CREATION_TIME_KEY))
-				.isEqualTo(newSession.getCreationTime().toEpochMilli());
+			.isEqualTo(newSession.getCreationTime().toEpochMilli());
 		assertThat(delta.get(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY))
-				.isEqualTo((int) newSession.getMaxInactiveInterval().getSeconds());
+			.isEqualTo((int) newSession.getMaxInactiveInterval().getSeconds());
 		assertThat(delta.get(RedisSessionMapper.LAST_ACCESSED_TIME_KEY))
-				.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
+			.isEqualTo(newSession.getLastAccessedTime().toEpochMilli());
 	}
 
 	@Test
@@ -211,8 +211,8 @@ class ReactiveRedisSessionRepositoryTests {
 		verifyNoMoreInteractions(this.redisOperations);
 		verifyNoMoreInteractions(this.hashOperations);
 
-		assertThat(this.delta.getAllValues().get(0)).isEqualTo(
-				map(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, session.getLastAccessedTime().toEpochMilli()));
+		assertThat(this.delta.getAllValues().get(0))
+			.isEqualTo(map(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, session.getLastAccessedTime().toEpochMilli()));
 	}
 
 	@Test
@@ -258,7 +258,7 @@ class ReactiveRedisSessionRepositoryTests {
 		verifyNoMoreInteractions(this.hashOperations);
 
 		assertThat(this.delta.getAllValues().get(0))
-				.isEqualTo(map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), null));
+			.isEqualTo(map(RedisIndexedSessionRepository.getSessionAttrNameKey(attrName), null));
 	}
 
 	@Test
@@ -328,10 +328,10 @@ class ReactiveRedisSessionRepositoryTests {
 			assertThat(session.<String>getAttribute(attribute1)).isEqualTo(expected.getAttribute(attribute1));
 			assertThat(session.<String>getAttribute(attribute2)).isEqualTo(expected.getAttribute(attribute2));
 			assertThat(session.getCreationTime().truncatedTo(ChronoUnit.MILLIS))
-					.isEqualTo(expected.getCreationTime().truncatedTo(ChronoUnit.MILLIS));
+				.isEqualTo(expected.getCreationTime().truncatedTo(ChronoUnit.MILLIS));
 			assertThat(session.getMaxInactiveInterval()).isEqualTo(expected.getMaxInactiveInterval());
 			assertThat(session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
-					.isEqualTo(expected.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS));
+				.isEqualTo(expected.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS));
 		}).verifyComplete();
 	}
 

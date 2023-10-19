@@ -39,7 +39,7 @@ class MapSessionTests {
 	@Test
 	void constructorNullSession() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new MapSession((Session) null))
-				.withMessage("session cannot be null");
+			.withMessage("session cannot be null");
 	}
 
 	@Test
@@ -70,7 +70,7 @@ class MapSessionTests {
 	@Test
 	void getRequiredAttributeWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.session.getRequiredAttribute("attrName"))
-				.withMessage("Required attribute 'attrName' is missing.");
+			.withMessage("Required attribute 'attrName' is missing.");
 	}
 
 	@Test

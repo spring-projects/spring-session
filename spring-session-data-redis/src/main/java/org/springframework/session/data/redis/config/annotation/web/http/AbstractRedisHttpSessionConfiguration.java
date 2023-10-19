@@ -119,7 +119,7 @@ public abstract class AbstractRedisHttpSessionConfiguration<T extends SessionRep
 			@SpringSessionRedisConnectionFactory ObjectProvider<RedisConnectionFactory> springSessionRedisConnectionFactory,
 			ObjectProvider<RedisConnectionFactory> redisConnectionFactory) {
 		this.redisConnectionFactory = springSessionRedisConnectionFactory
-				.getIfAvailable(redisConnectionFactory::getObject);
+			.getIfAvailable(redisConnectionFactory::getObject);
 	}
 
 	protected RedisConnectionFactory getRedisConnectionFactory() {

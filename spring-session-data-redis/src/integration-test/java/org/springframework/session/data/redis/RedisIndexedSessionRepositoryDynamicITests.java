@@ -81,7 +81,7 @@ class RedisIndexedSessionRepositoryDynamicITests extends AbstractRedisITests {
 		this.context.refresh();
 		this.sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		RedisOperations<String, Object> redisOperations = (RedisOperations<String, Object>) ReflectionTestUtils
-				.getField(this.sessionRepository, "sessionRedisOperations");
+			.getField(this.sessionRepository, "sessionRedisOperations");
 		this.spyOperations = spy(redisOperations);
 		ReflectionTestUtils.setField(this.sessionRepository, "sessionRedisOperations", this.spyOperations);
 	}

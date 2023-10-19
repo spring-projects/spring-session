@@ -147,7 +147,8 @@ class IndexDocTests {
 	void newReactiveRedisSessionRepository() {
 		LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory();
 		RedisSerializationContext<String, Object> serializationContext = RedisSerializationContext
-				.<String, Object>newSerializationContext(new JdkSerializationRedisSerializer()).build();
+			.<String, Object>newSerializationContext(new JdkSerializationRedisSerializer())
+			.build();
 
 		// tag::new-reactiveredissessionrepository[]
 		// ... create and configure connectionFactory and serializationContext ...

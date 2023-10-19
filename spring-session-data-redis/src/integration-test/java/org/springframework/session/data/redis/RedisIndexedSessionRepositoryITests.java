@@ -119,7 +119,7 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
 		assertThat(session.<String>getAttribute(expectedAttributeName))
-				.isEqualTo(toSave.getAttribute(expectedAttributeName));
+			.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		this.registry.clear();
 
@@ -127,11 +127,11 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 		assertThat(this.repository.findById(toSave.getId())).isNull();
 		assertThat(this.registry.<SessionDestroyedEvent>getEvent(toSave.getId()))
-				.isInstanceOf(SessionDestroyedEvent.class);
+			.isInstanceOf(SessionDestroyedEvent.class);
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members()).doesNotContain(toSave.getId());
 
 		assertThat(this.registry.getEvent(toSave.getId()).getSession().<String>getAttribute(expectedAttributeName))
-				.isEqualTo(expectedAttributeValue);
+			.isEqualTo(expectedAttributeValue);
 	}
 
 	@Test

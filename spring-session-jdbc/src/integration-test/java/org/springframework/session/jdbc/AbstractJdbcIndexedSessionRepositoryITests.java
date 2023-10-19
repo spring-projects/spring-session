@@ -134,7 +134,7 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(session.getDelta()).isEmpty();
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
 		assertThat(session.<String>getAttribute(expectedAttributeName))
-				.isEqualTo(toSave.getAttribute(expectedAttributeName));
+			.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		this.repository.deleteById(toSave.getId());
 
@@ -190,7 +190,7 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 		assertThat(session.getDelta()).isEmpty();
 		assertThat(session.isExpired()).isFalse();
 		assertThat(session.getLastAccessedTime().truncatedTo(ChronoUnit.MILLIS))
-				.isEqualTo(lastAccessedTime.truncatedTo(ChronoUnit.MILLIS));
+			.isEqualTo(lastAccessedTime.truncatedTo(ChronoUnit.MILLIS));
 	}
 
 	@Test
@@ -816,7 +816,7 @@ abstract class AbstractJdbcIndexedSessionRepositoryITests {
 			// with DB specific upsert configured we're fine
 			assertThatCode(() -> this.repository.save(session)).doesNotThrowAnyException();
 			assertThat((String) this.repository.findById(session.getId()).getAttribute(attributeName))
-					.isEqualTo(attributeValue);
+				.isEqualTo(attributeValue);
 		}
 	}
 

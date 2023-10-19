@@ -65,14 +65,18 @@ class RestMockMvcTests {
 
 	@BeforeEach
 	void setup() {
-		this.mvc = MockMvcBuilders.webAppContextSetup(this.context).alwaysDo(print())
-				.addFilters(this.sessionRepositoryFilter).apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
+			.alwaysDo(print())
+			.addFilters(this.sessionRepositoryFilter)
+			.apply(springSecurity())
+			.build();
 	}
 
 	@Test
 	void noSessionOnNoCredentials() throws Exception {
-		this.mvc.perform(get("/")).andExpect(header().doesNotExist("X-Auth-Token"))
-				.andExpect(status().isUnauthorized());
+		this.mvc.perform(get("/"))
+			.andExpect(header().doesNotExist("X-Auth-Token"))
+			.andExpect(status().isUnauthorized());
 	}
 
 	@WithMockUser

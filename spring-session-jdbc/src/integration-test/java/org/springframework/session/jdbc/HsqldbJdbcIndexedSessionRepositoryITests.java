@@ -43,7 +43,8 @@ class HsqldbJdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSessio
 		@Bean
 		EmbeddedDatabase dataSource() {
 			return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.HSQL)
-					.addScript("org/springframework/session/jdbc/schema-hsqldb.sql").build();
+				.addScript("org/springframework/session/jdbc/schema-hsqldb.sql")
+				.build();
 		}
 
 	}
