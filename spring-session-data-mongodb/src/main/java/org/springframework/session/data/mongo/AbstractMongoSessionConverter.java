@@ -86,13 +86,13 @@ public abstract class AbstractMongoSessionConverter implements GenericConverter 
 		LOG.info("Creating TTL index on field " + EXPIRE_AT_FIELD_NAME);
 
 		sessionCollectionIndexes
-				.ensureIndex(new Index(EXPIRE_AT_FIELD_NAME, Sort.Direction.ASC).named(EXPIRE_AT_FIELD_NAME).expire(0));
+			.ensureIndex(new Index(EXPIRE_AT_FIELD_NAME, Sort.Direction.ASC).named(EXPIRE_AT_FIELD_NAME).expire(0));
 	}
 
 	protected String extractPrincipal(MongoSession expiringSession) {
 
 		return this.indexResolver.resolveIndexesFor(expiringSession)
-				.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
+			.get(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 	}
 
 	public Set<ConvertiblePair> getConvertibleTypes() {

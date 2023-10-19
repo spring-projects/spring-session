@@ -298,7 +298,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 			RedisSessionRepository.this.sessionRedisOperations.opsForHash().putAll(key, new HashMap<>(this.delta));
 			RedisSessionRepository.this.sessionRedisOperations.expireAt(key,
 					Instant.ofEpochMilli(getLastAccessedTime().toEpochMilli())
-							.plusSeconds(getMaxInactiveInterval().getSeconds()));
+						.plusSeconds(getMaxInactiveInterval().getSeconds()));
 			this.delta.clear();
 		}
 

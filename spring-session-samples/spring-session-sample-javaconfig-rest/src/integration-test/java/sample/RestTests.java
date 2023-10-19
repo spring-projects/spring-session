@@ -60,8 +60,8 @@ class RestTests {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		assertThatExceptionOfType(HttpClientErrorException.class)
-				.isThrownBy(() -> getForUser(this.baseUrl + "/", headers, String.class))
-				.satisfies((e) -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
+			.isThrownBy(() -> getForUser(this.baseUrl + "/", headers, String.class))
+			.satisfies((e) -> assertThat(e.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED));
 	}
 
 	@Test

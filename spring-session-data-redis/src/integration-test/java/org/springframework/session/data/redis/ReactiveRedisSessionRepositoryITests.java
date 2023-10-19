@@ -81,7 +81,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
 		assertThat(session.<String>getAttribute(expectedAttributeName))
-				.isEqualTo(toSave.getAttribute(expectedAttributeName));
+			.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		this.repository.deleteById(toSave.getId()).block();
 
@@ -229,7 +229,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		toSave.setLastAccessedTime(Instant.now());
 
 		assertThatIllegalStateException().isThrownBy(() -> this.repository.save(toSave).block())
-				.withMessage("Session was invalidated");
+			.withMessage("Session was invalidated");
 
 		assertThat(this.repository.findById(sessionId).block()).isNull();
 		assertThat(this.repository.findById(session.getId()).block()).isNotNull();
@@ -240,7 +240,7 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 	@SuppressWarnings("unchecked")
 	void saveChangeSessionIdAfterCheckWhenOriginalKeyDoesNotExistsThenIgnoreError() {
 		ReactiveRedisOperations<String, Object> sessionRedisOperations = (ReactiveRedisOperations<String, Object>) ReflectionTestUtils
-				.getField(this.repository, "sessionRedisOperations");
+			.getField(this.repository, "sessionRedisOperations");
 		ReactiveRedisOperations<String, Object> spyOperations = spy(sessionRedisOperations);
 		ReflectionTestUtils.setField(this.repository, "sessionRedisOperations", spyOperations);
 
@@ -267,7 +267,8 @@ class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 		ReactiveHashOperations<String, Object, Object> opsForHash = spy(this.sessionRedisOperations.opsForHash());
 		given(spy.opsForHash()).willReturn(opsForHash);
 		willAnswer((invocation) -> Mono.delay(Duration.ofSeconds(1)).then((Mono<Void>) invocation.callRealMethod()))
-				.given(opsForHash).putAll(anyString(), any());
+			.given(opsForHash)
+			.putAll(anyString(), any());
 		RedisSession toSave = this.repository.createSession().block();
 
 		String expectedAttributeName = "a";

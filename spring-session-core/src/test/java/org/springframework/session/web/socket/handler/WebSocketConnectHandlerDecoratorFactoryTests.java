@@ -61,7 +61,7 @@ class WebSocketConnectHandlerDecoratorFactoryTests {
 	@Test
 	void constructorNullEventPublisher() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new WebSocketConnectHandlerDecoratorFactory(null))
-				.withMessage("eventPublisher cannot be null");
+			.withMessage("eventPublisher cannot be null");
 	}
 
 	@Test
@@ -78,7 +78,7 @@ class WebSocketConnectHandlerDecoratorFactoryTests {
 	void decorateAfterConnectionEstablishedEventError() throws Exception {
 		WebSocketHandler decorated = this.factory.decorate(this.delegate);
 		willThrow(new IllegalStateException("Test throw on publishEvent")).given(this.eventPublisher)
-				.publishEvent(any(ApplicationEvent.class));
+			.publishEvent(any(ApplicationEvent.class));
 
 		decorated.afterConnectionEstablished(this.session);
 

@@ -79,7 +79,7 @@ public abstract class AbstractMongoRepositoryITest extends AbstractITest {
 		assertThat(session.getId()).isEqualTo(toSave.getId());
 		assertThat(session.getAttributeNames()).isEqualTo(toSave.getAttributeNames());
 		assertThat(session.<String>getAttribute(expectedAttributeName))
-				.isEqualTo(toSave.getAttribute(expectedAttributeName));
+			.isEqualTo(toSave.getAttribute(expectedAttributeName));
 
 		this.repository.deleteById(toSave.getId());
 
@@ -400,7 +400,7 @@ public abstract class AbstractMongoRepositoryITest extends AbstractITest {
 		public MongoOperations mongoOperations(MongoDBContainer mongoContainer) {
 
 			MongoClient mongo = MongoClients
-					.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
+				.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
 			return new MongoTemplate(mongo, "test");
 		}
 

@@ -33,16 +33,17 @@ class CommonSessionRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-		Arrays.asList(TypeReference.of(String.class), TypeReference.of(ArrayList.class),
-				TypeReference.of(TreeSet.class), TypeReference.of(Number.class), TypeReference.of(Long.class),
-				TypeReference.of(Integer.class), TypeReference.of(StackTraceElement.class),
-				TypeReference.of(Throwable.class), TypeReference.of(Exception.class),
-				TypeReference.of(RuntimeException.class),
-				TypeReference.of("java.util.Collections$UnmodifiableCollection"),
-				TypeReference.of("java.util.Collections$UnmodifiableList"),
-				TypeReference.of("java.util.Collections$EmptyList"),
-				TypeReference.of("java.util.Collections$UnmodifiableRandomAccessList"),
-				TypeReference.of("java.util.Collections$UnmodifiableSet")).forEach(hints.serialization()::registerType);
+		Arrays
+			.asList(TypeReference.of(String.class), TypeReference.of(ArrayList.class), TypeReference.of(TreeSet.class),
+					TypeReference.of(Number.class), TypeReference.of(Long.class), TypeReference.of(Integer.class),
+					TypeReference.of(StackTraceElement.class), TypeReference.of(Throwable.class),
+					TypeReference.of(Exception.class), TypeReference.of(RuntimeException.class),
+					TypeReference.of("java.util.Collections$UnmodifiableCollection"),
+					TypeReference.of("java.util.Collections$UnmodifiableList"),
+					TypeReference.of("java.util.Collections$EmptyList"),
+					TypeReference.of("java.util.Collections$UnmodifiableRandomAccessList"),
+					TypeReference.of("java.util.Collections$UnmodifiableSet"))
+			.forEach(hints.serialization()::registerType);
 	}
 
 }

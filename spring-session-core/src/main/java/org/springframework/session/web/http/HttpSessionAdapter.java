@@ -118,7 +118,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 			if (oldValue instanceof HttpSessionBindingListener) {
 				try {
 					((HttpSessionBindingListener) oldValue)
-							.valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
+						.valueUnbound(new HttpSessionBindingEvent(this, name, oldValue));
 				}
 				catch (Throwable th) {
 					logger.error("Error invoking session binding event listener", th);

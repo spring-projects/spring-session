@@ -48,7 +48,7 @@ class SpringSessionRememberMeServicesTests {
 	void create() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "rememberMeParameterName"))
-				.isEqualTo("remember-me");
+			.isEqualTo("remember-me");
 		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "alwaysRemember")).isEqualTo(false);
 		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "validitySeconds")).isEqualTo(2592000);
 	}
@@ -58,14 +58,14 @@ class SpringSessionRememberMeServicesTests {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		this.rememberMeServices.setRememberMeParameterName("test-param");
 		assertThat(ReflectionTestUtils.getField(this.rememberMeServices, "rememberMeParameterName"))
-				.isEqualTo("test-param");
+			.isEqualTo("test-param");
 	}
 
 	@Test
 	void createWithNullParameter() {
 		this.rememberMeServices = new SpringSessionRememberMeServices();
 		assertThatIllegalArgumentException().isThrownBy(() -> this.rememberMeServices.setRememberMeParameterName(null))
-				.withMessage("rememberMeParameterName cannot be empty or null");
+			.withMessage("rememberMeParameterName cannot be empty or null");
 	}
 
 	@Test

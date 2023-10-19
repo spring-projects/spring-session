@@ -110,7 +110,7 @@ public class ReactiveMongoWebSessionConfiguration
 		}
 
 		this.sessionRepositoryCustomizers
-				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(repository));
+			.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(repository));
 
 		return repository;
 	}
@@ -124,11 +124,11 @@ public class ReactiveMongoWebSessionConfiguration
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 
 		AnnotationAttributes attributes = AnnotationAttributes
-				.fromMap(importMetadata.getAnnotationAttributes(EnableMongoWebSession.class.getName()));
+			.fromMap(importMetadata.getAnnotationAttributes(EnableMongoWebSession.class.getName()));
 
 		if (attributes != null) {
 			this.maxInactiveInterval = Duration
-					.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
+				.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
 		}
 
 		String collectionNameValue = (attributes != null) ? attributes.getString("collectionName") : "";

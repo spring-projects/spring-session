@@ -68,7 +68,7 @@ class SpringSessionWebSessionStoreTests<S extends Session> {
 	@Test
 	void constructorWhenNullRepositoryThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SpringSessionWebSessionStore<S>(null))
-				.withMessage("reactiveSessionRepository cannot be null");
+			.withMessage("reactiveSessionRepository cannot be null");
 	}
 
 	@Test
@@ -248,7 +248,7 @@ class SpringSessionWebSessionStoreTests<S extends Session> {
 	@Test
 	void setClockWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.webSessionStore.setClock(null))
-				.withMessage("clock cannot be null");
+			.withMessage("clock cannot be null");
 	}
 
 	@Test // gh-1114

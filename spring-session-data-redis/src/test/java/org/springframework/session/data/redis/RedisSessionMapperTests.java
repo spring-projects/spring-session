@@ -48,25 +48,25 @@ class RedisSessionMapperTests {
 	@Test
 	void constructor_NullId_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new RedisSessionMapper(null))
-				.withMessage("sessionId must not be empty");
+			.withMessage("sessionId must not be empty");
 	}
 
 	@Test
 	void constructor_EmptyId_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new RedisSessionMapper(" "))
-				.withMessage("sessionId must not be empty");
+			.withMessage("sessionId must not be empty");
 	}
 
 	@Test
 	void apply_NullMap_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply(null))
-				.withMessage("map must not be empty");
+			.withMessage("map must not be empty");
 	}
 
 	@Test
 	void apply_EmptyMap_ShouldThrowException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.mapper.apply(Collections.emptyMap()))
-				.withMessage("map must not be empty");
+			.withMessage("map must not be empty");
 	}
 
 	@Test
@@ -75,7 +75,7 @@ class RedisSessionMapperTests {
 		sessionMap.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, 0L);
 		sessionMap.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1800);
 		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply(sessionMap))
-				.withMessage(RedisSessionMapper.CREATION_TIME_KEY + " key must not be null");
+			.withMessage(RedisSessionMapper.CREATION_TIME_KEY + " key must not be null");
 	}
 
 	@Test
@@ -84,7 +84,7 @@ class RedisSessionMapperTests {
 		sessionMap.put(RedisSessionMapper.CREATION_TIME_KEY, 0L);
 		sessionMap.put(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1800);
 		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply(sessionMap))
-				.withMessage(RedisSessionMapper.LAST_ACCESSED_TIME_KEY + " key must not be null");
+			.withMessage(RedisSessionMapper.LAST_ACCESSED_TIME_KEY + " key must not be null");
 	}
 
 	@Test
@@ -93,7 +93,7 @@ class RedisSessionMapperTests {
 		sessionMap.put(RedisSessionMapper.CREATION_TIME_KEY, 0L);
 		sessionMap.put(RedisSessionMapper.LAST_ACCESSED_TIME_KEY, 0L);
 		assertThatIllegalStateException().isThrownBy(() -> this.mapper.apply(sessionMap))
-				.withMessage(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY + " key must not be null");
+			.withMessage(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY + " key must not be null");
 	}
 
 	@Test

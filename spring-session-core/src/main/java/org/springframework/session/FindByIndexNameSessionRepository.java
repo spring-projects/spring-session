@@ -38,7 +38,7 @@ public interface FindByIndexNameSessionRepository<S extends Session> extends Ses
 	 * @since 1.1
 	 */
 	String PRINCIPAL_NAME_INDEX_NAME = FindByIndexNameSessionRepository.class.getName()
-			.concat(".PRINCIPAL_NAME_INDEX_NAME");
+		.concat(".PRINCIPAL_NAME_INDEX_NAME");
 
 	/**
 	 * Find a {@link Map} of the session id to the {@link Session} of all sessions that

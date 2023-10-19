@@ -35,7 +35,9 @@ public class Config {
 	@Bean
 	public EmbeddedDatabase dataSource() {
 		return new EmbeddedDatabaseBuilder() // <2>
-				.setType(EmbeddedDatabaseType.H2).addScript("org/springframework/session/jdbc/schema-h2.sql").build();
+			.setType(EmbeddedDatabaseType.H2)
+			.addScript("org/springframework/session/jdbc/schema-h2.sql")
+			.build();
 	}
 
 	@Bean

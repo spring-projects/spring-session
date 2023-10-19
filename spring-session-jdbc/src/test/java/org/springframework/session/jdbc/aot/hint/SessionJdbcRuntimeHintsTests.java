@@ -48,8 +48,9 @@ class SessionJdbcRuntimeHintsTests {
 	@Test
 	void aotFactoriesContainsRegistrar() {
 		boolean match = SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
-				.load(RuntimeHintsRegistrar.class).stream()
-				.anyMatch((registrar) -> registrar instanceof SessionJdbcRuntimeHints);
+			.load(RuntimeHintsRegistrar.class)
+			.stream()
+			.anyMatch((registrar) -> registrar instanceof SessionJdbcRuntimeHints);
 		assertThat(match).isTrue();
 	}
 
@@ -58,21 +59,21 @@ class SessionJdbcRuntimeHintsTests {
 	void jdbcSchemasHasHints(String schemaFileName) {
 		this.sessionJdbcRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 		assertThat(RuntimeHintsPredicates.resource().forResource("org/springframework/session/jdbc/" + schemaFileName))
-				.accepts(this.hints);
+			.accepts(this.hints);
 	}
 
 	private static Stream<String> getSchemaFileNames() throws IOException {
 		return Arrays
-				.stream(new PathMatchingResourcePatternResolver()
-						.getResources("classpath*:org/springframework/session/jdbc/schema-*.sql"))
-				.map(Resource::getFilename);
+			.stream(new PathMatchingResourcePatternResolver()
+				.getResources("classpath*:org/springframework/session/jdbc/schema-*.sql"))
+			.map(Resource::getFilename);
 	}
 
 	@Test
 	void dataSourceHasHints() {
 		this.sessionJdbcRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 		assertThat(RuntimeHintsPredicates.reflection().onType(TypeReference.of("javax.sql.DataSource")))
-				.accepts(this.hints);
+			.accepts(this.hints);
 	}
 
 }

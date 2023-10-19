@@ -377,7 +377,7 @@ public class HazelcastIndexedSessionRepository
 			this.originalId = cached.getId();
 			if (this.isNew || (HazelcastIndexedSessionRepository.this.saveMode == SaveMode.ALWAYS)) {
 				getAttributeNames()
-						.forEach((attributeName) -> this.delta.put(attributeName, cached.getAttribute(attributeName)));
+					.forEach((attributeName) -> this.delta.put(attributeName, cached.getAttribute(attributeName)));
 			}
 		}
 
@@ -448,7 +448,7 @@ public class HazelcastIndexedSessionRepository
 			this.delta.put(attributeName, attributeValue);
 			if (SPRING_SECURITY_CONTEXT.equals(attributeName)) {
 				Map<String, String> indexes = HazelcastIndexedSessionRepository.this.indexResolver
-						.resolveIndexesFor(this);
+					.resolveIndexesFor(this);
 				String principal = (attributeValue != null) ? indexes.get(PRINCIPAL_NAME_INDEX_NAME) : null;
 				this.delegate.setAttribute(PRINCIPAL_NAME_INDEX_NAME, principal);
 				this.delta.put(PRINCIPAL_NAME_INDEX_NAME, principal);

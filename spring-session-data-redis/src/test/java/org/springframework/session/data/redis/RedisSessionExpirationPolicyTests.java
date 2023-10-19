@@ -84,7 +84,7 @@ class RedisSessionExpirationPolicyTests {
 	void onExpirationUpdatedRemovesOriginalExpirationTimeRoundedUp() {
 		long originalExpirationTimeInMs = ONE_MINUTE_AGO;
 		long originalRoundedToNextMinInMs = RedisSessionExpirationPolicy
-				.roundUpToNextMinute(originalExpirationTimeInMs);
+			.roundUpToNextMinute(originalExpirationTimeInMs);
 		String originalExpireKey = this.policy.getExpirationKey(originalRoundedToNextMinInMs);
 
 		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);
@@ -98,7 +98,7 @@ class RedisSessionExpirationPolicyTests {
 	void onExpirationUpdatedDoNotSendDeleteWhenExpirationTimeDoesNotChange() {
 		long originalExpirationTimeInMs = RedisSessionExpirationPolicy.expiresInMillis(this.session) - 10;
 		long originalRoundedToNextMinInMs = RedisSessionExpirationPolicy
-				.roundUpToNextMinute(originalExpirationTimeInMs);
+			.roundUpToNextMinute(originalExpirationTimeInMs);
 		String originalExpireKey = this.policy.getExpirationKey(originalRoundedToNextMinInMs);
 
 		this.policy.onExpirationUpdated(originalExpirationTimeInMs, this.session);

@@ -89,171 +89,171 @@ class JdbcIndexedSessionRepositoryTests {
 	@Test
 	void constructorNullJdbcOperations() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JdbcIndexedSessionRepository(null, TransactionOperations.withoutTransaction()))
-				.withMessage("jdbcOperations must not be null");
+			.isThrownBy(() -> new JdbcIndexedSessionRepository(null, TransactionOperations.withoutTransaction()))
+			.withMessage("jdbcOperations must not be null");
 	}
 
 	@Test
 	void constructorNullTransactionOperations() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JdbcIndexedSessionRepository(this.jdbcOperations, null))
-				.withMessage("transactionOperations must not be null");
+			.isThrownBy(() -> new JdbcIndexedSessionRepository(this.jdbcOperations, null))
+			.withMessage("transactionOperations must not be null");
 	}
 
 	@Test
 	void setTableNameNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setTableName(null))
-				.withMessage("Table name must not be empty");
+			.withMessage("Table name must not be empty");
 	}
 
 	@Test
 	void setTableNameEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setTableName(" "))
-				.withMessage("Table name must not be empty");
+			.withMessage("Table name must not be empty");
 	}
 
 	@Test
 	void setCreateSessionQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCreateSessionQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setCreateSessionQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCreateSessionQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setCreateSessionAttributeQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCreateSessionAttributeQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setCreateSessionAttributeQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCreateSessionAttributeQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setGetSessionQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setGetSessionQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setGetSessionQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setGetSessionQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setUpdateSessionQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setUpdateSessionQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setUpdateSessionQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setUpdateSessionQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setUpdateSessionAttributeQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setUpdateSessionAttributeQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setUpdateSessionAttributeQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setDeleteSessionAttributeQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setDeleteSessionAttributeQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setDeleteSessionAttributeQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setDeleteSessionQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setDeleteSessionQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setDeleteSessionQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setDeleteSessionQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setListSessionsByPrincipalNameQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setListSessionsByPrincipalNameQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setListSessionsByPrincipalNameQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setListSessionsByPrincipalNameQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setDeleteSessionsByLastAccessTimeQueryNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setDeleteSessionsByExpiryTimeQuery(null))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setDeleteSessionsByLastAccessTimeQueryEmpty() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setDeleteSessionsByExpiryTimeQuery(" "))
-				.withMessage("Query must not be empty");
+			.withMessage("Query must not be empty");
 	}
 
 	@Test
 	void setLobHandlerNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setLobHandler(null))
-				.withMessage("LobHandler must not be null");
+			.withMessage("LobHandler must not be null");
 	}
 
 	@Test
 	void setConversionServiceNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setConversionService(null))
-				.withMessage("conversionService must not be null");
+			.withMessage("conversionService must not be null");
 	}
 
 	@Test
 	void setFlushModeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setFlushMode(null))
-				.withMessage("flushMode must not be null");
+			.withMessage("flushMode must not be null");
 	}
 
 	@Test
 	void setSaveModeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSaveMode(null))
-				.withMessage("saveMode must not be null");
+			.withMessage("saveMode must not be null");
 	}
 
 	@Test
 	void setCleanupCronNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCleanupCron(null))
-				.withMessage("cleanupCron must not be null");
+			.withMessage("cleanupCron must not be null");
 	}
 
 	@Test
 	void setCleanupCronInvalid() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCleanupCron("test"))
-				.withMessage("cleanupCron must be valid");
+			.withMessage("cleanupCron must be valid");
 	}
 
 	@Test
@@ -523,7 +523,8 @@ class JdbcIndexedSessionRepositoryTests {
 	void getSessionNotFound() {
 		String sessionId = "testSessionId";
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
-				isA(ResultSetExtractor.class))).willReturn(Collections.emptyList());
+				isA(ResultSetExtractor.class)))
+			.willReturn(Collections.emptyList());
 
 		JdbcSession session = this.repository.findById(sessionId);
 
@@ -538,7 +539,8 @@ class JdbcIndexedSessionRepositoryTests {
 		Session expired = this.repository.createSession();
 		expired.setLastAccessedTime(Instant.now().minusSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS + 1));
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
-				isA(ResultSetExtractor.class))).willReturn(Collections.singletonList(expired));
+				isA(ResultSetExtractor.class)))
+			.willReturn(Collections.singletonList(expired));
 
 		JdbcSession session = this.repository.findById(expired.getId());
 
@@ -554,7 +556,8 @@ class JdbcIndexedSessionRepositoryTests {
 		Session saved = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
 		saved.setAttribute("savedName", "savedValue");
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
-				isA(ResultSetExtractor.class))).willReturn(Collections.singletonList(saved));
+				isA(ResultSetExtractor.class)))
+			.willReturn(Collections.singletonList(saved));
 
 		JdbcSession session = this.repository.findById(saved.getId());
 
@@ -589,10 +592,11 @@ class JdbcIndexedSessionRepositoryTests {
 	void findByIndexNameAndIndexValuePrincipalIndexNameNotFound() {
 		String principal = "username";
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
-				isA(ResultSetExtractor.class))).willReturn(Collections.emptyList());
+				isA(ResultSetExtractor.class)))
+			.willReturn(Collections.emptyList());
 
 		Map<String, JdbcSession> sessions = this.repository
-				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+			.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
 
 		assertThat(sessions).isEmpty();
 		verify(this.jdbcOperations, times(1)).query(isA(String.class), isA(PreparedStatementSetter.class),
@@ -613,10 +617,11 @@ class JdbcIndexedSessionRepositoryTests {
 		saved2.setAttribute(SPRING_SECURITY_CONTEXT, authentication);
 		saved.add(saved2);
 		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
-				isA(ResultSetExtractor.class))).willReturn(saved);
+				isA(ResultSetExtractor.class)))
+			.willReturn(saved);
 
 		Map<String, JdbcSession> sessions = this.repository
-				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+			.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
 
 		assertThat(sessions).hasSize(2);
 		verify(this.jdbcOperations, times(1)).query(isA(String.class), isA(PreparedStatementSetter.class),
@@ -671,7 +676,7 @@ class JdbcIndexedSessionRepositoryTests {
 		session.setAttribute("attribute3", "value4");
 		this.repository.save(session);
 		ArgumentCaptor<BatchPreparedStatementSetter> captor = ArgumentCaptor
-				.forClass(BatchPreparedStatementSetter.class);
+			.forClass(BatchPreparedStatementSetter.class);
 		verify(this.jdbcOperations).batchUpdate(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
 				captor.capture());
 		assertThat(captor.getValue().getBatchSize()).isEqualTo(2);
@@ -704,7 +709,7 @@ class JdbcIndexedSessionRepositoryTests {
 		session.setAttribute("attribute3", "value4");
 		this.repository.save(session);
 		ArgumentCaptor<BatchPreparedStatementSetter> captor = ArgumentCaptor
-				.forClass(BatchPreparedStatementSetter.class);
+			.forClass(BatchPreparedStatementSetter.class);
 		verify(this.jdbcOperations).batchUpdate(matches("^UPDATE SPRING_SESSION_ATTRIBUTES\\s*SET.*"),
 				captor.capture());
 		assertThat(captor.getValue().getBatchSize()).isEqualTo(3);

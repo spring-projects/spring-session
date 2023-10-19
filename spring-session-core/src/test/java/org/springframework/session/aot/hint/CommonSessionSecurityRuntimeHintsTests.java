@@ -51,8 +51,9 @@ class CommonSessionSecurityRuntimeHintsTests {
 	@Test
 	void aotFactoriesContainsRegistrar() {
 		boolean match = SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
-				.load(RuntimeHintsRegistrar.class).stream()
-				.anyMatch((registrar) -> registrar instanceof CommonSessionSecurityRuntimeHints);
+			.load(RuntimeHintsRegistrar.class)
+			.stream()
+			.anyMatch((registrar) -> registrar instanceof CommonSessionSecurityRuntimeHints);
 		assertThat(match).isTrue();
 	}
 
@@ -73,19 +74,19 @@ class CommonSessionSecurityRuntimeHintsTests {
 				TypeReference.of("org.springframework.security.authentication.CredentialsExpiredException"),
 				TypeReference.of("org.springframework.security.authentication.InsufficientAuthenticationException"),
 				TypeReference
-						.of("org.springframework.security.web.authentication.session.SessionAuthenticationException"),
-				TypeReference.of(
-						"org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException"),
+					.of("org.springframework.security.web.authentication.session.SessionAuthenticationException"),
+				TypeReference
+					.of("org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationException"),
 				TypeReference.of("org.springframework.security.core.userdetails.User$AuthorityComparator"),
 				TypeReference.of("org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken"),
-				TypeReference.of(
-						"org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken"),
+				TypeReference
+					.of("org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken"),
 				TypeReference.of("org.springframework.security.oauth2.core.OAuth2AuthenticationException"),
 				TypeReference.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken"),
 				TypeReference
-						.of("org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken"),
-				TypeReference.of(
-						"org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken"),
+					.of("org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken"),
+				TypeReference
+					.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken"),
 				TypeReference.of("org.springframework.security.oauth2.core.OAuth2AuthenticationException"));
 	}
 
