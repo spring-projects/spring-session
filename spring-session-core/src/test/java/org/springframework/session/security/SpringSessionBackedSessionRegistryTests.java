@@ -51,7 +51,7 @@ import static org.mockito.Mockito.withSettings;
  * Tests for {@link SpringSessionBackedSessionRegistry}.
  */
 @ExtendWith(MockitoExtension.class)
-class SpringSessionBackedSessionRegistryTest {
+class SpringSessionBackedSessionRegistryTests {
 
 	private static final String SESSION_ID = "sessionId";
 

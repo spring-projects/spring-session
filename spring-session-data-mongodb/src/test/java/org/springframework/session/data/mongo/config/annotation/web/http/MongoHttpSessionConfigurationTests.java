@@ -54,7 +54,7 @@ import static org.mockito.BDDMockito.mock;
  * @author Eddú Meléndez
  * @author Vedran Pavic
  */
-public class MongoHttpSessionConfigurationTest {
+public class MongoHttpSessionConfigurationTests {
 
 	private static final String COLLECTION_NAME = "testSessions";
 

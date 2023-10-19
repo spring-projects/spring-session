@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  * @author Greg Turnquist
  */
-public class MongoSessionTest {
+public class MongoSessionTests {
 
 	@Test
 	void isExpiredWhenIntervalNegativeThenFalse() {

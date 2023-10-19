@@ -53,7 +53,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Greg Turnquist
  */
 @ExtendWith(MockitoExtension.class)
-public class MongoIndexedSessionRepositoryTest {
+public class MongoIndexedSessionRepositoryTests {
 
 	@Mock
 	private AbstractMongoSessionConverter converter;

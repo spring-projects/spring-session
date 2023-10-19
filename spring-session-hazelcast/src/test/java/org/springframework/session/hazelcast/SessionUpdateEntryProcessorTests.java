@@ -32,7 +32,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-class SessionUpdateEntryProcessorTest {
+class SessionUpdateEntryProcessorTests {
 
 	private SessionUpdateEntryProcessor processor;
 

@@ -20,7 +20,6 @@ import java.util.Base64;
 import java.util.Collections;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
