@@ -88,7 +88,7 @@ org-springframework-boot-spring-boot-starter-websocket = { module = "org.springf
 org-springframework-boot-spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers", version.ref = "org-springframework-boot" }
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2023.1.0-RC1"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.2.0-RC1"
-org-springframework-security-spring-security-config = "org.springframework.security:spring-security-config:6.2.0-RC1"
+org-springframework-security-spring-security-config = "org.springframework.security:spring-security-config:6.2.0-RC2"
 org-springframework-security-spring-security-core = "org.springframework.security:spring-security-core:6.2.0-RC1"
 org-springframework-security-spring-security-data = "org.springframework.security:spring-security-data:6.1.1"
 org-springframework-security-spring-security-messaging = "org.springframework.security:spring-security-messaging:6.1.1"
