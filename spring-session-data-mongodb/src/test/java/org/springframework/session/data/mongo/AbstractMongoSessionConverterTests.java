@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Greg Turnquist
  */
-public abstract class AbstractMongoSessionConverterTest {
+public abstract class AbstractMongoSessionConverterTests {
 
 	abstract AbstractMongoSessionConverter getMongoSessionConverter();
 

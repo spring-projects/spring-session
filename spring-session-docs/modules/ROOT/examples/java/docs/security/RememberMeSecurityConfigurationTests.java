@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.util.Base64;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
