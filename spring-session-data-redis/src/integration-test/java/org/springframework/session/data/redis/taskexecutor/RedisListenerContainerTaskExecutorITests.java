@@ -56,7 +56,7 @@ class RedisListenerContainerTaskExecutorITests extends AbstractRedisITests {
 	@Test
 	void testRedisDelEventsAreDispatchedInSessionTaskExecutor() throws InterruptedException {
 		BoundSetOperations<Object, Object> ops = this.redis
-				.boundSetOps("spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
+			.boundSetOps("spring:session:RedisListenerContainerTaskExecutorITests:expirations:dummy");
 		ops.add("value");
 		ops.remove("value");
 		assertThat(this.executor.taskDispatched()).isTrue();

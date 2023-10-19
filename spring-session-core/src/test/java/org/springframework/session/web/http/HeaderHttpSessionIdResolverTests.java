@@ -70,7 +70,7 @@ class HeaderHttpSessionIdResolverTests {
 	@Test
 	void createResolverWithNullHeaderName() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new HeaderHttpSessionIdResolver(null))
-				.withMessage("headerName cannot be null");
+			.withMessage("headerName cannot be null");
 	}
 
 	@Test

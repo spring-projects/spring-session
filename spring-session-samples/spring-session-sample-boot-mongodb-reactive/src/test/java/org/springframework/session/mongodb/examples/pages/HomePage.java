@@ -70,8 +70,8 @@ public class HomePage {
 	public List<Attribute> attributes() {
 
 		List<Attribute> rows = this.trs.stream() //
-				.map(Attribute::new) //
-				.collect(Collectors.toList());
+			.map(Attribute::new) //
+			.collect(Collectors.toList());
 
 		this.attributes.addAll(rows);
 

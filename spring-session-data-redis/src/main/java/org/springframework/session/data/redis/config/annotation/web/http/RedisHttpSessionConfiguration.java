@@ -67,7 +67,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 		sessionRepository.setSaveMode(getSaveMode());
 		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
 		getSessionRepositoryCustomizers()
-				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
+			.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}
 
@@ -79,7 +79,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
-				.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
+			.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
 			return;

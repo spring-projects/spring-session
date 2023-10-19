@@ -889,7 +889,7 @@ public class RedisIndexedSessionRepository
 				if (this.originalPrincipalName != null) {
 					String originalPrincipalRedisKey = getPrincipalKey(this.originalPrincipalName);
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
-							.remove(sessionId);
+						.remove(sessionId);
 				}
 				Map<String, String> indexes = RedisIndexedSessionRepository.this.indexResolver.resolveIndexesFor(this);
 				String principal = indexes.get(PRINCIPAL_NAME_INDEX_NAME);
@@ -897,7 +897,7 @@ public class RedisIndexedSessionRepository
 				if (principal != null) {
 					String principalRedisKey = getPrincipalKey(principal);
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(principalRedisKey)
-							.add(sessionId);
+						.add(sessionId);
 				}
 			}
 			if (this.isNew) {
@@ -937,9 +937,9 @@ public class RedisIndexedSessionRepository
 				if (this.originalPrincipalName != null) {
 					String originalPrincipalRedisKey = getPrincipalKey(this.originalPrincipalName);
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
-							.remove(this.originalSessionId);
+						.remove(this.originalSessionId);
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
-							.add(sessionId);
+						.add(sessionId);
 				}
 			}
 			this.originalSessionId = sessionId;

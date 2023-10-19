@@ -88,7 +88,7 @@ class RedisHttpsSessionConfigurationTests {
 	@Test
 	void resolveValueByPlaceholder() {
 		this.context
-				.setEnvironment(new MockEnvironment().withProperty("session.redis.namespace", "customRedisNamespace"));
+			.setEnvironment(new MockEnvironment().withProperty("session.redis.namespace", "customRedisNamespace"));
 		registerAndRefresh(RedisConfig.class, PropertySourceConfiguration.class,
 				CustomRedisHttpSessionConfiguration2.class);
 		RedisHttpSessionConfiguration configuration = this.context.getBean(RedisHttpSessionConfiguration.class);
@@ -129,10 +129,10 @@ class RedisHttpsSessionConfigurationTests {
 		assertThat(redisConnectionFactory).isNotNull();
 		@SuppressWarnings("unchecked")
 		RedisOperations<String, Object> redisOperations = (RedisOperations<String, Object>) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+			.getField(repository, "sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
-				.isEqualTo(redisConnectionFactory);
+			.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
@@ -146,10 +146,10 @@ class RedisHttpsSessionConfigurationTests {
 		assertThat(redisConnectionFactory).isNotNull();
 		@SuppressWarnings("unchecked")
 		RedisOperations<String, Object> redisOperations = (RedisOperations<String, Object>) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+			.getField(repository, "sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
-				.isEqualTo(redisConnectionFactory);
+			.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
@@ -163,10 +163,10 @@ class RedisHttpsSessionConfigurationTests {
 		assertThat(redisConnectionFactory).isNotNull();
 		@SuppressWarnings("unchecked")
 		RedisOperations<String, Object> redisOperations = (RedisOperations<String, Object>) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+			.getField(repository, "sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
-				.isEqualTo(redisConnectionFactory);
+			.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
@@ -180,17 +180,18 @@ class RedisHttpsSessionConfigurationTests {
 		assertThat(redisConnectionFactory).isNotNull();
 		@SuppressWarnings("unchecked")
 		RedisOperations<String, Object> redisOperations = (RedisOperations<String, Object>) ReflectionTestUtils
-				.getField(repository, "sessionRedisOperations");
+			.getField(repository, "sessionRedisOperations");
 		assertThat(redisOperations).isNotNull();
 		assertThat(ReflectionTestUtils.getField(redisOperations, "connectionFactory"))
-				.isEqualTo(redisConnectionFactory);
+			.isEqualTo(redisConnectionFactory);
 	}
 
 	@Test
 	void multipleConnectionFactoryRedisConfig() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class))
-				.havingRootCause().withMessageContaining("expected single matching bean but found 2");
+			.isThrownBy(() -> registerAndRefresh(RedisConfig.class, MultipleConnectionFactoryRedisConfig.class))
+			.havingRootCause()
+			.withMessageContaining("expected single matching bean but found 2");
 	}
 
 	@Test
@@ -381,7 +382,7 @@ class RedisHttpsSessionConfigurationTests {
 		@Order(1)
 		SessionRepositoryCustomizer<RedisSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
-					.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
+				.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}

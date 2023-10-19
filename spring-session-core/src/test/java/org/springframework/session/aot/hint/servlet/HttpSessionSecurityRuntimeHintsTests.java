@@ -63,7 +63,7 @@ class HttpSessionSecurityRuntimeHintsTests {
 	void registerHintsWhenHttpSessionMissingThenDoNotRegisterHints() {
 		try (MockedStatic<ClassUtils> classUtilsMock = mockStatic(ClassUtils.class)) {
 			classUtilsMock.when(() -> ClassUtils.isPresent(eq("jakarta.servlet.http.HttpSession"), any()))
-					.thenReturn(false);
+				.thenReturn(false);
 			this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 			assertThat(this.hints.serialization().javaSerializationHints()).isEmpty();
 		}
@@ -72,9 +72,9 @@ class HttpSessionSecurityRuntimeHintsTests {
 	@Test
 	void registerHintsWhenDefaultCsrfTokenMissingThenDoNotRegisterHints() {
 		try (MockedStatic<ClassUtils> classUtilsMock = mockStatic(ClassUtils.class)) {
-			classUtilsMock.when(
-					() -> ClassUtils.isPresent(eq("org.springframework.security.web.csrf.DefaultCsrfToken"), any()))
-					.thenReturn(false);
+			classUtilsMock
+				.when(() -> ClassUtils.isPresent(eq("org.springframework.security.web.csrf.DefaultCsrfToken"), any()))
+				.thenReturn(false);
 			this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
 			assertThat(this.hints.serialization().javaSerializationHints()).isEmpty();
 		}
@@ -83,8 +83,9 @@ class HttpSessionSecurityRuntimeHintsTests {
 	@Test
 	void aotFactoriesContainsRegistrar() {
 		boolean match = SpringFactoriesLoader.forResourceLocation("META-INF/spring/aot.factories")
-				.load(RuntimeHintsRegistrar.class).stream()
-				.anyMatch((registrar) -> registrar instanceof HttpSessionSecurityRuntimeHints);
+			.load(RuntimeHintsRegistrar.class)
+			.stream()
+			.anyMatch((registrar) -> registrar instanceof HttpSessionSecurityRuntimeHints);
 		assertThat(match).isTrue();
 	}
 

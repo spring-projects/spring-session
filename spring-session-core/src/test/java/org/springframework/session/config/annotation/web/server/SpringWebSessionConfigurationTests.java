@@ -77,8 +77,8 @@ class SpringWebSessionConfigurationTests {
 		this.context.register(BadConfig.class);
 
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class).isThrownBy(this.context::refresh)
-				.withMessageContaining("Error creating bean with name 'webSessionManager'").withMessageContaining(
-						"No qualifying bean of type '" + ReactiveSessionRepository.class.getCanonicalName());
+			.withMessageContaining("Error creating bean with name 'webSessionManager'")
+			.withMessageContaining("No qualifying bean of type '" + ReactiveSessionRepository.class.getCanonicalName());
 	}
 
 	@Test

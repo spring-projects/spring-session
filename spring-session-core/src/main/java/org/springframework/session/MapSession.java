@@ -57,7 +57,7 @@ public final class MapSession implements Session, Serializable {
 	 * Default {@link #setMaxInactiveInterval(Duration)} (30 minutes).
 	 */
 	public static final Duration DEFAULT_MAX_INACTIVE_INTERVAL = Duration
-			.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		.ofSeconds(DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private String id;
 

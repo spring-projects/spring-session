@@ -85,7 +85,7 @@ class SessionRepositoryMessageInterceptorTests {
 	@Test
 	void preSendconstructorNullRepository() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionRepositoryMessageInterceptor<>(null))
-				.withMessage("sessionRepository cannot be null");
+			.withMessage("sessionRepository cannot be null");
 	}
 
 	@Test
@@ -132,14 +132,14 @@ class SessionRepositoryMessageInterceptorTests {
 	@Test
 	void setMatchingMessageTypesNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.interceptor.setMatchingMessageTypes(null))
-				.withMessage("matchingMessageTypes cannot be null or empty");
+			.withMessage("matchingMessageTypes cannot be null or empty");
 	}
 
 	@Test
 	void setMatchingMessageTypesEmpty() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.interceptor.setMatchingMessageTypes(Collections.emptySet()))
-				.withMessage("matchingMessageTypes cannot be null or empty");
+			.isThrownBy(() -> this.interceptor.setMatchingMessageTypes(Collections.emptySet()))
+			.withMessage("matchingMessageTypes cannot be null or empty");
 	}
 
 	@Test

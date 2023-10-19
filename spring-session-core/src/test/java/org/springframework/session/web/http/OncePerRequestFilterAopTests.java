@@ -40,8 +40,9 @@ class OncePerRequestFilterAopTests {
 	@Test
 	void doFilterOnce(@Autowired final OncePerRequestFilter filter) {
 		assertThatCode(() -> filter.doFilter(new MockHttpServletRequest(), new MockHttpServletResponse(),
-				new MockFilterChain())).as("`doFilter` does not throw NPE with the bean is being proxied by Spring AOP")
-						.doesNotThrowAnyException();
+				new MockFilterChain()))
+			.as("`doFilter` does not throw NPE with the bean is being proxied by Spring AOP")
+			.doesNotThrowAnyException();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

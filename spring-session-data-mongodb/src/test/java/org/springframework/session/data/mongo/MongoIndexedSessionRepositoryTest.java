@@ -79,7 +79,7 @@ public class MongoIndexedSessionRepositoryTest {
 		// then
 		assertThat(session.getId()).isNotEmpty();
 		assertThat(session.getMaxInactiveInterval().getSeconds())
-				.isEqualTo(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+			.isEqualTo(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
 	@Test
@@ -90,7 +90,8 @@ public class MongoIndexedSessionRepositoryTest {
 		BasicDBObject dbSession = new BasicDBObject();
 
 		given(this.converter.convert(session, TypeDescriptor.valueOf(MongoSession.class),
-				TypeDescriptor.valueOf(DBObject.class))).willReturn(dbSession);
+				TypeDescriptor.valueOf(DBObject.class)))
+			.willReturn(dbSession);
 		// when
 		this.repository.save(session);
 
@@ -106,12 +107,14 @@ public class MongoIndexedSessionRepositoryTest {
 		Document sessionDocument = new Document();
 
 		given(this.mongoOperations.findById(sessionId, Document.class,
-				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME)).willReturn(sessionDocument);
+				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME))
+			.willReturn(sessionDocument);
 
 		MongoSession session = new MongoSession();
 
 		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
-				TypeDescriptor.valueOf(MongoSession.class))).willReturn(session);
+				TypeDescriptor.valueOf(MongoSession.class)))
+			.willReturn(session);
 
 		// when
 		MongoSession retrievedSession = this.repository.findById(sessionId);
@@ -128,13 +131,15 @@ public class MongoIndexedSessionRepositoryTest {
 		Document sessionDocument = new Document();
 
 		given(this.mongoOperations.findById(sessionId, Document.class,
-				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME)).willReturn(sessionDocument);
+				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME))
+			.willReturn(sessionDocument);
 
 		MongoSession session = mock(MongoSession.class);
 
 		given(session.isExpired()).willReturn(true);
 		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
-				TypeDescriptor.valueOf(MongoSession.class))).willReturn(session);
+				TypeDescriptor.valueOf(MongoSession.class)))
+			.willReturn(session);
 		given(session.getId()).willReturn("sessionId");
 
 		// when
@@ -157,9 +162,11 @@ public class MongoIndexedSessionRepositoryTest {
 		MongoSession mongoSession = new MongoSession(sessionId, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
-				TypeDescriptor.valueOf(MongoSession.class))).willReturn(mongoSession);
+				TypeDescriptor.valueOf(MongoSession.class)))
+			.willReturn(mongoSession);
 		given(this.mongoOperations.findById(eq(sessionId), eq(Document.class),
-				eq(MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME))).willReturn(sessionDocument);
+				eq(MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME)))
+			.willReturn(sessionDocument);
 
 		// when
 		this.repository.deleteById(sessionId);
@@ -180,14 +187,15 @@ public class MongoIndexedSessionRepositoryTest {
 		given(this.converter.getQueryForIndex(anyString(), any(Object.class))).willReturn(mock(Query.class));
 		given(this.mongoOperations.find(any(Query.class), eq(Document.class),
 				eq(MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME)))
-						.willReturn(Collections.singletonList(document));
+			.willReturn(Collections.singletonList(document));
 
 		String sessionId = UUID.randomUUID().toString();
 
 		MongoSession session = new MongoSession(sessionId, 1800);
 
 		given(this.converter.convert(document, TypeDescriptor.valueOf(Document.class),
-				TypeDescriptor.valueOf(MongoSession.class))).willReturn(session);
+				TypeDescriptor.valueOf(MongoSession.class)))
+			.willReturn(session);
 
 		// when
 		Map<String, MongoSession> sessionsMap = this.repository.findByIndexNameAndIndexValue(principalNameIndexName,
@@ -231,12 +239,14 @@ public class MongoIndexedSessionRepositoryTest {
 		Document sessionDocument = new Document();
 
 		given(this.mongoOperations.findById("123", Document.class,
-				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME)).willReturn(sessionDocument);
+				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME))
+			.willReturn(sessionDocument);
 
 		MongoSession session = new MongoSession("123");
 
 		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
-				TypeDescriptor.valueOf(MongoSession.class))).willReturn(session);
+				TypeDescriptor.valueOf(MongoSession.class)))
+			.willReturn(session);
 
 		MongoSession retrievedSession = this.repository.findById("123");
 		assertThat(retrievedSession.getId()).isEqualTo("123");

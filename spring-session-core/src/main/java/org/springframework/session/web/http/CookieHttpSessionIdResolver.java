@@ -64,7 +64,7 @@ import org.springframework.session.web.http.CookieSerializer.CookieValue;
 public final class CookieHttpSessionIdResolver implements HttpSessionIdResolver {
 
 	private static final String WRITTEN_SESSION_ID_ATTR = CookieHttpSessionIdResolver.class.getName()
-			.concat(".WRITTEN_SESSION_ID_ATTR");
+		.concat(".WRITTEN_SESSION_ID_ATTR");
 
 	private CookieSerializer cookieSerializer = new DefaultCookieSerializer();
 

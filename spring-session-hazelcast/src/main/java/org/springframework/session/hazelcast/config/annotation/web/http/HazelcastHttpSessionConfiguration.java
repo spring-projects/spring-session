@@ -135,7 +135,7 @@ public class HazelcastHttpSessionConfiguration implements ImportAware {
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
-				.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
+			.getAnnotationAttributes(EnableHazelcastHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
 			return;
@@ -164,7 +164,7 @@ public class HazelcastHttpSessionConfiguration implements ImportAware {
 		sessionRepository.setSaveMode(this.saveMode);
 		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
 		this.sessionRepositoryCustomizers
-				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
+			.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}
 

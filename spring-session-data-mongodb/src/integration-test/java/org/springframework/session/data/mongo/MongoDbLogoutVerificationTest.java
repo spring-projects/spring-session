@@ -74,13 +74,14 @@ public class MongoDbLogoutVerificationTest {
 
 		// 1. Login and capture the SESSION cookie value.
 
-		FluxExchangeResult<String> loginResult = this.client.post().uri("/login")
-				.contentType(MediaType.APPLICATION_FORM_URLENCODED) //
-				.body(BodyInserters //
-						.fromFormData("username", "admin") //
-						.with("password", "password")) //
-				.exchange() //
-				.returnResult(String.class);
+		FluxExchangeResult<String> loginResult = this.client.post()
+			.uri("/login")
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED) //
+			.body(BodyInserters //
+				.fromFormData("username", "admin") //
+				.with("password", "password")) //
+			.exchange() //
+			.returnResult(String.class);
 
 		AssertionsForClassTypes.assertThat(loginResult.getResponseHeaders().getLocation()).isEqualTo(URI.create("/"));
 
@@ -88,42 +89,54 @@ public class MongoDbLogoutVerificationTest {
 
 		// 2. Fetch a protected resource using the SESSION cookie.
 
-		this.client.get().uri("/hello") //
-				.cookie("SESSION", originalSessionId) //
-				.exchange() //
-				.expectStatus().isOk() //
-				.returnResult(String.class).getResponseBody() //
-				.as(StepVerifier::create) //
-				.expectNext("HelloWorld") //
-				.verifyComplete();
+		this.client.get()
+			.uri("/hello") //
+			.cookie("SESSION", originalSessionId) //
+			.exchange() //
+			.expectStatus()
+			.isOk() //
+			.returnResult(String.class)
+			.getResponseBody() //
+			.as(StepVerifier::create) //
+			.expectNext("HelloWorld") //
+			.verifyComplete();
 
 		// 3. Logout using the SESSION cookie, and capture the new SESSION cookie.
 
-		String newSessionId = this.client.post().uri("/logout") //
-				.cookie("SESSION", originalSessionId) //
-				.exchange() //
-				.expectStatus().isFound() //
-				.returnResult(String.class).getResponseCookies().getFirst("SESSION").getValue();
+		String newSessionId = this.client.post()
+			.uri("/logout") //
+			.cookie("SESSION", originalSessionId) //
+			.exchange() //
+			.expectStatus()
+			.isFound() //
+			.returnResult(String.class)
+			.getResponseCookies()
+			.getFirst("SESSION")
+			.getValue();
 
 		AssertionsForClassTypes.assertThat(newSessionId).isNotEqualTo(originalSessionId);
 
 		// 4. Verify the new SESSION cookie is not yet authorized.
 
-		this.client.get().uri("/hello") //
-				.cookie("SESSION", newSessionId) //
-				.exchange() //
-				.expectStatus().isFound() //
-				.expectHeader()
-				.value(HttpHeaders.LOCATION, (value) -> AssertionsForClassTypes.assertThat(value).isEqualTo("/login"));
+		this.client.get()
+			.uri("/hello") //
+			.cookie("SESSION", newSessionId) //
+			.exchange() //
+			.expectStatus()
+			.isFound() //
+			.expectHeader()
+			.value(HttpHeaders.LOCATION, (value) -> AssertionsForClassTypes.assertThat(value).isEqualTo("/login"));
 
 		// 5. Verify the original SESSION cookie no longer works.
 
-		this.client.get().uri("/hello") //
-				.cookie("SESSION", originalSessionId) //
-				.exchange() //
-				.expectStatus().isFound() //
-				.expectHeader()
-				.value(HttpHeaders.LOCATION, (value) -> AssertionsForClassTypes.assertThat(value).isEqualTo("/login"));
+		this.client.get()
+			.uri("/hello") //
+			.cookie("SESSION", originalSessionId) //
+			.exchange() //
+			.expectStatus()
+			.isFound() //
+			.expectHeader()
+			.value(HttpHeaders.LOCATION, (value) -> AssertionsForClassTypes.assertThat(value).isEqualTo("/login"));
 	}
 
 	@RestController
@@ -182,7 +195,7 @@ public class MongoDbLogoutVerificationTest {
 		ReactiveMongoOperations mongoOperations(MongoDBContainer mongoContainer) {
 
 			MongoClient mongo = MongoClients
-					.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
+				.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
 			return new ReactiveMongoTemplate(mongo, "test");
 		}
 

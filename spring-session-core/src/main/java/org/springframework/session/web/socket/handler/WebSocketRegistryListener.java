@@ -67,7 +67,7 @@ public final class WebSocketRegistryListener implements ApplicationListener<Appl
 		else if (event instanceof SessionDisconnectEvent) {
 			SessionDisconnectEvent e = (SessionDisconnectEvent) event;
 			Map<String, Object> sessionAttributes = SimpMessageHeaderAccessor
-					.getSessionAttributes(e.getMessage().getHeaders());
+				.getSessionAttributes(e.getMessage().getHeaders());
 			String httpSessionId = (sessionAttributes != null)
 					? SessionRepositoryMessageInterceptor.getSessionId(sessionAttributes) : null;
 			afterConnectionClosed(httpSessionId, e.getSessionId());

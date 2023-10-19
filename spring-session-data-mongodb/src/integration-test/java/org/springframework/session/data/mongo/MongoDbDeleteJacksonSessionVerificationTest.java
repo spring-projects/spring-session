@@ -192,7 +192,7 @@ public class MongoDbDeleteJacksonSessionVerificationTest {
 		ReactiveMongoOperations mongoOperations(MongoDBContainer mongoContainer) {
 
 			MongoClient mongo = MongoClients
-					.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
+				.create("mongodb://" + mongoContainer.getHost() + ":" + mongoContainer.getFirstMappedPort());
 			return new ReactiveMongoTemplate(mongo, "DB_Name_DeleteJacksonSessionVerificationTest");
 		}
 

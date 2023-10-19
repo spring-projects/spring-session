@@ -83,13 +83,13 @@ class HazelcastIndexedSessionRepositoryTests {
 	@Test
 	void constructorNullHazelcastInstance() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new HazelcastIndexedSessionRepository(null))
-				.withMessage("HazelcastInstance must not be null");
+			.withMessage("HazelcastInstance must not be null");
 	}
 
 	@Test
 	void setSaveModeNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSaveMode(null))
-				.withMessage("saveMode must not be null");
+			.withMessage("saveMode must not be null");
 	}
 
 	@Test
@@ -365,7 +365,7 @@ class HazelcastIndexedSessionRepositoryTests {
 		String principal = "username";
 
 		Map<String, HazelcastSession> sessions = this.repository
-				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+			.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
 
 		assertThat(sessions).isEmpty();
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
@@ -389,7 +389,7 @@ class HazelcastIndexedSessionRepositoryTests {
 		given(this.sessions.values(isA(EqualPredicate.class))).willReturn(saved);
 
 		Map<String, HazelcastSession> sessions = this.repository
-				.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
+			.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principal);
 
 		assertThat(sessions).hasSize(2);
 		verify(this.sessions, times(1)).values(isA(EqualPredicate.class));
@@ -477,7 +477,7 @@ class HazelcastIndexedSessionRepositoryTests {
 	@Test
 	void setSessionIdGeneratorWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
-				.withMessage("sessionIdGenerator cannot be null");
+			.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test

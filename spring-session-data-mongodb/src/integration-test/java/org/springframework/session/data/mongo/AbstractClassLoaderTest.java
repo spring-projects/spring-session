@@ -48,7 +48,7 @@ public abstract class AbstractClassLoaderTest<T> extends AbstractITest {
 				"mongoSessionConverter");
 		ReflectionUtils.makeAccessible(mongoSessionConverterField);
 		AbstractMongoSessionConverter sessionConverter = (AbstractMongoSessionConverter) ReflectionUtils
-				.getField(mongoSessionConverterField, this.sessionRepository);
+			.getField(mongoSessionConverterField, this.sessionRepository);
 
 		AssertionsForClassTypes.assertThat(sessionConverter).isInstanceOf(JdkMongoSessionConverter.class);
 

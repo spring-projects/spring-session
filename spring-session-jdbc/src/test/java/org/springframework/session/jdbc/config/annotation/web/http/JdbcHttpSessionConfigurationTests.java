@@ -82,9 +82,10 @@ class JdbcHttpSessionConfigurationTests {
 	@Test
 	void noDataSourceConfiguration() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> registerAndRefresh(NoDataSourceConfiguration.class))
-				.withRootCauseInstanceOf(NoSuchBeanDefinitionException.class).havingRootCause()
-				.withMessageContaining("expected at least 1 bean which qualifies as autowire candidate");
+			.isThrownBy(() -> registerAndRefresh(NoDataSourceConfiguration.class))
+			.withRootCauseInstanceOf(NoSuchBeanDefinitionException.class)
+			.havingRootCause()
+			.withMessageContaining("expected at least 1 bean which qualifies as autowire candidate");
 	}
 
 	@Test
@@ -94,7 +95,7 @@ class JdbcHttpSessionConfigurationTests {
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
 		assertThat(sessionRepository).isNotNull();
 		assertThat(sessionRepository).extracting("transactionOperations")
-				.hasFieldOrPropertyWithValue("propagationBehavior", TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+			.hasFieldOrPropertyWithValue("propagationBehavior", TransactionDefinition.PROPAGATION_REQUIRES_NEW);
 	}
 
 	@Test
@@ -122,7 +123,7 @@ class JdbcHttpSessionConfigurationTests {
 
 		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
 		assertThat(repository).extracting("defaultMaxInactiveInterval")
-				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
+			.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -131,7 +132,7 @@ class JdbcHttpSessionConfigurationTests {
 
 		JdbcIndexedSessionRepository repository = this.context.getBean(JdbcIndexedSessionRepository.class);
 		assertThat(repository).extracting("defaultMaxInactiveInterval")
-				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
+			.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -233,10 +234,10 @@ class JdbcHttpSessionConfigurationTests {
 	@Test
 	void multipleDataSourceConfiguration() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(
-						() -> registerAndRefresh(DataSourceConfiguration.class, MultipleDataSourceConfiguration.class))
-				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class).havingRootCause()
-				.withMessageContaining("expected single matching bean but found 2");
+			.isThrownBy(() -> registerAndRefresh(DataSourceConfiguration.class, MultipleDataSourceConfiguration.class))
+			.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
+			.havingRootCause()
+			.withMessageContaining("expected single matching bean but found 2");
 	}
 
 	@Test
@@ -288,7 +289,7 @@ class JdbcHttpSessionConfigurationTests {
 	@Test
 	void resolveTableNameByPropertyPlaceholder() {
 		this.context
-				.setEnvironment(new MockEnvironment().withProperty("session.jdbc.tableName", "custom_session_table"));
+			.setEnvironment(new MockEnvironment().withProperty("session.jdbc.tableName", "custom_session_table"));
 		registerAndRefresh(DataSourceConfiguration.class, CustomJdbcHttpSessionConfiguration.class);
 		JdbcHttpSessionConfiguration configuration = this.context.getBean(JdbcHttpSessionConfiguration.class);
 		assertThat(ReflectionTestUtils.getField(configuration, "tableName")).isEqualTo("custom_session_table");
@@ -299,7 +300,7 @@ class JdbcHttpSessionConfigurationTests {
 		registerAndRefresh(DataSourceConfiguration.class, SessionRepositoryCustomizerConfiguration.class);
 		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval")
-				.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
+			.isEqualTo(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 	}
 
 	@Test
@@ -589,7 +590,7 @@ class JdbcHttpSessionConfigurationTests {
 		@Order(1)
 		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizerTwo() {
 			return (sessionRepository) -> sessionRepository
-					.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
+				.setDefaultMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}

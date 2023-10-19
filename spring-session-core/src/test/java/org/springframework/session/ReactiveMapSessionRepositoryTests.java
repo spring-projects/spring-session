@@ -61,7 +61,7 @@ class ReactiveMapSessionRepositoryTests {
 	@Test
 	void constructorMapWhenNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new ReactiveMapSessionRepository(null))
-				.withMessage("sessions cannot be null");
+			.withMessage("sessions cannot be null");
 	}
 
 	@Test
@@ -163,7 +163,7 @@ class ReactiveMapSessionRepositoryTests {
 	@Test
 	void setSessionIdGeneratorWhenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
-				.withMessage("sessionIdGenerator cannot be null");
+			.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test

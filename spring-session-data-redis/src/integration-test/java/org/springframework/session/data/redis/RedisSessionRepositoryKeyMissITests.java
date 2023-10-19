@@ -74,7 +74,7 @@ class RedisSessionRepositoryKeyMissITests extends AbstractRedisITests {
 
 		this.sessionRepository.save(session);
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.findById(session.getId()))
-				.withMessage("creationTime key must not be null");
+			.withMessage("creationTime key must not be null");
 	}
 
 	@Test
@@ -100,7 +100,7 @@ class RedisSessionRepositoryKeyMissITests extends AbstractRedisITests {
 		this.context.refresh();
 		this.sessionRepository = this.context.getBean(RedisSessionRepository.class);
 		RedisOperations<String, Object> redisOperations = (RedisOperations<String, Object>) ReflectionTestUtils
-				.getField(this.sessionRepository, "sessionRedisOperations");
+			.getField(this.sessionRepository, "sessionRedisOperations");
 		this.spyOperations = spy(redisOperations);
 		ReflectionTestUtils.setField(this.sessionRepository, "sessionRedisOperations", this.spyOperations);
 	}
@@ -126,7 +126,7 @@ class RedisSessionRepositoryKeyMissITests extends AbstractRedisITests {
 		@Bean
 		SessionRepositoryCustomizer<RedisSessionRepository> redisSessionRepositoryCustomizer() {
 			return (redisSessionRepository) -> redisSessionRepository
-					.setRedisSessionMapper(new SafeRedisSessionMapper(redisSessionRepository));
+				.setRedisSessionMapper(new SafeRedisSessionMapper(redisSessionRepository));
 		}
 
 	}

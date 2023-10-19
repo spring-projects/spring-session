@@ -145,8 +145,9 @@ public class ReactiveRedisSessionRepository
 			return session.save();
 		}
 		String sessionKey = getSessionKey(session.hasChangedSessionId() ? session.originalSessionId : session.getId());
-		return this.sessionRedisOperations.hasKey(sessionKey).flatMap(
-				(exists) -> exists ? session.save() : Mono.error(new IllegalStateException("Session was invalidated")));
+		return this.sessionRedisOperations.hasKey(sessionKey)
+			.flatMap((exists) -> exists ? session.save()
+					: Mono.error(new IllegalStateException("Session was invalidated")));
 	}
 
 	@Override
@@ -317,7 +318,7 @@ public class ReactiveRedisSessionRepository
 
 			String sessionKey = getSessionKey(getId());
 			Mono<Boolean> update = ReactiveRedisSessionRepository.this.sessionRedisOperations.opsForHash()
-					.putAll(sessionKey, new HashMap<>(this.delta));
+				.putAll(sessionKey, new HashMap<>(this.delta));
 			Mono<Boolean> setTtl;
 			if (getMaxInactiveInterval().getSeconds() >= 0) {
 				setTtl = ReactiveRedisSessionRepository.this.sessionRedisOperations.expire(sessionKey,
@@ -354,10 +355,11 @@ public class ReactiveRedisSessionRepository
 				String sessionKey = getSessionKey(sessionId);
 
 				return ReactiveRedisSessionRepository.this.sessionRedisOperations.rename(originalSessionKey, sessionKey)
-						.flatMap((unused) -> Mono.fromDirect(replaceSessionId)).onErrorResume((ex) -> {
-							String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
-							return StringUtils.startsWithIgnoreCase(message, "ERR no such key");
-						}, (ex) -> Mono.empty());
+					.flatMap((unused) -> Mono.fromDirect(replaceSessionId))
+					.onErrorResume((ex) -> {
+						String message = NestedExceptionUtils.getMostSpecificCause(ex).getMessage();
+						return StringUtils.startsWithIgnoreCase(message, "ERR no such key");
+					}, (ex) -> Mono.empty());
 			}
 		}
 

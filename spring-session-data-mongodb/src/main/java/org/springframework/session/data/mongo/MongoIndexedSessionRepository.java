@@ -144,11 +144,12 @@ public class MongoIndexedSessionRepository
 	public Map<String, MongoSession> findByIndexNameAndIndexValue(String indexName, String indexValue) {
 
 		return Optional.ofNullable(this.mongoSessionConverter.getQueryForIndex(indexName, indexValue))
-				.map((query) -> this.mongoOperations.find(query, Document.class, this.collectionName))
-				.orElse(Collections.emptyList()).stream()
-				.map((dbSession) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, dbSession))
-				.peek((session) -> session.setSessionIdGenerator(this.sessionIdGenerator))
-				.collect(Collectors.toMap(MongoSession::getId, (mapSession) -> mapSession));
+			.map((query) -> this.mongoOperations.find(query, Document.class, this.collectionName))
+			.orElse(Collections.emptyList())
+			.stream()
+			.map((dbSession) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, dbSession))
+			.peek((session) -> session.setSessionIdGenerator(this.sessionIdGenerator))
+			.collect(Collectors.toMap(MongoSession::getId, (mapSession) -> mapSession));
 	}
 
 	@Override

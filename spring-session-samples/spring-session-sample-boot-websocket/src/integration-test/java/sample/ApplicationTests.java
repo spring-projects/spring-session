@@ -71,7 +71,7 @@ class ApplicationTests {
 				"ws://localhost:" + this.port + "/sockjs");
 
 		assertThatExceptionOfType(ExecutionException.class)
-				.isThrownBy(() -> wsSession.get().sendMessage(new TextMessage("a")));
+			.isThrownBy(() -> wsSession.get().sendMessage(new TextMessage("a")));
 	}
 
 	@TestConfiguration

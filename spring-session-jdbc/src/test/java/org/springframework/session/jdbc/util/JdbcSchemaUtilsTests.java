@@ -65,7 +65,7 @@ class JdbcSchemaUtilsTests {
 
 	private static Stream<Resource> getSchemaFiles() throws IOException {
 		return Arrays.stream(new PathMatchingResourcePatternResolver()
-				.getResources("classpath*:org/springframework/session/jdbc/schema-*.sql"));
+			.getResources("classpath*:org/springframework/session/jdbc/schema-*.sql"));
 	}
 
 }

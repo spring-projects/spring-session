@@ -115,42 +115,42 @@ public class ReactiveMongoSessionRepository
 	public Mono<Void> save(MongoSession session) {
 
 		return Mono //
-				.justOrEmpty(MongoSessionUtils.convertToDBObject(this.mongoSessionConverter, session)) //
-				.flatMap((dbObject) -> {
-					if (session.hasChangedSessionId()) {
+			.justOrEmpty(MongoSessionUtils.convertToDBObject(this.mongoSessionConverter, session)) //
+			.flatMap((dbObject) -> {
+				if (session.hasChangedSessionId()) {
 
-						return this.mongoOperations
-								.remove(Query.query(Criteria.where("_id").is(session.getOriginalSessionId())),
-										this.collectionName) //
-								.then(this.mongoOperations.save(dbObject, this.collectionName));
-					}
-					else {
+					return this.mongoOperations
+						.remove(Query.query(Criteria.where("_id").is(session.getOriginalSessionId())),
+								this.collectionName) //
+						.then(this.mongoOperations.save(dbObject, this.collectionName));
+				}
+				else {
 
-						return this.mongoOperations.save(dbObject, this.collectionName);
-					}
-				}) //
-				.then();
+					return this.mongoOperations.save(dbObject, this.collectionName);
+				}
+			}) //
+			.then();
 	}
 
 	@Override
 	public Mono<MongoSession> findById(String id) {
 
 		return findSession(id) //
-				.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
-				.filter((mongoSession) -> !mongoSession.isExpired()) //
-				.doOnNext((mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
-				.switchIfEmpty(Mono.defer(() -> this.deleteById(id).then(Mono.empty())));
+			.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
+			.filter((mongoSession) -> !mongoSession.isExpired()) //
+			.doOnNext((mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
+			.switchIfEmpty(Mono.defer(() -> this.deleteById(id).then(Mono.empty())));
 	}
 
 	@Override
 	public Mono<Void> deleteById(String id) {
 
 		return findSession(id) //
-				.flatMap((document) -> this.mongoOperations.remove(document, this.collectionName) //
-						.then(Mono.just(document))) //
-				.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
-				.doOnNext((mongoSession) -> publishEvent(new SessionDeletedEvent(this, mongoSession))) //
-				.then();
+			.flatMap((document) -> this.mongoOperations.remove(document, this.collectionName) //
+				.then(Mono.just(document))) //
+			.map((document) -> MongoSessionUtils.convertToSession(this.mongoSessionConverter, document)) //
+			.doOnNext((mongoSession) -> publishEvent(new SessionDeletedEvent(this, mongoSession))) //
+			.then();
 	}
 
 	/**

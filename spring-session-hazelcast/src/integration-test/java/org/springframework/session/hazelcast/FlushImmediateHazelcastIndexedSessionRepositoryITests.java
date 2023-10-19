@@ -68,7 +68,7 @@ class FlushImmediateHazelcastIndexedSessionRepositoryITests {
 		this.repository.save(session);
 
 		Map<String, HazelcastIndexedSessionRepository.HazelcastSession> findByPrincipalName = this.repository
-				.findByPrincipalName(username);
+			.findByPrincipalName(username);
 
 		assertThat(findByPrincipalName).hasSize(1);
 		assertThat(findByPrincipalName.keySet()).containsOnly(sessionId);

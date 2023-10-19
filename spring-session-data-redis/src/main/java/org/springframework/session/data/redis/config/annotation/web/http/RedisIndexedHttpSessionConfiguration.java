@@ -107,7 +107,7 @@ public class RedisIndexedHttpSessionConfiguration
 		sessionRepository.setDatabase(database);
 		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
 		getSessionRepositoryCustomizers()
-				.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
+			.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
 	}
 
@@ -179,7 +179,7 @@ public class RedisIndexedHttpSessionConfiguration
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
-				.getAnnotationAttributes(EnableRedisIndexedHttpSession.class.getName());
+			.getAnnotationAttributes(EnableRedisIndexedHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
 			return;

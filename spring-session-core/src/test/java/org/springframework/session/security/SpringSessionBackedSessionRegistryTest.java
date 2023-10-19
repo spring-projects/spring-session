@@ -78,7 +78,7 @@ class SpringSessionBackedSessionRegistryTest {
 
 		assertThat(sessionInfo.getSessionId()).isEqualTo(SESSION_ID);
 		assertThat(sessionInfo.getLastRequest().toInstant().truncatedTo(ChronoUnit.MILLIS))
-				.isEqualTo(NOW.truncatedTo(ChronoUnit.MILLIS));
+			.isEqualTo(NOW.truncatedTo(ChronoUnit.MILLIS));
 		assertThat(sessionInfo.getPrincipal()).isEqualTo(USER_NAME);
 		assertThat(sessionInfo.isExpired()).isFalse();
 	}
@@ -93,7 +93,7 @@ class SpringSessionBackedSessionRegistryTest {
 
 		assertThat(sessionInfo.getSessionId()).isEqualTo(SESSION_ID);
 		assertThat(sessionInfo.getLastRequest().toInstant().truncatedTo(ChronoUnit.MILLIS))
-				.isEqualTo(NOW.truncatedTo(ChronoUnit.MILLIS));
+			.isEqualTo(NOW.truncatedTo(ChronoUnit.MILLIS));
 		assertThat(sessionInfo.getPrincipal()).isEqualTo(USER_NAME);
 		assertThat(sessionInfo.isExpired()).isTrue();
 	}
@@ -114,7 +114,7 @@ class SpringSessionBackedSessionRegistryTest {
 	void getAllSessionsForAuthenticatedPrincipal() {
 		setUpSessions();
 		List<SessionInformation> allSessionInfos = this.sessionRegistry
-				.getAllSessions((AuthenticatedPrincipal) () -> USER_NAME, true);
+			.getAllSessions((AuthenticatedPrincipal) () -> USER_NAME, true);
 		assertThat(allSessionInfos).extracting("sessionId").containsExactly(SESSION_ID, SESSION_ID2);
 	}
 
@@ -149,7 +149,7 @@ class SpringSessionBackedSessionRegistryTest {
 		ArgumentCaptor<Session> captor = ArgumentCaptor.forClass(Session.class);
 		verify(this.sessionRepository).save(captor.capture());
 		assertThat(captor.getValue().<Boolean>getAttribute(SpringSessionBackedSessionInformation.EXPIRED_ATTR))
-				.isEqualTo(Boolean.TRUE);
+			.isEqualTo(Boolean.TRUE);
 	}
 
 	private Session createSession(String sessionId, String userName, Instant lastAccessed) {

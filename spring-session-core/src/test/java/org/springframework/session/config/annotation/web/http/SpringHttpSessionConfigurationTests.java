@@ -64,8 +64,8 @@ class SpringHttpSessionConfigurationTests {
 	@Test
 	void noSessionRepositoryConfiguration() {
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
-				.isThrownBy(() -> registerAndRefresh(EmptyConfiguration.class))
-				.withMessageContaining("org.springframework.session.SessionRepository");
+			.isThrownBy(() -> registerAndRefresh(EmptyConfiguration.class))
+			.withMessageContaining("org.springframework.session.SessionRepository");
 	}
 
 	@Test
@@ -84,10 +84,10 @@ class SpringHttpSessionConfigurationTests {
 		SessionRepositoryFilter sessionRepositoryFilter = this.context.getBean(SessionRepositoryFilter.class);
 		assertThat(sessionRepositoryFilter).isNotNull();
 		CookieHttpSessionIdResolver httpSessionIdResolver = (CookieHttpSessionIdResolver) ReflectionTestUtils
-				.getField(sessionRepositoryFilter, "httpSessionIdResolver");
+			.getField(sessionRepositoryFilter, "httpSessionIdResolver");
 		assertThat(httpSessionIdResolver).isNotNull();
 		DefaultCookieSerializer cookieSerializer = (DefaultCookieSerializer) ReflectionTestUtils
-				.getField(httpSessionIdResolver, "cookieSerializer");
+			.getField(httpSessionIdResolver, "cookieSerializer");
 		assertThat(cookieSerializer).isNotNull();
 		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookieName")).isEqualTo("test-name");
 		assertThat(ReflectionTestUtils.getField(cookieSerializer, "cookiePath")).isEqualTo("test-path");
@@ -102,13 +102,13 @@ class SpringHttpSessionConfigurationTests {
 		SessionRepositoryFilter sessionRepositoryFilter = this.context.getBean(SessionRepositoryFilter.class);
 		assertThat(sessionRepositoryFilter).isNotNull();
 		CookieHttpSessionIdResolver httpSessionIdResolver = (CookieHttpSessionIdResolver) ReflectionTestUtils
-				.getField(sessionRepositoryFilter, "httpSessionIdResolver");
+			.getField(sessionRepositoryFilter, "httpSessionIdResolver");
 		assertThat(httpSessionIdResolver).isNotNull();
 		DefaultCookieSerializer cookieSerializer = (DefaultCookieSerializer) ReflectionTestUtils
-				.getField(httpSessionIdResolver, "cookieSerializer");
+			.getField(httpSessionIdResolver, "cookieSerializer");
 		assertThat(cookieSerializer).isNotNull();
 		assertThat(ReflectionTestUtils.getField(cookieSerializer, "rememberMeRequestAttribute"))
-				.isEqualTo(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
+			.isEqualTo(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);
 	}
 
 	@Configuration
