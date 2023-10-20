@@ -53,7 +53,7 @@ org-hsqldb = "org.hsqldb:hsqldb:2.7.0"
 org-junit-junit-bom = "org.junit:junit-bom:5.9.1"
 org-junit-jupiter-junit-jupiter-api = "org.junit.jupiter:junit-jupiter-api:5.9.3"
 org-junit-jupiter-junit-jupiter-engine = "org.junit.jupiter:junit-jupiter-engine:5.9.3"
-org-junit-jupiter-junit-jupiter-params = "org.junit.jupiter:junit-jupiter-params:5.9.1"
+org-junit-jupiter-junit-jupiter-params = "org.junit.jupiter:junit-jupiter-params:5.9.3"
 org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.0.7"
 org-mockito-mockito-bom = "org.mockito:mockito-bom:4.8.1"
 org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
