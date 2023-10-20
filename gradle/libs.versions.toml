@@ -1,5 +1,5 @@
 [versions]
-ch-qos-logback = "1.4.8"
+ch-qos-logback = "1.4.11"
 io-projectreactor = "3.6.0-RC1"
 jakarta-websocket = "2.1.1"
 org-apache-derby = "10.16.1.1"
