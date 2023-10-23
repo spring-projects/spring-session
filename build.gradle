@@ -30,7 +30,6 @@ plugins {
 }
 
 apply plugin: 'io.spring.convention.root'
-apply plugin: 'org.springframework.security.update-dependencies'
 
 group = 'org.springframework.session'
 description = 'Spring Session'
@@ -56,28 +55,4 @@ nohttp {
     source.exclude "buildSrc/build/**"
 	source.exclude "spring-session-docs/.gradle/nodejs/**"
 	source.exclude "spring-session-docs/modules/ROOT/examples/**/build/**"
-}
-
-tasks.named("updateDependencies") {
-	// we aren't Gradle 8 compatible yet
-	checkForGradleUpdate = false
-}
-
-updateDependenciesSettings {
-	gitHub {
-		organization = "spring-projects"
-		repository = "spring-session"
-	}
-	dependencyExcludes {
-		majorVersionBump()
-		minorVersionBump()
-		alphaBetaVersions()
-		snapshotVersions()
-	}
-	setFiles({
-		return [
-				project.file("gradle/dependency-management.gradle"),
-				project.file("buildSrc/src/main/groovy/io/spring/gradle/convention/CheckstylePlugin.groovy")
-		]
-	})
 }
