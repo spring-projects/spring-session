@@ -1,6 +1,6 @@
 [versions]
 ch-qos-logback = "1.4.11"
-io-projectreactor = "3.5.11"
+io-projectreactor = "3.4.33"
 jakarta-websocket = "2.1.0"
 org-apache-derby = "10.16.1.1"
 org-codehaus-groovy = "3.0.17"
