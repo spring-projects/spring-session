@@ -1,5 +1,5 @@
 [versions]
-ch-qos-logback = "1.4.7"
+ch-qos-logback = "1.4.11"
 com-fasterxml-jackson = "2.14.3"
 io-projectreactor = "3.5.11"
 jakarta-websocket = "2.1.1"
