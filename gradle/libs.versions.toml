@@ -95,7 +95,7 @@ org-testcontainers-mssqlserver = { module = "org.testcontainers:mssqlserver", ve
 org-testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "org-testcontainers" }
 org-testcontainers-oracle-xe = { module = "org.testcontainers:oracle-xe", version.ref = "org-testcontainers" }
 org-testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "org-testcontainers" }
-org-thymeleaf-extras-thymeleaf-extras-springsecurity6 = "org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.1.RELEASE"
+org-thymeleaf-extras-thymeleaf-extras-springsecurity6 = "org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.2.RELEASE"
 org-webjars-bootstrap = "org.webjars:bootstrap:2.3.2"
 org-webjars-html5shiv = "org.webjars:html5shiv:3.7.3-1"
 org-webjars-knockout = "org.webjars:knockout:3.5.1"
