@@ -12,7 +12,7 @@ org-slf4j = "2.0.9"
 org-springframework-boot = "3.0.12"
 org-springframework = "6.0.13"
 org-testcontainers = "1.17.6"
-org-junit = "5.9.3"
+org-junit = "5.8.2"
 
 [libraries]
 ch-qos-logback-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "ch-qos-logback" }
