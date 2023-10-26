@@ -111,6 +111,14 @@ If the regular expression matches, the first https://docs.oracle.com/javase/tuto
 * `sameSite`: The value for the `SameSite` cookie directive.
 To disable the serialization of the `SameSite` cookie directive, you may set this value to `null`.
 Default: `Lax`
+* `rememberMeRequestAttribute`: The request attribute name that indicates remember-me login.
+If specified, the cookie will be written as `Integer.MAX_VALUE`.
+
+[NOTE]
+====
+If you are using `SpringSessionRememberMeServices` and you are declaring a custom `DefaultCookieSerializer` bean, you should set the `rememberMeRequestAttribute` field to ensure that Spring Session relies on session expiration rather than cookie expiration.
+To do so, you can use the following code snippet: `defaultCookieSerializer.setRememberMeRequestAttribute(SpringSessionRememberMeServices.REMEMBER_ME_LOGIN_ATTR);`
+====
 
 [[custom-cookie-in-webflux]]
 === Custom Cookie in WebFlux
