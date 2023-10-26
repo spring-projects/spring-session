@@ -434,4 +434,14 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		return this.cookiePath;
 	}
 
+	/**
+	 * Gets the name of the request attribute that is checked to see if the cookie should
+	 * be written with {@link Integer#MAX_VALUE}.
+	 * @return the remember me request attribute
+	 * @since 3.2
+	 */
+	public String getRememberMeRequestAttribute() {
+		return this.rememberMeRequestAttribute;
+	}
+
 }
