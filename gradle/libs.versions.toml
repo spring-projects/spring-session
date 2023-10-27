@@ -57,7 +57,7 @@ org-junit-junit-bom = { module =  "org.junit:junit-bom", version.ref = "org-juni
 org-junit-jupiter-junit-jupiter-api = { module =  "org.junit.jupiter:junit-jupiter-api", version.ref = "org-junit" }
 org-junit-jupiter-junit-jupiter-engine = { module =  "org.junit.jupiter:junit-jupiter-engine", version.ref = "org-junit" }
 org-junit-jupiter-junit-jupiter-params = { module =  "org.junit.jupiter:junit-jupiter-params", version.ref = "org-junit" }
-org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.0.7"
+org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.0.11"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-mockito-mockito-core = { module = "org.mockito:mockito-core", version.ref = "org-mockito" }
 org-mockito-mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "org-mockito" }
