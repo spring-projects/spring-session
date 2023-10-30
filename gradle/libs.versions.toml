@@ -52,7 +52,7 @@ org-gretty-gretty-runner-jetty11 = { module = "org.gretty:gretty-runner-jetty11"
 org-gretty-gretty-runner-tomcat10 = { module = "org.gretty:gretty-runner-tomcat10", version.ref = "org-gretty" }
 org-gretty-gretty-starter = { module = "org.gretty:gretty-starter", version.ref = "org-gretty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hsqldb = "org.hsqldb:hsqldb:2.7.0"
+org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
 org-junit-junit-bom = { module =  "org.junit:junit-bom", version.ref = "org-junit" }
 org-junit-jupiter-junit-jupiter-api = { module =  "org.junit.jupiter:junit-jupiter-api", version.ref = "org-junit" }
 org-junit-jupiter-junit-jupiter-engine = { module =  "org.junit.jupiter:junit-jupiter-engine", version.ref = "org-junit" }
