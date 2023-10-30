@@ -21,7 +21,7 @@ com-fasterxml-jackson-jackson-bom = { module = "com.fasterxml.jackson:jackson-bo
 com-fasterxml-jackson-core-jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "com-fasterxml-jackson" }
 com-google-code-findbugs-jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
 com-h2database-h2 = "com.h2database:h2:2.1.214"
-com-hazelcast = "com.hazelcast:hazelcast:5.1.4"
+com-hazelcast = "com.hazelcast:hazelcast:5.1.7"
 com-ibm-db2-jcc = "com.ibm.db2:jcc:11.5.8.0"
 com-maxmind-geoip2 = "com.maxmind.geoip2:geoip2:2.16.1"
 com-microsoft-sqlserver-mssql-jdbc = "com.microsoft.sqlserver:mssql-jdbc:11.2.1.jre17"
