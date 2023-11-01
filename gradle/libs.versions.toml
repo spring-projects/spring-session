@@ -19,7 +19,7 @@ ch-qos-logback-logback-core = { module = "ch.qos.logback:logback-core", version.
 com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.15.3"
 com-fasterxml-jackson-core-jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.15.3"
 com-google-code-findbugs-jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
-com-h2database-h2 = "com.h2database:h2:2.2.220"
+com-h2database-h2 = "com.h2database:h2:2.2.224"
 com-hazelcast = "com.hazelcast:hazelcast:5.3.2"
 com-ibm-db2-jcc = "com.ibm.db2:jcc:11.5.8.0"
 com-maxmind-geoip2 = "com.maxmind.geoip2:geoip2:2.16.1"
