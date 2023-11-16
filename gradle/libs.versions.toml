@@ -28,7 +28,7 @@ com-microsoft-sqlserver-mssql-jdbc = "com.microsoft.sqlserver:mssql-jdbc:11.2.3.
 com-oracle-database-jdbc-ojdbc8 = "com.oracle.database.jdbc:ojdbc8:21.7.0.0"
 com-zaxxer-HikariCP = "com.zaxxer:HikariCP:5.0.1"
 edu-umd-cs-mtc-multithreadedtc = "edu.umd.cs.mtc:multithreadedtc:1.01"
-io-lettuce-lettuce-core = "io.lettuce:lettuce-core:6.2.6.RELEASE"
+io-lettuce-lettuce-core = "io.lettuce:lettuce-core:6.2.7.RELEASE"
 io-projectreactor-reactor-bom = { module = "io.projectreactor:reactor-bom", version = "2022.0.13" }
 io-spring-javaformat-spring-javaformat-checkstyle = "io.spring.javaformat:spring-javaformat-checkstyle:0.0.39"
 io-spring-nohttp-nohttp-checkstyle = "io.spring.nohttp:nohttp-checkstyle:0.0.11"
