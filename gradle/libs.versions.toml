@@ -85,7 +85,7 @@ org-springframework-data-spring-data-bom = "org.springframework.data:spring-data
 org-springframework-data-spring-data-mongodb = "org.springframework.data:spring-data-mongodb:4.0.11"
 org-springframework-data-spring-data-redis = "org.springframework.data:spring-data-redis:3.0.11"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.1.5"
-org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:6.0.13"
+org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:6.0.14"
 org-springframework-springloaded = "org.springframework:springloaded:1.2.8.RELEASE"
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "org-testcontainers" }
 org-testcontainers-db2 = { module = "org.testcontainers:db2", version.ref = "org-testcontainers" }
