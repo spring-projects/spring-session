@@ -33,7 +33,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
 /**
@@ -69,7 +69,7 @@ class RedisIndexedSessionRepositoryDynamicITests extends AbstractRedisITests {
 
 		RedisSystemException redisSystemException = new RedisSystemException(null,
 				new RedisCommandExecutionException("ERR no such key. channel: [id: 0xec125091,..."));
-		willThrow(redisSystemException).given(this.spyOperations).rename(any(), any());
+		doThrow(redisSystemException).when(this.spyOperations).rename(any(), any());
 
 		this.sessionRepository.save(session);
 		assertThat(this.sessionRepository.findById(sessionId)).isNull();
