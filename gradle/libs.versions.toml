@@ -86,7 +86,7 @@ org-springframework-boot-spring-boot-starter-validation = { module = "org.spring
 org-springframework-boot-spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "org-springframework-boot" }
 org-springframework-boot-spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "org-springframework-boot" }
 org-springframework-boot-spring-boot-starter-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "org-springframework-boot" }
-org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2022.0.11"
+org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2022.0.12"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.0.8"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework"}
 org-springframework-spring-context = { module = "org.springframework:spring-context", version.ref = "org-springframework"}
