@@ -8,4 +8,5 @@
 	<suppress files="[\\/]spring-session-samples[\\/]" checks="Javadoc*"/>
 	<suppress files="[\\/]spring-session-samples[\\/].+Application\.java" checks="HideUtilityClassConstructor"/>
 	<suppress files="CookieSerializer\.java" checks="SpringMethodVisibility"/>
+	<suppress files="RedisIndexedSessionRepositoryDynamicITests\.java" checks="RegexpSinglelineJava"/>
 </suppressions>
