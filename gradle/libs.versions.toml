@@ -82,7 +82,7 @@ org-springframework-boot-spring-boot-starter-web = { module = "org.springframewo
 org-springframework-boot-spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "org-springframework-boot" }
 org-springframework-boot-spring-boot-starter-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "org-springframework-boot" }
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2022.0.11"
-org-springframework-data-spring-data-mongodb = "org.springframework.data:spring-data-mongodb:4.0.11"
+org-springframework-data-spring-data-mongodb = "org.springframework.data:spring-data-mongodb:4.0.12"
 org-springframework-data-spring-data-redis = "org.springframework.data:spring-data-redis:3.0.11"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.1.5"
 org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:6.0.14"
