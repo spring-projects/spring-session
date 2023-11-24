@@ -107,4 +107,4 @@ nl-littlerobots-version-catalog-update = "nl.littlerobots.version-catalog-update
 org-antora = "org.antora:1.0.0"
 org-gretty = "org.gretty:4.1.1"
 org-springframework-boot = "org.springframework.boot:3.0.12"
-org-springframework-boot-aot = "org.springframework.boot.aot:3.0.12"
+org-springframework-boot-aot = "org.springframework.boot.aot:3.0.13"
