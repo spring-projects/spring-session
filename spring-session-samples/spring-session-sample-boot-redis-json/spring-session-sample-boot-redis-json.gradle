@@ -12,7 +12,6 @@ dependencies {
 	implementation  "org.webjars:bootstrap"
 	implementation  "org.webjars:html5shiv"
 	implementation  "org.webjars:webjars-locator-core"
-	implementation  "org.apache.httpcomponents:httpclient"
 
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation "org.assertj:assertj-core"

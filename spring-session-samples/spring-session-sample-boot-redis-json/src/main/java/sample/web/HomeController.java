@@ -16,9 +16,12 @@
 
 package sample.web;
 
+import java.util.Collections;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,10 +34,11 @@ public class HomeController {
 
 	@RequestMapping("/setValue")
 	public String setValue(@RequestParam(name = "key", required = false) String key,
-			@RequestParam(name = "value", required = false) String value, HttpServletRequest request) {
+			@RequestParam(name = "value", required = false) String value, HttpServletRequest request, Model model) {
 		if (!ObjectUtils.isEmpty(key) && !ObjectUtils.isEmpty(value)) {
 			request.getSession().setAttribute(key, value);
 		}
+		model.addAttribute("sessionAttributeNames", Collections.list(request.getSession().getAttributeNames()));
 		return "home";
 	}
 
