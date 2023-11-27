@@ -1,7 +1,6 @@
 [versions]
 ch-qos-logback = "1.4.11"
 com-fasterxml-jackson = "2.14.3"
-io-projectreactor = "3.5.11"
 jakarta-websocket = "2.1.1"
 org-apache-derby = "10.16.1.1"
 org-codehaus-groovy = "3.0.19"
@@ -9,7 +8,6 @@ org-gretty = "4.1.1"
 org-mockito = "4.8.1"
 org-mongodb = "4.8.2"
 org-slf4j = "2.0.9"
-org-springframework-boot = "3.0.13"
 org-springframework = "6.0.14"
 org-testcontainers = "1.17.6"
 org-junit = "5.8.2"
@@ -54,14 +52,8 @@ org-gretty-gretty-starter = { module = "org.gretty:gretty-starter", version.ref 
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
 org-junit-junit-bom = { module =  "org.junit:junit-bom", version.ref = "org-junit" }
-org-junit-jupiter-junit-jupiter-api = { module =  "org.junit.jupiter:junit-jupiter-api", version.ref = "org-junit" }
-org-junit-jupiter-junit-jupiter-engine = { module =  "org.junit.jupiter:junit-jupiter-engine", version.ref = "org-junit" }
-org-junit-jupiter-junit-jupiter-params = { module =  "org.junit.jupiter:junit-jupiter-params", version.ref = "org-junit" }
 org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.0.11"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
-org-mockito-mockito-core = { module = "org.mockito:mockito-core", version.ref = "org-mockito" }
-org-mockito-mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "org-mockito" }
-org-mockito-mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "org-mockito" }
 org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "org-mongodb" }
@@ -72,33 +64,9 @@ org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.1"
 org-slf4j-jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "org-slf4j" }
 org-slf4j-log4j-over-slf4j = { module = "org.slf4j:log4j-over-slf4j", version.ref = "org-slf4j" }
 org-slf4j-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "org-slf4j" }
-org-springframework-boot-spring-boot-devtools = { module = "org.springframework.boot:spring-boot-devtools", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-gradle-plugin = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-data-jpa = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-data-mongodb = { module = "org.springframework.boot:spring-boot-starter-data-mongodb", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-data-mongodb-reactive = { module = "org.springframework.boot:spring-boot-starter-data-mongodb-reactive", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-data-redis = { module = "org.springframework.boot:spring-boot-starter-data-redis", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-thymeleaf = { module = "org.springframework.boot:spring-boot-starter-thymeleaf", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "org-springframework-boot" }
-org-springframework-boot-spring-boot-starter-websocket = { module = "org.springframework.boot:spring-boot-starter-websocket", version.ref = "org-springframework-boot" }
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2022.0.12"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.0.8"
 org-springframework-spring-framework-bom = { module = "org.springframework:spring-framework-bom", version.ref = "org-springframework"}
-org-springframework-spring-context = { module = "org.springframework:spring-context", version.ref = "org-springframework"}
-org-springframework-spring-jcl = { module = "org.springframework:spring-jcl", version.ref = "org-springframework"}
-org-springframework-spring-jdbc = { module = "org.springframework:spring-jdbc", version.ref = "org-springframework"}
-org-springframework-spring-messaging = { module = "org.springframework:spring-messaging", version.ref = "org-springframework"}
-org-springframework-spring-test = { module = "org.springframework:spring-test", version.ref = "org-springframework"}
-org-springframework-spring-web = { module = "org.springframework:spring-web", version.ref = "org-springframework"}
-org-springframework-spring-webflux = { module = "org.springframework:spring-webflux", version.ref = "org-springframework"}
-org-springframework-spring-webmvc = { module = "org.springframework:spring-webmvc", version.ref = "org-springframework"}
-org-springframework-spring-websocket = { module = "org.springframework:spring-websocket", version.ref = "org-springframework"}
-org-springframework-springloaded = "org.springframework:springloaded:1.2.8.RELEASE"
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "org-testcontainers" }
 org-thymeleaf-extras-thymeleaf-extras-springsecurity6 = "org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.2.RELEASE"
 org-webjars-bootstrap = "org.webjars:bootstrap:2.3.2"
@@ -109,9 +77,3 @@ org-webjars-stomp-websocket = "org.webjars:stomp-websocket:2.3.4"
 org-webjars-webjars-locator-core = "org.webjars:webjars-locator-core:0.52"
 
 [plugins]
-io-spring-antora-generate-antora-yml = "io.spring.antora.generate-antora-yml:0.0.1"
-nl-littlerobots-version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.1"
-org-antora = "org.antora:1.0.0"
-org-gretty = "org.gretty:4.1.1"
-org-springframework-boot = "org.springframework.boot:3.0.13"
-org-springframework-boot-aot = "org.springframework.boot.aot:3.0.13"
