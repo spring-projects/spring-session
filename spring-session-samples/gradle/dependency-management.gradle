@@ -1,3 +1,6 @@
+def versionCatalog = extensions.getByType(VersionCatalogsExtension).named("libs")
+def springBootVersion = versionCatalog.findVersion("org-springframework-boot").get().displayName
+
 dependencyManagement {
 	imports {
 		mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersion"

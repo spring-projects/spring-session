@@ -49,6 +49,10 @@ tasks.named("generateAntoraYml") {
 
 
 def generateAttributes() {
+	def springBootVersion = libs.versions.org.springframework.boot.get()
+	springBootVersion = springBootVersion.contains("-")
+			? springBootVersion.substring(0, springBootVersion.indexOf("-"))
+			: springBootVersion
     def ghTag = snapshotBuild ? 'main' : project.version
     def springBootRefDocs =  "https://docs.spring.io/spring-boot/docs/${springBootVersion}/reference/html"
     return ['gh-tag':ghTag,
