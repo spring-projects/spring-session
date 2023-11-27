@@ -17,6 +17,7 @@
 package io.spring.gradle.convention;
 
 import org.gradle.api.Project
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.sonarqube.gradle.SonarQubePlugin;
 
 /**
@@ -33,16 +34,16 @@ public class SpringSamplePlugin extends AbstractSpringJavaPlugin {
 
 	@Override
 	protected void initialPlugins(Project project) {
-		if (project.hasProperty('springBootVersion')) {
-			String springBootVersion = project.springBootVersion
-
+		def versionCatalog = project.rootProject.extensions.getByType(VersionCatalogsExtension.class)
+				.named("libs")
+		def version = versionCatalog.findVersion("org-springframework-boot")
+		version.ifPresent {
+			def springBootVersion = it.displayName
 			if (Utils.isSnapshot(springBootVersion)) {
 				project.ext.forceMavenRepositories = 'snapshot'
-			}
-			else if (Utils.isMilestone(springBootVersion)) {
+			} else if (Utils.isMilestone(springBootVersion)) {
 				project.ext.forceMavenRepositories = 'milestone'
 			}
 		}
-
 	}
 }
