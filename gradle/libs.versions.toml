@@ -7,6 +7,7 @@ org-gretty = "4.1.1"
 org-mongodb = "4.8.2"
 org-slf4j = "2.0.9"
 org-testcontainers = "1.17.6"
+org-springframework-boot = "3.1.6"
 
 [libraries]
 ch-qos-logback-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "ch-qos-logback" }
@@ -63,6 +64,8 @@ org-slf4j-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "org-slf4j
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2022.0.12"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.1.5"
 org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:6.0.14"
+org-springframework-boot-spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "org-springframework-boot" }
+org-springframework-boot-spring-boot-gradle-plugin = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "org-springframework-boot" }
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "org-testcontainers" }
 org-thymeleaf-extras-thymeleaf-extras-springsecurity6 = "org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.2.RELEASE"
 org-webjars-bootstrap = "org.webjars:bootstrap:2.3.2"

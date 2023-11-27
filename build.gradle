@@ -20,7 +20,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath "org.springframework.boot:spring-boot-gradle-plugin:$springBootVersion"
+		classpath libs.org.springframework.boot.spring.boot.gradle.plugin
 	}
 }
 
