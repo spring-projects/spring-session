@@ -40,7 +40,7 @@ org-apache-derby-derby = { module = "org.apache.derby:derby", version.ref = "org
 org-apache-derby-derbytools = { module = "org.apache.derby:derbytools", version.ref = "org-apache-derby" }
 org-apache-httpcomponents-httpclient = "org.apache.httpcomponents:httpclient:4.5.14"
 org-apache-logging-log4j-log4j-core = "org.apache.logging.log4j:log4j-core:2.17.2"
-org-aspectj-aspectjweaver = "org.aspectj:aspectjweaver:1.9.20.1"
+org-aspectj-aspectjweaver = "org.aspectj:aspectjweaver:1.9.21"
 org-assertj-assertj-core = "org.assertj:assertj-core:3.24.2"
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
