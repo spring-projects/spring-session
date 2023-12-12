@@ -20,13 +20,11 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import io.lettuce.core.RedisCommandExecutionException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.RedisSystemException;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.MapSession;
@@ -43,7 +41,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
 /**
@@ -97,30 +94,6 @@ class RedisIndexedSessionRepositoryDynamicITests extends AbstractRedisITests {
 
 		this.sessionRepository.save(session);
 		assertThat(this.sessionRepository.findById(session.getId())).isNull();
-	}
-
-	// gh-1743
-	@Test
-	@SuppressWarnings("unchecked")
-	void saveChangeSessionIdWhenFailedRenameOperationExceptionContainsMoreDetailsThenIgnoreError() {
-		this.context.register(Config.class);
-		refreshAndPrepareFields();
-
-		RedisSession toSave = this.sessionRepository.createSession();
-		String sessionId = toSave.getId();
-
-		this.sessionRepository.save(toSave);
-		RedisSession session = this.sessionRepository.findById(sessionId);
-		this.sessionRepository.deleteById(sessionId);
-		String newSessionId = session.changeSessionId();
-
-		RedisSystemException redisSystemException = new RedisSystemException(null,
-				new RedisCommandExecutionException("ERR no such key. channel: [id: 0xec125091,..."));
-		doThrow(redisSystemException).when(this.spyOperations).rename(any(), any());
-
-		this.sessionRepository.save(session);
-		assertThat(this.sessionRepository.findById(sessionId)).isNull();
-		assertThat(this.sessionRepository.findById(newSessionId)).isNull();
 	}
 
 	@SuppressWarnings("unchecked")
