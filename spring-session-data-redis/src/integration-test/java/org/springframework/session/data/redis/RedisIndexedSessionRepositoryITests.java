@@ -47,6 +47,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 /**
  * Integration tests for {@link RedisIndexedSessionRepository}.
@@ -680,6 +681,20 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(this.repository.findById(originalId)).isNull();
 		assertThat(this.repository.findById(copy1.getId())).isNotNull();
 		assertThat(this.repository.findById(copy2.getId())).isNull();
+	}
+
+	// gh-1743
+	@Test
+	void saveChangeSessionIdWhenFailedRenameOperationExceptionThenIgnoreError() {
+		RedisSession toSave = this.repository.createSession();
+		String sessionId = toSave.getId();
+
+		this.repository.save(toSave);
+		RedisSession session = this.repository.findById(sessionId);
+		this.repository.deleteById(sessionId);
+		session.changeSessionId();
+
+		assertThatNoException().isThrownBy(() -> this.repository.save(session));
 	}
 
 	private String getSecurityName() {
