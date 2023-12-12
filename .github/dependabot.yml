@@ -61,20 +61,3 @@ updates:
         update-types: [ "version-update:semver-major" ]
       - dependency-name: "*"
         update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
-
-  - package-ecosystem: "gradle"
-    target-branch: "3.0.x"
-    milestone: 150
-    directory: "/"
-    schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    labels: [ "type: dependency-upgrade" ]
-    ignore:
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
