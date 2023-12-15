@@ -42,14 +42,14 @@ jobs:
       - name: ls existing cache
         run:  ls ~/.cache/antora/collector-cache/spring-session-* || true
       - name: Publish Docs
-        uses: spring-io/spring-doc-actions/rsync-antora-reference@v0.0.11
+        uses: spring-io/spring-doc-actions/rsync-antora-reference@v0.0.13
         with:
           docs-username: ${{ secrets.DOCS_USERNAME }}
           docs-host: ${{ secrets.DOCS_HOST }}
           docs-ssh-key: ${{ secrets.DOCS_SSH_KEY }}
           docs-ssh-host-key: ${{ secrets.DOCS_SSH_HOST_KEY }}
       - name: Bust Clouflare Cache
-        uses: spring-io/spring-doc-actions/bust-cloudflare-antora-cache@v0.0.11
+        uses: spring-io/spring-doc-actions/bust-cloudflare-antora-cache@v0.0.13
         with:
           context-root: spring-session
           cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
