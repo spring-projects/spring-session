@@ -1,0 +1,15 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+	management platform(project(":spring-session-dependencies"))
+	implementation project(':spring-session-core')
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation "org.seleniumhq.selenium:htmlunit-driver"
+	testImplementation "org.seleniumhq.selenium:selenium-support"
+}
