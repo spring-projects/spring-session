@@ -26,7 +26,7 @@ buildscript {
 
 plugins {
 	id "com.github.ben-manes.versions"
-	id "nl.littlerobots.version-catalog-update" version "0.8.1"
+	id "nl.littlerobots.version-catalog-update" version "0.8.3"
 }
 
 apply plugin: 'io.spring.convention.root'
