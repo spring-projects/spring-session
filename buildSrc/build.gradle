@@ -4,13 +4,14 @@ plugins {
     id "groovy"
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
     jcenter()
     gradlePluginPortal()
     mavenCentral()
     maven { url 'https://repo.spring.io/plugins-release/' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 sourceSets {
@@ -74,6 +75,7 @@ dependencies {
     implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.29.4'
     implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
     implementation libs.com.squareup.okhttp3.okhttp
+    implementation libs.io.spring.security.release.plugin
 
     testImplementation platform('org.junit:junit-bom:5.8.2')
     testImplementation "org.junit.jupiter:junit-jupiter-api"

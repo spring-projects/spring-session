@@ -74,5 +74,6 @@ org-webjars-knockout = "org.webjars:knockout:3.5.1"
 org-webjars-sockjs-client = "org.webjars:sockjs-client:1.5.1"
 org-webjars-stomp-websocket = "org.webjars:stomp-websocket:2.3.4"
 org-webjars-webjars-locator-core = "org.webjars:webjars-locator-core:0.52"
+io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.1-SNAPSHOT"
 
 [plugins]
