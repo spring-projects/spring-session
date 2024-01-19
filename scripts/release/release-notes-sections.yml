@@ -2,7 +2,7 @@ changelog:
   repository: spring-projects/spring-session
   issues:
     exclude:
-      labels: ["status: duplicate", "status: invalid", "status: declined"]
+      labels: ["status: duplicate", "status: invalid", "status: declined", "github_actions"]
     ports:
       - label: "status: forward-port"
         bodyExpression: 'Forward port of issue #(\d+).*'
