@@ -7,7 +7,7 @@ org-gretty = "4.1.2"
 org-mongodb = "4.8.2"
 org-slf4j = "2.0.11"
 org-testcontainers = "1.17.6"
-org-springframework-boot = "3.1.7"
+org-springframework-boot = "3.1.8"
 
 [libraries]
 ch-qos-logback-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "ch-qos-logback" }
