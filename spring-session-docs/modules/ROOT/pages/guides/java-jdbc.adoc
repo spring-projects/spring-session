@@ -100,7 +100,7 @@ We configure the H2 database to create database tables by using the SQL script t
 <3> We create a `transactionManager` that manages transactions for previously configured `dataSource`.
 ====
 
-For additional information on how to configure data access related concerns, see the https://docs.spring.io/spring/docs/{spring-core-version}/reference/html/data-access.html[Spring Framework Reference Documentation].
+For additional information on how to configure data access related concerns, see the {docs-url}/spring/docs/{spring-core-version}/reference/html/data-access.html[Spring Framework Reference Documentation].
 
 == Java Servlet Container Initialization
 

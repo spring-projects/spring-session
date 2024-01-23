@@ -102,7 +102,7 @@ The filter is in charge of replacing the `HttpSession` implementation to be back
 In this instance, Spring Session is backed by Redis.
 <2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
 We configure the connection to connect to localhost on the default port (6379)
-For more information on configuring Spring Data Redis, see the https://docs.spring.io/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
+For more information on configuring Spring Data Redis, see the {docs-url}/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
 ====
 
 == XML Servlet Container Initialization
@@ -122,7 +122,7 @@ include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/we
 ----
 ====
 
-The https://docs.spring.io/spring/docs/{spring-core-version}/spring-framework-reference/core.html#context-create[`ContextLoaderListener`] reads the contextConfigLocation and picks up our session.xml configuration.
+The {docs-url}/spring/docs/{spring-core-version}/spring-framework-reference/core.html#context-create[`ContextLoaderListener`] reads the contextConfigLocation and picks up our session.xml configuration.
 
 Last, we need to ensure that our Servlet Container (that is, Tomcat) uses our `springSessionRepositoryFilter` for every request.
 The following snippet performs this last step for us:
@@ -135,7 +135,7 @@ include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/we
 ----
 ====
 
-The https://docs.spring.io/spring-framework/docs/{spring-core-version}/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[`DelegatingFilterProxy`] looks up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
+The {docs-url}/spring-framework/docs/{spring-core-version}/javadoc-api/org/springframework/web/filter/DelegatingFilterProxy.html[`DelegatingFilterProxy`] looks up a Bean by the name of `springSessionRepositoryFilter` and cast it to a `Filter`.
 For every request that `DelegatingFilterProxy` is invoked, the `springSessionRepositoryFilter` is invoked.
 
 // end::config[]
