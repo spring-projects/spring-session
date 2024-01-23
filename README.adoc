@@ -4,6 +4,8 @@ image:https://badges.gitter.im/spring-projects/spring-session.svg[link="https://
 
 image:https://github.com/spring-projects/spring-session/workflows/CI/badge.svg?branch=main["Build Status", link="https://github.com/spring-projects/spring-session/actions?query=workflow%3ACI"]
 
+image:https://img.shields.io/badge/Revved%20up%20by-Develocity-06A0CE?logo=Gradle&labelColor=02303A["Revved up by Develocity", link="https://ge.spring.io/scans?search.rootProjectNames=spring-session-build"]
+
 Spring Session provides an API and implementations for managing a user's session information, while also making it trivial to support clustered sessions without being tied to an application container specific solution.
 It also provides transparent integration with:
 
