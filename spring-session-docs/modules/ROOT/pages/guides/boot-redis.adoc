@@ -68,7 +68,7 @@ spring.session.redis.namespace=spring:session # Namespace for keys used to store
 ----
 ====
 
-For more information, see the https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
 
 [[boot-redis-configuration]]
 == Configuring the Redis Connection
@@ -86,7 +86,7 @@ spring.data.redis.port=6379 # Redis server port.
 ----
 ====
 
-For more information, see the https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
 
 [[boot-servlet-configuration]]
 == Servlet Container Initialization

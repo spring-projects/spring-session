@@ -208,7 +208,7 @@ In order to be able to do that, you must be using the <<configuring-redisindexed
 If you do not know the difference between the indexed and the default repository, you can go to <<choosing-between-regular-and-indexed,this section>>.
 
 With the indexed repository configured, you can now start to listen to `SessionCreatedEvent`, `SessionDeletedEvent`, `SessionDestroyedEvent` and `SessionExpiredEvent` events.
-There are a https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events[few ways to listen to application events] in Spring, we are going to use the `@EventListener` annotation.
+There are a {docs-url}/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events[few ways to listen to application events] in Spring, we are going to use the `@EventListener` annotation.
 
 ====
 [source,java]

@@ -1,7 +1,7 @@
 [[api]]
 = API Documentation
 
-You can browse the complete https://docs.spring.io/spring-session/docs/{spring-session-version}/api/[Javadoc] online. The key APIs are described in the following sections:
+You can browse the complete {docs-url}/spring-session/docs/{spring-session-version}/api/[Javadoc] online. The key APIs are described in the following sections:
 
 * <<api-session>>
 * <<api-sessionrepository>>
@@ -262,7 +262,7 @@ You can customize the serialization by creating a bean named `springSessionDefau
 
 `RedisIndexedSessionRepository` is subscribed to receive events from Redis by using a `RedisMessageListenerContainer`.
 You can customize the way those events are dispatched by creating a bean named `springSessionRedisTaskExecutor`, a bean `springSessionRedisSubscriptionExecutor`, or both.
-You can find more details on configuring Redis task executors https://docs.spring.io/spring-data-redis/docs/{spring-data-redis-version}/reference/html/#redis:pubsub:subscribe:containers[here].
+You can find more details on configuring Redis task executors {docs-url}/spring-data-redis/docs/{spring-data-redis-version}/reference/html/#redis:pubsub:subscribe:containers[here].
 
 [[api-redisindexedsessionrepository-storage]]
 === Storage Details
@@ -614,7 +614,7 @@ include::{indexdoc-tests}[tags=new-jdbcindexedsessionrepository]
 ----
 ====
 
-For additional information on how to create and configure `JdbcTemplate` and `PlatformTransactionManager`, see the https://docs.spring.io/spring/docs/{spring-core-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
+For additional information on how to create and configure `JdbcTemplate` and `PlatformTransactionManager`, see the {docs-url}/spring/docs/{spring-core-version}/spring-framework-reference/data-access.html[Spring Framework Reference Documentation].
 
 [[api-jdbcindexedsessionrepository-config]]
 === Using `@EnableJdbcHttpSession`

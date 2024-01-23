@@ -71,7 +71,7 @@ spring.session.jdbc.table-name=SPRING_SESSION # Name of the database table used 
 ----
 ====
 
-For more information, see the https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
 
 [[httpsession-jdbc-boot-configuration]]
 == Configuring the `DataSource`
@@ -89,7 +89,7 @@ spring.datasource.password= # Login password of the database.
 ----
 ====
 
-For more information, see the https://docs.spring.io/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
 
 [[httpsession-jdbc-boot-servlet-configuration]]
 == Servlet Container Initialization
