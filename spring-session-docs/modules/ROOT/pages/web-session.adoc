@@ -37,7 +37,7 @@ This is what is in charge of replacing the `WebSession` implementation to be bac
 In this instance, Spring Session is backed by Redis.
 <2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
 We configure the connection to connect to localhost on the default port (6379)
-For more information on configuring Spring Data Redis, see the https://docs.spring.io/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
+For more information on configuring Spring Data Redis, see the {docs-url}/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
 ====
 
 [[websession-how]]
@@ -113,4 +113,4 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 ====
 
 To be detected by Spring WebFlux, this custom `WebSessionStore` needs to be registered with `ApplicationContext` as a bean named `webSessionManager`.
-For additional information on Spring WebFlux, see the https://docs.spring.io/spring-framework/docs/{spring-core-version}/reference/html/web-reactive.html[Spring Framework Reference Documentation].
+For additional information on Spring WebFlux, see the {docs-url}/spring-framework/docs/{spring-core-version}/reference/html/web-reactive.html[Spring Framework Reference Documentation].

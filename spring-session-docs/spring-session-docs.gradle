@@ -54,11 +54,13 @@ def generateAttributes() {
 			? springBootVersion.substring(0, springBootVersion.indexOf("-"))
 			: springBootVersion
     def ghTag = snapshotBuild ? 'main' : project.version
-    def springBootRefDocs =  "https://docs.spring.io/spring-boot/docs/${springBootVersion}/reference/html"
+	def docsUrl = 'https://docs.spring.io'
+    def springBootRefDocs =  "${docsUrl}/spring-boot/docs/${springBootVersion}/reference/html"
     return ['gh-tag':ghTag,
             'spring-boot-version': springBootVersion,
             'spring-boot-ref-docs': springBootRefDocs.toString(),
-               'spring-session-version': project.version]
+            'spring-session-version': project.version,
+            'docs-url': docsUrl]
 }
 
 sourceSets {

@@ -103,7 +103,7 @@ spring.data.mongodb.database=prod
 ----
 ====
 
-For more information, refer to https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-connecting-to-mongodb[Connecting to MongoDB] portion of the Spring Boot documentation.
+For more information, refer to {docs-url}/spring-boot/docs/current/reference/htmlsingle/#boot-features-connecting-to-mongodb[Connecting to MongoDB] portion of the Spring Boot documentation.
 
 [[boot-servlet-configuration]]
 == Servlet Container Initialization

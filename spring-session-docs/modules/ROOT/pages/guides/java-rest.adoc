@@ -101,7 +101,7 @@ The filter is in charge of replacing the `HttpSession` implementation to be back
 In this instance, Spring Session is backed by Redis.
 <2> We create a `RedisConnectionFactory` that connects Spring Session to the Redis Server.
 We configure the connection to connect to localhost on the default port (6379).
-For more information on configuring Spring Data Redis, see the https://docs.spring.io/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
+For more information on configuring Spring Data Redis, see the {docs-url}/spring-data/data-redis/docs/{spring-data-redis-version}/reference/html/[reference documentation].
 <3> We customize Spring Session's HttpSession integration to use HTTP headers to convey the current session information instead of cookies.
 ====
 
