@@ -29,7 +29,23 @@ class ArtifactoryPlugin implements Plugin<Project> {
 
 	private static final String ARTIFACTORY_RELEASE_REPOSITORY = "ARTIFACTORY_RELEASE_REPOSITORY"
 
-	private static final String ARTIFACTORY_PROJECT_KEY = "ARTIFACTORY_PROJECT_KEY";
+	private static final String ARTIFACTORY_PROJECT_KEY = "ARTIFACTORY_PROJECT_KEY"
+
+	private static final String ARTIFACTORY_BUILD_NAME = "ARTIFACTORY_BUILD_NAME"
+
+	private static final String ARTIFACTORY_BUILD_NUMBER = "ARTIFACTORY_BUILD_NUMBER"
+
+	private static final String ARTIFACTORY_BUILD_URL = "ARTIFACTORY_BUILD_URL"
+
+	private static final String ARTIFACTORY_BUILD_AGENT_NAME = "ARTIFACTORY_BUILD_AGENT_NAME"
+
+	private static final String ARTIFACTORY_BUILD_AGENT_VERSION = "ARTIFACTORY_BUILD_AGENT_VERSION"
+
+	private static final String ARTIFACTORY_USER_AGENT_NAME = "ARTIFACTORY_USER_AGENT_NAME"
+
+	private static final String ARTIFACTORY_USER_AGENT_VERSION = "ARTIFACTORY_USER_AGENT_VERSION"
+
+	private static final String ARTIFACTORY_VCS_REVISION = "ARTIFACTORY_VCS_REVISION"
 
 	private static final String DEFAULT_ARTIFACTORY_URL = "https://repo.spring.io"
 
@@ -51,6 +67,14 @@ class ArtifactoryPlugin implements Plugin<Project> {
 		String milestoneRepository = env.getOrDefault(ARTIFACTORY_MILESTONE_REPOSITORY, DEFAULT_ARTIFACTORY_MILESTONE_REPOSITORY)
 		String releaseRepository = env.getOrDefault(ARTIFACTORY_RELEASE_REPOSITORY, DEFAULT_ARTIFACTORY_RELEASE_REPOSITORY)
 		String projectKey = env.get(ARTIFACTORY_PROJECT_KEY)
+		String buildName = env.get(ARTIFACTORY_BUILD_NAME)
+		String buildNumber = env.get(ARTIFACTORY_BUILD_NUMBER)
+		String buildUrl = env.get(ARTIFACTORY_BUILD_URL)
+		String buildAgentName = env.get(ARTIFACTORY_BUILD_AGENT_NAME)
+		String buildAgentVersion = env.get(ARTIFACTORY_BUILD_AGENT_VERSION)
+		String userAgentName = env.get(ARTIFACTORY_USER_AGENT_NAME)
+		String userAgentVersion = env.get(ARTIFACTORY_USER_AGENT_VERSION)
+		String vcsRevision = env.get(ARTIFACTORY_VCS_REVISION)
 		project.artifactory {
 			contextUrl = artifactoryUrl
 			publish {
@@ -62,8 +86,34 @@ class ArtifactoryPlugin implements Plugin<Project> {
 					}
 				}
 			}
+
+			def buildInfo = clientConfig.info
 			if (projectKey != null) {
-				clientConfig.info.setProject(projectKey)
+				buildInfo.setProject(projectKey)
+			}
+			if (buildName != null) {
+				buildInfo.setBuildName(buildName)
+			}
+			if (buildNumber != null) {
+				buildInfo.setBuildNumber(buildNumber)
+			}
+			if (buildUrl != null) {
+				buildInfo.setBuildUrl(buildUrl)
+			}
+			if (buildAgentName != null) {
+				buildInfo.setBuildAgentName(buildAgentName)
+			}
+			if (buildAgentVersion != null) {
+				buildInfo.setBuildAgentVersion(buildAgentVersion)
+			}
+			if (userAgentName != null) {
+				buildInfo.setAgentName(userAgentName)
+			}
+			if (userAgentVersion != null) {
+				buildInfo.setAgentVersion(userAgentVersion)
+			}
+			if (vcsRevision != null) {
+				buildInfo.setVcsRevision(vcsRevision)
 			}
 		}
 		project.plugins.withType(MavenPublishPlugin) {
