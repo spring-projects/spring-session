@@ -15,7 +15,7 @@ org-springframework-boot = "3.2.2"
 ch-qos-logback-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "ch-qos-logback" }
 ch-qos-logback-logback-core = { module = "ch.qos.logback:logback-core", version.ref = "ch-qos-logback" }
 com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.15.4"
-com-fasterxml-jackson-core-jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.15.3"
+com-fasterxml-jackson-core-jackson-databind = "com.fasterxml.jackson.core:jackson-databind:2.15.4"
 com-google-code-findbugs-jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
 com-h2database-h2 = "com.h2database:h2:2.2.224"
 com-hazelcast = "com.hazelcast:hazelcast:5.3.6"
