@@ -50,7 +50,7 @@ org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "o
 org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "org-mongodb" }
-org-postgresql = "org.postgresql:postgresql:42.6.0"
+org-postgresql = "org.postgresql:postgresql:42.6.1"
 org-seleniumhq-selenium-htmlunit-driver = { module = "org.seleniumhq.selenium:htmlunit-driver", version.ref = "org-seleniumhq-selenium" }
 org-seleniumhq-selenium-selenium-support = { module = "org.seleniumhq.selenium:selenium-support", version.ref = "org-seleniumhq-selenium" }
 org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.1"
