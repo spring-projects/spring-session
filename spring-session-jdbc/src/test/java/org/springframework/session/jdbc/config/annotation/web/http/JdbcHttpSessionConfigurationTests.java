@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,13 +49,19 @@ import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.jdbc.FixedSessionIdGenerator;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
+import org.springframework.session.jdbc.config.annotation.SpringSessionTransactionManager;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatException;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -338,6 +344,34 @@ class JdbcHttpSessionConfigurationTests {
 		assertThat(sessionIdGenerator).isInstanceOf(UuidSessionIdGenerator.class);
 	}
 
+	// gh-2801
+	@Test
+	void configureWhenMultipleTransactionManagersAndQualifiedTransactionOperationsThenApplicationShouldStart() {
+		assertThatNoException().isThrownBy(() -> registerAndRefresh(MultipleTransactionManagerConfig.class,
+				CustomTransactionOperationsConfiguration.class));
+	}
+
+	// gh-2801
+	@Test
+	void configureWhenMultipleTransactionManagersAndQualifiedTransactionManagerThenApplicationShouldStartAndUseQualified() {
+		assertThatNoException().isThrownBy(() -> registerAndRefresh(MultipleTransactionManagerConfig.class,
+				QualifiedTransactionManagerConfig.class, DefaultConfiguration.class));
+		JdbcHttpSessionConfiguration configuration = this.context.getBean(JdbcHttpSessionConfiguration.class);
+		Object transactionManager = ReflectionTestUtils.getField(configuration, "transactionManager");
+		assertThat(transactionManager).isInstanceOf(MyTransactionManager.class);
+	}
+
+	// gh-2801
+	@Test
+	void configureWhenMultipleTransactionManagersAndNoQualifiedBeanThenApplicationShouldFailToStart() {
+		assertThatException()
+			.isThrownBy(() -> registerAndRefresh(MultipleTransactionManagerConfig.class, DefaultConfiguration.class))
+			.havingRootCause()
+			.isInstanceOf(IllegalStateException.class)
+			.withMessage("Could not resolve an unique PlatformTransactionManager bean from the application context.\n"
+					+ "Please provide either a TransactionOperations bean named springSessionTransactionOperations or a PlatformTransactionManager bean qualified with @SpringSessionTransactionManager");
+	}
+
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
@@ -602,6 +636,61 @@ class JdbcHttpSessionConfigurationTests {
 		@Bean
 		SessionRepositoryCustomizer<JdbcIndexedSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class MultipleTransactionManagerConfig {
+
+		@Bean
+		DataSource dataSource() {
+			return mock(DataSource.class);
+		}
+
+		@Bean
+		TransactionManager transactionManager1() {
+			return new MyTransactionManager();
+		}
+
+		@Bean
+		TransactionManager transactionManager2() {
+			return mock(PlatformTransactionManager.class);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class QualifiedTransactionManagerConfig {
+
+		@Bean
+		DataSource dataSource() {
+			return mock(DataSource.class);
+		}
+
+		@Bean
+		@SpringSessionTransactionManager
+		TransactionManager myTransactionManager() {
+			return new MyTransactionManager();
+		}
+
+	}
+
+	static class MyTransactionManager implements PlatformTransactionManager {
+
+		@Override
+		public TransactionStatus getTransaction(TransactionDefinition definition) throws TransactionException {
+			return null;
+		}
+
+		@Override
+		public void commit(TransactionStatus status) throws TransactionException {
+
+		}
+
+		@Override
+		public void rollback(TransactionStatus status) throws TransactionException {
+
 		}
 
 	}
