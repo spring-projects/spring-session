@@ -16,7 +16,7 @@ link:../index.html[Index]
 
 The guide assumes you have already added Spring Session to your application by using the built-in Redis configuration support.
 The guide also assumes you have already applied Spring Security to your application.
-However, we the guide is somewhat general purpose and can be applied to any technology with minimal changes, which we discuss later in the guide.
+However, the guide is somewhat general purpose and can be applied to any technology with minimal changes, which we discuss later in the guide.
 
 NOTE: If you need to learn how to add Spring Session to your project, see the listing of link:../#samples[samples and guides]
 
