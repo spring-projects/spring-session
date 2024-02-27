@@ -6,6 +6,7 @@ It contains configuration examples for the following use cases:
 
 - I need to <<changing-how-session-ids-are-generated,change the way that Session IDs are generated>>
 - I need to <<customizing-session-cookie,customize the session cookie properties>>
+- I want to <<spring-session-backed-reactive-session-registry,provide a Spring Session implementation of the `ReactiveSessionRepository`>> for {spring-security-ref-docs}/reactive/authentication/concurrent-sessions-control.html[Concurrent Sessions Control]
 
 [[changing-how-session-ids-are-generated]]
 == Changing How Session IDs Are Generated
@@ -137,3 +138,29 @@ include::{samples-dir}spring-session-sample-boot-webflux-custom-cookie/src/main/
 <2> We customize the path of the cookie to be `/` (rather than the default of the context root).
 <3> We customize the `SameSite` cookie directive to be `Strict`.
 ====
+
+[[spring-session-backed-reactive-session-registry]]
+== Providing a Spring Session implementation of `ReactiveSessionRegistry`
+
+Spring Session provides integration with Spring Security to support its reactive concurrent session control.
+This allows limiting the number of active sessions that a single user can have concurrently, but, unlike the default Spring Security support, this also works in a clustered environment.
+This is done by providing the `SpringSessionBackedReactiveSessionRegistry` implementation of Spring Security’s `ReactiveSessionRegistry` interface.
+
+.Defining SpringSessionBackedReactiveSessionRegistry as a bean
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+public <S extends Session> SpringSessionBackedReactiveSessionRegistry<S> sessionRegistry(
+        ReactiveSessionRepository<S> sessionRepository,
+        ReactiveFindByIndexNameSessionRepository<S> indexedSessionRepository) {
+    return new SpringSessionBackedReactiveSessionRegistry<>(sessionRepository, indexedSessionRepository);
+}
+----
+======
+
+Please, refer to {spring-security-ref-docs}/reactive/authentication/concurrent-sessions-control.html[Spring Security Concurrent Sessions Control documentation] for more ways of using the `ReactiveSessionRegistry`.
+You can also check a sample application https://github.com/spring-projects/spring-session/tree/main/spring-session-samples/spring-session-sample-boot-reactive-max-sessions[here].

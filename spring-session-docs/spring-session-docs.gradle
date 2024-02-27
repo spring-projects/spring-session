@@ -53,13 +53,19 @@ def generateAttributes() {
 	springBootVersion = springBootVersion.contains("-")
 			? springBootVersion.substring(0, springBootVersion.indexOf("-"))
 			: springBootVersion
+	def springSecurityVersion = libs.org.springframework.security.spring.security.bom.get().version
+	springSecurityVersion = springSecurityVersion.contains("-")
+			? springSecurityVersion.substring(0, springSecurityVersion.indexOf("-"))
+			: springSecurityVersion
     def ghTag = snapshotBuild ? 'main' : project.version
 	def docsUrl = 'https://docs.spring.io'
     def springBootRefDocs =  "${docsUrl}/spring-boot/docs/${springBootVersion}/reference/html"
+	def springSecurityRefDocs = "${docsUrl}/spring-security/reference/${springSecurityVersion}"
     return ['gh-tag':ghTag,
             'spring-boot-version': springBootVersion,
             'spring-boot-ref-docs': springBootRefDocs.toString(),
             'spring-session-version': project.version,
+            'spring-security-ref-docs': springSecurityRefDocs.toString(),
             'docs-url': docsUrl]
 }
 

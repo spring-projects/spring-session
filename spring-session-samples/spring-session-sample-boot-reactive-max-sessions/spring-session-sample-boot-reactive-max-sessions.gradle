@@ -1,0 +1,23 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+ext['spring-security.version'] = '6.3.0-SNAPSHOT'
+
+dependencies {
+	management platform(project(":spring-session-dependencies"))
+	implementation project(':spring-session-data-redis')
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.seleniumhq.selenium:selenium-java'
+	testImplementation 'org.seleniumhq.selenium:htmlunit-driver'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
