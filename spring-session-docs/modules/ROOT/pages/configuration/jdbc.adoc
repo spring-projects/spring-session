@@ -1,0 +1,411 @@
+[[jdbc-configurations]]
+= JDBC
+
+Now that you have your application xref:guides/boot-jdbc.adoc[configured to use JDBC], you might want to start customizing things:
+
+- I want to use Spring Session JDBC
+- I want to <<session-storage-details,know how is the JDBC schema defined>>
+- I want to <<customizing-table-name,customize the table name>>
+- I want to <<customize-sql-queries,customize the SQL queries>>
+- I want to save the <<session-attributes-as-json,session attributes as JSON>> instead of an array of bytes
+- I want to <<specifying-datasource,use a different `DataSource`>> for Spring Session JDBC
+- I want to <<customizing-transaction-operations,customize the JDBC transactions>>
+
+[[adding-spring-session-jdbc]]
+== Adding Spring Session JDBC To Your Application
+
+To use Spring Session JDBC, you must add the `org.springframework.session:spring-session-jdbc` dependency to your application
+
+[tabs]
+======
+Gradle::
++
+[source,groovy]
+----
+implementation 'org.springframework.session:spring-session-jdbc'
+----
+Maven::
++
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.session</groupId>
+    <artifactId>spring-session-jdbc</artifactId>
+</dependency>
+----
+======
+
+If you are using Spring Boot, it will take care of enabling Spring Session JDBC, see {spring-boot-ref-docs}/web.html#web.spring-session[its documentation] for more details.
+Otherwise, you will need to add `@EnableJdbcHttpSession` to a configuration class:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+    //...
+}
+----
+======
+
+And that is it, your application now should be configured to use Spring Session JDBC.
+
+[[session-storage-details]]
+== Understanding the Session Storage Details
+
+By default, the implementation uses `SPRING_SESSION` and `SPRING_SESSION_ATTRIBUTES` tables to store sessions.
+Note that when you <<customizing-table-name,customize the table name>>, the table used to store attributes is named by using the provided table name suffixed with `_ATTRIBUTES`.
+If further customizations are needed, you can <<customize-sql-queries,customize the SQL queries used by the repository>>.
+
+Due to the differences between the various database vendors, especially when it comes to storing binary data, make sure to use SQL scripts specific to your database.
+Scripts for most major database vendors are packaged as `org/springframework/session/jdbc/schema-\*.sql`, where `*` is the target database type.
+
+For example, with PostgreSQL, you can use the following schema script:
+
+====
+[source,sql,indent=0]
+----
+include::{session-jdbc-main-resources-dir}org/springframework/session/jdbc/schema-postgresql.sql[]
+----
+====
+
+[[customizing-table-name]]
+== Customizing the Table Name
+
+To customize the database table name, you can use the `tableName` attribute from the `@EnableJdbcHttpSession` annotation:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession(tableName = "MY_TABLE_NAME")
+public class SessionConfig {
+    //...
+}
+----
+======
+
+Another alternative is to expose an implementation of `SessionRepositoryCustomizer<JdbcIndexedSessionRepository>` as a bean to change the table directly in the implementation:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+
+    @Bean
+    public TableNameCustomizer tableNameCustomizer() {
+        return new TableNameCustomizer();
+    }
+
+}
+
+public class TableNameCustomizer
+        implements SessionRepositoryCustomizer<JdbcIndexedSessionRepository> {
+
+    @Override
+    public void customize(JdbcIndexedSessionRepository sessionRepository) {
+        sessionRepository.setTableName("MY_TABLE_NAME");
+    }
+
+}
+----
+======
+
+[[customize-sql-queries]]
+== Customizing the SQL Queries
+
+At times, it is useful to be able to customize the SQL queries executed by Spring Session JDBC.
+There are scenarios where there may be concurrent modifications to the session or its attributes in the database, for example, a request might want to insert an attribute that already exists, resulting in a duplicate key exception.
+Because of that, you can apply RDBMS specific queries that handles such scenarios.
+To customize the SQL queries that Spring Session JDBC executes against your database, you can use the `set*Query` methods from `JdbcIndexedSessionRepository`.
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+
+    @Bean
+    public QueryCustomizer tableNameCustomizer() {
+        return new QueryCustomizer();
+    }
+
+}
+
+public class QueryCustomizer
+        implements SessionRepositoryCustomizer<JdbcIndexedSessionRepository> {
+
+    private static final String CREATE_SESSION_ATTRIBUTE_QUERY = """
+            INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES) <1>
+            VALUES (?, ?, ?)
+            ON CONFLICT (SESSION_PRIMARY_ID, ATTRIBUTE_NAME)
+            DO NOTHING
+            """;
+
+    @Override
+    public void customize(JdbcIndexedSessionRepository sessionRepository) {
+        sessionRepository.setCreateSessionAttributeQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+    }
+
+}
+----
+======
+
+<1> The `%TABLE_NAME%` placeholder in the query will be replaced by the configured table name being used by `JdbcIndexedSessionRepository`.
+
+[TIP]
+====
+Spring Session JDBC ships with a few implementations of `SessionRepositoryCustomizer<JdbcIndexedSessionRepository>` that configure optimized SQL queries for the most common RDBMS.
+====
+
+[[session-attributes-as-json]]
+== Saving Session Attributes as JSON
+
+Sometimes it is useful to save the session attributes in different formats, like JSON, which might have native support in the RDBMS allowing better function and operators compatibility in SQL queries.
+
+By default, Spring Session JDBC saves the session attributes values as an array of bytes, such array is result from the JDK Serialization of the attribute value.
+
+For this example, we are going to use https://www.postgresql.org/[PostgreSQL] as our RDBMS.
+Let's start by creating the `SPRING_SESSION_ATTRIBUTES` table with a `jsonb` type for the `attribute_values` column.
+
+[tabs]
+======
+SQL::
++
+[source,sql]
+----
+CREATE TABLE SPRING_SESSION
+(
+    -- ...
+);
+
+-- indexes...
+
+CREATE TABLE SPRING_SESSION_ATTRIBUTES
+(
+    -- ...
+    ATTRIBUTE_BYTES    JSONB        NOT NULL,
+    -- ...
+);
+
+----
+======
+
+To customize how the attribute values are serialized, first we need to provide to Spring Session JDBC a {spring-framework-ref-docs}/core/validation/convert.html#core-convert-ConversionService-API[custom `ConversionService`] responsible for converting from `Object` to `byte[]` and vice-versa.
+To do that, we can create a bean of type `ConversionService` named `springSessionConversionService`.
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+import org.springframework.beans.factory.BeanClassLoaderAware;
+import org.springframework.core.serializer.support.DeserializingConverter;
+import org.springframework.core.serializer.support.SerializingConverter;
+
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig implements BeanClassLoaderAware {
+
+    private ClassLoader classLoader;
+
+    @Bean("springSessionConversionService")
+    public GenericConversionService springSessionConversionService(ObjectMapper objectMapper) { <1>
+        ObjectMapper copy = objectMapper.copy(); <2>
+        copy.registerModules(SecurityJackson2Modules.getModules(this.classLoader)); <3>
+        GenericConversionService converter = new GenericConversionService();
+        converter.addConverter(Object.class, byte[].class, new SerializingConverter(new JsonSerializer(copy))); <4>
+        converter.addConverter(byte[].class, Object.class, new DeserializingConverter(new JsonDeserializer(copy))); <4>
+        return converter;
+    }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        this.classLoader = classLoader;
+    }
+
+    static class JsonSerializer implements Serializer<Object> {
+
+        private final ObjectMapper objectMapper;
+
+        JsonSerializer(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
+        @Override
+        public void serialize(Object object, OutputStream outputStream) throws IOException {
+            this.objectMapper.writeValue(outputStream, object);
+        }
+
+    }
+
+    static class JsonDeserializer implements Deserializer<Object> {
+
+        private final ObjectMapper objectMapper;
+
+        JsonDeserializer(ObjectMapper objectMapper) {
+            this.objectMapper = objectMapper;
+        }
+
+        @Override
+        public Object deserialize(InputStream inputStream) throws IOException {
+            return this.objectMapper.readValue(inputStream, Object.class);
+        }
+
+    }
+
+}
+----
+======
+
+<1> Inject the `ObjectMapper` that is used by default in the application.
+You can create a new one if you prefer.
+<2> Create a copy of that `ObjectMapper` so we only apply the changes to the copy.
+<3> Since we are using Spring Security, we must register its Jackson Modules that tells Jackson how to properly serialize/deserialize Spring Security's objects.
+You might need to do the same for other objects that are persisted in the session.
+<4> Add the `JsonSerializer`/`JsonDeserializer` that we created into the `ConversionService`.
+
+Now that we configured how Spring Session JDBC converts our attributes values into `byte[]`, we must customize the query that insert the session attributes.
+The customization is necessary because Spring Session JDBC sets content as bytes in the SQL statement, however, `bytea` is not compatible with `jsonb`, therefore we need to encode the `bytea` value to text and then convert it to `jsonb`.
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+
+    private static final String CREATE_SESSION_ATTRIBUTE_QUERY = """
+            INSERT INTO %TABLE_NAME%_ATTRIBUTES (SESSION_PRIMARY_ID, ATTRIBUTE_NAME, ATTRIBUTE_BYTES)
+            VALUES (?, ?, encode(?, 'escape')::jsonb) <1>
+            """;
+
+    @Bean
+    SessionRepositoryCustomizer<JdbcIndexedSessionRepository> customizer() {
+        return (sessionRepository) -> sessionRepository.setCreateSessionAttributeQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+    }
+
+}
+----
+======
+
+<1> Uses the https://www.postgresql.org/docs/current/functions-binarystring.html[PostgreSQL encode] function to convert from `bytea` to `text`
+
+And that's it, you should now be able to see the session attributes saved as JSON in the database.
+There is a sample available where you can see the whole implementation and run the tests.
+
+[[specifying-datasource]]
+== Specifying an alternative `DataSource`
+
+By default, Spring Session JDBC uses the primary `DataSource` bean that is available in the application.
+However, there are some scenarios where an application might have multiple ``DataSource``s beans, in such scenarios you can tell Spring Session JDBC which `DataSource` to use by qualifying the bean with `@SpringSessionDataSource`:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
+
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+
+    @Bean
+    public DataSource dataSourceOne() {
+        // create and configure datasource
+        return dataSourceOne;
+    }
+
+    @Bean
+    @SpringSessionDataSource <1>
+    public DataSource dataSourceTwo() {
+        // create and configure datasource
+        return dataSourceTwo;
+    }
+
+}
+----
+======
+
+<1> We annotate the `dataSourceTwo` bean with `@SpringSessionDataSource` to tell Spring Session JDBC that it should use that bean as the `DataSource`.
+
+[[customizing-transaction-operations]]
+== Customizing How Spring Session JDBC Uses Transactions
+
+All JDBC operations are performed in a transactional manner.
+Transactions are performed with propagation set to `REQUIRES_NEW` in order to avoid unexpected behavior due to interference with existing transactions (for example, running a save operation in a thread that already participates in a read-only transaction).
+To customize how Spring Session JDBC uses transactions, you can provide a `TransactionOperations` bean named `springSessionTransactionOperations`.
+For example, if you want to disable transactions as a whole, you can do:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+import org.springframework.transaction.support.TransactionOperations;
+
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+
+    @Bean("springSessionTransactionOperations")
+    public TransactionOperations springSessionTransactionOperations() {
+        return TransactionOperations.withoutTransaction();
+    }
+
+}
+----
+======
+
+If you want more control, you can also provide the `TransactionManager` that is used by the configured `TransactionTemplate`.
+By default, Spring Session will try to resolve the primary `TransactionManager` bean from the application context.
+In some scenarios, for example when there are multiple ``DataSource``s, it is very likely that there will be multiple ``TransactionManager``s, you can tell which `TransactionManager` bean that you want to use with Spring Session JDBC by qualifying it with `@SpringSessionTransactionManager`:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+
+    @Bean
+    @SpringSessionTransactionManager
+    public TransactionManager transactionManager1() {
+        return new MyTransactionManager();
+    }
+
+    @Bean
+    public TransactionManager transactionManager2() {
+        return otherTransactionManager;
+    }
+
+}
+----
+======
+

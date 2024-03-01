@@ -1,0 +1,26 @@
+apply plugin: 'io.spring.convention.spring-sample-boot'
+
+dependencies {
+	management platform(project(":spring-session-dependencies"))
+	implementation project(':spring-session-jdbc')
+	implementation "org.springframework.boot:spring-boot-starter-jdbc"
+	implementation "org.springframework.boot:spring-boot-starter-web"
+	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	implementation "org.webjars:bootstrap"
+	implementation "org.webjars:html5shiv"
+	implementation "org.webjars:webjars-locator-core"
+
+	runtimeOnly 'org.postgresql:postgresql'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:postgresql'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
