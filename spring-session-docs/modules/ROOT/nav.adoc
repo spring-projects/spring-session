@@ -27,6 +27,7 @@
 ** Redis
 *** xref:configuration/redis.adoc[Redis HTTP Session]
 *** xref:configuration/reactive-redis-indexed.adoc[Redis Indexed Web Session]
+** xref:configuration/jdbc.adoc[JDBC]
 ** xref:configuration/common.adoc[Common Configurations]
 * xref:http-session.adoc[HttpSession Integration]
 * xref:web-socket.adoc[WebSocket Integration]
