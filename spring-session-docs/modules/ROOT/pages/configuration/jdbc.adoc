@@ -1,15 +1,16 @@
 [[jdbc-configurations]]
 = JDBC
 
-Now that you have your application xref:guides/boot-jdbc.adoc[configured to use JDBC], you might want to start customizing things:
+Spring Session JDBC is a module that enables session management using https://en.wikipedia.org/wiki/Java_Database_Connectivity[JDBC] as the data store.
 
-- I want to use Spring Session JDBC
+- I want to <<adding-spring-session-jdbc,use Spring Session JDBC>>
 - I want to <<session-storage-details,know how is the JDBC schema defined>>
 - I want to <<customizing-table-name,customize the table name>>
 - I want to <<customize-sql-queries,customize the SQL queries>>
 - I want to save the <<session-attributes-as-json,session attributes as JSON>> instead of an array of bytes
 - I want to <<specifying-datasource,use a different `DataSource`>> for Spring Session JDBC
 - I want to <<customizing-transaction-operations,customize the JDBC transactions>>
+- I want to customize the <<customizing-cleanup-job,expired sessions clean-up job>>
 
 [[adding-spring-session-jdbc]]
 == Adding Spring Session JDBC To Your Application
@@ -177,11 +178,11 @@ Spring Session JDBC ships with a few implementations of `SessionRepositoryCustom
 [[session-attributes-as-json]]
 == Saving Session Attributes as JSON
 
-Sometimes it is useful to save the session attributes in different formats, like JSON, which might have native support in the RDBMS allowing better function and operators compatibility in SQL queries.
-
 By default, Spring Session JDBC saves the session attributes values as an array of bytes, such array is result from the JDK Serialization of the attribute value.
 
-For this example, we are going to use https://www.postgresql.org/[PostgreSQL] as our RDBMS.
+Sometimes it is useful to save the session attributes in different formats, like JSON, which might have native support in the RDBMS allowing better function and operators compatibility in SQL queries.
+
+For this example, we are going to use https://www.postgresql.org/[PostgreSQL] as our RDBMS as well as serializing the session attribute values using JSON instead of JDK serialization.
 Let's start by creating the `SPRING_SESSION_ATTRIBUTES` table with a `jsonb` type for the `attribute_values` column.
 
 [tabs]
@@ -312,7 +313,7 @@ public class SessionConfig {
 <1> Uses the https://www.postgresql.org/docs/current/functions-binarystring.html[PostgreSQL encode] function to convert from `bytea` to `text`
 
 And that's it, you should now be able to see the session attributes saved as JSON in the database.
-There is a sample available where you can see the whole implementation and run the tests.
+There is a https://github.com/spring-projects/spring-session/tree/main/spring-session-samples/spring-session-sample-boot-jdbc-json-attribute[sample available] where you can see the whole implementation and run the tests.
 
 [[specifying-datasource]]
 == Specifying an alternative `DataSource`
@@ -409,3 +410,88 @@ public class SessionConfig {
 ----
 ======
 
+[[customizing-cleanup-job]]
+== Customizing the Expired Sessions Clean-Up Job
+
+In order to avoid overloading your database with expired sessions, Spring Session JDBC executes a clean-up job every minute that deletes the expired sessions (and its attributes).
+There are several reasons that you might want to customize the clean-up job, let's see the most common in the following sections.
+However, the customizations on the default job are limited, and that is intentional, Spring Session is not meant to provide a robust batch processing since there are a lot of frameworks or libraries that do a better job at that.
+Therefore, if you want more customization power, consider <<disabling-the-job,disabling the default job>> and providing your own.
+A good alternative is to use https://docs.spring.io/spring-batch/reference/spring-batch-intro.html[Spring Batch] which provides a robust solution for batch processing applications.
+
+[[customizing-cleaned-up-frequency]]
+=== Customizing How Often Expired Sessions Are Cleaned Up
+
+You can customize the {spring-framework-ref-docs}/integration/scheduling.html#scheduling-cron-expression[cron expression] that defines how often the clean-up job runs by using the `cleanupCron` attribute in `@EnableJdbcHttpSession`:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession(cleanupCron = "0 0 * * * *") // top of every hour of every day
+public class SessionConfig {
+
+}
+----
+======
+
+Or, if you are using Spring Boot, set the `spring.session.jdbc.cleanup-cron` property:
+
+[tabs]
+======
+application.properties::
++
+[source,properties]
+----
+spring.session.jdbc.cleanup-cron="0 0 * * * *"
+----
+======
+
+[[disabling-the-job]]
+=== Disabling the Job
+
+To disable the job you must pass `Scheduled.CRON_DISABLED` to the `cleanupCron` attribute in `@EnableJdbcHttpSession`:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession(cleanupCron = Scheduled.CRON_DISABLED)
+public class SessionConfig {
+
+}
+----
+======
+
+=== Customizing the Delete By Expiry Time Query
+
+You can customize the query that deletes expired sessions by using `JdbcIndexedSessionRepository.setDeleteSessionsByExpiryTimeQuery` through a `SessionRepositoryCustomizer<JdbcIndexedSessionRepository>` bean:
+
+[tabs]
+======
+Java::
++
+[source,java]
+----
+@Configuration
+@EnableJdbcHttpSession
+public class SessionConfig {
+
+    @Bean
+    public SessionRepositoryCustomizer<JdbcIndexedSessionRepository> customizer() {
+        return (sessionRepository) -> sessionRepository.setDeleteSessionsByExpiryTimeQuery("""
+            DELETE FROM %TABLE_NAME%
+            WHERE EXPIRY_TIME < ?
+            AND OTHER_COLUMN = 'value'
+            """);
+    }
+
+}
+----
+======
