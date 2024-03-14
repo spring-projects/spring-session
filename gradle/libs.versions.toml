@@ -1,5 +1,5 @@
 [versions]
-ch-qos-logback = "1.4.14"
+ch-qos-logback = "1.5.3"
 jakarta-websocket = "2.1.1"
 org-apache-derby = "10.16.1.1"
 org-codehaus-groovy = "3.0.19"
