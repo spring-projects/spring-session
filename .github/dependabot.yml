@@ -26,7 +26,7 @@ updates:
       - dependency-name: "org.springframework.*"
         update-types: [ "version-update:semver-major" ]
       - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+        update-types: [ "version-update:semver-major" ]
 
   - package-ecosystem: "gradle"
     target-branch: "3.2.x"
