@@ -45,7 +45,7 @@ org-assertj-assertj-core = "org.assertj:assertj-core:3.24.2"
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
 org-junit-junit-bom = "org.junit:junit-bom:5.8.2"
-org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.1.4"
+org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.3.3"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version.ref = "org-mongodb" }
