@@ -63,7 +63,7 @@ org-springframework-spring-framework-bom = "org.springframework:spring-framework
 org-springframework-boot-spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "org-springframework-boot" }
 org-springframework-boot-spring-boot-gradle-plugin = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "org-springframework-boot" }
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "org-testcontainers" }
-org-awaitility-awaitility = "org.awaitility:awaitility:4.2.0"
+org-awaitility-awaitility = "org.awaitility:awaitility:4.2.1"
 io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.1"
 
 [plugins]
