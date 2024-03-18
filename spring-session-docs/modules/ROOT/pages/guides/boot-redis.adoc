@@ -44,14 +44,7 @@ Spring Boot provides dependency management for Spring Session modules, so you ne
 == Spring Boot Configuration
 
 After adding the required dependencies, we can create our Spring Boot configuration.
-Thanks to first-class auto-configuration support, setting up Spring Session backed by Redis is as simple as adding a single configuration property to your `application.properties`, as the following listing shows:
-
-====
-.src/main/resources/application.properties
-----
-spring.session.store-type=redis # Session store type.
-----
-====
+Thanks to first-class auto-configuration support, just by adding the dependency Spring Boot will set up Spring Session backed by Redis for us.
 
 Under the hood, Spring Boot applies configuration that is equivalent to manually adding `@EnableRedisHttpSession` annotation.
 This creates a Spring bean with the name of `springSessionRepositoryFilter` that implements `Filter`.
