@@ -41,15 +41,7 @@ Spring Boot provides dependency management for Spring Session modules, so you ne
 == Spring Boot Configuration
 
 After adding the required dependencies, we can create our Spring Boot configuration.
-Thanks to first-class auto configuration support, setting up Spring Session backed by a relational database is as simple as adding a single configuration property to your `application.properties`.
-The following listing shows how to do so:
-
-====
-.src/main/resources/application.properties
-----
-spring.session.store-type=jdbc # Session store type.
-----
-====
+Thanks to first-class auto-configuration support, just by adding the dependency Spring Boot will set up Spring Session backed by a relational database for us.
 
 If a single Spring Session module is present on the classpath, Spring Boot uses that store implementation automatically.
 If you have more than one implementation, you must choose the StoreType that you wish to use to store the sessions, as shows above.
