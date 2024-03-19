@@ -414,6 +414,24 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void findByPrincipalNameRemovesExpiredSessions() {
+		String expiredId = "expired-id";
+		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
+		given(this.boundSetOperations.members()).willReturn(Collections.singleton(expiredId));
+		given(this.redisOperations.<String, Object>boundHashOps(getKey(expiredId)))
+			.willReturn(this.boundHashOperations);
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
+		given(this.boundHashOperations.entries()).willReturn(map);
+
+		this.redisRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				"principal");
+
+		verify(this.boundSetOperations).remove(expiredId);
+	}
+
+	@Test
 	void findByPrincipalName() {
 		Instant lastAccessed = Instant.now().minusMillis(10);
 		Instant createdTime = lastAccessed.minusMillis(10);
