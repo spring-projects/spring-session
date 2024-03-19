@@ -1,0 +1,14 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="en">
+<head>
+	<title>Secured Content</title>
+</head>
+<body>
+	<div>
+		<h1>Secured Page</h1>
+		<p>This page is secured using Spring Boot, Spring Session, and Spring Security by using Persistent Sessions</p>
+	</div>
+	<form th:action="@{/logout}" method="post">
+		<input type="submit" value="Log out" />
+	</form>
+</body>
+</html>

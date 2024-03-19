@@ -17,6 +17,7 @@ dependencies {
 	optional "org.springframework:spring-websocket"
 	optional "org.springframework.security:spring-security-core"
 	optional "org.springframework.security:spring-security-web"
+	optional "org.springframework.security:spring-security-crypto"
 
 	testImplementation "io.projectreactor:reactor-test"
 	testImplementation "org.mockito:mockito-core"
