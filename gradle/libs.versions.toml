@@ -64,6 +64,6 @@ org-springframework-boot-spring-boot-dependencies = { module = "org.springframew
 org-springframework-boot-spring-boot-gradle-plugin = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "org-springframework-boot" }
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version.ref = "org-testcontainers" }
 org-awaitility-awaitility = "org.awaitility:awaitility:4.2.1"
-io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.1"
+io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.2"
 
 [plugins]
