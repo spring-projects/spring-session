@@ -122,6 +122,9 @@ For example, it may create indexes based on session attributes like user ID or l
 These indexes allow for efficient querying of sessions based on specific criteria, enhancing performance and enabling advanced session management features.
 In addition to that, `RedisIndexedSessionRepository` also supports session expiration and deletion.
 
+CAUTION: Using `RedisIndexedSessionRepository` with Redis Cluster is discouraged due to https://github.com/spring-projects/spring-data-redis/issues/1111[only being subscribed to events from one random redis node in the cluster],
+causing a memory leak in the index and a slowdown in calls to `findByPrincipalName`. Using `RedisIndexedSessionRepository` in tandem with a redis that does not have multiple shards avoids this problem.
+
 === Configuring the `RedisSessionRepository`
 
 ==== Using Spring Boot Properties
