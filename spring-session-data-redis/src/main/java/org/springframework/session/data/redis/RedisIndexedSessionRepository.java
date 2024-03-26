@@ -503,6 +503,9 @@ public class RedisIndexedSessionRepository
 			if (session != null) {
 				sessions.put(session.getId(), session);
 			}
+			else {
+				this.sessionRedisOperations.boundSetOps(principalKey).remove(id);
+			}
 		}
 		return sessions;
 	}
