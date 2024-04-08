@@ -385,13 +385,17 @@ public class ReactiveRedisIndexedSessionRepository
 
 	@Override
 	public Mono<Void> deleteById(String id) {
+		return internalDeleteById(id).then();
+	}
+
+	public Mono<Session> internalDeleteById(String id) {
 		// @formatter:off
 		return getSession(id, true)
 				.flatMap((session) -> this.sessionRedisOperations.delete(getExpiredKey(session.getId()))
 						.thenReturn(session))
 				.flatMap((session) -> this.sessionRedisOperations.delete(getSessionKey(session.getId())).thenReturn(session))
 				.flatMap((session) -> this.indexer.delete(session.getId()).thenReturn(session))
-				.flatMap((session) -> this.expirationStore.remove(session.getId()));
+				.flatMap((session) -> this.expirationStore.remove(session.getId()).thenReturn(session));
 		// @formatter:on
 	}
 
@@ -438,8 +442,7 @@ public class ReactiveRedisIndexedSessionRepository
 			int sessionIdBeginIndex = key.lastIndexOf(":") + 1;
 			return key.substring(sessionIdBeginIndex);
 		})
-			.flatMap((sessionId) -> getSession(sessionId, true))
-			.flatMap((session) -> this.deleteById(session.getId()).thenReturn(session))
+			.flatMap(this::internalDeleteById)
 			.map((session) -> {
 				if (message.getChannel().equals(this.sessionDeletedChannel)) {
 					return new SessionDeletedEvent(this, session);
