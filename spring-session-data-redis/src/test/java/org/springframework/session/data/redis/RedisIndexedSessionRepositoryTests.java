@@ -463,12 +463,12 @@ class RedisIndexedSessionRepositoryTests {
 		MapSession session = this.cached;
 		byte[] pattern = "".getBytes(StandardCharsets.UTF_8);
 		String channel = "spring:session:event:0:created:" + session.getId();
-		JdkSerializationRedisSerializer defaultSerailizer = new JdkSerializationRedisSerializer();
-		this.redisRepository.setDefaultSerializer(defaultSerailizer);
+		JdkSerializationRedisSerializer defaultSerializer = new JdkSerializationRedisSerializer();
+		this.redisRepository.setDefaultSerializer(defaultSerializer);
 		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
 				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 0, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
-		byte[] body = defaultSerailizer.serialize(map);
+		byte[] body = defaultSerializer.serialize(map);
 		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8), body);
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
