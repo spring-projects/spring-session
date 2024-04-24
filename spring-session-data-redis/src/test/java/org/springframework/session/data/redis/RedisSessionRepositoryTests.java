@@ -238,7 +238,7 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	void save_WithSaveModeOnSetAttribute_SholdSaveSession() {
+	void save_WithSaveModeOnSetAttribute_ShouldSaveSession() {
 		given(this.sessionRedisOperations.hasKey(eq(TEST_SESSION_KEY))).willReturn(true);
 		this.sessionRepository.setSaveMode(SaveMode.ON_SET_ATTRIBUTE);
 		Map<String, Object> attributes = new HashMap<>();
