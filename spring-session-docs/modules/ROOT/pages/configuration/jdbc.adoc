@@ -159,9 +159,17 @@ public class QueryCustomizer
             DO NOTHING
             """;
 
+    private static final String UPDATE_SESSION_ATTRIBUTE_QUERY = """
+		UPDATE %TABLE_NAME%_ATTRIBUTES
+		SET ATTRIBUTE_BYTES = encode(?, 'escape')::jsonb
+		WHERE SESSION_PRIMARY_ID = ?
+		AND ATTRIBUTE_NAME = ?
+		""";
+
     @Override
     public void customize(JdbcIndexedSessionRepository sessionRepository) {
         sessionRepository.setCreateSessionAttributeQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+        sessionRepository.setUpdateSessionAttributeQuery(UPDATE_SESSION_ATTRIBUTE_QUERY);
     }
 
 }
@@ -230,7 +238,10 @@ public class SessionConfig implements BeanClassLoaderAware {
     @Bean("springSessionConversionService")
     public GenericConversionService springSessionConversionService(ObjectMapper objectMapper) { <1>
         ObjectMapper copy = objectMapper.copy(); <2>
+        // Register Spring Security Jackson Modules
         copy.registerModules(SecurityJackson2Modules.getModules(this.classLoader)); <3>
+        // Activate default typing explicitly if not using Spring Security
+        // copy.activateDefaultTyping(copy.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         GenericConversionService converter = new GenericConversionService();
         converter.addConverter(Object.class, byte[].class, new SerializingConverter(new JsonSerializer(copy))); <4>
         converter.addConverter(byte[].class, Object.class, new DeserializingConverter(new JsonDeserializer(copy))); <4>
@@ -301,9 +312,19 @@ public class SessionConfig {
             VALUES (?, ?, encode(?, 'escape')::jsonb) <1>
             """;
 
+    private static final String UPDATE_SESSION_ATTRIBUTE_QUERY = """
+            UPDATE %TABLE_NAME%_ATTRIBUTES
+            SET ATTRIBUTE_BYTES = encode(?, 'escape')::jsonb
+            WHERE SESSION_PRIMARY_ID = ?
+            AND ATTRIBUTE_NAME = ?
+            """;
+
     @Bean
     SessionRepositoryCustomizer<JdbcIndexedSessionRepository> customizer() {
-        return (sessionRepository) -> sessionRepository.setCreateSessionAttributeQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+        return (sessionRepository) -> {
+            sessionRepository.setCreateSessionAttributeQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+            sessionRepository.setUpdateSessionAttributeQuery(UPDATE_SESSION_ATTRIBUTE_QUERY);
+        };
     }
 
 }
