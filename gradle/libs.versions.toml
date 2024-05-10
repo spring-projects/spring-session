@@ -8,7 +8,7 @@ org-mockito = "5.11.0"
 org-mongodb = "5.0.1"
 org-seleniumhq-selenium = "4.13.0"
 org-slf4j = "2.0.13"
-org-testcontainers = "1.19.7"
+org-testcontainers = "1.19.8"
 org-springframework-boot = "3.2.5"
 
 [libraries]
