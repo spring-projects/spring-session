@@ -385,10 +385,10 @@ public class ReactiveRedisIndexedSessionRepository
 
 	@Override
 	public Mono<Void> deleteById(String id) {
-		return internalDeleteById(id).then();
+		return deleteAndReturn(id).then();
 	}
 
-	public Mono<Session> internalDeleteById(String id) {
+	private Mono<RedisSession> deleteAndReturn(String id) {
 		// @formatter:off
 		return getSession(id, true)
 				.flatMap((session) -> this.sessionRedisOperations.delete(getExpiredKey(session.getId()))
@@ -438,11 +438,13 @@ public class ReactiveRedisIndexedSessionRepository
 	}
 
 	private Mono<Void> onKeyDestroyedMessage(ReactiveSubscription.Message<String, String> message) {
-		return Mono.just(message.getMessage()).filter((key) -> key.startsWith(getExpiredKeyPrefix())).map((key) -> {
-			int sessionIdBeginIndex = key.lastIndexOf(":") + 1;
-			return key.substring(sessionIdBeginIndex);
-		})
-			.flatMap(this::internalDeleteById)
+		// @formatter:off
+		return Mono.just(message.getMessage())
+			.filter((key) -> key.startsWith(getExpiredKeyPrefix())).map((key) -> {
+				int sessionIdBeginIndex = key.lastIndexOf(":") + 1;
+				return key.substring(sessionIdBeginIndex);
+			})
+			.flatMap(this::deleteAndReturn)
 			.map((session) -> {
 				if (message.getChannel().equals(this.sessionDeletedChannel)) {
 					return new SessionDeletedEvent(this, session);
@@ -451,6 +453,7 @@ public class ReactiveRedisIndexedSessionRepository
 			})
 			.doOnNext(this::publishEvent)
 			.then();
+		// @formatter:on
 	}
 
 	private void publishEvent(Object event) {
