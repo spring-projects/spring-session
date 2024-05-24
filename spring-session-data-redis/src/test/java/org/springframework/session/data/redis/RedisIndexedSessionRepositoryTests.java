@@ -424,6 +424,7 @@ class RedisIndexedSessionRepositoryTests {
 				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli());
 		given(this.boundHashOperations.entries()).willReturn(map);
+		given(this.redisOperations.keys("spring:session:expirations:*")).willReturn(Set.of("spring:session:expirations:1616594540000"));
 
 		this.redisRepository.findByIndexNameAndIndexValue(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
 				"principal");

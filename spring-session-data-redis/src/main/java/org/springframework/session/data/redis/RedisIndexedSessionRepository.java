@@ -21,6 +21,8 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,6 +61,8 @@ import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+
+import static org.springframework.session.data.redis.RedisSessionExpirationPolicy.*;
 
 /**
  * <p>
@@ -497,6 +501,8 @@ public class RedisIndexedSessionRepository
 		if (sessionIds == null) {
 			return Collections.emptyMap();
 		}
+
+		List<String> orphanedSessionIds = new LinkedList<>();
 		Map<String, RedisSession> sessions = new HashMap<>(sessionIds.size());
 		for (Object id : sessionIds) {
 			RedisSession session = findById((String) id);
@@ -504,9 +510,23 @@ public class RedisIndexedSessionRepository
 				sessions.put(session.getId(), session);
 			}
 			else {
-				this.sessionRedisOperations.boundSetOps(principalKey).remove(id);
+				orphanedSessionIds.add((String) id);
 			}
 		}
+
+		if (!orphanedSessionIds.isEmpty()) {
+			long prevMin = roundDownMinute(System.currentTimeMillis());
+			String expirationsPrefix = this.namespace + "expirations:";
+
+			List<String> expirationKeys = this.sessionRedisOperations.keys(expirationsPrefix + "*").stream()
+				.filter(expirationKey -> Long.parseLong(expirationKey.substring(expirationsPrefix.length())) < prevMin)
+				.toList();
+
+			orphanedSessionIds.stream()
+				.filter(orphanedSessionId -> expirationKeys.stream().noneMatch(expirationKey -> this.sessionRedisOperations.boundSetOps(expirationKey).isMember(orphanedSessionId)))
+				.forEach(orphanedSessionId -> this.sessionRedisOperations.boundSetOps(principalKey).remove(orphanedSessionId));
+		}
+
 		return sessions;
 	}
 
