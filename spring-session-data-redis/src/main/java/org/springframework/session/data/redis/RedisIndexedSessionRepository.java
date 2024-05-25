@@ -518,13 +518,17 @@ public class RedisIndexedSessionRepository
 			long prevMin = roundDownMinute(System.currentTimeMillis());
 			String expirationsPrefix = this.namespace + "expirations:";
 
-			List<String> expirationKeys = this.sessionRedisOperations.keys(expirationsPrefix + "*").stream()
+			List<String> expirationKeys = this.sessionRedisOperations.keys(expirationsPrefix + "*")
+				.stream()
 				.filter(expirationKey -> Long.parseLong(expirationKey.substring(expirationsPrefix.length())) < prevMin)
 				.toList();
 
 			orphanedSessionIds.stream()
-				.filter(orphanedSessionId -> expirationKeys.stream().noneMatch(expirationKey -> this.sessionRedisOperations.boundSetOps(expirationKey).isMember(orphanedSessionId)))
-				.forEach(orphanedSessionId -> this.sessionRedisOperations.boundSetOps(principalKey).remove(orphanedSessionId));
+				.filter(orphanedSessionId -> expirationKeys.stream()
+					.noneMatch(expirationKey -> this.sessionRedisOperations.boundSetOps(expirationKey)
+						.isMember(orphanedSessionId)))
+				.forEach(orphanedSessionId -> this.sessionRedisOperations.boundSetOps(principalKey)
+					.remove(orphanedSessionId));
 		}
 
 		return sessions;
