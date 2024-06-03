@@ -9,7 +9,6 @@ updates:
 
   - package-ecosystem: "gradle"
     target-branch: "main"
-    milestone: 154
     directory: "/"
     schedule:
       interval: "daily"
@@ -27,8 +26,7 @@ updates:
         update-types: [ "version-update:semver-major",  "version-update:semver-minor" ]
 
   - package-ecosystem: "gradle"
-    target-branch: "3.2.x"
-    milestone: 152
+    target-branch: "3.3.x"
     directory: "/"
     schedule:
       interval: "daily"
@@ -46,8 +44,7 @@ updates:
         update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
 
   - package-ecosystem: "gradle"
-    target-branch: "3.1.x"
-    milestone: 151
+    target-branch: "3.2.x"
     directory: "/"
     schedule:
       interval: "daily"
@@ -71,13 +68,13 @@ updates:
     schedule:
       interval: weekly
   - package-ecosystem: github-actions
-    target-branch: "3.2.x"
+    target-branch: "3.3.x"
     milestone: 152
     directory: "/"
     schedule:
       interval: weekly
   - package-ecosystem: github-actions
-    target-branch: "3.1.x"
+    target-branch: "3.2.x"
     milestone: 151
     directory: "/"
     schedule:
