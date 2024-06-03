@@ -47,7 +47,7 @@ org-gretty-gretty-runner-jetty11 = { module = "org.gretty:gretty-runner-jetty11"
 org-gretty-gretty-runner-tomcat10 = { module = "org.gretty:gretty-runner-tomcat10", version.ref = "org-gretty" }
 org-gretty-gretty-starter = { module = "org.gretty:gretty-starter", version.ref = "org-gretty" }
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
-org-hsqldb = "org.hsqldb:hsqldb:2.7.2"
+org-hsqldb = "org.hsqldb:hsqldb:2.7.3"
 org-junit-junit-bom = "org.junit:junit-bom:5.8.2"
 org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.0.11"
 org-mockito-mockito-bom = "org.mockito:mockito-bom:4.8.1"
