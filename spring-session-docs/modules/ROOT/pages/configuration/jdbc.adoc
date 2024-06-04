@@ -294,7 +294,7 @@ You can create a new one if you prefer.
 You might need to do the same for other objects that are persisted in the session.
 <4> Add the `JsonSerializer`/`JsonDeserializer` that we created into the `ConversionService`.
 
-Now that we configured how Spring Session JDBC converts our attributes values into `byte[]`, we must customize the query that insert the session attributes.
+Now that we configured how Spring Session JDBC converts our attributes values into `byte[]`, we must customize the query that inserts and updates the session attributes.
 The customization is necessary because Spring Session JDBC sets content as bytes in the SQL statement, however, `bytea` is not compatible with `jsonb`, therefore we need to encode the `bytea` value to text and then convert it to `jsonb`.
 
 [tabs]
@@ -335,6 +335,12 @@ public class SessionConfig {
 
 And that's it, you should now be able to see the session attributes saved as JSON in the database.
 There is a https://github.com/spring-projects/spring-session/tree/main/spring-session-samples/spring-session-sample-boot-jdbc-json-attribute[sample available] where you can see the whole implementation and run the tests.
+
+[NOTE]
+====
+If your https://docs.spring.io/spring-security/reference/servlet/authentication/passwords/user-details.html#page-title[`UserDetails` implementation] extends Spring Security's `org.springframework.security.core.userdetails.User` class, it is important that you register a custom deserializer for it.
+Otherwise, Jackson will use the existing `org.springframework.security.jackson2.UserDeserializer` which won't result in the expected `UserDetails` implementation. See https://github.com/spring-projects/spring-session/issues/3009[gh-3009] for more details.
+====
 
 [[specifying-datasource]]
 == Specifying an alternative `DataSource`
