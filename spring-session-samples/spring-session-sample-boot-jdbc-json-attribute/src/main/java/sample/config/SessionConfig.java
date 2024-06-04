@@ -26,11 +26,21 @@ public class SessionConfig implements BeanClassLoaderAware {
 			VALUES (?, ?, encode(?, 'escape')::jsonb)
 			""";
 
+	private static final String UPDATE_SESSION_ATTRIBUTE_QUERY = """
+			UPDATE %TABLE_NAME%_ATTRIBUTES
+			SET ATTRIBUTE_BYTES = encode(?, 'escape')::jsonb
+			WHERE SESSION_PRIMARY_ID = ?
+			AND ATTRIBUTE_NAME = ?
+			""";
+
 	private ClassLoader classLoader;
 
 	@Bean
 	SessionRepositoryCustomizer<JdbcIndexedSessionRepository> customizer() {
-		return (sessionRepository) -> sessionRepository.setCreateSessionAttributeQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+		return (sessionRepository) -> {
+			sessionRepository.setCreateSessionAttributeQuery(CREATE_SESSION_ATTRIBUTE_QUERY);
+			sessionRepository.setUpdateSessionAttributeQuery(UPDATE_SESSION_ATTRIBUTE_QUERY);
+		};
 	}
 
 	@Bean("springSessionConversionService")
