@@ -72,7 +72,7 @@ dependencies {
     implementation 'io.spring.nohttp:nohttp-gradle:0.0.11'
     implementation 'net.sourceforge.htmlunit:htmlunit:2.70.0'
     implementation 'org.hidetake:gradle-ssh-plugin:2.10.1'
-    implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.33.16'
+    implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.33.17'
     implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969'
     implementation libs.com.squareup.okhttp3.okhttp
     implementation libs.io.spring.security.release.plugin
