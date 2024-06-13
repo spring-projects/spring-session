@@ -1,4 +1,3 @@
-= What's New
+= What's New in 3.4
 
-- xref:configuration/common.adoc#changing-how-session-ids-are-generated[docs] - https://github.com/spring-projects/spring-session/issues/11[gh-11] - Introduce `SessionIdGenerator` to allow custom session id generation
-- xref:configuration/redis.adoc#configuring-redis-session-mapper[docs] - https://github.com/spring-projects/spring-session/issues/2021[gh-2021] - Allow safe deserialization of Redis sessions
+- https://github.com/spring-projects/spring-session/issues/2787[gh-2787] - Add Partitioned Cookie Support to `DefaultCookieSerializer`
