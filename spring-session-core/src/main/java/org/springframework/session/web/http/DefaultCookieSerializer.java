@@ -450,7 +450,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	}
 
 	/**
-	 * Allows defining whether the generated cookie carries the Partitioned attribute
+	 * Allows defining whether the generated cookie carries the Partitioned attribute.
+	 * @param partitioned whether the generate cookie is partitioned
 	 * @since 3.4
 	 */
 	public void setPartitioned(boolean partitioned) {
