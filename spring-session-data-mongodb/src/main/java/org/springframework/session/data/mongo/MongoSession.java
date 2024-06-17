@@ -39,7 +39,7 @@ import org.springframework.util.Assert;
  * @author Greg Turnquist
  * @since 1.2
  */
-class MongoSession implements Session {
+public final class MongoSession implements Session {
 
 	/**
 	 * Mongo doesn't support {@literal dot} in field names. We replace it with a unicode
@@ -74,20 +74,19 @@ class MongoSession implements Session {
 	 * @param sessionId the session id to use
 	 * @since 3.2
 	 */
-	MongoSession(String sessionId) {
+	public MongoSession(String sessionId) {
 		this(sessionId, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
-	MongoSession() {
+	public MongoSession() {
 		this(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
-	MongoSession(long maxInactiveIntervalInSeconds) {
+	public MongoSession(long maxInactiveIntervalInSeconds) {
 		this(UuidSessionIdGenerator.getInstance().generate(), maxInactiveIntervalInSeconds);
 	}
 
-	MongoSession(String id, long maxInactiveIntervalInSeconds) {
-
+	public MongoSession(String id, long maxInactiveIntervalInSeconds) {
 		this.id = id;
 		this.originalSessionId = id;
 		this.intervalSeconds = maxInactiveIntervalInSeconds;
@@ -99,7 +98,7 @@ class MongoSession implements Session {
 	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
 	 * @since 3.2
 	 */
-	MongoSession(SessionIdGenerator sessionIdGenerator) {
+	public MongoSession(SessionIdGenerator sessionIdGenerator) {
 		this(sessionIdGenerator.generate(), MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 		this.sessionIdGenerator = sessionIdGenerator;
 	}
