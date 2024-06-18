@@ -84,3 +84,9 @@ updates:
     directory: "/"
     schedule:
       interval: weekly
+
+  - package-ecosystem: npm
+    target-branch: docs-build
+    directory: /
+    schedule:
+      interval: weekly
