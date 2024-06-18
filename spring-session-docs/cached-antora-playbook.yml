@@ -10,6 +10,7 @@ antora:
     - '@opendevise/antora-release-line-extension'
     - require: '@springio/antora-extensions/tabs-migration-extension'
       unwrap_example_block: always
+    - require: '@springio/antora-extensions/set-algolia-env-extension'
 site:
   title: Spring Session Reference
 content:
