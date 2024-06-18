@@ -22,6 +22,7 @@ antora:
     - require: '@springio/antora-extensions/root-component-extension'
       root_component_name: 'session'
     - '@springio/antora-extensions/static-page-extension'
+    - require: '@springio/antora-extensions/set-algolia-env-extension'
 site:
   title: Spring Session
   url: https://docs.spring.io/spring-session/reference
