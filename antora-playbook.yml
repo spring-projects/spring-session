@@ -1,28 +1,7 @@
 antora:
   extensions:
-    - '@springio/antora-extensions/partial-build-extension'
-    # Run before latest-version-extension
-    - ./lib/antora/extensions/fix-component-name-display.js
-    # Run before collector so that it doesn't operate on too many tags
-    - require: '@springio/antora-extensions/latest-version-extension'
-    - ./lib/antora/extensions/inject-collector-config.js
-    - require: '@springio/antora-extensions/inject-collector-cache-config-extension'
-    - '@antora/collector-extension'
-    - ./lib/antora/extensions/version-fix.js
-    # Operate again after the collector to override the incorrect values from the collector
-    - ./lib/antora/extensions/fix-component-name-display.js
-    - '@antora/atlas-extension'
-    - '@opendevise/antora-release-line-extension'
-    - require: '@springio/antora-extensions/tabs-migration-extension'
-      # uncomment this option to save the migrated content to the worktree
-      #save_result: true
-      unwrap_example_block: always
-    - require: ./lib/antora/extensions/publish-docsearch-config
-      template_path: ./.github/actions/docsearch-config.json.hbs
-    - require: '@springio/antora-extensions/root-component-extension'
+    - require: '@springio/antora-extensions'
       root_component_name: 'session'
-    - '@springio/antora-extensions/static-page-extension'
-    - require: '@springio/antora-extensions/set-algolia-env-extension'
 site:
   title: Spring Session
   url: https://docs.spring.io/spring-session/reference
