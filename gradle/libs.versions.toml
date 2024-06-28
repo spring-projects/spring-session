@@ -44,7 +44,7 @@ org-aspectj-aspectjweaver = "org.aspectj:aspectjweaver:1.9.22.1"
 org-assertj-assertj-core = "org.assertj:assertj-core:3.25.3"
 org-hamcrest = "org.hamcrest:hamcrest:2.2"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.3"
-org-junit-junit-bom = "org.junit:junit-bom:5.10.2"
+org-junit-junit-bom = "org.junit:junit-bom:5.10.3"
 org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.3.3"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
