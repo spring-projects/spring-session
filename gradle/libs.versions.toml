@@ -53,7 +53,7 @@ org-mongodb-mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", 
 org-postgresql = "org.postgresql:postgresql:42.7.3"
 org-seleniumhq-selenium-htmlunit-driver = { module = "org.seleniumhq.selenium:htmlunit-driver", version.ref = "org-seleniumhq-selenium" }
 org-seleniumhq-selenium-selenium-support = { module = "org.seleniumhq.selenium:selenium-support", version.ref = "org-seleniumhq-selenium" }
-org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.2"
+org-skyscreamer-jsonassert = "org.skyscreamer:jsonassert:1.5.3"
 org-slf4j-jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = "org-slf4j" }
 org-slf4j-log4j-over-slf4j = { module = "org.slf4j:log4j-over-slf4j", version.ref = "org-slf4j" }
 org-slf4j-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "org-slf4j" }
