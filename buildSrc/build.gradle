@@ -67,7 +67,7 @@ dependencies {
     implementation 'io.projectreactor:reactor-core:3.6.8'
     implementation 'com.apollographql.apollo:apollo-runtime:2.5.14'
     implementation 'com.github.ben-manes:gradle-versions-plugin:0.51.0'
-    implementation 'com.github.spullara.mustache.java:compiler:0.9.13'
+    implementation 'com.github.spullara.mustache.java:compiler:0.9.14'
     implementation 'io.spring.javaformat:spring-javaformat-gradle-plugin:0.0.42'
     implementation 'io.spring.nohttp:nohttp-gradle:0.0.11'
     implementation 'net.sourceforge.htmlunit:htmlunit:2.70.0'
