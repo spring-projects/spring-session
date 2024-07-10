@@ -112,7 +112,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	}
 
 	@Bean
-	public WebSocketRegistryListener webSocketRegistryListener() {
+	public static WebSocketRegistryListener webSocketRegistryListener() {
 		return new WebSocketRegistryListener();
 	}
 
