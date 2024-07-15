@@ -231,6 +231,9 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 				if (!isRequestedSessionIdValid() || !sessionId.equals(requestedSessionId)) {
 					SessionRepositoryFilter.this.httpSessionIdResolver.setSessionId(this, this.response, sessionId);
 				}
+				else {
+					SessionRepositoryFilter.this.httpSessionIdResolver.extendSession(this, this.response, sessionId);
+				}
 			}
 		}
 

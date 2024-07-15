@@ -52,6 +52,17 @@ public interface HttpSessionIdResolver {
 	void setSessionId(HttpServletRequest request, HttpServletResponse response, String sessionId);
 
 	/**
+	 * Instruct the client to extend the current session. This method is invoked when an
+	 * existing session is used and can inform a client about the validity of the session.
+	 * For example, it might update the expiration date of a cookie with the session id.
+	 * @param request the current request
+	 * @param response the current response
+	 * @param sessionId the session id
+	 */
+	default void extendSession(HttpServletRequest request, HttpServletResponse response, String sessionId) {
+	}
+
+	/**
 	 * Instruct the client to end the current session. This method is invoked when a
 	 * session is invalidated and should inform a client that the session id is no longer
 	 * valid. For example, it might remove a cookie with the session id in it or set an
