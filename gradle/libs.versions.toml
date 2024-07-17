@@ -58,7 +58,7 @@ org-slf4j-jcl-over-slf4j = { module = "org.slf4j:jcl-over-slf4j", version.ref = 
 org-slf4j-log4j-over-slf4j = { module = "org.slf4j:log4j-over-slf4j", version.ref = "org-slf4j" }
 org-slf4j-slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "org-slf4j" }
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2024.0.2"
-org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.4.0-M1"
+org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.4.0-SNAPSHOT"
 org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:6.2.0-M4"
 org-springframework-boot-spring-boot-dependencies = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "org-springframework-boot" }
 org-springframework-boot-spring-boot-gradle-plugin = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "org-springframework-boot" }
