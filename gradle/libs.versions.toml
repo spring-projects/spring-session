@@ -9,7 +9,7 @@ org-mongodb = "4.11.2"
 org-seleniumhq-selenium = "4.8.3"
 org-slf4j = "2.0.13"
 org-testcontainers = "1.18.3"
-org-springframework-boot = "3.2.7"
+org-springframework-boot = "3.2.8"
 
 [libraries]
 ch-qos-logback-logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "ch-qos-logback" }
