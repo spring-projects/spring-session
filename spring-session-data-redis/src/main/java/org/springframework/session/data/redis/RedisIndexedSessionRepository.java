@@ -18,12 +18,15 @@ package org.springframework.session.data.redis;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +40,8 @@ import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.BoundHashOperations;
+import org.springframework.data.redis.core.BoundSetOperations;
+import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -61,6 +66,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.session.web.http.SessionRepositoryFilter;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -306,7 +312,7 @@ public class RedisIndexedSessionRepository
 
 	private final RedisOperations<String, Object> sessionRedisOperations;
 
-	private final RedisSessionExpirationPolicy expirationPolicy;
+	private RedisSessionExpirationStore expirationStore;
 
 	private ApplicationEventPublisher eventPublisher = (event) -> {
 	};
@@ -337,8 +343,8 @@ public class RedisIndexedSessionRepository
 	public RedisIndexedSessionRepository(RedisOperations<String, Object> sessionRedisOperations) {
 		Assert.notNull(sessionRedisOperations, "sessionRedisOperations cannot be null");
 		this.sessionRedisOperations = sessionRedisOperations;
-		this.expirationPolicy = new RedisSessionExpirationPolicy(sessionRedisOperations, this::getExpirationsKey,
-				this::getSessionKey);
+		this.expirationStore = new MinuteBasedRedisSessionExpirationStore(sessionRedisOperations,
+				this::getExpirationsKey);
 		configureSessionChannels();
 	}
 
@@ -486,7 +492,7 @@ public class RedisIndexedSessionRepository
 	}
 
 	public void cleanUpExpiredSessions() {
-		this.expirationPolicy.cleanExpiredSessions();
+		this.expirationStore.cleanupExpiredSessions();
 	}
 
 	@Override
@@ -543,7 +549,7 @@ public class RedisIndexedSessionRepository
 		}
 
 		cleanupPrincipalIndex(session);
-		this.expirationPolicy.onDelete(session);
+		this.expirationStore.remove(sessionId);
 
 		String expireKey = getExpiredKey(session.getId());
 		this.sessionRedisOperations.delete(expireKey);
@@ -604,6 +610,7 @@ public class RedisIndexedSessionRepository
 			}
 
 			cleanupPrincipalIndex(session);
+			this.expirationStore.remove(session.getId());
 
 			if (isDeleted) {
 				handleDeleted(session);
@@ -648,6 +655,18 @@ public class RedisIndexedSessionRepository
 		Assert.hasText(namespace, "namespace cannot be null or empty");
 		this.namespace = namespace.trim() + ":";
 		configureSessionChannels();
+	}
+
+	/**
+	 * Set the {@link RedisSessionExpirationStore} to use, defaults to
+	 * {@link MinuteBasedRedisSessionExpirationStore}.
+	 * @param expirationStore the {@link RedisSessionExpirationStore} to use, cannot be
+	 * null
+	 * @since 3.4
+	 */
+	public void setExpirationStore(RedisSessionExpirationStore expirationStore) {
+		Assert.notNull(expirationStore, "expirationStore cannot be null");
+		this.expirationStore = expirationStore;
 	}
 
 	/**
@@ -754,7 +773,7 @@ public class RedisIndexedSessionRepository
 	 *
 	 * @author Rob Winch
 	 */
-	final class RedisSession implements Session {
+	public final class RedisSession implements Session {
 
 		private final MapSession cached;
 
@@ -905,10 +924,41 @@ public class RedisIndexedSessionRepository
 				RedisIndexedSessionRepository.this.sessionRedisOperations.convertAndSend(sessionCreatedKey, this.delta);
 				this.isNew = false;
 			}
+
+			long sessionExpireInSeconds = getMaxInactiveInterval().getSeconds();
+
+			createShadowKey(sessionExpireInSeconds);
+
+			long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
+			RedisIndexedSessionRepository.this.sessionRedisOperations.boundHashOps(getSessionKey(getId()))
+				.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+
+			RedisIndexedSessionRepository.this.expirationStore.save(this);
 			this.delta = new HashMap<>(this.delta.size());
-			Long originalExpiration = (this.originalLastAccessTime != null)
-					? this.originalLastAccessTime.plus(getMaxInactiveInterval()).toEpochMilli() : null;
-			RedisIndexedSessionRepository.this.expirationPolicy.onExpirationUpdated(originalExpiration, this);
+		}
+
+		private void createShadowKey(long sessionExpireInSeconds) {
+			String keyToExpire = "expires:" + getId();
+			String sessionKey = getSessionKey(keyToExpire);
+
+			if (sessionExpireInSeconds < 0) {
+				BoundValueOperations<String, Object> valueOps = RedisIndexedSessionRepository.this.sessionRedisOperations
+					.boundValueOps(sessionKey);
+				valueOps.append("");
+				valueOps.persist();
+				RedisIndexedSessionRepository.this.sessionRedisOperations.boundHashOps(getSessionKey(getId()))
+					.persist();
+			}
+
+			if (sessionExpireInSeconds == 0) {
+				RedisIndexedSessionRepository.this.sessionRedisOperations.delete(sessionKey);
+			}
+			else {
+				BoundValueOperations<String, Object> valueOps = RedisIndexedSessionRepository.this.sessionRedisOperations
+					.boundValueOps(sessionKey);
+				valueOps.append("");
+				valueOps.expire(sessionExpireInSeconds, TimeUnit.SECONDS);
+			}
 		}
 
 		private void saveChangeSessionId() {
@@ -941,6 +991,7 @@ public class RedisIndexedSessionRepository
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
 						.add(sessionId);
 				}
+				RedisIndexedSessionRepository.this.expirationStore.remove(this.originalSessionId);
 			}
 			this.originalSessionId = sessionId;
 		}
@@ -950,6 +1001,102 @@ public class RedisIndexedSessionRepository
 			if (!StringUtils.startsWithIgnoreCase(message, "ERR no such key")) {
 				throw ex;
 			}
+		}
+
+	}
+
+	private final class MinuteBasedRedisSessionExpirationStore implements RedisSessionExpirationStore {
+
+		private static final String SESSION_EXPIRES_PREFIX = "expires:";
+
+		private final RedisOperations<String, Object> redis;
+
+		private final Function<Long, String> lookupExpirationKey;
+
+		MinuteBasedRedisSessionExpirationStore(RedisOperations<String, Object> redis,
+				Function<Long, String> lookupExpirationKey) {
+			this.redis = redis;
+			this.lookupExpirationKey = lookupExpirationKey;
+		}
+
+		@Override
+		public void save(RedisSession session) {
+			Long originalExpiration = (session.originalLastAccessTime != null)
+					? session.originalLastAccessTime.plus(session.getMaxInactiveInterval()).toEpochMilli() : null;
+			String keyToExpire = SESSION_EXPIRES_PREFIX + session.getId();
+			long toExpire = roundUpToNextMinute(expiresInMillis(session));
+
+			if (originalExpiration != null) {
+				long originalRoundedUp = roundUpToNextMinute(originalExpiration);
+				if (toExpire != originalRoundedUp) {
+					String expireKey = getExpirationKey(originalRoundedUp);
+					this.redis.boundSetOps(expireKey).remove(keyToExpire);
+				}
+			}
+
+			String expirationsKey = getExpirationsKey(toExpire);
+			long sessionExpireInSeconds = session.getMaxInactiveInterval().getSeconds();
+			long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
+			this.redis.boundSetOps(expirationsKey).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+
+			String expireKey = getExpirationKey(toExpire);
+			BoundSetOperations<String, Object> expireOperations = this.redis.boundSetOps(expireKey);
+			expireOperations.add(keyToExpire);
+		}
+
+		@Override
+		public void remove(String sessionId) {
+			RedisSession session = getSession(sessionId, true);
+			if (session != null) {
+				long toExpire = roundUpToNextMinute(expiresInMillis(session));
+				String expireKey = getExpirationKey(toExpire);
+				String entryToRemove = SESSION_EXPIRES_PREFIX + session.getId();
+				this.redis.boundSetOps(expireKey).remove(entryToRemove);
+			}
+		}
+
+		@Override
+		public void cleanupExpiredSessions() {
+			long now = System.currentTimeMillis();
+			long prevMin = roundDownMinute(now);
+			String expirationKey = getExpirationKey(prevMin);
+			Set<Object> sessionsToExpire = this.redis.boundSetOps(expirationKey).members();
+			this.redis.delete(expirationKey);
+			if (CollectionUtils.isEmpty(sessionsToExpire)) {
+				return;
+			}
+			for (Object sessionId : sessionsToExpire) {
+				touch(getSessionKey((String) sessionId));
+			}
+		}
+
+		/**
+		 * By trying to access the session we only trigger a deletion if the TTL is
+		 * expired. This is done to handle
+		 * <a href="https://github.com/spring-projects/spring-session/issues/93">gh-93</a>
+		 * @param sessionKey the key
+		 */
+		private void touch(String sessionKey) {
+			RedisIndexedSessionRepository.this.sessionRedisOperations.hasKey(sessionKey);
+		}
+
+		String getExpirationKey(long expires) {
+			return this.lookupExpirationKey.apply(expires);
+		}
+
+		private static long expiresInMillis(Session session) {
+			return session.getLastAccessedTime().plus(session.getMaxInactiveInterval()).toEpochMilli();
+		}
+
+		private static long roundUpToNextMinute(long timeInMs) {
+			Instant instant = Instant.ofEpochMilli(timeInMs).plus(1, ChronoUnit.MINUTES);
+			Instant nextMinute = instant.truncatedTo(ChronoUnit.MINUTES);
+			return nextMinute.toEpochMilli();
+		}
+
+		private static long roundDownMinute(long timeInMs) {
+			Instant downMinute = Instant.ofEpochMilli(timeInMs).truncatedTo(ChronoUnit.MINUTES);
+			return downMinute.toEpochMilli();
 		}
 
 	}
