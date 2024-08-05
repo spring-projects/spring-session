@@ -19,6 +19,7 @@ package org.springframework.session.data.redis;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -133,6 +134,22 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 		assertThat(this.registry.getEvent(toSave.getId()).getSession().<String>getAttribute(expectedAttributeName))
 			.isEqualTo(expectedAttributeValue);
+	}
+
+	@Test
+	void saveThenSaveSessionKeyAndShadowKeyWith5MinutesDifference() {
+		RedisSession toSave = this.repository.createSession();
+		String expectedAttributeName = "a";
+		String expectedAttributeValue = "b";
+		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
+		this.repository.save(toSave);
+
+		Long sessionKeyExpire = this.redis.getExpire("RedisIndexedSessionRepositoryITests:sessions:" + toSave.getId(),
+				TimeUnit.SECONDS);
+		Long shadowKeyExpire = this.redis
+			.getExpire("RedisIndexedSessionRepositoryITests:sessions:expires:" + toSave.getId(), TimeUnit.SECONDS);
+		long differenceInSeconds = sessionKeyExpire - shadowKeyExpire;
+		assertThat(differenceInSeconds).isEqualTo(300);
 	}
 
 	@Test

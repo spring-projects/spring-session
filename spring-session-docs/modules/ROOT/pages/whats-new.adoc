@@ -1,3 +1,4 @@
 = What's New in 3.4
 
 - https://github.com/spring-projects/spring-session/issues/2787[gh-2787] - Add Partitioned Cookie Support to `DefaultCookieSerializer`
+- https://github.com/spring-projects/spring-session/issues/2906[gh-2906] - xref:configuration/redis.adoc#customizing-session-expiration-store[docs] - Allow Customization of Expiration Policy in `RedisIndexedHttpSession`
