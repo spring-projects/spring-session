@@ -1048,6 +1048,29 @@ class SessionRepositoryFilterTests {
 	}
 
 	@Test
+	void doFilterAdapterOnExistingSession() throws Exception {
+		MapSession session = this.sessionRepository.createSession();
+		this.sessionRepository.save(session);
+		SessionRepository<MapSession> sessionRepository = spy(this.sessionRepository);
+		setSessionCookie(session.getId());
+		given(this.strategy.resolveSessionIds(any(HttpServletRequest.class)))
+			.willReturn(Arrays.asList(session.getId()));
+
+		this.filter = new SessionRepositoryFilter<>(sessionRepository);
+		this.filter.setHttpSessionIdResolver(this.strategy);
+
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse) {
+				wrappedRequest.getSession();
+			}
+		});
+
+		verify(this.strategy).extendSession(any(HttpServletRequest.class), any(HttpServletResponse.class),
+				eq(session.getId()));
+	}
+
+	@Test
 	void doFilterAdapterOnInvalidate() throws Exception {
 		this.filter.setHttpSessionIdResolver(this.strategy);
 
