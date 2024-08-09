@@ -47,6 +47,7 @@ import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.data.redis.RedisSessionExpirationStore;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -84,6 +85,8 @@ public class RedisIndexedHttpSessionConfiguration
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
+	private RedisSessionExpirationStore expirationStore;
+
 	@Bean
 	@Override
 	public RedisIndexedSessionRepository sessionRepository() {
@@ -106,6 +109,9 @@ public class RedisIndexedHttpSessionConfiguration
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
 		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
+		if (this.expirationStore != null) {
+			sessionRepository.setExpirationStore(this.expirationStore);
+		}
 		getSessionRepositoryCustomizers()
 			.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -169,6 +175,11 @@ public class RedisIndexedHttpSessionConfiguration
 	@Qualifier("springSessionRedisSubscriptionExecutor")
 	public void setRedisSubscriptionExecutor(Executor redisSubscriptionExecutor) {
 		this.redisSubscriptionExecutor = redisSubscriptionExecutor;
+	}
+
+	@Autowired(required = false)
+	public void setExpirationStore(RedisSessionExpirationStore expirationStore) {
+		this.expirationStore = expirationStore;
 	}
 
 	@Override

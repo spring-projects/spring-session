@@ -10,6 +10,7 @@ Now that you have your application configured, you might want to start customizi
 - I want to <<listening-session-events,know when a session is created, deleted, destroyed or expires>>.
 - I want to <<finding-all-user-sessions, find all sessions of a specific user>>
 - I want to <<configuring-redis-session-mapper,safe deserialize Redis sessions>>
+- Customizing the <<customizing-session-expiration-store,session expiration store>>
 
 [[serializing-session-using-json]]
 == Serializing the Session using JSON
@@ -407,3 +408,65 @@ public class SessionConfig {
 }
 ----
 ======
+
+[[customizing-session-expiration-store]]
+== Customizing the Session Expiration Store
+
+Due to the nature of Redis, there is no guarantee on when an expired event will be fired if the key has not been accessed.
+For more details, refer to the Redis documentation https://redis.io/docs/latest/commands/expire/#:~:text=How%20Redis%20expires%20keys[on key expiration].
+
+To mitigate the uncertainty of expired events, sessions are also stored with their expected expiration times.
+This ensures that each key can be accessed when it is expected to expire.
+The `RedisSessionExpirationStore` interface defines the common operations for tracking sessions and their expiration times, and it provides a strategy for cleaning up expired sessions.
+
+By default, each session expiration is tracked to the nearest minute.
+This allows a background task to access the potentially expired sessions to ensure that Redis expired events are fired in a more deterministic fashion.
+
+For example:
+[source]
+----
+SADD spring:session:expirations:1439245080000 expires:33fdd1b6-b496-4b33-9f7d-df96679d32fe
+EXPIRE spring:session:expirations:1439245080000 2100
+----
+
+The background task will then use these mappings to explicitly request each session expires key.
+By accessing the key, rather than deleting it, we ensure that Redis deletes the key for us only if the TTL is expired.
+
+By customizing the session expiration store, you can manage session expiration more effectively based on your needs.
+To do that, you should provide a bean of type `RedisSessionExpirationStore` that will be picked up by Spring Session Data Redis configuration:
+
+[tabs]
+======
+SessionConfig::
++
+[source,java,role="primary"]
+----
+import org.springframework.session.data.redis.SortedSetRedisSessionExpirationStore;
+
+@Configuration
+@EnableRedisIndexedHttpSession
+public class SessionConfig {
+
+    @Bean
+    public RedisSessionExpirationStore redisSessionExpirationStore(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setKeySerializer(RedisSerializer.string());
+        redisTemplate.setHashKeySerializer(RedisSerializer.string());
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
+        redisTemplate.afterPropertiesSet();
+        return new SortedSetRedisSessionExpirationStore(redisTemplate, RedisIndexedSessionRepository.DEFAULT_NAMESPACE);
+    }
+
+}
+----
+======
+
+In the code above, the `SortedSetRedisSessionExpirationStore` implementation is being used, which uses a https://redis.io/docs/latest/develop/data-types/sorted-sets/[Sorted Set] to store the session ids with their expiration time as the score.
+
+[NOTE]
+====
+We do not explicitly delete the keys since in some instances there may be a race condition that incorrectly identifies a key as expired when it is not.
+Short of using distributed locks (which would kill performance) there is no way to ensure the consistency of the expiration mapping.
+By simply accessing the key, we ensure that the key is only removed if the TTL on that key is expired.
+However, for your implementations you can choose the strategy that best fits.
+====
