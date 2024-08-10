@@ -92,9 +92,7 @@ public class MongoIndexedSessionRepository
 	@Override
 	public MongoSession createSession() {
 
-		MongoSession session = new MongoSession(this.sessionIdGenerator);
-
-		session.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
+		MongoSession session = new MongoSession(this.sessionIdGenerator, this.defaultMaxInactiveInterval.toMillis());
 
 		publishEvent(new SessionCreatedEvent(this, session));
 

@@ -99,11 +99,9 @@ public class ReactiveMongoSessionRepository
 	@Override
 	public Mono<MongoSession> createSession() {
 		// @formatter:off
-		return Mono.fromSupplier(() -> this.sessionIdGenerator.generate())
-				.map(MongoSession::new)
-				.doOnNext((mongoSession) -> mongoSession.setMaxInactiveInterval(this.defaultMaxInactiveInterval))
-				.doOnNext(
-						(mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
+		return Mono.just(this.sessionIdGenerator)
+				.zipWith(Mono.just(this.defaultMaxInactiveInterval.toMillis()))
+				.map((tuple) -> new MongoSession(tuple.getT1(), tuple.getT2()))
 				.doOnNext((mongoSession) -> publishEvent(new SessionCreatedEvent(this, mongoSession)))
 				.switchIfEmpty(Mono.just(new MongoSession(this.sessionIdGenerator)))
 				.subscribeOn(Schedulers.boundedElastic())
