@@ -7,7 +7,6 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
-    jcenter()
     gradlePluginPortal()
     mavenCentral()
     maven { url 'https://repo.spring.io/plugins-release/' }
