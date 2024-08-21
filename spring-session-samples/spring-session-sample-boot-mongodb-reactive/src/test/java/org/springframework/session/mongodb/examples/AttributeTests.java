@@ -37,7 +37,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Yanming Zhou
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AttributeTests {
+class AttributeTests {
 
 	@LocalServerPort
 	int port;

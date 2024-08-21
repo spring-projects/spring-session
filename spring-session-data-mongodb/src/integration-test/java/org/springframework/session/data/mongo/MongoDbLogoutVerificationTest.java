@@ -57,7 +57,7 @@ import org.springframework.web.reactive.function.BodyInserters;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
-public class MongoDbLogoutVerificationTest {
+class MongoDbLogoutVerificationTest {
 
 	@Autowired
 	ApplicationContext ctx;

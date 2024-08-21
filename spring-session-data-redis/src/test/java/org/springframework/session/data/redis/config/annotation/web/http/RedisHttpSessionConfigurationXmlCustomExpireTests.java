@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class RedisHttpSessionConfigurationXmlCustomExpireTests {
+class RedisHttpSessionConfigurationXmlCustomExpireTests {
 
 	@Test
 	void contextLoads() {
