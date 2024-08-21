@@ -42,7 +42,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @AutoConfigureMockMvc
 @SpringBootTest
-public class BootTests {
+class BootTests {
 
 	@Autowired
 	private MockMvc mockMvc;
