@@ -57,7 +57,7 @@ import org.springframework.web.reactive.function.BodyInserters;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
-public class MongoDbDeleteJacksonSessionVerificationTest {
+class MongoDbDeleteJacksonSessionVerificationTest {
 
 	@Autowired
 	ApplicationContext ctx;

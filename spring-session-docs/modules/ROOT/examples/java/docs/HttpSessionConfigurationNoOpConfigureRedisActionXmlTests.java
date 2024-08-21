@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
-public class HttpSessionConfigurationNoOpConfigureRedisActionXmlTests {
+class HttpSessionConfigurationNoOpConfigureRedisActionXmlTests {
 
 	@Autowired
 	SessionRepositoryFilter<? extends Session> filter;

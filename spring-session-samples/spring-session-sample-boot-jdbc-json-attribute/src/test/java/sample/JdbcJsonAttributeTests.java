@@ -27,7 +27,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @Import(TestContainersConfig.class)
-public class JdbcJsonAttributeTests {
+class JdbcJsonAttributeTests {
 
 	@Autowired
 	MockMvc mvc;

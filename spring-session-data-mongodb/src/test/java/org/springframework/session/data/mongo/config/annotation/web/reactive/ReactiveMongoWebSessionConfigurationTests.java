@@ -61,7 +61,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Greg Turnquist
  * @author Vedran Pavic
  */
-public class ReactiveMongoWebSessionConfigurationTests {
+class ReactiveMongoWebSessionConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
