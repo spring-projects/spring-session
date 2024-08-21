@@ -16,6 +16,8 @@
 
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
@@ -252,6 +254,14 @@ class MongoIndexedSessionRepositoryTests {
 		assertThat(retrievedSession.getId()).isEqualTo("123");
 		String newSessionId = retrievedSession.changeSessionId();
 		assertThat(newSessionId).isEqualTo("456");
+	}
+
+	@Test
+	void createSessionWhenMaxInactiveIntervalSetThenUse() {
+		this.repository.setDefaultMaxInactiveInterval(Duration.ofSeconds(60));
+		MongoSession session = this.repository.createSession();
+		Instant now = Instant.now();
+		assertThat(session.getExpireAt()).isBetween(now.plusSeconds(59), Instant.now().plusSeconds(61));
 	}
 
 	static class FixedSessionIdGenerator implements SessionIdGenerator {
