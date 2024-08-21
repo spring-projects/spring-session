@@ -100,7 +100,8 @@ public class ReactiveMongoSessionRepository
 	public Mono<MongoSession> createSession() {
 		// @formatter:off
 		return Mono.fromSupplier(() -> this.sessionIdGenerator.generate())
-				.map(MongoSession::new)
+				.zipWith(Mono.just(this.defaultMaxInactiveInterval.toSeconds()))
+				.map((tuple) -> new MongoSession(tuple.getT1(), tuple.getT2()))
 				.doOnNext((mongoSession) -> mongoSession.setMaxInactiveInterval(this.defaultMaxInactiveInterval))
 				.doOnNext(
 						(mongoSession) -> mongoSession.setSessionIdGenerator(this.sessionIdGenerator))
