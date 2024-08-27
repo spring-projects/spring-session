@@ -30,7 +30,7 @@ io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2023.0.9"
 io-spring-javaformat-spring-javaformat-checkstyle = "io.spring.javaformat:spring-javaformat-checkstyle:0.0.43"
 io-spring-nohttp-nohttp-checkstyle = "io.spring.nohttp:nohttp-checkstyle:0.0.11"
 jakarta-servlet-jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.0.0"
-jakarta-servlet-jsp-jstl-jakarta-servlet-jsp-jstl-api = "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.1"
+jakarta-servlet-jsp-jstl-jakarta-servlet-jsp-jstl-api = "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:3.0.2"
 jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket" }
 jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:jakarta.websocket-client-api", version.ref = "jakarta-websocket" }
 mysql-mysql-connector-java = "mysql:mysql-connector-java:8.0.33"
