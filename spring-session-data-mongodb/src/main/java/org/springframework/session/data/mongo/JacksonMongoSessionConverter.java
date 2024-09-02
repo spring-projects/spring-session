@@ -16,11 +16,6 @@
 
 package org.springframework.session.data.mongo;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,13 +32,17 @@ import org.apache.commons.logging.LogFactory;
 import org.bson.Document;
 import org.bson.json.JsonMode;
 import org.bson.json.JsonWriterSettings;
-
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.lang.Nullable;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.util.Assert;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 
 /**
  * {@code AbstractMongoSessionConverter} implementation using Jackson.
@@ -76,9 +75,20 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 	}
 
 	public JacksonMongoSessionConverter(ObjectMapper objectMapper) {
-
-		Assert.notNull(objectMapper, "ObjectMapper can NOT be null!");
+		Assert.notNull(objectMapper, "ObjectMapper can not be null!");
 		this.objectMapper = objectMapper;
+	}
+
+	public JacksonMongoSessionConverter(ObjectMapper objectMapper, boolean copyToUse) {
+		Assert.notNull(objectMapper, "ObjectMapper can not be null!");
+		if (!copyToUse) {
+			configureObjectMapper(objectMapper);
+			this.objectMapper = objectMapper;
+			return;
+		}
+		var objectMapperCopy = objectMapper.copy();
+		configureObjectMapper(objectMapperCopy);
+		this.objectMapper = objectMapperCopy;
 	}
 
 	@Nullable
@@ -93,9 +103,12 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 	}
 
 	private ObjectMapper buildObjectMapper() {
-
 		ObjectMapper objectMapper = new ObjectMapper();
+		this.configureObjectMapper(objectMapper);
+		return objectMapper;
+	}
 
+	private void configureObjectMapper(ObjectMapper objectMapper) {
 		// serialize fields instead of properties
 		objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
 		objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
@@ -108,8 +121,6 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 		objectMapper.registerModules(SecurityJackson2Modules.getModules(getClass().getClassLoader()));
 		objectMapper.addMixIn(MongoSession.class, MongoSessionMixin.class);
 		objectMapper.addMixIn(HashMap.class, HashMapMixin.class);
-
-		return objectMapper;
 	}
 
 	@Override
