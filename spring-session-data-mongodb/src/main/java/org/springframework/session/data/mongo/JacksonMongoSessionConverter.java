@@ -38,6 +38,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -79,18 +80,6 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 		this.objectMapper = objectMapper;
 	}
 
-	public JacksonMongoSessionConverter(ObjectMapper objectMapper, boolean copyToUse) {
-		Assert.notNull(objectMapper, "ObjectMapper can not be null!");
-		if (!copyToUse) {
-			configureObjectMapper(objectMapper);
-			this.objectMapper = objectMapper;
-			return;
-		}
-		var objectMapperCopy = objectMapper.copy();
-		configureObjectMapper(objectMapperCopy);
-		this.objectMapper = objectMapperCopy;
-	}
-
 	@Nullable
 	protected Query getQueryForIndex(String indexName, Object indexValue) {
 
@@ -104,11 +93,11 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 
 	private ObjectMapper buildObjectMapper() {
 		ObjectMapper objectMapper = new ObjectMapper();
-		this.configureObjectMapper(objectMapper);
+		configureObjectMapper(objectMapper);
 		return objectMapper;
 	}
 
-	private void configureObjectMapper(ObjectMapper objectMapper) {
+	public static void configureObjectMapper(ObjectMapper objectMapper) {
 		// serialize fields instead of properties
 		objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
 		objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
@@ -118,7 +107,7 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 
 		objectMapper.setPropertyNamingStrategy(new MongoIdNamingStrategy());
 
-		objectMapper.registerModules(SecurityJackson2Modules.getModules(getClass().getClassLoader()));
+		objectMapper.registerModules(SecurityJackson2Modules.getModules(ClassUtils.getDefaultClassLoader()));
 		objectMapper.addMixIn(MongoSession.class, MongoSessionMixin.class);
 		objectMapper.addMixIn(HashMap.class, HashMapMixin.class);
 	}
