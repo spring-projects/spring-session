@@ -55,7 +55,7 @@ final class DatabaseContainers {
 	}
 
 	static JdbcDatabaseContainer<?> sqlServer() {
-		return new MSSQLServerContainerProvider().newInstance("2019-CU17-ubuntu-20.04");
+		return new MSSQLServerContainerProvider().newInstance("2022-CU14-ubuntu-22.04");
 	}
 
 }
