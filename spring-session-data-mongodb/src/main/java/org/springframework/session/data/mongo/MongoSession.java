@@ -16,21 +16,17 @@
 
 package org.springframework.session.data.mongo;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.lang.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Session object providing additional information about the datetime of expiration.
@@ -39,7 +35,7 @@ import org.springframework.util.Assert;
  * @author Greg Turnquist
  * @since 1.2
  */
-class MongoSession implements Session {
+public class MongoSession implements Session {
 
 	/**
 	 * Mongo doesn't support {@literal dot} in field names. We replace it with a unicode
