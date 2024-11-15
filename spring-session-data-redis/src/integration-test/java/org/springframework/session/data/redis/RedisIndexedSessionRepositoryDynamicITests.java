@@ -37,10 +37,8 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.spy;
 
 /**
@@ -68,10 +66,6 @@ class RedisIndexedSessionRepositoryDynamicITests extends AbstractRedisITests {
 
 		BoundHashOperations<String, Object, Object> opsForHash = spy(this.spyOperations.boundHashOps(anyString()));
 		given(this.spyOperations.boundHashOps(anyString())).willReturn(opsForHash);
-		willAnswer((invocation) -> {
-			this.sessionRepository.deleteById(session.getId());
-			return invocation.callRealMethod();
-		}).given(opsForHash).putAll(any());
 
 		this.sessionRepository.save(session);
 		assertThatIllegalStateException().isThrownBy(() -> this.sessionRepository.findById(session.getId()))
@@ -87,10 +81,6 @@ class RedisIndexedSessionRepositoryDynamicITests extends AbstractRedisITests {
 
 		BoundHashOperations<String, Object, Object> opsForHash = spy(this.spyOperations.boundHashOps(anyString()));
 		given(this.spyOperations.boundHashOps(anyString())).willReturn(opsForHash);
-		willAnswer((invocation) -> {
-			this.sessionRepository.deleteById(session.getId());
-			return invocation.callRealMethod();
-		}).given(opsForHash).putAll(any());
 
 		this.sessionRepository.save(session);
 		assertThat(this.sessionRepository.findById(session.getId())).isNull();
