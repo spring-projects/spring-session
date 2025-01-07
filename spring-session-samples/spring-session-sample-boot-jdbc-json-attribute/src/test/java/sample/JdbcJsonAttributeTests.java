@@ -51,7 +51,7 @@ class JdbcJsonAttributeTests {
 
 	@Test
 	void loginShouldSaveSecurityContextAsJson() throws Exception {
-		Cookie sessionCookie = this.mvc.perform(formLogin().user("user").password("password"))
+		Cookie sessionCookie = this.mvc.perform(formLogin().user("rüdiger").password("password"))
 			.andExpect(authenticated())
 			.andReturn()
 			.getResponse()
@@ -66,20 +66,20 @@ class JdbcJsonAttributeTests {
 		SecurityContext securityContext = this.objectMapperWithModules.readValue((String) attributeBytes,
 				SecurityContext.class);
 		assertThat(securityContext).isNotNull();
-		assertThat(securityContext.getAuthentication().getName()).isEqualTo("user");
+		assertThat(securityContext.getAuthentication().getName()).isEqualTo("rüdiger");
 	}
 
 	@Test
 	void loginWhenQueryUsingJsonbOperatorThenReturns() throws Exception {
-		this.mvc.perform(formLogin().user("user").password("password")).andExpect(authenticated());
+		this.mvc.perform(formLogin().user("rüdiger").password("password")).andExpect(authenticated());
 		Object attributeBytes = this.jdbcClient.sql("""
 				SELECT attribute_bytes::text FROM spring_session_attributes
-				WHERE attribute_bytes -> 'authentication' -> 'principal' ->> 'username' = 'user'
+				WHERE attribute_bytes -> 'authentication' -> 'principal' ->> 'username' = 'rüdiger'
 				""").query().singleValue();
 		SecurityContext securityContext = this.objectMapperWithModules.readValue((String) attributeBytes,
 				SecurityContext.class);
 		assertThat(securityContext).isNotNull();
-		assertThat(securityContext.getAuthentication().getName()).isEqualTo("user");
+		assertThat(securityContext.getAuthentication().getName()).isEqualTo("rüdiger");
 	}
 
 }
