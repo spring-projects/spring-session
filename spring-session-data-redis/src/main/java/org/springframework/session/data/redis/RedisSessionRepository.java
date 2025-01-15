@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,16 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.SessionRepository;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 
 /**
@@ -55,6 +58,10 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	private FlushMode flushMode = FlushMode.ON_SAVE;
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+
+	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
 
 	/**
 	 * Create a new {@link RedisSessionRepository} instance.
@@ -106,7 +113,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	@Override
 	public RedisSession createSession() {
-		MapSession cached = new MapSession();
+		MapSession cached = new MapSession(this.sessionIdGenerator);
 		cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		RedisSession session = new RedisSession(cached, true);
 		session.flushIfRequired();
@@ -132,8 +139,8 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		if (entries.isEmpty()) {
 			return null;
 		}
-		MapSession session = new RedisSessionMapper(sessionId).apply(entries);
-		if (session.isExpired()) {
+		MapSession session = this.redisSessionMapper.apply(sessionId, entries);
+		if (session == null || session.isExpired()) {
 			deleteById(sessionId);
 			return null;
 		}
@@ -160,6 +167,27 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private static String getAttributeKey(String attributeName) {
 		return RedisSessionMapper.ATTRIBUTE_PREFIX + attributeName;
+	}
+
+	/**
+	 * Set the {@link SessionIdGenerator} to use to generate session ids.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
+	}
+
+	/**
+	 * Set the {@link BiFunction} used to map {@link MapSession} to a
+	 * {@link ReactiveRedisSessionRepository.RedisSession}.
+	 * @param redisSessionMapper the mapper to use, cannot be null
+	 * @since 3.2
+	 */
+	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper) {
+		Assert.notNull(redisSessionMapper, "redisSessionMapper cannot be null");
+		this.redisSessionMapper = redisSessionMapper;
 	}
 
 	/**
@@ -198,7 +226,9 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 		@Override
 		public String changeSessionId() {
-			return this.cached.changeSessionId();
+			String newSessionId = RedisSessionRepository.this.sessionIdGenerator.generate();
+			this.cached.setId(newSessionId);
+			return newSessionId;
 		}
 
 		@Override

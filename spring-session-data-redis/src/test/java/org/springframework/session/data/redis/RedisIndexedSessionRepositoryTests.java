@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -463,12 +463,12 @@ class RedisIndexedSessionRepositoryTests {
 		MapSession session = this.cached;
 		byte[] pattern = "".getBytes(StandardCharsets.UTF_8);
 		String channel = "spring:session:event:0:created:" + session.getId();
-		JdkSerializationRedisSerializer defaultSerailizer = new JdkSerializationRedisSerializer();
-		this.redisRepository.setDefaultSerializer(defaultSerailizer);
+		JdkSerializationRedisSerializer defaultSerializer = new JdkSerializationRedisSerializer();
+		this.redisRepository.setDefaultSerializer(defaultSerializer);
 		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
 				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 0, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
 				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
-		byte[] body = defaultSerailizer.serialize(map);
+		byte[] body = defaultSerializer.serialize(map);
 		DefaultMessage message = new DefaultMessage(channel.getBytes(StandardCharsets.UTF_8), body);
 
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
@@ -504,10 +504,15 @@ class RedisIndexedSessionRepositoryTests {
 		String deletedId = "deleted-id";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(deletedId)))
 			.willReturn(this.boundHashOperations);
+		long lastAccessedTimeMillis = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5);
 		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
 				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 0, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+				lastAccessedTimeMillis);
 		given(this.boundHashOperations.entries()).willReturn(map);
+
+		String backgroundExpireKey = "spring:session:expirations:"
+				+ RedisSessionExpirationPolicy.roundUpToNextMinute(lastAccessedTimeMillis);
+		given(this.redisOperations.boundSetOps(backgroundExpireKey)).willReturn(this.boundSetOperations);
 
 		String channel = "__keyevent@0__:del";
 		String body = "spring:session:sessions:expires:" + deletedId;
@@ -517,8 +522,8 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
 		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
-		verify(this.redisOperations).boundHashOps(eq(getKey(deletedId)));
-		verify(this.boundHashOperations).entries();
+		verify(this.redisOperations, times(2)).boundHashOps(eq(getKey(deletedId)));
+		verify(this.boundHashOperations, times(2)).entries();
 		verify(this.publisher).publishEvent(this.event.capture());
 		assertThat(this.event.getValue().getSessionId()).isEqualTo(deletedId);
 		verifyNoMoreInteractions(this.defaultSerializer);
@@ -555,10 +560,15 @@ class RedisIndexedSessionRepositoryTests {
 		String expiredId = "expired-id";
 		given(this.redisOperations.<String, Object>boundHashOps(getKey(expiredId)))
 			.willReturn(this.boundHashOperations);
+		long lastAccessedTimeMillis = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5);
 		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
 				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
-				System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5));
+				lastAccessedTimeMillis);
 		given(this.boundHashOperations.entries()).willReturn(map);
+
+		String backgroundExpireKey = "spring:session:expirations:"
+				+ RedisSessionExpirationPolicy.roundUpToNextMinute(lastAccessedTimeMillis + 1000);
+		given(this.redisOperations.boundSetOps(backgroundExpireKey)).willReturn(this.boundSetOperations);
 
 		String channel = "__keyevent@0__:expired";
 		String body = "spring:session:sessions:expires:" + expiredId;
@@ -568,8 +578,8 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository.setApplicationEventPublisher(this.publisher);
 		this.redisRepository.onMessage(message, "".getBytes(StandardCharsets.UTF_8));
 
-		verify(this.redisOperations).boundHashOps(eq(getKey(expiredId)));
-		verify(this.boundHashOperations).entries();
+		verify(this.redisOperations, times(2)).boundHashOps(eq(getKey(expiredId)));
+		verify(this.boundHashOperations, times(2)).entries();
 		verify(this.publisher).publishEvent(this.event.capture());
 		assertThat(this.event.getValue().getSessionId()).isEqualTo(expiredId);
 		verifyNoMoreInteractions(this.defaultSerializer);
@@ -908,6 +918,46 @@ class RedisIndexedSessionRepositoryTests {
 		session.setAttribute("attribute3", "value4");
 		this.redisRepository.save(session);
 		assertThat(getDelta()).hasSize(3);
+	}
+
+	@Test
+	void createSessionWhenSessionIdGeneratorThenUses() {
+		this.redisRepository.setSessionIdGenerator(() -> "test");
+		RedisSession session = this.redisRepository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.redisRepository.setSessionIdGenerator(null))
+			.withMessage("sessionIdGenerator cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
+		this.redisRepository.setSessionIdGenerator(() -> "test");
+		String attribute1 = "attribute1";
+		String attribute2 = "attribute2";
+		MapSession expected = new MapSession("original");
+		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
+		expected.setAttribute(attribute1, "test");
+		expected.setAttribute(attribute2, null);
+		given(this.redisOperations.<String, Object>boundHashOps(getKey(expected.getId())))
+			.willReturn(this.boundHashOperations);
+		Map<String, Object> map = map(RedisIndexedSessionRepository.getSessionAttrNameKey(attribute1),
+				expected.getAttribute(attribute1), RedisIndexedSessionRepository.getSessionAttrNameKey(attribute2),
+				expected.getAttribute(attribute2), RedisSessionMapper.CREATION_TIME_KEY,
+				expected.getCreationTime().toEpochMilli(), RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+				(int) expected.getMaxInactiveInterval().getSeconds(), RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				expected.getLastAccessedTime().toEpochMilli());
+		given(this.boundHashOperations.entries()).willReturn(map);
+
+		RedisSession session = this.redisRepository.findById(expected.getId());
+		String oldSessionId = session.getId();
+		String newSessionId = session.changeSessionId();
+		assertThat(oldSessionId).isEqualTo("original");
+		assertThat(newSessionId).isEqualTo("test");
 	}
 
 	private String getKey(String id) {

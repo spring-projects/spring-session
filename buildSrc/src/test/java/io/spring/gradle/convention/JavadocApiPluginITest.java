@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,7 +31,7 @@ public class JavadocApiPluginITest {
         File allClasses = new File(testKit.getRootDir(), "build/api/allclasses-noframe.html");
 		File index = new File(testKit.getRootDir(), "build/api/allclasses-index.html");
 		File listing = allClasses.exists() ? allClasses : index;
-		String listingText = FileUtils.readFileToString(listing);
+		String listingText = FileUtils.readFileToString(listing, Charset.defaultCharset());
 		assertThat(listingText).contains("sample/Api.html");
         assertThat(listingText).contains("sample/Impl.html");
 		assertThat(listingText).doesNotContain("sample/Sample.html");

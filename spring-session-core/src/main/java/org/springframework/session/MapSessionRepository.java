@@ -43,6 +43,8 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	private final Map<String, Session> sessions;
 
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+
 	/**
 	 * Creates a new instance backed by the provided {@link java.util.Map}. This allows
 	 * injecting a distributed {@link java.util.Map}.
@@ -71,7 +73,9 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 		if (!session.getId().equals(session.getOriginalId())) {
 			this.sessions.remove(session.getOriginalId());
 		}
-		this.sessions.put(session.getId(), new MapSession(session));
+		MapSession saved = new MapSession(session);
+		saved.setSessionIdGenerator(this.sessionIdGenerator);
+		this.sessions.put(session.getId(), saved);
 	}
 
 	@Override
@@ -84,7 +88,9 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 			deleteById(saved.getId());
 			return null;
 		}
-		return new MapSession(saved);
+		MapSession result = new MapSession(saved);
+		result.setSessionIdGenerator(this.sessionIdGenerator);
+		return result;
 	}
 
 	@Override
@@ -94,9 +100,14 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 
 	@Override
 	public MapSession createSession() {
-		MapSession result = new MapSession();
+		MapSession result = new MapSession(this.sessionIdGenerator);
 		result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
 		return result;
+	}
+
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

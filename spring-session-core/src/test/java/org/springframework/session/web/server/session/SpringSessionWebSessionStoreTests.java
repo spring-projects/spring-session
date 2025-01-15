@@ -47,7 +47,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class SpringSessionWebSessionStoreTests<S extends Session> {
 
-	@Mock(lenient = true)
+	@Mock(strictness = Mock.Strictness.LENIENT)
 	private ReactiveSessionRepository<S> sessionRepository;
 
 	@Mock

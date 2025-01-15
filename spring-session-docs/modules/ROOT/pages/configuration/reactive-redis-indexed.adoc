@@ -1,0 +1,227 @@
+[[reactive-indexed-redis-configurations]]
+= Reactive Redis Indexed Configurations
+
+To start using the Redis Indexed Web Session support, you need to add the following dependency to your project:
+
+[tabs]
+======
+Maven::
++
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.session</groupId>
+    <artifactId>spring-session-data-redis</artifactId>
+</dependency>
+----
+Gradle::
++
+[source,groovy]
+----
+implementation 'org.springframework.session:spring-session-data-redis'
+----
+======
+
+And add the `@EnableRedisIndexedWebSession` annotation to a configuration class:
+
+[source,java,role="primary"]
+----
+@Configuration
+@EnableRedisIndexedWebSession
+public class SessionConfig {
+    // ...
+}
+----
+
+That is it. Your application now has a reactive Redis backed Indexed Web Session support.
+Now that you have your application configured, you might want to start customizing things:
+
+- I want to <<serializing-session-using-json,serialize the session using JSON>>.
+- I want to <<using-a-different-namespace,specify a different namespace>> for keys used by Spring Session.
+- I want to know <<how-spring-session-cleans-up-expired-sessions,how Spring Session cleans up expired sessions>>.
+- I want to <<changing-the-frequency-of-the-session-cleanup,change the frequency of the session cleanup>>.
+- I want to <<taking-control-over-the-cleanup-task,take control over the cleanup task>>.
+- I want to <<listening-session-events,listen to session events>>.
+
+[[serializing-session-using-json]]
+== Serializing the Session using JSON
+
+By default, Spring Session Data Redis uses Java Serialization to serialize the session attributes.
+Sometimes it might be problematic, especially when you have multiple applications that use the same Redis instance but have different versions of the same class.
+You can provide a `RedisSerializer` bean to customize how the session is serialized into Redis.
+Spring Data Redis provides the `GenericJackson2JsonRedisSerializer` that serializes and deserializes objects using Jackson's `ObjectMapper`.
+
+====
+.Configuring the RedisSerializer
+[source,java]
+----
+include::{samples-dir}spring-session-sample-boot-redis-json/src/main/java/sample/config/SessionConfig.java[tags=class]
+----
+====
+
+The above code snippet is using Spring Security, therefore we are creating a custom `ObjectMapper` that uses Spring Security's Jackson modules.
+If you do not need Spring Security Jackson modules, you can inject your application's `ObjectMapper` bean and use it like so:
+
+====
+[source,java]
+----
+@Bean
+public RedisSerializer<Object> springSessionDefaultRedisSerializer(ObjectMapper objectMapper) {
+    return new GenericJackson2JsonRedisSerializer(objectMapper);
+}
+----
+====
+
+[NOTE]
+====
+The `RedisSerializer` bean name must be `springSessionDefaultRedisSerializer` so it does not conflict with other `RedisSerializer` beans used by Spring Data Redis.
+If a different name is provided it won't be picked up by Spring Session.
+====
+
+[[using-a-different-namespace]]
+== Specifying a Different Namespace
+
+It is not uncommon to have multiple applications that use the same Redis instance or to want to keep the session data separated from other data stored in Redis.
+For that reason, Spring Session uses a `namespace` (defaults to `spring:session`) to keep the session data separated if needed.
+
+You can specify the `namespace` by setting the `redisNamespace` property in the `@EnableRedisIndexedWebSession` annotation:
+
+====
+.Specifying a different namespace
+[source,java,role="primary"]
+----
+@Configuration
+@EnableRedisIndexedWebSession(redisNamespace = "spring:session:myapplication")
+public class SessionConfig {
+    // ...
+}
+----
+====
+
+[[how-spring-session-cleans-up-expired-sessions]]
+== Understanding How Spring Session Cleans Up Expired Sessions
+
+Spring Session relies on https://redis.io/docs/manual/keyspace-notifications/[Redis Keyspace Events] to clean up expired sessions.
+More specifically, it listens to events emitted to the `pass:[__keyevent@*__:expired]` and `pass:[__keyevent@*__:del]` channels and resolve the session id based on the key that was destroyed.
+
+As an example, let's imagine that we have a session with id `1234` and that the session is set to expire in 30 minutes.
+When the expiration time is reached, Redis will emit an event to the `pass:[__keyevent@*__:expired]` channel with the message `spring:session:sessions:expires:1234` which is the key that expired.
+Spring Session will then resolve the session id (`1234`) from the key and delete all the related session keys from Redis.
+
+One problem with relying on Redis expiration exclusively is that Redis makes no guarantee of when the expired event will be fired if the key has not been accessed.
+For additional details see https://redis.io/commands/expire/#:~:text=How%20Redis%20expires%20keys[How Redis expires keys] in the Redis documentation.
+To circumvent the fact that expired events are not guaranteed to happen we can ensure that each key is accessed when it is expected to expire.
+This means that if the TTL is expired on the key, Redis will remove the key and fire the expired event when we try to access the key.
+For this reason, each session expiration is also tracked by storing the session id in a sorted set ranked by its expiration time.
+This allows a background task to access the potentially expired sessions to ensure that Redis expired events are fired in a more deterministic fashion.
+For example:
+----
+ZADD spring:session:sessions:expirations "1.702402961162E12" "648377f7-c76f-4f45-b847-c0268bb48381"
+----
+
+We do not explicitly delete the keys since in some instances there may be a race condition that incorrectly identifies a key as expired when it is not.
+Short of using distributed locks (which would kill our performance) there is no way to ensure the consistency of the expiration mapping.
+By simply accessing the key, we ensure that the key is only removed if the TTL on that key is expired.
+
+By default, Spring Session will retrieve up to 100 expired sessions every 60 seconds.
+If you want to configure how often the cleanup task runs, please refer to the <<changing-the-frequency-of-the-session-cleanup,Changing the Frequency of the Session Cleanup>> section.
+
+== Configuring Redis to Send Keyspace Events
+
+By default, Spring Session tries to configure Redis to send keyspace events using the `ConfigureNotifyKeyspaceEventsReactiveAction` which, in turn, might set the `notify-keyspace-events` configuration property to `Egx`.
+However, this strategy will not work if the Redis instance has been properly secured.
+In that case, the Redis instance should be configured externally and a Bean of type `ConfigureReactiveRedisAction.NO_OP` should be exposed to disable the autoconfiguration.
+
+[source,java]
+----
+@Bean
+public ConfigureReactiveRedisAction configureReactiveRedisAction() {
+    return ConfigureReactiveRedisAction.NO_OP;
+}
+----
+
+[[changing-the-frequency-of-the-session-cleanup]]
+== Changing the Frequency of the Session Cleanup
+
+Depending on your application's needs, you might want to change the frequency of the session cleanup.
+To do that, you can expose a `ReactiveSessionRepositoryCustomizer<ReactiveRedisIndexedSessionRepository>` bean and set the `cleanupInterval` property:
+
+[source,java]
+----
+@Bean
+public ReactiveSessionRepositoryCustomizer<ReactiveRedisIndexedSessionRepository> reactiveSessionRepositoryCustomizer() {
+    return (sessionRepository) -> sessionRepository.setCleanupInterval(Duration.ofSeconds(30));
+}
+----
+
+You can also set invoke `disableCleanupTask()` to disable the cleanup task.
+
+[source,java]
+----
+@Bean
+public ReactiveSessionRepositoryCustomizer<ReactiveRedisIndexedSessionRepository> reactiveSessionRepositoryCustomizer() {
+    return (sessionRepository) -> sessionRepository.disableCleanupTask();
+}
+----
+
+[[taking-control-over-the-cleanup-task]]
+=== Taking Control Over the Cleanup Task
+
+Sometimes, the default cleanup task might not be enough for your application's needs.
+You might want to adopt a different strategy to clean up expired sessions.
+Since you know that the <<how-spring-session-cleans-up-expired-sessions,session ids are stored in a sorted set under the key `spring:session:sessions:expirations` and ranked by their expiration time>>, you can <<changing-the-frequency-of-the-session-cleanup,disable the default cleanup>> task and provide your own strategy.
+For example:
+
+[source,java]
+----
+@Component
+public class SessionEvicter {
+
+    private ReactiveRedisOperations<String, String> redisOperations;
+
+    @Scheduled
+    public Mono<Void> cleanup() {
+        Instant now = Instant.now();
+        Instant oneMinuteAgo = now.minus(Duration.ofMinutes(1));
+        Range<Double> range = Range.closed((double) oneMinuteAgo.toEpochMilli(), (double) now.toEpochMilli());
+        Limit limit = Limit.limit().count(1000);
+        return this.redisOperations.opsForZSet().reverseRangeByScore("spring:session:sessions:expirations", range, limit)
+                // do something with the session ids
+                .then();
+    }
+
+}
+----
+
+[[listening-session-events]]
+== Listening to Session Events
+
+Often times it is valuable to react to session events, for example, you might want to do some kind of processing depending on the session lifecycle.
+
+You configure your application to listen to `SessionCreatedEvent`, `SessionDeletedEvent` and `SessionExpiredEvent` events.
+There are a https://docs.spring.io/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events[few ways to listen to application events] in Spring, for this example we are going to use the `@EventListener` annotation.
+
+====
+[source,java]
+----
+@Component
+public class SessionEventListener {
+
+    @EventListener
+    public Mono<Void> processSessionCreatedEvent(SessionCreatedEvent event) {
+        // do the necessary work
+    }
+
+    @EventListener
+    public Mono<Void> processSessionDeletedEvent(SessionDeletedEvent event) {
+        // do the necessary work
+    }
+
+    @EventListener
+    public Mono<Void> processSessionExpiredEvent(SessionExpiredEvent event) {
+        // do the necessary work
+    }
+
+}
+----
+====

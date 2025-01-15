@@ -112,7 +112,7 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 	}
 
 	@Bean
-	public WebSocketRegistryListener webSocketRegistryListener() {
+	public static WebSocketRegistryListener webSocketRegistryListener() {
 		return new WebSocketRegistryListener();
 	}
 
@@ -161,6 +161,11 @@ public abstract class AbstractSessionWebSocketMessageBrokerConfigurer<S extends 
 		@Override
 		public WebMvcStompEndpointRegistry setErrorHandler(StompSubProtocolErrorHandler errorHandler) {
 			return this.registry.setErrorHandler(errorHandler);
+		}
+
+		@Override
+		public WebMvcStompEndpointRegistry setPreserveReceiveOrder(boolean preserveReceiveOrder) {
+			return this.registry.setPreserveReceiveOrder(preserveReceiveOrder);
 		}
 
 	}

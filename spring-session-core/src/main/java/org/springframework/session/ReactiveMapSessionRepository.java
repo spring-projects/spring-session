@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.time.Duration;
 import java.util.Map;
 
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
@@ -37,6 +38,7 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Rob Winch
+ * @author Yanming Zhou
  * @since 2.0
  */
 public class ReactiveMapSessionRepository implements ReactiveSessionRepository<MapSession> {
@@ -44,6 +46,8 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private final Map<String, Session> sessions;
+
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
 	/**
 	 * Creates a new instance backed by the provided {@link Map}. This allows injecting a
@@ -84,6 +88,7 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 		return Mono.defer(() -> Mono.justOrEmpty(this.sessions.get(id))
 				.filter((session) -> !session.isExpired())
 				.map(MapSession::new)
+				.doOnNext((session) -> session.setSessionIdGenerator(this.sessionIdGenerator))
 				.switchIfEmpty(deleteById(id).then(Mono.empty())));
 		// @formatter:on
 	}
@@ -95,11 +100,27 @@ public class ReactiveMapSessionRepository implements ReactiveSessionRepository<M
 
 	@Override
 	public Mono<MapSession> createSession() {
-		return Mono.defer(() -> {
-			MapSession result = new MapSession();
-			result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
-			return Mono.just(result);
-		});
+		// @formatter:off
+		return Mono.fromSupplier(() -> this.sessionIdGenerator.generate())
+				.subscribeOn(Schedulers.boundedElastic())
+				.publishOn(Schedulers.parallel())
+				.map((sessionId) -> {
+					MapSession result = new MapSession(sessionId);
+					result.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
+					result.setSessionIdGenerator(this.sessionIdGenerator);
+					return result;
+				});
+		// @formatter:on
+	}
+
+	/**
+	 * Sets the {@link SessionIdGenerator} to use.
+	 * @param sessionIdGenerator the non-null {@link SessionIdGenerator} to use
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

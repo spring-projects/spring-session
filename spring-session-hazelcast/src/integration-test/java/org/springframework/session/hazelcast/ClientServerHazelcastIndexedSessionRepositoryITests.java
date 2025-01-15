@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
 import org.springframework.session.hazelcast.config.annotation.web.http.EnableHazelcastHttpSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -82,7 +83,8 @@ class ClientServerHazelcastIndexedSessionRepositoryITests extends AbstractHazelc
 				.setEnabled(true)
 				.addClass(Session.class)
 				.addClass(MapSession.class)
-				.addClass(SessionUpdateEntryProcessor.class);
+				.addClass(SessionUpdateEntryProcessor.class)
+				.addClass(SessionIdGenerator.class);
 			return HazelcastClient.newHazelcastClient(clientConfig);
 		}
 

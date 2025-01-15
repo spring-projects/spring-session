@@ -21,9 +21,11 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -31,6 +33,8 @@ import org.springframework.session.MapSession;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -60,6 +64,10 @@ public class ReactiveRedisSessionRepository
 	private Duration defaultMaxInactiveInterval = Duration.ofSeconds(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 
 	private SaveMode saveMode = SaveMode.ON_SET_ATTRIBUTE;
+
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+
+	private BiFunction<String, Map<String, Object>, Mono<MapSession>> redisSessionMapper = new RedisSessionMapperAdapter();
 
 	/**
 	 * Create a new {@link ReactiveRedisSessionRepository} instance.
@@ -119,12 +127,16 @@ public class ReactiveRedisSessionRepository
 
 	@Override
 	public Mono<RedisSession> createSession() {
-		return Mono.defer(() -> {
-			MapSession cached = new MapSession();
-			cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
-			RedisSession session = new RedisSession(cached, true);
-			return Mono.just(session);
-		});
+		// @formatter:off
+		return Mono.fromSupplier(() -> this.sessionIdGenerator.generate())
+				.subscribeOn(Schedulers.boundedElastic())
+				.publishOn(Schedulers.parallel())
+				.map((sessionId) -> {
+					MapSession cached = new MapSession(sessionId);
+					cached.setMaxInactiveInterval(this.defaultMaxInactiveInterval);
+					return new RedisSession(cached, true);
+				});
+		// @formatter:on
 	}
 
 	@Override
@@ -146,7 +158,7 @@ public class ReactiveRedisSessionRepository
 		return this.sessionRedisOperations.opsForHash().entries(sessionKey)
 				.collectMap((e) -> e.getKey().toString(), Map.Entry::getValue)
 				.filter((map) -> !map.isEmpty())
-				.map(new RedisSessionMapper(id))
+				.flatMap((map) -> this.redisSessionMapper.apply(id, map))
 				.filter((session) -> !session.isExpired())
 				.map((session) -> new RedisSession(session, false))
 				.switchIfEmpty(Mono.defer(() -> deleteById(id).then(Mono.empty())));
@@ -166,6 +178,26 @@ public class ReactiveRedisSessionRepository
 
 	private String getSessionKey(String sessionId) {
 		return this.namespace + "sessions:" + sessionId;
+	}
+
+	/**
+	 * Set the {@link SessionIdGenerator} to use to generate session ids.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
+	 * @since 3.2
+	 */
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
+	}
+
+	/**
+	 * Set the {@link BiFunction} used to convert a {@link Map} to a {@link MapSession}.
+	 * @param redisSessionMapper the mapper to use, cannot be null
+	 * @since 3.2
+	 */
+	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, Mono<MapSession>> redisSessionMapper) {
+		Assert.notNull(redisSessionMapper, "redisSessionMapper cannot be null");
+		this.redisSessionMapper = redisSessionMapper;
 	}
 
 	/**
@@ -207,7 +239,9 @@ public class ReactiveRedisSessionRepository
 
 		@Override
 		public String changeSessionId() {
-			return this.cached.changeSessionId();
+			String newSessionId = ReactiveRedisSessionRepository.this.sessionIdGenerator.generate();
+			this.cached.setId(newSessionId);
+			return newSessionId;
 		}
 
 		@Override
@@ -327,6 +361,18 @@ public class ReactiveRedisSessionRepository
 						return StringUtils.startsWithIgnoreCase(message, "ERR no such key");
 					}, (ex) -> Mono.empty());
 			}
+		}
+
+	}
+
+	private static final class RedisSessionMapperAdapter
+			implements BiFunction<String, Map<String, Object>, Mono<MapSession>> {
+
+		private final RedisSessionMapper mapper = new RedisSessionMapper();
+
+		@Override
+		public Mono<MapSession> apply(String sessionId, Map<String, Object> map) {
+			return Mono.fromSupplier(() -> this.mapper.apply(sessionId, map));
 		}
 
 	}

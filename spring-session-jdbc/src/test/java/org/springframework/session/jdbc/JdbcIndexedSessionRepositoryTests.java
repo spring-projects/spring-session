@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -261,6 +261,12 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.setCleanupCron(Scheduled.CRON_DISABLED);
 		this.repository.afterPropertiesSet();
 		assertThat(this.repository).extracting("taskScheduler").isNull();
+	}
+
+	@Test
+	void setSessionIdGeneratorWhenNullThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+			.withMessage("sessionIdGenerator cannot be null");
 	}
 
 	@Test
@@ -772,6 +778,36 @@ class JdbcIndexedSessionRepositoryTests {
 		this.repository.save(session);
 
 		verify(lobCreator, atLeastOnce()).close();
+	}
+
+	@Test
+	void createSessionWhenSessionIdGeneratorThenUses() {
+		this.repository.setSessionIdGenerator(() -> "test");
+		JdbcSession session = this.repository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+			.withMessage("sessionIdGenerator cannot be null");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
+		this.repository.setSessionIdGenerator(() -> "test");
+		Session saved = this.repository.new JdbcSession(new MapSession(), "primaryKey", false);
+		saved.setAttribute("savedName", "savedValue");
+		given(this.jdbcOperations.query(isA(String.class), isA(PreparedStatementSetter.class),
+				isA(ResultSetExtractor.class)))
+			.willReturn(Collections.singletonList(saved));
+
+		JdbcSession session = this.repository.findById(saved.getId());
+
+		assertThat(session.getId()).isEqualTo(saved.getId());
+		assertThat(session.changeSessionId()).isEqualTo("test");
 	}
 
 }

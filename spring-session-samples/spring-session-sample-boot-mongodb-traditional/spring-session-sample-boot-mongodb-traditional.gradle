@@ -9,6 +9,7 @@ dependencies {
     implementation  "org.thymeleaf.extras:thymeleaf-extras-springsecurity6"
     implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
     implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-testcontainers"
     implementation "org.testcontainers:mongodb"
 
 

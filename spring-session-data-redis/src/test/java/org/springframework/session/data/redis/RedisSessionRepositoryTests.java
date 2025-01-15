@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ class RedisSessionRepositoryTests {
 
 	private static final String TEST_SESSION_KEY = getSessionKey(TEST_SESSION_ID);
 
-	@Mock(lenient = true)
+	@Mock(strictness = Mock.Strictness.LENIENT)
 	private RedisOperations<String, Object> sessionRedisOperations;
 
 	@Mock
@@ -238,7 +238,7 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	void save_WithSaveModeOnSetAttribute_SholdSaveSession() {
+	void save_WithSaveModeOnSetAttribute_ShouldSaveSession() {
 		given(this.sessionRedisOperations.hasKey(eq(TEST_SESSION_KEY))).willReturn(true);
 		this.sessionRepository.setSaveMode(SaveMode.ON_SET_ATTRIBUTE);
 		Map<String, Object> attributes = new HashMap<>();
@@ -311,7 +311,6 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void findById_SessionExists_ShouldReturnSession() {
 		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
@@ -334,7 +333,6 @@ class RedisSessionRepositoryTests {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	void findById_SessionExistsAndIsExpired_ShouldReturnNull() {
 		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
 			.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
@@ -373,6 +371,34 @@ class RedisSessionRepositoryTests {
 		verifyNoMoreInteractions(this.sessionHashOperations);
 	}
 
+	@Test
+	void createSessionWhenSessionIdGeneratorThenUses() {
+		this.sessionRepository.setSessionIdGenerator(() -> "test");
+		RedisSessionRepository.RedisSession session = this.sessionRepository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.sessionRepository.setSessionIdGenerator(null))
+			.withMessage("sessionIdGenerator cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
+		this.sessionRepository.setSessionIdGenerator(() -> "test");
+		Instant now = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
+			.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+					RedisSessionMapper.LAST_ACCESSED_TIME_KEY, now.toEpochMilli(),
+					RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS,
+					RedisSessionMapper.ATTRIBUTE_PREFIX + "attribute1", "value1"));
+		RedisSession session = this.sessionRepository.findById(TEST_SESSION_ID);
+		assertThat(session.getId()).isEqualTo(TEST_SESSION_ID);
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
 	private static String getSessionKey(String sessionId) {
 		return "spring:session:sessions:" + sessionId;
 	}
@@ -382,7 +408,7 @@ class RedisSessionRepositoryTests {
 			.plusSeconds(session.getMaxInactiveInterval().getSeconds());
 	}
 
-	private static Map mapOf(Object... objects) {
+	private static Map<String, Object> mapOf(Object... objects) {
 		Map<String, Object> result = new HashMap<>();
 		if (objects != null) {
 			for (int i = 0; i < objects.length; i += 2) {

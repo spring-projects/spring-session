@@ -41,6 +41,7 @@ abstract class AbstractContainerJdbcIndexedSessionRepositoryITests extends Abstr
 			dataSource.setJdbcUrl(databaseContainer.getJdbcUrl());
 			dataSource.setUsername(databaseContainer.getUsername());
 			dataSource.setPassword(databaseContainer.getPassword());
+			dataSource.setDriverClassName(databaseContainer.getDriverClassName());
 			return dataSource;
 		}
 

@@ -41,7 +41,7 @@ import static org.mockito.Mockito.mock;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
-public class RedisHttpSessionConfigurationClassPathXmlApplicationContextTests {
+class RedisHttpSessionConfigurationClassPathXmlApplicationContextTests {
 
 	// gh-318
 	@Test

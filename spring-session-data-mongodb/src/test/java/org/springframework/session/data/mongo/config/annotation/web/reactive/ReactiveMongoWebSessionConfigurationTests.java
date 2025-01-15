@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.ReactiveSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.ReactiveSessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.server.EnableSpringWebSession;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
@@ -59,7 +61,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Greg Turnquist
  * @author Vedran Pavic
  */
-public class ReactiveMongoWebSessionConfigurationTests {
+class ReactiveMongoWebSessionConfigurationTests {
 
 	private AnnotationConfigApplicationContext context;
 
@@ -219,6 +221,26 @@ public class ReactiveMongoWebSessionConfigurationTests {
 		this.context.refresh();
 		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
+	}
+
+	@Test
+	void registerWhenSessionIdGeneratorBeanThenUses() {
+		registerAndRefresh(GoodConfig.class, SessionIdGeneratorConfiguration.class);
+		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
+	}
+
+	@Test
+	void registerWhenNoSessionIdGeneratorBeanThenDefault() {
+		registerAndRefresh(GoodConfig.class);
+		ReactiveMongoSessionRepository sessionRepository = this.context.getBean(ReactiveMongoSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
+	}
+
+	private void registerAndRefresh(Class<?>... annotatedClasses) {
+		this.context = new AnnotationConfigApplicationContext();
+		this.context.register(annotatedClasses);
+		this.context.refresh();
 	}
 
 	/**
@@ -406,6 +428,25 @@ public class ReactiveMongoWebSessionConfigurationTests {
 		@Bean
 		ReactiveSessionRepositoryCustomizer<ReactiveMongoSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class SessionIdGeneratorConfiguration {
+
+		@Bean
+		SessionIdGenerator sessionIdGenerator() {
+			return new TestSessionIdGenerator();
+		}
+
+	}
+
+	static class TestSessionIdGenerator implements SessionIdGenerator {
+
+		@Override
+		public String generate() {
+			return "test";
 		}
 
 	}

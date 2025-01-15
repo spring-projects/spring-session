@@ -1,0 +1,92 @@
+version: 2
+
+registries:
+  spring-milestones:
+    type: maven-repository
+    url: https://repo.spring.io/milestone
+
+updates:
+
+  - package-ecosystem: "gradle"
+    target-branch: "main"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    registries:
+      - "spring-milestones"
+    ignore:
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major" ]
+
+  - package-ecosystem: "gradle"
+    target-branch: "3.3.x"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    registries:
+      - "spring-milestones"
+    ignore:
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  - package-ecosystem: "gradle"
+    target-branch: "3.2.x"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "03:00"
+      timezone: "Etc/UTC"
+    labels: [ "type: dependency-upgrade" ]
+    ignore:
+      - dependency-name: "org.junit:junit-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "org.mockito:mockito-bom"
+        update-types: [ "version-update:semver-major" ]
+      - dependency-name: "*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
+
+  #    GitHub Actions
+
+  - package-ecosystem: github-actions
+    target-branch: "main"
+    milestone: 154
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    target-branch: "3.3.x"
+    milestone: 152
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    target-branch: "3.2.x"
+    milestone: 151
+    directory: "/"
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    target-branch: "docs-build"
+    directory: "/"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    target-branch: docs-build
+    directory: /
+    schedule:
+      interval: weekly

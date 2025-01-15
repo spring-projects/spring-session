@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.session.data.mongo;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
@@ -34,8 +36,10 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.session.MapSession;
+import org.springframework.session.SessionIdGenerator;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -51,7 +55,7 @@ import static org.mockito.BDDMockito.verify;
  * @author Greg Turnquist
  */
 @ExtendWith(MockitoExtension.class)
-public class MongoIndexedSessionRepositoryTests {
+class MongoIndexedSessionRepositoryTests {
 
 	@Mock
 	private AbstractMongoSessionConverter converter;
@@ -215,6 +219,64 @@ public class MongoIndexedSessionRepositoryTests {
 
 		// then
 		assertThat(sessionsMap).isEmpty();
+	}
+
+	@Test
+	void createSessionWhenSessionIdGeneratorThenUses() {
+		this.repository.setSessionIdGenerator(new FixedSessionIdGenerator("123"));
+		MongoSession session = this.repository.createSession();
+		assertThat(session.getId()).isEqualTo("123");
+		assertThat(session.changeSessionId()).isEqualTo("123");
+	}
+
+	@Test
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null));
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
+		this.repository.setSessionIdGenerator(new FixedSessionIdGenerator("456"));
+
+		Document sessionDocument = new Document();
+
+		given(this.mongoOperations.findById("123", Document.class,
+				MongoIndexedSessionRepository.DEFAULT_COLLECTION_NAME))
+			.willReturn(sessionDocument);
+
+		MongoSession session = new MongoSession("123");
+
+		given(this.converter.convert(sessionDocument, TypeDescriptor.valueOf(Document.class),
+				TypeDescriptor.valueOf(MongoSession.class)))
+			.willReturn(session);
+
+		MongoSession retrievedSession = this.repository.findById("123");
+		assertThat(retrievedSession.getId()).isEqualTo("123");
+		String newSessionId = retrievedSession.changeSessionId();
+		assertThat(newSessionId).isEqualTo("456");
+	}
+
+	@Test
+	void createSessionWhenMaxInactiveIntervalSetThenUse() {
+		this.repository.setDefaultMaxInactiveInterval(Duration.ofSeconds(60));
+		MongoSession session = this.repository.createSession();
+		Instant now = Instant.now();
+		assertThat(session.getExpireAt()).isBetween(now.plusSeconds(59), Instant.now().plusSeconds(61));
+	}
+
+	static class FixedSessionIdGenerator implements SessionIdGenerator {
+
+		private final String id;
+
+		FixedSessionIdGenerator(String id) {
+			this.id = id;
+		}
+
+		@Override
+		public String generate() {
+			return this.id;
+		}
+
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -150,6 +150,33 @@ class ReactiveMapSessionRepositoryTests {
 		}
 
 		assertThat(session.getAttributeNames()).isEmpty();
+	}
+
+	@Test
+	void createSessionWhenSessionIdGeneratorThenUses() {
+		this.repository.setSessionIdGenerator(() -> "test");
+		MapSession session = this.repository.createSession().block();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+			.withMessage("sessionIdGenerator cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
+		this.repository.setSessionIdGenerator(() -> "test");
+
+		MapSession session = this.repository.createSession().block();
+		this.repository.save(session).block();
+
+		MapSession savedSession = this.repository.findById("test").block();
+
+		assertThat(savedSession.getId()).isEqualTo("test");
+		assertThat(savedSession.changeSessionId()).isEqualTo("test");
 	}
 
 }

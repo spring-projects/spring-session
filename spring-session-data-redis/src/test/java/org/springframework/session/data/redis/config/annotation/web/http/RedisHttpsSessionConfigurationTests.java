@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.FlushMode;
 import org.springframework.session.SaveMode;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisSessionRepository;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisConnectionFactory;
@@ -205,6 +207,20 @@ class RedisHttpsSessionConfigurationTests {
 		registerAndRefresh(RedisConfig.class, ImportConfigAndCustomizeConfiguration.class);
 		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
+	}
+
+	@Test
+	void registerWhenSessionIdGeneratorBeanThenUses() {
+		registerAndRefresh(RedisConfig.class, SessionIdGeneratorConfiguration.class);
+		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
+	}
+
+	@Test
+	void registerWhenNoSessionIdGeneratorBeanThenDefault() {
+		registerAndRefresh(RedisConfig.class, DefaultConfiguration.class);
+		RedisSessionRepository sessionRepository = this.context.getBean(RedisSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -378,6 +394,32 @@ class RedisHttpsSessionConfigurationTests {
 		@Bean
 		SessionRepositoryCustomizer<RedisSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableRedisHttpSession
+	static class SessionIdGeneratorConfiguration {
+
+		@Bean
+		SessionIdGenerator sessionIdGenerator() {
+			return new TestSessionIdGenerator();
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableRedisHttpSession
+	static class DefaultConfiguration {
+
+	}
+
+	static class TestSessionIdGenerator implements SessionIdGenerator {
+
+		@Override
+		public String generate() {
+			return "test";
 		}
 
 	}

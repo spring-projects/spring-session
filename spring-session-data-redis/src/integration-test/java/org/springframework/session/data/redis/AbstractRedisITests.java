@@ -16,7 +16,7 @@
 
 package org.springframework.session.data.redis;
 
-import org.testcontainers.containers.GenericContainer;
+import com.redis.testcontainers.RedisContainer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -34,16 +34,17 @@ public abstract class AbstractRedisITests {
 	protected static class BaseConfig {
 
 		@Bean
-		public GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
+		public RedisContainer redisContainer() {
+			RedisContainer redisContainer = new RedisContainer(
+					RedisContainer.DEFAULT_IMAGE_NAME.withTag(RedisContainer.DEFAULT_TAG));
 			redisContainer.start();
 			return redisContainer;
 		}
 
 		@Bean
-		public LettuceConnectionFactory redisConnectionFactory() {
-			RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(redisContainer().getHost(),
-					redisContainer().getFirstMappedPort());
+		public LettuceConnectionFactory redisConnectionFactory(RedisContainer redisContainer) {
+			RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(redisContainer.getHost(),
+					redisContainer.getFirstMappedPort());
 			return new LettuceConnectionFactory(configuration);
 		}
 

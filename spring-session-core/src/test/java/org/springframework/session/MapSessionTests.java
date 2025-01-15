@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.session;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,19 @@ class MapSessionTests {
 	void constructorNullSession() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new MapSession((Session) null))
 			.withMessage("session cannot be null");
+	}
+
+	@Test
+	void constructorWhenSessionIdGeneratorThenUsesStrategy() {
+		MapSession session = new MapSession(new FixedSessionIdGenerator("my-id"));
+		assertThat(session.getId()).isEqualTo("my-id");
+	}
+
+	@Test
+	void constructorWhenDefaultThenUuid() {
+		String id = this.session.getId();
+		UUID uuid = UUID.fromString(id);
+		assertThat(uuid).isNotNull();
 	}
 
 	@Test
@@ -141,6 +155,41 @@ class MapSessionTests {
 		}
 
 		assertThat(this.session.getAttributeNames()).isEmpty();
+	}
+
+	@Test
+	void changeSessionIdWhenSessionIdStrategyThenUsesStrategy() {
+		MapSession session = new MapSession(new IncrementalSessionIdGenerator());
+		String idBeforeChange = session.getId();
+		String idAfterChange = session.changeSessionId();
+		assertThat(idBeforeChange).isEqualTo("1");
+		assertThat(idAfterChange).isEqualTo("2");
+	}
+
+	static class FixedSessionIdGenerator implements SessionIdGenerator {
+
+		private final String id;
+
+		FixedSessionIdGenerator(String id) {
+			this.id = id;
+		}
+
+		@Override
+		public String generate() {
+			return this.id;
+		}
+
+	}
+
+	static class IncrementalSessionIdGenerator implements SessionIdGenerator {
+
+		private int counter = 1;
+
+		@Override
+		public String generate() {
+			return String.valueOf(this.counter++);
+		}
+
 	}
 
 	static class CustomSession implements Session {

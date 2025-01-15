@@ -44,7 +44,10 @@ import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.data.redis.RedisIndexedSessionRepository;
+import org.springframework.session.data.redis.RedisSessionExpirationStore;
 import org.springframework.session.data.redis.config.ConfigureNotifyKeyspaceEventsAction;
 import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.web.http.SessionRepositoryFilter;
@@ -80,6 +83,10 @@ public class RedisIndexedHttpSessionConfiguration
 
 	private StringValueResolver embeddedValueResolver;
 
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+
+	private RedisSessionExpirationStore expirationStore;
+
 	@Bean
 	@Override
 	public RedisIndexedSessionRepository sessionRepository() {
@@ -101,6 +108,10 @@ public class RedisIndexedHttpSessionConfiguration
 		sessionRepository.setCleanupCron(this.cleanupCron);
 		int database = resolveDatabase();
 		sessionRepository.setDatabase(database);
+		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
+		if (this.expirationStore != null) {
+			sessionRepository.setExpirationStore(this.expirationStore);
+		}
 		getSessionRepositoryCustomizers()
 			.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -166,6 +177,11 @@ public class RedisIndexedHttpSessionConfiguration
 		this.redisSubscriptionExecutor = redisSubscriptionExecutor;
 	}
 
+	@Autowired(required = false)
+	public void setExpirationStore(RedisSessionExpirationStore expirationStore) {
+		this.expirationStore = expirationStore;
+	}
+
 	@Override
 	public void setEmbeddedValueResolver(StringValueResolver resolver) {
 		this.embeddedValueResolver = resolver;
@@ -202,6 +218,11 @@ public class RedisIndexedHttpSessionConfiguration
 			return ((JedisConnectionFactory) getRedisConnectionFactory()).getDatabase();
 		}
 		return RedisIndexedSessionRepository.DEFAULT_DATABASE;
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	/**

@@ -35,7 +35,7 @@ import org.springframework.util.ReflectionUtils;
  * @author Jakub Kubrynski
  * @author Greg Turnquist
  */
-public class JacksonMongoSessionConverterTests extends AbstractMongoSessionConverterTests {
+class JacksonMongoSessionConverterTests extends AbstractMongoSessionConverterTests {
 
 	JacksonMongoSessionConverter mongoSessionConverter = new JacksonMongoSessionConverter();
 

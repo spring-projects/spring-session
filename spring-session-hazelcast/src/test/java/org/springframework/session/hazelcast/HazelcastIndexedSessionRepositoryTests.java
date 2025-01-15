@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,14 +61,15 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
  * @author Vedran Pavic
  * @author Aleksandar Stojsavljevic
  */
+@SuppressWarnings("unchecked")
 class HazelcastIndexedSessionRepositoryTests {
 
 	private static final String SPRING_SECURITY_CONTEXT = "SPRING_SECURITY_CONTEXT";
 
-	private HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
+	private final HazelcastInstance hazelcastInstance = mock(HazelcastInstance.class);
 
 	@SuppressWarnings("unchecked")
-	private IMap<String, MapSession> sessions = mock(IMap.class);
+	private final IMap<String, MapSession> sessions = mock(IMap.class);
 
 	private HazelcastIndexedSessionRepository repository;
 
@@ -463,6 +464,33 @@ class HazelcastIndexedSessionRepositoryTests {
 		verify(this.sessions).executeOnKey(eq(session.getId()), captor.capture());
 		assertThat((Map<String, Object>) ReflectionTestUtils.getField(captor.getValue(), "delta")).hasSize(3);
 		verifyNoMoreInteractions(this.sessions);
+	}
+
+	@Test
+	void createSessionWhenSessionIdGeneratorThenUses() {
+		this.repository.setSessionIdGenerator(() -> "test");
+		HazelcastSession session = this.repository.createSession();
+		assertThat(session.getId()).isEqualTo("test");
+		assertThat(session.changeSessionId()).isEqualTo("test");
+	}
+
+	@Test
+	void setSessionIdGeneratorWhenNullThenThrowsException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setSessionIdGenerator(null))
+			.withMessage("sessionIdGenerator cannot be null");
+	}
+
+	@Test
+	void findByIdWhenChangeSessionIdThenUsesSessionIdGenerator() {
+		this.repository.setSessionIdGenerator(() -> "test");
+		MapSession saved = new MapSession("original");
+		saved.setAttribute("savedName", "savedValue");
+		given(this.sessions.get(eq(saved.getId()))).willReturn(saved);
+
+		HazelcastSession session = this.repository.findById(saved.getId());
+
+		assertThat(session.getId()).isEqualTo(saved.getId());
+		assertThat(session.changeSessionId()).isEqualTo("test");
 	}
 
 }

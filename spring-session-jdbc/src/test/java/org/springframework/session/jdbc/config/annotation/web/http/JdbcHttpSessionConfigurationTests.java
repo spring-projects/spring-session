@@ -43,7 +43,10 @@ import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
+import org.springframework.session.jdbc.FixedSessionIdGenerator;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 import org.springframework.session.jdbc.config.annotation.SpringSessionDataSource;
 import org.springframework.session.jdbc.config.annotation.SpringSessionTransactionManager;
@@ -75,13 +78,11 @@ class JdbcHttpSessionConfigurationTests {
 
 	private static final String CLEANUP_CRON_EXPRESSION = "0 0 * * * *";
 
-	private AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+	private final AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
 
 	@AfterEach
 	void closeContext() {
-		if (this.context != null) {
-			this.context.close();
-		}
+		this.context.close();
 	}
 
 	@Test
@@ -325,6 +326,24 @@ class JdbcHttpSessionConfigurationTests {
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
 	}
 
+	@Test
+	void sessionIdGeneratorWhenCustomBeanThenUses() {
+		registerAndRefresh(DataSourceConfiguration.class, CustomSessionIdGeneratorConfiguration.class);
+		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
+		SessionIdGenerator sessionIdGenerator = (SessionIdGenerator) ReflectionTestUtils.getField(sessionRepository,
+				"sessionIdGenerator");
+		assertThat(sessionIdGenerator).isInstanceOf(FixedSessionIdGenerator.class);
+	}
+
+	@Test
+	void sessionIdGeneratorWhenNoBeanThenDefault() {
+		registerAndRefresh(DataSourceConfiguration.class, DefaultConfiguration.class);
+		JdbcIndexedSessionRepository sessionRepository = this.context.getBean(JdbcIndexedSessionRepository.class);
+		SessionIdGenerator sessionIdGenerator = (SessionIdGenerator) ReflectionTestUtils.getField(sessionRepository,
+				"sessionIdGenerator");
+		assertThat(sessionIdGenerator).isInstanceOf(UuidSessionIdGenerator.class);
+	}
+
 	// gh-2801
 	@Test
 	void configureWhenMultipleTransactionManagersAndQualifiedTransactionOperationsThenApplicationShouldStart() {
@@ -356,6 +375,17 @@ class JdbcHttpSessionConfigurationTests {
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
 		this.context.register(annotatedClasses);
 		this.context.refresh();
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableJdbcHttpSession
+	static class CustomSessionIdGeneratorConfiguration {
+
+		@Bean
+		SessionIdGenerator sessionIdGenerator() {
+			return new FixedSessionIdGenerator("my-id");
+		}
+
 	}
 
 	@Configuration(proxyBeanMethods = false)
@@ -410,7 +440,7 @@ class JdbcHttpSessionConfigurationTests {
 	static class CustomMaxInactiveIntervalInSecondsSetterConfiguration extends JdbcHttpSessionConfiguration {
 
 		CustomMaxInactiveIntervalInSecondsSetterConfiguration() {
-			setMaxInactiveIntervalInSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS);
+			setMaxInactiveInterval(Duration.ofSeconds(MAX_INACTIVE_INTERVAL_IN_SECONDS));
 		}
 
 	}

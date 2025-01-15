@@ -34,6 +34,11 @@ public class SessionConfig implements BeanClassLoaderAware {
 
 	private ClassLoader loader;
 
+	/**
+	 * Note that the bean name for this bean is intentionally
+	 * {@code springSessionDefaultRedisSerializer}. It must be named this way to override
+	 * the default {@link RedisSerializer} used by Spring Session.
+	 */
 	@Bean
 	public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
 		return new GenericJackson2JsonRedisSerializer(objectMapper());

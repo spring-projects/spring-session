@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Greg Turnquist
  */
 @ContextConfiguration
-public class MongoRepositoryJacksonITest extends AbstractMongoRepositoryITest {
+class MongoRepositoryJacksonITest extends AbstractMongoRepositoryITest {
 
 	@Test
 	void findByCustomIndex() throws Exception {

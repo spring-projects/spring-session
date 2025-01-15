@@ -54,6 +54,8 @@ import org.springframework.session.IndexResolver;
 import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.config.annotation.web.http.SpringHttpSessionConfiguration;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
@@ -115,6 +117,8 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private StringValueResolver embeddedValueResolver;
 
+	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+
 	private ApplicationContext applicationContext;
 
 	@Override
@@ -165,6 +169,7 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 		else {
 			sessionRepository.setConversionService(createConversionServiceWithBeanClassLoader(this.classLoader));
 		}
+		sessionRepository.setSessionIdGenerator(this.sessionIdGenerator);
 		this.sessionRepositoryCustomizers
 			.forEach((sessionRepositoryCustomizer) -> sessionRepositoryCustomizer.customize(sessionRepository));
 		return sessionRepository;
@@ -255,6 +260,11 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 	public void setSessionRepositoryCustomizer(
 			ObjectProvider<SessionRepositoryCustomizer<JdbcIndexedSessionRepository>> sessionRepositoryCustomizers) {
 		this.sessionRepositoryCustomizers = sessionRepositoryCustomizers.orderedStream().collect(Collectors.toList());
+	}
+
+	@Autowired(required = false)
+	public void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	@Override

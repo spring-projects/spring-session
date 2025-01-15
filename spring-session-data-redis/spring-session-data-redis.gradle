@@ -21,8 +21,10 @@ dependencies {
 	testImplementation "org.springframework:spring-web"
 	testImplementation "org.springframework.security:spring-security-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.awaitility:awaitility"
+	testImplementation "io.lettuce:lettuce-core"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
-	integrationTestCompile "io.lettuce:lettuce-core"
 	integrationTestCompile "org.testcontainers:testcontainers"
+	integrationTestCompile "com.redis:testcontainers-redis:1.7.0"
 }

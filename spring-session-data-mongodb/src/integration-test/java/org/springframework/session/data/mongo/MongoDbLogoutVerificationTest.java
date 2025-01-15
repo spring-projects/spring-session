@@ -36,6 +36,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -56,7 +57,7 @@ import org.springframework.web.reactive.function.BodyInserters;
  */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration
-public class MongoDbLogoutVerificationTest {
+class MongoDbLogoutVerificationTest {
 
 	@Autowired
 	ApplicationContext ctx;
@@ -154,28 +155,24 @@ public class MongoDbLogoutVerificationTest {
 
 		@Bean
 		SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-
-			return http //
-				.logout()//
-				/**/.and() //
-				.formLogin() //
-				/**/.and() //
-				.csrf()
-				.disable() //
-				.authorizeExchange() //
-				.anyExchange()
-				.authenticated() //
-				/**/.and() //
-				.build();
+			// @formatter:off
+			return http
+					.logout(Customizer.withDefaults())
+					.formLogin(Customizer.withDefaults())
+					.csrf((csrf) -> csrf.disable())
+					.authorizeExchange((ae) -> ae.anyExchange().authenticated())
+					.build();
+			// @formatter:on
 		}
 
 		@Bean
 		MapReactiveUserDetailsService userDetailsService() {
-
-			return new MapReactiveUserDetailsService(User.withUsername("admin") //
-				.password("{noop}password") //
-				.roles("USER,ADMIN") //
-				.build());
+			// @formatter:off
+			return new MapReactiveUserDetailsService(User.withUsername("admin")
+					.password("{noop}password")
+					.roles("USER,ADMIN")
+					.build());
+			// @formatter:on
 		}
 
 	}

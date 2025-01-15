@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,6 +86,8 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private String sameSite = "Lax";
 
+	private boolean partitioned;
+
 	/*
 	 * @see
 	 * org.springframework.session.web.http.CookieSerializer#readCookieValues(jakarta.
@@ -152,6 +154,9 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		}
 		if (this.sameSite != null) {
 			sb.append("; SameSite=").append(this.sameSite);
+		}
+		if (this.partitioned) {
+			sb.append("; Partitioned");
 		}
 		response.addHeader("Set-Cookie", sb.toString());
 	}
@@ -432,6 +437,25 @@ public class DefaultCookieSerializer implements CookieSerializer {
 			return (contextPath != null && contextPath.length() > 0) ? contextPath : "/";
 		}
 		return this.cookiePath;
+	}
+
+	/**
+	 * Gets the name of the request attribute that is checked to see if the cookie should
+	 * be written with {@link Integer#MAX_VALUE}.
+	 * @return the remember me request attribute
+	 * @since 3.2
+	 */
+	public String getRememberMeRequestAttribute() {
+		return this.rememberMeRequestAttribute;
+	}
+
+	/**
+	 * Allows defining whether the generated cookie carries the Partitioned attribute.
+	 * @param partitioned whether the generate cookie is partitioned
+	 * @since 3.4
+	 */
+	public void setPartitioned(boolean partitioned) {
+		this.partitioned = partitioned;
 	}
 
 }

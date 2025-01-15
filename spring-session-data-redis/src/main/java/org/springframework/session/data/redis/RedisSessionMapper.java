@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.session.data.redis;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.springframework.session.MapSession;
@@ -30,9 +31,10 @@ import org.springframework.util.Assert;
  * {@link MapSession}.
  *
  * @author Vedran Pavic
+ * @author Marcus da Coregio
  * @since 2.2.0
  */
-final class RedisSessionMapper implements Function<Map<String, Object>, MapSession> {
+public final class RedisSessionMapper implements BiFunction<String, Map<String, Object>, MapSession> {
 
 	/**
 	 * The key in the hash representing {@link Session#getCreationTime()}.
@@ -56,17 +58,15 @@ final class RedisSessionMapper implements Function<Map<String, Object>, MapSessi
 	 */
 	static final String ATTRIBUTE_PREFIX = "sessionAttr:";
 
-	private final String sessionId;
-
-	RedisSessionMapper(String sessionId) {
-		Assert.hasText(sessionId, "sessionId must not be empty");
-		this.sessionId = sessionId;
+	private static void handleMissingKey(String key) {
+		throw new IllegalStateException(key + " key must not be null");
 	}
 
 	@Override
-	public MapSession apply(Map<String, Object> map) {
+	public MapSession apply(String sessionId, Map<String, Object> map) {
+		Assert.hasText(sessionId, "sessionId must not be empty");
 		Assert.notEmpty(map, "map must not be empty");
-		MapSession session = new MapSession(this.sessionId);
+		MapSession session = new MapSession(sessionId);
 		Long creationTime = (Long) map.get(CREATION_TIME_KEY);
 		if (creationTime == null) {
 			handleMissingKey(CREATION_TIME_KEY);
@@ -88,10 +88,6 @@ final class RedisSessionMapper implements Function<Map<String, Object>, MapSessi
 			}
 		});
 		return session;
-	}
-
-	private static void handleMissingKey(String key) {
-		throw new IllegalStateException(key + " key must not be null");
 	}
 
 }

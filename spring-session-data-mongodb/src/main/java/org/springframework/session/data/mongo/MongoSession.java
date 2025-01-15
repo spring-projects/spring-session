@@ -23,12 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.lang.Nullable;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
+import org.springframework.util.Assert;
 
 /**
  * Session object providing additional information about the datetime of expiration.
@@ -37,7 +39,7 @@ import org.springframework.session.Session;
  * @author Greg Turnquist
  * @since 1.2
  */
-class MongoSession implements Session {
+public final class MongoSession implements Session {
 
 	/**
 	 * Mongo doesn't support {@literal dot} in field names. We replace it with a unicode
@@ -46,15 +48,14 @@ class MongoSession implements Session {
 	 * NOTE: This was originally stored in unicode format. Delomboking the code caused it
 	 * to get converted to another encoding, which isn't supported on all systems, so we
 	 * migrated back to unicode. The same character is being represented ensuring binary
-	 * compatibility.
-	 *
-	 * See https://www.compart.com/en/unicode/U+F607
+	 * compatibility. See <a href=
+	 * "https://www.compart.com/en/unicode/U+F607">https://www.compart.com/en/unicode/U+F607</a>
 	 */
 	private static final char DOT_COVER_CHAR = '\uF607';
 
 	private String id;
 
-	private String originalSessionId;
+	private final String originalSessionId;
 
 	private long createdMillis = System.currentTimeMillis();
 
@@ -64,22 +65,54 @@ class MongoSession implements Session {
 
 	private Date expireAt;
 
-	private Map<String, Object> attrs = new HashMap<>();
+	private final Map<String, Object> attrs = new HashMap<>();
 
-	MongoSession() {
+	private transient SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
+
+	/**
+	 * Constructs a new instance using the provided session id.
+	 * @param sessionId the session id to use
+	 * @since 3.2
+	 */
+	public MongoSession(String sessionId) {
+		this(sessionId, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+	}
+
+	public MongoSession() {
 		this(MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
 	}
 
-	MongoSession(long maxInactiveIntervalInSeconds) {
-		this(UUID.randomUUID().toString(), maxInactiveIntervalInSeconds);
+	public MongoSession(long maxInactiveIntervalInSeconds) {
+		this(UuidSessionIdGenerator.getInstance().generate(), maxInactiveIntervalInSeconds);
 	}
 
-	MongoSession(String id, long maxInactiveIntervalInSeconds) {
-
+	public MongoSession(String id, long maxInactiveIntervalInSeconds) {
 		this.id = id;
 		this.originalSessionId = id;
 		this.intervalSeconds = maxInactiveIntervalInSeconds;
 		setLastAccessedTime(Instant.ofEpochMilli(this.createdMillis));
+	}
+
+	/**
+	 * Constructs a new instance using the provided {@link SessionIdGenerator}.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
+	 * @since 3.2
+	 */
+	public MongoSession(SessionIdGenerator sessionIdGenerator) {
+		this(sessionIdGenerator.generate(), MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS);
+		this.sessionIdGenerator = sessionIdGenerator;
+	}
+
+	/**
+	 * Constructs a new instance using the provided {@link SessionIdGenerator} and max
+	 * inactive interval.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
+	 * @param maxInactiveIntervalInSeconds the max inactive interval in seconds
+	 * @since 3.2
+	 */
+	MongoSession(SessionIdGenerator sessionIdGenerator, long maxInactiveIntervalInSeconds) {
+		this(sessionIdGenerator.generate(), maxInactiveIntervalInSeconds);
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 	static String coverDot(String attributeName) {
@@ -93,13 +126,14 @@ class MongoSession implements Session {
 	@Override
 	public String changeSessionId() {
 
-		String changedId = UUID.randomUUID().toString();
+		String changedId = this.sessionIdGenerator.generate();
 		this.id = changedId;
 		return changedId;
 	}
 
 	@Override
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public <T> T getAttribute(String attributeName) {
 		return (T) this.attrs.get(coverDot(attributeName));
 	}
@@ -141,7 +175,6 @@ class MongoSession implements Session {
 
 	@Override
 	public void setLastAccessedTime(Instant lastAccessedTime) {
-
 		this.accessedMillis = lastAccessedTime.toEpochMilli();
 		this.expireAt = Date.from(lastAccessedTime.plus(Duration.ofSeconds(this.intervalSeconds)));
 	}
@@ -198,6 +231,25 @@ class MongoSession implements Session {
 
 	String getOriginalSessionId() {
 		return this.originalSessionId;
+	}
+
+	/**
+	 * Sets the session id.
+	 * @param id the id to set
+	 * @since 3.2
+	 */
+	void setId(String id) {
+		this.id = id;
+	}
+
+	/**
+	 * Sets the {@link SessionIdGenerator} to use.
+	 * @param sessionIdGenerator the {@link SessionIdGenerator} to use
+	 * @since 3.2
+	 */
+	void setSessionIdGenerator(SessionIdGenerator sessionIdGenerator) {
+		Assert.notNull(sessionIdGenerator, "sessionIdGenerator cannot be null");
+		this.sessionIdGenerator = sessionIdGenerator;
 	}
 
 }

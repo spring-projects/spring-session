@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import org.springframework.data.mongodb.core.index.IndexOperations;
 import org.springframework.mock.env.MockEnvironment;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.Session;
+import org.springframework.session.SessionIdGenerator;
+import org.springframework.session.UuidSessionIdGenerator;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.mongo.AbstractMongoSessionConverter;
 import org.springframework.session.data.mongo.JacksonMongoSessionConverter;
@@ -52,7 +54,7 @@ import static org.mockito.BDDMockito.mock;
  * @author Eddú Meléndez
  * @author Vedran Pavic
  */
-public class MongoHttpSessionConfigurationTests {
+class MongoHttpSessionConfigurationTests {
 
 	private static final String COLLECTION_NAME = "testSessions";
 
@@ -198,6 +200,20 @@ public class MongoHttpSessionConfigurationTests {
 		registerAndRefresh(ImportConfigAndCustomizeConfiguration.class);
 		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("defaultMaxInactiveInterval").isEqualTo(Duration.ZERO);
+	}
+
+	@Test
+	void registerWhenSessionIdGeneratorBeanThenUses() {
+		registerAndRefresh(SessionIdGeneratorConfiguration.class);
+		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(TestSessionIdGenerator.class);
+	}
+
+	@Test
+	void registerWhenNoSessionIdGeneratorBeanThenDefault() {
+		registerAndRefresh(DefaultConfiguration.class);
+		MongoIndexedSessionRepository sessionRepository = this.context.getBean(MongoIndexedSessionRepository.class);
+		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -346,6 +362,27 @@ public class MongoHttpSessionConfigurationTests {
 		@Bean
 		SessionRepositoryCustomizer<MongoIndexedSessionRepository> sessionRepositoryCustomizer() {
 			return (sessionRepository) -> sessionRepository.setDefaultMaxInactiveInterval(Duration.ZERO);
+		}
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableMongoHttpSession
+	@Import(MongoConfiguration.class)
+	static class SessionIdGeneratorConfiguration {
+
+		@Bean
+		SessionIdGenerator sessionIdGenerator() {
+			return new TestSessionIdGenerator();
+		}
+
+	}
+
+	static class TestSessionIdGenerator implements SessionIdGenerator {
+
+		@Override
+		public String generate() {
+			return "test";
 		}
 
 	}

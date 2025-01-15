@@ -64,11 +64,11 @@ class IndexDocTests {
 	}
 
 	// tag::repository-demo[]
-	public class RepositoryDemo<S extends Session> {
+	class RepositoryDemo<S extends Session> {
 
 		private SessionRepository<S> repository; // <1>
 
-		public void demo() {
+		void demo() {
 			S toSave = this.repository.createSession(); // <2>
 
 			// <3>
@@ -98,11 +98,11 @@ class IndexDocTests {
 	}
 
 	// tag::expire-repository-demo[]
-	public class ExpiringRepositoryDemo<S extends Session> {
+	class ExpiringRepositoryDemo<S extends Session> {
 
 		private SessionRepository<S> repository; // <1>
 
-		public void demo() {
+		void demo() {
 			S toSave = this.repository.createSession(); // <2>
 			// ...
 			toSave.setMaxInactiveInterval(Duration.ofSeconds(30)); // <3>

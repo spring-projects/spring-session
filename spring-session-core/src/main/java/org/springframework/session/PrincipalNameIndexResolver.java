@@ -38,6 +38,15 @@ public class PrincipalNameIndexResolver<S extends Session> extends SingleIndexRe
 		super(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME);
 	}
 
+	/**
+	 * Create a new instance specifying the name of the index to be resolved.
+	 * @param indexName the name of the index to be resolved
+	 * @since 3.3
+	 */
+	public PrincipalNameIndexResolver(String indexName) {
+		super(indexName);
+	}
+
 	public String resolveIndexValueFor(S session) {
 		String principalName = session.getAttribute(getIndexName());
 		if (principalName != null) {

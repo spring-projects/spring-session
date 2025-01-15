@@ -41,6 +41,7 @@ dependencies {
         api libs.org.mongodb.mongodb.driver.sync
         api libs.org.mongodb.mongodb.driver.reactivestreams
         api libs.org.postgresql
+        api libs.org.awaitility.awaitility
     }
 }
 

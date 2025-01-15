@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Greg Turnquist
  */
 @ContextConfiguration
-public class MongoRepositoryJdkSerializationITest extends AbstractMongoRepositoryITest {
+class MongoRepositoryJdkSerializationITest extends AbstractMongoRepositoryITest {
 
 	@Test
 	void findByDeletedSecurityPrincipalNameReload() throws Exception {
