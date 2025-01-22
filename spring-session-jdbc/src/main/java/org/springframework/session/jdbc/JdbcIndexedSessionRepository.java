@@ -907,7 +907,7 @@ public class JdbcIndexedSessionRepository implements
 				});
 			}
 			else {
-				List<Runnable> deltaActions = new ArrayList<>();
+				List<Runnable> deltaActions = JdbcSession.this.changed ? new ArrayList<>(4) : new ArrayList<>();
 				if (JdbcSession.this.changed) {
 					deltaActions.add(() -> {
 						Map<String, String> indexes = JdbcIndexedSessionRepository.this.indexResolver
