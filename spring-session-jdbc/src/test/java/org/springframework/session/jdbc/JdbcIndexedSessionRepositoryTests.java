@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -48,10 +49,13 @@ import org.springframework.session.MapSession;
 import org.springframework.session.SaveMode;
 import org.springframework.session.Session;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository.JdbcSession;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionOperations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
@@ -59,9 +63,11 @@ import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
@@ -78,12 +84,25 @@ class JdbcIndexedSessionRepositoryTests {
 	@Mock
 	private JdbcOperations jdbcOperations;
 
+	@Mock
+	private TransactionOperations transactionOperations;
+
 	private JdbcIndexedSessionRepository repository;
 
 	@BeforeEach
 	void setUp() {
+		// Mock transaction callbacks to the real consumer
+		lenient().doAnswer(answer -> {
+			answer.getArgument(0, Consumer.class).accept(mock(TransactionStatus.class));
+			return null;
+		}).when(transactionOperations).executeWithoutResult(any());
+
+		lenient().doAnswer(answer ->
+			answer.getArgument(0, TransactionCallback.class).doInTransaction(mock(TransactionStatus.class))
+		).when(transactionOperations).execute(any());
+
 		this.repository = new JdbcIndexedSessionRepository(this.jdbcOperations,
-				TransactionOperations.withoutTransaction());
+				transactionOperations);
 	}
 
 	@Test
@@ -467,6 +486,7 @@ class JdbcIndexedSessionRepositoryTests {
 
 		assertThat(session.isNew()).isFalse();
 		verifyNoMoreInteractions(this.jdbcOperations);
+		verifyNoMoreInteractions(this.transactionOperations);
 	}
 
 	@Test // gh-1070

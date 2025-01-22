@@ -907,45 +907,57 @@ public class JdbcIndexedSessionRepository implements
 				});
 			}
 			else {
-				JdbcIndexedSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
-					if (JdbcSession.this.changed) {
+				List<Runnable> deltaActions = new ArrayList<>();
+				if (JdbcSession.this.changed) {
+					deltaActions.add(() -> {
 						Map<String, String> indexes = JdbcIndexedSessionRepository.this.indexResolver
-							.resolveIndexesFor(JdbcSession.this);
+								.resolveIndexesFor(JdbcSession.this);
 						JdbcIndexedSessionRepository.this.jdbcOperations
-							.update(JdbcIndexedSessionRepository.this.updateSessionQuery, (ps) -> {
-								ps.setString(1, getId());
-								ps.setLong(2, getLastAccessedTime().toEpochMilli());
-								ps.setInt(3, (int) getMaxInactiveInterval().getSeconds());
-								ps.setLong(4, getExpiryTime().toEpochMilli());
-								ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
-								ps.setString(6, JdbcSession.this.primaryKey);
-							});
-					}
-					List<String> addedAttributeNames = JdbcSession.this.delta.entrySet()
+								.update(JdbcIndexedSessionRepository.this.updateSessionQuery, (ps) -> {
+									ps.setString(1, getId());
+									ps.setLong(2, getLastAccessedTime().toEpochMilli());
+									ps.setInt(3, (int) getMaxInactiveInterval().getSeconds());
+									ps.setLong(4, getExpiryTime().toEpochMilli());
+									ps.setString(5, indexes.get(PRINCIPAL_NAME_INDEX_NAME));
+									ps.setString(6, JdbcSession.this.primaryKey);
+								});
+					});
+				}
+
+				List<String> addedAttributeNames = JdbcSession.this.delta.entrySet()
 						.stream()
 						.filter((entry) -> entry.getValue() == DeltaValue.ADDED)
 						.map(Map.Entry::getKey)
 						.collect(Collectors.toList());
-					if (!addedAttributeNames.isEmpty()) {
-						insertSessionAttributes(JdbcSession.this, addedAttributeNames);
-					}
-					List<String> updatedAttributeNames = JdbcSession.this.delta.entrySet()
+				if (!addedAttributeNames.isEmpty()) {
+					deltaActions.add(() -> insertSessionAttributes(JdbcSession.this, addedAttributeNames));
+				}
+
+				List<String> updatedAttributeNames = JdbcSession.this.delta.entrySet()
 						.stream()
 						.filter((entry) -> entry.getValue() == DeltaValue.UPDATED)
 						.map(Map.Entry::getKey)
 						.collect(Collectors.toList());
-					if (!updatedAttributeNames.isEmpty()) {
-						updateSessionAttributes(JdbcSession.this, updatedAttributeNames);
-					}
-					List<String> removedAttributeNames = JdbcSession.this.delta.entrySet()
+				if (!updatedAttributeNames.isEmpty()) {
+					deltaActions.add(() -> updateSessionAttributes(JdbcSession.this, updatedAttributeNames));
+				}
+
+				List<String> removedAttributeNames = JdbcSession.this.delta.entrySet()
 						.stream()
 						.filter((entry) -> entry.getValue() == DeltaValue.REMOVED)
 						.map(Map.Entry::getKey)
 						.collect(Collectors.toList());
-					if (!removedAttributeNames.isEmpty()) {
-						deleteSessionAttributes(JdbcSession.this, removedAttributeNames);
-					}
-				});
+				if (!removedAttributeNames.isEmpty()) {
+					deltaActions.add(() -> deleteSessionAttributes(JdbcSession.this, removedAttributeNames));
+				}
+
+				if (!deltaActions.isEmpty()) {
+					JdbcIndexedSessionRepository.this.transactionOperations.executeWithoutResult((status) -> {
+						for (Runnable action : deltaActions) {
+							action.run();
+						}
+					});
+				}
 			}
 			clearChangeFlags();
 		}
