@@ -71,6 +71,6 @@ For more in depth information, visit the https://docs.spring.io/spring-session/r
 
 Please see our https://github.com/spring-projects/.github/blob/main/CODE_OF_CONDUCT.md[code of conduct].
 
-== License
+== License 
 
 Spring Session is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
