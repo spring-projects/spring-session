@@ -17,7 +17,9 @@ dependencies {
 	testImplementation "org.springframework.security:spring-security-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
+
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
 	integrationTestCompile "com.h2database:h2"
 	integrationTestCompile "com.ibm.db2:jcc"

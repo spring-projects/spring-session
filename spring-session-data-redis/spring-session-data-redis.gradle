@@ -24,6 +24,7 @@ dependencies {
 	testImplementation "org.awaitility:awaitility"
 	testImplementation "io.lettuce:lettuce-core"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
 	integrationTestCompile "org.testcontainers:testcontainers"
 	integrationTestCompile "com.redis:testcontainers-redis:1.7.0"

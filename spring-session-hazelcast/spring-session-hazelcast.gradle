@@ -14,7 +14,9 @@ dependencies {
 	testImplementation "org.springframework:spring-web"
 	testImplementation "org.springframework.security:spring-security-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
+
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
 	integrationTestCompile "org.testcontainers:testcontainers"
 }

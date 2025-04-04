@@ -45,4 +45,5 @@ dependencies {
     testImplementation "org.mockito:mockito-junit-jupiter"
     testImplementation "io.projectreactor:reactor-test"
     testImplementation "jakarta.servlet:jakarta.servlet-api"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }

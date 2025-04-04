@@ -14,6 +14,9 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.seleniumhq.selenium:selenium-java'
 	testImplementation 'org.seleniumhq.selenium:htmlunit-driver'
+
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 }
 
 tasks.named('test') {

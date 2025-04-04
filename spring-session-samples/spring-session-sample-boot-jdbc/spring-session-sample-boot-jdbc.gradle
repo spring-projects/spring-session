@@ -17,6 +17,7 @@ dependencies {
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
 	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
 	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
