@@ -19,7 +19,8 @@ dependencies {
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
-	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
-	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	integrationTestCompile "org.htmlunit:htmlunit"
+	integrationTestCompile "org.seleniumhq.selenium:htmlunit3-driver"
 	integrationTestCompile "org.testcontainers:testcontainers"
 }

@@ -14,8 +14,8 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:junit-jupiter'
-	testImplementation 'org.seleniumhq.selenium:selenium-java'
-	testImplementation 'org.seleniumhq.selenium:htmlunit-driver'
+	testImplementation "org.htmlunit:htmlunit"
+	testImplementation "org.seleniumhq.selenium:htmlunit3-driver"
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"

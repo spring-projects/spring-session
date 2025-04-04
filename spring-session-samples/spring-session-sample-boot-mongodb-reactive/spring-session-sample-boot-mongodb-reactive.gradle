@@ -10,8 +10,8 @@ dependencies {
 	implementation "org.testcontainers:mongodb"
 
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
-	testImplementation "org.seleniumhq.selenium:htmlunit-driver"
-	testImplementation "org.seleniumhq.selenium:selenium-support"
+	testImplementation "org.htmlunit:htmlunit"
+	testImplementation "org.seleniumhq.selenium:htmlunit3-driver"
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"

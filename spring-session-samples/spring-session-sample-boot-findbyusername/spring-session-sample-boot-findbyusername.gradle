@@ -18,9 +18,9 @@ dependencies {
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
-	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 
-	integrationTestCompile "org.seleniumhq.selenium:htmlunit-driver"
-	integrationTestCompile "org.seleniumhq.selenium:selenium-support"
+
+	integrationTestCompile "org.htmlunit:htmlunit"
+	integrationTestCompile "org.seleniumhq.selenium:htmlunit3-driver"
 	integrationTestCompile "org.testcontainers:testcontainers"
 }

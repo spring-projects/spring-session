@@ -53,7 +53,9 @@ class BootTests {
 
 	@AfterEach
 	void tearDown() {
-		this.driver.quit();
+		if (this.driver != null) {
+			this.driver.quit();
+		}
 	}
 
 	@Test
