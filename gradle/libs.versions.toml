@@ -30,7 +30,7 @@ org-aspectj-aspectjweaver = "org.aspectj:aspectjweaver:1.9.23"
 org-assertj-assertj-core = "org.assertj:assertj-core:3.27.3"
 org-awaitility-awaitility = "org.awaitility:awaitility:4.3.0"
 org-hamcrest = "org.hamcrest:hamcrest:3.0"
-org-hsqldb = "org.hsqldb:hsqldb:2.7.3" # hsqldb 2.7.4 breaks Spring Data https://sourceforge.net/p/hsqldb/bugs/1725/
+org-hsqldb = "org.hsqldb:hsqldb:2.7.4" # hsqldb 2.7.4 breaks Spring Data https://sourceforge.net/p/hsqldb/bugs/1725/
 org-junit-junit-bom = "org.junit:junit-bom:5.12.1"
 org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.5.2"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
