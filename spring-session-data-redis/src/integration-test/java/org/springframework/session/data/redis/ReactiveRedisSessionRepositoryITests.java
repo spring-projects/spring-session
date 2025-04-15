@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.time.Instant;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +30,7 @@ import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.session.Session;
 import org.springframework.session.data.redis.ReactiveRedisSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.server.EnableRedisWebSession;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,9 +48,7 @@ import static org.mockito.Mockito.spy;
  *
  * @author Vedran Pavic
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration
-@WebAppConfiguration
+@SpringJUnitWebConfig
 class ReactiveRedisSessionRepositoryITests extends AbstractRedisITests {
 
 	@Autowired

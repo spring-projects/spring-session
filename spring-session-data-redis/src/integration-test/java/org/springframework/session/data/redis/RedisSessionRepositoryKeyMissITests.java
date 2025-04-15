@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +30,7 @@ import org.springframework.session.MapSession;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.data.redis.RedisSessionRepository.RedisSession;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
@@ -49,7 +48,7 @@ import static org.mockito.Mockito.spy;
  * @see <a href="https://github.com/spring-projects/spring-session/issues/2021">Related
  * GitHub Issue</a>
  */
-@ExtendWith(SpringExtension.class)
+@SpringJUnitConfig
 class RedisSessionRepositoryKeyMissITests extends AbstractRedisITests {
 
 	private RedisSessionRepository sessionRepository;
