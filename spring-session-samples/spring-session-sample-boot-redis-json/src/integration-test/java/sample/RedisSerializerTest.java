@@ -16,14 +16,14 @@
 
 package sample;
 
+import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.testcontainers.containers.GenericContainer;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
@@ -56,15 +56,9 @@ class RedisSerializerTest {
 	static class Config {
 
 		@Bean
-		GenericContainer redisContainer() {
-			GenericContainer redisContainer = new GenericContainer(DOCKER_IMAGE).withExposedPorts(6379);
-			redisContainer.start();
-			return redisContainer;
-		}
-
-		@Bean
-		LettuceConnectionFactory redisConnectionFactory() {
-			return new LettuceConnectionFactory(redisContainer().getHost(), redisContainer().getFirstMappedPort());
+		@ServiceConnection
+		RedisContainer redisContainer() {
+			return new RedisContainer(DOCKER_IMAGE);
 		}
 
 	}
