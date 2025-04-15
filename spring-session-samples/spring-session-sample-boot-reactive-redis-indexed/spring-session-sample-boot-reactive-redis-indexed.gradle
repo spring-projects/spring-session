@@ -11,7 +11,7 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'com.redis:testcontainers-redis'
 	testImplementation "org.htmlunit:htmlunit"
 	testImplementation "org.seleniumhq.selenium:htmlunit3-driver"
 

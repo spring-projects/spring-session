@@ -30,5 +30,6 @@ dependencies {
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
-	integrationTestCompile "org.testcontainers:testcontainers"
+    integrationTestCompile "org.springframework.boot:spring-boot-testcontainers"
+    integrationTestCompile "com.redis:testcontainers-redis"
 }

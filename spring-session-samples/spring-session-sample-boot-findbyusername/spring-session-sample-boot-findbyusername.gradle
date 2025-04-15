@@ -22,5 +22,6 @@ dependencies {
 
 	integrationTestCompile "org.htmlunit:htmlunit"
 	integrationTestCompile "org.seleniumhq.selenium:htmlunit3-driver"
-	integrationTestCompile "org.testcontainers:testcontainers"
+	integrationTestCompile "org.springframework.boot:spring-boot-testcontainers"
+	integrationTestCompile "com.redis:testcontainers-redis"
 }
