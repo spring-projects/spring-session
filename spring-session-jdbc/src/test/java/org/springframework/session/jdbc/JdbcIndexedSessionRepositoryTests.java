@@ -67,7 +67,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
@@ -92,17 +91,18 @@ class JdbcIndexedSessionRepositoryTests {
 	@BeforeEach
 	void setUp() {
 		// Mock transaction callbacks to the real consumer
-		lenient().doAnswer(answer -> {
+		lenient().doAnswer((answer) -> {
 			answer.getArgument(0, Consumer.class).accept(mock(TransactionStatus.class));
 			return null;
-		}).when(transactionOperations).executeWithoutResult(any());
+		}).when(this.transactionOperations).executeWithoutResult(any());
 
-		lenient().doAnswer(answer ->
-			answer.getArgument(0, TransactionCallback.class).doInTransaction(mock(TransactionStatus.class))
-		).when(transactionOperations).execute(any());
+		lenient()
+			.doAnswer((answer) -> answer.getArgument(0, TransactionCallback.class)
+				.doInTransaction(mock(TransactionStatus.class)))
+			.when(this.transactionOperations)
+			.execute(any());
 
-		this.repository = new JdbcIndexedSessionRepository(this.jdbcOperations,
-				transactionOperations);
+		this.repository = new JdbcIndexedSessionRepository(this.jdbcOperations, this.transactionOperations);
 	}
 
 	@Test
