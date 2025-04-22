@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package docs.http;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,8 +30,7 @@ import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,8 +44,7 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  * @since 1.2
  */
-@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
+@SpringJUnitWebConfig
 public abstract class AbstractHttpSessionListenerTests {
 
 	@Autowired
