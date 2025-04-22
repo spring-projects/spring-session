@@ -1,17 +1,14 @@
 package sample;
 
-import java.sql.Types;
 import java.util.Base64;
-import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
@@ -40,6 +37,13 @@ class JdbcJsonAttributeTests {
 	@Autowired
 	JdbcClient jdbcClient;
 
+	String username;
+
+	@Autowired
+	void setSecurityProperties(SecurityProperties securityProperties) {
+		this.username = securityProperties.getUser().getName();
+	}
+
 	@BeforeEach
 	void setup() {
 		ObjectMapper copy = this.objectMapper.copy();
@@ -51,7 +55,7 @@ class JdbcJsonAttributeTests {
 
 	@Test
 	void loginShouldSaveSecurityContextAsJson() throws Exception {
-		Cookie sessionCookie = this.mvc.perform(formLogin().user("rüdiger").password("password"))
+		Cookie sessionCookie = this.mvc.perform(formLogin().user(this.username).password("password"))
 			.andExpect(authenticated())
 			.andReturn()
 			.getResponse()
@@ -66,20 +70,20 @@ class JdbcJsonAttributeTests {
 		SecurityContext securityContext = this.objectMapperWithModules.readValue((String) attributeBytes,
 				SecurityContext.class);
 		assertThat(securityContext).isNotNull();
-		assertThat(securityContext.getAuthentication().getName()).isEqualTo("rüdiger");
+		assertThat(securityContext.getAuthentication().getName()).isEqualTo(this.username);
 	}
 
 	@Test
 	void loginWhenQueryUsingJsonbOperatorThenReturns() throws Exception {
-		this.mvc.perform(formLogin().user("rüdiger").password("password")).andExpect(authenticated());
+		this.mvc.perform(formLogin().user(this.username).password("password")).andExpect(authenticated());
 		Object attributeBytes = this.jdbcClient.sql("""
 				SELECT attribute_bytes::text FROM spring_session_attributes
-				WHERE attribute_bytes -> 'authentication' -> 'principal' ->> 'username' = 'rüdiger'
-				""").query().singleValue();
+				WHERE attribute_bytes -> 'authentication' -> 'principal' ->> 'username' = '%s'
+				""".formatted(this.username)).query().singleValue();
 		SecurityContext securityContext = this.objectMapperWithModules.readValue((String) attributeBytes,
 				SecurityContext.class);
 		assertThat(securityContext).isNotNull();
-		assertThat(securityContext.getAuthentication().getName()).isEqualTo("rüdiger");
+		assertThat(securityContext.getAuthentication().getName()).isEqualTo(this.username);
 	}
 
 }
