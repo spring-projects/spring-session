@@ -38,9 +38,9 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 	@Override
 	public void onApplicationEvent(AbstractSessionEvent event) {
 		String sessionId = event.getSessionId();
-		this.events.computeIfAbsent(sessionId, (key) -> new ArrayList<>()).add(event);
 		Object lock = getLock(sessionId);
 		synchronized (lock) {
+			this.events.computeIfAbsent(sessionId, (key) -> new ArrayList<>()).add(event);
 			lock.notifyAll();
 		}
 	}
@@ -72,7 +72,7 @@ public class SessionEventRegistry implements ApplicationListener<AbstractSession
 					lock.wait(waitInMs);
 				}
 				long now = System.currentTimeMillis();
-				doneWaiting = (now - start) >= waitInMs;
+				doneWaiting = result != null || (now - start) >= waitInMs;
 			}
 			return getEvent(sessionId, type);
 		}
