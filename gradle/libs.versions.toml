@@ -39,7 +39,7 @@ org-mongodb-mongodb-driver-reactivestreams = { module = "org.mongodb:mongodb-dri
 org-mongodb-mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "org-mongodb" }
 org-postgresql = "org.postgresql:postgresql:42.7.5"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.0.0"
-org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.5.0-RC1"
+org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.5.0"
 org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:6.2.7"
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version = "1.20.6" }
 io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.6"
