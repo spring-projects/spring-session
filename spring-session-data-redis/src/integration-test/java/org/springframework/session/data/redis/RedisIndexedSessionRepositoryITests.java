@@ -111,10 +111,10 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 
 		this.repository.save(toSave);
 
-		assertThat(this.registry.receivedEvent(toSave.getId())).isTrue();
+		assertThat(this.registry.receivedEvent(toSave.getId(), SessionCreatedEvent.class)).isTrue();
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members()).contains(toSave.getId());
 
-		SessionCreatedEvent createdEvent = this.registry.getEvent(toSave.getId());
+		SessionCreatedEvent createdEvent = this.registry.waitForEvent(toSave.getId(), SessionCreatedEvent.class);
 		Session session = createdEvent.getSession();
 
 		assertThat(session.getId()).isEqualTo(toSave.getId());
@@ -127,11 +127,10 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		this.repository.deleteById(toSave.getId());
 
 		assertThat(this.repository.findById(toSave.getId())).isNull();
-		assertThat(this.registry.<SessionDestroyedEvent>getEvent(toSave.getId()))
-			.isInstanceOf(SessionDestroyedEvent.class);
 		assertThat(this.redis.boundSetOps(usernameSessionKey).members()).doesNotContain(toSave.getId());
 
-		assertThat(this.registry.getEvent(toSave.getId()).getSession().<String>getAttribute(expectedAttributeName))
+		SessionDestroyedEvent destroyedEvent = this.registry.waitForEvent(toSave.getId(), SessionDestroyedEvent.class);
+		assertThat(destroyedEvent.getSession().<String>getAttribute(expectedAttributeName))
 			.isEqualTo(expectedAttributeValue);
 	}
 
@@ -171,7 +170,8 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		this.repository.deleteById(toSave.getId());
-		assertThat(this.registry.receivedEvent(toSave.getId())).isTrue();
+		boolean sessionDestroyed = this.registry.receivedEvent(toSave.getId(), SessionDestroyedEvent.class);
+		assertThat(sessionDestroyed).isTrue();
 
 		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, principalName);
 
@@ -334,7 +334,8 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(findByPrincipalName.keySet()).containsOnly(toSave.getId());
 
 		this.repository.deleteById(toSave.getId());
-		assertThat(this.registry.receivedEvent(toSave.getId())).isTrue();
+		boolean sessionDestroyed = this.registry.receivedEvent(toSave.getId(), SessionDestroyedEvent.class);
+		assertThat(sessionDestroyed).isTrue();
 
 		findByPrincipalName = this.repository.findByIndexNameAndIndexValue(INDEX_NAME, getSecurityName());
 
