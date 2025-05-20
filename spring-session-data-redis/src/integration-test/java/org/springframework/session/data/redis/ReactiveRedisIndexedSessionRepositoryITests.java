@@ -124,7 +124,7 @@ class ReactiveRedisIndexedSessionRepositoryITests {
 
 		this.repository.save(session).block();
 
-		SessionCreatedEvent event = this.eventRegistry.getEvent(session.getId());
+		SessionCreatedEvent event = this.eventRegistry.waitForEvent(session.getId(), SessionCreatedEvent.class);
 		assertThat(event).isNotNull();
 		RedisSession eventSession = event.getSession();
 		compareSessions(session, eventSession);
@@ -168,7 +168,7 @@ class ReactiveRedisIndexedSessionRepositoryITests {
 		assertThat(this.redis.expire(key, Duration.ofSeconds(1)).block()).isTrue();
 
 		await().atMost(Duration.ofSeconds(3)).untilAsserted(() -> {
-			SessionExpiredEvent event = this.eventRegistry.getEvent(toSave.getId());
+			SessionExpiredEvent event = this.eventRegistry.waitForEvent(toSave.getId(), SessionExpiredEvent.class);
 			RedisSession eventSession = event.getSession();
 			Map<String, RedisSession> findByPrincipalName = this.repository
 				.findByIndexNameAndIndexValue(INDEX_NAME, principalName)
@@ -206,7 +206,7 @@ class ReactiveRedisIndexedSessionRepositoryITests {
 				.block();
 			assertThat(findByPrincipalName).hasSize(0);
 			assertThat(findByPrincipalName.keySet()).doesNotContain(toSave.getId());
-			SessionDeletedEvent event = this.eventRegistry.getEvent(toSave.getId());
+			SessionDeletedEvent event = this.eventRegistry.waitForEvent(toSave.getId(), SessionDeletedEvent.class);
 			assertThat(event).isNotNull();
 			RedisSession eventSession = event.getSession();
 			compareSessions(toSave, eventSession);

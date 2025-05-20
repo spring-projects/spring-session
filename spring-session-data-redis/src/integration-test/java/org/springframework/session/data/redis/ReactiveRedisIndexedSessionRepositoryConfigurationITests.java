@@ -101,7 +101,7 @@ class ReactiveRedisIndexedSessionRepositoryConfigurationITests {
 		RedisSession session = this.repository.createSession().block();
 		this.repository.save(session).block();
 		SessionEventRegistry registry = this.context.getBean(SessionEventRegistry.class);
-		SessionCreatedEvent event = registry.getEvent(session.getId());
+		SessionCreatedEvent event = registry.waitForEvent(session.getId(), SessionCreatedEvent.class);
 		Session eventSession = event.getSession();
 		assertThat(eventSession).usingRecursiveComparison()
 			.withComparatorForFields(new InstantComparator(), "cached.creationTime", "cached.lastAccessedTime")
