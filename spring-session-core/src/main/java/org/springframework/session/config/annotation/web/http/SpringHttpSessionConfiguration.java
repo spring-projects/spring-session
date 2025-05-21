@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.session.config.annotation.web.http;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportAware;
+import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
@@ -86,11 +90,12 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Yanming Zhou
  * @since 1.1
  * @see EnableSpringHttpSession
  */
 @Configuration(proxyBeanMethods = false)
-public class SpringHttpSessionConfiguration implements InitializingBean, ApplicationContextAware {
+public class SpringHttpSessionConfiguration implements InitializingBean, ApplicationContextAware, ImportAware {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -106,6 +111,18 @@ public class SpringHttpSessionConfiguration implements InitializingBean, Applica
 
 	private List<HttpSessionListener> httpSessionListeners = new ArrayList<>();
 
+	@SuppressWarnings("rawtypes")
+	private Class<? extends SessionRepositoryFilter> sessionRepositoryFilterClass = SessionRepositoryFilter.class;
+
+	@Override
+	public void setImportMetadata(AnnotationMetadata importMetadata) {
+		AnnotationAttributes annotationAttributes = AnnotationAttributes
+			.fromMap(importMetadata.getAnnotationAttributes(EnableSpringHttpSession.class.getName()));
+		if (annotationAttributes != null) {
+			this.sessionRepositoryFilterClass = annotationAttributes.getClass("sessionRepositoryFilterClass");
+		}
+	}
+
 	@Override
 	public void afterPropertiesSet() {
 		this.defaultHttpSessionIdResolver.setCookieSerializer(getCookieSerializer());
@@ -117,9 +134,20 @@ public class SpringHttpSessionConfiguration implements InitializingBean, Applica
 	}
 
 	@Bean
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public <S extends Session> SessionRepositoryFilter<? extends Session> springSessionRepositoryFilter(
 			SessionRepository<S> sessionRepository) {
-		SessionRepositoryFilter<S> sessionRepositoryFilter = new SessionRepositoryFilter<>(sessionRepository);
+		SessionRepositoryFilter<S> sessionRepositoryFilter;
+		try {
+			Constructor<? extends SessionRepositoryFilter> ctor = this.sessionRepositoryFilterClass
+				.getDeclaredConstructor(SessionRepository.class);
+			ctor.setAccessible(true);
+			sessionRepositoryFilter = ctor.newInstance(sessionRepository);
+		}
+		catch (Exception ex) {
+			throw new IllegalArgumentException("Please make sure class [" + this.sessionRepositoryFilterClass
+					+ "] has public constructor accepts SessionRepository parameter.", ex);
+		}
 		sessionRepositoryFilter.setHttpSessionIdResolver(this.httpSessionIdResolver);
 		return sessionRepositoryFilter;
 	}
