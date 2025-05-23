@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2019 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.session.MapSessionRepository;
+import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.security.web.authentication.SpringSessionRememberMeServices;
 import org.springframework.session.web.http.CookieHttpSessionIdResolver;
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.verify;
  * Tests for {@link SpringHttpSessionConfiguration}.
  *
  * @author Vedran Pavic
+ * @author Yanming Zhou
  */
 class SpringHttpSessionConfigurationTests {
 
@@ -130,6 +132,14 @@ class SpringHttpSessionConfigurationTests {
 		}
 	}
 
+	@Test
+	void customizeSessionRepositoryFilter() {
+		registerAndRefresh(CustomSessionRepositoryFilterConfiguration.class);
+
+		SessionRepositoryFilter<?> sessionRepositoryFilter = this.context.getBean(SessionRepositoryFilter.class);
+		assertThat(sessionRepositoryFilter).isInstanceOf(MySessionRepositoryFilter.class);
+	}
+
 	@Configuration
 	@EnableSpringHttpSession
 	static class EmptyConfiguration {
@@ -185,6 +195,20 @@ class SpringHttpSessionConfigurationTests {
 		@Bean
 		DefaultCookieSerializer defaultCookieSerializer() {
 			return new DefaultCookieSerializer();
+		}
+
+	}
+
+	@Configuration
+	@EnableSpringHttpSession(sessionRepositoryFilterClass = MySessionRepositoryFilter.class)
+	static class CustomSessionRepositoryFilterConfiguration extends BaseConfiguration {
+
+	}
+
+	public static class MySessionRepositoryFilter extends SessionRepositoryFilter<Session> {
+
+		MySessionRepositoryFilter(SessionRepository<Session> sessionRepository) {
+			super(sessionRepository);
 		}
 
 	}
