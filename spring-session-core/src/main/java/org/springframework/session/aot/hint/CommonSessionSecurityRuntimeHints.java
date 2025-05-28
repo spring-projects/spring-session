@@ -75,12 +75,35 @@ class CommonSessionSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	private void registerOAuth2ClientHintsIfNeeded(RuntimeHints hints) {
 		Arrays.asList(
+				TypeReference.of("org.springframework.security.oauth2.core.AbstractOAuth2Token"),
+				TypeReference.of("org.springframework.security.oauth2.core.OAuth2AccessToken"),
+				TypeReference.of("org.springframework.security.oauth2.core.OAuth2AccessToken$TokenType"),
+				TypeReference.of("org.springframework.security.oauth2.core.AuthenticationMethod"),
+				TypeReference.of("org.springframework.security.oauth2.core.ClientAuthenticationMethod"),
+				TypeReference.of("org.springframework.security.oauth2.core.AuthorizationGrantType"),
+				TypeReference.of("org.springframework.security.oauth2.core.OAuth2RefreshToken"),
+				TypeReference.of("org.springframework.security.oauth2.core.OAuth2AuthenticationException"),
+				TypeReference.of("org.springframework.security.oauth2.core.user.OAuth2UserAuthority"),
+				TypeReference.of("org.springframework.security.oauth2.core.user.DefaultOAuth2User"),
+				TypeReference.of("org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority"),
+				TypeReference.of("org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser"),
+				TypeReference.of("org.springframework.security.oauth2.core.oidc.OidcIdToken"),
+				TypeReference.of("org.springframework.security.oauth2.core.oidc.OidcUserInfo"),
+				TypeReference.of("org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest"),
+				TypeReference.of("org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResponseType"),
 				TypeReference.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken"),
+				TypeReference.of("org.springframework.security.oauth2.client.OAuth2AuthorizedClient"),
 				TypeReference
 					.of("org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken"),
 				TypeReference
-					.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken"),
-				TypeReference.of("org.springframework.security.oauth2.core.OAuth2AuthenticationException"))
+						.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthorizationCodeAuthenticationToken"),
+				TypeReference.of("org.springframework.security.oauth2.client.registration.ClientRegistration"),
+				TypeReference
+					.of("org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails"),
+				TypeReference
+					.of("org.springframework.security.oauth2.client.registration.ClientRegistration$ProviderDetails$UserInfoEndpoint"),
+				TypeReference.of("net.minidev.json.JSONObject"),
+				TypeReference.of("com.nimbusds.oauth2.sdk.util.OrderedJSONObject"))
 			.forEach((type) -> hints.serialization()
 				.registerType(type, (hint) -> hint.onReachableType(TypeReference
 					.of("org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken"))));
