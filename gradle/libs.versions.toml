@@ -37,7 +37,7 @@ org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "o
 org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "org-mongodb" }
-org-postgresql = "org.postgresql:postgresql:42.7.6"
+org-postgresql = "org.postgresql:postgresql:42.7.7"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.0.0"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:6.5.0"
 org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:6.2.7"
