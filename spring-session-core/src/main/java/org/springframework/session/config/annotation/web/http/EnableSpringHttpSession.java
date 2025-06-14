@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2022 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.session.SessionRepository;
 import org.springframework.session.events.SessionCreatedEvent;
 import org.springframework.session.events.SessionDestroyedEvent;
+import org.springframework.session.web.http.SessionRepositoryFilter;
 
 /**
  * Add this annotation to an {@code @Configuration} class to expose the
@@ -67,6 +68,7 @@ import org.springframework.session.events.SessionDestroyedEvent;
  * </ul>
  *
  * @author Rob Winch
+ * @author Yanming Zhou
  * @since 1.1
  */
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
@@ -74,5 +76,12 @@ import org.springframework.session.events.SessionDestroyedEvent;
 @Documented
 @Import(SpringHttpSessionConfiguration.class)
 public @interface EnableSpringHttpSession {
+
+	/**
+	 * Returns the {@link SessionRepositoryFilter} class to be used. Defaults to
+	 * {@link SessionRepositoryFilter}.
+	 * @return the {@link SessionRepositoryFilter} class
+	 */
+	Class<? extends SessionRepositoryFilter> sessionRepositoryFilterClass() default SessionRepositoryFilter.class;
 
 }
