@@ -32,7 +32,7 @@ org-awaitility-awaitility = "org.awaitility:awaitility:4.3.0"
 org-hamcrest = "org.hamcrest:hamcrest:3.0"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4" # hsqldb 2.7.4 breaks Spring Data https://sourceforge.net/p/hsqldb/bugs/1725/
 org-junit-junit-bom = "org.junit:junit-bom:5.12.1"
-org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.5.3"
+org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.5.4"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
 org-mongodb-mongodb-driver-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version.ref = "org-mongodb" }
