@@ -3,22 +3,22 @@ apply plugin: 'io.spring.convention.spring-sample-boot'
 dependencies {
 	management platform(project(":spring-session-dependencies"))
 	implementation  project(':spring-session-data-redis')
-	implementation  "org.springframework.boot:spring-boot-starter-web"
-	implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
-	implementation  "org.springframework.boot:spring-boot-starter-security"
-	implementation  "org.springframework.boot:spring-boot-starter-data-redis"
-	implementation  "org.springframework.boot:spring-boot-session-data-redis"
-	implementation  "org.springframework.boot:spring-boot-devtools"
+	implementation  "com.maxmind.geoip2:geoip2"
 	implementation  "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	implementation  "org.apache.httpcomponents:httpclient"
+	implementation  "org.springframework.boot:spring-boot-devtools"
+	implementation  "org.springframework.boot:spring-boot-session-data-redis"
+	implementation  "org.springframework.boot:spring-boot-starter-data-redis"
+	implementation  "org.springframework.boot:spring-boot-starter-security"
+	implementation  "org.springframework.boot:spring-boot-starter-thymeleaf"
+	implementation  "org.springframework.boot:spring-boot-starter-web"
 	implementation  "org.webjars:bootstrap"
 	implementation  "org.webjars:html5shiv"
 	implementation  "org.webjars:webjars-locator-core"
-	implementation  "com.maxmind.geoip2:geoip2"
-	implementation  "org.apache.httpcomponents:httpclient"
 
-	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.springframework.boot:spring-boot-starter-test"
 
 
 	integrationTestCompile "org.htmlunit:htmlunit"

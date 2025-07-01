@@ -3,21 +3,21 @@ apply plugin: 'io.spring.convention.spring-sample-boot'
 dependencies {
 	management platform(project(":spring-session-dependencies"))
 	implementation project(':spring-session-jdbc')
-	implementation "org.springframework.boot:spring-boot-starter-web"
-	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
-	implementation "org.springframework.boot:spring-boot-starter-security"
-	implementation "org.springframework.boot:spring-boot-session-jdbc"
-	implementation "org.springframework.boot:spring-boot-h2console"
-	implementation "org.springframework.boot:spring-boot-devtools"
+	implementation "com.h2database:h2"
 	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
+	implementation "org.springframework.boot:spring-boot-devtools"
+	implementation "org.springframework.boot:spring-boot-h2console"
+	implementation "org.springframework.boot:spring-boot-session-jdbc"
+	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
+	implementation "org.springframework.boot:spring-boot-starter-web"
 	implementation "org.webjars:bootstrap"
 	implementation "org.webjars:html5shiv"
 	implementation "org.webjars:webjars-locator-core"
-	implementation "com.h2database:h2"
 
-	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.springframework.boot:spring-boot-starter-test"
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"

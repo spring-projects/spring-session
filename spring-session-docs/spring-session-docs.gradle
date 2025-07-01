@@ -8,27 +8,27 @@ apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
 	management platform(project(":spring-session-dependencies"))
+	testImplementation 'com.hazelcast:hazelcast'
+	testImplementation 'io.lettuce:lettuce-core'
+	testImplementation 'jakarta.servlet:jakarta.servlet-api'
+	testImplementation 'org.assertj:assertj-core'
+	testImplementation 'org.junit.jupiter:junit-jupiter-api'
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
+	testImplementation 'org.springframework.security:spring-security-config'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.springframework.security:spring-security-web'
+	testImplementation 'org.springframework:spring-jdbc'
+	testImplementation 'org.springframework:spring-messaging'
+	testImplementation 'org.springframework:spring-test'
+	testImplementation 'org.springframework:spring-webmvc'
+	testImplementation 'org.springframework:spring-websocket'
 	testImplementation project(':spring-session-core')
 	testImplementation project(':spring-session-data-redis')
 	testImplementation project(':spring-session-hazelcast')
 	testImplementation project(':spring-session-jdbc')
-	testImplementation 'org.springframework:spring-jdbc'
-	testImplementation 'org.springframework:spring-messaging'
-	testImplementation 'org.springframework:spring-webmvc'
-	testImplementation 'org.springframework:spring-websocket'
-	testImplementation 'org.springframework.security:spring-security-config'
-	testImplementation 'org.springframework.security:spring-security-web'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testImplementation 'org.mockito:mockito-core'
-	testImplementation 'org.mockito:mockito-junit-jupiter'
-	testImplementation 'org.springframework:spring-test'
-	testImplementation 'org.assertj:assertj-core'
-	testImplementation 'com.hazelcast:hazelcast'
-	testImplementation 'io.lettuce:lettuce-core'
-	testImplementation 'jakarta.servlet:jakarta.servlet-api'
-	testImplementation 'org.junit.jupiter:junit-jupiter-api'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 
