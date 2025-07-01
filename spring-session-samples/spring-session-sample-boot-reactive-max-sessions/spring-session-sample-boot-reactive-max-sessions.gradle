@@ -1,10 +1,9 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
-ext['spring-security.version'] = '6.3.0-SNAPSHOT'
-
 dependencies {
 	management platform(project(":spring-session-dependencies"))
 	implementation project(':spring-session-data-redis')
+	implementation 'org.springframework.boot:spring-boot-session-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'

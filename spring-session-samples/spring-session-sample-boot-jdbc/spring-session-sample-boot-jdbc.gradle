@@ -6,6 +6,8 @@ dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-web"
 	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
 	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation "org.springframework.boot:spring-boot-session-jdbc"
+	implementation "org.springframework.boot:spring-boot-h2console"
 	implementation "org.springframework.boot:spring-boot-devtools"
 	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
 	implementation "org.webjars:bootstrap"
