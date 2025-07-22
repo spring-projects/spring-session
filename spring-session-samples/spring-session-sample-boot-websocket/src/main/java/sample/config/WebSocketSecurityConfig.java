@@ -35,7 +35,7 @@ public class WebSocketSecurityConfig {
 	AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
 		messages
 			.simpMessageDestMatchers("/queue/**", "/topic/**").denyAll()
-			.simpSubscribeDestMatchers("/queue/**/*-user*", "/topic/**/*-user*").denyAll()
+			.simpSubscribeDestMatchers("/queue/*-user*", "/topic/*-user*").denyAll()
 			.anyMessage().authenticated();
 		return messages.build();
 	}
