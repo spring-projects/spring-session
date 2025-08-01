@@ -283,8 +283,7 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository.save(session);
 
 		verify(this.boundHashOperations, never()).expire(-1, TimeUnit.SECONDS);
-		assertThat(getDelta())
-				.isEqualTo(map(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, -1));
+		assertThat(getDelta()).isEqualTo(map(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, -1));
 	}
 
 	@Test

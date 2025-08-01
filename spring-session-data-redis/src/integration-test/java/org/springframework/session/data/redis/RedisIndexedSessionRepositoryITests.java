@@ -152,7 +152,6 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 		assertThat(differenceInSeconds).isEqualTo(300);
 	}
 
-
 	@Test
 	void saveNonExpiringThenSaveSessionKeyAndShadowKeyWithNoDifference() {
 		RedisSession toSave = this.repository.createSession();

@@ -935,7 +935,6 @@ public class RedisIndexedSessionRepository
 					.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 			}
 
-
 			RedisIndexedSessionRepository.this.expirationStore.save(this);
 			this.delta = new HashMap<>(this.delta.size());
 		}
