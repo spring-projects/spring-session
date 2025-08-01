@@ -272,6 +272,22 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void saveNonExpiring() {
+		RedisSession session = this.redisRepository.new RedisSession(new MapSession(), false);
+		session.setMaxInactiveInterval(Duration.ofSeconds(-1));
+
+		given(this.redisOperations.<String, Object>boundHashOps(anyString())).willReturn(this.boundHashOperations);
+		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
+		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
+
+		this.redisRepository.save(session);
+
+		verify(this.boundHashOperations, never()).expire(-1, TimeUnit.SECONDS);
+		assertThat(getDelta())
+				.isEqualTo(map(RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, -1));
+	}
+
+	@Test
 	void saveRemoveAttribute() {
 		String attrName = "attrName";
 		RedisSession session = this.redisRepository.new RedisSession(new MapSession(), false);
