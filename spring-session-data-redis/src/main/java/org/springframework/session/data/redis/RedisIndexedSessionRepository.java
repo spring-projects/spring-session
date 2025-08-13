@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.dao.NonTransientDataAccessException;
 import org.springframework.data.redis.connection.Message;
@@ -260,7 +261,7 @@ import org.springframework.util.StringUtils;
  */
 public class RedisIndexedSessionRepository
 		implements FindByIndexNameSessionRepository<RedisIndexedSessionRepository.RedisSession>, MessageListener,
-		InitializingBean, DisposableBean {
+		InitializingBean, DisposableBean, SmartLifecycle {
 
 	private static final Log logger = LogFactory.getLog(RedisIndexedSessionRepository.class);
 
@@ -281,7 +282,31 @@ public class RedisIndexedSessionRepository
 	 */
 	public static final String DEFAULT_NAMESPACE = "spring:session";
 
+	/**
+	 * The default SmartLifecycle phase.
+	 *
+	 * <p>
+	 * Set to {@code Integer.MAX_VALUE / 2} to position this repository between the Redis
+	 * {@link org.springframework.data.redis.connection.RedisConnectionFactory} (typically
+	 * small, e.g. {@code 0}) and web server / messaging listener containers (very large
+	 * values, e.g. {@code Integer.MAX_VALUE - 1024}, {@code Integer.MAX_VALUE - 100},
+	 * {@code Integer.MAX_VALUE}), preventing shutdown races.
+	 * </p>
+	 *
+	 * <p>
+	 * <b>NOTE</b>: if the ConnectionFactory’s phase is >= this value, raise it via
+	 * {@link #setPhase(int)} to keep “SessionRepository phase > ConnectionFactory phase”.
+	 * </p>
+	 *
+	 * @see org.springframework.context.SmartLifecycle
+	 * @see org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+	 * @see org.springframework.data.redis.connection.jedis.JedisConnectionFactory
+	 */
+	public static final int DEFAULT_SMART_LIFECYCLE_PHASE = Integer.MAX_VALUE / 2;
+
 	private int database = DEFAULT_DATABASE;
+
+	private int phase = DEFAULT_SMART_LIFECYCLE_PHASE;
 
 	/**
 	 * The namespace for every key used by Spring Session in Redis.
@@ -329,6 +354,8 @@ public class RedisIndexedSessionRepository
 
 	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
 
+	private volatile boolean running = false;
+
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
 	 * @param sessionRedisOperations the {@link RedisOperations} to use for managing the
@@ -343,12 +370,23 @@ public class RedisIndexedSessionRepository
 	}
 
 	@Override
-	public void afterPropertiesSet() {
+	public void start() {
+		if (this.running) {
+			return;
+		}
+
 		if (!Scheduled.CRON_DISABLED.equals(this.cleanupCron)) {
 			this.taskScheduler = createTaskScheduler();
 			this.taskScheduler.initialize();
 			this.taskScheduler.schedule(this::cleanUpExpiredSessions, new CronTrigger(this.cleanupCron));
 		}
+
+		this.running = true;
+	}
+
+	@Override
+	public void afterPropertiesSet() {
+		start();
 	}
 
 	private static ThreadPoolTaskScheduler createTaskScheduler() {
@@ -358,10 +396,35 @@ public class RedisIndexedSessionRepository
 	}
 
 	@Override
-	public void destroy() {
+	public void stop() {
+		if (!this.running) {
+			return;
+		}
+
 		if (this.taskScheduler != null) {
 			this.taskScheduler.destroy();
 		}
+
+		this.running = false;
+	}
+
+	@Override
+	public void destroy() {
+		stop();
+	}
+
+	@Override
+	public boolean isRunning() {
+		return this.running;
+	}
+
+	@Override
+	public int getPhase() {
+		return this.phase;
+	}
+
+	public void setPhase(int phase) {
+		this.phase = phase;
 	}
 
 	/**
@@ -486,6 +549,10 @@ public class RedisIndexedSessionRepository
 	}
 
 	public void cleanUpExpiredSessions() {
+		if (!isRunning()) {
+			return;
+		}
+
 		this.expirationPolicy.cleanExpiredSessions();
 	}
 
