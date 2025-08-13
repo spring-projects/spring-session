@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import reactor.core.scheduler.Schedulers;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.data.redis.connection.ReactiveSubscription;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -230,12 +231,13 @@ import org.springframework.util.StringUtils;
  * {@code "spring:session:sessions:648377f7-c76f-4f45-b847-c0268bb48381:idx"} Redis set.
  *
  * @author Marcus da Coregio
+ * @author Ham Seung Hun
  * @since 3.3
  */
 public class ReactiveRedisIndexedSessionRepository
 		implements ReactiveSessionRepository<ReactiveRedisIndexedSessionRepository.RedisSession>,
 		ReactiveFindByIndexNameSessionRepository<ReactiveRedisIndexedSessionRepository.RedisSession>, DisposableBean,
-		InitializingBean {
+		InitializingBean, SmartLifecycle {
 
 	private static final Log logger = LogFactory.getLog(ReactiveRedisIndexedSessionRepository.class);
 
@@ -248,6 +250,28 @@ public class ReactiveRedisIndexedSessionRepository
 	 * The default Redis database used by Spring Session.
 	 */
 	public static final int DEFAULT_DATABASE = 0;
+
+	/**
+	 * The default SmartLifecycle phase.
+	 *
+	 * <p>
+	 * Set to {@code Integer.MAX_VALUE / 2} to position this repository between the Redis
+	 * {@link org.springframework.data.redis.connection.RedisConnectionFactory} (typically
+	 * small, e.g. {@code 0}) and web server / messaging listener containers (very large
+	 * values, e.g. {@code Integer.MAX_VALUE - 1024}, {@code Integer.MAX_VALUE - 100},
+	 * {@code Integer.MAX_VALUE}), preventing shutdown races.
+	 * </p>
+	 *
+	 * <p>
+	 * <b>NOTE</b>: if the ConnectionFactory’s phase is >= this value, raise it via
+	 * {@link #setPhase(int)} to keep “SessionRepository phase > ConnectionFactory phase”.
+	 * </p>
+	 *
+	 * @see org.springframework.context.SmartLifecycle
+	 * @see org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
+	 * @see org.springframework.data.redis.connection.jedis.JedisConnectionFactory
+	 */
+	public static final int DEFAULT_SMART_LIFECYCLE_PHASE = Integer.MAX_VALUE / 2;
 
 	private final ReactiveRedisOperations<String, Object> sessionRedisOperations;
 
@@ -281,6 +305,8 @@ public class ReactiveRedisIndexedSessionRepository
 
 	private int database = DEFAULT_DATABASE;
 
+	private int phase = DEFAULT_SMART_LIFECYCLE_PHASE;
+
 	private ReactiveRedisSessionIndexer indexer;
 
 	private SortedSetReactiveRedisSessionExpirationStore expirationStore;
@@ -288,6 +314,8 @@ public class ReactiveRedisIndexedSessionRepository
 	private Duration cleanupInterval = Duration.ofSeconds(60);
 
 	private Clock clock = Clock.systemUTC();
+
+	private volatile boolean running = false;
 
 	/**
 	 * Creates a new instance with the provided {@link ReactiveRedisOperations}.
@@ -308,9 +336,20 @@ public class ReactiveRedisIndexedSessionRepository
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
+	public void start() {
+		if (this.running) {
+			return;
+		}
+
 		subscribeToRedisEvents();
 		setupCleanupTask();
+
+		this.running = true;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		start();
 	}
 
 	private void setupCleanupTask() {
@@ -325,7 +364,9 @@ public class ReactiveRedisIndexedSessionRepository
 	}
 
 	private Flux<Void> cleanUpExpiredSessions() {
-		return this.expirationStore.retrieveExpiredSessions(this.clock.instant()).flatMap(this::touch);
+		return this.expirationStore.retrieveExpiredSessions(this.clock.instant())
+			.filter((ignored) -> isRunning())
+			.flatMap(this::touch);
 	}
 
 	private Mono<Void> touch(String sessionId) {
@@ -333,11 +374,36 @@ public class ReactiveRedisIndexedSessionRepository
 	}
 
 	@Override
-	public void destroy() {
+	public void stop() {
+		if (!this.running) {
+			return;
+		}
+
 		for (Disposable subscription : this.subscriptions) {
 			subscription.dispose();
 		}
 		this.subscriptions.clear();
+
+		this.running = false;
+	}
+
+	@Override
+	public void destroy() {
+		stop();
+	}
+
+	@Override
+	public boolean isRunning() {
+		return this.running;
+	}
+
+	@Override
+	public int getPhase() {
+		return this.phase;
+	}
+
+	public void setPhase(int phase) {
+		this.phase = phase;
 	}
 
 	@Override

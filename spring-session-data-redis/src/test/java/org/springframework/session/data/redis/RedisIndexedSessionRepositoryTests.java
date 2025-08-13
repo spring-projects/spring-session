@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2023 the original author or authors.
+ * Copyright 2014-2025 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -449,6 +449,8 @@ class RedisIndexedSessionRepositoryTests {
 		Set<Object> expiredIds = new HashSet<>(Arrays.asList("expired-key1", "expired-key2"));
 		given(this.boundSetOperations.members()).willReturn(expiredIds);
 
+		this.redisRepository.start();
+
 		this.redisRepository.cleanUpExpiredSessions();
 
 		for (Object id : expiredIds) {
@@ -763,6 +765,60 @@ class RedisIndexedSessionRepositoryTests {
 		this.redisRepository.setCleanupCron(Scheduled.CRON_DISABLED);
 		this.redisRepository.afterPropertiesSet();
 		assertThat(this.redisRepository).extracting("taskScheduler").isNull();
+	}
+
+	@Test
+	void startShouldSetRunningTrue() {
+		this.redisRepository.start();
+		assertThat(this.redisRepository.isRunning()).isTrue();
+	}
+
+	@Test
+	void startShouldBeIdempotent() {
+		this.redisRepository.start();
+		this.redisRepository.start();
+		assertThat(this.redisRepository.isRunning()).isTrue();
+	}
+
+	@Test
+	void stopShouldSetRunningFalse() {
+		this.redisRepository.start();
+		this.redisRepository.stop();
+		assertThat(this.redisRepository.isRunning()).isFalse();
+	}
+
+	@Test
+	void stopShouldBeIdempotent() {
+		this.redisRepository.start();
+		this.redisRepository.stop();
+		this.redisRepository.stop();
+		assertThat(this.redisRepository.isRunning()).isFalse();
+	}
+
+	@Test
+	void isAutoStartupShouldReturnTrue() {
+		assertThat(this.redisRepository.isAutoStartup()).isTrue();
+	}
+
+	@Test
+	void getPhaseShouldReturnPhase() {
+		this.redisRepository.setPhase(100);
+
+		assertThat(this.redisRepository.getPhase()).isEqualTo(100);
+	}
+
+	@Test
+	void cleanUpExpiredSessionsShouldRespectRunningState() {
+		this.redisRepository.stop();
+		this.redisRepository.cleanUpExpiredSessions();
+		verifyNoMoreInteractions(this.redisOperations);
+	}
+
+	@Test
+	void destroyShouldCallStop() {
+		this.redisRepository.start();
+		this.redisRepository.destroy();
+		assertThat(this.redisRepository.isRunning()).isFalse();
 	}
 
 	@Test
