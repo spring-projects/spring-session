@@ -257,6 +257,7 @@ import org.springframework.util.StringUtils;
  *
  * @author Rob Winch
  * @author Vedran Pavic
+ * @author Ham Seung Hun
  * @since 2.2.0
  */
 public class RedisIndexedSessionRepository
