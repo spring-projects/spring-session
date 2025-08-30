@@ -47,7 +47,7 @@ class SessionDetailsFilterTests {
 	}
 
 	@Test
-	void getGeoLocationHanldesInvalidIp() {
+	void getGeoLocationHandlesInvalidIp() {
 		assertThat(this.filter.getGeoLocation("a")).isEqualTo(SessionDetailsFilter.UNKNOWN);
 	}
 

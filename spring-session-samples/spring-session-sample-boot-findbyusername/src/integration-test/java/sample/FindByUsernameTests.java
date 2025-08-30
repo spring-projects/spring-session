@@ -90,8 +90,8 @@ class FindByUsernameTests {
 		HomePage forgotToLogout = home(this.driver);
 
 		this.driver2 = MockMvcHtmlUnitDriverBuilder.mockMvcSetup(this.mockMvc).build();
-		HomePage terminateFogotSession = home(this.driver2);
-		terminateFogotSession.terminateSession(forgotToLogout.getSessionId()).assertAt();
+		HomePage terminateForgotSession = home(this.driver2);
+		terminateForgotSession.terminateSession(forgotToLogout.getSessionId()).assertAt();
 
 		LoginPage login = HomePage.go(this.driver);
 		login.assertAt();

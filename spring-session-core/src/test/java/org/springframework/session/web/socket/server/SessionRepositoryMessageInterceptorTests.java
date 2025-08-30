@@ -82,7 +82,7 @@ class SessionRepositoryMessageInterceptorTests {
 	}
 
 	@Test
-	void preSendconstructorNullRepository() {
+	void preSendConstructorNullRepository() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new SessionRepositoryMessageInterceptor<>(null))
 			.withMessage("sessionRepository cannot be null");
 	}

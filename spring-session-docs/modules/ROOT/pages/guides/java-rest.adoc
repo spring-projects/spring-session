@@ -67,7 +67,7 @@ endif::[]
 
 ifeval::["{version-milestone}" == "true"]
 Since we are using a Milestone version, we need to add the Spring Milestone Maven Repository.
-You msut have the following in your pom.xml:
+You must have the following in your pom.xml:
 
 ====
 .pom.xml
