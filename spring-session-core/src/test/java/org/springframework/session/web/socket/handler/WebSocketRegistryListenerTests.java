@@ -165,7 +165,7 @@ class WebSocketRegistryListenerTests {
 	}
 
 	@Test
-	void onApplicationEventConnectConnectDisonnect() throws Exception {
+	void onApplicationEventConnectConnectDisconnect() throws Exception {
 		this.listener.onApplicationEvent(this.connect);
 		this.listener.onApplicationEvent(this.connect2);
 		this.listener.onApplicationEvent(this.disconnect);

@@ -77,7 +77,7 @@ class OncePerRequestFilterTests {
 	}
 
 	@Test
-	void doFilterMultiOnlyIvokesOnce() throws ServletException, IOException {
+	void doFilterMultiOnlyInvokesOnce() throws ServletException, IOException {
 		this.filter.doFilter(this.request, this.response, new MockFilterChain(this.servlet, this.filter));
 
 		assertThat(this.invocations).containsOnly(this.filter);

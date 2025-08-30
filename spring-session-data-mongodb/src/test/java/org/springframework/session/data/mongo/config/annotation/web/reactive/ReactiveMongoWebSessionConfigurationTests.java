@@ -202,7 +202,7 @@ class ReactiveMongoWebSessionConfigurationTests {
 	void customIndexResolverConfigurationWithProvidedMongoSessionConverter() {
 
 		this.context = new AnnotationConfigApplicationContext();
-		this.context.register(CustomIndexResolverConfigurationWithProvidedtMongoSessionConverter.class);
+		this.context.register(CustomIndexResolverConfigurationWithProvidedMongoSessionConverter.class);
 		this.context.refresh();
 
 		ReactiveMongoSessionRepository repository = this.context.getBean(ReactiveMongoSessionRepository.class);
@@ -396,7 +396,7 @@ class ReactiveMongoWebSessionConfigurationTests {
 
 	@Configuration(proxyBeanMethods = false)
 	@EnableMongoWebSession
-	static class CustomIndexResolverConfigurationWithProvidedtMongoSessionConverter {
+	static class CustomIndexResolverConfigurationWithProvidedMongoSessionConverter {
 
 		@Bean
 		ReactiveMongoOperations operations() {
