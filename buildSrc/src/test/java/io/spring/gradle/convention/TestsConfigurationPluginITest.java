@@ -21,7 +21,7 @@ public class TestsConfigurationPluginITest {
 	}
 
 	@Test
-    public void canFindDepencency() throws Exception {
+    public void canFindDependency() throws Exception {
         BuildResult result = this.testKit.withProjectResource("samples/testsconfiguration")
 				.withArguments("check")
 				.build();

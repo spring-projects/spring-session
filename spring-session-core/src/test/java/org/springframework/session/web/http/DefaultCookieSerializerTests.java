@@ -363,7 +363,7 @@ class DefaultCookieSerializerTests {
 	}
 
 	@Test
-	void writeCookieInecureInsecureRequest() {
+	void writeCookieInsecureInsecureRequest() {
 		this.serializer.setUseSecureCookie(false);
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 		assertThat(getCookie().getSecure()).isFalse();
