@@ -47,7 +47,7 @@ Update `gradle.properties` version to next `+SNAPSHOT+` version.
 
 == 8. Update version on project pages
 
-Update the versions on https://spring.io/projects for Spring Session Core, Spring Session Data Redis, Spring Session JDBC, Spring Session Hazelcast, and Spring Session MongoDB.
+Update the versions on https://spring.io/projects for Spring Session Core, Spring Session Data Redis, Spring Session JDBC, and Spring Session MongoDB.
 
 == 9. Update Release Notes on GitHub
 

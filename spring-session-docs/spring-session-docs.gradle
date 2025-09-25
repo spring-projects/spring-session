@@ -8,7 +8,6 @@ apply plugin: 'io.spring.convention.spring-test'
 
 dependencies {
 	management platform(project(":spring-session-dependencies"))
-	testImplementation 'com.hazelcast:hazelcast'
 	testImplementation 'io.lettuce:lettuce-core'
 	testImplementation 'jakarta.servlet:jakarta.servlet-api'
 	testImplementation 'org.assertj:assertj-core'
@@ -25,7 +24,6 @@ dependencies {
 	testImplementation 'org.springframework:spring-websocket'
 	testImplementation project(':spring-session-core')
 	testImplementation project(':spring-session-data-redis')
-	testImplementation project(':spring-session-hazelcast')
 	testImplementation project(':spring-session-jdbc')
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

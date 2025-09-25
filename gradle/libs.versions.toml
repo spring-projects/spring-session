@@ -11,7 +11,6 @@ com-fasterxml-jackson-core-jackson-databind = "com.fasterxml.jackson.core:jackso
 com-fasterxml-jackson-jackson-bom = "com.fasterxml.jackson:jackson-bom:2.17.3"
 com-google-code-findbugs-jsr305 = "com.google.code.findbugs:jsr305:3.0.2" # FIXME: Remove findbugs?
 com-h2database-h2 = "com.h2database:h2:2.3.232"
-com-hazelcast = "com.hazelcast:hazelcast:5.5.0"
 com-ibm-db2-jcc = "com.ibm.db2:jcc:12.1.2.0"
 com-microsoft-sqlserver-mssql-jdbc = "com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11"
 com-oracle-database-jdbc-ojdbc8 = "com.oracle.database.jdbc:ojdbc8:23.7.0.25.01"

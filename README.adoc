@@ -20,7 +20,6 @@ This Spring Session repository consists of the following modules:
 * Spring Session Core - provides core Spring Session functionalities and APIs
 * Spring Session Data Redis - provides `SessionRepository` and `ReactiveSessionRepository` implementation backed by Redis and configuration support
 * Spring Session JDBC - provides `SessionRepository` implementation backed by a relational database and configuration support
-* Spring Session Hazelcast - provides `SessionRepository` implementation backed by Hazelcast and configuration support
 * Spring Session MongoDB - provides `SessionRepository` implementation backed by MongoDB and configuration support
 
 Additional Spring Session modules can be found in the https://github.com/spring-projects/spring-session-data-geode[spring-session-data-geode] repository.

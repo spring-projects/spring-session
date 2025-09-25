@@ -19,7 +19,6 @@ dependencies {
         api libs.ch.qos.logback.logback.core
         api libs.com.google.code.findbugs.jsr305
         api libs.com.h2database.h2
-        api libs.com.hazelcast
         api libs.com.ibm.db2.jcc
         api libs.com.microsoft.sqlserver.mssql.jdbc
         api libs.com.oracle.database.jdbc.ojdbc8

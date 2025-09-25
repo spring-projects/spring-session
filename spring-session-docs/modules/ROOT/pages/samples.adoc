@@ -15,10 +15,6 @@ To get started with Spring Session, the best place to start is our Sample Applic
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/boot-jdbc.html[HttpSession with JDBC Guide]
 
-| {gh-samples-url}spring-session-sample-boot-hazelcast[HttpSession with Hazelcast]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
-|
-
 | {gh-samples-url}spring-session-sample-boot-findbyusername[Find by Username]
 | Demonstrates how to use Spring Session to find sessions by username.
 | link:guides/boot-findbyusername.html[Find by Username Guide]
@@ -61,10 +57,6 @@ To get started with Spring Session, the best place to start is our Sample Applic
 | Demonstrates how to use Spring Session to replace the `HttpSession` with a relational database store.
 | link:guides/java-jdbc.html[HttpSession with JDBC Guide]
 
-| {gh-samples-url}spring-session-sample-javaconfig-hazelcast[HttpSession with Hazelcast]
-| Demonstrates how to use Spring Session to replace the `HttpSession` with Hazelcast.
-| link:guides/java-hazelcast.html[HttpSession with Hazelcast Guide]
-
 | {gh-samples-url}spring-session-sample-javaconfig-custom-cookie[Custom Cookie]
 | Demonstrates how to use Spring Session and customize the cookie.
 | link:guides/java-custom-cookie.html[Custom Cookie Guide]
@@ -96,9 +88,5 @@ To get started with Spring Session, the best place to start is our Sample Applic
 .Miscellaneous sample Applications
 |===
 | Source | Description | Guide
-
-| {gh-samples-url}spring-session-sample-misc-hazelcast[Hazelcast]
-| Demonstrates how to use Spring Session with Hazelcast in a Java EE application.
-|
 
 |===

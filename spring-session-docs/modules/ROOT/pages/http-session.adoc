@@ -143,18 +143,6 @@ You can read the basic steps for integration in the next few sections, but we en
 
 include::guides/boot-jdbc.adoc[tags=config,leveloffset=+2]
 
-[[httpsession-hazelcast]]
-== HttpSession with Hazelcast
-
-Using Spring Session with `HttpSession` is enabled by adding a Servlet Filter before anything that uses the `HttpSession`.
-
-This section describes how to use Hazelcast to back `HttpSession` by using Java-based configuration.
-
-NOTE: The xref:samples.adoc#samples[ Hazelcast Spring Sample] provides a working sample of how to integrate Spring Session and `HttpSession` by using Java configuration.
-You can read the basic steps for integration in the next few sections, but we encourage you to follow along with the detailed Hazelcast Spring Guide when integrating with your own application.
-
-include::guides/java-hazelcast.adoc[tags=config,leveloffset=+1]
-
 [[httpsession-how]]
 == How `HttpSession` Integration Works
 
