@@ -37,9 +37,6 @@ dependencies {
         api libs.org.hamcrest
         api libs.org.hsqldb
         api libs.org.mariadb.jdbc.mariadb.java.client
-        api libs.org.mongodb.mongodb.driver.core
-        api libs.org.mongodb.mongodb.driver.reactivestreams
-        api libs.org.mongodb.mongodb.driver.sync
         api libs.org.postgresql
     }
 }

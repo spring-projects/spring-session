@@ -5,7 +5,6 @@
 **** Redis
 ***** {gh-samples-url}spring-session-sample-boot-redis-json[JSON serialization]
 ***** xref:guides/boot-redis.adoc[Redis with Events]
-**** xref:guides/boot-mongo.adoc[MongoDB]
 **** xref:guides/boot-jdbc.adoc[JDBC]
 *** xref:guides/boot-findbyusername.adoc[Find by Username]
 *** xref:guides/boot-websocket.adoc[WebSockets]

@@ -1,3 +1,4 @@
 = What's New in 4.0
 
 - https://github.com/spring-projects/spring-session/issues/3481[gh-3481] - Spring Session Hazelcast: Now Led by Hazelcast Team
+- https://github.com/spring-projects/spring-session/issues/3480[gh-3480] - Spring Session MongoDB: Now Led by MongoDB Team

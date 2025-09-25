@@ -2,7 +2,6 @@
 jakarta-websocket = "2.1.1"
 org-apache-derby = "10.16.1.1"
 org-mockito = "5.16.1"
-org-mongodb = "5.5.1"
 org-springframework-boot = "4.0.0-SNAPSHOT"
 
 [libraries]
@@ -34,9 +33,6 @@ org-hsqldb = "org.hsqldb:hsqldb:2.7.4" # hsqldb 2.7.4 breaks Spring Data https:/
 org-junit-junit-bom = "org.junit:junit-bom:5.12.1"
 org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.5.4"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
-org-mongodb-mongodb-driver-core = { module = "org.mongodb:mongodb-driver-core", version.ref = "org-mongodb" }
-org-mongodb-mongodb-driver-reactivestreams = { module = "org.mongodb:mongodb-driver-reactivestreams", version.ref = "org-mongodb" }
-org-mongodb-mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "org-mongodb" }
 org-postgresql = "org.postgresql:postgresql:42.7.7"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.0-M4"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:7.0.0-M1"
