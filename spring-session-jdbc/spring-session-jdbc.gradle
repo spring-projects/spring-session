@@ -21,6 +21,7 @@ dependencies {
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
+	integrationTestCompile libs.ch.qos.logback.logback.core
 	integrationTestCompile "com.h2database:h2"
 	integrationTestCompile "com.ibm.db2:jcc"
 	integrationTestCompile "com.microsoft.sqlserver:mssql-jdbc"
@@ -32,11 +33,12 @@ dependencies {
 	integrationTestCompile "org.hsqldb:hsqldb"
 	integrationTestCompile "org.mariadb.jdbc:mariadb-java-client"
 	integrationTestCompile "org.postgresql:postgresql"
+	integrationTestCompile "org.testcontainers:junit-jupiter"
 	integrationTestCompile "org.testcontainers:db2"
 	integrationTestCompile "org.testcontainers:mariadb"
 	integrationTestCompile "org.testcontainers:mssqlserver"
 	integrationTestCompile "org.testcontainers:mysql"
-	integrationTestCompile "org.testcontainers:oracle-xe"
+	integrationTestCompile "org.testcontainers:oracle-free"
 	integrationTestCompile "org.testcontainers:postgresql"
 }
 
