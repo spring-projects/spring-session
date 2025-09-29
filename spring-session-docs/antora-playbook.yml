@@ -3,16 +3,12 @@
 # The purpose of this Antora playbook is to build the docs in the current branch.
 antora:
   extensions:
-    - '@antora/collector-extension'
-    - id: '@antora/atlas-extension'
-      require: '@antora/atlas-extension'
-      enabled: false
-    - '@opendevise/antora-release-line-extension'
-    - require: '@springio/antora-extensions/tabs-migration-extension'
-      unwrap_example_block: always
-    - require: '@springio/antora-extensions/set-algolia-env-extension'
+    - require: '@springio/antora-extensions'
+      root_component_name: 'session'
 site:
   title: Spring Session Reference
+  url: https://docs.spring.io/spring-session/reference
+  robots: allow
 content:
   sources:
     - url: ./..
@@ -27,6 +23,8 @@ asciidoc:
     tabs-sync-option: '@'
   extensions:
     - '@asciidoctor/tabs'
+    - '@springio/asciidoctor-extensions'
+    - '@springio/asciidoctor-extensions/javadoc-extension'
   sourcemap: true
 urls:
   latest_version_segment: ''
