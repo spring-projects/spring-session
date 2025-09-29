@@ -1,0 +1,36 @@
+plugins {
+    id "org.gretty" version "4.1.0"
+    id "io.spring.convention.spring-sample-war"
+}
+
+dependencies {
+	management platform(project(":spring-session-dependencies"))
+	implementation project(':spring-session-data-redis')
+	implementation "org.springframework:spring-web"
+	implementation "org.springframework.security:spring-security-config"
+	implementation "org.springframework.security:spring-security-web"
+	implementation "io.lettuce:lettuce-core"
+	implementation "org.slf4j:slf4j-api"
+	implementation "org.slf4j:jcl-over-slf4j"
+	implementation "org.slf4j:log4j-over-slf4j"
+	implementation "ch.qos.logback:logback-classic"
+	implementation "org.testcontainers:testcontainers"
+
+	providedCompile "jakarta.servlet:jakarta.servlet-api"
+    providedCompile "org.glassfish.web:jakarta.servlet.jsp.jstl"
+	providedCompile "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api"
+
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.springframework:spring-test"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+
+	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+
+	integrationTestCompile "org.htmlunit:htmlunit"
+	integrationTestCompile "org.seleniumhq.selenium:htmlunit3-driver"
+}
+
+gretty {
+	jvmArgs = ['-Dspring.profiles.active=embedded-redis']
+}
