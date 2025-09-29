@@ -13,6 +13,8 @@ dependencies {
 	implementation  "org.webjars:bootstrap"
 	implementation  "org.webjars:html5shiv"
 	implementation  "org.webjars:webjars-locator-core"
+	implementation libs.com.fasterxml.jackson.core.jackson.databind
+	implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
@@ -26,4 +28,5 @@ dependencies {
 	integrationTestCompile "org.htmlunit:htmlunit"
 	integrationTestCompile "org.seleniumhq.selenium:htmlunit3-driver"
 	integrationTestCompile "org.springframework.boot:spring-boot-testcontainers"
+	integrationTestCompile "org.springframework.boot:spring-boot-webmvc-test"
 }

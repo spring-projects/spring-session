@@ -71,7 +71,7 @@ class RestTests {
 		headers.set(AUTHORIZATION, BASIC + auth);
 		ResponseEntity<User> entity = getForUser(this.baseUrl + "/", headers, User.class);
 		assertThat(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(entity.getHeaders().containsKey(X_AUTH_TOKEN)).isTrue();
+		assertThat(entity.getHeaders().containsHeader(X_AUTH_TOKEN)).isTrue();
 		assertThat(entity.getBody().getUsername()).isEqualTo("user");
 	}
 

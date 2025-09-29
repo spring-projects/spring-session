@@ -5,6 +5,8 @@ dependencies {
 	implementation project(':spring-session-jdbc')
 	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
 	implementation "org.springframework.boot:spring-boot-session-jdbc"
+	implementation libs.com.fasterxml.jackson.core.jackson.databind
+	implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
 	implementation "org.springframework.boot:spring-boot-starter-jdbc"
 	implementation "org.springframework.boot:spring-boot-starter-security"
 	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
@@ -17,6 +19,7 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation "org.springframework.boot:spring-boot-webmvc-test"
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:postgresql'

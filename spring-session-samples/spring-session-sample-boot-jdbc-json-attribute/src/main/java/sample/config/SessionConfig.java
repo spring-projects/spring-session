@@ -43,6 +43,16 @@ public class SessionConfig implements BeanClassLoaderAware {
 		};
 	}
 
+	/**
+	 * Spring Boot provides auto configuration for Jackson 3 and not Jackson 2
+	 * (ObjectMapper) so we explicitly provide it here.
+	 * @return
+	 */
+	@Bean
+	ObjectMapper objectMapper() {
+		return new ObjectMapper();
+	}
+
 	@Bean("springSessionConversionService")
 	public GenericConversionService springSessionConversionService(ObjectMapper objectMapper) {
 		ObjectMapper copy = objectMapper.copy();
