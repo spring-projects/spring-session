@@ -44,6 +44,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 
 /**
  * {@code AbstractMongoSessionConverter} implementation using Jackson.
@@ -51,6 +52,7 @@ import org.springframework.util.Assert;
  * @author Jakub Kubrynski
  * @author Greg Turnquist
  * @author Michael Ruf
+ * @author TiQuan Hu
  * @since 1.2
  */
 public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter {
@@ -93,9 +95,12 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 	}
 
 	private ObjectMapper buildObjectMapper() {
-
 		ObjectMapper objectMapper = new ObjectMapper();
+		configureObjectMapper(objectMapper);
+		return objectMapper;
+	}
 
+	public static void configureObjectMapper(ObjectMapper objectMapper) {
 		// serialize fields instead of properties
 		objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.NONE);
 		objectMapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
@@ -105,11 +110,9 @@ public class JacksonMongoSessionConverter extends AbstractMongoSessionConverter 
 
 		objectMapper.setPropertyNamingStrategy(new MongoIdNamingStrategy());
 
-		objectMapper.registerModules(SecurityJackson2Modules.getModules(getClass().getClassLoader()));
+		objectMapper.registerModules(SecurityJackson2Modules.getModules(ClassUtils.getDefaultClassLoader()));
 		objectMapper.addMixIn(MongoSession.class, MongoSessionMixin.class);
 		objectMapper.addMixIn(HashMap.class, HashMapMixin.class);
-
-		return objectMapper;
 	}
 
 	@Override
