@@ -33,13 +33,13 @@ dependencies {
 	integrationTestCompile "org.hsqldb:hsqldb"
 	integrationTestCompile "org.mariadb.jdbc:mariadb-java-client"
 	integrationTestCompile "org.postgresql:postgresql"
-	integrationTestCompile "org.testcontainers:junit-jupiter"
-	integrationTestCompile "org.testcontainers:db2"
-	integrationTestCompile "org.testcontainers:mariadb"
-	integrationTestCompile "org.testcontainers:mssqlserver"
-	integrationTestCompile "org.testcontainers:mysql"
-	integrationTestCompile "org.testcontainers:oracle-free"
-	integrationTestCompile "org.testcontainers:postgresql"
+	integrationTestCompile "org.testcontainers:testcontainers-junit-jupiter"
+	integrationTestCompile "org.testcontainers:testcontainers-db2"
+	integrationTestCompile "org.testcontainers:testcontainers-mariadb"
+	integrationTestCompile "org.testcontainers:testcontainers-mssqlserver"
+	integrationTestCompile "org.testcontainers:testcontainers-mysql"
+	integrationTestCompile "org.testcontainers:testcontainers-oracle-free"
+	integrationTestCompile "org.testcontainers:testcontainers-postgresql"
 }
 
 integrationTest {
