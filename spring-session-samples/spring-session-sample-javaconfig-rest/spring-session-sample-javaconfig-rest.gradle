@@ -10,7 +10,7 @@ dependencies {
 	implementation "org.springframework:spring-webmvc"
 	implementation "org.springframework.security:spring-security-config"
 	implementation "org.springframework.security:spring-security-web"
-	implementation "com.fasterxml.jackson.core:jackson-databind"
+	implementation libs.jackson.databind
 	implementation "org.slf4j:slf4j-api"
 	implementation "org.slf4j:jcl-over-slf4j"
 	implementation "org.slf4j:log4j-over-slf4j"

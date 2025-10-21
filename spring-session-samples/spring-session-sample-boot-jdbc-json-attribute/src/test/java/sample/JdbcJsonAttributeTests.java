@@ -18,19 +18,21 @@ package sample;
 
 import java.util.Base64;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureJdbc;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.boot.security.autoconfigure.SecurityProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,10 +47,7 @@ class JdbcJsonAttributeTests {
 	@Autowired
 	MockMvc mvc;
 
-	@Autowired
-	ObjectMapper objectMapper;
-
-	ObjectMapper objectMapperWithModules;
+	JsonMapper mapper;
 
 	@Autowired
 	JdbcClient jdbcClient;
@@ -62,9 +61,9 @@ class JdbcJsonAttributeTests {
 
 	@BeforeEach
 	void setup() {
-		ObjectMapper copy = this.objectMapper.copy();
-		copy.registerModules(SecurityJackson2Modules.getModules(getClass().getClassLoader()));
-		this.objectMapperWithModules = copy;
+		this.mapper = JsonMapper.builder()
+			.addModules(SecurityJacksonModules.getModules(getClass().getClassLoader()))
+			.build();
 		this.jdbcClient.sql("DELETE FROM spring_session_attributes").update();
 		this.jdbcClient.sql("DELETE FROM spring_session").update();
 	}
@@ -83,8 +82,7 @@ class JdbcJsonAttributeTests {
 				WHERE attribute_name = 'SPRING_SECURITY_CONTEXT'
 				AND s.session_id = :id
 				""").param("id", sessionId).query().singleValue();
-		SecurityContext securityContext = this.objectMapperWithModules.readValue((String) attributeBytes,
-				SecurityContext.class);
+		SecurityContext securityContext = this.mapper.readValue((String) attributeBytes, SecurityContext.class);
 		assertThat(securityContext).isNotNull();
 		assertThat(securityContext.getAuthentication().getName()).isEqualTo(this.username);
 	}
@@ -96,8 +94,7 @@ class JdbcJsonAttributeTests {
 				SELECT attribute_bytes::text FROM spring_session_attributes
 				WHERE attribute_bytes -> 'authentication' -> 'principal' ->> 'username' = '%s'
 				""".formatted(this.username)).query().singleValue();
-		SecurityContext securityContext = this.objectMapperWithModules.readValue((String) attributeBytes,
-				SecurityContext.class);
+		SecurityContext securityContext = this.mapper.readValue((String) attributeBytes, SecurityContext.class);
 		assertThat(securityContext).isNotNull();
 		assertThat(securityContext.getAuthentication().getName()).isEqualTo(this.username);
 	}

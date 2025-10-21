@@ -16,14 +16,14 @@
 
 package sample.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 
 /**
  * @author jitendra on 3/3/16.
@@ -41,18 +41,16 @@ public class SessionConfig implements BeanClassLoaderAware {
 	 */
 	@Bean
 	public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
-		return new GenericJackson2JsonRedisSerializer(objectMapper());
+		return new JacksonJsonRedisSerializer<>(objectMapper(), Object.class);
 	}
 
 	/**
-	 * Customized {@link ObjectMapper} to add mix-in for class that doesn't have default
+	 * Customized {@link JsonMapper} to add mix-in for class that doesn't have default
 	 * constructors
-	 * @return the {@link ObjectMapper} to use
+	 * @return the {@link JsonMapper} to use
 	 */
-	private ObjectMapper objectMapper() {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModules(SecurityJackson2Modules.getModules(this.loader));
-		return mapper;
+	private JsonMapper objectMapper() {
+		return JsonMapper.builder().addModules(SecurityJacksonModules.getModules(this.loader)).build();
 	}
 
 	/*

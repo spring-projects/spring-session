@@ -7,7 +7,7 @@ javaPlatform {
 }
 
 dependencies {
-    api platform(libs.com.fasterxml.jackson.jackson.bom)
+    api platform(libs.jackson.bom)
     api platform(libs.io.projectreactor.reactor.bom)
     api platform(libs.org.junit.junit.bom)
     api platform(libs.org.mockito.mockito.bom)

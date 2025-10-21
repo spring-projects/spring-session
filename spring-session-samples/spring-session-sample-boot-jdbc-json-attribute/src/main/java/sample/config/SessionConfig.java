@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +15,7 @@ import org.springframework.core.serializer.Deserializer;
 import org.springframework.core.serializer.Serializer;
 import org.springframework.core.serializer.support.DeserializingConverter;
 import org.springframework.core.serializer.support.SerializingConverter;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.session.config.SessionRepositoryCustomizer;
 import org.springframework.session.jdbc.JdbcIndexedSessionRepository;
 
@@ -43,23 +44,14 @@ public class SessionConfig implements BeanClassLoaderAware {
 		};
 	}
 
-	/**
-	 * Spring Boot provides auto configuration for Jackson 3 and not Jackson 2
-	 * (ObjectMapper) so we explicitly provide it here.
-	 * @return
-	 */
-	@Bean
-	ObjectMapper objectMapper() {
-		return new ObjectMapper();
-	}
-
 	@Bean("springSessionConversionService")
-	public GenericConversionService springSessionConversionService(ObjectMapper objectMapper) {
-		ObjectMapper copy = objectMapper.copy();
-		copy.registerModules(SecurityJackson2Modules.getModules(this.classLoader));
+	public GenericConversionService springSessionConversionService() {
+		JsonMapper mapper = JsonMapper.builder()
+			.addModules(SecurityJacksonModules.getModules(this.classLoader))
+			.build();
 		GenericConversionService converter = new GenericConversionService();
-		converter.addConverter(Object.class, byte[].class, new SerializingConverter(new JsonSerializer(copy)));
-		converter.addConverter(byte[].class, Object.class, new DeserializingConverter(new JsonDeserializer(copy)));
+		converter.addConverter(Object.class, byte[].class, new SerializingConverter(new JsonSerializer(mapper)));
+		converter.addConverter(byte[].class, Object.class, new DeserializingConverter(new JsonDeserializer(mapper)));
 		return converter;
 	}
 

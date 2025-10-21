@@ -21,6 +21,7 @@ dependencies {
 	testImplementation "org.springframework.security:spring-security-core"
 	testImplementation "org.springframework:spring-test"
 	testImplementation "org.springframework:spring-web"
+	testImplementation libs.jackson.databind
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
