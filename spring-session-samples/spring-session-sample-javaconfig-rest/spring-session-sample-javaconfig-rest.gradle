@@ -22,6 +22,7 @@ dependencies {
 	testImplementation "org.springframework.security:spring-security-test"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.springframework:spring-test"
+	testImplementation "org.hamcrest:hamcrest-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
