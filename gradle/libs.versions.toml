@@ -17,7 +17,7 @@ com-squareup-okhttp3-okhttp = "com.squareup.okhttp3:okhttp:3.14.9"
 commons-logging="commons-logging:commons-logging:1.3.5"
 com-zaxxer-HikariCP = "com.zaxxer:HikariCP:6.2.1"
 edu-umd-cs-mtc-multithreadedtc = "edu.umd.cs.mtc:multithreadedtc:1.01" # FIXME: Delete multithreadedtc or update?
-io-lettuce-lettuce-core = "io.lettuce:lettuce-core:6.5.5.RELEASE"
+io-lettuce-lettuce-core = "io.lettuce:lettuce-core:6.8.1.RELEASE"
 io-projectreactor-reactor-bom = "io.projectreactor:reactor-bom:2025.0.0-RC1"
 jakarta-servlet-jakarta-servlet-api = "jakarta.servlet:jakarta.servlet-api:6.0.0"
 jakarta-websocket-jakarta-websocket-api = { module = "jakarta.websocket:jakarta.websocket-api", version.ref = "jakarta-websocket" }
