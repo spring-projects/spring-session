@@ -18,7 +18,7 @@ package com.example;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.boot.security.autoconfigure.reactive.PathRequest;
+import org.springframework.boot.security.autoconfigure.web.reactive.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;

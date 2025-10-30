@@ -1,0 +1,34 @@
+# PACKAGES antora@3.2.0-alpha.2 @antora/atlas-extension:1.0.0-alpha.1 @antora/collector-extension@1.0.0-alpha.3 @springio/antora-extensions@1.0.0 @asciidoctor/tabs@1.0.0-beta.3 @opendevise/antora-release-line-extension@1.0.0
+#
+# The purpose of this Antora playbook is to build the docs in the current branch.
+antora:
+  extensions:
+    - require: '@springio/antora-extensions'
+      root_component_name: 'session'
+site:
+  title: Spring Session Reference
+  url: https://docs.spring.io/spring-session/reference
+  robots: allow
+content:
+  sources:
+    - url: ./..
+      branches: HEAD
+      start_path: spring-session-docs
+      worktrees: true
+asciidoc:
+  attributes:
+    hide-uri-scheme: '@'
+    page-pagination: ''
+    primary-site-url: https://docs.spring.io/spring-session/reference
+    tabs-sync-option: '@'
+  extensions:
+    - '@asciidoctor/tabs'
+    - '@springio/asciidoctor-extensions'
+    - '@springio/asciidoctor-extensions/javadoc-extension'
+  sourcemap: true
+urls:
+  latest_version_segment: ''
+ui:
+  bundle:
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
+    snapshot: true

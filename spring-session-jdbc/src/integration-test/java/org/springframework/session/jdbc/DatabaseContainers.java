@@ -21,8 +21,8 @@ import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.MSSQLServerContainerProvider;
 import org.testcontainers.containers.MariaDBContainerProvider;
 import org.testcontainers.containers.MySQLContainerProvider;
-import org.testcontainers.containers.OracleContainerProvider;
 import org.testcontainers.containers.PostgreSQLContainerProvider;
+import org.testcontainers.oracle.OracleContainerProvider;
 
 /**
  * Factories for various {@link JdbcDatabaseContainer}s.
@@ -47,7 +47,7 @@ final class DatabaseContainers {
 	}
 
 	static JdbcDatabaseContainer<?> oracle() {
-		return new OracleContainerProvider().newInstance("21.3.0-slim");
+		return new OracleContainerProvider().newInstance("23.4-slim-faststart");
 	}
 
 	static JdbcDatabaseContainer<?> postgreSql() {
