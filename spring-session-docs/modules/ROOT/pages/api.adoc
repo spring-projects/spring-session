@@ -317,7 +317,7 @@ The second session attribute is named `attrName2`, with a value of `someAttrValu
 
 The `Session` instances managed by `RedisIndexedSessionRepository` keeps track of the properties that have changed and updates only those.
 This means that, if an attribute is written once and read many times, we need to write that attribute only once.
-For example, assume the `attrName2` session attribute from the lsiting in the preceding section was updated.
+For example, assume the `attrName2` session attribute from the listing in the preceding section was updated.
 The following command would be run upon saving:
 
 ====
@@ -408,7 +408,7 @@ redis-cli config set notify-keyspace-events Egx
 ====
 
 If you use `@EnableRedisHttpSession(enableIndexingAndEvents = true)`, managing the `SessionMessageListener` and enabling the necessary Redis Keyspace events is done automatically.
-However, in a secured Redis enviornment, the config command is disabled.
+However, in a secured Redis environment, the config command is disabled.
 This means that Spring Session cannot configure Redis Keyspace events for you.
 To disable the automatic configuration, add `ConfigureRedisAction.NO_OP` as a bean.
 
