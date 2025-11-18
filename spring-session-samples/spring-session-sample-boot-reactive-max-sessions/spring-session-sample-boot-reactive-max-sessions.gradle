@@ -16,6 +16,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation "org.springframework.boot:spring-boot-webflux-test"
+	testImplementation "org.springframework.boot:spring-boot-webtestclient"
 
 	testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
 	testRuntimeOnly "org.junit.platform:junit-platform-launcher"
