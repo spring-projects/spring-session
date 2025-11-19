@@ -63,6 +63,6 @@ springRelease {
 	weekOfMonth = 3
 	dayOfWeek = 2
 	referenceDocUrl = "https://docs.spring.io/spring-session/reference/{version}/index.html"
-	apiDocUrl = "https://docs.spring.io/spring-session/docs/{version}/api/"
+    apiDocUrl = "https://docs.spring.io/spring-session/reference/{version}/api/java/index.html"
 	replaceSnapshotVersionInReferenceDocUrl = true
 }
