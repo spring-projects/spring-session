@@ -1,4 +1,5 @@
 * xref:whats-new.adoc[What's New]
+* xref:attachment$api/java/index.html[Javadoc]
 * xref:samples.adoc[Samples & Guides (Start Here)]
 ** Boot Samples
 *** HttpSession
