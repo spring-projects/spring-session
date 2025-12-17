@@ -31,7 +31,7 @@ org-awaitility-awaitility = "org.awaitility:awaitility:4.3.0"
 org-hamcrest = "org.hamcrest:hamcrest:3.0"
 org-hsqldb = "org.hsqldb:hsqldb:2.7.4" # hsqldb 2.7.4 breaks Spring Data https://sourceforge.net/p/hsqldb/bugs/1725/
 org-junit-junit-bom = "org.junit:junit-bom:6.0.0"
-org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.5.6"
+org-mariadb-jdbc-mariadb-java-client = "org.mariadb.jdbc:mariadb-java-client:3.5.7"
 org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "org-mockito" }
 org-postgresql = "org.postgresql:postgresql:42.7.8"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.1"
