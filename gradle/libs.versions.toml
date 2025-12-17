@@ -25,7 +25,7 @@ jakarta-websocket-jakarta-websocket-client-api = { module = "jakarta.websocket:j
 mysql-mysql-connector-java = "com.mysql:mysql-connector-j:9.5.0"
 org-apache-derby-derby = { module = "org.apache.derby:derby", version.ref = "org-apache-derby" }
 org-apache-derby-derbytools = { module = "org.apache.derby:derbytools", version.ref = "org-apache-derby" }
-org-aspectj-aspectjweaver = "org.aspectj:aspectjweaver:1.9.25"
+org-aspectj-aspectjweaver = "org.aspectj:aspectjweaver:1.9.25.1"
 org-assertj-assertj-core = "org.assertj:assertj-core:3.27.6"
 org-awaitility-awaitility = "org.awaitility:awaitility:4.3.0"
 org-hamcrest = "org.hamcrest:hamcrest:3.0"
