@@ -2,7 +2,7 @@
 jakarta-websocket = "2.2.0"
 org-apache-derby = "10.16.1.1"
 org-mockito = "5.21.0"
-org-springframework-boot = "4.0.1-SNAPSHOT"
+org-springframework-boot = "4.0.2-SNAPSHOT"
 
 [libraries]
 ch-qos-logback-logback-core = { module = "ch.qos.logback:logback-core", version = "1.5.22" }
