@@ -40,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Rob Winch
  * @author Vedran Pavic
  * @author Eddú Meléndez
+ * @author Khyojae
  * @since 1.1
  */
 public class DefaultCookieSerializer implements CookieSerializer {
@@ -410,6 +411,10 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @since 2.1.0
 	 */
 	public void setSameSite(String sameSite) {
+		if (sameSite == null) {
+			this.sameSite = "Lax";
+			return;
+		}
 		this.sameSite = sameSite;
 	}
 
