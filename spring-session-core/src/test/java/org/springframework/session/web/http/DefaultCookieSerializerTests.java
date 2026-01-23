@@ -45,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
  * @author Rob Winch
  * @author Vedran Pavic
  * @author Eddú Meléndez
+ * @author Khyojae
  */
 class DefaultCookieSerializerTests {
 
@@ -459,6 +460,22 @@ class DefaultCookieSerializerTests {
 		this.serializer.writeCookieValue(cookieValue(this.sessionId));
 		assertThat(getCookie().getSameSite()).isNull();
 	}
+
+
+
+
+	@Test
+	void writeCookieShouldUseDefaultSameSiteWhenNotSet() {
+		DefaultCookieSerializer serializer = new DefaultCookieSerializer();
+		serializer.setSameSite(null);
+
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		serializer.writeCookieValue(new CookieValue(request, response, "test-id"));
+
+		assertThat(response.getHeader("Set-Cookie")).contains("SameSite=Lax");
+	}
+
 
 	void setCookieName(String cookieName) {
 		this.cookieName = cookieName;
