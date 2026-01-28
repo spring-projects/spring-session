@@ -1,0 +1,19 @@
+
+def toolchainVersion() {
+	if (project.hasProperty('testToolchain')) {
+		return project.property('testToolchain').toString().toInteger()
+	}
+	return 25
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(toolchainVersion())
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = "UTF-8"
+	options.compilerArgs.add("-parameters")
+	options.release = 17
+}

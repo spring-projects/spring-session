@@ -1,5 +1,6 @@
 plugins {
     id "java-gradle-plugin"
+    id "groovy-gradle-plugin"
     id "java"
     id "groovy"
 }
