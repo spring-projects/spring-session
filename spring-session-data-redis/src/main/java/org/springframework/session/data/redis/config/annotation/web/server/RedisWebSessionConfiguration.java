@@ -19,7 +19,10 @@ package org.springframework.session.data.redis.config.annotation.web.server;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
@@ -75,9 +78,9 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private List<ReactiveSessionRepositoryCustomizer<ReactiveRedisSessionRepository>> sessionRepositoryCustomizers;
 
-	private ClassLoader classLoader;
+	private @Nullable ClassLoader classLoader;
 
-	private StringValueResolver embeddedValueResolver;
+	private @Nullable StringValueResolver embeddedValueResolver;
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -149,7 +152,7 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> attributeMap = importMetadata
+		@Nullable Map<String, @Nullable Object> attributeMap = importMetadata
 			.getAnnotationAttributes(EnableRedisWebSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
@@ -157,8 +160,9 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 		}
 		this.maxInactiveInterval = Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
 		String redisNamespaceValue = attributes.getString("redisNamespace");
-		if (StringUtils.hasText(redisNamespaceValue)) {
-			this.redisNamespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
+		if (StringUtils.hasText(redisNamespaceValue) && this.embeddedValueResolver != null) {
+			this.redisNamespace = Objects
+				.requireNonNull(this.embeddedValueResolver.resolveStringValue(redisNamespaceValue));
 		}
 		this.saveMode = attributes.getEnum("saveMode");
 	}

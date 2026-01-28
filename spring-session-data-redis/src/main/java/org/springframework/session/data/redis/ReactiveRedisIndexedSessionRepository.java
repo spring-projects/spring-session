@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -622,7 +623,7 @@ public class ReactiveRedisIndexedSessionRepository
 		}
 
 		@Override
-		public <T> T getAttribute(String attributeName) {
+		public <T> @Nullable T getAttribute(String attributeName) {
 			T attributeValue = this.cached.getAttribute(attributeName);
 			if (attributeValue != null
 					&& ReactiveRedisIndexedSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {

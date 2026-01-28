@@ -20,6 +20,8 @@ import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +72,7 @@ public abstract class AbstractRedisHttpSessionConfiguration<T extends SessionRep
 
 	private List<SessionRepositoryCustomizer<T>> sessionRepositoryCustomizers;
 
-	private ClassLoader classLoader;
+	private @Nullable ClassLoader classLoader;
 
 	public abstract T sessionRepository();
 

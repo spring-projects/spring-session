@@ -20,9 +20,11 @@ import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +83,7 @@ public class RedisIndexedHttpSessionConfiguration
 
 	private Executor redisSubscriptionExecutor;
 
-	private StringValueResolver embeddedValueResolver;
+	private @Nullable StringValueResolver embeddedValueResolver;
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -189,7 +191,7 @@ public class RedisIndexedHttpSessionConfiguration
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> attributeMap = importMetadata
+		@Nullable Map<String, @Nullable Object> attributeMap = importMetadata
 			.getAnnotationAttributes(EnableRedisIndexedHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
@@ -197,8 +199,9 @@ public class RedisIndexedHttpSessionConfiguration
 		}
 		setMaxInactiveInterval(Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds")));
 		String redisNamespaceValue = attributes.getString("redisNamespace");
-		if (StringUtils.hasText(redisNamespaceValue)) {
-			setRedisNamespace(this.embeddedValueResolver.resolveStringValue(redisNamespaceValue));
+		if (StringUtils.hasText(redisNamespaceValue) && this.embeddedValueResolver != null) {
+			String namespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
+			setRedisNamespace(Objects.requireNonNull(namespace));
 		}
 		setFlushMode(attributes.getEnum("flushMode"));
 		setSaveMode(attributes.getEnum("saveMode"));
