@@ -240,8 +240,7 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		}
 
 		@Override
-		@Nullable
-		public Object get(Object key) {
+		public @Nullable Object get(Object key) {
 			if (key instanceof String) {
 				return this.session.getAttribute((String) key);
 			}
@@ -249,15 +248,14 @@ public class SpringSessionWebSessionStore<S extends Session> implements WebSessi
 		}
 
 		@Override
-		public Object put(String key, Object value) {
+		public @Nullable Object put(String key, Object value) {
 			Object original = this.session.getAttribute(key);
 			this.session.setAttribute(key, value);
 			return original;
 		}
 
 		@Override
-		@Nullable
-		public Object remove(Object key) {
+		public @Nullable Object remove(Object key) {
 			if (key instanceof String) {
 				String attrName = (String) key;
 				Object original = this.session.getAttribute(attrName);

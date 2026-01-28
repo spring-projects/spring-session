@@ -16,6 +16,8 @@
 
 package org.springframework.session;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
@@ -47,7 +49,7 @@ public class PrincipalNameIndexResolver<S extends Session> extends SingleIndexRe
 		super(indexName);
 	}
 
-	public String resolveIndexValueFor(S session) {
+	public @Nullable String resolveIndexValueFor(S session) {
 		String principalName = session.getAttribute(getIndexName());
 		if (principalName != null) {
 			return principalName;

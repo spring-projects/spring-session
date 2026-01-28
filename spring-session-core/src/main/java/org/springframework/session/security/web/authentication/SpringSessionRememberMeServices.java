@@ -21,6 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -56,7 +57,7 @@ public class SpringSessionRememberMeServices implements RememberMeServices, Logo
 	private int validitySeconds = THIRTY_DAYS_SECONDS;
 
 	@Override
-	public final Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
+	public final @Nullable Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		return null;
 	}
 
@@ -120,7 +121,8 @@ public class SpringSessionRememberMeServices implements RememberMeServices, Logo
 	}
 
 	@Override
-	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+	public void logout(HttpServletRequest request, HttpServletResponse response,
+			@Nullable Authentication authentication) {
 		logout(request);
 	}
 

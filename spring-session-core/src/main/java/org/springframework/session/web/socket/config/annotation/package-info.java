@@ -15,9 +15,9 @@
  */
 
 /**
- * Spring Session reactive web support.
+ * Spring Session WebSocket configuration.
  */
 @NullMarked
-package org.springframework.session.web.server.session;
+package org.springframework.session.web.socket.config.annotation;
 
 import org.jspecify.annotations.NullMarked;

@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * <p>
  * A {@link Session} implementation that is backed by a {@link java.util.Map}. The
@@ -188,7 +190,7 @@ public final class MapSession implements Session, Serializable {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T getAttribute(String attributeName) {
+	public <T> @Nullable T getAttribute(String attributeName) {
 		return (T) this.sessionAttrs.get(attributeName);
 	}
 
@@ -198,7 +200,7 @@ public final class MapSession implements Session, Serializable {
 	}
 
 	@Override
-	public void setAttribute(String attributeName, Object attributeValue) {
+	public void setAttribute(String attributeName, @Nullable Object attributeValue) {
 		if (attributeValue == null) {
 			removeAttribute(attributeName);
 		}

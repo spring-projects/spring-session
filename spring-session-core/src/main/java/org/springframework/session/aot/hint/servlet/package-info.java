@@ -15,9 +15,9 @@
  */
 
 /**
- * Spring Session reactive web support.
+ * Spring Session AOT hints for servlet support.
  */
 @NullMarked
-package org.springframework.session.web.server.session;
+package org.springframework.session.aot.hint.servlet;
 
 import org.jspecify.annotations.NullMarked;

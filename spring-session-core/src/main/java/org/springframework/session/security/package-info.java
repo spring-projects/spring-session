@@ -15,9 +15,9 @@
  */
 
 /**
- * Spring Session reactive web support.
+ * Spring Session Spring Security integration.
  */
 @NullMarked
-package org.springframework.session.web.server.session;
+package org.springframework.session.security;
 
 import org.jspecify.annotations.NullMarked;

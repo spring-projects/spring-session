@@ -20,7 +20,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.jspecify.annotations.Nullable;
+
+import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.session.FindByIndexNameSessionRepository;
@@ -73,7 +76,7 @@ public class SpringSessionBackedSessionRegistry<S extends Session> implements Se
 	}
 
 	@Override
-	public SessionInformation getSessionInformation(String sessionId) {
+	public @Nullable SessionInformation getSessionInformation(String sessionId) {
 		S session = this.sessionRepository.findById(sessionId);
 		if (session != null) {
 			return new SpringSessionBackedSessionInformation<>(session, this.sessionRepository);
@@ -110,7 +113,35 @@ public class SpringSessionBackedSessionRegistry<S extends Session> implements Se
 	 */
 	protected String name(Object principal) {
 		// We are reusing the logic from AbstractAuthenticationToken#getName
-		return new TestingAuthenticationToken(principal, null).getName();
+		return new SessionAuthentication(principal).getName();
+	}
+
+	/**
+	 * Provides a way to reuse the logic in
+	 * {@link AbstractAuthenticationToken#getPrincipal()}.
+	 *
+	 * @author Rob Winch
+	 * @since 4.1
+	 */
+	private static final class SessionAuthentication extends AbstractAuthenticationToken {
+
+		private final Object principal;
+
+		private SessionAuthentication(Object principal) {
+			super((Collection<? extends GrantedAuthority>) null);
+			this.principal = principal;
+		}
+
+		@Override
+		public Object getPrincipal() {
+			return this.principal;
+		}
+
+		@Override
+		public @Nullable Object getCredentials() {
+			return null;
+		}
+
 	}
 
 }

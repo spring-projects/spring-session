@@ -16,6 +16,8 @@
 
 package org.springframework.session.aot.hint.server;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.security.web.server.csrf.DefaultCsrfToken;
@@ -29,7 +31,7 @@ import org.springframework.util.ClassUtils;
 class WebSessionSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
-	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+	public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 		if (!ClassUtils.isPresent("org.springframework.web.server.WebSession", classLoader) || !ClassUtils
 			.isPresent("org.springframework.security.web.server.csrf.DefaultCsrfToken", classLoader)) {
 			return;

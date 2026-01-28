@@ -33,6 +33,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 /**
  * The default implementation of {@link CookieSerializer}.
@@ -66,23 +67,23 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private String cookieName = "SESSION";
 
-	private Boolean useSecureCookie;
+	private @Nullable Boolean useSecureCookie;
 
 	private boolean useHttpOnlyCookie = true;
 
-	private String cookiePath;
+	private @Nullable String cookiePath;
 
-	private Integer cookieMaxAge;
+	private @Nullable Integer cookieMaxAge;
 
-	private String domainName;
+	private @Nullable String domainName;
 
-	private Pattern domainNamePattern;
+	private @Nullable Pattern domainNamePattern;
 
-	private String jvmRoute;
+	private @Nullable String jvmRoute;
 
 	private boolean useBase64Encoding = true;
 
-	private String rememberMeRequestAttribute;
+	private @Nullable String rememberMeRequestAttribute;
 
 	private String sameSite = "Lax";
 
@@ -167,7 +168,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @return the Base64 decoded value
 	 * @since 1.2.2
 	 */
-	private String base64Decode(String base64Value) {
+	private @Nullable String base64Decode(String base64Value) {
 		try {
 			byte[] decodedCookieBytes = Base64.getDecoder().decode(base64Value);
 			return new String(decodedCookieBytes);
@@ -418,7 +419,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 		this.sameSite = sameSite;
 	}
 
-	private String getDomainName(HttpServletRequest request) {
+	private @Nullable String getDomainName(HttpServletRequest request) {
 		if (this.domainName != null) {
 			return this.domainName;
 		}
@@ -445,7 +446,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @return the remember me request attribute
 	 * @since 3.2
 	 */
-	public String getRememberMeRequestAttribute() {
+	public @Nullable String getRememberMeRequestAttribute() {
 		return this.rememberMeRequestAttribute;
 	}
 

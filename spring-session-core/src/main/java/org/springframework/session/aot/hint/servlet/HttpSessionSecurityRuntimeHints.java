@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.TreeMap;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
@@ -37,7 +39,7 @@ import org.springframework.util.ClassUtils;
 class HttpSessionSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
-	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+	public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 		if (!ClassUtils.isPresent("jakarta.servlet.http.HttpSession", classLoader)
 				|| !ClassUtils.isPresent("org.springframework.security.web.csrf.DefaultCsrfToken", classLoader)) {
 			return;

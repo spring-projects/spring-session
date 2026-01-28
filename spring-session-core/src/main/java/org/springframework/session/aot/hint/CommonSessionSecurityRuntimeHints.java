@@ -18,6 +18,8 @@ package org.springframework.session.aot.hint;
 
 import java.util.Arrays;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
@@ -30,7 +32,7 @@ import org.springframework.aot.hint.TypeReference;
 class CommonSessionSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
-	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+	public void registerHints(RuntimeHints hints, @Nullable ClassLoader classLoader) {
 		registerSecurityHintsIfNeeded(hints);
 		registerOAuth2ClientHintsIfNeeded(hints);
 		registerOAuth2ResourceServerHintsIfNeeded(hints);

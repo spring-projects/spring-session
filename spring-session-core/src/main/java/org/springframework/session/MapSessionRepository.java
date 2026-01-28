@@ -19,6 +19,8 @@ package org.springframework.session;
 import java.time.Duration;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.session.events.SessionDeletedEvent;
 import org.springframework.session.events.SessionExpiredEvent;
 import org.springframework.util.Assert;
@@ -79,7 +81,7 @@ public class MapSessionRepository implements SessionRepository<MapSession> {
 	}
 
 	@Override
-	public MapSession findById(String id) {
+	public @Nullable MapSession findById(String id) {
 		Session saved = this.sessions.get(id);
 		if (saved == null) {
 			return null;

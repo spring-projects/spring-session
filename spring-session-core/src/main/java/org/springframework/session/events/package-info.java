@@ -15,9 +15,9 @@
  */
 
 /**
- * Spring Session reactive web support.
+ * Spring Session events.
  */
 @NullMarked
-package org.springframework.session.web.server.session;
+package org.springframework.session.events;
 
 import org.jspecify.annotations.NullMarked;

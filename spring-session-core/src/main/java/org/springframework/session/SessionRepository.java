@@ -16,6 +16,8 @@
 
 package org.springframework.session;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * A repository interface for managing {@link Session} instances.
  *
@@ -59,7 +61,7 @@ public interface SessionRepository<S extends Session> {
 	 * @return the {@link Session} by the {@link Session#getId()} or null if no
 	 * {@link Session} is found.
 	 */
-	S findById(String id);
+	@Nullable S findById(String id);
 
 	/**
 	 * Deletes the {@link Session} with the given {@link Session#getId()} or does nothing
