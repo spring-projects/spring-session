@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -252,7 +253,7 @@ public class JdbcIndexedSessionRepository implements
 
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
-	private ThreadPoolTaskScheduler taskScheduler;
+	private @Nullable ThreadPoolTaskScheduler taskScheduler;
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -478,7 +479,7 @@ public class JdbcIndexedSessionRepository implements
 	}
 
 	@Override
-	public JdbcSession findById(final String id) {
+	public @Nullable JdbcSession findById(final String id) {
 		final JdbcSession session = this.transactionOperations.execute((status) -> {
 			List<JdbcSession> sessions = JdbcIndexedSessionRepository.this.jdbcOperations.query(
 					JdbcIndexedSessionRepository.this.getSessionQuery, (ps) -> ps.setString(1, id),
@@ -680,12 +681,12 @@ public class JdbcIndexedSessionRepository implements
 		return this.lobHandler;
 	}
 
-	private byte[] serialize(Object object) {
+	private byte @Nullable [] serialize(@Nullable Object object) {
 		return (byte[]) this.conversionService.convert(object, TypeDescriptor.valueOf(Object.class),
 				TypeDescriptor.valueOf(byte[].class));
 	}
 
-	private Object deserialize(byte[] bytes) {
+	private @Nullable Object deserialize(byte[] bytes) {
 		return this.conversionService.convert(bytes, TypeDescriptor.valueOf(byte[].class),
 				TypeDescriptor.valueOf(Object.class));
 	}
@@ -706,14 +707,14 @@ public class JdbcIndexedSessionRepository implements
 
 	}
 
-	private static <T> Supplier<T> value(T value) {
+	private static <T> @Nullable Supplier<T> value(@Nullable T value) {
 		return (value != null) ? () -> value : null;
 	}
 
-	private static <T> Supplier<T> lazily(Supplier<T> supplier) {
+	private static <T> @Nullable Supplier<T> lazily(Supplier<T> supplier) {
 		Supplier<T> lazySupplier = new Supplier<T>() {
 
-			private T value;
+			private @Nullable T value;
 
 			@Override
 			public T get() {
@@ -793,7 +794,7 @@ public class JdbcIndexedSessionRepository implements
 		}
 
 		@Override
-		public <T> T getAttribute(String attributeName) {
+		public <T> @Nullable T getAttribute(String attributeName) {
 			Supplier<T> supplier = this.delegate.getAttribute(attributeName);
 			if (supplier == null) {
 				return null;
@@ -813,7 +814,7 @@ public class JdbcIndexedSessionRepository implements
 		}
 
 		@Override
-		public void setAttribute(String attributeName, Object attributeValue) {
+		public void setAttribute(String attributeName, @Nullable Object attributeValue) {
 			boolean attributeExists = (this.delegate.getAttribute(attributeName) != null);
 			boolean attributeRemoved = (attributeValue == null);
 			if (!attributeExists && attributeRemoved) {
@@ -833,7 +834,8 @@ public class JdbcIndexedSessionRepository implements
 				this.delta.merge(attributeName, DeltaValue.ADDED, (oldDeltaValue,
 						deltaValue) -> (oldDeltaValue == DeltaValue.ADDED) ? oldDeltaValue : DeltaValue.UPDATED);
 			}
-			this.delegate.setAttribute(attributeName, value(attributeValue));
+			Supplier<?> supplier = value(attributeValue);
+			this.delegate.setAttribute(attributeName, supplier);
 			if (PRINCIPAL_NAME_INDEX_NAME.equals(attributeName) || SPRING_SECURITY_CONTEXT.equals(attributeName)) {
 				this.changed = true;
 			}
@@ -986,7 +988,9 @@ public class JdbcIndexedSessionRepository implements
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {
 					byte[] bytes = getLobHandler().getBlobAsBytes(rs, "ATTRIBUTE_BYTES");
-					session.delegate.setAttribute(attributeName, lazily(() -> deserialize(bytes)));
+					if (bytes != null) {
+						session.delegate.setAttribute(attributeName, lazily(() -> deserialize(bytes)));
+					}
 				}
 				sessions.add(session);
 			}
