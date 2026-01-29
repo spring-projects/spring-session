@@ -486,6 +486,9 @@ public class JdbcIndexedSessionRepository implements
 			if (sessions.isEmpty()) {
 				return null;
 			}
+			if (sessions.size() > 1) {
+				logger.warn("Found " + sessions.size() + " sessions for id " + id + ". Returning the first one.");
+			}
 			return sessions.get(0);
 		});
 
@@ -982,13 +985,13 @@ public class JdbcIndexedSessionRepository implements
 					delegate.setLastAccessedTime(Instant.ofEpochMilli(rs.getLong("LAST_ACCESS_TIME")));
 					delegate.setMaxInactiveInterval(Duration.ofSeconds(rs.getInt("MAX_INACTIVE_INTERVAL")));
 					session = new JdbcSession(delegate, primaryKey, false);
+					sessions.add(session);
 				}
 				String attributeName = rs.getString("ATTRIBUTE_NAME");
 				if (attributeName != null) {
 					byte[] bytes = getLobHandler().getBlobAsBytes(rs, "ATTRIBUTE_BYTES");
 					session.delegate.setAttribute(attributeName, lazily(() -> deserialize(bytes)));
 				}
-				sessions.add(session);
 			}
 			return sessions;
 		}
