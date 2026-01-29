@@ -42,5 +42,18 @@
 			<property name="message" value="Please use BDDMockito imports."/>
 			<property name="ignoreComments" value="true"/>
 		</module>
+		<module name="com.puppycrawl.tools.checkstyle.checks.imports.IllegalImportCheck">
+			<property name="id" value="bannedNullabilityImports"/>
+			<property name="regexp" value="true"/>
+			<!-- Rejects all NonNull, Nonnull, and Nullable types that are NOT in the org.jspecify.annotations package. -->
+			<property name="illegalClasses" value="^(?!org\.jspecify\.annotations).*(Non[Nn]ull|Nullable)$"/>
+		</module>
+		<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">
+			<property name="id" value="nullableAfterModifiers"/>
+			<property name="format" value="^\s*(public|protected|private|static|final|synchronized|native|strictfp|abstract)\s+@Nullable\s+(public|protected|private|static|final|synchronized|native|strictfp|abstract)\s"/>
+			<property name="maximum" value="0"/>
+			<property name="message" value="@Nullable must appear immediately before the type, after all other modifiers (e.g., 'private final @Nullable Object' not 'private @Nullable final Object')"/>
+			<property name="ignoreComments" value="true"/>
+		</module>
 	</module>
 </module>

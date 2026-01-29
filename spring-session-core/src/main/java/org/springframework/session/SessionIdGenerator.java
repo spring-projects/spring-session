@@ -16,8 +16,6 @@
 
 package org.springframework.session;
 
-import org.springframework.lang.NonNull;
-
 /**
  * An interface for specifying a strategy for generating session identifiers.
  *
@@ -26,7 +24,6 @@ import org.springframework.lang.NonNull;
  */
 public interface SessionIdGenerator {
 
-	@NonNull
 	String generate();
 
 }

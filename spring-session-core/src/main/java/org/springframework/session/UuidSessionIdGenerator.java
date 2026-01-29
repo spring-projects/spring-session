@@ -18,8 +18,6 @@ package org.springframework.session;
 
 import java.util.UUID;
 
-import org.springframework.lang.NonNull;
-
 /**
  * A {@link SessionIdGenerator} that generates a random UUID to be used as the session id.
  *
@@ -34,7 +32,6 @@ public final class UuidSessionIdGenerator implements SessionIdGenerator {
 	}
 
 	@Override
-	@NonNull
 	public String generate() {
 		return UUID.randomUUID().toString();
 	}
