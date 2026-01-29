@@ -19,6 +19,8 @@ package org.springframework.session;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.util.Assert;
 
 /**
@@ -42,7 +44,7 @@ public abstract class SingleIndexResolver<S extends Session> implements IndexRes
 		return this.indexName;
 	}
 
-	public abstract String resolveIndexValueFor(S session);
+	public abstract @Nullable String resolveIndexValueFor(S session);
 
 	public final Map<String, String> resolveIndexesFor(S session) {
 		String indexValue = resolveIndexValueFor(session);

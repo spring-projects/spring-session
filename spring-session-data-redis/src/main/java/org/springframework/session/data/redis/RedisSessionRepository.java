@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.session.FlushMode;
 import org.springframework.session.MapSession;
@@ -133,7 +135,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	}
 
 	@Override
-	public RedisSession findById(String sessionId) {
+	public @Nullable RedisSession findById(String sessionId) {
 		String key = getSessionKey(sessionId);
 		Map<String, Object> entries = this.sessionRedisOperations.<String, Object>opsForHash().entries(key);
 		if (entries.isEmpty()) {
@@ -232,7 +234,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		}
 
 		@Override
-		public <T> T getAttribute(String attributeName) {
+		public <T> @Nullable T getAttribute(String attributeName) {
 			T attributeValue = this.cached.getAttribute(attributeName);
 			if (attributeValue != null && RedisSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {
 				this.delta.put(getAttributeKey(attributeName), attributeValue);
@@ -246,7 +248,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 		}
 
 		@Override
-		public void setAttribute(String attributeName, Object attributeValue) {
+		public void setAttribute(String attributeName, @Nullable Object attributeValue) {
 			this.cached.setAttribute(attributeName, attributeValue);
 			this.delta.put(getAttributeKey(attributeName), attributeValue);
 			flushIfRequired();

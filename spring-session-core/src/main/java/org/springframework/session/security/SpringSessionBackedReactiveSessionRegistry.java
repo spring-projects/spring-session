@@ -16,6 +16,7 @@
 
 package org.springframework.session.security;
 
+import org.jspecify.annotations.Nullable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -92,7 +93,7 @@ public final class SpringSessionBackedReactiveSessionRegistry<S extends Session>
 		return new AbstractAuthenticationToken(AuthorityUtils.NO_AUTHORITIES) {
 
 			@Override
-			public Object getCredentials() {
+			public @Nullable Object getCredentials() {
 				return null;
 			}
 

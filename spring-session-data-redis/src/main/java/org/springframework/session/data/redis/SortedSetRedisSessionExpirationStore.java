@@ -48,6 +48,7 @@ public class SortedSetRedisSessionExpirationStore implements RedisSessionExpirat
 
 	private String expirationsKey;
 
+	@SuppressWarnings("NullAway") // Dataflow analysis limitation
 	public SortedSetRedisSessionExpirationStore(RedisOperations<String, Object> redisOps, String namespace) {
 		Assert.notNull(redisOps, "redisOps cannot be null");
 		this.redisOps = redisOps;

@@ -17,7 +17,7 @@
 /**
  * Spring Session reactive web support.
  */
-@NonNullApi
+@NullMarked
 package org.springframework.session.web.server.session;
 
-import org.springframework.lang.NonNullApi;
+import org.jspecify.annotations.NullMarked;

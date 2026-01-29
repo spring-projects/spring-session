@@ -20,6 +20,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Provides a way to identify a user in an agnostic way. This allows the session to be
  * used by an HttpSession, WebSocket Session, or even non web related sessions.
@@ -51,7 +53,7 @@ public interface Session {
 	 * @return the Object associated with the specified name or null if no Object is
 	 * associated to that name
 	 */
-	<T> T getAttribute(String attributeName);
+	<T> @Nullable T getAttribute(String attributeName);
 
 	/**
 	 * Return the session attribute value or if not present raise an

@@ -30,6 +30,7 @@ import java.util.function.Function;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -329,7 +330,7 @@ public class RedisIndexedSessionRepository
 
 	private String cleanupCron = DEFAULT_CLEANUP_CRON;
 
-	private ThreadPoolTaskScheduler taskScheduler;
+	private @Nullable ThreadPoolTaskScheduler taskScheduler;
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -496,7 +497,7 @@ public class RedisIndexedSessionRepository
 	}
 
 	@Override
-	public RedisSession findById(String id) {
+	public @Nullable RedisSession findById(String id) {
 		return getSession(id, false);
 	}
 
@@ -527,7 +528,7 @@ public class RedisIndexedSessionRepository
 	 * deleted. If false, will ensure expired sessions are not returned.
 	 * @return the Redis session
 	 */
-	private RedisSession getSession(String id, boolean allowExpired) {
+	private @Nullable RedisSession getSession(String id, boolean allowExpired) {
 		Map<String, Object> entries = getSessionBoundHashOperations(id).entries();
 		if ((entries == null) || entries.isEmpty()) {
 			return null;
@@ -568,7 +569,7 @@ public class RedisIndexedSessionRepository
 	}
 
 	@Override
-	public void onMessage(Message message, byte[] pattern) {
+	public void onMessage(Message message, byte @Nullable [] pattern) {
 		byte[] messageChannel = message.getChannel();
 
 		if (ByteUtils.startsWith(messageChannel, this.sessionCreatedChannelPrefixBytes)) {
@@ -777,13 +778,13 @@ public class RedisIndexedSessionRepository
 
 		private final MapSession cached;
 
-		private Instant originalLastAccessTime;
+		private @Nullable Instant originalLastAccessTime;
 
 		private Map<String, Object> delta = new HashMap<>();
 
 		private boolean isNew;
 
-		private String originalPrincipalName;
+		private @Nullable String originalPrincipalName;
 
 		private String originalSessionId;
 
@@ -852,7 +853,7 @@ public class RedisIndexedSessionRepository
 		}
 
 		@Override
-		public <T> T getAttribute(String attributeName) {
+		public <T> @Nullable T getAttribute(String attributeName) {
 			T attributeValue = this.cached.getAttribute(attributeName);
 			if (attributeValue != null
 					&& RedisIndexedSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {

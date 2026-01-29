@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
+import org.jspecify.annotations.Nullable;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -245,7 +246,7 @@ public class ReactiveRedisSessionRepository
 		}
 
 		@Override
-		public <T> T getAttribute(String attributeName) {
+		public <T> @Nullable T getAttribute(String attributeName) {
 			T attributeValue = this.cached.getAttribute(attributeName);
 			if (attributeValue != null
 					&& ReactiveRedisSessionRepository.this.saveMode.equals(SaveMode.ON_GET_ATTRIBUTE)) {

@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 
 import javax.sql.DataSource;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -99,7 +101,7 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private DataSource dataSource;
 
-	private PlatformTransactionManager transactionManager;
+	private @Nullable PlatformTransactionManager transactionManager;
 
 	private TransactionOperations transactionOperations;
 
@@ -113,13 +115,13 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	private List<SessionRepositoryCustomizer<JdbcIndexedSessionRepository>> sessionRepositoryCustomizers;
 
-	private ClassLoader classLoader;
+	private @Nullable ClassLoader classLoader;
 
-	private StringValueResolver embeddedValueResolver;
+	private @Nullable StringValueResolver embeddedValueResolver;
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
-	private ApplicationContext applicationContext;
+	private @Nullable ApplicationContext applicationContext;
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -137,7 +139,7 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 	@Bean
 	public JdbcIndexedSessionRepository sessionRepository() {
 		JdbcTemplate jdbcTemplate = createJdbcTemplate(this.dataSource);
-		if (this.transactionOperations == null) {
+		if (this.transactionOperations == null && this.transactionManager != null) {
 			this.transactionOperations = createTransactionTemplate(this.transactionManager);
 		}
 		JdbcIndexedSessionRepository sessionRepository = new JdbcIndexedSessionRepository(jdbcTemplate,
@@ -278,16 +280,20 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 	}
 
 	@Override
+	@SuppressWarnings("NullAway")
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
 		Map<String, Object> attributeMap = importMetadata
 			.getAnnotationAttributes(EnableJdbcHttpSession.class.getName());
+		if (attributeMap == null) {
+			return;
+		}
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
 			return;
 		}
 		this.maxInactiveInterval = Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds"));
 		String tableNameValue = attributes.getString("tableName");
-		if (StringUtils.hasText(tableNameValue)) {
+		if (StringUtils.hasText(tableNameValue) && this.embeddedValueResolver != null) {
 			this.tableName = this.embeddedValueResolver.resolveStringValue(tableNameValue);
 		}
 		String cleanupCron = attributes.getString("cleanupCron");
@@ -303,7 +309,10 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 		this.applicationContext = applicationContext;
 	}
 
-	private PlatformTransactionManager getUniqueTransactionManager() {
+	private @Nullable PlatformTransactionManager getUniqueTransactionManager() {
+		if (this.applicationContext == null) {
+			return null;
+		}
 		return this.applicationContext.getBeanProvider(PlatformTransactionManager.class).getIfUnique();
 	}
 
@@ -321,7 +330,8 @@ public class JdbcHttpSessionConfiguration implements BeanClassLoaderAware, Embed
 		return transactionTemplate;
 	}
 
-	private static GenericConversionService createConversionServiceWithBeanClassLoader(ClassLoader classLoader) {
+	private static GenericConversionService createConversionServiceWithBeanClassLoader(
+			@Nullable ClassLoader classLoader) {
 		GenericConversionService conversionService = new GenericConversionService();
 		conversionService.addConverter(Object.class, byte[].class, new SerializingConverter());
 		conversionService.addConverter(byte[].class, Object.class, new DeserializingConverter(classLoader));

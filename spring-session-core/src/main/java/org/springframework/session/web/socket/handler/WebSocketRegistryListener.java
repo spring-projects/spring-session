@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -81,15 +82,17 @@ public final class WebSocketRegistryListener implements ApplicationListener<Appl
 		}
 
 		String httpSessionId = getHttpSessionId(wsSession);
-		registerWsSession(httpSessionId, wsSession);
+		if (httpSessionId != null) {
+			registerWsSession(httpSessionId, wsSession);
+		}
 	}
 
-	private String getHttpSessionId(WebSocketSession wsSession) {
+	private @Nullable String getHttpSessionId(WebSocketSession wsSession) {
 		Map<String, Object> attributes = wsSession.getAttributes();
 		return SessionRepositoryMessageInterceptor.getSessionId(attributes);
 	}
 
-	private void afterConnectionClosed(String httpSessionId, String wsSessionId) {
+	private void afterConnectionClosed(@Nullable String httpSessionId, String wsSessionId) {
 		if (httpSessionId == null) {
 			return;
 		}

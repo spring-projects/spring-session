@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.session.Session;
@@ -194,13 +195,13 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 
 		private final HttpServletResponse response;
 
-		private S requestedSession;
+		private @Nullable S requestedSession;
 
 		private boolean requestedSessionCached;
 
-		private String requestedSessionId;
+		private @Nullable String requestedSessionId;
 
-		private Boolean requestedSessionIdValid;
+		private @Nullable Boolean requestedSessionIdValid;
 
 		private boolean requestedSessionInvalidated;
 
@@ -239,7 +240,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			return (HttpSessionWrapper) getAttribute(CURRENT_SESSION_ATTR);
 		}
 
-		private void setCurrentSession(HttpSessionWrapper currentSession) {
+		private void setCurrentSession(@Nullable HttpSessionWrapper currentSession) {
 			if (currentSession == null) {
 				removeAttribute(CURRENT_SESSION_ATTR);
 			}
@@ -278,7 +279,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		}
 
 		@Override
-		public HttpSessionWrapper getSession(boolean create) {
+		public @Nullable HttpSessionWrapper getSession(boolean create) {
 			HttpSessionWrapper currentSession = getCurrentSession();
 			if (currentSession != null) {
 				return currentSession;
@@ -324,12 +325,12 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		}
 
 		@Override
-		public HttpSessionWrapper getSession() {
+		public @Nullable HttpSessionWrapper getSession() {
 			return getSession(true);
 		}
 
 		@Override
-		public String getRequestedSessionId() {
+		public @Nullable String getRequestedSessionId() {
 			if (this.requestedSessionId == null) {
 				getRequestedSession();
 			}
@@ -342,7 +343,7 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 			return new SessionCommittingRequestDispatcher(requestDispatcher);
 		}
 
-		private S getRequestedSession() {
+		private @Nullable S getRequestedSession() {
 			if (!this.requestedSessionCached) {
 				List<String> sessionIds = SessionRepositoryFilter.this.httpSessionIdResolver.resolveSessionIds(this);
 				for (String sessionId : sessionIds) {

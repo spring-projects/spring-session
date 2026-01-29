@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpSession;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -138,10 +139,10 @@ public final class SessionRepositoryMessageInterceptor<S extends Session>
 
 	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
-			Exception exception) {
+			@Nullable Exception exception) {
 	}
 
-	public static String getSessionId(Map<String, Object> attributes) {
+	public static @Nullable String getSessionId(Map<String, Object> attributes) {
 		return (String) attributes.get(SPRING_SESSION_ID_ATTR_NAME);
 	}
 

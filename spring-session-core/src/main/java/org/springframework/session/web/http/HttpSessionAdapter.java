@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpSessionBindingEvent;
 import jakarta.servlet.http.HttpSessionBindingListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.session.Session;
 
@@ -97,7 +98,7 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	}
 
 	@Override
-	public Object getAttribute(String name) {
+	public @Nullable Object getAttribute(String name) {
 		checkState();
 		return this.session.getAttribute(name);
 	}

@@ -1,3 +1,7 @@
+plugins {
+	id 'session-nullability'
+}
+
 apply plugin: 'io.spring.convention.spring-module'
 
 description = "Spring Session Redis implementation"
@@ -7,10 +11,11 @@ dependencies {
 	api project(':spring-session-core')
 	api 'org.springframework.data:spring-data-redis'
 
+	optional "io.lettuce:lettuce-core"
 	optional "io.projectreactor:reactor-core"
 	optional "org.springframework:spring-web"
+	optional "redis.clients:jedis:7.2.1"
 
-	testImplementation "io.lettuce:lettuce-core"
 	testImplementation "io.projectreactor:reactor-test"
 	testImplementation "jakarta.servlet:jakarta.servlet-api"
 	testImplementation "org.assertj:assertj-core"

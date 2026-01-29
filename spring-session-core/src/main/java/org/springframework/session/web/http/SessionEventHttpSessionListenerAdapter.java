@@ -22,6 +22,7 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpSessionEvent;
 import jakarta.servlet.http.HttpSessionListener;
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.session.Session;
@@ -43,7 +44,7 @@ public class SessionEventHttpSessionListenerAdapter
 
 	private final List<HttpSessionListener> listeners;
 
-	private ServletContext context;
+	private @Nullable ServletContext context;
 
 	public SessionEventHttpSessionListenerAdapter(List<HttpSessionListener> listeners) {
 		super();
@@ -74,7 +75,11 @@ public class SessionEventHttpSessionListenerAdapter
 
 	private HttpSessionEvent createHttpSessionEvent(AbstractSessionEvent event) {
 		Session session = event.getSession();
-		HttpSession httpSession = new HttpSessionAdapter<>(session, this.context);
+		ServletContext servletContext = this.context;
+		if (servletContext == null) {
+			throw new IllegalStateException("ServletContext must be set");
+		}
+		HttpSession httpSession = new HttpSessionAdapter<>(session, servletContext);
 		return new HttpSessionEvent(httpSession);
 	}
 

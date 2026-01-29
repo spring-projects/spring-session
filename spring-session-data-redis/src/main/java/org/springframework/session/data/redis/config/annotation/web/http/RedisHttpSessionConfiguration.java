@@ -18,6 +18,9 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.EmbeddedValueResolverAware;
@@ -50,7 +53,7 @@ import org.springframework.util.StringValueResolver;
 public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfiguration<RedisSessionRepository>
 		implements EmbeddedValueResolverAware, ImportAware {
 
-	private StringValueResolver embeddedValueResolver;
+	private @Nullable StringValueResolver embeddedValueResolver;
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
@@ -78,7 +81,7 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		Map<String, Object> attributeMap = importMetadata
+		@Nullable Map<String, @Nullable Object> attributeMap = importMetadata
 			.getAnnotationAttributes(EnableRedisHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
@@ -86,8 +89,9 @@ public class RedisHttpSessionConfiguration extends AbstractRedisHttpSessionConfi
 		}
 		setMaxInactiveInterval(Duration.ofSeconds(attributes.<Integer>getNumber("maxInactiveIntervalInSeconds")));
 		String redisNamespaceValue = attributes.getString("redisNamespace");
-		if (StringUtils.hasText(redisNamespaceValue)) {
-			setRedisNamespace(this.embeddedValueResolver.resolveStringValue(redisNamespaceValue));
+		if (StringUtils.hasText(redisNamespaceValue) && this.embeddedValueResolver != null) {
+			String namespace = this.embeddedValueResolver.resolveStringValue(redisNamespaceValue);
+			setRedisNamespace(Objects.requireNonNull(namespace));
 		}
 		setFlushMode(attributes.getEnum("flushMode"));
 		setSaveMode(attributes.getEnum("saveMode"));
