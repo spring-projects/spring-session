@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1.0.13
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -24,14 +24,14 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1.0.13
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
   perform-release:
     name: Perform Release
     needs: [ deploy-artifacts ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1
+    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1.0.13
     with:
       should-perform-release: ${{ needs.deploy-artifacts.outputs.artifacts-deployed }}
       project-version: ${{ needs.deploy-artifacts.outputs.project-version }}
