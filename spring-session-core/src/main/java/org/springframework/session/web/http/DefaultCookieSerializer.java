@@ -85,7 +85,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 
 	private @Nullable String rememberMeRequestAttribute;
 
-	private String sameSite = "Lax";
+	private @Nullable String sameSite = "Lax";
 
 	private boolean partitioned;
 
@@ -412,10 +412,11 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	/**
 	 * Set the value for the {@code SameSite} cookie directive. The default value is
 	 * {@code Lax}.
-	 * @param sameSite the SameSite directive value
+	 * @param sameSite the SameSite directive value. If {@code null}, then
+	 * {@code SameSite} cookie directive is disabled.
 	 * @since 2.1.0
 	 */
-	public void setSameSite(String sameSite) {
+	public void setSameSite(@Nullable String sameSite) {
 		this.sameSite = sameSite;
 	}
 
