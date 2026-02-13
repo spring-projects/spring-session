@@ -24,7 +24,7 @@ jobs:
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ build ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1.0.13
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1.0.14
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
     secrets: inherit
