@@ -49,13 +49,13 @@ For that reason, Spring Session uses a `namespace` (defaults to `spring:session`
 
 === Using Spring Boot Properties
 
-You can specify it by setting the `spring.session.redis.namespace` property.
+You can specify it by setting the `spring.session.data.redis.namespace` property.
 
 ====
 .application.properties
 [source,properties,role="primary"]
 ----
-spring.session.redis.namespace=spring:session:myapplication
+spring.session.data.redis.namespace=spring:session:myapplication
 ----
 
 .application.yml
@@ -63,8 +63,9 @@ spring.session.redis.namespace=spring:session:myapplication
 ----
 spring:
   session:
-    redis:
-      namespace: "spring:session:myapplication"
+    data:
+      redis:
+        namespace: "spring:session:myapplication"
 ----
 ====
 
@@ -137,7 +138,7 @@ However, if you want to be explicit about it, you can set the following property
 .application.properties
 [source,properties,role="primary"]
 ----
-spring.session.redis.repository-type=default
+spring.session.data.redis.repository-type=default
 ----
 
 .application.yml
@@ -145,8 +146,9 @@ spring.session.redis.repository-type=default
 ----
 spring:
   session:
-    redis:
-      repository-type: default
+    data:
+      redis:
+        repository-type: default
 ----
 ====
 
@@ -176,7 +178,7 @@ You can configure the `RedisIndexedSessionRepository` by setting the following p
 .application.properties
 [source,properties,role="primary"]
 ----
-spring.session.redis.repository-type=indexed
+spring.session.data.redis.repository-type=indexed
 ----
 
 .application.yml
@@ -184,8 +186,9 @@ spring.session.redis.repository-type=indexed
 ----
 spring:
   session:
-    redis:
-      repository-type: indexed
+    data:
+      redis:
+        repository-type: indexed
 ----
 ====
 
