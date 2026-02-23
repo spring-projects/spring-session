@@ -26,8 +26,8 @@ If you use Maven, you must add the following dependencies:
 	<!-- ... -->
 
 	<dependency>
-		<groupId>org.springframework.session</groupId>
-		<artifactId>spring-session-jdbc</artifactId>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-session-jdbc</artifactId>
 	</dependency>
 </dependencies>
 ----

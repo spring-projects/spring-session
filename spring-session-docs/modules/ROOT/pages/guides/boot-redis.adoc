@@ -25,8 +25,8 @@ We assume you are working with a working Spring Boot web application.
 	<!-- ... -->
 
 	<dependency>
-		<groupId>org.springframework.session</groupId>
-		<artifactId>spring-session-data-redis</artifactId>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-session-data-redis</artifactId>
 	</dependency>
 </dependencies>
 ----
@@ -34,7 +34,7 @@ We assume you are working with a working Spring Boot web application.
 .build.gradle
 [source,groovy,role="secondary"]
 ----
-implementation("org.springframework.session:spring-session-data-redis")
+implementation("org.springframework.boot:spring-boot-starter-session-data-redis")
 ----
 ====
 
