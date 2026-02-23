@@ -122,7 +122,7 @@ include::{samples-dir}spring-session-sample-xml-redis/src/main/webapp/WEB-INF/we
 ----
 ====
 
-The {docs-url}/spring/docs/{spring-core-version}/spring-framework-reference/core.html#context-create[`ContextLoaderListener`] reads the contextConfigLocation and picks up our session.xml configuration.
+The {spring-framework-ref-docs}/core/beans/context-introduction.html#context-create[`ContextLoaderListener`] reads the contextConfigLocation and picks up our session.xml configuration.
 
 Last, we need to ensure that our Servlet Container (that is, Tomcat) uses our `springSessionRepositoryFilter` for every request.
 The following snippet performs this last step for us:
