@@ -26,8 +26,8 @@ If you use Maven, you must add the following dependencies:
 	<!-- ... -->
 
 	<dependency>
-		<groupId>org.springframework.session</groupId>
-		<artifactId>spring-session-jdbc</artifactId>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-session-jdbc</artifactId>
 	</dependency>
 </dependencies>
 ----
@@ -63,7 +63,7 @@ spring.session.jdbc.table-name=SPRING_SESSION # Name of the database table used 
 ----
 ====
 
-For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/reference/web/spring-session.html[Spring Session] portion of the Spring Boot documentation.
 
 [[httpsession-jdbc-boot-configuration]]
 == Configuring the `DataSource`
@@ -81,7 +81,7 @@ spring.datasource.password= # Login password of the database.
 ----
 ====
 
-For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-configure-datasource[Configure a DataSource] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/reference/data/sql.html#data.sql.datasource[Configure a DataSource] portion of the Spring Boot documentation.
 
 [[httpsession-jdbc-boot-servlet-configuration]]
 == Servlet Container Initialization

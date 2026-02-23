@@ -55,27 +55,17 @@ tasks.register("generateAntoraResources") {
 
 
 def generateAttributes() {
-	def springBootVersion = getLibVersion(libs.versions.org.springframework.boot.get())
-	def springSecurityVersion = getLibVersion(libs.org.springframework.security.spring.security.bom.get().version)
-	def springFrameworkVersion = getLibVersion(libs.org.springframework.spring.framework.bom.get().version)
     def ghTag = snapshotBuild ? 'main' : project.version
 	def docsUrl = 'https://docs.spring.io'
-    def springBootRefDocs =  "${docsUrl}/spring-boot/docs/${springBootVersion}/reference/html"
-	def springSecurityRefDocs = "${docsUrl}/spring-security/reference/${springSecurityVersion}"
-	def springFrameworkRefDocs = "${docsUrl}/spring-framework/reference/${springFrameworkVersion}"
+    def springBootRefDocs =  "${docsUrl}/spring-boot/reference"
+	def springSecurityRefDocs = "${docsUrl}/spring-security/reference"
+	def springFrameworkRefDocs = "${docsUrl}/spring-framework/reference"
     return ['gh-tag':ghTag,
-            'spring-boot-version': springBootVersion,
             'spring-boot-ref-docs': springBootRefDocs.toString(),
             'spring-session-version': project.version,
             'spring-security-ref-docs': springSecurityRefDocs.toString(),
             'spring-framework-ref-docs': springFrameworkRefDocs.toString(),
             'docs-url': docsUrl]
-}
-
-static def getLibVersion(String version) {
-	return version.contains("-")
-			? version.substring(0, version.indexOf("-"))
-			: version
 }
 
 sourceSets {

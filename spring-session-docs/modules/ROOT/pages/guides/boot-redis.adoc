@@ -25,8 +25,8 @@ We assume you are working with a working Spring Boot web application.
 	<!-- ... -->
 
 	<dependency>
-		<groupId>org.springframework.session</groupId>
-		<artifactId>spring-session-data-redis</artifactId>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-session-data-redis</artifactId>
 	</dependency>
 </dependencies>
 ----
@@ -34,7 +34,7 @@ We assume you are working with a working Spring Boot web application.
 .build.gradle
 [source,groovy,role="secondary"]
 ----
-implementation("org.springframework.session:spring-session-data-redis")
+implementation("org.springframework.boot:spring-boot-starter-session-data-redis")
 ----
 ====
 
@@ -56,12 +56,12 @@ Further customization is possible by using `application.properties`, as the foll
 .src/main/resources/application.properties
 ----
 server.servlet.session.timeout= # Session timeout. If a duration suffix is not specified, seconds is used.
-spring.session.redis.flush-mode=on_save # Sessions flush mode.
-spring.session.redis.namespace=spring:session # Namespace for keys used to store sessions.
+spring.session.data.redis.flush-mode=on_save # Sessions flush mode.
+spring.session.data.redis.namespace=spring:session # Namespace for keys used to store sessions.
 ----
 ====
 
-For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-session[Spring Session] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/reference/web/spring-session.html[Spring Session] portion of the Spring Boot documentation.
 
 [[boot-redis-configuration]]
 == Configuring the Redis Connection
@@ -79,7 +79,7 @@ spring.data.redis.port=6379 # Redis server port.
 ----
 ====
 
-For more information, see the {docs-url}/spring-boot/docs/{spring-boot-version}/reference/htmlsingle/#boot-features-connecting-to-redis[Connecting to Redis] portion of the Spring Boot documentation.
+For more information, see the {docs-url}/spring-boot/reference/data/nosql.html#data.nosql.redis[Redis] portion of the Spring Boot documentation.
 
 [[boot-servlet-configuration]]
 == Servlet Container Initialization
