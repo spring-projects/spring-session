@@ -17,6 +17,7 @@
 package org.springframework.session.data.redis;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -149,6 +150,21 @@ class RedisIndexedSessionRepositoryITests extends AbstractRedisITests {
 			.getExpire("RedisIndexedSessionRepositoryITests:sessions:expires:" + toSave.getId(), TimeUnit.SECONDS);
 		long differenceInSeconds = sessionKeyExpire - shadowKeyExpire;
 		assertThat(differenceInSeconds).isEqualTo(300);
+	}
+
+	@Test
+	void saveNonExpiringThenSaveSessionKeyAndShadowKeyWithNoDifference() {
+		RedisSession toSave = this.repository.createSession();
+		String expectedAttributeName = "a";
+		String expectedAttributeValue = "b";
+		toSave.setAttribute(expectedAttributeName, expectedAttributeValue);
+		toSave.setMaxInactiveInterval(Duration.ofMillis(-1));
+
+		this.repository.save(toSave);
+
+		Long sessionKeyExpire = this.redis.getExpire("RedisIndexedSessionRepositoryITests:sessions:" + toSave.getId(),
+				TimeUnit.SECONDS);
+		assertThat(sessionKeyExpire).isEqualTo(-1);
 	}
 
 	@Test

@@ -930,9 +930,11 @@ public class RedisIndexedSessionRepository
 
 			createShadowKey(sessionExpireInSeconds);
 
-			long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
-			RedisIndexedSessionRepository.this.sessionRedisOperations.boundHashOps(getSessionKey(getId()))
-				.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+			if (sessionExpireInSeconds > 0) {
+				long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
+				RedisIndexedSessionRepository.this.sessionRedisOperations.boundHashOps(getSessionKey(getId()))
+					.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+			}
 
 			RedisIndexedSessionRepository.this.expirationStore.save(this);
 			this.delta = new HashMap<>(this.delta.size());
@@ -1037,8 +1039,11 @@ public class RedisIndexedSessionRepository
 
 			String expirationsKey = getExpirationsKey(toExpire);
 			long sessionExpireInSeconds = session.getMaxInactiveInterval().getSeconds();
-			long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
-			this.redis.boundSetOps(expirationsKey).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+
+			if (sessionExpireInSeconds > 0) {
+				long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
+				this.redis.boundSetOps(expirationsKey).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+			}
 
 			String expireKey = getExpirationKey(toExpire);
 			BoundSetOperations<String, Object> expireOperations = this.redis.boundSetOps(expireKey);
