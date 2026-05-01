@@ -100,6 +100,12 @@ Spring Session is Open Source software released under the https://www.apache.org
 | Spring Session Caffeine
 | https://github.com/gotson/spring-session-caffeine
 
+| Spring Session MongoDB
+| https://github.com/mongodb/mongo-spring-session
+
+| Spring Session Hazelcast
+| https://github.com/hazelcast-guides/spring-session-hazelcast
+
 |===
 
 [[minimum-requirements]]
