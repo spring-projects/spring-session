@@ -6,6 +6,10 @@ plugins {
 apply plugin: 'io.spring.convention.docs'
 apply plugin: 'io.spring.convention.spring-test'
 
+node {
+    version = "24.15.0"
+}
+
 dependencies {
 	management platform(project(":spring-session-dependencies"))
 	testImplementation project(':spring-session-core')
