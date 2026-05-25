@@ -1,10 +1,5 @@
 version: 2
 
-registries:
-  spring-milestones:
-    type: maven-repository
-    url: https://repo.spring.io/milestone
-
 updates:
 
   - package-ecosystem: "gradle"
