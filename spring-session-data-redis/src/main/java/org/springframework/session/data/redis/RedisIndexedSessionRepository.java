@@ -630,6 +630,15 @@ public class RedisIndexedSessionRepository
 		}
 	}
 
+	private void cleanupPrincipalIndexForExpiredSession(String sessionId) {
+		RedisSession session = getSession(sessionId, true);
+		if (session == null || !session.isExpired()) {
+			return;
+		}
+		cleanupPrincipalIndex(session);
+		this.expirationStore.remove(session.getId());
+	}
+
 	private void handleCreated(RedisSession session) {
 		publishEvent(new SessionCreatedEvent(this, session));
 	}
@@ -1066,7 +1075,12 @@ public class RedisIndexedSessionRepository
 				return;
 			}
 			for (Object sessionId : sessionsToExpire) {
-				touch(getSessionKey((String) sessionId));
+				String sessionIdToExpire = (String) sessionId;
+				boolean exists = touch(getSessionKey(sessionIdToExpire));
+				if (!exists && sessionIdToExpire.startsWith(SESSION_EXPIRES_PREFIX)) {
+					RedisIndexedSessionRepository.this.cleanupPrincipalIndexForExpiredSession(
+							sessionIdToExpire.substring(SESSION_EXPIRES_PREFIX.length()));
+				}
 			}
 		}
 
@@ -1076,8 +1090,8 @@ public class RedisIndexedSessionRepository
 		 * <a href="https://github.com/spring-projects/spring-session/issues/93">gh-93</a>
 		 * @param sessionKey the key
 		 */
-		private void touch(String sessionKey) {
-			RedisIndexedSessionRepository.this.sessionRedisOperations.hasKey(sessionKey);
+		private boolean touch(String sessionKey) {
+			return Boolean.TRUE.equals(RedisIndexedSessionRepository.this.sessionRedisOperations.hasKey(sessionKey));
 		}
 
 		String getExpirationKey(long expires) {
