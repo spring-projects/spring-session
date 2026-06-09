@@ -6,8 +6,8 @@ org-springframework-boot = "4.1.0-SNAPSHOT"
 
 [libraries]
 ch-qos-logback-logback-core = { module = "ch.qos.logback:logback-core", version = "1.5.34" }
-jackson-databind = "tools.jackson.core:jackson-databind:3.1.4"
-jackson-bom = "tools.jackson:jackson-bom:3.1.4"
+jackson-databind = "tools.jackson.core:jackson-databind:3.2.0"
+jackson-bom = "tools.jackson:jackson-bom:3.2.0"
 com-google-code-findbugs-jsr305 = "com.google.code.findbugs:jsr305:3.0.2" # FIXME: Remove findbugs?
 com-h2database-h2 = "com.h2database:h2:2.4.240"
 com-ibm-db2-jcc = "com.ibm.db2:jcc:12.1.4.0"
