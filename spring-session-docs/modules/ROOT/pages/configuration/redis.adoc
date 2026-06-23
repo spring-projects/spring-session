@@ -301,7 +301,7 @@ public class SessionConfig {
 
     @Bean
     SessionRepositoryCustomizer<RedisSessionRepository> redisSessionRepositoryCustomizer() {
-        return (redisSessionRepository) -> redisSessionRepository
+        return redisSessionRepository -> redisSessionRepository
                 .setRedisSessionMapper(new SafeRedisSessionMapper(redisSessionRepository));
     }
 
