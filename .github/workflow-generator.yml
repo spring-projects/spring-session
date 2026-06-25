@@ -1,0 +1,17 @@
+workflow:
+  generator:
+    project:
+      java:
+        versions:
+          primary: 17
+    workflows:
+      release-train:
+        build:
+          env:
+            ORG_GRADLE_PROJECT_artifactoryUsername: secrets.COMMERCIAL_ARTIFACTORY_USERNAME
+            ORG_GRADLE_PROJECT_artifactoryPassword: secrets.COMMERCIAL_ARTIFACTORY_PASSWORD
+        test:
+          env:
+            ORG_GRADLE_PROJECT_artifactoryUsername: secrets.COMMERCIAL_ARTIFACTORY_USERNAME
+            ORG_GRADLE_PROJECT_artifactoryPassword: secrets.COMMERCIAL_ARTIFACTORY_PASSWORD
+          runs-on: 'ubuntu22-8-32'
