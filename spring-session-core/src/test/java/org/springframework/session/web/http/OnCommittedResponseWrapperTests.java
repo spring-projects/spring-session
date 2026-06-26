@@ -632,6 +632,33 @@ class OnCommittedResponseWrapperTests {
 	}
 
 	@Test
+	void explicitZeroContentLengthPrintWriterWriteStringCommits() throws IOException {
+		this.response.setContentLength(0);
+
+		this.response.getWriter().write("ok");
+
+		assertThat(this.committed).isTrue();
+	}
+
+	@Test
+	void explicitZeroContentLengthPrintWriterWriteEmptyStringCommits() throws IOException {
+		this.response.setContentLength(0);
+
+		this.response.getWriter().write("");
+
+		assertThat(this.committed).isTrue();
+	}
+
+	@Test
+	void explicitZeroContentLengthOutputStreamWriteEmptyByteArrayCommits() throws IOException {
+		this.response.setContentLength(0);
+
+		this.response.getOutputStream().write(new byte[0]);
+
+		assertThat(this.committed).isTrue();
+	}
+
+	@Test
 	void printWriterWriteStringDoesNotCommit() throws IOException {
 		String body = "something";
 
