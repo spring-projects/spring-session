@@ -5,7 +5,7 @@ org-mockito = "5.23.0"
 org-springframework-boot = "4.1.0"
 
 [libraries]
-ch-qos-logback-logback-core = { module = "ch.qos.logback:logback-core", version = "1.5.36" }
+ch-qos-logback-logback-core = { module = "ch.qos.logback:logback-core", version = "1.5.37" }
 jackson-databind = "tools.jackson.core:jackson-databind:3.1.4"
 jackson-bom = "tools.jackson:jackson-bom:3.1.4"
 com-google-code-findbugs-jsr305 = "com.google.code.findbugs:jsr305:3.0.2" # FIXME: Remove findbugs?
