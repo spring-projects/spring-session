@@ -1,0 +1,26 @@
+name: Dependabot PR Build
+
+on: pull_request_target
+
+env:
+  ARTIFACTORY_USERNAME: ${{ secrets.COMMERCIAL_ARTIFACTORY_USERNAME }}
+  ARTIFACTORY_PASSWORD: ${{ secrets.COMMERCIAL_ARTIFACTORY_PASSWORD }}
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu22-8-32
+    if: ${{ github.actor == 'dependabot[bot]' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up JDK 17
+        uses: spring-io/spring-gradle-build-action@v2
+        with:
+          java-version: 17
+          distribution: 'temurin'
+      - name: Build with Gradle
+        run: ./gradlew build -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" --continue
+

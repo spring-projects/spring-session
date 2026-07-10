@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - "dependabot/**"
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    uses: spring-projects/spring-security-commercial/.github/workflows/build.yml@workflows/v1
+    secrets: inherit
+    with:
+      runs-on: 'ubuntu22-8-32'
+  compute-version:
+    name: Compute Version
+    runs-on: ubuntu-latest
+    outputs:
+      snapshot: ${{ steps.project-version.outputs.snapshot }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # 7.0.0
+      - id: project-version
+        name: Extract Project Version
+        uses: spring-io/spring-release-actions/compute-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
+  deploy-artifacts:
+    name: Deploy Artifacts
+    needs: [ build, compute-version ]
+    if: needs.compute-version.outputs.snapshot == 'true'
+    uses: spring-projects/spring-security-commercial/.github/workflows/deploy-artifacts.yml@workflows/v1
+    with:
+      should-deploy-artifacts: true
+      runs-on: 'ubuntu22-8-32'
+    secrets: inherit
