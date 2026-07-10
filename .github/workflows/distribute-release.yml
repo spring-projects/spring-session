@@ -1,0 +1,140 @@
+name: Distribute Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      should-distribute-release:
+        description: Whether the release should be distributed.
+        required: false
+        default: true
+        type: string
+      project-version:
+          description: The project version extracted from the current branch/tag, used to restrict running the workflow to release versions.
+          required: true
+          type: string
+      release-repo-url:
+          description: The base URL of the release repository (e.g. https://usw1.packages.broadcom.com).
+          required: false
+          default: https://usw1.packages.broadcom.com
+          type: string
+      release-repo-name:
+          description: The name of the release repository (e.g. spring-enterprise-maven-prod-local).
+          required: false
+          default: spring-enterprise-maven-prod-local
+          type: string
+      artifact-path:
+          description: The artifact path within the repository (e.g. org/springframework/session/spring-session-bom) used to check for the existence of an artifact version.
+          required: false
+          default: org/springframework/session/spring-session-bom
+          type: string
+  workflow_call:
+    inputs:
+      should-distribute-release:
+        description: Whether the release should be distributed.
+        required: false
+        default: false
+        type: string
+      project-version:
+        description: The project version extracted from the current branch/tag, used to restrict running the workflow to release versions.
+        required: true
+        type: string
+      release-repo-url:
+        description: The base URL of the release repository (e.g. https://usw1.packages.broadcom.com).
+        required: true
+        type: string
+      release-repo-name:
+        description: The name of the release repository (e.g. spring-enterprise-maven-prod-local).
+        required: true
+        type: string
+      artifact-path:
+        description: The artifact path within the repository (e.g. org/springframework/security/spring-security-core) used to check for the existence of an artifact version.
+        required: true
+        type: string
+    secrets:
+      COMMERCIAL_ARTIFACTORY_USERNAME:
+        required: true
+      COMMERCIAL_ARTIFACTORY_PASSWORD:
+        required: true
+
+jobs:
+  distribute-release:
+    name: Distribute Release
+    runs-on: ubuntu22-2-8
+    timeout-minutes: 90
+    if: ${{ inputs.should-distribute-release == 'true' && !endsWith(inputs.project-version, '-SNAPSHOT') }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: spring-io/spring-gradle-build-action@v2
+      - id: project-version
+        name: Extract Project Version
+        run: echo "version=$(cat gradle.properties | grep 'version=' | awk -F'=' '{print $2}')" >> $GITHUB_OUTPUT
+      - name: Wait for Artifactory Artifacts
+        env:
+          REPO: ${{ github.repository }}
+          ARTIFACTORY_URL: ${{ inputs.release-repo-url }}
+          ARTIFACTORY_REPO_NAME: ${{ inputs.release-repo-name }}
+          ARTIFACT_PATH: ${{ inputs.artifact-path }}
+          ARTIFACTORY_USERNAME: ${{ secrets.COMMERCIAL_ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.COMMERCIAL_ARTIFACTORY_PASSWORD }}
+          VERSION: ${{ steps.project-version.outputs.version }}
+        run: |
+          echo "Wait for artifacts of $REPO@$VERSION to appear on Artifactory."
+          until curl -u "$ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD" -f -s $ARTIFACTORY_URL/artifactory/$ARTIFACTORY_REPO_NAME/$ARTIFACT_PATH/$VERSION/ > /dev/null
+          do
+            sleep 30
+            echo "."
+          done
+          echo "Artifacts for $REPO@$VERSION have been released to Artifactory."
+      - id: branch-name
+        name: Extract Branch Name
+        env:
+          BRANCH: ${{ github.ref_name }}
+          VERSION: ${{ inputs.release-version }}
+        run: |
+          branch=$BRANCH
+          if [[ "$branch" = "main" ]] ; then
+            branch="${VERSION%.*}.x"
+          fi
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+      - name: Create Release Bundle
+        env:
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+          ARTIFACTORY_URL: ${{ inputs.release-repo-url }}
+          ARTIFACTORY_REPO_NAME: ${{ inputs.release-repo-name }}
+          ARTIFACTORY_PROJECT_KEY: spring
+          ARTIFACTORY_BUILD_NAME: ${{ github.event.repository.name }}-${{ steps.branch-name.outputs.branch }}
+          ARTIFACTORY_BUILD_NUMBER: ${{ github.run_id }}
+          ARTIFACTORY_USERNAME: ${{ secrets.COMMERCIAL_ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.COMMERCIAL_ARTIFACTORY_PASSWORD }}
+          VERSION: ${{ steps.project-version.outputs.version }}
+        run: |
+          json="{\"release_bundle_name\": \"TNZ-$REPOSITORY_NAME\", \"release_bundle_version\": \"$VERSION\", \"skip_docker_manifest_resolution\": true, \"source_type\": \"builds\", \"source\": {\"builds\": [{\"build_repository\": \"spring-build-info\", \"build_name\": \"$ARTIFACTORY_BUILD_NAME\", \"build_number\": \"$ARTIFACTORY_BUILD_NUMBER\", \"include_dependencies\": false}]}}"
+          echo $json
+          curl -u "$ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD" -f -s $ARTIFACTORY_URL/lifecycle/api/v2/release_bundle?project=$ARTIFACTORY_PROJECT_KEY \
+            -X POST \
+            -H "X-JFrog-Signing-Key-Name: packagesKey" \
+            -H "Content-Type: application/json" \
+            --data "$json" > /dev/null
+      - name: Distribute Release Bundle
+        env:
+          REPOSITORY_NAME: ${{ github.event.repository.name }}
+          ARTIFACTORY_URL: ${{ inputs.release-repo-url }}
+          ARTIFACTORY_REPO_NAME: ${{ inputs.release-repo-name }}
+          ARTIFACTORY_DIST_REPO_NAME: spring-enterprise
+          ARTIFACTORY_PROJECT_KEY: spring
+          ARTIFACTORY_USERNAME: ${{ secrets.COMMERCIAL_ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.COMMERCIAL_ARTIFACTORY_PASSWORD }}
+          VERSION: ${{ steps.project-version.outputs.version }}
+        run: |
+          json="{\"auto_create_missing_repositories\": \"false\", \"distribution_rules\": [{\"site_name\": \"JP-SaaS\"}], \"modifications\": {\"mappings\": [{\"input\": \"$ARTIFACTORY_REPO_NAME/(.*)\",\"output\":\"$ARTIFACTORY_DIST_REPO_NAME/\$1\"}]}}"
+          echo $json
+          sleep 30
+          until curl -u "$ARTIFACTORY_USERNAME:$ARTIFACTORY_PASSWORD" -f -s $ARTIFACTORY_URL/lifecycle/api/v2/distribution/distribute/TNZ-$REPOSITORY_NAME/$VERSION?project=$ARTIFACTORY_PROJECT_KEY \
+            -X POST \
+            -H "Content-Type: application/json" \
+            --data "$json" > /dev/null
+          do
+            sleep 30
+            echo "."
+          done
