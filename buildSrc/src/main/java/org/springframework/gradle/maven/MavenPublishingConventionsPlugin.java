@@ -68,10 +68,9 @@ public class MavenPublishingConventionsPlugin implements Plugin<Project> {
 	}
 
 	private void customizeLicences(MavenPomLicenseSpec licences) {
-		licences.license((licence) -> {
-			licence.getName().set("Apache License, Version 2.0");
-			licence.getUrl().set("https://www.apache.org/licenses/LICENSE-2.0");
-		});
+		licences.license((licence) ->
+				licence.getName().set("Broadcom Foundation License")
+		);
 	}
 
 	private void customizeDevelopers(MavenPomDeveloperSpec developers) {

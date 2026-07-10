@@ -55,7 +55,7 @@ public class ShowcaseITest {
 		assertThat(pomTextNoSpace).contains("<description>sgbcs-core</description>");
 		assertThat(pomTextNoSpace).contains("<url>https://spring.io/spring-security</url>");
 		assertThat(pomTextNoSpace).contains("<organization>\n			<name>spring.io</name>\n			<url>https://spring.io/</url>\n		</organization>".replaceAll("\\s", ""));
-		assertThat(pomTextNoSpace).contains("	<licenses>\n			<license>\n				<name>The Apache Software License, Version 2.0</name>\n				<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>\n				<distribution>repo</distribution>\n			</license>\n		</licenses>".replaceAll("\\s", ""));
+		assertThat(pomTextNoSpace).contains("	<licenses>\n			<license>\n				<name>Broadcom Foundation License</name>\n				<distribution>repo</distribution>\n			</license>\n		</licenses>".replaceAll("\\s", ""));
 		assertThat(pomTextNoSpace).contains("<scm>\n			<connection>scm:git:git://github.com/spring-projects/spring-security</connection>\n			<developerConnection>scm:git:git://github.com/spring-projects/spring-security</developerConnection>\n			<url>https://github.com/spring-projects/spring-security</url>\n		</scm>".replaceAll("\\s", ""));
 
 		File bom = new File(testKit.getRootDir(), "bom/build/poms/pom-default.xml");

@@ -1,5 +1,5 @@
 changelog:
-  repository: spring-projects/spring-session
+  repository: spring-projects/spring-session-commercial
   issues:
     exclude:
       labels: ["status: duplicate", "status: invalid", "status: declined", "github_actions"]

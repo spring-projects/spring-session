@@ -23,6 +23,8 @@ repositories {
     maven { url 'https://repo.spring.io/snapshot' }
 }
 
+apply from: "../commercial-settings.gradle"
+
 sourceSets {
     main {
         java {
