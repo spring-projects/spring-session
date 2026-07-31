@@ -7,13 +7,28 @@ javaPlatform {
 }
 
 dependencies {
+    if (project.hasProperty("isOverrideVersionCatalog")) {
+        if (project.hasProperty("springFrameworkVersion")) {
+            def springFrameworkVersion = project.property("springFrameworkVersion")
+            api platform("org.springframework:spring-framework-bom:$springFrameworkVersion")
+        } else {
+            api platform(libs.org.springframework.spring.framework.bom)
+        }
+        if (project.hasProperty("springSecurityVersion")) {
+            def springSecurityVersion = project.property("springSecurityVersion")
+            api platform("org.springframework.security:spring-security-bom:$springSecurityVersion")
+        } else {
+            api platform(libs.org.springframework.security.spring.security.bom)
+        }
+    } else {
+        api platform(libs.org.springframework.spring.framework.bom)
+        api platform(libs.org.springframework.security.spring.security.bom)
+    }
     api platform(libs.jackson.bom)
     api platform(libs.io.projectreactor.reactor.bom)
     api platform(libs.org.junit.junit.bom)
     api platform(libs.org.mockito.mockito.bom)
     api platform(libs.org.springframework.data.spring.data.bom)
-    api platform(libs.org.springframework.security.spring.security.bom)
-    api platform(libs.org.springframework.spring.framework.bom)
     api platform(libs.org.testcontainers.testcontainers.bom)
     constraints {
         api libs.ch.qos.logback.logback.core
