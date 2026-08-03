@@ -459,6 +459,60 @@ class RedisIndexedSessionRepositoryTests {
 	}
 
 	@Test
+	void cleanupExpiredSessionsWhenExpireKeyMissingAndSessionExpiredThenCleanupPrincipalIndex() {
+		String expiredId = "expired-id";
+		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
+		given(this.boundSetOperations.members()).willReturn(Collections.singleton("expires:" + expiredId));
+		given(this.redisOperations.hasKey(getKey("expires:" + expiredId))).willReturn(false);
+		given(this.redisOperations.<String, Object>boundHashOps(getKey(expiredId)))
+			.willReturn(this.boundHashOperations);
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				Instant.now().minus(5, ChronoUnit.MINUTES).toEpochMilli(),
+				RedisSessionMapper.ATTRIBUTE_PREFIX + FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				"principal");
+		given(this.boundHashOperations.entries()).willReturn(map);
+
+		this.redisRepository.cleanUpExpiredSessions();
+
+		verify(this.boundSetOperations).remove(expiredId);
+		verify(this.boundSetOperations).remove("expires:" + expiredId);
+	}
+
+	@Test
+	void cleanupExpiredSessionsWhenExpireKeyExistsThenDoesNotLookupSession() {
+		String sessionId = "session-id";
+		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
+		given(this.boundSetOperations.members()).willReturn(Collections.singleton("expires:" + sessionId));
+		given(this.redisOperations.hasKey(getKey("expires:" + sessionId))).willReturn(true);
+
+		this.redisRepository.cleanUpExpiredSessions();
+
+		verify(this.redisOperations, never()).boundHashOps(getKey(sessionId));
+	}
+
+	@Test
+	void cleanupExpiredSessionsWhenExpireKeyMissingAndSessionNotExpiredThenDoesNotCleanupPrincipalIndex() {
+		String sessionId = "session-id";
+		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
+		given(this.boundSetOperations.members()).willReturn(Collections.singleton("expires:" + sessionId));
+		given(this.redisOperations.hasKey(getKey("expires:" + sessionId))).willReturn(false);
+		given(this.redisOperations.<String, Object>boundHashOps(getKey(sessionId)))
+			.willReturn(this.boundHashOperations);
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 3600, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				Instant.now().toEpochMilli(),
+				RedisSessionMapper.ATTRIBUTE_PREFIX + FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME,
+				"principal");
+		given(this.boundHashOperations.entries()).willReturn(map);
+
+		this.redisRepository.cleanUpExpiredSessions();
+
+		verify(this.boundSetOperations, never()).remove(sessionId);
+		verify(this.boundSetOperations, never()).remove("expires:" + sessionId);
+	}
+
+	@Test
 	void onMessageCreated() {
 		MapSession session = this.cached;
 		byte[] pattern = "".getBytes(StandardCharsets.UTF_8);
