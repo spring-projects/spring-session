@@ -1,3 +1,28 @@
+[[upgrading-4.0]]
+= Upgrading to 4.x
+
+Spring Session 4.0 is compatible with Spring Boot 4.0 and Spring Framework 7.0. With this new major some modules are no longer shiped as a part of Spring Session, but exist in their own space.
+
+== Baseline Update
+
+Spring Session 4.0 requires Java 17 (https://spring.io/blog/2024/10/01/from-spring-framework-6-2-to-7-0#comment-6561729052[java 21 or 25 are recommended]) and Spring Framework 7.0 as a baseline.
+See https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-7.0-Release-Notes[Spring Framework 7.0 release notes] for more on Spring Framework.
+
+== Modules moved outside Spring Session
+
+- https://spring.io/blog/2025/10/14/spring-session-hazelcast-new-leadership[Spring Session Hazelcast]: Now Led by Hazelcast Team - https://github.com/spring-projects/spring-session/issues/3481[gh-3481]
+- https://spring.io/blog/2025/10/14/spring-session-mongodb-new-leadership[Spring Session MongoDB]: Now Led by MongoDB Team - https://github.com/spring-projects/spring-session/issues/3480[gh-3480]
+
+
+== Replaced and Removed Packages, Classes, and Methods
+
+The following changes were made to packages, classes, and methods:
+
+
+== Dropped Support
+
+https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-4.0-Migration-Guide[Undertow is not longer supported]
+
 [[upgrading-3.0]]
 = Upgrading to 3.x
 
@@ -7,7 +32,7 @@ The focus of these changes is to improve and harmonize Spring Session's APIs as 
 == Baseline Update
 
 Spring Session 3.0 requires Java 17 and Spring Framework 6.0 as a baseline, since its entire codebase is now based on Java 17 source code.
-See https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-5.x[Upgrading to Spring Framework 5.x] for more on upgrading Spring Framework.
+See https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x[Upgrading to Spring Framework 6.x] for more on upgrading Spring Framework.
 
 == Replaced and Removed Packages, Classes, and Methods
 
