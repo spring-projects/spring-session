@@ -78,9 +78,9 @@ class SortedSetRedisSessionExpirationStoreTests {
 			.reverseRangeByScore(anyString(), anyDouble(), anyDouble(), anyLong(), anyLong()))
 			.willReturn(Set.of("1", "2", "3"));
 		this.expirationStore.cleanupExpiredSessions();
-		verify(this.redisTemplate).hasKey("spring:session:sessions:1");
-		verify(this.redisTemplate).hasKey("spring:session:sessions:2");
-		verify(this.redisTemplate).hasKey("spring:session:sessions:3");
+		verify(this.redisTemplate).hasKey("spring:session:sessions:expires:1");
+		verify(this.redisTemplate).hasKey("spring:session:sessions:expires:2");
+		verify(this.redisTemplate).hasKey("spring:session:sessions:expires:3");
 	}
 
 }
