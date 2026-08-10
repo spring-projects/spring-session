@@ -35,6 +35,16 @@ class RepositoryConventionPlugin implements Plugin<Project> {
 				mavenLocal()
 			}
 			mavenCentral()
+			if (System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL") != null) {
+				maven {
+					name = "Release Train"
+					url = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_URL")
+					credentials {
+						username = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_USERNAME")
+						password = System.getenv("RELEASE_TRAIN_MAVEN_REPOSITORY_PASSWORD")
+					}
+				}
+			}
 			if (isSnapshot) {
 				maven {
 					name = 'artifactory-snapshot'
