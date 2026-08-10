@@ -2,13 +2,14 @@ name: CI
 
 on:
   push:
-    branches:
-      - "main"
-      - "*.x"
-      - "release/*"
+    branches-ignore:
+      - "dependabot/**"
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
   workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -23,23 +24,22 @@ jobs:
       java-version: ${{ matrix.jdk }}
       distribution: temurin
     secrets: inherit
+  compute-version:
+    name: Compute Version
+    runs-on: ubuntu-latest
+    outputs:
+      snapshot: ${{ steps.project-version.outputs.snapshot }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # 7.0.0
+      - id: project-version
+        name: Extract Project Version
+        uses: spring-io/spring-release-actions/compute-version@a1f321783a0769dd2aea4fad6c2ae2f95a52b885 # 0.0.5
   deploy-artifacts:
     name: Deploy Artifacts
-    needs: [ build ]
+    needs: [ build, compute-version ]
+    if: needs.compute-version.outputs.snapshot == 'true'
     uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1.0.15
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
       default-publish-milestones-central: true
-    secrets: inherit
-  perform-release:
-    name: Perform Release
-    needs: [ deploy-artifacts ]
-    uses: spring-io/spring-security-release-tools/.github/workflows/perform-release.yml@v1.0.15
-    with:
-      should-perform-release: ${{ needs.deploy-artifacts.outputs.artifacts-deployed }}
-      project-version: ${{ needs.deploy-artifacts.outputs.project-version }}
-      milestone-repo-url: https://repo1.maven.org/maven2
-      release-repo-url: https://repo1.maven.org/maven2
-      artifact-path: org/springframework/session/spring-session-core
-      slack-announcing-id: spring-session-announcing
     secrets: inherit
