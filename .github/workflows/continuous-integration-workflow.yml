@@ -14,7 +14,7 @@ permissions:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@v1.0.15
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@d6c65d3013c0888e2c9cbae9f4beda610994776c # v1.0.16
     strategy:
       matrix:
         os: [ ubuntu-latest ]
@@ -38,7 +38,7 @@ jobs:
     name: Deploy Artifacts
     needs: [ build, compute-version ]
     if: needs.compute-version.outputs.snapshot == 'true'
-    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@v1.0.15
+    uses: spring-io/spring-security-release-tools/.github/workflows/deploy-artifacts.yml@d6c65d3013c0888e2c9cbae9f4beda610994776c # v1.0.16
     with:
       should-deploy-artifacts: ${{ needs.build.outputs.should-deploy-artifacts }}
       default-publish-milestones-central: true
