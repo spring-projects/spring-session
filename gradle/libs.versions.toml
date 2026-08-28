@@ -40,5 +40,5 @@ org-springframework-spring-framework-bom = "org.springframework:spring-framework
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version = "2.0.5" }
 io-spring-security-release-plugin = "io.spring.gradle:spring-security-release-plugin:1.0.17"
 org-springframework-boot-spring-boot-gradle-plugin = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "org-springframework-boot" }
-io-spring-javaformat-spring-javaformat-checkstyle = "io.spring.javaformat:spring-javaformat-checkstyle:0.0.47"
+io-spring-javaformat-spring-javaformat-checkstyle = "io.spring.javaformat:spring-javaformat-checkstyle:0.0.48"
 io-spring-nohttp-nohttp-checkstyle = "io.spring.nohttp:nohttp-checkstyle:0.0.11"
