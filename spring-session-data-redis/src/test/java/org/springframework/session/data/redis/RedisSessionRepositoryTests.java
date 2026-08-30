@@ -399,6 +399,17 @@ class RedisSessionRepositoryTests {
 		assertThat(session.changeSessionId()).isEqualTo("test");
 	}
 
+	@Test
+	void findByIdWhenRedisSessionMapperReturnsNullThenReturnsNull() {
+		given(this.sessionHashOperations.entries(eq(TEST_SESSION_KEY)))
+			.willReturn(mapOf(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+					RedisSessionMapper.LAST_ACCESSED_TIME_KEY, Instant.now().toEpochMilli(),
+					RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, MapSession.DEFAULT_MAX_INACTIVE_INTERVAL_SECONDS));
+		this.sessionRepository.setRedisSessionMapper((id, entries) -> null);
+
+		assertThat(this.sessionRepository.findById(TEST_SESSION_ID)).isNull();
+	}
+
 	private static String getSessionKey(String sessionId) {
 		return "spring:session:sessions:" + sessionId;
 	}

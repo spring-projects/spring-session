@@ -63,7 +63,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
-	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
+	private BiFunction<String, Map<String, Object>, @Nullable MapSession> redisSessionMapper = new RedisSessionMapper();
 
 	/**
 	 * Create a new {@link RedisSessionRepository} instance.
@@ -187,7 +187,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 	 * @param redisSessionMapper the mapper to use, cannot be null
 	 * @since 3.2
 	 */
-	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper) {
+	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, @Nullable MapSession> redisSessionMapper) {
 		Assert.notNull(redisSessionMapper, "redisSessionMapper cannot be null");
 		this.redisSessionMapper = redisSessionMapper;
 	}

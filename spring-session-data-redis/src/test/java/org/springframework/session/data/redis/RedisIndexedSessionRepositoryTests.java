@@ -960,6 +960,20 @@ class RedisIndexedSessionRepositoryTests {
 		assertThat(newSessionId).isEqualTo("test");
 	}
 
+	@Test
+	void findByIdWhenRedisSessionMapperReturnsNullThenReturnsNull() {
+		String sessionId = "session-id";
+		given(this.redisOperations.<String, Object>boundHashOps(getKey(sessionId)))
+			.willReturn(this.boundHashOperations);
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY, Instant.EPOCH.toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, 1, RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				Instant.now().toEpochMilli());
+		given(this.boundHashOperations.entries()).willReturn(map);
+		this.redisRepository.setRedisSessionMapper((id, entries) -> null);
+
+		assertThat(this.redisRepository.findById(sessionId)).isNull();
+	}
+
 	private String getKey(String id) {
 		return "spring:session:sessions:" + id;
 	}
