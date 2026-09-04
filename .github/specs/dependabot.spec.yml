@@ -5,6 +5,7 @@ updates:
     {{>target-branch}}
     {{>directory}}
     {{>schedule}}
+    {{>milestone}}
     {{>labels}}
     ignore:
       - dependency-name: org.junit:junit-bom
@@ -29,6 +30,7 @@ updates:
     {{>target-branch}}
     {{>directory}}
     {{>schedule}}
+    {{>milestone}}
     {{>labels}}
     ignore:
       - dependency-name: org.junit:junit-bom
