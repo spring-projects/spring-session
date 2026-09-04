@@ -1089,6 +1089,8 @@ public class RedisIndexedSessionRepository
 		 * expired. This is done to handle
 		 * <a href="https://github.com/spring-projects/spring-session/issues/93">gh-93</a>
 		 * @param sessionKey the key
+		 * @return {@code true} if the session key still exists in Redis, {@code false} if
+		 * it has already expired
 		 */
 		private boolean touch(String sessionKey) {
 			return Boolean.TRUE.equals(RedisIndexedSessionRepository.this.sessionRedisOperations.hasKey(sessionKey));
