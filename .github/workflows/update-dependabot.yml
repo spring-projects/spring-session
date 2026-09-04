@@ -1,0 +1,48 @@
+name: Update Dependabot
+
+on:
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-dependabot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: spring-io/github-actions/update-dependabot@035e701d99b48da41f409014e1bfd937425c4477 # main
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add -N .github/dependabot.yml
+
+          if git diff --quiet -- .github/dependabot.yml; then
+            echo "No changes to .github/dependabot.yml"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          branch=update-dependabot
+          git checkout -B "$branch"
+          git add .github/dependabot.yml
+          git commit -m 'Update .github/dependabot.yml'
+          git push --force origin "$branch"
+
+          if gh pr list --head "$branch" --state open --json number --jq '.[0].number' | grep -q .; then
+            echo "Pull request already open for $branch"
+            exit 0
+          fi
+
+          gh pr create \
+            --title 'Update .github/dependabot.yml' \
+            --body 'Updates `.github/dependabot.yml` to reflect the current set of supported branches.' \
+            --head "$branch" \
+            --label 'type: task' \
+            --label 'in: build'
