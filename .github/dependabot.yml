@@ -1,88 +1,101 @@
 version: 2
-
 updates:
-
-  - package-ecosystem: "gradle"
-    target-branch: "main"
-    directory: "/"
+  - package-ecosystem: gradle
+    target-branch: main
+    directory: /
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 20
-    labels: [ "type: dependency-upgrade" ]
+      interval: weekly
+    milestone: 216 # main
+    labels:
+      - 'in: build'
+      - 'type: dependency-upgrade'
     ignore:
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major" ]
-
-  - package-ecosystem: "gradle"
-    target-branch: "4.0.x"
-    directory: "/"
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+  - package-ecosystem: github-actions
+    target-branch: main
+    directory: /
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 20
-    labels: [ "type: dependency-upgrade" ]
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
+  - package-ecosystem: gradle
+    target-branch: 4.0.x
+    directory: /
+    schedule:
+      interval: weekly
+    milestone: 202 # 4.0.x
+    labels:
+      - 'in: build'
+      - 'type: dependency-upgrade'
     ignore:
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
-
-  - package-ecosystem: "gradle"
-    target-branch: "3.5.x"
-    directory: "/"
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
+  - package-ecosystem: github-actions
+    target-branch: 4.0.x
+    directory: /
     schedule:
-      interval: "daily"
-      time: "03:00"
-      timezone: "Etc/UTC"
-    open-pull-requests-limit: 20
-    labels: [ "type: dependency-upgrade" ]
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
+  - package-ecosystem: gradle
+    target-branch: 4.1.x
+    directory: /
+    schedule:
+      interval: weekly
+    milestone: 203 # 4.1.x
+    labels:
+      - 'in: build'
+      - 'type: dependency-upgrade'
     ignore:
-      - dependency-name: "org.junit:junit-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "org.mockito:mockito-bom"
-        update-types: [ "version-update:semver-major" ]
-      - dependency-name: "*"
-        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
-
-  #    GitHub Actions
-
+      - dependency-name: org.junit:junit-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: org.mockito:mockito-bom
+        update-types:
+          - version-update:semver-major
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+          - version-update:semver-minor
   - package-ecosystem: github-actions
-    target-branch: "main"
-    directory: "/"
+    target-branch: 4.1.x
+    directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 20
-  - package-ecosystem: github-actions
-    target-branch: "4.0.x"
-    directory: "/"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 20
-  - package-ecosystem: github-actions
-    target-branch: "3.5.x"
-    directory: "/"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 20
-  - package-ecosystem: github-actions
-    target-branch: "docs-build"
-    directory: "/"
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 20
-
+    labels:
+      - 'type: task'
+      - 'in: build'
   - package-ecosystem: npm
     target-branch: docs-build
     directory: /
     schedule:
       interval: weekly
-    open-pull-requests-limit: 20
+    labels:
+      - 'type: dependency-upgrade'
+      - 'in: build'
+  - package-ecosystem: github-actions
+    target-branch: docs-build
+    directory: /
+    schedule:
+      interval: weekly
+    labels:
+      - 'type: task'
+      - 'in: build'
