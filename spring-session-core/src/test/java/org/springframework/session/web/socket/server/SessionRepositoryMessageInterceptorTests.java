@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.Mock.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -54,7 +55,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 class SessionRepositoryMessageInterceptorTests {
 
-	@Mock(strictness = Mock.Strictness.LENIENT)
+	@Mock(strictness = Strictness.LENIENT)
 	SessionRepository<Session> sessionRepository;
 
 	@Mock

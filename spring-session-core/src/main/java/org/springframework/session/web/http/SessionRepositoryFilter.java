@@ -156,7 +156,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	 * Allows ensuring that the session is saved if the response is committed.
 	 *
 	 * @author Rob Winch
-	 * @since 1.0
 	 */
 	private final class SessionRepositoryResponseWrapper extends OnCommittedResponseWrapper {
 
@@ -188,7 +187,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 	 * {@link org.springframework.session.SessionRepository}.
 	 *
 	 * @author Rob Winch
-	 * @since 1.0
 	 */
 	private final class SessionRepositoryRequestWrapper extends HttpServletRequestWrapper {
 
@@ -370,7 +368,6 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 		 * Allows creating an HttpSession from a Session instance.
 		 *
 		 * @author Rob Winch
-		 * @since 1.0
 		 */
 		private final class HttpSessionWrapper extends HttpSessionAdapter<S> {
 

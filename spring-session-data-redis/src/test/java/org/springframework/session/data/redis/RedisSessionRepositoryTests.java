@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mock.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.core.HashOperations;
@@ -59,7 +60,7 @@ class RedisSessionRepositoryTests {
 
 	private static final String TEST_SESSION_KEY = getSessionKey(TEST_SESSION_ID);
 
-	@Mock(strictness = Mock.Strictness.LENIENT)
+	@Mock(strictness = Strictness.LENIENT)
 	private RedisOperations<String, Object> sessionRedisOperations;
 
 	@Mock

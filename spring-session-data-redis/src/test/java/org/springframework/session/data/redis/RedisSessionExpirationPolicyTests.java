@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mock.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.core.BoundHashOperations;
@@ -49,7 +50,7 @@ class RedisSessionExpirationPolicyTests {
 	// Wed Apr 15 10:27:32 CDT 2015
 	private static final Long ONE_MINUTE_AGO = 1429111652346L;
 
-	@Mock(strictness = Mock.Strictness.LENIENT)
+	@Mock(strictness = Strictness.LENIENT)
 	RedisOperations<String, Object> sessionRedisOperations;
 
 	@Mock
