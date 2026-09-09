@@ -54,7 +54,6 @@ public interface CookieSerializer {
 	 *
 	 * @author Rob Winch
 	 * @author Vedran Pavic
-	 * @since 1.1
 	 */
 	class CookieValue {
 
