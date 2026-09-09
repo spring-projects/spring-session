@@ -47,7 +47,7 @@ class HttpSessionSecurityRuntimeHints implements RuntimeHintsRegistrar {
 					TypeReference.of(DefaultSavedRequest.class), TypeReference.of(DefaultCsrfToken.class),
 					TypeReference.of(WebAuthenticationDetails.class), TypeReference.of(SavedCookie.class),
 					TypeReference.of("java.lang.String$CaseInsensitiveComparator"))
-			.forEach(hints.serialization()::registerType);
+			.forEach(hints.reflection()::registerType);
 	}
 
 }

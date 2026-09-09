@@ -56,7 +56,7 @@ class HttpSessionSecurityRuntimeHintsTests {
 	@MethodSource("getSerializationHintTypes")
 	void httpSessionHasHints(TypeReference typeReference) {
 		this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
-		assertThat(RuntimeHintsPredicates.serialization().onType(typeReference)).accepts(this.hints);
+		assertThat(RuntimeHintsPredicates.reflection().onType(typeReference)).accepts(this.hints);
 	}
 
 	@Test
@@ -65,7 +65,7 @@ class HttpSessionSecurityRuntimeHintsTests {
 			classUtilsMock.when(() -> ClassUtils.isPresent(eq("jakarta.servlet.http.HttpSession"), any()))
 				.thenReturn(false);
 			this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
-			assertThat(this.hints.serialization().javaSerializationHints()).isEmpty();
+			assertThat(this.hints.reflection().typeHints()).isEmpty();
 		}
 	}
 
@@ -76,7 +76,7 @@ class HttpSessionSecurityRuntimeHintsTests {
 				.when(() -> ClassUtils.isPresent(eq("org.springframework.security.web.csrf.DefaultCsrfToken"), any()))
 				.thenReturn(false);
 			this.httpSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
-			assertThat(this.hints.serialization().javaSerializationHints()).isEmpty();
+			assertThat(this.hints.reflection().typeHints()).isEmpty();
 		}
 	}
 
