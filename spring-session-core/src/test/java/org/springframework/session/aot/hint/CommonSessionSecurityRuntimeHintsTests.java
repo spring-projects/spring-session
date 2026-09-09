@@ -45,7 +45,7 @@ class CommonSessionSecurityRuntimeHintsTests {
 	@MethodSource("getSerializationHintTypes")
 	void commonSecurityTypesHasHints(TypeReference typeReference) {
 		this.commonSessionSecurityRuntimeHints.registerHints(this.hints, getClass().getClassLoader());
-		assertThat(RuntimeHintsPredicates.serialization().onType(typeReference)).accepts(this.hints);
+		assertThat(RuntimeHintsPredicates.reflection().onType(typeReference)).accepts(this.hints);
 	}
 
 	@Test
