@@ -36,7 +36,7 @@ Maven::
 ----
 ======
 
-If you are using Spring Boot, it will take care of enabling Spring Session JDBC, see {spring-boot-ref-docs}/web.html#web.spring-session[its documentation] for more details.
+If you are using Spring Boot, it will take care of enabling Spring Session JDBC, see {spring-boot-ref-docs}/web/spring-session.html[its documentation] for more details.
 Otherwise, you will need to add `@EnableJdbcHttpSession` to a configuration class:
 
 [tabs]
