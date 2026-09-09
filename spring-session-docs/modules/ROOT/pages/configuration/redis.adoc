@@ -3,7 +3,7 @@
 
 Now that you have your application configured, you might want to start customizing things:
 
-- I want to {spring-boot-ref-docs}/application-properties.html#application-properties.data.spring.data.redis.host[customize the Redis configuration] using Spring Boot properties
+- I want to {docs-url}/spring-boot/appendix/application-properties/index.html#application-properties.data.spring.data.redis.host[customize the Redis configuration] using Spring Boot properties
 - I want <<choosing-between-regular-and-indexed,help in choosing>> `RedisSessionRepository` or `RedisIndexedSessionRepository`.
 - I want to <<serializing-session-using-json,serialize the session using JSON>>.
 - I want to <<using-a-different-namespace,specify a different namespace>>.
@@ -49,13 +49,13 @@ For that reason, Spring Session uses a `namespace` (defaults to `spring:session`
 
 === Using Spring Boot Properties
 
-You can specify it by setting the `spring.session.redis.namespace` property.
+You can specify it by setting the `spring.session.data.redis.namespace` property.
 
 ====
 .application.properties
 [source,properties,role="primary"]
 ----
-spring.session.redis.namespace=spring:session:myapplication
+spring.session.data.redis.namespace=spring:session:myapplication
 ----
 
 .application.yml
@@ -63,8 +63,9 @@ spring.session.redis.namespace=spring:session:myapplication
 ----
 spring:
   session:
-    redis:
-      namespace: "spring:session:myapplication"
+    data:
+      redis:
+        namespace: "spring:session:myapplication"
 ----
 ====
 
@@ -137,7 +138,7 @@ However, if you want to be explicit about it, you can set the following property
 .application.properties
 [source,properties,role="primary"]
 ----
-spring.session.redis.repository-type=default
+spring.session.data.redis.repository-type=default
 ----
 
 .application.yml
@@ -145,8 +146,9 @@ spring.session.redis.repository-type=default
 ----
 spring:
   session:
-    redis:
-      repository-type: default
+    data:
+      redis:
+        repository-type: default
 ----
 ====
 
@@ -176,7 +178,7 @@ You can configure the `RedisIndexedSessionRepository` by setting the following p
 .application.properties
 [source,properties,role="primary"]
 ----
-spring.session.redis.repository-type=indexed
+spring.session.data.redis.repository-type=indexed
 ----
 
 .application.yml
@@ -184,8 +186,9 @@ spring.session.redis.repository-type=indexed
 ----
 spring:
   session:
-    redis:
-      repository-type: indexed
+    data:
+      redis:
+        repository-type: indexed
 ----
 ====
 
@@ -212,7 +215,7 @@ In order to be able to do that, you must be using the <<configuring-redisindexed
 If you do not know the difference between the indexed and the default repository, you can go to <<choosing-between-regular-and-indexed,this section>>.
 
 With the indexed repository configured, you can now start to listen to `SessionCreatedEvent`, `SessionDeletedEvent`, `SessionDestroyedEvent` and `SessionExpiredEvent` events.
-There are a {docs-url}/spring-framework/reference/core/beans/context-introduction.html#context-functionality-events[few ways to listen to application events] in Spring, we are going to use the `@EventListener` annotation.
+There are a {spring-framework-ref-docs}/core/beans/context-introduction.html#context-functionality-events[few ways to listen to application events] in Spring, we are going to use the `@EventListener` annotation.
 
 ====
 [source,java]
