@@ -54,7 +54,7 @@ class CommonSessionRuntimeHints implements RuntimeHintsRegistrar {
 				TypeReference.of("java.util.Collections$UnmodifiableRandomAccessList"),
 				TypeReference.of("java.util.Collections$UnmodifiableSet"),
 				TypeReference.of("java.util.Collections$UnmodifiableMap"), TypeReference.of(MapSession.class))
-			.forEach(hints.serialization()::registerType);
+			.forEach(hints.reflection()::registerType);
 	}
 
 }
