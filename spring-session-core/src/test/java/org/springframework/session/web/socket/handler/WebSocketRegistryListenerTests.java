@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mock.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.messaging.Message;
@@ -48,13 +49,13 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class WebSocketRegistryListenerTests {
 
-	@Mock(strictness = Mock.Strictness.LENIENT)
+	@Mock(strictness = Strictness.LENIENT)
 	private WebSocketSession wsSession;
 
-	@Mock(strictness = Mock.Strictness.LENIENT)
+	@Mock(strictness = Strictness.LENIENT)
 	private WebSocketSession wsSession2;
 
-	@Mock(strictness = Mock.Strictness.LENIENT)
+	@Mock(strictness = Strictness.LENIENT)
 	private Message<byte[]> message;
 
 	@Mock
