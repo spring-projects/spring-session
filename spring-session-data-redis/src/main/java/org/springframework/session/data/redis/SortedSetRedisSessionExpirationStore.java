@@ -76,8 +76,8 @@ public class SortedSetRedisSessionExpirationStore implements RedisSessionExpirat
 
 	/**
 	 * Retrieves the sessions that are expected to be expired and invoke
-	 * {@link #touch(String)} on each of the session keys, resolved via
-	 * {@link #getSessionKey(String)}.
+	 * {@link #touch(String)} on each of the expired keys, resolved via
+	 * {@link #getExpiredKey(String)}.
 	 */
 	@Override
 	public void cleanupExpiredSessions() {
@@ -87,8 +87,8 @@ public class SortedSetRedisSessionExpirationStore implements RedisSessionExpirat
 			return;
 		}
 		for (Object sessionId : sessionIds) {
-			String sessionKey = getSessionKey((String) sessionId);
-			touch(sessionKey);
+			String expiredKey = getExpiredKey((String) sessionId);
+			touch(expiredKey);
 		}
 	}
 
@@ -106,8 +106,8 @@ public class SortedSetRedisSessionExpirationStore implements RedisSessionExpirat
 		this.redisOps.hasKey(sessionKey);
 	}
 
-	private String getSessionKey(String sessionId) {
-		return this.namespace + ":sessions:" + sessionId;
+	private String getExpiredKey(String sessionId) {
+		return this.namespace + ":sessions:expires:" + sessionId;
 	}
 
 	/**
