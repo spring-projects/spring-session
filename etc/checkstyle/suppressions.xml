@@ -9,4 +9,6 @@
 	<suppress files="[\\/]spring-session-samples[\\/].+Application\.java" checks="HideUtilityClassConstructor"/>
 	<suppress files="CookieSerializer\.java" checks="SpringMethodVisibility"/>
 	<suppress files="RedisIndexedSessionRepositoryDynamicITests\.java" checks="RegexpSinglelineJava"/>
+	<!-- Nullability annotations stay on org.springframework.lang for now; migrating to JSpecify is out of scope for this maintenance branch -->
+	<suppress files=".*" checks="SpringNullability"/>
 </suppressions>

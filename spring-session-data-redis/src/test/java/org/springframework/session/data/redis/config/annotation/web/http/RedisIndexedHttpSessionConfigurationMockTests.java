@@ -20,6 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mock.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.data.redis.connection.RedisConnection;
@@ -37,7 +38,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 @ExtendWith(MockitoExtension.class)
 class RedisIndexedHttpSessionConfigurationMockTests {
 
-	@Mock(strictness = Mock.Strictness.LENIENT)
+	@Mock(strictness = Strictness.LENIENT)
 	RedisConnectionFactory factory;
 
 	@Mock
