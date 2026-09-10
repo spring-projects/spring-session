@@ -759,6 +759,8 @@ public class ReactiveRedisIndexedSessionRepository
 				return renameKey(originalSessionKey, sessionKey)
 					.then(Mono.defer(() -> renameKey(originalExpiredKey, expiredKey)))
 					.then(Mono.defer(this::replaceSessionIdOnIndexes))
+					.then(Mono.defer(() -> ReactiveRedisIndexedSessionRepository.this.expirationStore
+						.remove(this.originalSessionId)))
 					.then(Mono.defer(() -> replaceSessionId));
 			}
 
