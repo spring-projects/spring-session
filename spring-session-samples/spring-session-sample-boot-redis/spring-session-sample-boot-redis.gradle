@@ -1,5 +1,11 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework:spring-framework-bom:7.1.0-SNAPSHOT'
+	}
+}
+
 dependencies {
 	management platform(project(":spring-session-dependencies"))
 	implementation project(':spring-session-data-redis')
