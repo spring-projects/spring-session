@@ -18,7 +18,7 @@ dependencies {
 	implementation  "org.webjars:bootstrap"
 	implementation  "org.webjars:html5shiv"
 	implementation  "org.webjars:webjars-locator-core"
-	implementation libs.jackson.databind
+	implementation  "tools.jackson.core:jackson-databind"
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

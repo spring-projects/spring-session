@@ -4,7 +4,7 @@ dependencies {
 	management platform(project(":spring-session-dependencies"))
 	implementation project(':spring-session-jdbc')
 	implementation "nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect"
-	implementation libs.jackson.databind
+	implementation "tools.jackson.core:jackson-databind"
 	implementation "org.springframework.boot:spring-boot-starter-session-jdbc"
 	implementation "org.springframework.boot:spring-boot-starter-security"
 	implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
