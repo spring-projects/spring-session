@@ -296,7 +296,7 @@ public class DefaultCookieSerializer implements CookieSerializer {
 	 * @param cookiePath the path of the Cookie. If null, the default of the context path
 	 * will be used.
 	 */
-	public void setCookiePath(String cookiePath) {
+	public void setCookiePath(@Nullable String cookiePath) {
 		this.cookiePath = cookiePath;
 	}
 
