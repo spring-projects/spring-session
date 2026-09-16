@@ -14,7 +14,7 @@ dependencies {
 	optional "io.lettuce:lettuce-core"
 	optional "io.projectreactor:reactor-core"
 	optional "org.springframework:spring-web"
-	optional "redis.clients:jedis:7.2.1"
+	optional "redis.clients:jedis:8.0.1"
 
 	testImplementation "io.projectreactor:reactor-test"
 	testImplementation "jakarta.servlet:jakarta.servlet-api"
