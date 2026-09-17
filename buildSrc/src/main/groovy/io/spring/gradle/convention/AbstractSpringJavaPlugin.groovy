@@ -57,13 +57,8 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 		pluginManager.apply("io.spring.convention.checkstyle");
 		pluginManager.apply(CopyPropertiesPlugin);
 
-		project.jar {
-			manifest.attributes["Created-By"] =
-					"${System.getProperty("java.version")} (${System.getProperty("java.specification.vendor")})"
-			manifest.attributes["Implementation-Title"] = project.name
-			manifest.attributes["Implementation-Version"] = project.version
-			manifest.attributes["Automatic-Module-Name"] = project.name.replace('-', '.')
-		}
+		pluginManager.apply(org.springframework.gradle.SpringJarManifestPlugin)
+		pluginManager.apply(org.springframework.gradle.SpringReproducibleBuildPlugin)
         project.test {
             useJUnitPlatform()
         }
