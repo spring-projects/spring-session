@@ -87,6 +87,7 @@ dependencies {
     implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969'
     implementation libs.com.squareup.okhttp3.okhttp
     implementation libs.io.spring.security.release.plugin
+    implementation libs.io.spring.security.project.plugin
 
     testImplementation platform('org.junit:junit-bom:5.10.5')
     testImplementation "org.junit.jupiter:junit-jupiter-api"
