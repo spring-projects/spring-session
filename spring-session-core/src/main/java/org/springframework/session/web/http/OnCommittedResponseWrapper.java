@@ -43,6 +43,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	 */
 	private long contentLength;
 
+	private boolean contentLengthSet;
+
 	/**
 	 * The size of data written to the response body. The field will only be updated when
 	 * {@link #disableOnCommitted} is false.
@@ -107,7 +109,8 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
 	private void setContentLength(long len) {
 		this.contentLength = len;
-		checkContentLength(0);
+		this.contentLengthSet = true;
+		checkContentLength(0, false);
 	}
 
 	/**
@@ -259,8 +262,13 @@ abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 	 * @param contentLengthToWrite the size of the content that is about to be written.
 	 */
 	private void checkContentLength(long contentLengthToWrite) {
+		checkContentLength(contentLengthToWrite, true);
+	}
+
+	private void checkContentLength(long contentLengthToWrite, boolean bodyWriteOccurred) {
 		this.contentWritten += contentLengthToWrite;
-		boolean isBodyFullyWritten = this.contentLength > 0 && this.contentWritten >= this.contentLength;
+		boolean isBodyFullyWritten = this.contentLengthSet && this.contentWritten >= this.contentLength
+				&& (this.contentLength > 0 || bodyWriteOccurred);
 		int bufferSize = getBufferSize();
 		boolean requiresFlush = bufferSize > 0 && this.contentWritten >= bufferSize;
 		if (isBodyFullyWritten || requiresFlush) {
