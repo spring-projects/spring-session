@@ -29,7 +29,6 @@ plugins {
 }
 
 apply plugin: 'io.spring.convention.root'
-apply plugin: 'io.spring.security.release'
 
 group = 'org.springframework.session'
 description = 'Spring Session'
@@ -60,14 +59,4 @@ nohttp {
 	source.exclude "spring-session-docs/.gradle/**"
 	source.exclude "spring-session-docs/node_modules/**"
 	source.exclude "spring-session-docs/modules/ROOT/examples/**/build/**"
-}
-
-springRelease {
-	repositoryOwner = "spring-projects"
-	repositoryName = "spring-session"
-	weekOfMonth = 3
-	dayOfWeek = 2
-	referenceDocUrl = "https://docs.spring.io/spring-session/reference/{version}/index.html"
-    apiDocUrl = "https://docs.spring.io/spring-session/reference/{version}/api/java/index.html"
-	replaceSnapshotVersionInReferenceDocUrl = true
 }
