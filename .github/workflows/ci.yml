@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "main"
+      - "*.x"
+      - "release/**"
+      - "*-internal"
+  schedule:
+    - cron: '0 10 * * *' # Once per day at 10am UTC
+  workflow_dispatch: # Manual trigger
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: Compute Inputs
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.project-version.outputs.version }}
+      snapshot: ${{ steps.project-version.outputs.snapshot }}
+      release-channel: ${{ steps.release.outputs.channel }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: project-version
+        name: Extract Project Version
+        uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
+      - id: release
+        name: Establish Release Channel
+        uses: spring-io/spring-release-actions/compute-release-channel@6a17ad2307156b8a5613d5cd632be2ebcfbaa6af # 1.0.x
+        with:
+          version: ${{ steps.project-version.outputs.version }}
+  test:
+    name: Test
+    needs: setup
+    uses: ./.github/workflows/ci-test.yml
+    with:
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+      release-channel: ${{ needs.setup.outputs.release-channel }}
+    secrets: inherit
+  build:
+    name: Build
+    needs: setup
+    if: needs.setup.outputs.snapshot == 'true'
+    uses: ./.github/workflows/ci-build.yml
+    with:
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+      release-channel: ${{ needs.setup.outputs.release-channel }}
+    secrets: inherit
+  deploy-artifacts:
+    name: Deploy Artifacts
+    needs: [ setup, build ]
+    uses: ./.github/workflows/ci-deploy-artifacts.yml
+    with:
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+      version: ${{ needs.setup.outputs.version }}
+      release-channel: ${{ needs.setup.outputs.release-channel }}
+    secrets: inherit
+  summary:
+    name: Run Summary
+    if: always()
+    needs: [ setup, test, build, deploy-artifacts ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Summary
+        env:
+          SNAPSHOT: ${{ needs.setup.outputs.snapshot }}
+        run: |
+          if [ "$SNAPSHOT" != "true" ]; then
+            echo "Skipped artifact deployment because it is not a snapshot build." >> "$GITHUB_STEP_SUMMARY"
+          fi

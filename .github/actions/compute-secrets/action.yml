@@ -1,0 +1,65 @@
+name: Compute Secrets
+description: >
+  Determines which secret holds each credential, based on the given run-type (see
+  spring-io/spring-release-actions/compute-release-type). Outputs are secret *names*, not
+  values -- callers dereference them with the secrets[] context, e.g.
+  secrets[needs.secrets.outputs.publishing-username].
+
+inputs:
+  release-channel:
+    description: >
+      The release channel; oss or internal. Leave unset to auto-detect from the
+      current version and repository.
+    required: false
+
+outputs:
+  dependencies-username:
+    description: "Name of the secret with the username for resolving dependencies, or empty if none is needed"
+    value: ${{ steps.secrets.outputs.dependencies-username }}
+  dependencies-password:
+    description: "Name of the secret with the password for resolving dependencies, or empty if none is needed"
+    value: ${{ steps.secrets.outputs.dependencies-password }}
+  publishing-username:
+    description: "Name of the secret with the username for publishing artifacts"
+    value: ${{ steps.secrets.outputs.publishing-username }}
+  publishing-password:
+    description: "Name of the secret with the password for publishing artifacts"
+    value: ${{ steps.secrets.outputs.publishing-password }}
+  dependabot-username:
+    description: "Name of the secret with the username Dependabot uses to resolve dependencies, or empty if none is needed"
+    value: ${{ steps.secrets.outputs.dependabot-username }}
+  dependabot-password:
+    description: "Name of the secret with the password Dependabot uses to resolve dependencies, or empty if none is needed"
+    value: ${{ steps.secrets.outputs.dependabot-password }}
+
+runs:
+  using: composite
+  steps:
+    - id: version
+      if: inputs.release-channel == ''
+      uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
+    - id: release-channel
+      if: inputs.release-channel == ''
+      uses: spring-io/spring-release-actions/compute-release-channel@6a17ad2307156b8a5613d5cd632be2ebcfbaa6af # 0.0.x
+      with:
+        version: ${{ steps.version.outputs.version }}
+    - id: secrets
+      shell: bash
+      env:
+        CHANNEL: ${{ inputs.release-channel || steps.release-channel.outputs.channel }}
+      run: |
+        if [[ "$CHANNEL" == 'oss' ]]; then
+          echo "dependencies-username=" >> "$GITHUB_OUTPUT"
+          echo "dependencies-password=" >> "$GITHUB_OUTPUT"
+          echo "publishing-username=ARTIFACTORY_USERNAME" >> "$GITHUB_OUTPUT"
+          echo "publishing-password=ARTIFACTORY_PASSWORD" >> "$GITHUB_OUTPUT"
+          echo "dependabot-username=" >> "$GITHUB_OUTPUT"
+          echo "dependabot-password=" >> "$GITHUB_OUTPUT"
+        else
+          echo "dependencies-username=COMMERCIAL_ARTIFACTORY_USERNAME" >> "$GITHUB_OUTPUT"
+          echo "dependencies-password=COMMERCIAL_ARTIFACTORY_PASSWORD" >> "$GITHUB_OUTPUT"
+          echo "publishing-username=COMMERCIAL_ARTIFACTORY_USERNAME" >> "$GITHUB_OUTPUT"
+          echo "publishing-password=COMMERCIAL_ARTIFACTORY_PASSWORD" >> "$GITHUB_OUTPUT"
+          echo "dependabot-username=ARTIFACTORY_RO_USERNAME" >> "$GITHUB_OUTPUT"
+          echo "dependabot-password=ARTIFACTORY_RO_PASSWORD" >> "$GITHUB_OUTPUT"
+        fi

@@ -1,0 +1,51 @@
+name: CI - Deploy Artifacts
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: Runner to deploy on
+        type: string
+        default: ubuntu-latest
+      version:
+        description: Version being deployed
+        type: string
+        required: true
+      release-channel:
+        description: The release channel; oss or internal
+        type: string
+        default: oss
+
+jobs:
+  deploy-artifacts:
+    name: Deploy Artifacts
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Download Local Repository
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          name: local-repository
+          path: build/publications/repos
+      - id: secrets
+        name: Resolve Secret Names
+        uses: ./.github/actions/compute-secrets
+        with:
+          release-channel: ${{ inputs.release-channel }}
+      - id: artifact-repository
+        name: Compute Artifact Repository
+        uses: spring-io/spring-release-actions/compute-artifact-repository@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
+        with:
+          version: ${{ inputs.version }}
+      - name: Deploy Artifacts
+        uses: spring-io/spring-security-actions/ensure-artifacts@96df48300f5fa058d0765832d48a534cc6a378d5 # 0.0.3
+        with:
+          version: ${{ inputs.version }}
+          username: ${{ secrets[steps.secrets.outputs.publishing-username] }}
+          password: ${{ secrets[steps.secrets.outputs.publishing-password] }}
+          repository-uri: ${{ steps.artifact-repository.outputs.uri }}
+          repository-name: ${{ steps.artifact-repository.outputs.name }}
+          project: ${{ steps.artifact-repository.outputs.project }}
+          local-repository: build/publications/repos
+          artifact-path: org/springframework/session/spring-session-core
