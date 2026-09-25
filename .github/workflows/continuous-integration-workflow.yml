@@ -14,7 +14,7 @@ permissions:
 jobs:
   build:
     name: Build
-    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@3f6cc7ffc137ca160061749d5f34dc30d5f36986 # v1.0.17
+    uses: spring-io/spring-security-release-tools/.github/workflows/build.yml@d1199a03aee6023578d50c34ec6f09e37889672c # v1.0.19
     strategy:
       matrix:
         os: [ ubuntu-latest ]
