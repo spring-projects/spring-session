@@ -1,0 +1,45 @@
+name: CI - Build
+
+on:
+  workflow_call:
+    inputs:
+      java-version:
+        description: Java version to build with
+        type: string
+        default: '17'
+      runner:
+        description: Runner to build on
+        type: string
+        default: ubuntu-latest
+      release-channel:
+        description: The release channel; oss or internal
+        type: string
+        default: oss
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: secrets
+        name: Resolve Secret Names
+        uses: ./.github/actions/compute-secrets
+        with:
+          release-channel: ${{ inputs.release-channel }}
+      - name: Adapt SNAPSHOT Suffix for Internal CI
+        if: inputs.release-channel == 'internal'
+        run: sed -i -E '/^version=/ s/-SNAPSHOT$/-INTERNAL-SNAPSHOT/' gradle.properties
+      - name: Build Project
+        uses: spring-io/spring-security-actions/build@96df48300f5fa058d0765832d48a534cc6a378d5 # 0.0.3
+        env:
+          ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets[steps.secrets.outputs.dependencies-username] }}
+          ORG_GRADLE_PROJECT_artifactoryPassword: ${{ secrets[steps.secrets.outputs.dependencies-password] }}
+        with:
+          java-version: ${{ inputs.java-version }}
+      - name: Upload Local Repository
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: local-repository
+          path: build/publications/repos
