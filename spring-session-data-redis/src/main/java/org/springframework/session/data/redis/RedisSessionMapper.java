@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import org.springframework.session.MapSession;
 import org.springframework.session.Session;
 import org.springframework.util.Assert;
@@ -29,12 +31,15 @@ import org.springframework.util.Assert;
 /**
  * A {@link Function} that converts a {@link Map} representing Redis hash to a
  * {@link MapSession}.
+ * <p>
+ * This implementation never returns {@code null}; custom mappers used via
+ * {@code setRedisSessionMapper} may return {@code null} to signal an unloadable session.
  *
  * @author Vedran Pavic
  * @author Marcus da Coregio
  * @since 2.2.0
  */
-public final class RedisSessionMapper implements BiFunction<String, Map<String, Object>, MapSession> {
+public final class RedisSessionMapper implements BiFunction<String, Map<String, Object>, @Nullable MapSession> {
 
 	/**
 	 * The key in the hash representing {@link Session#getCreationTime()}.

@@ -63,7 +63,7 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
-	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
+	private BiFunction<String, Map<String, Object>, @Nullable MapSession> redisSessionMapper = new RedisSessionMapper();
 
 	/**
 	 * Create a new {@link RedisSessionRepository} instance.
@@ -183,11 +183,15 @@ public class RedisSessionRepository implements SessionRepository<RedisSessionRep
 
 	/**
 	 * Set the {@link BiFunction} used to map {@link MapSession} to a
-	 * {@link ReactiveRedisSessionRepository.RedisSession}.
+	 * {@link ReactiveRedisSessionRepository.RedisSession}. The mapper may return
+	 * {@code null} to indicate that the session could not be loaded (for example when the
+	 * Redis hash is incomplete); callers treat a {@code null} result the same as a
+	 * missing session.
 	 * @param redisSessionMapper the mapper to use, cannot be null
 	 * @since 3.2
 	 */
-	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper) {
+	public void setRedisSessionMapper(
+			BiFunction<String, Map<String, Object>, @Nullable MapSession> redisSessionMapper) {
 		Assert.notNull(redisSessionMapper, "redisSessionMapper cannot be null");
 		this.redisSessionMapper = redisSessionMapper;
 	}
