@@ -334,6 +334,31 @@ class RedisIndexedSessionRepositoryTests {
 		verify(this.redisOperations, never()).boundValueOps(getKey("expires:" + id));
 	}
 
+	// gh-1843
+	@Test
+	void deleteWhenSaveModeAlwaysThenPrincipalIndexNotReAdded() {
+		String principalName = "principal";
+		MapSession expected = new MapSession();
+		expected.setLastAccessedTime(Instant.now().minusSeconds(60));
+		expected.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
+		given(this.redisOperations.<String, Object>boundHashOps(anyString())).willReturn(this.boundHashOperations);
+		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
+		Map<String, Object> map = map(
+				RedisIndexedSessionRepository
+					.getSessionAttrNameKey(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME),
+				principalName, RedisSessionMapper.CREATION_TIME_KEY, expected.getCreationTime().toEpochMilli(),
+				RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY, (int) expected.getMaxInactiveInterval().getSeconds(),
+				RedisSessionMapper.LAST_ACCESSED_TIME_KEY, expected.getLastAccessedTime().toEpochMilli());
+		given(this.boundHashOperations.entries()).willReturn(map);
+		this.redisRepository.setSaveMode(SaveMode.ALWAYS);
+
+		String id = expected.getId();
+		this.redisRepository.deleteById(id);
+
+		verify(this.boundSetOperations, atLeastOnce()).remove(id);
+		verify(this.boundSetOperations, never()).add(id);
+	}
+
 	@Test
 	void deleteNullSession() {
 		given(this.redisOperations.<String, Object>boundHashOps(anyString())).willReturn(this.boundHashOperations);

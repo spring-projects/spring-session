@@ -913,7 +913,7 @@ public class RedisIndexedSessionRepository
 				Map<String, String> indexes = RedisIndexedSessionRepository.this.indexResolver.resolveIndexesFor(this);
 				String principal = indexes.get(PRINCIPAL_NAME_INDEX_NAME);
 				this.originalPrincipalName = principal;
-				if (principal != null) {
+				if (principal != null && !isExpired()) {
 					String principalRedisKey = getPrincipalKey(principal);
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(principalRedisKey)
 						.add(sessionId);
