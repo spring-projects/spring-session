@@ -16,7 +16,10 @@
 
 package sample;
 
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -31,6 +34,13 @@ public class IndexController {
 	@RequestMapping("/")
 	public String index() {
 		return "index";
+	}
+
+	@GetMapping("/string")
+	@ResponseBody
+	public String string(HttpSession session) {
+		session.setAttribute("sample", "value");
+		return "ok";
 	}
 
 }
