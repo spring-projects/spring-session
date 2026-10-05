@@ -34,8 +34,11 @@ jobs:
       - name: Build Project
         uses: spring-io/spring-security-actions/build@96df48300f5fa058d0765832d48a534cc6a378d5 # 0.0.3
         env:
+          ORG_GRADLE_PROJECT_releaseChannel: ${{ inputs.release-channel }}
           ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets[steps.secrets.outputs.dependencies-username] }}
           ORG_GRADLE_PROJECT_artifactoryPassword: ${{ secrets[steps.secrets.outputs.dependencies-password] }}
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
         with:
           java-version: ${{ inputs.java-version }}
       - name: Upload Local Repository

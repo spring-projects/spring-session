@@ -191,7 +191,8 @@ public class RedisIndexedHttpSessionConfiguration
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		@Nullable Map<String, @Nullable Object> attributeMap = importMetadata
+		@Nullable
+		Map<String, @Nullable Object> attributeMap = importMetadata
 			.getAnnotationAttributes(EnableRedisIndexedHttpSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
