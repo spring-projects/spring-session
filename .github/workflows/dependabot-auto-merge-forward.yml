@@ -1,42 +1,29 @@
-name: Auto Merge Forward Dependabot Commits
+name: Dependabot - Merge-forward
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ '[0-9]+.[0-9]+.x' ]
 
 permissions:
   contents: read
 
 concurrency:
-  group: dependabot-auto-merge-forward
+  group: dependabot-merge-forward-${{ github.ref_name }}
 
 jobs:
-  get-supported-branches:
-    uses: spring-io/spring-security-release-tools/.github/workflows/retrieve-spring-supported-versions.yml@b9de40104939567a1845bdf898296cadeafcca97 # actions-v1
-    with:
-      project: spring-session
-      type: oss
-      repository_name: spring-projects/spring-session
-
-  auto-merge-forward-dependabot:
-    name: Auto Merge Forward Dependabot Commits
+  merge-forward-dependabot:
+    name: Merge Forward Dependabot Commits
     runs-on: ubuntu-latest
-    needs: [get-supported-branches]
-    permissions:
-      contents: write
+    if: ${{ github.event.repository.fork == false }}
     steps:
       - name: Checkout
-        id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
       - name: Setup GitHub User
-        id: setup-gh-user
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Run Auto Merge Forward
-        id: run-auto-merge-forward
-        uses: spring-io/spring-security-release-tools/.github/actions/auto-merge-forward@b9de40104939567a1845bdf898296cadeafcca97 # actions-v1
-        with:
-          branches: ${{ needs.get-supported-branches.outputs.supported_versions }},main
-          from-author: dependabot[bot]
+      - name: Merge Forward
+        uses: spring-io/spring-security-release-tools/auto-merge-forward@051095868832c605969de5fcfdb389678302c053 # 1.0.x
