@@ -152,7 +152,8 @@ public class RedisWebSessionConfiguration implements BeanClassLoaderAware, Embed
 
 	@Override
 	public void setImportMetadata(AnnotationMetadata importMetadata) {
-		@Nullable Map<String, @Nullable Object> attributeMap = importMetadata
+		@Nullable
+		Map<String, @Nullable Object> attributeMap = importMetadata
 			.getAnnotationAttributes(EnableRedisWebSession.class.getName());
 		AnnotationAttributes attributes = AnnotationAttributes.fromMap(attributeMap);
 		if (attributes == null) {
