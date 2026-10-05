@@ -15,10 +15,21 @@ jobs:
     if: github.event.pull_request.head.repo.fork == false && github.actor != 'dependabot[bot]'
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: project-version
+        name: Extract Project Version
+        uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
+      - id: release
+        name: Establish Release Channel
+        uses: spring-io/spring-release-actions/compute-release-channel@17a35a368ea3bf2659b7ad271a7d610defa459a2 # main
+        with:
+          version: ${{ steps.project-version.outputs.version }}
       - id: secrets
         uses: ./.github/actions/compute-secrets
+        with:
+          release-channel: ${{ steps.release.outputs.channel }}
       - uses: spring-io/spring-security-actions/pr-build@96df48300f5fa058d0765832d48a534cc6a378d5 # 0.0.3
         env:
+          ORG_GRADLE_PROJECT_releaseChannel: ${{ steps.release.outputs.channel }}
           ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets[steps.secrets.outputs.dependencies-username] }}
           ORG_GRADLE_PROJECT_artifactoryPassword: ${{ secrets[steps.secrets.outputs.dependencies-password] }}
         with:

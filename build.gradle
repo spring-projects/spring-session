@@ -1,10 +1,4 @@
 buildscript {
-	ext {
-		releaseBuild = version.endsWith('RELEASE')
-		snapshotBuild = version.endsWith('SNAPSHOT')
-		milestoneBuild = !(releaseBuild || snapshotBuild)
-	}
-
 	repositories {
 		gradlePluginPortal()
 		maven { url 'https://repo.spring.io/plugins-release/' }
@@ -29,6 +23,7 @@ plugins {
 }
 
 apply plugin: 'io.spring.convention.root'
+apply plugin: 'io.spring.security.project'
 
 group = 'org.springframework.session'
 description = 'Spring Session'

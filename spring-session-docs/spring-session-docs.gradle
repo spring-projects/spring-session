@@ -59,6 +59,7 @@ tasks.register("generateAntoraResources") {
 
 
 def generateAttributes() {
+    def snapshotBuild = project.version.toString().endsWith('SNAPSHOT')
     def ghTag = snapshotBuild ? 'main' : project.version
 	def docsUrl = 'https://docs.spring.io'
     def springBootRefDocs =  "${docsUrl}/spring-boot/reference"
