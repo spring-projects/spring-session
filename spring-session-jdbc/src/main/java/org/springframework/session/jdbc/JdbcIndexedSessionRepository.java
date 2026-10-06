@@ -200,6 +200,7 @@ public class JdbcIndexedSessionRepository implements
 			FROM %TABLE_NAME% S
 			LEFT JOIN %TABLE_NAME%_ATTRIBUTES SA ON S.PRIMARY_ID = SA.SESSION_PRIMARY_ID
 			WHERE S.PRINCIPAL_NAME = ?
+			ORDER BY S.PRIMARY_ID
 			""";
 
 	private static final String DELETE_SESSIONS_BY_EXPIRY_TIME_QUERY = """
