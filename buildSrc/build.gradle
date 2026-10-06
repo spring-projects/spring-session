@@ -85,11 +85,13 @@ dependencies {
     implementation 'io.spring.nohttp:nohttp-gradle:0.0.11'
     implementation 'net.sourceforge.htmlunit:htmlunit:2.70.0'
     implementation 'org.hidetake:gradle-ssh-plugin:2.10.1'
-    implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.35.9'
     implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.8.0.1969'
     implementation libs.com.squareup.okhttp3.okhttp
     implementation libs.io.spring.security.project.plugin
-    implementation libs.io.spring.security.maven.plugin
+    implementation(libs.io.spring.security.maven.plugin) {
+        // Build info is created by spring-io/artifactory-deploy-action; its jfrog dependencies bring in an old commons-compress
+        exclude group: 'org.jfrog.buildinfo'
+    }
 
     testImplementation platform('org.junit:junit-bom:5.10.5')
     testImplementation "org.junit.jupiter:junit-jupiter-api"
