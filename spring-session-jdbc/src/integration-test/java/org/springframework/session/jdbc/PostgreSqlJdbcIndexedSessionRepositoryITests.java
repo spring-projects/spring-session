@@ -16,15 +16,29 @@
 
 package org.springframework.session.jdbc;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.sql.DataSource;
+
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
+import org.springframework.session.FindByIndexNameSessionRepository;
+import org.springframework.session.jdbc.JdbcIndexedSessionRepository.JdbcSession;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Integration tests for {@link JdbcIndexedSessionRepository} using PostgreSQL database.
@@ -35,6 +49,47 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @WebAppConfiguration
 @ContextConfiguration
 class PostgreSqlJdbcIndexedSessionRepositoryITests extends AbstractContainerJdbcIndexedSessionRepositoryITests {
+
+	@Autowired
+	private JdbcIndexedSessionRepository repository;
+
+	@Autowired
+	private DataSource dataSource;
+
+	@Test // gh-3452
+	void findByPrincipalNameWhenAttributesAddedLaterThenReturnsCompleteSessions() {
+		String principalName = "principal-" + UUID.randomUUID();
+		String largeValue = "x".repeat(1200);
+		List<String> ids = new ArrayList<>();
+		for (int i = 0; i < 120; i++) {
+			JdbcSession session = this.repository.createSession();
+			session.setAttribute(FindByIndexNameSessionRepository.PRINCIPAL_NAME_INDEX_NAME, principalName);
+			session.setAttribute("first", largeValue + i);
+			session.setAttribute("second", largeValue + i);
+			session.setAttribute("third", largeValue + i);
+			this.repository.save(session);
+			ids.add(session.getId());
+		}
+		for (int i = 0; i < ids.size(); i += 3) {
+			JdbcSession session = this.repository.findById(ids.get(i));
+			session.setAttribute("later", "value");
+			this.repository.save(session);
+		}
+		new JdbcTemplate(this.dataSource).execute("ANALYZE SPRING_SESSION, SPRING_SESSION_ATTRIBUTES");
+
+		Map<String, JdbcSession> sessions = this.repository.findByPrincipalName(principalName);
+
+		assertThat(sessions).containsOnlyKeys(ids);
+		for (String id : ids) {
+			JdbcSession expected = this.repository.findById(id);
+			assertThat(expected.getAttributeNames()).contains("first", "second", "third");
+			JdbcSession actual = sessions.get(id);
+			assertThat(actual.getAttributeNames()).isEqualTo(expected.getAttributeNames());
+			for (String name : expected.getAttributeNames()) {
+				assertThat(actual.<String>getAttribute(name)).isEqualTo(expected.getAttribute(name));
+			}
+		}
+	}
 
 	@Configuration
 	static class Config extends BaseContainerConfig {
