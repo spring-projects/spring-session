@@ -334,7 +334,7 @@ public class RedisIndexedSessionRepository
 
 	private SessionIdGenerator sessionIdGenerator = UuidSessionIdGenerator.getInstance();
 
-	private BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper = new RedisSessionMapper();
+	private BiFunction<String, Map<String, Object>, @Nullable MapSession> redisSessionMapper = new RedisSessionMapper();
 
 	/**
 	 * Creates a new instance. For an example, refer to the class level javadoc.
@@ -761,7 +761,7 @@ public class RedisIndexedSessionRepository
 	 * @param redisSessionMapper the mapper to use, cannot be null
 	 * @since 3.2
 	 */
-	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, MapSession> redisSessionMapper) {
+	public void setRedisSessionMapper(BiFunction<String, Map<String, Object>, @Nullable MapSession> redisSessionMapper) {
 		Assert.notNull(redisSessionMapper, "redisSessionMapper cannot be null");
 		this.redisSessionMapper = redisSessionMapper;
 	}
