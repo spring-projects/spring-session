@@ -5,4 +5,4 @@ runs:
     - name: Build Release
       uses: spring-io/spring-security-actions/run-gradle@96df48300f5fa058d0765832d48a534cc6a378d5  # 0.0.3
       with:
-        gradle-args: -PdeploymentRepository=${{ github.workspace }}/deployment-repository publishAllPublicationsToDeploymentRepository
+        gradle-args: --no-build-cache -PdeploymentRepository=${{ github.workspace }}/deployment-repository publishAllPublicationsToDeploymentRepository
