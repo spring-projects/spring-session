@@ -29,7 +29,7 @@ jobs:
         uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
       - id: release
         name: Establish Release Channel
-        uses: spring-io/spring-release-actions/compute-release-channel@17a35a368ea3bf2659b7ad271a7d610defa459a2 # main
+        uses: spring-io/spring-release-actions/compute-release-channel@a9c4db1f93dc84eef12b98ade207b4c80f4fe8cc # main
         with:
           version: ${{ steps.project-version.outputs.version }}
   test:
