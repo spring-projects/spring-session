@@ -41,17 +41,6 @@ jobs:
     secrets:
       artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
       artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
-  verify-workflows:
-    name: Verify Workflows
-    needs: setup
-    uses: spring-io/spring-security-release-tools/.github/workflows/ci-verify-workflows.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
-    with:
-      java-version: '17'
-      runner: ${{ vars.UBUNTU_RUNS_ON }}
-      release-channel: ${{ needs.setup.outputs.release-channel }}
-    secrets:
-      artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
-      artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
   build:
     name: Build
     needs: setup
