@@ -5,18 +5,17 @@ on:
       - "*.x"
       - "main"
   workflow_dispatch:
-permissions: read-all
+permissions:
+  actions: write
+  contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     if: github.repository == 'spring-projects/spring-session'
     steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: docs-build
-          fetch-depth: 1
       - name: Dispatch (partial build)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh workflow run deploy-docs.yml -r $(git rev-parse --abbrev-ref HEAD) -f build-refname=${{ github.ref_name }}
+          GH_REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          REF_NAME: ${{ github.ref_name }}
+        run: gh workflow run deploy-docs.yml -r docs-build -f build-refname="$REF_NAME"
