@@ -6,7 +6,6 @@ permissions:
   contents: read
 
 env:
-  ORG_GRADLE_PROJECT_verifyWorkflows: true
   JAVA_VERSION: '17'
 
 jobs:

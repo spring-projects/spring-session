@@ -8,6 +8,7 @@ workflow:
       release-tools:
         dependabot:
           automergeforward: true
+        verify: false
       release-train:
         build:
           env:
