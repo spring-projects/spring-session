@@ -5,6 +5,9 @@ workflow:
         versions:
           primary: 17
     workflows:
+      release-tools:
+        dependabot:
+          automergeforward: true
       release-train:
         build:
           env:

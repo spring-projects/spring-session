@@ -19,57 +19,60 @@ jobs:
     name: Compute Inputs
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.project-version.outputs.version }}
-      snapshot: ${{ steps.project-version.outputs.snapshot }}
-      release-channel: ${{ steps.release.outputs.channel }}
+      version: ${{ steps.environment.outputs.version }}
+      snapshot: ${{ steps.environment.outputs.snapshot }}
+      release-channel: ${{ steps.environment.outputs.release-channel }}
+      dependencies-username: ${{ steps.environment.outputs.dependencies-username }}
+      dependencies-password: ${{ steps.environment.outputs.dependencies-password }}
+      publishing-username: ${{ steps.environment.outputs.publishing-username }}
+      publishing-password: ${{ steps.environment.outputs.publishing-password }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - id: project-version
-        name: Extract Project Version
-        uses: spring-io/spring-release-actions/compute-version@6795980b9d960a13d420e114d50f1c8abe730769 # 0.0.7
-      - id: release
-        name: Establish Release Channel
-        uses: spring-io/spring-release-actions/compute-release-channel@17a35a368ea3bf2659b7ad271a7d610defa459a2 # main
-        with:
-          version: ${{ steps.project-version.outputs.version }}
+      - id: environment
+        name: Compute Build Environment
+        uses: spring-io/spring-security-actions/compute-build-environment@8f2e7bb51b5bd78abeeab91e4dbea1520fa68265 # 0.0.5
   test:
     name: Test
     needs: setup
-    uses: ./.github/workflows/ci-test.yml
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-test.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
+    with:
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+    secrets:
+      artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
+      artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
+  verify-workflows:
+    name: Verify Workflows
+    needs: setup
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-verify-workflows.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
     with:
       java-version: '17'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
       release-channel: ${{ needs.setup.outputs.release-channel }}
-    secrets: inherit
+    secrets:
+      artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
+      artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
   build:
     name: Build
     needs: setup
     if: needs.setup.outputs.snapshot == 'true'
-    uses: ./.github/workflows/ci-build.yml
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-build.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
     with:
       java-version: '17'
       runner: ${{ vars.UBUNTU_RUNS_ON }}
       release-channel: ${{ needs.setup.outputs.release-channel }}
-    secrets: inherit
+    secrets:
+      artifactory-username: ${{ secrets[needs.setup.outputs.dependencies-username] }}
+      artifactory-password: ${{ secrets[needs.setup.outputs.dependencies-password] }}
+      signing-key: ${{ secrets.GPG_PRIVATE_KEY }}
+      signing-password: ${{ secrets.GPG_PASSPHRASE }}
   deploy-artifacts:
     name: Deploy Artifacts
     needs: [ setup, build ]
-    uses: ./.github/workflows/ci-deploy-artifacts.yml
+    uses: spring-io/spring-security-release-tools/.github/workflows/ci-deploy-artifacts.yml@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
     with:
       runner: ${{ vars.UBUNTU_RUNS_ON }}
       version: ${{ needs.setup.outputs.version }}
-      release-channel: ${{ needs.setup.outputs.release-channel }}
-    secrets: inherit
-  summary:
-    name: Run Summary
-    if: always()
-    needs: [ setup, test, build, deploy-artifacts ]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run Summary
-        env:
-          SNAPSHOT: ${{ needs.setup.outputs.snapshot }}
-        run: |
-          if [ "$SNAPSHOT" != "true" ]; then
-            echo "Skipped artifact deployment because it is not a snapshot build." >> "$GITHUB_STEP_SUMMARY"
-          fi
+    secrets:
+      artifactory-username: ${{ secrets[needs.setup.outputs.publishing-username] }}
+      artifactory-password: ${{ secrets[needs.setup.outputs.publishing-password] }}
