@@ -22,6 +22,7 @@ plugins {
 	id "com.github.ben-manes.versions"
 }
 
+apply plugin: 'io.spring.security.release'
 apply plugin: 'io.spring.convention.root'
 apply plugin: 'io.spring.security.project'
 
