@@ -16,25 +16,19 @@
 
 package org.springframework.session.jdbc;
 
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
 /**
  * Integration tests for {@link JdbcIndexedSessionRepository} using H2 database.
  *
  * @author Vedran Pavic
  */
-@ExtendWith(SpringExtension.class)
-@WebAppConfiguration
-@ContextConfiguration
+@SpringJUnitWebConfig
 class H2JdbcIndexedSessionRepositoryITests extends AbstractJdbcIndexedSessionRepositoryITests {
 
 	@Configuration
