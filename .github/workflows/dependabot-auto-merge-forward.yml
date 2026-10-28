@@ -26,4 +26,4 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
       - name: Merge Forward
-        uses: spring-io/spring-security-release-tools/auto-merge-forward@c6656e0cee9fd2930ad238f6e1cafb0b8792e515 # v1.1.0
+        uses: spring-io/spring-security-release-tools/auto-merge-forward@07569de2cd704c6870976fe8f16f7b3cb550d08f # v1.1.2
