@@ -6,12 +6,13 @@ on:
       - "main"
   workflow_dispatch:
 permissions:
-  actions: write
   contents: read
 jobs:
   build:
     runs-on: ubuntu-latest
     if: github.repository == 'spring-projects/spring-session'
+    permissions:
+      actions: write
     steps:
       - name: Dispatch (partial build)
         env:
