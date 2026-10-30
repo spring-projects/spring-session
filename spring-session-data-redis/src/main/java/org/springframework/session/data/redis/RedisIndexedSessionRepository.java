@@ -1029,19 +1029,18 @@ public class RedisIndexedSessionRepository
 			if (originalExpiration != null) {
 				long originalRoundedUp = roundUpToNextMinute(originalExpiration);
 				if (toExpire != originalRoundedUp) {
-					String expireKey = getExpirationKey(originalRoundedUp);
-					this.redis.boundSetOps(expireKey).remove(keyToExpire);
+					String originalExpirationKey = getExpirationKey(originalRoundedUp);
+					this.redis.boundSetOps(originalExpirationKey).remove(keyToExpire);
 				}
 			}
 
-			String expirationsKey = getExpirationsKey(toExpire);
+			String expirationKey = getExpirationKey(toExpire);
 			long sessionExpireInSeconds = session.getMaxInactiveInterval().getSeconds();
 			long fiveMinutesAfterExpires = sessionExpireInSeconds + TimeUnit.MINUTES.toSeconds(5);
-			this.redis.boundSetOps(expirationsKey).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 
-			String expireKey = getExpirationKey(toExpire);
-			BoundSetOperations<String, Object> expireOperations = this.redis.boundSetOps(expireKey);
-			expireOperations.add(keyToExpire);
+			BoundSetOperations<String, Object> setOps = this.redis.boundSetOps(expirationKey);
+			setOps.add(keyToExpire);
+			setOps.expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
 		}
 
 		@Override
