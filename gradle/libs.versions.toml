@@ -37,7 +37,7 @@ org-mockito-mockito-bom = { module = "org.mockito:mockito-bom", version.ref = "o
 org-postgresql = "org.postgresql:postgresql:42.7.14"
 org-springframework-data-spring-data-bom = "org.springframework.data:spring-data-bom:2025.1.7"
 org-springframework-security-spring-security-bom = "org.springframework.security:spring-security-bom:7.1.1"
-org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:7.0.9"
+org-springframework-spring-framework-bom = "org.springframework:spring-framework-bom:7.0.10"
 org-testcontainers-testcontainers-bom = { module = "org.testcontainers:testcontainers-bom", version = "2.0.5" }
 io-spring-security-maven-plugin = { module = "io.spring.gradle:spring-security-maven-plugin", version.ref = "io-spring-security" }
 io-spring-security-project-plugin = { module = "io.spring.gradle:spring-security-project-plugin", version.ref = "io-spring-security" }
