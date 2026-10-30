@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: environment
         name: Compute Build Environment
-        uses: spring-io/spring-security-actions/compute-build-environment@d8f7823200918755444538cbb4219d96f2b7be33 # 0.0.12
+        uses: spring-io/spring-security-actions/compute-build-environment@43126274a36bf55dd81ee98e3f595bdf74c0f88b # 0.0.13
       - uses: spring-io/spring-security-actions/pr-build@d8f7823200918755444538cbb4219d96f2b7be33 # 0.0.12
         env:
           ORG_GRADLE_PROJECT_releaseChannel: ${{ steps.environment.outputs.release-channel }}
