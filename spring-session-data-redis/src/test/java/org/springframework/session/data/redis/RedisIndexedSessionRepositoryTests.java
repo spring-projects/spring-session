@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -61,6 +62,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -214,10 +216,12 @@ class RedisIndexedSessionRepositoryTests {
 		// findById checks if it is expired
 		long fiveMinutesAfterExpires = session.getMaxInactiveInterval().plusMinutes(5).getSeconds();
 		verify(this.boundHashOperations).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
-		verify(this.boundSetOperations).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
-		verify(this.boundSetOperations).add("expires:" + session.getId());
-		verify(this.boundValueOperations).expire(1800L, TimeUnit.SECONDS);
-		verify(this.boundValueOperations).append("");
+		InOrder boundSetOperationsOrder = inOrder(this.boundSetOperations);
+		boundSetOperationsOrder.verify(this.boundSetOperations).add("expires:" + session.getId());
+		boundSetOperationsOrder.verify(this.boundSetOperations).expire(fiveMinutesAfterExpires, TimeUnit.SECONDS);
+		InOrder boundValueOperationsOrder = inOrder(this.boundValueOperations);
+		boundValueOperationsOrder.verify(this.boundValueOperations).append("");
+		boundValueOperationsOrder.verify(this.boundValueOperations).expire(1800L, TimeUnit.SECONDS);
 	}
 
 	@Test
