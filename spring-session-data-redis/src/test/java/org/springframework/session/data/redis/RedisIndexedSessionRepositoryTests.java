@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,6 +61,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -148,6 +150,31 @@ class RedisIndexedSessionRepositoryTests {
 
 		assertThat(originalId).isNotEqualTo(changeSessionId);
 		assertThat(session.getId()).isEqualTo(session.getId());
+	}
+
+	@Test
+	void saveWhenSessionIdChangedThenRemovesOriginalIdFromExpirationStore() {
+		given(this.redisOperations.<String, Object>boundHashOps(anyString())).willReturn(this.boundHashOperations);
+		given(this.redisOperations.boundSetOps(anyString())).willReturn(this.boundSetOperations);
+		given(this.redisOperations.boundValueOps(anyString())).willReturn(this.boundValueOperations);
+		Map<String, Object> map = map(RedisSessionMapper.CREATION_TIME_KEY,
+				this.cached.getCreationTime().toEpochMilli(), RedisSessionMapper.MAX_INACTIVE_INTERVAL_KEY,
+				(int) this.cached.getMaxInactiveInterval().getSeconds(), RedisSessionMapper.LAST_ACCESSED_TIME_KEY,
+				this.cached.getLastAccessedTime().toEpochMilli());
+		AtomicBoolean renamed = new AtomicBoolean();
+		willAnswer((invocation) -> {
+			renamed.set(true);
+			return null;
+		}).given(this.redisOperations).rename(anyString(), anyString());
+		given(this.boundHashOperations.entries()).willAnswer((invocation) -> renamed.get() ? map() : map);
+
+		RedisSession session = this.redisRepository.new RedisSession(this.cached, false);
+		session.setLastAccessedTime(session.getLastAccessedTime());
+		String originalId = session.getId();
+		session.changeSessionId();
+		this.redisRepository.save(session);
+
+		verify(this.boundSetOperations).remove("expires:" + originalId);
 	}
 
 	@Test

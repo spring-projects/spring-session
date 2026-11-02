@@ -967,6 +967,7 @@ public class RedisIndexedSessionRepository
 				return;
 			}
 			if (!this.isNew) {
+				RedisIndexedSessionRepository.this.expirationStore.remove(this.originalSessionId);
 				String originalSessionIdKey = getSessionKey(this.originalSessionId);
 				String sessionIdKey = getSessionKey(sessionId);
 				try {
@@ -991,7 +992,6 @@ public class RedisIndexedSessionRepository
 					RedisIndexedSessionRepository.this.sessionRedisOperations.boundSetOps(originalPrincipalRedisKey)
 						.add(sessionId);
 				}
-				RedisIndexedSessionRepository.this.expirationStore.remove(this.originalSessionId);
 			}
 			this.originalSessionId = sessionId;
 		}
