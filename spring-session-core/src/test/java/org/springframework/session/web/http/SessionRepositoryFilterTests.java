@@ -61,7 +61,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -495,12 +494,8 @@ class SessionRepositoryFilterTests {
 		doFilter(new DoInFilter() {
 			@Override
 			public void doFilter(HttpServletRequest wrappedRequest) {
-				try {
-					ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId");
-					fail("Exected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException()
+						.isThrownBy(() -> ReflectionTestUtils.invokeMethod(wrappedRequest, "changeSessionId"));
 			}
 		});
 	}
@@ -626,12 +621,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.invalidate();
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(session::invalidate);
 			}
 		});
 	}
@@ -643,12 +633,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.getCreationTime();
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(session::getCreationTime);
 			}
 		});
 	}
@@ -660,12 +645,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.getAttribute("attr");
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(() -> session.getAttribute("attr"));
 			}
 		});
 	}
@@ -677,12 +657,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.getAttributeNames();
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(session::getAttributeNames);
 			}
 		});
 	}
@@ -694,12 +669,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.setAttribute("a", "b");
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(() -> session.setAttribute("a", "b"));
 			}
 		});
 	}
@@ -711,12 +681,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.removeAttribute("name");
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(() -> session.removeAttribute("name"));
 			}
 		});
 	}
@@ -728,12 +693,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.isNew();
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(session::isNew);
 			}
 		});
 	}
@@ -745,12 +705,7 @@ class SessionRepositoryFilterTests {
 			public void doFilter(HttpServletRequest wrappedRequest) {
 				HttpSession session = wrappedRequest.getSession();
 				session.invalidate();
-				try {
-					session.getLastAccessedTime();
-					fail("Expected Exception");
-				}
-				catch (IllegalStateException ignored) {
-				}
+				assertThatIllegalStateException().isThrownBy(session::getLastAccessedTime);
 			}
 		});
 	}
