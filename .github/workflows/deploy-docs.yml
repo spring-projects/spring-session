@@ -10,7 +10,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: github.repository == 'spring-projects/spring-session'
+    if: ${{ github.event.repository.fork == false && github.event.repository.visibility == 'public' }}
     permissions:
       actions: write
     steps:

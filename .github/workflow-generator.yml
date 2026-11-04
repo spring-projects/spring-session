@@ -6,8 +6,6 @@ workflow:
           primary: 17
     workflows:
       release-tools:
-        dependabot:
-          automergeforward: true
         verify: false
       release-train:
         build:
