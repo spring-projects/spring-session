@@ -44,7 +44,7 @@ class CheckstylePlugin implements Plugin<Project> {
 
 				project.checkstyle {
 					configDirectory = checkstyleDir
-					toolVersion = '8.21'
+					toolVersion = '9.3'
 				}
 			}
 		}
