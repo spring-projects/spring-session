@@ -141,6 +141,24 @@ public class SessionRepositoryFilter implements Filter {
 By passing a custom `HttpServletRequest` implementation into the `FilterChain`, we ensure that anything invoked after our `Filter` uses the custom `HttpSession` implementation.
 This highlights why it is important that Spring Session's `SessionRepositoryFilter` be placed before anything that interacts with the `HttpSession`.
 
+[[httpsession-mockmvc]]
+== Testing with `MockMvc`
+
+When `SessionRepositoryFilter` is part of the filter chain used by `MockMvc`, a session provided through `MockHttpServletRequestBuilder#session` is ignored.
+This is because `SessionRepositoryFilter` resolves the session from the request by using an `HttpSessionIdResolver` (by default, `CookieHttpSessionIdResolver`, which reads the `SESSION` cookie), rather than from the `HttpSession` of the underlying request.
+
+To use an existing session in a test, save it in the `SessionRepository` and send its ID in the session cookie.
+By default, the cookie value is the Base64-encoded session ID:
+
+====
+[source,java,indent=0]
+----
+include::{docs-test-dir}docs/http/MockMvcSessionTests.java[tags=session-cookie]
+----
+====
+
+If you use a different `HttpSessionIdResolver`, such as `HeaderHttpSessionIdResolver`, provide the session ID in the way that resolver expects (for example, in the `X-Auth-Token` header).
+
 [[httpsession-rest]]
 == `HttpSession` and RESTful APIs
 
