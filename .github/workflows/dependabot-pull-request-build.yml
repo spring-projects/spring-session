@@ -19,7 +19,7 @@ jobs:
       - id: environment
         name: Compute Build Environment
         uses: spring-io/spring-security-actions/compute-build-environment@baf9e987cdff9f39b48279584ede21b83652a7dd # 0.0.15
-      - uses: spring-io/spring-security-actions/pr-build@baf9e987cdff9f39b48279584ede21b83652a7dd # 0.0.15
+      - uses: spring-io/spring-security-actions/pr-build@9fa109b11d79539d01d38fa8d300c48fb843241a # 0.0.16
         env:
           ORG_GRADLE_PROJECT_releaseChannel: ${{ steps.environment.outputs.release-channel }}
           ORG_GRADLE_PROJECT_artifactoryUsername: ${{ secrets[steps.environment.outputs.dependabot-username] }}
