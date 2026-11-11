@@ -19,7 +19,6 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -31,9 +30,7 @@ import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.session.data.redis.config.annotation.SpringSessionRedisOperations;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,9 +44,7 @@ import static org.mockito.Mockito.mock;
  * @author Mark Paluch
  *
  */
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration
-@WebAppConfiguration
+@SpringJUnitWebConfig
 class RedisHttpSessionConfigurationOverrideDefaultSerializerTests {
 
 	@SpringSessionRedisOperations
