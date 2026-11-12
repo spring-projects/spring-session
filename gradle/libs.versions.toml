@@ -7,7 +7,7 @@ io-spring-security = "1.1.5"
 reactor = "2025.0.7"
 spring-data-bom = "2025.1.7"
 spring-security = "7.1.1"
-spring-framework = "7.0.9"
+spring-framework = "7.0.10"
 
 [libraries]
 ch-qos-logback-logback-core = { module = "ch.qos.logback:logback-core", version = "1.6.5" }
