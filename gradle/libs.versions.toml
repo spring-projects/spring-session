@@ -5,7 +5,7 @@ org-mockito = "5.23.0"
 org-springframework-boot = "4.1.0"
 io-spring-security = "1.1.5"
 reactor = "2025.0.9"
-spring-data-bom = "2025.1.7"
+spring-data-bom = "2025.1.9"
 spring-security = "7.1.1"
 spring-framework = "7.0.9"
 
