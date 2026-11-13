@@ -6,7 +6,7 @@ org-springframework-boot = "4.0.7"
 io-spring-security = "1.1.5"
 reactor = "2025.0.9"
 spring-data-bom = "2025.1.9"
-spring-security = "7.0.7"
+spring-security = "7.0.9"
 spring-framework = "7.0.11"
 
 [libraries]
