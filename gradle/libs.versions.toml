@@ -49,4 +49,4 @@ io-spring-security-release-plugin = { module = "io.spring.gradle:spring-security
 org-springframework-boot-spring-boot-gradle-plugin = { module = "org.springframework.boot:spring-boot-gradle-plugin", version.ref = "org-springframework-boot" }
 io-spring-javaformat-spring-javaformat-checkstyle = "io.spring.javaformat:spring-javaformat-checkstyle:0.0.48"
 io-spring-nohttp-nohttp-checkstyle = "io.spring.nohttp:nohttp-checkstyle:0.0.11"
-spring-nullability = "io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.17"
+spring-nullability = "io.spring.nullability:io.spring.nullability.gradle.plugin:0.0.18"
