@@ -56,6 +56,7 @@ import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.request.DestructionCallbackBindingListener;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -1317,6 +1318,69 @@ class SessionRepositoryFilterTests {
 		});
 
 		assertThat(bindingListener.getCounter()).isEqualTo(1);
+	}
+
+	@Test // gh-1256
+	void bindingListenerBindListenerThenInvalidate() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute(bindingListenerName, bindingListener);
+				session.invalidate();
+			}
+
+		});
+
+		assertThat(bindingListener.getCounter()).isEqualTo(0);
+	}
+
+	@Test // gh-1256
+	void bindingListenerInvalidateInvokesDestructionCallback() throws Exception {
+		AtomicBoolean destroyed = new AtomicBoolean();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute("destructionCallback",
+						new DestructionCallbackBindingListener(() -> destroyed.set(true)));
+				session.invalidate();
+			}
+
+		});
+
+		assertThat(destroyed).isTrue();
+	}
+
+	@Test // gh-1256
+	void bindingListenerInvalidateUnbindThrowsExceptionStillDeletesSession() throws Exception {
+		String bindingListenerName = "bindingListener";
+		CountingHttpSessionBindingListener bindingListener = new CountingHttpSessionBindingListener();
+		CountingHttpSessionBindingListener otherBindingListener = new CountingHttpSessionBindingListener();
+
+		doFilter(new DoInFilter() {
+
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest) {
+				HttpSession session = wrappedRequest.getSession();
+				session.setAttribute(bindingListenerName, bindingListener);
+				session.setAttribute("otherBindingListener", otherBindingListener);
+				String id = session.getId();
+				bindingListener.setThrowException();
+				session.invalidate();
+				assertThat(SessionRepositoryFilterTests.this.sessionRepository.findById(id)).isNull();
+			}
+
+		});
+
+		assertThat(bindingListener.getCounter()).isEqualTo(1);
+		assertThat(otherBindingListener.getCounter()).isEqualTo(0);
 	}
 
 	@Test // gh-2284
