@@ -35,6 +35,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportAware;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -44,6 +46,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.Session;
 import org.springframework.session.SessionIdGenerator;
@@ -70,6 +73,16 @@ import org.springframework.util.StringValueResolver;
 public class RedisIndexedHttpSessionConfiguration
 		extends AbstractRedisHttpSessionConfiguration<RedisIndexedSessionRepository>
 		implements EmbeddedValueResolverAware, ImportAware {
+
+	/**
+	 * The number of threads used to dispatch Redis messages when no
+	 * {@code springSessionRedisTaskExecutor} bean is defined.
+	 */
+	static final int DEFAULT_TASK_EXECUTOR_POOL_SIZE = 10;
+
+	static final String TASK_EXECUTOR_THREAD_NAME_PREFIX = "spring-session-redis-";
+
+	static final String SUBSCRIPTION_THREAD_NAME_PREFIX = "spring-session-redis-subscription-";
 
 	private String cleanupCron = RedisIndexedSessionRepository.DEFAULT_CLEANUP_CRON;
 
@@ -122,13 +135,17 @@ public class RedisIndexedHttpSessionConfiguration
 	@Bean
 	public RedisMessageListenerContainer springSessionRedisMessageListenerContainer(
 			RedisIndexedSessionRepository sessionRepository) {
-		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+		RedisMessageListenerContainer container = new SessionRedisMessageListenerContainer();
 		container.setConnectionFactory(getRedisConnectionFactory());
 		if (this.redisTaskExecutor != null) {
 			container.setTaskExecutor(this.redisTaskExecutor);
 		}
 		if (this.redisSubscriptionExecutor != null) {
 			container.setSubscriptionExecutor(this.redisSubscriptionExecutor);
+		}
+		else if (this.redisTaskExecutor == null) {
+			// keep the long-running subscription off the default dispatch pool
+			container.setSubscriptionExecutor(new SimpleAsyncTaskExecutor(SUBSCRIPTION_THREAD_NAME_PREFIX));
 		}
 		container.addMessageListener(sessionRepository,
 				Arrays.asList(new ChannelTopic(sessionRepository.getSessionDeletedChannel()),
@@ -264,6 +281,25 @@ public class RedisIndexedHttpSessionConfiguration
 					LogFactory.getLog(getClass()).error("Error closing RedisConnection", ex);
 				}
 			}
+		}
+
+	}
+
+	/**
+	 * A {@link RedisMessageListenerContainer} that dispatches messages with a bounded
+	 * thread pool, instead of a new thread per message, when no task executor is
+	 * configured. The container manages the pool and shuts it down when it is destroyed.
+	 */
+	static class SessionRedisMessageListenerContainer extends RedisMessageListenerContainer {
+
+		@Override
+		protected TaskExecutor createDefaultTaskExecutor() {
+			ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+			executor.setCorePoolSize(DEFAULT_TASK_EXECUTOR_POOL_SIZE);
+			executor.setAllowCoreThreadTimeOut(true);
+			executor.setThreadNamePrefix(TASK_EXECUTOR_THREAD_NAME_PREFIX);
+			executor.initialize();
+			return executor;
 		}
 
 	}
