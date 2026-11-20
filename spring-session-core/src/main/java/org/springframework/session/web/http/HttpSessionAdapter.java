@@ -17,6 +17,7 @@
 package org.springframework.session.web.http;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 
@@ -153,6 +154,17 @@ class HttpSessionAdapter<S extends Session> implements HttpSession {
 	public void invalidate() {
 		checkState();
 		this.invalidated = true;
+		for (String name : new ArrayList<>(this.session.getAttributeNames())) {
+			try {
+				Object value = this.session.getAttribute(name);
+				if (value instanceof HttpSessionBindingListener) {
+					((HttpSessionBindingListener) value).valueUnbound(new HttpSessionBindingEvent(this, name, value));
+				}
+			}
+			catch (Throwable th) {
+				logger.error("Error invoking session binding event listener", th);
+			}
+		}
 	}
 
 	@Override
