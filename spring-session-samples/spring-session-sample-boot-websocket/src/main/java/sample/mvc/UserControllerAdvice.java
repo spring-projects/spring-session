@@ -18,27 +18,20 @@ package sample.mvc;
 
 import java.security.Principal;
 
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
- * {@link ControllerAdvice} to expose security related attributes.
+ * {@link ControllerAdvice} to expose user related attributes.
  *
  * @author Rob Winch
  */
 @ControllerAdvice
-public class SecurityControllerAdvise {
+public class UserControllerAdvice {
 
 	@ModelAttribute("currentUserName")
 	String currentUser(Principal principal) {
 		return (principal != null) ? principal.getName() : null;
-	}
-
-	@ModelAttribute("httpSessionId")
-	String sessionId(HttpSession httpSession) {
-		return httpSession.getId();
 	}
 
 }

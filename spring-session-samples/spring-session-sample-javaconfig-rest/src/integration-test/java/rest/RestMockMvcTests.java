@@ -81,12 +81,12 @@ class RestMockMvcTests {
 
 	@WithMockUser
 	@Test
-	void autheticatedAnnotation() throws Exception {
+	void authenticatedAnnotation() throws Exception {
 		this.mvc.perform(get("/")).andExpect(content().string("{\"username\":\"user\"}"));
 	}
 
 	@Test
-	void autheticatedRequestPostProcessor() throws Exception {
+	void authenticatedRequestPostProcessor() throws Exception {
 		this.mvc.perform(get("/").with(user("user"))).andExpect(content().string("{\"username\":\"user\"}"));
 	}
 
