@@ -70,7 +70,7 @@ class MapSessionTests {
 	}
 
 	@Test
-	void getAttributeOrDefaultWhenNotNullThenDefaultValue() {
+	void getAttributeOrDefaultWhenNotNullThenAttributeValue() {
 		String defaultValue = "default";
 		String attrValue = "value";
 		String attrName = "attrName";
