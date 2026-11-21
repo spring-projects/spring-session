@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
  * @author Rob Winch
  */
 @ControllerAdvice
-public class SecurityControllerAdvise {
+public class SecurityControllerAdvice {
 
 	@ModelAttribute("currentUserName")
 	String currentUser(Principal principal) {

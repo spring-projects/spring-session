@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package sample;
+package sample.mvc;
 
 import java.security.Principal;
+
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -27,11 +29,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
  * @author Rob Winch
  */
 @ControllerAdvice
-public class UserControllerAdvise {
+public class SecurityControllerAdvice {
 
 	@ModelAttribute("currentUserName")
 	String currentUser(Principal principal) {
 		return (principal != null) ? principal.getName() : null;
+	}
+
+	@ModelAttribute("httpSessionId")
+	String sessionId(HttpSession httpSession) {
+		return httpSession.getId();
 	}
 
 }

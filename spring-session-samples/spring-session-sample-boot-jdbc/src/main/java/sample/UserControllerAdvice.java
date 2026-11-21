@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package sample.config;
+package sample;
 
 import java.security.Principal;
 
@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 /**
- * {@link ControllerAdvice} to expose user related attributes.
+ * {@link ControllerAdvice} to expose security related attributes.
  *
  * @author Rob Winch
  */
 @ControllerAdvice
-public class UserControllerAdvise {
+public class UserControllerAdvice {
 
 	@ModelAttribute("currentUserName")
 	String currentUser(Principal principal) {
