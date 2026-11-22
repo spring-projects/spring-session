@@ -21,7 +21,7 @@ dependencies {
 	implementation  "org.webjars:sockjs-client"
 	implementation "com.h2database:h2"
 	implementation "org.webjars:stomp-websocket"
-	implementation "org.webjars:webjars-locator-core"
+	implementation "org.webjars:webjars-locator-lite"
 
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
