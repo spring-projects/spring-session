@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: spring-io/github-actions/update-dependabot@035e701d99b48da41f409014e1bfd937425c4477 # main
+      - uses: spring-io/github-actions/update-dependabot@5caba18f0b4141f3a32b1bc9f5f3f82169b0b6ac # main
       - name: Create Pull Request
         env:
           GH_TOKEN: ${{ github.token }}
