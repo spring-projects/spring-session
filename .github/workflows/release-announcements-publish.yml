@@ -12,14 +12,26 @@ permissions:
   contents: read
 
 jobs:
-  publish-release-announcements:
+  publish-release-materials:
     name: Publish Release Announcements
     permissions:
       actions: write
       contents: read
       issues: write
-    uses: spring-io/spring-security-actions/.github/workflows/release-announcements-publish.yml@ffcef17d3ba156b33fe73535fbd79594ed02b0f8 # 0.0.35
+    uses: spring-io/spring-security-actions/.github/workflows/release-announcements-publish.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
     with:
       version: ${{ inputs.version }}
     secrets:
-      SPRING_RELEASE_GCHAT_WEBHOOK_URL: ${{ secrets.SPRING_RELEASE_GCHAT_WEBHOOK_URL }}
+      website-token: ${{ secrets.SPRING_RELEASE_GCHAT_WEBHOOK_URL }}
+  deploy-schema:
+    name: Deploy Schema
+    needs: publish-release-materials
+    if: vars.DEPLOY_SCHEMA == 'true'
+    uses: spring-io/spring-security-actions/.github/workflows/ci-deploy-schema.yml@3d12f90253904da59a24c22b96c2cd0d6cec739a # 0.0.37
+    with:
+      java-version: '17'
+      runner: ${{ vars.UBUNTU_RUNS_ON }}
+    secrets:
+      docs-ssh-key: ${{ secrets.DOCS_SSH_KEY }}
+      docs-username: ${{ secrets.DOCS_USERNAME }}
+      docs-host: ${{ secrets.DOCS_HOST }}
