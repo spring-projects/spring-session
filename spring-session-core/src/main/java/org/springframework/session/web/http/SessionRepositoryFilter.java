@@ -36,6 +36,7 @@ import org.jspecify.annotations.Nullable;
 
 import org.springframework.core.annotation.Order;
 import org.springframework.session.Session;
+import org.springframework.session.SessionLookupException;
 import org.springframework.session.SessionRepository;
 
 /**
@@ -348,7 +349,13 @@ public class SessionRepositoryFilter<S extends Session> extends OncePerRequestFi
 					if (this.requestedSessionId == null) {
 						this.requestedSessionId = sessionId;
 					}
-					S session = SessionRepositoryFilter.this.sessionRepository.findById(sessionId);
+					S session;
+					try {
+						session = SessionRepositoryFilter.this.sessionRepository.findById(sessionId);
+					}
+					catch (RuntimeException ex) {
+						throw new SessionLookupException(sessionId, ex);
+					}
 					if (session != null) {
 						this.requestedSession = session;
 						break;

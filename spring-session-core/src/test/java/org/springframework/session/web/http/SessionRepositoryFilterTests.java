@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -54,6 +55,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.session.MapSession;
 import org.springframework.session.MapSessionRepository;
 import org.springframework.session.Session;
+import org.springframework.session.SessionLookupException;
 import org.springframework.session.SessionRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -422,6 +424,35 @@ class SessionRepositoryFilterTests {
 
 		assertNoSession();
 	}
+
+
+	@Test
+	void doFilterWhenSessionLookupFailsThenExceptionContainsSessionId() {
+		String sessionId = "failed-session";
+		RuntimeException cause = new RuntimeException("Deserialization failed");
+
+		this.sessionRepository = spy(this.sessionRepository);
+		given(this.sessionRepository.findById(sessionId)).willThrow(cause);
+
+		this.filter = new SessionRepositoryFilter<>(this.sessionRepository);
+		this.filter.setHttpSessionIdResolver(this.strategy);
+
+		given(this.strategy.resolveSessionIds(any(HttpServletRequest.class)))
+				.willReturn(List.of("missing-session", sessionId));
+
+		assertThatExceptionOfType(SessionLookupException.class)
+				.isThrownBy(() -> doFilter(new DoInFilter() {
+					@Override
+					public void doFilter(HttpServletRequest wrappedRequest) {
+						wrappedRequest.getSession(false);
+					}
+				}))
+				.satisfies(ex -> {
+					assertThat(ex.getSessionId()).isEqualTo(sessionId);
+					assertThat(ex.getCause()).isSameAs(cause);
+				});
+	}
+
 
 	@Test
 	void doFilterIsRequestedValidSessionTrue() throws Exception {
