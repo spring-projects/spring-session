@@ -19,6 +19,7 @@ package org.springframework.session.data.redis.config.annotation.web.http;
 import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Executor;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisServerCommands;
@@ -39,6 +41,7 @@ import org.springframework.data.redis.connection.SubscriptionListener;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.mock.env.MockEnvironment;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.session.FlushMode;
 import org.springframework.session.IndexResolver;
 import org.springframework.session.SaveMode;
@@ -255,6 +258,57 @@ class RedisIndexedHttpSessionConfigurationTests {
 		registerAndRefresh(RedisConfig.class, DefaultConfiguration.class);
 		RedisIndexedSessionRepository sessionRepository = this.context.getBean(RedisIndexedSessionRepository.class);
 		assertThat(sessionRepository).extracting("sessionIdGenerator").isInstanceOf(UuidSessionIdGenerator.class);
+	}
+
+	@Test
+	void registerWhenNoTaskExecutorBeansThenBoundedTaskExecutorAndSeparateSubscriptionExecutor() {
+		registerAndRefresh(RedisConfig.class, DefaultConfiguration.class);
+		RedisMessageListenerContainer container = this.context.getBean("springSessionRedisMessageListenerContainer",
+				RedisMessageListenerContainer.class);
+		Object taskExecutor = ReflectionTestUtils.getField(container, "taskExecutor");
+		Object subscriptionExecutor = ReflectionTestUtils.getField(container, "subscriptionExecutor");
+		assertThat(taskExecutor).isInstanceOfSatisfying(ThreadPoolTaskExecutor.class, (executor) -> {
+			assertThat(executor.getCorePoolSize())
+				.isEqualTo(RedisIndexedHttpSessionConfiguration.DEFAULT_TASK_EXECUTOR_POOL_SIZE);
+			assertThat(executor.getThreadNamePrefix())
+				.isEqualTo(RedisIndexedHttpSessionConfiguration.TASK_EXECUTOR_THREAD_NAME_PREFIX);
+		});
+		assertThat(subscriptionExecutor).isInstanceOfSatisfying(SimpleAsyncTaskExecutor.class,
+				(executor) -> assertThat(executor.getThreadNamePrefix())
+					.isEqualTo(RedisIndexedHttpSessionConfiguration.SUBSCRIPTION_THREAD_NAME_PREFIX));
+	}
+
+	@Test
+	void closeWhenNoTaskExecutorBeansThenDefaultTaskExecutorShutDown() {
+		registerAndRefresh(RedisConfig.class, DefaultConfiguration.class);
+		RedisMessageListenerContainer container = this.context.getBean("springSessionRedisMessageListenerContainer",
+				RedisMessageListenerContainer.class);
+		ThreadPoolTaskExecutor taskExecutor = (ThreadPoolTaskExecutor) ReflectionTestUtils.getField(container,
+				"taskExecutor");
+		assertThat(taskExecutor.getThreadPoolExecutor().isShutdown()).isFalse();
+		this.context.close();
+		assertThat(taskExecutor.getThreadPoolExecutor().isShutdown()).isTrue();
+	}
+
+	@Test
+	void registerWhenTaskExecutorBeanThenUsedForDispatchAndSubscription() {
+		registerAndRefresh(RedisConfig.class, CustomTaskExecutorConfiguration.class);
+		RedisMessageListenerContainer container = this.context.getBean("springSessionRedisMessageListenerContainer",
+				RedisMessageListenerContainer.class);
+		Executor taskExecutor = this.context.getBean("springSessionRedisTaskExecutor", Executor.class);
+		assertThat(ReflectionTestUtils.getField(container, "taskExecutor")).isSameAs(taskExecutor);
+		assertThat(ReflectionTestUtils.getField(container, "subscriptionExecutor")).isSameAs(taskExecutor);
+	}
+
+	@Test
+	void closeWhenTaskExecutorBeanThenNotShutDownByContainer() throws Exception {
+		registerAndRefresh(RedisConfig.class, CustomTaskExecutorConfiguration.class);
+		RedisMessageListenerContainer container = this.context.getBean("springSessionRedisMessageListenerContainer",
+				RedisMessageListenerContainer.class);
+		ThreadPoolTaskExecutor taskExecutor = this.context.getBean("springSessionRedisTaskExecutor",
+				ThreadPoolTaskExecutor.class);
+		container.destroy();
+		assertThat(taskExecutor.getThreadPoolExecutor().isShutdown()).isFalse();
 	}
 
 	private void registerAndRefresh(Class<?>... annotatedClasses) {
@@ -475,6 +529,19 @@ class RedisIndexedHttpSessionConfigurationTests {
 	@Configuration(proxyBeanMethods = false)
 	@EnableRedisIndexedHttpSession
 	static class DefaultConfiguration {
+
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	@EnableRedisIndexedHttpSession
+	static class CustomTaskExecutorConfiguration {
+
+		@Bean
+		ThreadPoolTaskExecutor springSessionRedisTaskExecutor() {
+			ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+			executor.setCorePoolSize(1);
+			return executor;
+		}
 
 	}
 

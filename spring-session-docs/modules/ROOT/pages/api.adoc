@@ -261,6 +261,12 @@ You can customize the serialization by creating a bean named `springSessionDefau
 
 `RedisIndexedSessionRepository` is subscribed to receive events from Redis by using a `RedisMessageListenerContainer`.
 You can customize the way those events are dispatched by creating a bean named `springSessionRedisTaskExecutor`, a bean `springSessionRedisSubscriptionExecutor`, or both.
+
+If you do not define either bean, Spring Session dispatches events with a bounded thread pool of 10 threads (named `spring-session-redis-`), so that a new thread is not created for every message.
+The Redis subscription runs on its own `SimpleAsyncTaskExecutor` (threads named `spring-session-redis-subscription-`), so it never holds one of the dispatch threads.
+The thread pool is shut down when the application context closes.
+
+If you define only `springSessionRedisTaskExecutor`, it is used for both dispatching events and the Redis subscription, as before.
 You can find more details on configuring Redis task executors {docs-url}/spring-data/redis/reference/redis/pubsub.html#redis:pubsub:subscribe:containers[here].
 
 [[api-redisindexedsessionrepository-storage]]
