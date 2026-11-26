@@ -11,7 +11,7 @@ dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-web"
 	implementation "org.webjars:bootstrap"
 	implementation "org.webjars:html5shiv"
-	implementation "org.webjars:webjars-locator-core"
+	implementation "org.webjars:webjars-locator-lite"
 
 	runtimeOnly 'org.postgresql:postgresql'
 
