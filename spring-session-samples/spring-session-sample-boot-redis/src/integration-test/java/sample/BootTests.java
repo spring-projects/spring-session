@@ -36,6 +36,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.htmlunit.webdriver.MockMvcHtmlUnitDriverBuilder;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 /**
  * @author Eddú Meléndez
  * @author Vedran Pavic
@@ -83,6 +88,15 @@ class BootTests {
 		HomePage home = login.form().login(HomePage.class);
 		home.logout();
 		login.assertAt();
+	}
+
+	@Test
+	void stringResponseSetsSessionCookie() throws Exception {
+		this.mockMvc.perform(get("/string"))
+			.andExpect(status().isOk())
+			.andExpect(content().string("ok"))
+			.andExpect(cookie().exists("SESSION"))
+			.andExpect(cookie().doesNotExist("JSESSIONID"));
 	}
 
 	@TestConfiguration

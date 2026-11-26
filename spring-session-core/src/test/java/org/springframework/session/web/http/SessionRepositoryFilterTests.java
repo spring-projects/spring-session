@@ -17,6 +17,7 @@
 package org.springframework.session.web.http;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -969,6 +970,36 @@ class SessionRepositoryFilterTests {
 				String id = wrappedRequest.getSession().getId();
 				wrappedResponse.getWriter().close();
 				assertThat(SessionRepositoryFilterTests.this.sessionRepository.findById(id)).isNotNull();
+			}
+		});
+	}
+
+	@Test
+	void doFilterOutputWriteWithExplicitZeroContentLengthCommitsSession() throws Exception {
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
+					throws IOException {
+				String id = wrappedRequest.getSession().getId();
+				wrappedResponse.setContentLength(0);
+				wrappedResponse.getOutputStream().write("ok".getBytes(StandardCharsets.UTF_8));
+				assertThat(SessionRepositoryFilterTests.this.sessionRepository.findById(id)).isNotNull();
+				assertThat(SessionRepositoryFilterTests.this.response.getCookie("SESSION")).isNotNull();
+			}
+		});
+	}
+
+	@Test
+	void doFilterOutputWriteEmptyBodyWithExplicitZeroContentLengthCommitsSession() throws Exception {
+		doFilter(new DoInFilter() {
+			@Override
+			public void doFilter(HttpServletRequest wrappedRequest, HttpServletResponse wrappedResponse)
+					throws IOException {
+				String id = wrappedRequest.getSession().getId();
+				wrappedResponse.setContentLength(0);
+				wrappedResponse.getOutputStream().write(new byte[0]);
+				assertThat(SessionRepositoryFilterTests.this.sessionRepository.findById(id)).isNotNull();
+				assertThat(SessionRepositoryFilterTests.this.response.getCookie("SESSION")).isNotNull();
 			}
 		});
 	}
